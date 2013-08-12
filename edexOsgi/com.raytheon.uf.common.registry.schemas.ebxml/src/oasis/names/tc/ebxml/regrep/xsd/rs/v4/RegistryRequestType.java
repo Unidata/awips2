@@ -66,7 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "RegistryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryRequestType")
 @XmlSeeAlso({ CatalogObjectsRequest.class, ValidateObjectsRequest.class,

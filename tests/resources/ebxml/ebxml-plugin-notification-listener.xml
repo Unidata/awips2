@@ -6,4 +6,7 @@
     <bean id="pluginSubscribedListener"
         class="com.raytheon.uf.edex.registry.ebxml.dao.PluginSubscribedListener" />
         
+    <bean id="pluginSubscribedListener2"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.PluginSubscribedListener" />
+        
 </beans>

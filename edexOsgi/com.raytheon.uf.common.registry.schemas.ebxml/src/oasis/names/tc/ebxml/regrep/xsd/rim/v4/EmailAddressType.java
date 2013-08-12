@@ -64,7 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "EmailAddress")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EmailAddressType")
 @DynamicSerialize

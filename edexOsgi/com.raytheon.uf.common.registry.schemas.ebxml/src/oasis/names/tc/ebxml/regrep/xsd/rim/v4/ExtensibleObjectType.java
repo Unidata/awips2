@@ -79,7 +79,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ExtensibleObject")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExtensibleObjectType", propOrder = { "slot" })
 @XmlSeeAlso({ PostalAddressType.class, TelephoneNumberType.class,
@@ -170,7 +170,7 @@ public abstract class ExtensibleObjectType {
 
     public SlotType getSlotByName(String slotName) {
         for (SlotType slot : getSlot()) {
-            if (slot.getName().equals(slotName)) {
+            if (slot.getName() != null && slot.getName().equals(slotName)) {
                 return slot;
             }
         }
