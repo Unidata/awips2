@@ -35,13 +35,13 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.lsr.LSREventType;
 import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
-import com.raytheon.uf.common.dataplugin.lsr.dao.LocalStormReportDao;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
