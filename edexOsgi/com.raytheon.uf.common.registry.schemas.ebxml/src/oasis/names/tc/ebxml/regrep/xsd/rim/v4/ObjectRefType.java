@@ -63,7 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ObjectRef")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ObjectRefType")
 @XmlSeeAlso({ DynamicObjectRefType.class })

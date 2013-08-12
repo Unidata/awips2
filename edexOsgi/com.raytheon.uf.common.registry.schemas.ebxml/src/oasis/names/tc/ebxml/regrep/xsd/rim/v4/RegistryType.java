@@ -74,7 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Registry")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryType")
 @DynamicSerialize

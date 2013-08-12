@@ -61,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@Entity
+@Entity(name = "MapValue")
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
