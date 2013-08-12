@@ -27,10 +27,12 @@ import org.junit.Test;
 // TODO fix?
 @Ignore
 public class ControllerTest {
+    // TODO - This doesn't work with jenkins builds
     static {
         System.loadLibrary("meteoLib");
     }
 
+    @Ignore
     @Test
     public void testScaleless_analysis() {
 
@@ -54,6 +56,7 @@ public class ControllerTest {
         fail("Need known test inputs/outputs");
     }
 
+    @Ignore
     @Test
     public void testDist_filter() {
 
