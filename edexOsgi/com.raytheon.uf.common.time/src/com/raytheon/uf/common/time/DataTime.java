@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.TimeZone;
@@ -46,6 +47,7 @@ import org.hibernate.annotations.Type;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.DataTimeComparator.SortKey;
 import com.raytheon.uf.common.time.util.CalendarConverter;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -60,8 +62,10 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  *                         Jim Ramer   Original Code
  * Jun 18, 2007            chammack    Partial port to Java
- * Apr 12, 2013 1857       bgonzale    Added Index annotations to getter methods.
+ * Apr 12, 2013 1857       bgonzale    Added Index annotations to getter
+ *                                     methods.
  * Mar 02, 2013 1970       bgonzale    Removed Index annotations.
+ * Aug 08, 2013 2245       bsteffen    Make all DataTime comparisons consistent.
  * 
  * </pre>
  * 
@@ -119,18 +123,8 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      */
     private static final long serialVersionUID = 1L;
 
-    /** Defines possible time sort keys */
-    public static enum SortKey {
-        INITIAL_TIME, FORECAST_TIME, VALID_TIME
-    };
-
-    /** The major sort key */
-    @Transient
-    protected SortKey majorKey = SortKey.VALID_TIME;
-
-    /** The minor sort key */
-    @Transient
-    protected SortKey minorKey = SortKey.FORECAST_TIME;
+    private static final Comparator<DataTime> DEFAULT_COMPARATOR = new DataTimeComparator(
+            SortKey.VALID_TIME, SortKey.FORECAST_TIME, false);
     
     /** The reference time */
     @Column(name = "refTime")
@@ -149,10 +143,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     @DynamicSerializeElement
     @XmlElement
     protected TimeRange validPeriod;
-
-    /** Is data to be sorted using match mode */
-    @Transient
-    protected boolean matchMode;
 
     @Transient
     protected boolean visible = true;
@@ -453,26 +443,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     }
 
     /**
-     * This routine determines which characteristics of a DataTime object,
-     * reference time, valid time, or forecast time, affect how relational
-     * operators >, <, >=, and <= behave. Default is to sort primarily on the
-     * valid time and secondarily on the reference time.
-     * 
-     * @param majorKey
-     *            the major sort key
-     * @param minorKey
-     *            the minor sort key
-     * @param matchMode
-     *            the match mode flag
-     */
-    public void setSortKeys(SortKey majorKey, SortKey minorKey,
-            boolean matchMode) {
-        this.majorKey = majorKey;
-        this.minorKey = minorKey;
-        this.matchMode = matchMode;
-    }
-
-    /**
      * Returns true if the left hand side is greater than the right hand side
      * 
      * @param rhs
@@ -480,99 +450,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return true if left hand side is greater than
      */
     public boolean greaterThan(DataTime rhs) {
-
-        if (rhs.getRefTime() == null) {
-            return (fcstTime > rhs.getFcstTime());
-
-        } else {
-            if (matchMode) {
-                switch (majorKey) {
-                case INITIAL_TIME:
-                    if (getMatchRef() > rhs.getMatchRef())
-                        return true;
-                    if (getMatchRef() < rhs.getMatchRef())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (getRefTime().getTime() == 0)
-                        return false;
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getMatchValid() > rhs.getMatchValid())
-                        return true;
-                    if (getMatchValid() < rhs.getMatchValid())
-                        return false;
-                }
-                switch (minorKey) {
-                case INITIAL_TIME:
-                    if (getMatchRef() > rhs.getMatchRef())
-                        return true;
-                    if (getMatchRef() < rhs.getMatchRef())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                }
-                if (getLevelValue() > rhs.getLevelValue()) {
-                    return true;
-                }
-            } else {
-                switch (majorKey) {
-                case INITIAL_TIME:
-                    if (refTime.getTime() > rhs.refTime.getTime())
-                        return true;
-                    if (refTime.getTime() < rhs.refTime.getTime())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (fcstTime > rhs.fcstTime)
-                        return true;
-                    if (fcstTime < rhs.fcstTime)
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (refTime.getTime() + (((long) fcstTime) * 1000) > rhs.refTime
-                            .getTime() + (((long) rhs.fcstTime) * 1000))
-                        return true;
-                    if (refTime.getTime() + (((long) fcstTime) * 1000) < rhs.refTime
-                            .getTime() + (((long) rhs.fcstTime) * 1000))
-                        return false;
-                    if (refTime.getTime() > rhs.getRefTime().getTime())
-                        return true;
-                    if (refTime.getTime() < rhs.getRefTime().getTime())
-                        return false;
-                }
-                switch (minorKey) {
-                case INITIAL_TIME:
-                    if (refTime.getTime() > rhs.refTime.getTime())
-                        return true;
-                    break;
-                case FORECAST_TIME:
-                    if (fcstTime > rhs.fcstTime)
-                        return true;
-                    break;
-                case VALID_TIME:
-                    if (refTime.getTime() + (((long) fcstTime) * 1000) > rhs.refTime
-                            .getTime() + (((long) rhs.fcstTime) * 1000))
-                        return true;
-                }
-            }
-        }
-        return false;
-
+        return compareTo(rhs) > 0;
     }
 
     /**
@@ -687,13 +565,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     public int compareTo(DataTime o) {
-        if (this.equals(o))
-            return 0;
-
-        if (this.greaterThan(o))
-            return 1;
-
-        return -1;
+        return DEFAULT_COMPARATOR.compare(this, o);
     }
 
     public void setRefTime(Date refTime) {
