@@ -35,12 +35,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.io.Resources;
+import com.raytheon.uf.common.registry.RegistryJaxbManager;
+import com.raytheon.uf.common.registry.RegistryNamespaceMapper;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
 import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -110,6 +111,16 @@ public class RegistryRESTServices {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryRESTServices.class);
 
+    private static RegistryJaxbManager jaxbManager;
+
+    static {
+        try {
+            jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
+        } catch (JAXBException e) {
+            statusHandler.error("Error creating Registry jaxb manager!", e);
+        }
+    }
+
     /**
      * Gets the registry object rest service implementation
      * 
@@ -146,13 +157,11 @@ public class RegistryRESTServices {
             throws JAXBException, RegistryServiceException {
         String objStr = getRegistryObjectService(baseURL).getRegistryObject(
                 objectId);
-        try {
-            return SerializationUtil.unmarshalFromXml(expectedType, objStr);
-        } catch (ClassCastException e) {
-            JAXBElement<RegistryObjectType> obj = (JAXBElement<RegistryObjectType>) SerializationUtil
-                    .getJaxbManager().unmarshalFromXml(objStr);
-            return (T) obj.getValue();
+        Object retVal = jaxbManager.unmarshalFromXml(objStr);
+        if (retVal instanceof JAXBElement<?>) {
+            return (T) ((JAXBElement<?>) retVal).getValue();
         }
+        return (T) jaxbManager.unmarshalFromXml(objStr);
     }
 
     /**
@@ -259,8 +268,7 @@ public class RegistryRESTServices {
                     "Error accessing REST service at URL: [" + url + "]", e);
         }
         try {
-            return SerializationUtil.getJaxbManager()
-                    .unmarshalFromXml(response);
+            return jaxbManager.unmarshalFromXml(response);
         } catch (JAXBException e) {
             throw new RegistryServiceException(
                     "Error unmarshalling xml response from REST Service at URL: ["

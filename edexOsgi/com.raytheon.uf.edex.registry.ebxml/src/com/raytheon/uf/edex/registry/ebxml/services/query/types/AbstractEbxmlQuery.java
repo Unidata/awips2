@@ -29,12 +29,10 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -127,16 +125,14 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
                 queryResponse
                         .getException()
                         .add(EbxmlExceptionUtil
-                                .createRegistryException(
-                                        UnsupportedCapabilityExceptionType.class,
-                                        "",
+                                .createUnsupportedCapabilityExceptionType(
                                         "Unsupported parameter specified",
                                         "The canonical query ["
                                                 + this.getQueryDefinition()
                                                 + "] does not support the "
                                                 + slotName
-                                                + " parameter.  This parameter will be ignored",
-                                        ErrorSeverity.WARNING, statusHandler));
+                                                + " parameter.  This parameter will be ignored")
+                                .getFaultInfo());
             }
         }
         return parameters;
@@ -165,14 +161,12 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
             queryResponse
                     .getException()
                     .add(EbxmlExceptionUtil
-                            .createRegistryException(
-                                    UnsupportedCapabilityExceptionType.class,
-                                    "",
+                            .createUnsupportedCapabilityExceptionType(
                                     "Return type not currently not supported",
                                     "The ["
                                             + returnType
-                                            + "] return type is currently not supported",
-                                    ErrorSeverity.WARNING, statusHandler));
+                                            + "] return type is currently not supported")
+                            .getFaultInfo());
             break;
 
         }
