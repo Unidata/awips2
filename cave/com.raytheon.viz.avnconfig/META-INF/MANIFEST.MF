@@ -22,10 +22,6 @@ Import-Package: com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util,
- com.raytheon.uf.viz.core.localization,
- com.raytheon.viz.ui.dialogs,
- com.vividsolutions.jts.geom,
- com.vividsolutions.jts.io,
  org.apache.commons.configuration
 Export-Package: com.raytheon.viz.avncommon,
  com.raytheon.viz.avnconfig
