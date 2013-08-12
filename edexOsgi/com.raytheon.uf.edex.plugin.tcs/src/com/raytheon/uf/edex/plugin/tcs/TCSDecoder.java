@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
-import com.raytheon.uf.common.dataplugin.tcs.dao.TropicalCycloneSummaryDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.plugin.tcs.decoder.TCSDataAdapter;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
