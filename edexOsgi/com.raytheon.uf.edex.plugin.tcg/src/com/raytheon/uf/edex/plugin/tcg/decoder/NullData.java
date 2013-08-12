@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
-import com.raytheon.uf.common.dataplugin.tcg.dao.TropicalCycloneGuidanceDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 /**
  * TODO Add Description
  * 

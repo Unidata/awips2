@@ -32,12 +32,12 @@ import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
-import com.raytheon.uf.common.dataplugin.tcs.dao.TropicalCycloneSummaryDao;
 import com.raytheon.uf.common.dataplugin.tcs.util.Util;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
 
 /**
  * TODO Add Description
