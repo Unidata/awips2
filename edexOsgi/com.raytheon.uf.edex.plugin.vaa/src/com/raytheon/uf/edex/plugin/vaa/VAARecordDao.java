@@ -17,15 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.svrwx.dao;
+package com.raytheon.uf.edex.plugin.vaa;
 
 import java.util.List;
 
+import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
+import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-
 
 /**
  * 
@@ -36,32 +35,32 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 4, 2010            jsanchez     Initial creation
+ * Nov 04, 2009            jkorman     Initial creation
  *
  * </pre>
  *
- * @author jsanchez
+ * @author jkorman
  * @version 1.0 
  */
+public class VAARecordDao extends DefaultPluginDao {
 
-public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
     /**
-     * Creates a new TropicalCycloneGuidanceDao
+     * Creates a new ObsStationDao
      * @throws PluginException 
      */
-    public SvrWxRecordDao(String pluginName) throws PluginException {
+    public VAARecordDao(String pluginName) throws PluginException {
         super(pluginName);
     }
-    
+
     /**
-     * Retrieves an tcg report using the datauri .
+     * Retrieves an Volcanic Ash report using the datauri .
      * 
      * @param dataURI
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public SvrWxRecord queryByDataURI(String dataURI) {
-        SvrWxRecord report = null;
+    public VAARecord queryByDataURI(String dataURI) {
+        VAARecord report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -69,12 +68,13 @@ public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (SvrWxRecord) obs.get(0);
+            report = (VAARecord) obs.get(0);
         }
         return report;
     }
+
     /**
-     * Queries for to determine if a given data uri exists on the tcg table.
+     * Queries for to determine if a given data uri exists on the sfcobs table.
      * 
      * @param dataUri
      *            The DataURI to find.
@@ -83,26 +83,11 @@ public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.svrwx where datauri='"
+        String sql = "select datauri from awips.vaa where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
 
         return results;
-    }
-
-    @Override
-    public String[] getKeysRequiredForFileName() {
-        return new String[] { "dataTime.refTime" };
-    }
-
-    @Override
-    public String getPointDataFileName(SvrWxRecord p) {
-        return "svrwx.h5";
-    }
-
-    @Override
-    public SvrWxRecord newObject() {
-        return new SvrWxRecord();
     }
 }
