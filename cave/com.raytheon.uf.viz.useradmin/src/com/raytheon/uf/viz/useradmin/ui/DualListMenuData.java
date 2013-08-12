@@ -44,8 +44,9 @@ import com.raytheon.viz.ui.widgets.duallist.IMenuData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 01, 2012            mpduff     Initial creation
+ * Jun 01, 2012            mpduff     Initial creation.
  * Nov 06, 2012 1306       djohnson   Use API rather than implementation for role data.
+ * Aug 12, 2013 2247       mpduff     Call getName() on IPermission.
  * 
  * </pre>
  * 
@@ -166,7 +167,7 @@ public class DualListMenuData implements IMenuData {
                             messageText.append("\n\nPermissions: ");
                             for (IPermission perm : permissions) {
                                 messageText.append("\n  ").append(
-                                        perm.toString());
+                                        perm.getName());
                             }
                         }
                         roleFlag = true;
@@ -174,10 +175,9 @@ public class DualListMenuData implements IMenuData {
                     }
                 }
 
-                if (roleFlag == false) {
-                    for (IPermission perm : man
-                            .getPermissions(application)) {
-                        if (perm.toString().equals(selection)) {
+                if (!roleFlag) {
+                    for (IPermission perm : man.getPermissions(application)) {
+                        if (perm.getName().equals(selection)) {
                             messageText.append("Permission: ")
                                     .append(selection);
                             messageText.append("\nDescription: ").append(
@@ -189,7 +189,8 @@ public class DualListMenuData implements IMenuData {
                 if (messageText.length() == 0) {
                     messageText.append("No Description");
                 }
-                MessageBox messageDialog = new MessageBox(shell, SWT.ICON_INFORMATION);
+                MessageBox messageDialog = new MessageBox(shell,
+                        SWT.ICON_INFORMATION);
                 if (roleFlag) {
                     messageDialog.setText("Role Description");
                 } else {
