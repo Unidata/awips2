@@ -61,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "BooleanValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "BooleanValueType", propOrder = { "booleanValue" })
 @DynamicSerialize
