@@ -31,11 +31,11 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
-import com.raytheon.uf.common.dataplugin.tcs.dao.TropicalCycloneSummaryDao;
 import com.raytheon.uf.common.dataplugin.tcs.util.TCSConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**

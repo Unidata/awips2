@@ -17,15 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.tcg.dao;
+package com.raytheon.uf.edex.plugin.tcs;
 
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
+import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-
 /**
  * 
  * 
@@ -35,32 +34,31 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            jsanchez     Initial creation
+ * Nov 12, 2009            jsanchez     Initial creation
  *
  * </pre>
  *
  * @author jsanchez
  * @version 1.0 
  */
-public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCycloneGuidance> {
-
+public class TropicalCycloneSummaryDao extends PointDataPluginDao<TropicalCycloneSummary> {
     /**
-     * Creates a new TropicalCycloneGuidanceDao
+     * Creates a new TropicalCycloneSummaryDao
      * @throws PluginException 
      */
-    public TropicalCycloneGuidanceDao(String pluginName) throws PluginException {
+    public TropicalCycloneSummaryDao(String pluginName) throws PluginException {
         super(pluginName);
     }
     
     /**
-     * Retrieves an tcg report using the datauri .
+     * Retrieves an tcs report using the datauri .
      * 
      * @param dataURI
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public TropicalCycloneGuidance queryByDataURI(String dataURI) {
-        TropicalCycloneGuidance report = null;
+    public TropicalCycloneSummary queryByDataURI(String dataURI) {
+        TropicalCycloneSummary report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -68,12 +66,12 @@ public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCyclo
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (TropicalCycloneGuidance) obs.get(0);
+            report = (TropicalCycloneSummary) obs.get(0);
         }
         return report;
     }
     /**
-     * Queries for to determine if a given data uri exists on the tcg table.
+     * Queries for to determine if a given data uri exists on the tcs table.
      * 
      * @param dataUri
      *            The DataURI to find.
@@ -82,7 +80,7 @@ public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCyclo
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.tcg where datauri='"
+        String sql = "select datauri from awips.tcs where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
@@ -96,14 +94,12 @@ public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCyclo
     }
 
     @Override
-    public String getPointDataFileName(TropicalCycloneGuidance p) {
-        return "tcg.h5";
+    public String getPointDataFileName(TropicalCycloneSummary p) {
+        return "tcs.h5";
     }
 
     @Override
-    public TropicalCycloneGuidance newObject() {
-        return new TropicalCycloneGuidance();
+    public TropicalCycloneSummary newObject() {
+        return new TropicalCycloneSummary();
     }
-
 }
-
