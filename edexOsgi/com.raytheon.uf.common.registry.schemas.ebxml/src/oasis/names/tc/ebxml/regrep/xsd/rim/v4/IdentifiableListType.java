@@ -58,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "IdentifiableList")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "IdentifiableListType", propOrder = { "identifiable" })
 @DynamicSerialize

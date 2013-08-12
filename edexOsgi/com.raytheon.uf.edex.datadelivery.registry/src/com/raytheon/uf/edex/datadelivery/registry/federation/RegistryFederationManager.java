@@ -47,7 +47,6 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -162,14 +161,6 @@ public abstract class RegistryFederationManager {
             } else {
                 federationProperties = (FederationProperties) jaxbManager
                         .jaxbUnmarshalFromXmlFile(federationPropertiesFile);
-            }
-            if (this.replicationManager.getServers() == null
-                    || CollectionUtil.isNullOrEmpty(replicationManager
-                            .getServers().getRegistryReplicationServers())) {
-                statusHandler
-                        .warn("No servers configured for replication.  Federation functionality is disabled");
-                this.federationEnabled = false;
-                this.replicationManager.setSubscriptionProcessingEnabled(false);
             }
         }
 
