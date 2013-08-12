@@ -9,7 +9,7 @@
     <bean id="cwaProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="cwaPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.cwa" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.cwa.dao.CWARecordDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.cwa.CWARecordDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.cwa.CWARecord" />
     </bean>
     
