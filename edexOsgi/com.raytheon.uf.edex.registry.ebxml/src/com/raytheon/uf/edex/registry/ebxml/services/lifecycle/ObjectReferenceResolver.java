@@ -31,7 +31,6 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DynamicObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.validator.UrlValidator;
@@ -39,7 +38,6 @@ import org.apache.commons.validator.UrlValidator;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -112,8 +110,9 @@ public class ObjectReferenceResolver {
      *             If any or all of the objects in the list contain unresolved
      *             references
      */
-    public void checkReferences(List<RegistryObjectType> regObjs)
+    public String allReferencesDoNotResolve(List<RegistryObjectType> regObjs)
             throws MsgRegistryException {
+        StringBuilder returnMessage = new StringBuilder();
         for (RegistryObjectType regObj : regObjs) {
             statusHandler.info("Checking references for object: "
                     + regObj.getId() + "...");
@@ -127,35 +126,66 @@ public class ObjectReferenceResolver {
                         continue;
                     }
 
-                    // Check for static reference first
+                    // Check for each reference type
+                    if (!isStaticReference(regObj, propertyValue)
+                            && !isDynamicReference(regObj, field, propertyValue)
+                            && !isRESTReference(regObj, propertyValue)) {
+                        continue;
+                    }
+                    returnMessage.append("Object [").append(regObj.getId())
+                            .append("] references object [")
+                            .append(propertyValue).append("]\n");
+                }
+            } catch (Exception e) {
+                throw EbxmlExceptionUtil.createMsgRegistryException(
+                        "Error checking references", e);
+            }
+        }
+        return returnMessage.toString();
+    }
+
+    /**
+     * Validates the list of objects and makes sure all fields referencing
+     * objects can be resolved.
+     * 
+     * @param regObjs
+     *            The list of objects to check references for
+     * @throws MsgRegistryException
+     *             If any or all of the objects in the list contain unresolved
+     *             references
+     */
+    public String allReferencesResolve(List<RegistryObjectType> regObjs)
+            throws MsgRegistryException {
+        StringBuilder returnMessage = new StringBuilder();
+        for (RegistryObjectType regObj : regObjs) {
+            statusHandler.info("Checking references for object: "
+                    + regObj.getId() + "...");
+            try {
+                List<String> fields = OBJECT_REFERENCE_FIELD_CACHE.get(regObj
+                        .getClass());
+                for (String field : fields) {
+                    String propertyValue = (String) PropertyUtils.getProperty(
+                            regObj, field);
+                    if (propertyValue == null) {
+                        continue;
+                    }
+
+                    // Check for each reference type
                     if (isStaticReference(regObj, propertyValue)
                             || isDynamicReference(regObj, field, propertyValue)
                             || isRESTReference(regObj, propertyValue)) {
                         continue;
                     }
-                    throw EbxmlExceptionUtil.createMsgRegistryException(
-                            "Object [" + regObj.getId()
-                                    + "] references unresolvable object ["
-                                    + propertyValue + "]", EbxmlExceptionUtil
-                                    .createUnresolvedReferenceException(
-                                            regObj.getClass(), regObj.getId(),
-                                            statusHandler), statusHandler);
+                    returnMessage.append("Object [").append(regObj.getId())
+                            .append("] references unresolvable object [")
+                            .append(propertyValue).append("]\n");
                 }
-
-            } catch (MsgRegistryException e) {
-                throw e;
             } catch (Exception e) {
-
                 throw EbxmlExceptionUtil.createMsgRegistryException(
-                        "Error checking references", EbxmlExceptionUtil
-                                .createRegistryException(
-                                        RegistryExceptionType.class, "",
-                                        "Error checking references",
-                                        "Error checking references",
-                                        ErrorSeverity.ERROR, e, statusHandler),
-                        statusHandler);
+                        "Error checking references", e);
             }
         }
+        return returnMessage.toString();
     }
 
     /**
