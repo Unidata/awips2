@@ -60,7 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ClassificationScheme")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ClassificationSchemeType")
 @DynamicSerialize

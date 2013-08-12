@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.dao;
+package com.raytheon.uf.edex.registry.ebxml.services.lifecycleManager;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -46,10 +46,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
+import com.raytheon.uf.edex.registry.ebxml.dao.AbstractRegistryTest;
 
 /**
  * Test {@link LifecycleManager} submit objects functionality.
@@ -378,7 +378,6 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
     /**
      * id - If unspecified Server MUST generate UUID URN
      */
-    @Ignore
     @Test
     public void createOnlyWithoutIdCreatesUUID() throws MsgRegistryException {
 
@@ -468,7 +467,6 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
     /**
      * lid - MUST NOT exist or else server MUST return ObjectExistsException
      */
-    @Ignore
     @Test
     public void createOrVersionWithExistingLidFails()
             throws MsgRegistryException {
