@@ -65,7 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "TaxonomyElement")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TaxonomyElementType", propOrder = { "classificationNode" })
 @XmlSeeAlso({ ClassificationSchemeType.class, ClassificationNodeType.class })

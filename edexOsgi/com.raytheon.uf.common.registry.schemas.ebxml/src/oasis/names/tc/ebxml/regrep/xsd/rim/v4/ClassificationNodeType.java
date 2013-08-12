@@ -64,7 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ClassificationNodeType")
-@XmlRootElement
+@XmlRootElement(name = "ClassificationNode")
 @DynamicSerialize
 @Entity
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)

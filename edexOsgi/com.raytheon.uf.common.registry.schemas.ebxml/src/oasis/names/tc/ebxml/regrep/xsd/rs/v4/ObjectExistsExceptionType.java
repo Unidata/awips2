@@ -48,7 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ObjectExistsException")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ObjectExistsExceptionType")
 @DynamicSerialize
