@@ -9,7 +9,7 @@
     <bean id="bufrssmiProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="bufrssmiPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrssmi" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.bufrssmi.dao.SSMIScanDataDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.bufrssmi.SSMIScanDataDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.bufrssmi.SSMIScanData" />
     </bean>
     
