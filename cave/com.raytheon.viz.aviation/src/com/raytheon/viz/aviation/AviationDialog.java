@@ -101,6 +101,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/02/2012   1229        rferrel     Made dialog non-blocking.
  * 10/09/2012   1229        rferrel     Changes for non-blocking TafMonitorDlg.
  * 04/10/2013   1735        rferrel     Changes for taf monitor speed up.
+ * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -111,8 +112,9 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AviationDialog.class);
 
-    private static String FORECAST_CONFIG_FILE = "aviation" + File.separator
-            + "avnwatch" + File.separator + "aviationForecasterConfig.xml";
+    private static String FORECAST_CONFIG_FILE = "aviation"
+            + IPathManager.SEPARATOR + "avnwatch" + IPathManager.SEPARATOR
+            + "aviationForecasterConfig.xml";
 
     /**
      * Label font.

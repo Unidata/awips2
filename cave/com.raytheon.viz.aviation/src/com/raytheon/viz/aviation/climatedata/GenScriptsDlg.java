@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 10, 2011 #8844      rferrel      Display error message when unable
  *                                      to save a script.
  * Oct 08, 2012 #1229      rferrel      Made non-blocking.
+ * Aug 09, 2013 #2033      mschenke     Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -447,9 +448,10 @@ public class GenScriptsDlg extends CaveSWTDialog {
 
     private void initFtpArgs() {
         StringBuilder path = new StringBuilder();
-        path.append("aviation").append(File.separator).append("config")
-                .append(File.separator).append("scripts")
-                .append(File.separator).append("ClimateDataFTPArgs.xml");
+        path.append("aviation").append(IPathManager.SEPARATOR).append("config")
+                .append(IPathManager.SEPARATOR).append("scripts")
+                .append(IPathManager.SEPARATOR)
+                .append("ClimateDataFTPArgs.xml");
         IPathManager pm = PathManagerFactory.getPathManager();
         File fname = pm.getStaticFile(path.toString());
         try {
