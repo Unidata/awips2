@@ -9,7 +9,7 @@
     <bean id="bufrquikscatProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="bufrquikscatPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrquikscat" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.bufrquikscat.dao.QUIKScatObsDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.bufrquikscat.QUIKScatObsDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.bufrquikscat.QUIKScatObs" />
     </bean>
     
