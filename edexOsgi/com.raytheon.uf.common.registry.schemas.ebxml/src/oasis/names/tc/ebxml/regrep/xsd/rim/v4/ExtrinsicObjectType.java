@@ -77,7 +77,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ExtrinsicObject")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExtrinsicObjectType", propOrder = { "contentVersionInfo",
         "repositoryItemRef", "repositoryItem" })

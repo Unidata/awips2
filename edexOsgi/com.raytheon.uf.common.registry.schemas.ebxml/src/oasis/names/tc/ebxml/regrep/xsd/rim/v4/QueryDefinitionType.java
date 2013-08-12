@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "QueryDefinition")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryDefinitionType", propOrder = { "parameter",
         "queryExpression" })

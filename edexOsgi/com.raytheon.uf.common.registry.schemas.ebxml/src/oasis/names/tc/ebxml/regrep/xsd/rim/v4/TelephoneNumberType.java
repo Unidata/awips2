@@ -65,7 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "TelephoneNumber")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TelephoneNumberType")
 @DynamicSerialize
