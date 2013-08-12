@@ -29,7 +29,6 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
-import com.raytheon.uf.common.dataplugin.vaa.dao.VAARecordDao;
 import com.raytheon.uf.edex.plugin.vaa.decoder.VAAParser;
 
 /**
