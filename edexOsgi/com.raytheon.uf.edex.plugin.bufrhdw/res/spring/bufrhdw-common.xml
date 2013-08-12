@@ -9,7 +9,7 @@
 	<bean id="bufrhdwProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="bufrhdwPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrhdw" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.bufrhdw.dao.BufrHDWObsDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.bufrhdw.BufrHDWObsDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.bufrhdw.BufrHDWObs" />
 	</bean>
 	
