@@ -56,7 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Comment")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CommentType")
 @DynamicSerialize

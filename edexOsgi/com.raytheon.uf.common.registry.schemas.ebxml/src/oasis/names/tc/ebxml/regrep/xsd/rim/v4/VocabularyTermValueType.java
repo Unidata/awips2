@@ -63,7 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "VocabularyTermValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "VocabularyTermValueType", propOrder = { "vocabularyTermValue" })
 @DynamicSerialize
