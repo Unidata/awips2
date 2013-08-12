@@ -17,12 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.bufrmthdw.dao;
+package com.raytheon.uf.edex.plugin.bufrhdw;
 
 import java.util.List;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.bufrmthdw.BufrMTHDWObs;
+import com.raytheon.uf.common.dataplugin.bufrhdw.BufrHDWObs;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -35,22 +34,21 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 26, 2010            jkorman     Initial creation
+ * Jun 18, 2009            jkorman     Initial creation
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0	
+ * @version 1.0 
  */
-
-public class BufrMTHDWObsDao  extends PointDataPluginDao<BufrMTHDWObs> {
+public class BufrHDWObsDao extends PointDataPluginDao<BufrHDWObs> {
 
     /**
      * Creates a new BufrMOSDao object.
      * 
      * @throws PluginException
      */
-    public BufrMTHDWObsDao(String pluginName) throws PluginException {
+    public BufrHDWObsDao(String pluginName) throws PluginException {
         super(pluginName);
     }
 
@@ -61,8 +59,8 @@ public class BufrMTHDWObsDao  extends PointDataPluginDao<BufrMTHDWObs> {
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public BufrMTHDWObs queryByDataURI(String dataURI) {
-        BufrMTHDWObs report = null;
+    public BufrHDWObs queryByDataURI(String dataURI) {
+        BufrHDWObs report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -70,7 +68,7 @@ public class BufrMTHDWObsDao  extends PointDataPluginDao<BufrMTHDWObs> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (BufrMTHDWObs) obs.get(0);
+            report = (BufrHDWObs) obs.get(0);
         }
         return report;
     }
@@ -100,13 +98,12 @@ public class BufrMTHDWObsDao  extends PointDataPluginDao<BufrMTHDWObs> {
     }
 
     @Override
-    public String getPointDataFileName(BufrMTHDWObs p) {
-        return "mthdw.h5";
+    public String getPointDataFileName(BufrHDWObs p) {
+        return "hdw.h5";
     }
 
     @Override
-    public BufrMTHDWObs newObject() {
-        return new BufrMTHDWObs();
+    public BufrHDWObs newObject() {
+        return new BufrHDWObs();
     }
-
 }

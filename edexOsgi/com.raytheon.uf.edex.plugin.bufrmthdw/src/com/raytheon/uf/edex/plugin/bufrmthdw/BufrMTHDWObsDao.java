@@ -17,11 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.bufrquikscat.dao;
+package com.raytheon.uf.edex.plugin.bufrmthdw;
 
 import java.util.List;
+
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.bufrquikscat.QUIKScatObs;
+import com.raytheon.uf.common.dataplugin.bufrmthdw.BufrMTHDWObs;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -34,21 +35,22 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 18, 2009            jkorman     Initial creation
+ * Jul 26, 2010            jkorman     Initial creation
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0 
+ * @version 1.0	
  */
-public class QUIKScatObsDao extends PointDataPluginDao<QUIKScatObs> {
+
+public class BufrMTHDWObsDao  extends PointDataPluginDao<BufrMTHDWObs> {
 
     /**
      * Creates a new BufrMOSDao object.
      * 
      * @throws PluginException
      */
-    public QUIKScatObsDao(String pluginName) throws PluginException {
+    public BufrMTHDWObsDao(String pluginName) throws PluginException {
         super(pluginName);
     }
 
@@ -59,8 +61,8 @@ public class QUIKScatObsDao extends PointDataPluginDao<QUIKScatObs> {
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public QUIKScatObs queryByDataURI(String dataURI) {
-        QUIKScatObs report = null;
+    public BufrMTHDWObs queryByDataURI(String dataURI) {
+        BufrMTHDWObs report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -68,7 +70,7 @@ public class QUIKScatObsDao extends PointDataPluginDao<QUIKScatObs> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (QUIKScatObs) obs.get(0);
+            report = (BufrMTHDWObs) obs.get(0);
         }
         return report;
     }
@@ -84,7 +86,7 @@ public class QUIKScatObsDao extends PointDataPluginDao<QUIKScatObs> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.bufrquikscat where datauri='"
+        String sql = "select datauri from awips.bufrhdw where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
@@ -98,12 +100,13 @@ public class QUIKScatObsDao extends PointDataPluginDao<QUIKScatObs> {
     }
 
     @Override
-    public String getPointDataFileName(QUIKScatObs p) {
-        return "quikscat.h5";
+    public String getPointDataFileName(BufrMTHDWObs p) {
+        return "mthdw.h5";
     }
 
     @Override
-    public QUIKScatObs newObject() {
-        return new QUIKScatObs();
+    public BufrMTHDWObs newObject() {
+        return new BufrMTHDWObs();
     }
+
 }
