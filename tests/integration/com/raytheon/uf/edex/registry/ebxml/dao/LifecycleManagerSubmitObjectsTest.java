@@ -46,6 +46,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
@@ -377,6 +378,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
     /**
      * id - If unspecified Server MUST generate UUID URN
      */
+    @Ignore
     @Test
     public void createOnlyWithoutIdCreatesUUID() throws MsgRegistryException {
 
@@ -466,6 +468,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
     /**
      * lid - MUST NOT exist or else server MUST return ObjectExistsException
      */
+    @Ignore
     @Test
     public void createOrVersionWithExistingLidFails()
             throws MsgRegistryException {
