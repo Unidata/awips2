@@ -22,9 +22,7 @@ package com.raytheon.uf.edex.registry.ebxml.services.query.types;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
@@ -63,14 +61,12 @@ public abstract class ExtendedEbxmlQuery extends AbstractEbxmlQuery {
     public void execute(QueryResponse response,
             ResponseOptionType responseOption, QueryType query, int depth,
             boolean matchOlderVersions, int maxResults, int startIndex) {
-        response.getException()
-                .add(EbxmlExceptionUtil
-                        .createRegistryException(
-                                UnsupportedCapabilityExceptionType.class,
-                                "",
-                                "This query type is currently unsupported",
-                                "This exception is thrown if the query type has not been registered or properly implemented",
-                                ErrorSeverity.ERROR, statusHandler));
+
+        response.getException().add(
+                EbxmlExceptionUtil.createUnsupportedCapabilityExceptionType(
+                        "Query type not supported",
+                        "This query type is currently unsupported")
+                        .getFaultInfo());
     }
 
 }

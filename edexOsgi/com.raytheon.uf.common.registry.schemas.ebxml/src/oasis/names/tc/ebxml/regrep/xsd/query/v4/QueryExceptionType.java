@@ -50,7 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "QueryException")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryExceptionType")
 @DynamicSerialize

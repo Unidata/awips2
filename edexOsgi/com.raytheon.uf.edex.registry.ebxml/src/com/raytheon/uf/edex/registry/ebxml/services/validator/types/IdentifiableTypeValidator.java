@@ -38,12 +38,11 @@ package com.raytheon.uf.edex.registry.ebxml.services.validator.types;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.IdentifiableType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
-import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryValidator;
+import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorTypeManager;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
@@ -59,14 +58,12 @@ public class IdentifiableTypeValidator implements IRegistryValidator {
                 .validate(object, response);
         IdentifiableType obj = (IdentifiableType) object;
         if (obj.getId() == null) {
-            response.getException()
-                    .add(EbxmlExceptionUtil
-                            .createRegistryException(
-                                    ValidationExceptionType.class,
-                                    "",
-                                    "Validation Failed: Error verifying IdentifiableType",
-                                    "IdentifiableType objects must specify an id",
-                                    ErrorSeverity.ERROR, statusHandler));
+
+            response.getException().add(
+                    EbxmlExceptionUtil.createValidationExceptionType(
+                            ValidatorImpl.VALIDATOR_ERROR_MSG,
+                            "IdentifiableType objects must specify an id")
+                            .getFaultInfo());
         }
     }
 

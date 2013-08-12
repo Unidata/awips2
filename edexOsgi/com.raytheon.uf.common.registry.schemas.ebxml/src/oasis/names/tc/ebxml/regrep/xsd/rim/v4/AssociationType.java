@@ -64,7 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Association")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AssociationType")
 @DynamicSerialize

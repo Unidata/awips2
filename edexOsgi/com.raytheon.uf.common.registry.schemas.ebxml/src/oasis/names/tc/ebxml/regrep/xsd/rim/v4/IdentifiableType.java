@@ -63,7 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Identifiable")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "IdentifiableType")
 @XmlSeeAlso({ RegistryObjectType.class })
