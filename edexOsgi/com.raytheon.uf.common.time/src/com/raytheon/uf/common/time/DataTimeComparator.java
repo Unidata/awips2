@@ -104,12 +104,12 @@ public class DataTimeComparator implements Comparator<DataTime> {
     private int compareNoMatch(SortKey sortKey, DataTime time1, DataTime time2) {
         switch (sortKey) {
         case INITIAL_TIME:
-            return Long.compare(time1.getRefTime().getTime(), time2
+            return longCompare(time1.getRefTime().getTime(), time2
                     .getRefTime().getTime());
         case FORECAST_TIME:
-            return Integer.compare(time1.getFcstTime(), time2.getFcstTime());
+            return integerCompare(time1.getFcstTime(), time2.getFcstTime());
         case VALID_TIME:
-            return Long.compare(time1.getValidTime().getTimeInMillis(), time2
+            return longCompare(time1.getValidTime().getTimeInMillis(), time2
                     .getValidTime().getTimeInMillis());
         default:
             throw new IllegalArgumentException(String.valueOf(sortKey)
@@ -120,11 +120,11 @@ public class DataTimeComparator implements Comparator<DataTime> {
     private int compareMatch(SortKey sortKey, DataTime time1, DataTime time2) {
         switch (sortKey) {
         case INITIAL_TIME:
-            return Long.compare(time1.getMatchRef(), time2.getMatchRef());
+            return longCompare(time1.getMatchRef(), time2.getMatchRef());
         case FORECAST_TIME:
-            return Long.compare(time1.getMatchFcst(), time2.getMatchFcst());
+            return longCompare(time1.getMatchFcst(), time2.getMatchFcst());
         case VALID_TIME:
-            return Long.compare(time1.getMatchValid(), time2.getMatchValid());
+            return longCompare(time1.getMatchValid(), time2.getMatchValid());
         default:
             throw new IllegalArgumentException(String.valueOf(sortKey)
                     + " is not a recognized SortKey.");
@@ -155,11 +155,26 @@ public class DataTimeComparator implements Comparator<DataTime> {
             return 1;
         }
 
-        int result = Long.compare(p1.getDuration(), p2.getDuration());
+        int result = longCompare(p1.getDuration(), p2.getDuration());
         if (result != 0) {
             return result;
         }
-        return Long.compare(p1.getStart().getTime(), p2.getStart().getTime());
+        return longCompare(p1.getStart().getTime(), p2.getStart().getTime());
     }
+
+    /**
+     * For compatibility with Java 6 use this instead of Integer.compare.
+     */
+    private int integerCompare(int x, int y) {
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    }
+
+    /**
+     * For compatibility with Java 6 use this instead of Long.compare.
+     */
+    private int longCompare(long x, long y) {
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    }
+
 
 }
