@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.vil.dao;
+package com.raytheon.uf.edex.plugin.vil;
 
 import java.util.ArrayList;
 import java.util.List;
