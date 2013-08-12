@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 10, 2013 1966       rferrel      Change to allow Case Creation to extend.
  * Jul 24, 2013 2220       rferrel      Changes to queue size request for all data.
  * Aug 01, 2013 2221       rferrel      Changes for select configuration.
+ * Aug 06, 2013 2222       rferrel      Changes to display all selected data.
  * </pre>
  * 
  * @author bgonzale
@@ -96,7 +97,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     protected ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
     /**
-     * Must be set by sub-class prior to creating any components.
+     * Boolean to indicate when DisplayData is created should its selection be
+     * set based on the information in the configuration files.
+     */
+    protected boolean setSelect = false;
+
+    /**
+     * Must be set by sub-class prior to creating table.
      */
     protected ArchiveConstants.Type type;
 
@@ -111,11 +118,17 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /** Performs save action button. */
     protected Button saveBtn;
 
+    /** Optional button to toggle displaying all selected or category */
+    protected Button showSelectedBtn;
+
     /** Flag set when user wants to close with unsaved modifications. */
     protected boolean closeFlag = false;
 
     /** Current select (case/retention) loaded into the dialog. */
     protected String selectName = ArchiveConstants.defaultSelectName;
+
+    /** Which table is being displayed. */
+    private boolean showingSelected = true;
 
     /**
      * @param parentShell
@@ -420,8 +433,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /**
      * Populate the category combo based on the archive name and populate the
      * table.
-     * 
-     * @param archiveName
      */
     private void populateCategoryCbo() {
         initCategoryCbo();
@@ -430,6 +441,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
     private void initCategoryCbo() {
         String archiveName = getSelectedArchiveName();
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         categoryCbo.removeAll();
         for (String categoryName : manager.getCategoryNames(archiveName)) {
             categoryCbo.add(categoryName);
@@ -520,6 +532,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         setCursorBusy(true);
 
         try {
+            setShowingSelected(false);
 
             ArchiveInfo archiveInfo = sizeJob.get(archiveName);
 
@@ -599,6 +612,72 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
         setTotalSizeText(sizeMsg);
         setTotalSelectedItems(totalSelected);
+    }
+
+    /**
+     * Creates the showSelectedBtn for sub-classes.
+     * 
+     * @param actionControlComp
+     */
+    protected void createShowingSelectedBtn(Composite actionControlComp) {
+        showSelectedBtn = new Button(actionControlComp, SWT.PUSH);
+        setShowingSelected(false);
+        showSelectedBtn.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handelShowSelectAll();
+            }
+        });
+    }
+
+    /**
+     * Populate the table with the desired display.
+     */
+    protected void handelShowSelectAll() {
+        if (showingSelected) {
+            populateTableComp();
+        } else {
+            populateSelectAllTable();
+        }
+    }
+
+    /**
+     * Sets the state fo the showing selected flag and updates the label for the
+     * show selected button.
+     * 
+     * @param state
+     */
+    private void setShowingSelected(boolean state) {
+        if (showingSelected != state) {
+            showingSelected = state;
+            if (showingSelected) {
+                showSelectedBtn.setText(" Category ");
+                showSelectedBtn
+                        .setToolTipText("Change display to show category.");
+            } else {
+                showSelectedBtn.setText(" Selected ");
+                showSelectedBtn
+                        .setToolTipText("Change display to show all case selections");
+            }
+        }
+    }
+
+    /**
+     * Up date the table to display all selected data.
+     */
+    private void populateSelectAllTable() {
+        setCursorBusy(true);
+
+        try {
+            setShowingSelected(true);
+            List<DisplayData> slectedData = sizeJob.getSelectAll();
+
+            tableComp.populateSelectAll(slectedData);
+            sizeJob.changeDisplayQueue(null, null);
+        } finally {
+            setCursorBusy(false);
+        }
     }
 
     /*
