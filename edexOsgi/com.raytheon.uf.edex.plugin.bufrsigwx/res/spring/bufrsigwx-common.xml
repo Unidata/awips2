@@ -9,7 +9,7 @@
     <bean id="bufrsigwxProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="bufrsigwxPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrsigwx" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.bufrsigwx.dao.SigWxDataDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.bufrsigwx.SigWxDataDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData" />
     </bean>
     
