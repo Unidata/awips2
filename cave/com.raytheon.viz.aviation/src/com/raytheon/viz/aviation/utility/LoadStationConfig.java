@@ -46,6 +46,7 @@ import com.raytheon.viz.aviation.xml.StationConfig;
  * ------------	----------	-----------	--------------------------
  * Apr 1, 2008	934			grichard	Initial creation.
  * 8/11/2008    1314        grichard    Used PathManager for pathnames.
+ * Aug 9, 2013  2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -74,8 +75,8 @@ public class LoadStationConfig {
         IPathManager pm = PathManagerFactory.getPathManager();
 
         File path = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), "aviation" + File.separatorChar
-                + "avnwatch" + File.separatorChar + name + ".xml");
+                LocalizationLevel.BASE), "aviation" + IPathManager.SEPARATOR
+                + "avnwatch" + IPathManager.SEPARATOR + name + ".xml");
 
         // System.out.println(path);
 
