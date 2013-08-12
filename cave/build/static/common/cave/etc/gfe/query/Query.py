@@ -17,9 +17,24 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+##
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Aug 12, 2013    2162          dgilling       Add performance logging for
+#                                                 query evaluation.
+########################################################################
+
 import numpy, copy, string, time, re, sys
-#import AFPS
-#from numpy import *
+
+from com.raytheon.uf.common.status import PerformanceStatus
+from com.raytheon.uf.common.time.util import TimeUtil
+
+
+PERF_LOG = PerformanceStatus.getHandler("GFE:");
+
 
 class Query:
     def mask(self, wx, query, isreg=0):
@@ -99,9 +114,14 @@ class Query:
             self._fcst = self._client[fcst[0]]
         self._time = time.time()
 
-    def eval(self, str):
-        co, glob, loc = self.getEval(str)
-        return eval(co, glob, loc)
+    def eval(self, queryStr):
+        timer = TimeUtil.getTimer()
+        timer.start()
+        co, glob, loc = self.getEval(queryStr)
+        area = eval(co, glob, loc)
+        timer.stop()
+        PERF_LOG.logDuration("Executing edit area query [" + queryStr + "]", timer.getElapsedTime())
+        return area
 
     def getTime(self):
         return self._time
@@ -154,22 +174,35 @@ class Query:
         rval['contains'] = self.contains
         fcstParms = self._fcst.keys()
         editAreas = self._client.editAreaNames()
+        timer = TimeUtil.getTimer()
         for name in names:
+            timer.reset()
+            timer.start()
             if name in fcstParms:
                 rval[name] = self.getGrid(self._fcst[name])
+                timer.stop()
+                PERF_LOG.logDuration("Retrieving grid for Parm [" + name + "]", timer.getElapsedTime())
             elif name + "_SFC" in fcstParms:
                 rval[name] = self.getGrid(self._fcst[name + "_SFC"])
+                timer.stop()
+                PERF_LOG.logDuration("Retrieving grid for Parm [" + name + "_SFC]", timer.getElapsedTime())
             elif name in editAreas:
                 ea = self._client.getEditArea(name)
                 if type(ea) == type(""):
                     ea = self.eval(ea)
                 rval[name] = ea
+                timer.stop()
+                PERF_LOG.logDuration("Retrieving edit area [" + name + "]", timer.getElapsedTime())
             elif string.lower(name) == 'topo':
                 rval[name] = self._client.getTopo()
+                timer.stop()
+                PERF_LOG.logDuration("Retrieving topo grid", timer.getElapsedTime())
             else:
                 tmp = self.getParm(name)
                 if tmp is not None:
                     rval[name] = self.getGrid(tmp)
+                timer.stop()
+                PERF_LOG.logDuration("Retrieving grid for Parm [" + name + "]", timer.getElapsedTime())
         return rval
 
     def willRecurse(self, name, str):
@@ -180,8 +213,23 @@ class Query:
             return 1
         return 0
 
-    def getEval(self, str):
-        co, names = self.getCode(str)
+    def getEval(self, queryStr):
+        timer = TimeUtil.getTimer()
+        timer.start()
+        co, names = self.getCode(queryStr)
+        timer.stop()
+        PERF_LOG.logDuration("Compiling edit area query [" + queryStr + "]", timer.getElapsedTime())
+        
+        timer.reset()
+        timer.start()
         loc = self.getLocals(names)
+        timer.stop()
+        PERF_LOG.logDuration("Retrieving local variables for edit area query [" + queryStr + "]", timer.getElapsedTime())
+        
+        timer.reset()
+        timer.start()
         glob = copy.copy(getattr(numpy, '__dict__'))
+        timer.stop()
+        PERF_LOG.logDuration("Creating global variables for edit area query [" + queryStr + "]", timer.getElapsedTime())
+        
         return co, glob, loc
