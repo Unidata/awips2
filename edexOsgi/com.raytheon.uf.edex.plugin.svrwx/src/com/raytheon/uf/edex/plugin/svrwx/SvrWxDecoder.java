@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
-import com.raytheon.uf.common.dataplugin.svrwx.dao.SvrWxRecordDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.plugin.svrwx.decoder.SvrWxParser;
 
