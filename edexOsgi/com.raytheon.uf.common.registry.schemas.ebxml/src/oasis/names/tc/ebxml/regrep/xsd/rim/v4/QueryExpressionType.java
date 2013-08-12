@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "QueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryExpressionType")
 @XmlSeeAlso({ StringQueryExpressionType.class, XMLQueryExpressionType.class })
@@ -89,6 +89,15 @@ public class QueryExpressionType extends ExtensibleObjectType {
     @DynamicSerializeElement
     @RegistryObjectReference
     protected String queryLanguage;
+
+    public QueryExpressionType() {
+
+    }
+
+    public QueryExpressionType(String queryLanguage) {
+        super();
+        this.queryLanguage = queryLanguage;
+    }
 
     /**
      * Gets the value of the queryLanguage property.

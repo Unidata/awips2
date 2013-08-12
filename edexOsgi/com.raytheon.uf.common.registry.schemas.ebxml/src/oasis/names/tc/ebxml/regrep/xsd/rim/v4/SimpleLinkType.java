@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "SimpleLink")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SimpleLinkType")
 @DynamicSerialize
