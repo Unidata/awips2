@@ -9,7 +9,7 @@
     <bean id="tcgProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="tcgPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.tcg" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.tcg.dao.TropicalCycloneGuidanceDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance" />
     </bean>
     

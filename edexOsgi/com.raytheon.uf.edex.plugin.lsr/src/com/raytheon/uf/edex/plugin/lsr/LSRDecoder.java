@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
-import com.raytheon.uf.common.dataplugin.lsr.dao.LocalStormReportDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.plugin.lsr.decoder.LSRParser;
 
