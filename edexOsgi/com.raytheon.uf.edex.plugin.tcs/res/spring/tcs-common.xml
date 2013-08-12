@@ -9,7 +9,7 @@
     <bean id="tcsProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="tcsPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.tcs" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.tcs.dao.TropicalCycloneSummaryDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary" />
     </bean>
     
