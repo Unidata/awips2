@@ -57,6 +57,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -983,8 +984,9 @@ public class PlotModelFactory2 {
         case LONG:
             if (dimensions == 1) {
                 Number n = ob.getNumber(element.parameter);
-                if((n != null) && (n.doubleValue() != -9999)) {
-                    if((n.doubleValue() != -9999)&&(!Double.isNaN(n.doubleValue()))) {
+                if ((n != null) && (n.doubleValue() != -9999)) {
+                    if ((n.doubleValue() != -9999)
+                            && (!Double.isNaN(n.doubleValue()))) {
                         display = n.toString();
                     }
                 }
@@ -1007,9 +1009,9 @@ public class PlotModelFactory2 {
             display = fields[element.index];
         } else if (element.ranking != null && fields != null) {
             display = element.ranking.getRankedField(fields);
-        } else if ((fields != null)&&(fields.length > 0)) {
-            StringBuilder sb = new StringBuilder(fields[fields.length-1]);
-            for(int i = fields.length-2; i >= 0;i--) {
+        } else if ((fields != null) && (fields.length > 0)) {
+            StringBuilder sb = new StringBuilder(fields[fields.length - 1]);
+            for (int i = fields.length - 2; i >= 0; i--) {
                 sb.append(" ");
                 sb.append(fields[i]);
             }
@@ -1196,19 +1198,24 @@ public class PlotModelFactory2 {
     }
 
     /**
-     * Convert an array of Numbers to their String representation. Note that indexing
-     * may be used on the return array so the output size must match the input size.
-     * @param values An array of Number to convert.
-     * @return The converted data. If the input is null, the return will be null.
+     * Convert an array of Numbers to their String representation. Note that
+     * indexing may be used on the return array so the output size must match
+     * the input size.
+     * 
+     * @param values
+     *            An array of Number to convert.
+     * @return The converted data. If the input is null, the return will be
+     *         null.
      */
     private String[] numberToStringArray(Number[] values) {
         String[] retVal = null;
-        if(values != null) {
+        if (values != null) {
             retVal = new String[values.length];
-            Arrays.fill(retVal,"");
-            for(int i = 0;i < values.length;i++) {
+            Arrays.fill(retVal, "");
+            for (int i = 0; i < values.length; i++) {
                 Number n = values[i];
-                if((n.doubleValue() != -9999)&&(!Double.isNaN(n.doubleValue()))) {
+                if ((n.doubleValue() != -9999)
+                        && (!Double.isNaN(n.doubleValue()))) {
                     retVal[i] = n.toString();
                 }
             }
@@ -1298,7 +1305,7 @@ public class PlotModelFactory2 {
 
             Map<LocalizationLevel, LocalizationFile> map = PathManagerFactory
                     .getPathManager().getTieredLocalizationFile(
-                            LocalizationType.CAVE_STATIC, "plotModels");
+                            LocalizationType.CAVE_STATIC, plotmodelDir);
             ArrayList<LocalizationLevel> keys = new ArrayList<LocalizationLevel>(
                     map.keySet());
             Collections.sort(keys);
@@ -1312,7 +1319,8 @@ public class PlotModelFactory2 {
             }
 
             File baseFile = PathManagerFactory.getPathManager().getStaticFile(
-                    "plotModels/PlotModelInterface.py");
+                    plotmodelDir + IPathManager.SEPARATOR
+                            + "PlotModelInterface.py");
             script = new PlotPythonScript(baseFile.getAbsolutePath(),
                     includePath.toString(), plotDelegateName);
             if (scriptText != null)
@@ -1359,7 +1367,7 @@ public class PlotModelFactory2 {
 
     private File getTableFile(String fileName) {
         File rval = PathManagerFactory.getPathManager().getStaticFile(
-                plotmodelDir + File.separator + fileName);
+                plotmodelDir + IPathManager.SEPARATOR + fileName);
         return rval;
     }
 
