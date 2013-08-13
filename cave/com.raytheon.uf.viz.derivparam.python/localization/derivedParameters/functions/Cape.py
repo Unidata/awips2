@@ -18,7 +18,7 @@
 # further licensing information.
 ##
 
-from com.raytheon.uf.viz.derivparam.python.function import CapeFunc
+from com.raytheon.uf.viz.derivparam.python.function import CapeFuncPythonAdapter as CapeFunc
 from numpy import zeros
 
 def execute(*args):
