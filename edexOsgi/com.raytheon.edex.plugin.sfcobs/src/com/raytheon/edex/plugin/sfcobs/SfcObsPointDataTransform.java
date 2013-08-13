@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.sfcobs.dao;
+package com.raytheon.edex.plugin.sfcobs;
 
 import java.io.File;
 import java.io.InputStream;
