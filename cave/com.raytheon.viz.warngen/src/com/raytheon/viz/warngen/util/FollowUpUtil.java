@@ -12,9 +12,10 @@ import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
+import com.raytheon.viz.warngen.gis.Direction;
 import com.raytheon.viz.warngen.gis.GisUtil;
-import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.raytheon.viz.warngen.text.ICommonPatterns;
 
 /**
@@ -30,6 +31,7 @@ import com.raytheon.viz.warngen.text.ICommonPatterns;
  * Oct 18, 2012 15332           jsanchez Fixed refactor bugs.
  * Mar 13, 2013 DR 15892    D. Friedman  Handle SMW format in canceledAreasFromText
  * Aug  6, 2013 2243        jsanchez     Updated the time ranges to be removed from the follow up list correctly.
+ * Aug 13, 2013 2243        jsanchez     Removed calendar object.
  * 
  * </pre>
  * 
@@ -56,8 +58,6 @@ public class FollowUpUtil {
             WarningAction action) {
 
         // Current Time
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(SimulatedTime.getSystemTime().getTime());
 
         boolean rval = false;
         if (record == null) {
@@ -74,7 +74,8 @@ public class FollowUpUtil {
             for (String s : config.getFollowUps()) {
                 WarningAction act = WarningAction.valueOf(s);
                 if (act == action
-                        && getTimeRange(act, record).contains(cal.getTime())
+                        && getTimeRange(act, record).contains(
+                                SimulatedTime.getSystemTime().getTime())
                         && act != WarningAction.COR) {
                     rval = true;
                 }
@@ -310,10 +311,8 @@ public class FollowUpUtil {
             AbstractWarningRecord record) {
         /* Calendars for time calculations */
 
-        Calendar start = Calendar.getInstance();
-        Calendar end = Calendar.getInstance();
-        start.setTime(SimulatedTime.getSystemTime().getTime());
-        end.setTime(SimulatedTime.getSystemTime().getTime());
+        Calendar start = TimeUtil.newCalendar();
+        Calendar end = TimeUtil.newCalendar();
 
         TimeRange rval = null;
 
