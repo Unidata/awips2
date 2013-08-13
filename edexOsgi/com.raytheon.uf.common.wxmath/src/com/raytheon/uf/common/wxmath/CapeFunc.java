@@ -17,22 +17,21 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.derivparam.python.function;
+package com.raytheon.uf.common.wxmath;
 
-import static com.raytheon.uf.viz.derivparam.python.function.AdiabeticTemperature.adiabatic_te;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c0;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c2;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_2;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.kapa;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.kapa_1;
-import static com.raytheon.uf.viz.derivparam.python.function.TempOfTe.temp_of_te;
+import static com.raytheon.uf.common.wxmath.AdiabeticTemperature.adiabatic_te;
+import static com.raytheon.uf.common.wxmath.Constants.c0;
+import static com.raytheon.uf.common.wxmath.Constants.c1;
+import static com.raytheon.uf.common.wxmath.Constants.c2;
+import static com.raytheon.uf.common.wxmath.Constants.c_1;
+import static com.raytheon.uf.common.wxmath.Constants.c_2;
+import static com.raytheon.uf.common.wxmath.Constants.kapa;
+import static com.raytheon.uf.common.wxmath.Constants.kapa_1;
+import static com.raytheon.uf.common.wxmath.TempOfTe.temp_of_te;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
-import jep.INumpyable;
 
 /**
  * We input theta and specific humidity for initial parcel because these are
@@ -55,7 +54,8 @@ import jep.INumpyable;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2013  2043       bsteffen    Ported from meteolib C
+ * Jun 03, 2013 2043       bsteffen    Ported from meteolib C
+ * Aug 13, 2013 2262       njensen     Moved from deriv params
  * 
  * </pre>
  * 
@@ -65,7 +65,21 @@ import jep.INumpyable;
 
 public class CapeFunc {
 
-    public static CapeCinPair capeFunc(float usetv, float[] p_dat,
+    /**
+     * Cape function
+     * 
+     * @param usetv
+     * @param p_dat
+     * @param tve_dat
+     * @param p0
+     * @param th0
+     * @param sh0
+     * @param nx
+     * @param ny
+     * @param nz
+     * @return two float arrays, i.e. { cap, cin }
+     */
+    public static float[][] capeFunc(float usetv, float[] p_dat,
             float[] tve_dat, float[] p0, float[] th0, float[] sh0, int nx,
             int ny, int nz) {
         int n2 = nx * ny;
@@ -83,8 +97,7 @@ public class CapeFunc {
             double pp0 = p0[i];
             double pp1 = pp0;
             if (Double.isNaN(pp0) || Double.isNaN(th0[i])
-                    || Double.isNaN(sh0[i])
-                    || sh0[i] < 0.0005) {
+                    || Double.isNaN(sh0[i]) || sh0[i] < 0.0005) {
                 tec = tvc = pc = Double.NaN;
             } else {
                 double t0 = th0[i] * pow(pp0 / 1000, kapa);
@@ -312,12 +325,26 @@ public class CapeFunc {
                 pp1 = pp;
             }
         }
-        return new CapeCinPair(ny, nx, cap, cin);
+        return new float[][] { cap, cin };
     }
 
-    // In this version we stop the computation at some arbitrary upper level,
-    // ptop.
-    public static CapeCinPair capeFuncTop(float usetv, float[] p_dat,
+    /**
+     * capeFuncTop. In this version we stop the computation at some arbitrary
+     * upper level, ptop.
+     * 
+     * @param usetv
+     * @param p_dat
+     * @param tve_dat
+     * @param p0
+     * @param th0
+     * @param sh0
+     * @param ptop
+     * @param nx
+     * @param ny
+     * @param nz
+     * @return two float arrays, i.e. { cap, cin }
+     */
+    public static float[][] capeFuncTop(float usetv, float[] p_dat,
             float[] tve_dat, float[] p0, float[] th0, float[] sh0,
             float[] ptop, int nx, int ny, int nz) {
         int n2 = nx * ny;
@@ -336,8 +363,7 @@ public class CapeFunc {
             double pp1 = pp0;
             double pfin = ptop[i];
             if (Double.isNaN(pp0) || Double.isNaN(th0[i])
-                    || Double.isNaN(sh0[i]) || sh0[i] < 0.0005
-                    || pp0 < pfin) {
+                    || Double.isNaN(sh0[i]) || sh0[i] < 0.0005 || pp0 < pfin) {
                 tec = tvc = pc = Double.NaN;
             } else {
                 double t0 = th0[i] * pow(pp0 / 1000, kapa);
@@ -580,41 +606,7 @@ public class CapeFunc {
                 pp1 = pp;
             }
         }
-        return new CapeCinPair(ny, nx, cap, cin);
-    }
-
-    public static class CapeCinPair implements INumpyable {
-
-        private final int nx;
-
-        private final int ny;
-
-        private final float[] cape;
-
-        private final float[] cin;
-
-        public CapeCinPair(int nx, int ny, float[] cape, float[] cin) {
-            this.nx = nx;
-            this.ny = ny;
-            this.cape = cape;
-            this.cin = cin;
-        }
-
-        @Override
-        public Object[] getNumPy() {
-            return new Object[] { cape, cin };
-        }
-
-        @Override
-        public int getNumpyX() {
-            return nx;
-        }
-
-        @Override
-        public int getNumpyY() {
-            return ny;
-        }
-
+        return new float[][] { cap, cin };
     }
 
 }

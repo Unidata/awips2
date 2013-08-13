@@ -17,24 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.derivparam.python.function;
+package com.raytheon.uf.common.wxmath;
 
-import static com.raytheon.uf.viz.derivparam.python.function.AdiabeticTemperature.adiabatic_te;
-import static com.raytheon.uf.viz.derivparam.python.function.CalcTw.mytw;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c0;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c2;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_2;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.kapa;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.kapa_1;
-import static com.raytheon.uf.viz.derivparam.python.function.TempOfTe.temp_of_te;
+import static com.raytheon.uf.common.wxmath.AdiabeticTemperature.adiabatic_te;
+import static com.raytheon.uf.common.wxmath.CalcTw.mytw;
+import static com.raytheon.uf.common.wxmath.Constants.c0;
+import static com.raytheon.uf.common.wxmath.Constants.c1;
+import static com.raytheon.uf.common.wxmath.Constants.c2;
+import static com.raytheon.uf.common.wxmath.Constants.c_1;
+import static com.raytheon.uf.common.wxmath.Constants.c_2;
+import static com.raytheon.uf.common.wxmath.Constants.kapa;
+import static com.raytheon.uf.common.wxmath.Constants.kapa_1;
+import static com.raytheon.uf.common.wxmath.TempOfTe.temp_of_te;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
-
-import com.raytheon.uf.common.python.PythonNumpyFloatArray;
 
 /**
  * We input theta and specific humidity for surface conditions because these are
@@ -65,7 +63,8 @@ import com.raytheon.uf.common.python.PythonNumpyFloatArray;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 05, 2013  2043       bsteffen    Ported from meteolib C
+ * Jun 05, 2013 2043       bsteffen    Ported from meteolib C
+ * Aug 13, 2013 2262       njensen     Moved from deriv params
  * 
  * </pre>
  * 
@@ -75,9 +74,9 @@ import com.raytheon.uf.common.python.PythonNumpyFloatArray;
 
 public class DCapeFunc {
 
-    public static PythonNumpyFloatArray dcapeFunc(float usetv, float[] p_dat,
-            float[] t_dat, float[] td_dat, float[] p0, float[] th0,
-            float[] sh0, int nx, int ny, int nz, float max_evap, float max_rh) {
+    public static float[] dcapeFunc(float usetv, float[] p_dat, float[] t_dat,
+            float[] td_dat, float[] p0, float[] th0, float[] sh0, int nx,
+            int ny, int nz, float max_evap, float max_rh) {
         int n2 = nx * ny;
         int nzm = nz - 1;
 
@@ -327,8 +326,7 @@ public class DCapeFunc {
                 pp1 = pp;
             }
         }
-        return new PythonNumpyFloatArray(dcape, ny, nx);
+        return dcape;
     }
-
 
 }
