@@ -168,14 +168,6 @@
         <!-- Steps to do after  running assemble. -->
         <!-- ===================================================================== -->
         <target name="postAssemble">
-        	<copy todir="${buildDirectory}/../../static/common/alertviz/etc"
-        		verbose="true">
-        		<fileset dir="${buildDirectory}/../../static/common/cave/etc">
-        			<include name="alertViz*/**" />
-        			<include name="monitorIcons/**" />
-        		</fileset>
-        	</copy>
-        	
         	<!-- Update the 32-bit linux AlertViz zip with static files -->
         	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip"
         		update="true">
@@ -205,14 +197,7 @@
             	<fileset dir="${buildDirectory}/../../static/win32.x86" 
             		excludes="cave/**" />
         		
-        	</zip>        	
-        	
-        	<delete includeEmptyDirs="true">
-        		<fileset dir="${buildDirectory}/../../static/common/alertviz/etc">
-        			<include name="alertViz*/**" />
-        			<include name="monitorIcons/**" />
-        		</fileset>
-        	</delete>
+        	</zip>
         </target>
 
 
