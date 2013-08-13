@@ -43,8 +43,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  com.raytheon.uf.viz.points;bundle-version="1.0.0",
  com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
  com.raytheon.viz.awipstools;bundle-version="1.12.1174",
- com.raytheon.edex.meteolib;bundle-version="1.12.1174",
- org.apache.batik;bundle-version="1.6.0"
+ org.apache.batik;bundle-version="1.6.0",
+ com.raytheon.uf.common.wxmath
 Import-Package: com.raytheon.viz.core.contours.util,
  com.raytheon.viz.core.drawables,
  com.raytheon.viz.core.rsc,
