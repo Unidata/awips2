@@ -17,10 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.derivparam.python.function;
+package com.raytheon.uf.common.wxmath;
+
+import static com.raytheon.uf.common.wxmath.Constants.c0;
+import static com.raytheon.uf.common.wxmath.Constants.c1;
+import static com.raytheon.uf.common.wxmath.Constants.c2;
+import static java.lang.Math.exp;
 
 /**
- * Consolidated constants from various meteolib functions.
+ * This routine calculates the equivalent tempurature of a temperature and
+ * pressure using the adiabatic definition, assuming saturation put a fudge
+ * factor into L/cp to get agreement of moist adiabats with a published
+ * thermodynamic diagram *
  * 
  * <pre>
  * 
@@ -28,7 +36,8 @@ package com.raytheon.uf.viz.derivparam.python.function;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 06, 2013  2043       bsteffen    Ported from meteolib C
+ * Jun 03, 2013 2043       bsteffen    Ported from meteolib C
+ * Aug 13, 2013 2262       njensen     Moved from deriv params
  * 
  * </pre>
  * 
@@ -36,29 +45,11 @@ package com.raytheon.uf.viz.derivparam.python.function;
  * @version 1.0
  */
 
-public class Constants {
+public class AdiabeticTemperature {
 
-    // from meteoLib capeFunc.c
-    public static final double c0 = 26.66082;
-
-    // from meteoLib capeFunc.c
-    public static final double c1 = 0.0091379024;
-
-    // from meteoLib capeFunc.c
-    public static final double c2 = 6106.396;
-
-    // from meteoLib capeFunc.c
-    public static final double c_1 = 223.1986;
-
-    // from meteoLib capeFunc.c
-    public static final double c_2 = 0.0182758048;
-
-    // from meteoLib capeFunc.c
-    public static final double kapa = 0.286;
-
-    // from meteoLib capeFunc.c
-    public static final double kapa_1 = 3.498257;
-
-    // from meteoLib calctw.f
-    public static final double f = 0.0006355;
+    public static double adiabatic_te(double temp, double press) {
+        double e = exp(c0 - c1 * temp - c2 / temp);
+        e = 0.622 * e / (press - e);
+        return temp * exp(2740.0 * e / temp);
+    }
 }
