@@ -10,7 +10,7 @@
 		<property name="pluginName" ref="scanPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.scan" />
 		<property name="dao"
-			value="com.raytheon.uf.common.dataplugin.scan.dao.ScanDao" />
+			value="com.raytheon.uf.edex.plugin.scan.ScanDao" />
 		<property name="record"
 			value="com.raytheon.uf.common.dataplugin.scan.ScanRecord" />
 		<property name="compression" value="LZF"/>
