@@ -38,8 +38,6 @@ public class StaticPlotInfoPV {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StaticPlotInfoPV.class);
 
-    private static final String plotmodelDir = "plotModels";
-
     private static final String REGEX = "^\\s*(\\d+)\\s*(\\S+)\\s*(-?\\d+\\.\\d+)\\s*(-?\\d+\\.\\d+)\\s*(-?\\d+)\\s*(-?\\d+\\.\\d+)\\s*(\\S*)$";
 
     private final HashMap<String, SPIEntry> spiList;
