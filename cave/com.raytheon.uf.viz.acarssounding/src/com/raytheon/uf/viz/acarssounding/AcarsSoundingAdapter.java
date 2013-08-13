@@ -21,14 +21,14 @@ package com.raytheon.uf.viz.acarssounding;
 
 import java.util.ArrayList;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
+import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.sounding.adapter.AbstractVerticalSoundingAdapter;
-import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
-import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
+import com.raytheon.uf.common.wxmath.ZToPsa;
 
 /**
  * 
@@ -38,7 +38,8 @@ import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 1, 2008        1747 jkorman     Initial creation
+ * Dec 01, 2008  1747      jkorman     Initial creation
+ * Aug 14, 2013  2262      dgilling    Use new wxmath method for ztopsa.
  * 
  * </pre>
  * 
@@ -104,11 +105,9 @@ public class AcarsSoundingAdapter extends AbstractVerticalSoundingAdapter {
                     sndLayer.setWindSpeed(layer.getWindSpeed().floatValue());
                 }
                 if (layer.getPressure() != null) {
-                    sndLayer
-                            .setPressure(layer.getPressure().floatValue() / 100);
+                    sndLayer.setPressure(layer.getPressure().floatValue() / 100);
                 } else if (layer.getFlightLevel() != null) {
-                    sndLayer.setPressure(Controller.ztopsa(layer
-                            .getFlightLevel()));
+                    sndLayer.setPressure(ZToPsa.ztopsa(layer.getFlightLevel()));
                 }
                 if (layer.getFlightLevel() != null) {
                     sndLayer.setGeoHeight(layer.getFlightLevel().floatValue());
