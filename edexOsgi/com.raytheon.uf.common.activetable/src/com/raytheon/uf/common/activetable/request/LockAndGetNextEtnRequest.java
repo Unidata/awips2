@@ -17,35 +17,40 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.activetable;
+package com.raytheon.uf.common.activetable.request;
 
 import java.util.Calendar;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * TODO Add Description
+ * Request to lock active table and get next ETN to be used.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 14, 2011            rjpeter     Initial creation
- * Aug 26, 2013  #1843     dgilling    Add performISC field, proper constructors.
+ * Aug 19, 2013  #1843     dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author rjpeter
+ * @author dgilling
  * @version 1.0
  */
+
 @DynamicSerialize
-public class GetNextEtnRequest implements IServerRequest {
+public class LockAndGetNextEtnRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private String siteID;
+
+    @DynamicSerializeElement
+    private String requestorSiteID;
 
     @DynamicSerializeElement
     private ActiveTableMode mode;
@@ -56,45 +61,17 @@ public class GetNextEtnRequest implements IServerRequest {
     @DynamicSerializeElement
     private Calendar currentTime;
 
-    @DynamicSerializeElement
-    private boolean lockEtn;
-
-    @DynamicSerializeElement
-    private boolean performISC;
-
-    public GetNextEtnRequest() {
-        // no-op, for dynamic serialize support
+    public LockAndGetNextEtnRequest() {
+        // default constructor for thrift/dynamicserialize
     }
 
-    /**
-     * @param siteID
-     * @param mode
-     * @param phensig
-     * @param currentTime
-     * @param lockEtn
-     */
-    public GetNextEtnRequest(String siteID, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean lockEtn) {
-        this(siteID, mode, phensig, currentTime, lockEtn, false);
-    }
-
-    /**
-     * @param siteID
-     * @param mode
-     * @param phensig
-     * @param currentTime
-     * @param lockEtn
-     * @param performISC
-     */
-    public GetNextEtnRequest(String siteID, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean lockEtn,
-            boolean performISC) {
+    public LockAndGetNextEtnRequest(String siteID, String requestorSiteID,
+            ActiveTableMode mode, String phensig, Calendar currentTime) {
         this.siteID = siteID;
+        this.requestorSiteID = requestorSiteID;
         this.mode = mode;
         this.phensig = phensig;
         this.currentTime = currentTime;
-        this.lockEtn = lockEtn;
-        this.performISC = performISC;
     }
 
     public String getSiteID() {
@@ -103,6 +80,14 @@ public class GetNextEtnRequest implements IServerRequest {
 
     public void setSiteID(String siteID) {
         this.siteID = siteID;
+    }
+
+    public String getRequestorSiteID() {
+        return requestorSiteID;
+    }
+
+    public void setRequestorSiteID(String requestorSiteID) {
+        this.requestorSiteID = requestorSiteID;
     }
 
     public ActiveTableMode getMode() {
@@ -121,27 +106,11 @@ public class GetNextEtnRequest implements IServerRequest {
         this.phensig = phensig;
     }
 
-    public boolean isLockEtn() {
-        return lockEtn;
-    }
-
-    public void setLockEtn(boolean lockEtn) {
-        this.lockEtn = lockEtn;
-    }
-
     public Calendar getCurrentTime() {
         return currentTime;
     }
 
     public void setCurrentTime(Calendar currentTime) {
         this.currentTime = currentTime;
-    }
-
-    public boolean isPerformISC() {
-        return performISC;
-    }
-
-    public void setPerformISC(boolean performISC) {
-        this.performISC = performISC;
     }
 }
