@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.warngen.gui;
 
-import java.util.Calendar;
-
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -37,7 +35,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
- * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string.
+ * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
  * 
  * </pre>
  * 
@@ -121,6 +119,8 @@ public class FollowupData extends WarningRecord {
             message = "Continuation no longer allowed; within 5 minutes of warning expiration.";
         } else if (action == WarningAction.EXP) {
             message = "Expiration no longer allowed; after 10 minutes of warning expiration.";
+        } else if (action == WarningAction.EXT) {
+            message = "Extention no longer allowed; within 5 minutes of warning expiration.";
         }
         return message;
     }
@@ -137,12 +137,11 @@ public class FollowupData extends WarningRecord {
     private String buildExpStr(WarningAction status,
             AbstractWarningRecord record) {
         StringBuilder rval = new StringBuilder();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(SimulatedTime.getSystemTime().getTime());
+        long timeInMillis = SimulatedTime.getSystemTime().getMillis();
         if (status != WarningAction.COR) {
             // Positive means not yet expired
-            long diffMins = (record.getEndTime().getTimeInMillis() - cal
-                    .getTimeInMillis()) / TimeUtil.MILLIS_PER_MINUTE;
+            long diffMins = (record.getEndTime().getTimeInMillis() - timeInMillis)
+                    / TimeUtil.MILLIS_PER_MINUTE;
             if (diffMins == 0) {
                 rval.append(" Expired");
             } else if (diffMins > 0) {
@@ -151,7 +150,7 @@ public class FollowupData extends WarningRecord {
                 rval.append(" Exp ").append(-diffMins).append(" min ago");
             }
         } else {
-            long diffMins = (cal.getTimeInMillis() - record.getIssueTime()
+            long diffMins = (timeInMillis - record.getIssueTime()
                     .getTimeInMillis()) / TimeUtil.MILLIS_PER_MINUTE;
             if (diffMins == 0) {
                 rval.append(" Just Issued");
