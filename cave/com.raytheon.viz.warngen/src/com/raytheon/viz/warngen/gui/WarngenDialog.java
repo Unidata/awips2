@@ -69,6 +69,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -391,8 +393,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         durationList.setLayoutData(gd);
         durationList.setEnabled(config.isEnableDuration());
 
-        startTime = Calendar.getInstance();
-        startTime.setTime(SimulatedTime.getSystemTime().getTime());
+        startTime = TimeUtil.newCalendar();
         endTime = DurationUtil.calcEndTime(this.startTime,
                 defaultDuration.minutes);
 
@@ -935,17 +936,23 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Select the previously selected item.
         invalidFollowUpAction = false;
         if (currentSelection != null) {
-            boolean isValid = false;
             for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                 if (updateListCbo.getItem(i).startsWith(
                         currentSelection.getEquvialentString())) {
                     updateListCbo.select(i);
-                    isValid = true;
                     break;
                 }
             }
 
-            if (!isValid) {
+            WarningAction action = WarningAction.valueOf(currentSelection
+                    .getAct());
+            TimeRange timeRange = FollowUpUtil.getTimeRange(action,
+                    currentSelection);
+            // Checks if selection is invalid based on the time range. A follow
+            // up option could be removed due to an action such as a CAN or an
+            // EXP. If an action removes the follow up, then no warning message
+            // should be displayed.
+            if (!timeRange.contains(SimulatedTime.getSystemTime().getTime())) {
                 invalidFollowUpAction = true;
                 preventFollowUpAction(currentSelection);
             }
@@ -1525,6 +1532,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         } catch (VizException e1) {
             statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
+        // Properly sets the "Create Text" button.
+        setInstructions();
     }
 
     protected void recreateDurations(Combo durList) {
@@ -1901,14 +1910,12 @@ public class WarngenDialog extends CaveSWTDialog implements
                             .getSelectionIndex()));
             if (fd == null
                     || (WarningAction.valueOf(fd.getAct()) == WarningAction.NEW)) {
-                startTime = Calendar.getInstance();
-                startTime.setTime(SimulatedTime.getSystemTime().getTime());
+                startTime = TimeUtil.newCalendar();
                 endTime = DurationUtil.calcEndTime(this.startTime, duration);
                 start.setText(df.format(this.startTime.getTime()));
                 end.setText(df.format(this.endTime.getTime()));
             } else if (WarningAction.valueOf(fd.getAct()) == WarningAction.EXT) {
-                startTime = Calendar.getInstance();
-                startTime.setTime(SimulatedTime.getSystemTime().getTime());
+                startTime = TimeUtil.newCalendar();
                 endTime = DurationUtil.calcEndTime(extEndTime, duration);
                 end.setText(df.format(this.endTime.getTime()));
             }
@@ -2132,8 +2139,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getItem(durationList.getSelectionIndex()))).minutes;
         warngenLayer.getStormTrackState().duration = duration;
 
-        startTime = Calendar.getInstance();
-        startTime.setTime(SimulatedTime.getSystemTime().getTime());
+        startTime = TimeUtil.newCalendar();
         extEndTime = newWarn.getEndTime();
         endTime = DurationUtil.calcEndTime(extEndTime, duration);
         end.setText(df.format(this.endTime.getTime()));
