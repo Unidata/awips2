@@ -1,4 +1,4 @@
-package com.raytheon.uf.common.dataplugin.ffmp.dao;
+package com.raytheon.uf.edex.plugin.ffmp;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
