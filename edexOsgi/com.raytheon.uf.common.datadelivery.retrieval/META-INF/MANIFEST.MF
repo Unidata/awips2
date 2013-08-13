@@ -4,7 +4,7 @@ Bundle-Name: Providerretrieval
 Bundle-SymbolicName: com.raytheon.uf.common.datadelivery.retrieval
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",

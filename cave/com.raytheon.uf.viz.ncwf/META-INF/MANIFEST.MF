@@ -7,9 +7,7 @@ Bundle-Activator: com.raytheon.uf.viz.ncwf.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.db.dao,
- com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.ncwf,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.datastorage.records,
@@ -43,4 +41,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.ncwf,
  com.raytheon.uf.viz.ncwf.rsc
 Require-Bundle: com.raytheon.uf.viz.core,
- com.raytheon.viz.core;bundle-version="1.11.16"
+ com.raytheon.viz.core,
+ com.raytheon.uf.common.dataplugin.bufrncwf
