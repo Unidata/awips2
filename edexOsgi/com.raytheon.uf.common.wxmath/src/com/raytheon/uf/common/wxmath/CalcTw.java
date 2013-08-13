@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.derivparam.python.function;
+package com.raytheon.uf.common.wxmath;
 
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c0;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c2;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_2;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.f;
+import static com.raytheon.uf.common.wxmath.Constants.c0;
+import static com.raytheon.uf.common.wxmath.Constants.c1;
+import static com.raytheon.uf.common.wxmath.Constants.c2;
+import static com.raytheon.uf.common.wxmath.Constants.c_1;
+import static com.raytheon.uf.common.wxmath.Constants.c_2;
+import static com.raytheon.uf.common.wxmath.Constants.f;
 import static java.lang.Math.abs;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
@@ -57,7 +57,8 @@ import static java.lang.Math.sqrt;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 06, 2013  2043       bsteffen    Ported from meteolib fortran
+ * Jun 06, 2013 2043       bsteffen    Ported from meteolib fortran
+ * Aug 13, 2013 2262       njensen     Moved from deriv params
  * 
  * </pre>
  * 
