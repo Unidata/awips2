@@ -30,6 +30,8 @@ package com.raytheon.uf.common.wxmath;
  * ------------ ---------- ----------- --------------------------
  * Jun 06, 2013 2043       bsteffen    Ported from meteolib C
  * Aug 13, 2013 2262       njensen     Moved from deriv params
+ * Aug 13, 2013 2262       dgilling    Adding additional constants from
+ *                                     calcrh.f, hgt2pres.f, ztopsa.f, ptozsa.f
  * 
  * </pre>
  * 
@@ -39,20 +41,29 @@ package com.raytheon.uf.common.wxmath;
 
 public class Constants {
 
+    // from meteoLib calcrh.f
+    public static final double b = 0.0091379024;
+
+    // from meteoLib calcrh.f
+    public static final double c = 6106.396;
+
     // from meteoLib capeFunc.c
     public static final double c0 = 26.66082;
 
     // from meteoLib capeFunc.c
-    public static final double c1 = 0.0091379024;
+    public static final double c1 = b;
 
     // from meteoLib capeFunc.c
-    public static final double c2 = 6106.396;
+    public static final double c2 = c;
 
     // from meteoLib capeFunc.c
     public static final double c_1 = 223.1986;
 
     // from meteoLib capeFunc.c
     public static final double c_2 = 0.0182758048;
+
+    // from meteoLib calcrh.f
+    public static final double k0 = 273.15;
 
     // from meteoLib capeFunc.c
     public static final double kapa = 0.286;
@@ -62,4 +73,30 @@ public class Constants {
 
     // from meteoLib calctw.f
     public static final double f = 0.0006355;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double T0 = 288.0;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double gamma = 0.0065;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double p0 = 1013.2;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double p11 = 226.0971;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double z11 = 11000.0;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double HGT_PRES_c1 = 5.256;
+
+    // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
+    public static final double HGT_PRES_c2 = 14600.0;
+
+    // Never allow this class to be directly instantiated
+    private Constants() {
+        throw new AssertionError();
+    }
 }
