@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.bufrhdw.BufrHDWObs;
-import com.raytheon.uf.common.dataplugin.bufrhdw.dao.BufrHDWObsDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
