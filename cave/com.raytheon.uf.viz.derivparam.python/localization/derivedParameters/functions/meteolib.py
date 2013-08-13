@@ -20,7 +20,17 @@
 
 # Provide access to the meteolib functions through the java library
 
+##
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Aug 13, 2013    2262          dgilling       Use new wxmath routine ports.
+########################################################################
 
+
+from com.raytheon.uf.common.wxmath import PToZsa
+from com.raytheon.uf.common.wxmath import ZToPsa
 from com.raytheon.edex.meteoLib import Controller
 from jep import jarray, JFLOAT_ID
 import numpy
@@ -29,7 +39,7 @@ import numpy
 def ztopsa(Z):
     if isinstance(Z, float) or isinstance(Z, numpy.float32):
         if (Z > -9998): 
-            return Controller.ztopsa(float(Z))
+            return ZToPsa.ZToPsa(float(Z))
     elif isinstance(Z, numpy.ndarray):
         result = numpy.ndarray(Z.shape, numpy.float32)
         for i in range(len(Z)):
@@ -41,7 +51,7 @@ def ztopsa(Z):
 def ptozsa(P):
     if isinstance(P, float) or isinstance(P, numpy.float32):
         if (P > -9998):
-            return Controller.ptozsa(float(P))
+            return PToZsa.ptozsa(float(P))
     elif isinstance(P, numpy.ndarray):
         result = numpy.ndarray(P.shape, numpy.float32)
         for i in range(len(P)):

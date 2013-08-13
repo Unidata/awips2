@@ -23,4 +23,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.viz.derivparam;bundle-version="1.12.1174",
  com.raytheon.viz.pointdata;bundle-version="1.12.1174",
- com.raytheon.edex.meteolib;bundle-version="1.12.1174"
+ com.raytheon.uf.common.wxmath
