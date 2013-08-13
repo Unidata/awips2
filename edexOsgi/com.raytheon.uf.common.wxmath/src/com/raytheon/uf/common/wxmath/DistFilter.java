@@ -17,16 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.derivparam.python.function;
+package com.raytheon.uf.common.wxmath;
 
 import java.util.Arrays;
 
-import jep.INumpyable;
-
-import com.raytheon.uf.common.python.PythonNumpyFloatArray;
-
 /**
- * TODO Add Description
+ * Ported from dist_filter.c
  * 
  * <pre>
  * 
@@ -35,6 +31,7 @@ import com.raytheon.uf.common.python.PythonNumpyFloatArray;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2011            rjpeter     Initial creation
+ * Aug 13, 2013 2262       njensen     Moved from deriv params
  * 
  * </pre>
  * 
@@ -60,14 +57,14 @@ public class DistFilter {
      * @param times
      * @return
      */
-    public static INumpyable filter(float[] input, float npts, int nx, int ny,
+    public static float[] filter(float[] input, float npts, int nx, int ny,
             int times) {
         float[] output = new float[input.length];
 
         // copy the data if needed
         if (npts <= 1.0) {
             System.arraycopy(input, 0, output, 0, input.length);
-            return new PythonNumpyFloatArray(output, nx, ny);
+            return output;
         }
 
         int i, j, ii, jj;
@@ -225,6 +222,6 @@ public class DistFilter {
             input = output;
         }
 
-        return new PythonNumpyFloatArray(output, nx, ny);
+        return output;
     }
 }
