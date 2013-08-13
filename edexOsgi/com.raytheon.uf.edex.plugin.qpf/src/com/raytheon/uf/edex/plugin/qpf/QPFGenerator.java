@@ -28,7 +28,6 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord;
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord.DATA_TYPE;
-import com.raytheon.uf.common.dataplugin.qpf.dao.QPFDao;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
