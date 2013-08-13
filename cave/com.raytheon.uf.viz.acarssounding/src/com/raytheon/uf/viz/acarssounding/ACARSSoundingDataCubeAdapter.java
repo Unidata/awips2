@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.wxmath.ZToPsa;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -63,6 +63,7 @@ import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 26, 2012            bsteffen     Initial javadoc
+ * Aug 14, 2013  2262      dgilling     Use new wxmath method for ztopsa.
  * 
  * </pre>
  * 
@@ -258,7 +259,7 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
                         } else if (levelParam.equals(PRESSURE)) {
                             value = layers[j].getPressure();
                             if (value == null) {
-                                value = Controller.ztopsa(layers[j]
+                                value = ZToPsa.ztopsa(layers[j]
                                         .getFlightLevel());
                             } else {
                                 value = value.floatValue() / 100;
