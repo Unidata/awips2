@@ -24,6 +24,8 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import org.eclipse.jface.action.AbstractGroupMarker;
+import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
 
@@ -41,6 +43,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009             chammack    Initial creation
+ * Aug 13, 2013       2033 mschenke    Made non-visible separators work
  * 
  * </pre>
  * 
@@ -66,9 +69,13 @@ public class SeparatorMenuContribution extends
         if (removals.contains(item.id))
             return new IContributionItem[0];
 
-        Separator s = new Separator(item.id);
-        s.setVisible(item.visible);
-        return new IContributionItem[] { s };
+        AbstractGroupMarker marker;
+        if (item.visible) {
+            marker = new Separator(item.id);
+        } else {
+            marker = new GroupMarker(item.id);
+        }
+        return new IContributionItem[] { marker };
     }
 
 }
