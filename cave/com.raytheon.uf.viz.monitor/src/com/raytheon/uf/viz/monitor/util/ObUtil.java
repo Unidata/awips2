@@ -31,6 +31,7 @@ import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.ThreatLevel;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.wxmath.CalcRH;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.viz.aviation.model.CloudGroup;
 
@@ -45,6 +46,7 @@ import com.raytheon.viz.aviation.model.CloudGroup;
  * Feb 12, 2009 1999       grichard    Initial creation.
  * 2/25/2009    2047       grichard    Added SNOW report generation method.
  * Jan 19, 2010 4240       zhao        Modified generateObReportSnow method
+ * Aug 14, 2013 2262       dgilling    Use new wxmath method for calcrh.
  * 
  * </pre>
  * 
@@ -82,7 +84,7 @@ public final class ObUtil {
         dropTime.add(Calendar.HOUR, -(ObConst.THREAT_INTERVAL_HOURS));
         return dropTime.getTime();
     }
-    
+
     /**
      * Method that gets the current time.
      * 
@@ -387,17 +389,20 @@ public final class ObUtil {
         float spd;
 
         /* arbitrarily do the calculation only for temps at or below 60F */
-        if (temp > 16.)
+        if (temp > 16.) {
             return 1e37f;
+        }
 
         /* no chilling if speed < 4 mph = 6.44km/h */
-        if (windSpd < 6.4)
+        if (windSpd < 6.4) {
             return temp;
+        }
         /* peg speed at 80 mph (= 128.75 km/h) */
-        if (windSpd > 128.75)
+        if (windSpd > 128.75) {
             spd = 128.75f;
-        else
+        } else {
             spd = windSpd;
+        }
 
         spd = (float) Math.pow(spd, 0.16);
         float windChillTemp = 13.12f + 0.6215f * temp - 11.37f * spd + 0.3965f
@@ -421,16 +426,18 @@ public final class ObUtil {
         // Temperature must be lower than -4.8C (23F) to avoid a calculation
         // error (a negative number to -1.668 power is NAN)
 
-        if (temperatureC < -4.8)
+        if (temperatureC < -4.8) {
             fbMinutes = ((-24.5f * ((0.667f * windspeedKPH) + 4.8f)) + 2111f)
                     * (float) Math.pow((-4.8 - temperatureC), -1.668);
-        else
+        } else {
             return ObConst.MISSING;
+        }
 
         // Check for frostbite boundaries
 
-        if (!(fbMinutes <= 30 && windspeedKPH > 25.0 && windspeedKPH <= 80.5))
+        if (!(fbMinutes <= 30 && windspeedKPH > 25.0 && windspeedKPH <= 80.5)) {
             fbMinutes = ObConst.MISSING;
+        }
 
         return fbMinutes;
     }
@@ -505,8 +512,7 @@ public final class ObUtil {
 
     /**
      * This method determines the RH from temperature and dew point in degrees
-     * celsius. It calls the "calcrh" Meteolib method that is wrapped by the
-     * "Controller" class.
+     * celsius.
      * 
      * @param obReport
      *            -- the observation report
@@ -521,28 +527,14 @@ public final class ObUtil {
                 && obReport.getTemperature() < 1e30f
                 && obReport.getDewpoint() != ObConst.MISSING
                 && obReport.getDewpoint() < 1e30f) {
-
-            float[] tempC = { obReport.getTemperature() };
-            float[] dewptC = { obReport.getDewpoint() };
-
-            // Set up dimension values for impending calcrh() call
-            // (no arrays, just sending individual values, so
-            // set dims to 1)
-            int ndim1 = 1, idim = 1, jdim = 1;
-
-            float[] relHum = { ObConst.MISSING };
-
             // Call calcrh from meteoLib.
-            // calcrh(&tempC, &dewptC, &ndim1, &idim, &jdim, &relHum);
-            relHum = com.raytheon.edex.meteoLib.Controller.calcrh(tempC,
-                    dewptC, ndim1, idim, jdim);
-
-            if (relHum[0] < 0f || relHum[0] > 100f) {
+            float relHum = CalcRH.calcrh(obReport.getTemperature(),
+                    obReport.getDewpoint());
+            if (Float.isNaN(relHum) || relHum < 0f || relHum > 100f) {
                 obReport.setRelativeHumidity(ObConst.MISSING);
             } else {
-                obReport.setRelativeHumidity(relHum[0]);
+                obReport.setRelativeHumidity(relHum);
             }
-
         }
 
         return true;
