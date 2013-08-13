@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.qpf.dao;
+package com.raytheon.uf.edex.plugin.qpf;
 
 import java.util.ArrayList;
 import java.util.List;
