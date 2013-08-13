@@ -17,11 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.bufrhdw.dao;
+package com.raytheon.uf.edex.plugin.bufrssmi;
 
 import java.util.List;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.bufrhdw.BufrHDWObs;
+import com.raytheon.uf.common.dataplugin.bufrssmi.SSMIScanData;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -41,14 +41,14 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * @author jkorman
  * @version 1.0 
  */
-public class BufrHDWObsDao extends PointDataPluginDao<BufrHDWObs> {
+public class SSMIScanDataDao extends PointDataPluginDao<SSMIScanData> {
 
     /**
      * Creates a new BufrMOSDao object.
      * 
      * @throws PluginException
      */
-    public BufrHDWObsDao(String pluginName) throws PluginException {
+    public SSMIScanDataDao(String pluginName) throws PluginException {
         super(pluginName);
     }
 
@@ -59,8 +59,8 @@ public class BufrHDWObsDao extends PointDataPluginDao<BufrHDWObs> {
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public BufrHDWObs queryByDataURI(String dataURI) {
-        BufrHDWObs report = null;
+    public SSMIScanData queryByDataURI(String dataURI) {
+        SSMIScanData report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -68,7 +68,7 @@ public class BufrHDWObsDao extends PointDataPluginDao<BufrHDWObs> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (BufrHDWObs) obs.get(0);
+            report = (SSMIScanData) obs.get(0);
         }
         return report;
     }
@@ -84,7 +84,7 @@ public class BufrHDWObsDao extends PointDataPluginDao<BufrHDWObs> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.bufrhdw where datauri='"
+        String sql = "select datauri from awips.bufrssmi where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
@@ -98,12 +98,12 @@ public class BufrHDWObsDao extends PointDataPluginDao<BufrHDWObs> {
     }
 
     @Override
-    public String getPointDataFileName(BufrHDWObs p) {
-        return "hdw.h5";
+    public String getPointDataFileName(SSMIScanData p) {
+        return "ssmi.h5";
     }
 
     @Override
-    public BufrHDWObs newObject() {
-        return new BufrHDWObs();
+    public SSMIScanData newObject() {
+        return new SSMIScanData();
     }
 }
