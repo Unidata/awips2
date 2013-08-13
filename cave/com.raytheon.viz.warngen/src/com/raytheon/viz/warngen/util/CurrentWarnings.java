@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -256,9 +257,8 @@ public class CurrentWarnings {
     public List<AbstractWarningRecord> getCorrectableWarnings(
             AbstractWarningRecord warnRec) {
         List<AbstractWarningRecord> rval = new ArrayList<AbstractWarningRecord>();
-        Calendar current = Calendar.getInstance();
+        Calendar current = TimeUtil.newCalendar();
         Calendar end = Calendar.getInstance();
-        current.setTime(SimulatedTime.getSystemTime().getTime());
 
         synchronized (officeId) {
             List<AbstractWarningRecord> records = warningMap.get(toKey(
@@ -371,8 +371,7 @@ public class CurrentWarnings {
             List<AbstractWarningRecord> warnings = warningMap.get(toKey(
                     phensig, etn));
             if (warnings != null) {
-                Calendar c = Calendar.getInstance();
-                c.setTime(SimulatedTime.getSystemTime().getTime());
+                Calendar c = TimeUtil.newCalendar();
                 c.add(Calendar.MINUTE, -10);
                 TimeRange t = new TimeRange(c.getTime(), SimulatedTime
                         .getSystemTime().getTime());
@@ -411,8 +410,7 @@ public class CurrentWarnings {
                 AbstractWarningRecord newProd = null;
                 boolean conMatchesCan = false;
                 ArrayList<AbstractWarningRecord> conProds = new ArrayList<AbstractWarningRecord>();
-                Calendar c = Calendar.getInstance();
-                c.setTime(SimulatedTime.getSystemTime().getTime());
+                Calendar c = TimeUtil.newCalendar();
                 c.add(Calendar.MINUTE, -10);
                 TimeRange t = new TimeRange(c.getTime(), SimulatedTime
                         .getSystemTime().getTime());
