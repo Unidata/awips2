@@ -40,6 +40,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
@@ -70,7 +71,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * @author bgonzale
  * @version 1.0
  */
-
+@Ignore
 public class ArchiveConfigManagerTest {
 
     private static final String RAW = "Raw";
@@ -172,8 +173,8 @@ public class ArchiveConfigManagerTest {
         // **** binlightning ****
         MessageFormat binlightningFormat_Raw = new MessageFormat(
                 "/binlightning/{0}{1}{2}/{3}/SFUS41_KWBC_{6}{7}{8}_22725485.nldn.{4}{5}{6}{7}");
-        createTestFiles(binlightningFormat_Raw, archiveRaw, "Misc",
-                false, archiveStart, archiveEnd);
+        createTestFiles(binlightningFormat_Raw, archiveRaw, "Misc", false,
+                archiveStart, archiveEnd);
         MessageFormat binlightningFormat_Processed = new MessageFormat(
                 "/binlightning/binlightning-{4}-{5}-{6}-{7}.h5");
         createTestFiles(binlightningFormat_Processed, archiveProcessed, "Misc",
@@ -195,8 +196,7 @@ public class ArchiveConfigManagerTest {
 
     private int getRetentionHours(ArchiveConfig archive, CategoryConfig category) {
         return category == null || category.getRetentionHours() == 0 ? archive
-                .getRetentionHours()
-                : category.getRetentionHours();
+                .getRetentionHours() : category.getRetentionHours();
     }
 
     private CategoryConfig getCategory(ArchiveConfig archive,
