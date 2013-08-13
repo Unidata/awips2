@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
  * Feb 15, 2013 1543       djohnson     Some renames.
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * Mar 19, 2013 1794       djohnson     Read from a queue rather than the file system.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * 
  * </pre>
  * 
@@ -113,7 +115,8 @@ public class DeserializeRetrievedDataFromIngestTest {
 
         new SerializeRetrievedDataToDirectory(directory,
                 new AlwaysSameWmoHeader("SMYG10 LYBM 280000"))
-                .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
+                .processRetrievedPluginDataObjects("", "", "", new Date(),
+                        retrievalPluginDataObjects);
 
         final List<File> files = FileUtil.listFiles(directory,
                 FilenameFilters.ACCEPT_FILES, false);
