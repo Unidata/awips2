@@ -17,9 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.derivparam.python.function;
+package com.raytheon.uf.common.wxmath;
 
-import static com.raytheon.uf.viz.derivparam.python.function.AdiabeticTemperature.adiabatic_te;
+import static com.raytheon.uf.common.wxmath.AdiabeticTemperature.adiabatic_te;
 import static java.lang.Math.sqrt;
 
 /**
@@ -32,7 +32,8 @@ import static java.lang.Math.sqrt;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2013  2043       bsteffen    Ported from meteolib C
+ * Jun 03, 2013 2043       bsteffen    Ported from meteolib C
+ * Aug 13, 2013 2262       njensen     Moved from deriv params
  * 
  * </pre>
  * 
