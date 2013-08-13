@@ -1,4 +1,4 @@
-package com.raytheon.uf.common.dataplugin.fog.dao;
+package com.raytheon.uf.edex.plugin.cwat;
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -24,61 +24,62 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.fog.FogRecord;
+import com.raytheon.uf.common.dataplugin.cwat.CWATRecord;
+import com.raytheon.uf.common.dataplugin.cwat.CWATRecord.DATA_TYPE;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
+import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
- * FOG specified data access object.
+ * CWAT specified data access object.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 12/12/09     2037         dhladky    Initial Creation
+ * 06/03/09     2037         dhladky    Initial Creation
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-public class FogDao extends PluginDao {
+public class CWATDao extends PluginDao {
 
-    public FogDao(String pluginName) throws PluginException {
+    public CWATDao(String pluginName) throws PluginException {
         super(pluginName);
     }
 
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
-        FogRecord fogRec = (FogRecord) obj;
+        CWATRecord cwatRec = (CWATRecord) obj;
 
-        if (fogRec.getVisArray() != null) {
-            IDataRecord rec = new IntegerDataRecord(FogRecord.CHANNEL.VIS.getChannel(), fogRec.getDataURI(),
-                    fogRec.getVisArray(), 2, new long[] { fogRec.getNx(),
-                fogRec.getNy() });
-            rec.setCorrelationObject(fogRec);
+        if (cwatRec.getDataArray() != null
+                && cwatRec.getFieldName().equals(DATA_TYPE.CWAT.name())) {
+
+            IDataRecord rec = new ShortDataRecord("Data", cwatRec.getDataURI(),
+            		cwatRec.getDataArray(), 2, new long[] { cwatRec.getNx(),
+            	cwatRec.getNy() });
+            rec.setCorrelationObject(cwatRec);
             dataStore.addDataRecord(rec);
         }
-
-        if (fogRec.getIR_3_9Array() != null) {
-            IDataRecord rec = new IntegerDataRecord(FogRecord.CHANNEL.IR3_9.getChannel(), fogRec.getDataURI(),
-                    fogRec.getIR_3_9Array(), 2, new long[] { fogRec.getNx(),
-                fogRec.getNy() });
-            rec.setCorrelationObject(fogRec);
-            dataStore.addDataRecord(rec);
+        
+        if (cwatRec.getThreats() != null) {
+            byte[] data = DynamicSerializationManager.getManager(
+                    SerializationType.Thrift).serialize(
+                            cwatRec.getThreats());
+            ByteDataRecord bdr = new ByteDataRecord(CWATRecord.THREATS, cwatRec
+                    .getDataURI(), data);
+            dataStore.addDataRecord(bdr);
         }
 
-        if (fogRec.getIR_10_7Array() != null) {
-            IDataRecord rec = new IntegerDataRecord(FogRecord.CHANNEL.IR10_7.getChannel(), fogRec.getDataURI(),
-                    fogRec.getIR_10_7Array(), 2, new long[] { fogRec.getNx(),
-                fogRec.getNy() });
-            rec.setCorrelationObject(fogRec);
-            dataStore.addDataRecord(rec);
-        }
+        logger.debug("CWATDao: writing " + cwatRec.toString());
 
         return dataStore;
     }
@@ -97,7 +98,7 @@ public class FogDao extends PluginDao {
                     record = getDataStore((IPersistable) obj).retrieve(
                             obj.getDataURI());
                 } catch (Exception e) {
-                    throw new PluginException("Error retrieving FOG HDF5 data",
+                    throw new PluginException("Error retrieving CWAT HDF5 data",
                             e);
                 }
                 retVal.add(record);
