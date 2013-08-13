@@ -29,7 +29,6 @@ import javax.measure.unit.SI;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wxmath.PToZsa;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 14, 2010            bsteffen     Initial creation
+ * Aug 14, 2013  #2262     dgilling     Use new wxmath method for ptozsa.
  * 
  * </pre>
  * 
@@ -120,10 +121,10 @@ public class HeightOfRequestableData extends AbstractRequestableData {
         try {
             gribRec = getGribRec(time);
         } catch (VizException e1) {
-            return Controller.ptozsa((float) level.getLevelonevalue());
+            return PToZsa.ptozsa((float) level.getLevelonevalue());
         }
         if (gribRec == null) {
-            return Controller.ptozsa((float) level.getLevelonevalue());
+            return PToZsa.ptozsa((float) level.getLevelonevalue());
         } else {
             ISpatialObject spatialObject = ((ISpatialEnabled) gribRec)
                     .getSpatialObject();
@@ -135,11 +136,11 @@ public class HeightOfRequestableData extends AbstractRequestableData {
                 position = PointUtil.determineIndex(new Coordinate(lon, lat),
                         crs, mapGeometry);
             } catch (Exception e) {
-                return Controller.ptozsa((float) level.getLevelonevalue());
+                return PToZsa.ptozsa((float) level.getLevelonevalue());
             }
             if (position.y < 0 || position.y >= spatialObject.getNy()
                     || position.x < 0 || position.x >= spatialObject.getNx()) {
-                return Controller.ptozsa((float) level.getLevelonevalue());
+                return PToZsa.ptozsa((float) level.getLevelonevalue());
             }
             int index = position.y * spatialObject.getNx() + position.x;
 

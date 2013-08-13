@@ -28,7 +28,6 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.topo.TopoQuery;
+import com.raytheon.uf.common.wxmath.Hgt2Pres;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 3, 2010            bsteffen     Initial creation
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
+ * Aug 13, 2013 2262       dgilling    Use new wxmath hgt2pres method.
  * 
  * </pre>
  * 
@@ -428,7 +429,7 @@ public class CrossSectionGraph extends AbstractGraph {
             }
             if (csDesc.getHeightScale().getHeightType() == LevelType.PRESSURE) {
                 for (int i = 0; i < heights.length; i++) {
-                    heights[i] = Controller.hgt2pres((float) heights[i]);
+                    heights[i] = Hgt2Pres.hgt2pres((float) heights[i]);
                 }
             } else {
                 for (int i = 0; i < heights.length; i++) {

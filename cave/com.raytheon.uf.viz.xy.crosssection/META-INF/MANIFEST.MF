@@ -7,7 +7,8 @@ Bundle-Activator: com.raytheon.uf.viz.xy.crosssection.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui;bundle-version="3.4.1",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.uf.common.wxmath
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core
