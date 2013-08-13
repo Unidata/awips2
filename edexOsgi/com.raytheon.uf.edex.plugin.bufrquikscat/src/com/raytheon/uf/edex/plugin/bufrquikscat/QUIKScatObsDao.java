@@ -17,11 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.bufrssmi.dao;
+package com.raytheon.uf.edex.plugin.bufrquikscat;
 
 import java.util.List;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.bufrssmi.SSMIScanData;
+import com.raytheon.uf.common.dataplugin.bufrquikscat.QUIKScatObs;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -41,14 +41,14 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * @author jkorman
  * @version 1.0 
  */
-public class SSMIScanDataDao extends PointDataPluginDao<SSMIScanData> {
+public class QUIKScatObsDao extends PointDataPluginDao<QUIKScatObs> {
 
     /**
      * Creates a new BufrMOSDao object.
      * 
      * @throws PluginException
      */
-    public SSMIScanDataDao(String pluginName) throws PluginException {
+    public QUIKScatObsDao(String pluginName) throws PluginException {
         super(pluginName);
     }
 
@@ -59,8 +59,8 @@ public class SSMIScanDataDao extends PointDataPluginDao<SSMIScanData> {
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public SSMIScanData queryByDataURI(String dataURI) {
-        SSMIScanData report = null;
+    public QUIKScatObs queryByDataURI(String dataURI) {
+        QUIKScatObs report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -68,7 +68,7 @@ public class SSMIScanDataDao extends PointDataPluginDao<SSMIScanData> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (SSMIScanData) obs.get(0);
+            report = (QUIKScatObs) obs.get(0);
         }
         return report;
     }
@@ -84,7 +84,7 @@ public class SSMIScanDataDao extends PointDataPluginDao<SSMIScanData> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.bufrssmi where datauri='"
+        String sql = "select datauri from awips.bufrquikscat where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
@@ -98,12 +98,12 @@ public class SSMIScanDataDao extends PointDataPluginDao<SSMIScanData> {
     }
 
     @Override
-    public String getPointDataFileName(SSMIScanData p) {
-        return "ssmi.h5";
+    public String getPointDataFileName(QUIKScatObs p) {
+        return "quikscat.h5";
     }
 
     @Override
-    public SSMIScanData newObject() {
-        return new SSMIScanData();
+    public QUIKScatObs newObject() {
+        return new QUIKScatObs();
     }
 }
