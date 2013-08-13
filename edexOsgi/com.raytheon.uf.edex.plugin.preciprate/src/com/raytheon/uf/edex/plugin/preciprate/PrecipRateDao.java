@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.preciprate.dao;
+package com.raytheon.uf.edex.plugin.preciprate;
 
 import java.util.ArrayList;
 import java.util.List;
