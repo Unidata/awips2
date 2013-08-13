@@ -4,13 +4,12 @@ Bundle-Name: FFMP common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ffmp
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.dataplugin.ffmp,
- com.raytheon.uf.common.dataplugin.ffmp.dao,
  com.raytheon.uf.common.dataplugin.ffmp.dataaccess
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
- com.raytheon.edex.common;bundle-version="1.11.1",
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",
  com.raytheon.uf.common.hydro;bundle-version="1.11.11",
  com.raytheon.uf.common.mpe;bundle-version="1.11.11",
@@ -24,4 +23,9 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
  com.google.guava;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.common.message;bundle-version="1.12.1174"
+ com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.dataplugin
+Import-Package: com.raytheon.uf.common.util,
+ com.raytheon.uf.edex.database.dao
