@@ -20,7 +20,7 @@
 
 from numpy import ndarray, float32, NaN
 from numpy import sin, isnan, invert
-from com.raytheon.uf.viz.derivparam.python.function import DistFilter
+from com.raytheon.uf.viz.derivparam.python.function import DistFilterPythonAdapter as DistFilter
 
 MAX_WAVE_NUMBER = 15
 
