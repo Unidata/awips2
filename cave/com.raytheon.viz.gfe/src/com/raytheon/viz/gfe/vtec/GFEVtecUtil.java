@@ -49,6 +49,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Aug 07, 2013  #1842     dgilling     Fix ETN assignment for products with
  *                                      multiple NEW segments with the same 
  *                                      phensig.
+ * Aug 29, 2013  #1843     dgilling     Add hooks for inter-site ETN assignment.
  * 
  * </pre>
  * 
@@ -79,7 +80,12 @@ public class GFEVtecUtil {
 
     public static int getNextEtn(String office, String phensig, boolean lockEtn)
             throws VizException {
-        return VtecUtil.getNextEtn(office, phensig, lockEtn);
+        return getNextEtn(office, phensig, lockEtn, false);
+    }
+
+    public static int getNextEtn(String office, String phensig,
+            boolean lockEtn, boolean performISC) throws VizException {
+        return VtecUtil.getNextEtn(office, phensig, lockEtn, performISC);
     }
 
     public static String finalizeETNs(String message) throws VizException {
@@ -108,8 +114,8 @@ public class GFEVtecUtil {
                 String cacheKey = vtec.getPhensig();
                 Integer newEtn = etnCache.get(cacheKey);
                 if (newEtn == null) {
-                    newEtn = VtecUtil.getNextEtn(vtec.getOffice(),
-                            vtec.getPhensig(), true);
+                    newEtn = getNextEtn(vtec.getOffice(), vtec.getPhensig(),
+                            true, true);
                     etnCache.put(cacheKey, newEtn);
                 }
                 vtec.setSequence(newEtn);
