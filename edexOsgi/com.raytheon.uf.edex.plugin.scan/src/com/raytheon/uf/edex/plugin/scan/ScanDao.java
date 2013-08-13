@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.scan.dao;
+package com.raytheon.uf.edex.plugin.scan;
 
 import java.util.ArrayList;
 import java.util.List;
