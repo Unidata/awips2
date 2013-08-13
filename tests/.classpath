@@ -154,5 +154,11 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86_64.jar"/>
 	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.wxmath"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/libmeteoLib.so">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/awips2/edex/lib/dependencies/meteolib.jni.linux32"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
