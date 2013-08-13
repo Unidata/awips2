@@ -214,11 +214,11 @@ public class FFMPBasinData implements ISerializableObject {
      * @return
      */
     public float getAverageValue(ArrayList<Long> pfaf_ids, Date date) {
-
         float tvalue = 0.0f;
         int i = 0;
-        for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+        Map<Long, FFMPBasin> localBasins = getBasins();
+        for (long pfaf : pfaf_ids) {
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 tvalue += basin.getValue(date);
                 i++;
@@ -295,7 +295,6 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getAccumAverageValue(List<Long> pfaf_ids, Date beforeDate,
             Date afterDate, long expirationTime, boolean rate) {
-
         float tvalue = 0.0f;
         int i = 0;
         Map<Long, FFMPBasin> localBasins = getBasins();
@@ -321,7 +320,6 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getMaxValue(ArrayList<Long> pfaf_ids, Date beforeDate,
             Date afterDate) {
-        
         float tvalue = 0.0f;
         Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
@@ -690,7 +688,6 @@ public class FFMPBasinData implements ISerializableObject {
      * @param times
      */
     public void populate(List<Long> times) {
-        
         if (mapFactory == null) {
             mapFactory = new BasinMapFactory<Date>(Collections.reverseOrder(),
                     getBasins().size());
