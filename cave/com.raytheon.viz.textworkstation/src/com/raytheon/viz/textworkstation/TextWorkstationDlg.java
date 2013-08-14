@@ -51,6 +51,7 @@ import com.raytheon.viz.texteditor.TextWorkstationConstants;
 import com.raytheon.viz.texteditor.alarmalert.dialogs.CurrentAlarmQueue;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertNotificationObserver;
+import com.raytheon.viz.texteditor.dialogs.TextEditorCfg;
 import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
 import com.raytheon.viz.texteditor.msgs.ITextEditorCallback;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
@@ -92,6 +93,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
  * 30Jan2013    DR 14736    D. Friedman Display local time.
  * 24Jun2013	DR 15733	XHuang		Display MAX_BUTTON_CNT (8 button).
+ * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
  * 
  * </pre>
  * 
@@ -100,9 +102,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class TextWorkstationDlg extends CaveSWTDialog implements
         ITextEditorCallback, INotificationObserver {
 
-    private final int INIT_BUTTON_CNT = 4;
+    private int INIT_BUTTON_CNT = 4;
 
-    private final int MAX_BUTTON_CNT = 8;
+    private int MAX_BUTTON_CNT = 8;
 
     private String productToDisplay = null;
 
@@ -203,6 +205,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         fontAwipsLabel = new Font(shell.getDisplay(), "Helvetica", 24,
                 SWT.ITALIC);
 
+        INIT_BUTTON_CNT = TextEditorCfg.getTextEditorCfg().getDefaultNumEditors();
+        MAX_BUTTON_CNT = TextEditorCfg.getTextEditorCfg().getMaxNumEditors();
+        
         // Initialize all of the controls and layouts
         initializeComponents();
     }
@@ -437,7 +442,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         textBtnArray = new ArrayList<Button>();
         textEditorArray = new ArrayList<TextEditorDialog>();
 
-        for (int x = 1; x <= MAX_BUTTON_CNT; ++x) {	
+        for (int x = 1; x <= INIT_BUTTON_CNT; ++x) {	
             createButtonAndTextEditor(x);
         }
     }

@@ -32,7 +32,7 @@ Called by function:
 
 void display_field_data_RFCW ( enum DisplayFieldData display_data ,
 			       int ** data_array_tmp , date_struct date , 
-			       int addition_flag )
+			       int addition_flag , int rowSize, int colSize )
 {
  char                 dirname [ 100 ] ;
  char                 fname [ 128 ] ;
@@ -160,6 +160,24 @@ void display_field_data_RFCW ( enum DisplayFieldData display_data ,
          strcpy(cv_use_tmp,"RFCMMOSAIC");	 
 	 break;
 	 
+     case display_lqMosaic:
+    	 len = strlen("mpe_lqmosaic_dir");
+    	 get_apps_defaults("mpe_lqmosaic_dir",&len,dirname,&len);
+    	 strcpy(cv_use_tmp,"LQMOSAIC");
+     break;
+
+     case display_qMosaic:
+    	 len = strlen("mpe_qmosaic_dir");
+    	 get_apps_defaults("mpe_qmosaic_dir",&len,dirname,&len);
+    	 strcpy(cv_use_tmp,"QMOSAIC");
+     break;
+
+     case display_mlqMosaic:
+    	 len = strlen("mpe_mlqmosaic_dir");
+    	 get_apps_defaults("mpe_mlqmosaic_dir",&len,dirname,&len);
+    	 strcpy(cv_use_tmp,"MLQMOSAIC");
+     break;
+
      case display_subValue:
          len = strlen("rfcwide_gageonly_dir");
 	 get_apps_defaults("rfcwide_gageonly_dir",&len,dirname,&len);
@@ -171,7 +189,8 @@ void display_field_data_RFCW ( enum DisplayFieldData display_data ,
 	 return;	 
 	 	 	 	 
      default:
-        logMessage("ERROR: invalid selection");
+         flogMessage(stderr, "\nIn routine 'display_field_data_RFCW':\n"
+             "Invalid Selection: %d.\n", (int) display_data);
          return;
  }	 
 
@@ -209,7 +228,7 @@ void display_field_data_RFCW ( enum DisplayFieldData display_data ,
  if ( display_data != display_satPrecip )
  {
     len_fname = strlen ( fname ) ;
-    display_field_read_xmrg ( data_array_tmp , fname, addition_flag );
+    display_field_read_xmrg ( data_array_tmp , fname, addition_flag , rowSize, colSize );
  }
  else
  {
@@ -220,13 +239,22 @@ void display_field_data_RFCW ( enum DisplayFieldData display_data ,
 }
  
 void display_field_read_xmrg (int ** data_array_tmp , char * fname,  
-				              int addition_flag )
+				              int addition_flag , int rowSize, int colSize )
 {
  int     		len_fname;
  int            	i, j, ifile;
  short        	      **temp = NULL ;
  enum TestByteResult  	result ;
- 
+
+ if (colSize > 0)
+ {
+	 MAXX = colSize;
+ }
+ if (rowSize > 0)
+ {
+	 MAXY = rowSize;
+ }
+
  len_fname = strlen(fname);
  temp = ( short ** ) malloc ( MAXY * sizeof ( short *) ) ;
 
@@ -297,14 +325,16 @@ void display_field_read_xmrg (int ** data_array_tmp , char * fname,
     return ;
  }
 
+ bool success = true;
  for ( i = 0 ; i < MAXY ; ++ i  )
  {
    read_xmrg ( & MAXX , & MAXY , & i , fname , & len_fname , & ifile , 
-               temp [ i ] ) ;
+		   temp[i] ) ;
 
    if (ifile != 0)
    {
      logMessage("error reading %s -- missing data substituted....\n",fname);
+     success = false;
       break;
    }
 
@@ -314,8 +344,11 @@ void display_field_read_xmrg (int ** data_array_tmp , char * fname,
    }
  } 
 
- if (ifile == 0)
+ if (success)
  {
+   flogMessage ( stderr , "In routine \"display_field\":\n"
+	  "addition_flag = %d\n" , fname , addition_flag ) ;
+
    for (i=0;i<MAXX;i++)
    for (j=0;j<MAXY;j++)
    {
@@ -331,10 +364,11 @@ void display_field_read_xmrg (int ** data_array_tmp , char * fname,
         data_array_tmp[i][j] = temp[j][i];
      }
    }
-     
  }
  else
  {
+	 flogMessage(stderr, "\nIn routine 'display_field_read_xmrg':\n"
+			 "failed to read file; defaulting data to -999\n");
    for (i=0;i<MAXX;i++)
      for (j=0;j<MAXY;j++)
      {

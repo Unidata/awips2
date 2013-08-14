@@ -19,13 +19,12 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpSoundingElementStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -188,17 +187,11 @@ public class NsharpUnloadDialog extends Dialog {
 			return;
 		//after checking, rsc is not null guaranteed.
 		NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
-		//List<ElementStateProperty>  timeLineElementList = rsc.getDataTimelineList();
-		List<List<NsharpSoundingElementStateProperty>> stnTmTable = rsc.getStnTimeTable();
-		//for(ElementStateProperty elm: timeLineElementList){
-		//	sndTimeList.add(elm.getElementDescription());
-		//}
-		for(List<NsharpSoundingElementStateProperty> stnTmList: stnTmTable){
-			for(NsharpSoundingElementStateProperty tm: stnTmList){
-				if(tm.getElementState() != NsharpConstants.State.NOTAVAIL){
-					sndTimeList.add(tm.getElementDescription());
-				}
-			}
+		
+		List<String> elemDescLst = rsc.getAllLoadedSndDesciptionList();
+		
+		for(String eleDesc: elemDescLst){
+			sndTimeList.add(eleDesc);
 		}
 	}
 }

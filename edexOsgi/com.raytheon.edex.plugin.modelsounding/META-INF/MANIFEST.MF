@@ -5,6 +5,7 @@ Bundle-SymbolicName: com.raytheon.edex.plugin.modelsounding
 Bundle-Version: 1.12.1174.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
+ com.google.guava;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.plugin.modelsounding,
  com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,
@@ -23,7 +24,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
- org.springframework;bundle-version="3.1.4"
+ org.springframework;bundle-version="3.1.4",
+ com.google.guava;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.exception,
  com.raytheon.edex.plugin,

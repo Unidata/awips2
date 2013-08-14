@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Event;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
+ * 08/02/2013   DR 16427    Qinglu Lin  (David's approach) Added SYSTEM_RESOURCE_LOW(1) to InputPriority.
  * 
  * </pre>
  * 
@@ -38,9 +39,13 @@ import org.eclipse.swt.widgets.Event;
  */
 public interface IInputHandler {
 
+    /*
+     * Note that these values are not only used for priority. They are also used
+     * to determine which event handlers are swapped in SideView.swapPanes.
+     */
     public static enum InputPriority {
-        LOWEST(0), RESOURCE(3), SYSTEM_RESOURCE(4), PART(5), PERSPECTIVE(6), WINDOW(
-                7);
+        LOWEST(0), SYSTEM_RESOURCE_LOW(1), RESOURCE(3), SYSTEM_RESOURCE(4), PART(5), PERSPECTIVE(6),
+        WINDOW(7);
 
         public Integer value;
 
