@@ -75,7 +75,8 @@ public class DisplayData implements Comparable<DisplayData> {
     /** The data's category configuration. */
     protected final CategoryConfig categoryConfig;
 
-    protected final List<CategoryDataSet> dataSets = new ArrayList<CategoryDataSet>();
+    protected final List<CategoryDataSet> dataSets = new ArrayList<CategoryDataSet>(
+            1);
 
     /** The display label for this data. */
     protected final String displayLabel;
@@ -106,10 +107,12 @@ public class DisplayData implements Comparable<DisplayData> {
      * @param displayLabel
      */
     public DisplayData(ArchiveConfig archiveConfig,
-            CategoryConfig categoryConfig, CategoryDataSet dataSet, String displayLabel) {
+            CategoryConfig categoryConfig, CategoryDataSet dataSet,
+            String displayLabel) {
         this.archiveConfig = archiveConfig;
         this.categoryConfig = categoryConfig;
         this.displayLabel = displayLabel;
+        this.dataSets.add(dataSet);
     }
 
     /**
