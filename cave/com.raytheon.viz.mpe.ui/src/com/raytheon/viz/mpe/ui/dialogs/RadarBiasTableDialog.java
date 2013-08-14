@@ -27,8 +27,12 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -64,7 +68,7 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * ------------ ---------- ----------- --------------------------
  * Jul 14, 2009            snaples     Initial creation
  * Jun 18, 2013  16053     snaples     Removed reference to setRadarEditFlag
- * 
+ * Aug 06, 2013  16243                 Changed the Gui to a ScrolledComposite.
  * </pre>
  * 
  * @author snaples
@@ -311,9 +315,17 @@ public class RadarBiasTableDialog extends Dialog {
      */
     private void createBiasListComp() {
 
-        // Create a container to hold the label and the combo box.
+    	final ScrolledComposite biasListScrollComp = new ScrolledComposite(
+                shell, SWT.BORDER | SWT.V_SCROLL);
+        GridLayout gl = new GridLayout(1, false);        
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        Composite biasListComp = new Composite(bcLblComp, SWT.V_SCROLL);
+        gd.heightHint = 300;
+        biasListScrollComp.setLayout(gl);
+        biasListScrollComp.setLayoutData(gd);
+      // Create a container to hold the label and the combo box.
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        final Composite biasListComp = new Composite(biasListScrollComp,
+                SWT.BORDER);
         GridLayout biasListCompLayout = new GridLayout(7, true);
         biasListComp.setLayout(biasListCompLayout);
         gd.horizontalSpan = 7;
@@ -386,7 +398,7 @@ public class RadarBiasTableDialog extends Dialog {
 
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
             final Text lbiasTxt = new Text(biasListComp, SWT.SINGLE
-                    | SWT.CENTER);
+                    | SWT.CENTER | SWT.BORDER);
             if (radarresultdata.getProductDate() == null) {
                 ridBtn.setEnabled(false);
             }
@@ -476,6 +488,16 @@ public class RadarBiasTableDialog extends Dialog {
             offcLbl.setText(ooffice);
             offcLbl.setLayoutData(gd);
         }
+        biasListScrollComp.setContent(biasListComp);
+        biasListScrollComp.setExpandVertical(true);
+        biasListScrollComp.setExpandHorizontal(true);
+        biasListScrollComp.addControlListener(new ControlAdapter() {
+            public void controlResized(ControlEvent e) {
+                Rectangle r = biasListScrollComp.getClientArea();
+                biasListScrollComp.setMinSize(biasListComp.computeSize(r.width,
+                        SWT.DEFAULT));
+            }
+        });
     }
 
     private void applyBiasUpdate(String obstime) {

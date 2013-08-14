@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      table.
  * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
  *                                      spatial
+ * 08/08/2013   2243        jsanchez    Removed super method in copy constructor.
  * </pre>
  * 
  * @author bwoodle
@@ -236,7 +237,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      *            The text of the message
      */
     public AbstractWarningRecord(AbstractWarningRecord old) {
-        super((String) old.getMessageData());
         this.setCountyheader(old.getCountyheader());
         this.setDataTime(old.getDataTime());
         this.setForecaster(old.getForecaster());

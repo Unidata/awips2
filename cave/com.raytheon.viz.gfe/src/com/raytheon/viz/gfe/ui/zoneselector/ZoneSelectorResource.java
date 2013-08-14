@@ -99,8 +99,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2011            randerso    Initial creation
- * Apr 10, 2013      #1854 randerso    Fix for compatibility with PostGIS 2.0
- * May 30, 2013 #2028      randerso    Fixed date line issue with map display
+ * Apr 10, 2013     #1854  randerso    Fix for compatibility with PostGIS 2.0
+ * May 30, 2013     #2028  randerso    Fixed date line issue with map display
+ * Jul 31, 2013     #2239  randerso    Fixed scaling of maps that cross the date line
  * 
  * </pre>
  * 
@@ -271,7 +272,7 @@ public class ZoneSelectorResource extends DbMapResource {
                             numPoints += g.getNumPoints();
                             resultingGeoms.put(zoneName, g);
 
-                            if (myWfo != null && myWfo.equals(wfo)) {
+                            if ((myWfo != null) && myWfo.equals(wfo)) {
                                 if (existingGeom != null) {
                                     wfoPoints -= existingGeom.getNumPoints();
                                 }
@@ -636,7 +637,8 @@ public class ZoneSelectorResource extends DbMapResource {
             info.setColor(color);
 
             int index = info.getShapeIndex();
-            if (this.target != null && index >= 0 && index < shapeList.length) {
+            if ((this.target != null) && (index >= 0)
+                    && (index < shapeList.length)) {
                 shapeList[index].dispose();
                 shapeList[index] = computeShape(this.target, this.descriptor,
                         info.getGeometry(), color);
@@ -698,8 +700,8 @@ public class ZoneSelectorResource extends DbMapResource {
         // + Arrays.toString(c2) + "  dpp:" + dppX);
         double simpLev = getSimpLev(dppX);
 
-        if (simpLev < lastSimpLev
-                || lastExtent == null
+        if ((simpLev < lastSimpLev)
+                || (lastExtent == null)
                 || !lastExtent.getEnvelope().contains(
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
@@ -742,27 +744,27 @@ public class ZoneSelectorResource extends DbMapResource {
             aTarget.drawShadedShapes(paintProps.getAlpha(), 1.0f, shapeList);
         }
 
-        if (outlineShape != null && outlineShape.isDrawable()
+        if ((outlineShape != null) && outlineShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             aTarget.drawWireframeShape(outlineShape, this.outlineColor,
                     getCapability(OutlineCapability.class).getOutlineWidth(),
                     getCapability(OutlineCapability.class).getLineStyle());
-        } else if (outlineShape == null
+        } else if ((outlineShape == null)
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             issueRefresh();
         }
 
-        if (wfoShape != null && wfoShape.isDrawable()
+        if ((wfoShape != null) && wfoShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             aTarget.drawWireframeShape(wfoShape, this.wfoOutlineColor,
                     getCapability(OutlineCapability.class).getOutlineWidth(),
                     getCapability(OutlineCapability.class).getLineStyle());
-        } else if (wfoShape == null
+        } else if ((wfoShape == null)
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             issueRefresh();
         }
 
-        if (labels != null && (this.labelZones || this.labelZoneGroups)) {
+        if ((labels != null) && (this.labelZones || this.labelZoneGroups)) {
             if (font == null) {
                 font = GFEFonts.getFont(aTarget, 2);
             }
@@ -792,7 +794,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 + Math.abs(tuple.y - y);
                         minDistance = Math.min(distance, minDistance);
                     }
-                    if (minDistance > 100 * worldToScreenRatio) {
+                    if (minDistance > (100 * worldToScreenRatio)) {
                         String[] text = new String[] { "", "" };
                         if (this.labelZones) {
                             text[0] = zone;
@@ -1048,15 +1050,24 @@ public class ZoneSelectorResource extends DbMapResource {
                     byte[] b = (byte[]) mappedResult.getRowColumnValue(i,
                             "extent");
                     if (b != null) {
-                        Geometry g = wkbReader.read(b);
-                        Envelope env = g.getEnvelopeInternal();
+                        Geometry geom = wkbReader.read(b);
 
-                        ReferencedEnvelope llEnv = new ReferencedEnvelope(env,
-                                MapUtil.LATLON_PROJECTION);
-                        ReferencedEnvelope projEnv = llEnv.transform(
-                                gloc.getCrs(), true);
+                        // world wrap correct the geometry and then
+                        // get the envelope of each geometry in the collection
+                        geom = this.worldWrapCorrector.correct(geom);
 
-                        this.boundingEnvelope.expandToInclude(projEnv);
+                        for (int n = 0; n < geom.getNumGeometries(); n++) {
+                            Geometry g = geom.getGeometryN(n);
+
+                            Envelope env = g.getEnvelopeInternal();
+
+                            ReferencedEnvelope llEnv = new ReferencedEnvelope(
+                                    env, MapUtil.LATLON_PROJECTION);
+                            ReferencedEnvelope projEnv = llEnv.transform(
+                                    gloc.getCrs(), true);
+
+                            this.boundingEnvelope.expandToInclude(projEnv);
+                        }
                     }
                 }
 
@@ -1101,8 +1112,8 @@ public class ZoneSelectorResource extends DbMapResource {
                 latLonToCRS.transform(new double[] { 0, 90 }, 0, output, 0, 1);
                 Coordinate northPole = new Coordinate(output[0], output[1]);
 
-                if (northPole.x >= ll.x && northPole.x <= ur.x
-                        && northPole.y >= ll.y && northPole.y <= ur.y) {
+                if ((northPole.x >= ll.x) && (northPole.x <= ur.x)
+                        && (northPole.y >= ll.y) && (northPole.y <= ur.y)) {
                     pole = northPole;
 
                 }
@@ -1115,8 +1126,8 @@ public class ZoneSelectorResource extends DbMapResource {
                     latLonToCRS.transform(new double[] { 0, -90 }, 0, output,
                             0, 1);
                     Coordinate southPole = new Coordinate(output[0], output[1]);
-                    if (southPole.x >= ll.x && southPole.x <= ur.x
-                            && southPole.y >= ll.y && southPole.y <= ur.y) {
+                    if ((southPole.x >= ll.x) && (southPole.x <= ur.x)
+                            && (southPole.y >= ll.y) && (southPole.y <= ur.y)) {
                         pole = southPole;
                     }
                 } catch (TransformException e) {
@@ -1149,7 +1160,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
                 List<Polygon> polygons = new ArrayList<Polygon>(4);
                 for (Coordinate[] q : quadrant) {
-                    if (q[1].x > q[0].x && q[1].y > q[0].y) {
+                    if ((q[1].x > q[0].x) && (q[1].y > q[0].y)) {
                         polygons.add(polygonFromGloc(gloc, delta, q[0], q[1]));
                     }
                 }
@@ -1186,19 +1197,19 @@ public class ZoneSelectorResource extends DbMapResource {
         double dx = width / nx;
         double dy = height / ny;
 
-        Coordinate[] coordinates = new Coordinate[2 * (nx + ny) + 1];
+        Coordinate[] coordinates = new Coordinate[(2 * (nx + ny)) + 1];
         int i = 0;
         for (int x = 0; x < nx; x++) {
-            coordinates[i++] = new Coordinate(x * dx + ll.x, ll.y);
+            coordinates[i++] = new Coordinate((x * dx) + ll.x, ll.y);
         }
         for (int y = 0; y < ny; y++) {
-            coordinates[i++] = new Coordinate(ur.x, y * dy + ll.y);
+            coordinates[i++] = new Coordinate(ur.x, (y * dy) + ll.y);
         }
         for (int x = nx; x > 0; x--) {
-            coordinates[i++] = new Coordinate(x * dx + ll.x, ur.y);
+            coordinates[i++] = new Coordinate((x * dx) + ll.x, ur.y);
         }
         for (int y = ny; y > 0; y--) {
-            coordinates[i++] = new Coordinate(ll.x, y * dy + ll.y);
+            coordinates[i++] = new Coordinate(ll.x, (y * dy) + ll.y);
         }
         coordinates[i++] = coordinates[0];
 
