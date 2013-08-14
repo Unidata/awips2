@@ -73,24 +73,26 @@ import com.raytheon.uf.common.util.FileUtil;
 
 public class CAVELocalizationAdapter implements ILocalizationAdapter {
 
+    protected static final String BUNDLE_LOCALIZATION_DIR = "localization";
+
     private static final Map<LocalizationType, LocalizationContext[]> contexts = new HashMap<LocalizationType, LocalizationContext[]>();
 
     private static final Map<String, File> caveStaticBaseFiles = new HashMap<String, File>();
 
-    private static final LocalizationContext CAVE_STATIC_BASE = new LocalizationContext(
+    protected static final LocalizationContext CAVE_STATIC_BASE = new LocalizationContext(
             LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
 
-    private static final LocalizationContext CAVE_CONFIG_BASE = new LocalizationContext(
+    protected static final LocalizationContext CAVE_CONFIG_BASE = new LocalizationContext(
             LocalizationType.CAVE_CONFIG, LocalizationLevel.BASE);
 
-    private static boolean isCaveStaticBase(LocalizationContext ctx) {
+    protected static boolean isCaveStaticBase(LocalizationContext ctx) {
         return ctx.getLocalizationType() == CAVE_STATIC_BASE
                 .getLocalizationType()
                 && ctx.getLocalizationLevel() == CAVE_STATIC_BASE
                         .getLocalizationLevel();
     }
 
-    private static boolean isCaveConfigBase(LocalizationContext ctx) {
+    protected static boolean isCaveConfigBase(LocalizationContext ctx) {
         return ctx.getLocalizationType() == CAVE_CONFIG_BASE
                 .getLocalizationType()
                 && ctx.getLocalizationLevel() == CAVE_CONFIG_BASE
@@ -132,7 +134,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             // else go to the cave static dir
             if (context.getContextName() != null) {
                 return BundleScanner.searchInBundle(context.getContextName(),
-                        fileName);
+                        BUNDLE_LOCALIZATION_DIR, fileName);
             } else {
                 File file = new File(FileUtil.join(
                         LocalizationManager.getBaseDir(), typeDir, fileName));
@@ -149,9 +151,9 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                     }
                     if (!containsKey) {
                         for (String bundle : BundleScanner
-                                .getListOfBundles(true)) {
+                                .getListOfBundles(BUNDLE_LOCALIZATION_DIR)) {
                             file = BundleScanner.searchInBundle(bundle,
-                                    fileName);
+                                    BUNDLE_LOCALIZATION_DIR, fileName);
                             if (file != null && file.exists()) {
                                 bundleFile = file;
                                 break;
@@ -387,7 +389,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                 localContexts.add(context);
                 if (context.getContextName() == null) {
                     // Also search bundles if CAVE_STATIC without context name
-                    for (String bundle : BundleScanner.getListOfBundles()) {
+                    for (String bundle : BundleScanner
+                            .getListOfBundles(BUNDLE_LOCALIZATION_DIR)) {
                         localContexts.add(new LocalizationContext(context
                                 .getLocalizationType(), context
                                 .getLocalizationLevel(), bundle));

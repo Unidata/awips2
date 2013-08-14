@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 public class S2N {
@@ -73,7 +74,7 @@ public class S2N {
         BufferedReader input = null;
         S2N lookup = new S2N(s2nFilename);
         File s2nFile = PathManagerFactory.getPathManager().getStaticFile(
-                S2N.plotmodelDir + File.separator + s2nFilename);
+                S2N.plotmodelDir + IPathManager.SEPARATOR + s2nFilename);
         int counter = 0;
         int highestValue = -1;
         try {
