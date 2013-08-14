@@ -34,7 +34,7 @@
 #20130326            1828 rferrel     Fix patterns for intlsigmets and text pattern not placing files in proper directory.
 #20130530            2054 rferrel     Minor fix to two grib patterns.
 #20130624            1966 rferrel     The acars pattern changed to place files in the proper subdirectories.
-                                      Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
+#                                     Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001

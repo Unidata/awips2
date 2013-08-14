@@ -66,6 +66,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #                                                 A1, big perf improvement.
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
 #    06/13/13        2044          randerso       Updated for changes to TopoDatabaseManager
+#    07/25/13        2233          randerso       Improved memory utilization and performance
 # 
 #
 
@@ -366,7 +367,7 @@ def getMaskGrid(client, editAreaName, dbId):
     return mask
 
 ###-------------------------------------------------------------------------###
-def storeLatLonGrids(client, file, databaseID, maskGrid, krunch, clipArea):
+def storeLatLonGrids(client, file, databaseID, invMask, krunch, clipArea):
     # db = client[databaseID]
 
     # Get the grid location and projection information
@@ -461,7 +462,7 @@ def storeLatLonGrids(client, file, databaseID, maskGrid, krunch, clipArea):
     logEvent("Saved Latitude/Longitude Grid")
 
 ###-------------------------------------------------------------------------###
-def storeTopoGrid(client, file, databaseID, maskGrid, clipArea):
+def storeTopoGrid(client, file, databaseID, invMask, clipArea):
     "Stores the topo grid in the database"
 
     # Get the grid location and projection information
@@ -669,7 +670,8 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea):
     # Note that geo information is modified based on the clip info.
 
     # TimeRanges
-    setattr(var, "validTimes", timeList) 
+    import itertools
+    setattr(var, "validTimes", list(itertools.chain.from_iterable(timeList))) 
 
     # Descriptive Name
     setattr(var, "descriptiveName", we.getGpi().getDescriptiveName())
@@ -727,30 +729,41 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea):
     return
 
 
+def findOverlappingTimes(trList, timeRange):
+    timeList = []
+    overlappingTimes = []
+    for t in trList:
+        interTR = intersection(t, timeRange)
+        if interTR is not None:
+            overlappingTimes.append(t)
+            timeList.append(interTR)
+
+    return timeList, overlappingTimes
+
 ###-------------------------------------------------------------------------###
 ### Stores the specified Scalar WE in the netCDF file whose grids fall within
 ### the specified timeRange.
 def storeScalarWE(we, trList, file, timeRange, databaseID,
-                  mask, trim, clipArea, krunch):
+                  invMask, trim, clipArea, krunch):
     "Stores a weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
-    cube = []
-    timeList = []
-    wec = WECache(we, trList)
-    for t in trList:
-        interTR = intersection(t, timeRange)
-        if interTR is not None:
-            grid = clipToExtrema(wec[t][0], clipArea)
-            #adjust for time changes
-            if we.getGpi().isRateParm():
-                durRatio = (float(interTR[1]-interTR[0]))/float((t[1]-t[0]))
-                grid = (grid * durRatio).astype(numpy.float32)
-            cube.append(grid)
-            timeList.append(interTR[0])
-            timeList.append(interTR[1])
+    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
 
-    cube = numpy.array(cube).astype(numpy.float32)
+    # clipped size
+    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
+    gridCount = len(overlappingTimes)
+    
+    cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
+
+    wec = WECache(we, overlappingTimes)
+    for i,t in enumerate(overlappingTimes):
+        grid = clipToExtrema(wec[t][0], clipArea)
+        #adjust for time changes
+        if we.getGpi().isRateParm():
+            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((t[1]-t[0]))
+            grid *= durRatio
+        cube[i]= grid
 
     ### Make sure we found some grids
     # make the variable name
@@ -759,21 +772,12 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     if len(cube) == 0:
         logVerbose("No", varName, "grids found")
 
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-
-    gridCount = len(timeList) / 2
-    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
-    cube = numpy.resize(cube, newsize)   # necessary when no grids
-    
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
     dims = getDims(file, cube.shape, dimNames)
 
     # Round the values according to the precision
     if trim:
-        precision = pow(10, we.getGpi().getPrecision())
-
         if krunch:
             format, multiplier, offset, fillValue, pythonType = \
               calcKrunchValues(we)
@@ -783,23 +787,21 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
 
         # krunch
         if multiplier is not None:
-            cube = ((cube - offset) * multiplier)
-            roundMask = numpy.where(numpy.greater(cube, 0), 1.0, -1.0)
-            cube = (cube + (0.5 * roundMask)).astype(pythonType)
+            cube -= offset
+            cube *= multiplier
+            numpy.around(cube,out=cube)
         # normal trim
         else:
-            roundMask = numpy.where(numpy.greater(cube, 0), 1.0, -1.0)
-            trimmed = (cube * precision + (0.5 * roundMask))
-            trimmed = numpy.array(trimmed).astype(numpy.int32)
-            cube = numpy.array(trimmed).astype(numpy.float32)
-            cube = numpy.array(cube / precision).astype(numpy.float32)
+            digits = we.getGpi().getPrecision()
+            numpy.around(cube, digits, cube)
+        cube = cube.astype(pythonType)
 
     else:
         format, multiplier, offset, fillValue, pythonType = \
          ('f', None, None, -30000.0, numpy.float32)
 
     # mask the data
-    cube = numpy.where(mask, cube, fillValue).astype(pythonType)
+    cube[:,invMask] = fillValue
     
     # create the variable
     var = file.createVariable(varName, format, dims)
@@ -826,43 +828,35 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
 ### Stores the specified Vector WE in the netCDF file whose grids fall within
 ### the specified timeRange.
 def storeVectorWE(we, trList, file, timeRange,
-                  databaseID, mask, trim, clipArea, krunch):
+                  databaseID, invMask, trim, clipArea, krunch):
     "Stores a vector weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
-    magCube = []
-    dirCube = []
-    timeList = []
-    wec = WECache(we, trList)
-    for t in trList:
-        interTR = intersection(t, timeRange)
-        if interTR is not None:
-            vecData = wec[t][0]
-            mag = clipToExtrema(vecData[0], clipArea)
-            dir = clipToExtrema(vecData[1], clipArea)
-            if we.getGpi().isRateParm():
-                durRatio = (float(interTR[1]-interTR[0]))/float((t[1]-t[0]))
-                mag = (mag * durRatio).astype(numpy.float32)
-            magCube.append(mag)
-            dirCube.append(dir)
-            timeList.append(interTR[0])
-            timeList.append(interTR[1])
+    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
 
-    magCube = numpy.array(magCube).astype(numpy.float32)
-    dirCube = numpy.array(dirCube).astype(numpy.float32)
+    # clipped size
+    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
+    gridCount = len(overlappingTimes)
+
+    magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+    dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+    
+    wec = WECache(we, overlappingTimes)
+    for i,t in enumerate(overlappingTimes):
+        vecData = wec[t][0]
+        mag = clipToExtrema(vecData[0], clipArea)
+        dir = clipToExtrema(vecData[1], clipArea)
+        if we.getGpi().isRateParm():
+            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((t[1]-t[0]))
+            mag *= durRatio
+        magCube[i] = mag
+        dirCube[i] = dir
+
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
     
     ### Make sure we found some grids
     if len(magCube) == 0:
         logVerbose("No", varName, "grids found")
-
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-
-    gridCount = len(timeList) / 2
-    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
-    magCube = numpy.resize(magCube, newsize)   # necessary when no grids
-    dirCube = numpy.resize(dirCube, newsize)   # necessary when no grids
 
     # make the variable name
     magVarName = we.getParmid().getParmName() + "_Mag_" + we.getParmid().getParmLevel()
@@ -874,8 +868,6 @@ def storeVectorWE(we, trList, file, timeRange,
 
     # Round the values according to the precision
     if trim:
-        mprecision = pow(10, we.getGpi().getPrecision())
-
         if krunch:
             mformat, mmultiplier, moffset, mfillValue, mpythonType = \
               calcKrunchValues(we)
@@ -889,29 +881,27 @@ def storeVectorWE(we, trList, file, timeRange,
 
         # krunch magnitude
         if mmultiplier is not None:
-            magCube = ((magCube - moffset) * mmultiplier)
-            roundMask = numpy.where(numpy.greater(magCube, 0), 1.0, -1.0)
-            magCube = (magCube + (0.5 * roundMask)).astype(mpythonType)
+            magCube -= moffset
+            magCube *= mmultiplier
+            numpy.around(magCube,out=magCube)
+            
         # normal trim for magnitude
         else:
-            roundMask = numpy.where(numpy.greater(magCube, 0), 1.0, -1.0)
-            trimmed = (magCube * mprecision + (0.5 * roundMask))
-            trimmed = numpy.array(trimmed).astype(numpy.int32)
-            magCube = numpy.array(trimmed).astype(numpy.float32)
-            magCube = numpy.array(magCube / mprecision).astype(numpy.float32)
+            digits = we.getGpi().getPrecision()
+            numpy.around(magCube, digits, magCube)
+        magCube = magCube.astype(mpythonType)
 
         # krunch direction
         if dmultiplier is not None:
-            dirCube = ((dirCube - doffset) * dmultiplier)
-            roundMask = numpy.where(numpy.greater(dirCube, 0), 1.0, -1.0)
-            dirCube = (dirCube + (0.5 * roundMask)).astype(dpythonType)
+            dirCube -= doffset
+            dirCube *= dmultiplier
+            numpy.around(dirCube,out=dirCube)
 
         # normal trim for direction
         else:
-            dirCube = numpy.array((dirCube + (0.5 * 10)) / 10).astype(numpy.int32)
-            dirCube = numpy.array(dirCube * 10).astype(numpy.float32)
-            mask360 = numpy.greater_equal(dirCube, 360.0)
-            dirCube = numpy.where(mask360, dirCube - 360.0, dirCube).astype(numpy.float32)
+            numpy.around(dirCube, -1, dirCube)
+            dirCube[numpy.greater_equal(dirCube, 360.0)] -= 360.0
+        dirCube = dirCube.astype(dpythonType)
 
     else:
         mformat, mmultiplier, moffset, mfillValue, mpythonType = \
@@ -919,9 +909,8 @@ def storeVectorWE(we, trList, file, timeRange,
         dformat, dmultiplier, doffset, dfillValue, dpythonType = \
           ('f', None, None, -30000.0, numpy.float32)
 
-    
-    magCube = numpy.where(mask, magCube, mfillValue).astype(mpythonType)
-    dirCube = numpy.where(mask, dirCube, dfillValue).astype(dpythonType)
+    magCube[:,invMask] = mfillValue
+    dirCube[:,invMask] = dfillValue
 
     # create the variable
     magVar = file.createVariable(magVarName, mformat, dims)
@@ -999,26 +988,25 @@ def collapseKey(keys, grid):
 ###-------------------------------------------------------------------------###
 # Stores the specified Weather WE in the netCDF file whose grids fall within
 ### the specified timeRange.
-def storeWeatherWE(we, trList, file, timeRange, databaseID, mask, clipArea):
+def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     "Stores the Weather weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
-    byteCube = []
-    keyList = []
-    timeList = []
-    wec = WECache(we, trList)
-    for t in trList:
-        interTR = intersection(t, timeRange)
-        if interTR is not None:
-            wx = wec[t][0]
-            grid = clipToExtrema(wx[0], clipArea)
-            byteCube.append(grid)
-            # Save times for these grids in a list 
-            timeList.append(interTR[0])
-            timeList.append(interTR[1])
-            keyList.append(wx[1])
+    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
     
-    byteCube = numpy.array(byteCube).astype(numpy.int8)
+    # clipped size
+    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
+    gridCount = len(overlappingTimes)
+
+    byteCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
+
+    keyList = []
+    wec = WECache(we, overlappingTimes)
+    for i,t in enumerate(overlappingTimes):
+        wx = wec[t][0]
+        grid = clipToExtrema(wx[0], clipArea)
+        byteCube[i] = grid
+        keyList.append(wx[1])
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1026,13 +1014,6 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, mask, clipArea):
     ### Make sure we found some grids
     if len(byteCube) == 0:
         logVerbose("No", varName, "grids found")
-
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-
-    gridCount = len(timeList) / 2
-    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
-    byteCube = numpy.resize(byteCube, newsize)
 
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
@@ -1048,7 +1029,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, mask, clipArea):
 
     # Mask the values
     fillValue = -127
-    byteCube = numpy.where(mask, byteCube, fillValue).astype(numpy.int8)
+    byteCube[:,invMask] =fillValue
 
     # Save the grids to the netCDF file
     for i in range(len(byteCube)):
@@ -1098,26 +1079,26 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, mask, clipArea):
 ###-------------------------------------------------------------------------###
 # Stores the specified Discrete WE in the netCDF file whose grids fall within
 ### the specified timeRange.
-def storeDiscreteWE(we, trList, file, timeRange, databaseID, mask, clipArea):
+def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     "Stores the Weather weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
-    byteCube = []
-    keyList = []
-    timeList = []
-    wec = WECache(we, trList)
-    for t in trList:
-        interTR = intersection(t, timeRange)
-        if interTR is not None:
-            dis = wec[t][0]
-            grid = clipToExtrema(dis[0], clipArea)
-            byteCube.append(grid)
-            # Save times for these grids in a list
-            timeList.append(interTR[0])
-            timeList.append(interTR[1])
-            keyList.append(dis[1])
+    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
 
-    byteCube = numpy.array(byteCube).astype(numpy.int8)
+    # clipped size
+    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
+    gridCount = len(overlappingTimes)
+
+    byteCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
+    
+    keyList = []
+    wec = WECache(we, overlappingTimes)
+    for i,t in enumerate(overlappingTimes):
+        dis = wec[t][0]
+        grid = clipToExtrema(dis[0], clipArea)
+        byteCube[i] = grid
+        keyList.append(dis[1])
+    
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1125,13 +1106,6 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, mask, clipArea):
     ### Make sure we found some grids
     if len(byteCube) == 0:
         logVerbose("No", varName, "grids found")
-
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-
-    gridCount = len(timeList) / 2
-    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
-    byteCube = numpy.resize(byteCube, newsize)   # necessary when no grids
 
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
@@ -1147,7 +1121,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, mask, clipArea):
 
     # Mask the values
     fillValue = -127
-    byteCube = numpy.where(mask, byteCube, fillValue).astype(numpy.int8)
+    byteCube[:,invMask] = fillValue
 
     # Save the grids to the netCDF file
     for i in range(len(byteCube)):
@@ -1375,7 +1349,11 @@ def main(outputFilename, parmList, databaseID, startTime,
     clipArea = extremaOfSetBits(maskGrid)
     maskGrid = clipToExtrema(maskGrid, clipArea)
     clippedGridSize = maskGrid.shape
-    validPointCount = numpy.add.reduce(numpy.add.reduce(maskGrid)) 
+    validPointCount = numpy.add.reduce(numpy.add.reduce(maskGrid))
+    
+    #invert the mask grid
+    invMask = numpy.logical_not(maskGrid)
+    #del maskGrid
 
     # Determine sampling definition
     samplingDef = getSamplingDefinition(client, argDict['configFileName'])
@@ -1395,18 +1373,18 @@ def main(outputFilename, parmList, databaseID, startTime,
         gridType = str(we.getGpi().getGridType())
         if gridType == "SCALAR":
             nGrids = storeScalarWE(we, weInv, file, timeRange,
-              argDict['databaseID'], maskGrid, argDict['trim'], clipArea,
+              argDict['databaseID'], invMask, argDict['trim'], clipArea,
               argDict['krunch'])
         elif gridType == "VECTOR":
             nGrids = storeVectorWE(we, weInv, file, timeRange,
-              argDict['databaseID'], maskGrid, argDict['trim'], clipArea,
+              argDict['databaseID'], invMask, argDict['trim'], clipArea,
               argDict['krunch'])
         elif gridType == "WEATHER":
             nGrids = storeWeatherWE(we, weInv, file, timeRange,
-              argDict['databaseID'], maskGrid, clipArea)
+              argDict['databaseID'], invMask, clipArea)
         elif gridType == "DISCRETE":
             nGrids = storeDiscreteWE(we, weInv, file, timeRange,
-              argDict['databaseID'], maskGrid, clipArea)
+              argDict['databaseID'], invMask, clipArea)
         else:
             s = "Grids of type: " + we.gridType + " are not supported, " + \
               "parm=" + p
@@ -1417,8 +1395,8 @@ def main(outputFilename, parmList, databaseID, startTime,
 
     # store the topo and lat, lon grids if the -g was present
     if argDict["geoInfo"]:
-        storeTopoGrid(client, file, argDict['databaseID'], maskGrid, clipArea)
-        storeLatLonGrids(client, file, argDict['databaseID'], maskGrid,
+        storeTopoGrid(client, file, argDict['databaseID'], invMask, clipArea)
+        storeLatLonGrids(client, file, argDict['databaseID'], invMask,
           argDict['krunch'], clipArea)
         totalGrids = totalGrids + 3
 
