@@ -54,6 +54,15 @@ rpmbuild -ba \
 if [ $? -ne 0 ]; then
    exit 1
 fi
+rpmbuild -ba \
+   --define "_topdir ${TOPDIR}" \
+   --define "_baseline_workspace ${WORKSPACE}" \
+   --define "_build_root ${AWIPSII_BUILD_ROOT}" \
+   --buildroot ${AWIPSII_BUILD_ROOT} \
+   SPECS/qpid-lib.spec
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 popd > /dev/null
 
 exit 0
