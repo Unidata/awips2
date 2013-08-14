@@ -352,7 +352,6 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
     	shapeC.compile();
     	shapePline.compile();
 	}
-	private static int k=0;
 	/*
 	 * Chin:: NOTE:::
 	 * This plotting function is based on the algorithm of plot_advectionprofile() at xwvid5.c of Bignsharp source code

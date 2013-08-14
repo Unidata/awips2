@@ -80,6 +80,16 @@
             paramType="IMPLEMENTATION_PARAM">
       </nc-resourceParameter>
 
+<!-- Change this to a REQUEST_CONSTRAINT when our baseline is updated to get 
+     the latest binlightning decoder implementing the lightSource column -->
+      <nc-resourceParameter
+            ncResourceName="Lightning"
+            paramClass="String"
+            paramName="lightSource"
+            defaultValue="NLDN"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
       <nc-resourceParameter
             ncResourceName="Lightning"
             paramClass="RGB"

@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -81,6 +82,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Jun 06, 2013 2075       njensen     Use new load jobs
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 17, 2013 2197       njensen     Broke background loading into chunks
  * 
  * </pre>
  * 
@@ -93,6 +95,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
     /** Performance log entry prefix */
     private static final String prefix = "FFMP ResourceData:";
+
+    /** Number of hours back from the most recent time to load data for **/
+    private static final int HOURS_BACK = 24;
+
+    /** Number of hours a background data job should request data for **/
+    private static final int LOAD_INCREMENT = 1;
 
     /** Performance logger */
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -215,6 +223,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 final double configTimeFrame = cfgBasinXML.getTimeFrame();
                 final Date timeBack = new Date(
                         (long) (mostRecentTime.getTime() - (configTimeFrame * TimeUtil.MILLIS_PER_HOUR)));
+
                 final List<String> onlyAllHuc = new ArrayList<String>();
                 onlyAllHuc.add(FFMPRecord.ALL);
                 InitialLoadJob initialJob = new InitialLoadJob(this, timeBack,
@@ -225,13 +234,52 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 initialJob.addJobChangeListener(new JobChangeAdapter() {
                     @Override
                     public void done(IJobChangeEvent event) {
-                        Date backgroundStartTime = new Date(mostRecentTime
-                                .getTime() - (24 * TimeUtil.MILLIS_PER_HOUR));
-                        BackgroundLoadJob backgroundJob = new BackgroundLoadJob(
-                                "Background FFMP Load", FFMPResourceData.this,
-                                backgroundStartTime, timeBack, onlyAllHuc);
-                        backgroundJob.setPreloadAvailableUris(true);
-                        backgroundJob.schedule();
+                        // step back in time in increments and
+                        // load the data in chunks all the way
+                        // back to 24 hours
+                        // before the current time
+                        Date farthestBack = new Date(mostRecentTime.getTime()
+                                - (HOURS_BACK * TimeUtil.MILLIS_PER_HOUR));
+                        int hourBack = (int) configTimeFrame;
+                        Date loadedUpTo = new Date(timeBack.getTime());
+                        BackgroundLoadJob firstJob = null;
+                        Job previousJob = null;
+                        while (loadedUpTo.after(farthestBack)) {
+                            Date startTime = new Date(
+                                    loadedUpTo.getTime()
+                                            - (LOAD_INCREMENT * TimeUtil.MILLIS_PER_HOUR));
+                            hourBack += LOAD_INCREMENT;
+                            if (startTime.before(farthestBack)) {
+                                startTime = farthestBack;
+                                hourBack = HOURS_BACK;
+                            }
+
+                            String jobName = "FFMP loading to hr " + hourBack;
+                            if (previousJob == null) {
+                                firstJob = new BackgroundLoadJob(jobName,
+                                        FFMPResourceData.this, startTime,
+                                        loadedUpTo, onlyAllHuc);
+                                firstJob.setPreloadAvailableUris(true);
+                                previousJob = firstJob;
+                            } else {
+                                final BackgroundLoadJob nextJob = new BackgroundLoadJob(
+                                        jobName, FFMPResourceData.this,
+                                        startTime, loadedUpTo, onlyAllHuc);
+                                nextJob.setPreloadAvailableUris(true);
+                                previousJob
+                                        .addJobChangeListener(new JobChangeAdapter() {
+                                            @Override
+                                            public void done(
+                                                    IJobChangeEvent event) {
+                                                nextJob.schedule();
+                                            }
+                                        });
+                                previousJob = nextJob;
+                            }
+
+                            loadedUpTo = startTime;
+                        }
+                        firstJob.schedule();
                     }
                 });
                 initialJob.schedule();
@@ -241,6 +289,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 // will be faster
                 List<String> earlyLoadHucs = new ArrayList<String>();
                 earlyLoadHucs.addAll(onlyAllHuc);
+
                 for (String otherHuc : FFMPTemplateConfigurationManager
                         .getInstance().getHucLevels()) {
                     if (!earlyLoadHucs.contains(otherHuc)) {
@@ -291,12 +340,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                                     standAloneTime);
                     monitor.processUris(sourceURIs, siteKey, sourceName,
                             standAloneTime, SubMonitor.convert(null));
+
                 }
             }
         }
 
         return new FFMPResource(this, loadProperties);
-
     }
 
     /**
