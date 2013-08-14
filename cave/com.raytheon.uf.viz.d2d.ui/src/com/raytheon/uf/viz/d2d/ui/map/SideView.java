@@ -21,6 +21,7 @@
 package com.raytheon.uf.viz.d2d.ui.map;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -96,6 +97,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Nov 20, 2012   DR 15524    M.Porricelli Changed so interactive screens still editable when
  *                                              swapped to side panel
  *      Mar 21, 2013       1638     mschenke    Changed map scales not tied to d2d
+ *      Aug  9, 2013   DR 16427     D. Friedman Swap additional input handlers.
  * 
  * </pre>
  * 
@@ -347,37 +349,38 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
 
             // First thing to do, swap input handlers
             // Get editor resource handlers and unregister on editor
-            IInputHandler[] editorResourceHandlers = theEditor
-                    .getMouseManager().getHandlersForPriority(
-                            InputPriority.RESOURCE);
-            IInputHandler[] editorSystemRscHandlers = theEditor
-                    .getMouseManager().getHandlersForPriority(
-                            InputPriority.SYSTEM_RESOURCE);
-            for (IInputHandler handler : editorResourceHandlers) {
-                theEditor.getMouseManager().unregisterMouseHandler(handler);
-            }
-            for (IInputHandler handler : editorSystemRscHandlers) {
-                theEditor.getMouseManager().unregisterMouseHandler(handler);
+            final InputPriority[] SWAPPABLE_PRIORITIES = { InputPriority.RESOURCE,
+                    InputPriority.SYSTEM_RESOURCE,
+                    InputPriority.SYSTEM_RESOURCE_LOW };
+            HashMap<InputPriority, IInputHandler[]> editorHandlers =
+                    new HashMap<IInputHandler.InputPriority, IInputHandler[]>();
+            for (InputPriority priority : SWAPPABLE_PRIORITIES) {
+                IInputHandler[] handlers = theEditor.getMouseManager()
+                        .getHandlersForPriority(priority);
+                editorHandlers.put(priority, handlers);
+                for (IInputHandler handler : handlers) {
+                    theEditor.getMouseManager().unregisterMouseHandler(handler);
+                }
             }
 
             // Store and unregister input handlers on ourself
-            IInputHandler[] myResourceHandlers = paneManager.getMouseManager()
-                    .getHandlersForPriority(InputPriority.RESOURCE);
-            IInputHandler[] mySystemRscHandlers = paneManager.getMouseManager()
-                    .getHandlersForPriority(InputPriority.SYSTEM_RESOURCE);
-            for (IInputHandler handler : myResourceHandlers) {
-                unregisterMouseHandler(handler);
-            }
-            for (IInputHandler handler : mySystemRscHandlers) {
-                unregisterMouseHandler(handler);
+            HashMap<InputPriority, IInputHandler[]> myHandlers =
+                    new HashMap<IInputHandler.InputPriority, IInputHandler[]>();
+            for (InputPriority priority : SWAPPABLE_PRIORITIES) {
+                IInputHandler[] handlers = paneManager.getMouseManager()
+                        .getHandlersForPriority(priority);
+                myHandlers.put(priority, handlers);
+                for (IInputHandler handler : handlers) {
+                    unregisterMouseHandler(handler);
+                }
             }
 
             // Register editor handlers on ourself
-            for (IInputHandler handler : editorResourceHandlers) {
-                registerMouseHandler(handler, InputPriority.RESOURCE);
-            }
-            for (IInputHandler handler : editorSystemRscHandlers) {
-                registerMouseHandler(handler, InputPriority.SYSTEM_RESOURCE);
+            for (InputPriority priority : SWAPPABLE_PRIORITIES) {
+                IInputHandler[] handlers = editorHandlers.get(priority);
+                for (IInputHandler handler : handlers) {
+                    registerMouseHandler(handler, priority);
+                }
             }
 
             IDisplayPane[] editorPanes = theEditor.getDisplayPanes();
@@ -587,13 +590,12 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         D2DLegendResource.LegendMode.PRODUCT,
                         D2DLegendResource.LegendMode.SHORT_PRODUCT);
 
-                for (IInputHandler handler : myResourceHandlers) {
-                    theEditor.registerMouseHandler(handler,
-                            InputPriority.RESOURCE);
-                }
-                for (IInputHandler handler : mySystemRscHandlers) {
-                    theEditor.registerMouseHandler(handler,
-                            InputPriority.SYSTEM_RESOURCE);
+                for (InputPriority priority : SWAPPABLE_PRIORITIES) {
+                    IInputHandler[] handlers = myHandlers.get(priority);
+                    for (IInputHandler handler : handlers) {
+                        theEditor.registerMouseHandler(handler,
+                                priority);
+                    }
                 }
 
                 // Set up editableness

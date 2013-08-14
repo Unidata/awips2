@@ -69,7 +69,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
@@ -936,10 +935,12 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Select the previously selected item.
         invalidFollowUpAction = false;
         if (currentSelection != null) {
+            boolean isValid = false;
             for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                 if (updateListCbo.getItem(i).startsWith(
                         currentSelection.getEquvialentString())) {
                     updateListCbo.select(i);
+                    isValid = true;
                     break;
                 }
             }
