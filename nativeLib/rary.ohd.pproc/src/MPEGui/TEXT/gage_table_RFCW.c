@@ -335,9 +335,13 @@ void create_gage_table_RFCW ( draw_struct * data )
 
  for ( m = 0; m < SIZE; ++m )
  {
+	 /*
+	  * defaulting to 0 since this source is not used in
+	  * AWIPS II due to the existence of the X functions.
+	  */
      display_field_data_RFCW ( display_array[m] ,
     		  data_array_field , date_st3 ,
-	          addition_flag );
+	          addition_flag , 0, 0);
 
      lookup_mosaic_data ( data_array_field ,
                    gage ,
@@ -1085,7 +1089,7 @@ void lookup_radar_index ( int ** data_array_tmp ,
    sprintf(fname,"%s/%s%sz",dirname,cv_use_tmp,date_st3.cdate);
    len_fname = strlen(fname);
 
-   display_field_read_xmrg ( data_array_tmp , fname, addition_flag );
+   display_field_read_xmrg ( data_array_tmp , fname, addition_flag , 0, 0 );
 
    for(k=0; k<ngages; k++)
    {

@@ -67,7 +67,6 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -796,6 +795,8 @@ public class NsharpEditor extends AbstractEditor implements  IRenderableDisplayC
     	NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
     	NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
     	paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+    	if(!paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR) && !paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR))
+    		paneConfigurationName = NsharpConstants.PANE_SIMPLE_D2D_CFG_STR;
     	initDisplayPublicParms();
     	createRenderableDisplayArray();
     	/*
@@ -881,7 +882,7 @@ public class NsharpEditor extends AbstractEditor implements  IRenderableDisplayC
     	if(paletteWin!=null){
     		paletteWin.restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
     				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
-    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn()); 
+    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn(), rscHandler.isCompareSndIsOn()); 
     	}
     	createPaneResource();
     	
@@ -1122,8 +1123,17 @@ public class NsharpEditor extends AbstractEditor implements  IRenderableDisplayC
     	//System.out.println("SkewtEditor getDisplayPanes called");
         //return getDisplayPaneArray();//this.displayPane;
     	// changed for D2D
+    	if(displayPane.length <=0)
+			try {
+				throw new VizException("Display pane is not available!");
+			} catch (VizException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     	IDisplayPane[] pan = { displayPane[DISPLAY_SKEWT]};
     	return pan;
+    
+    	
     }
     public IRenderableDisplay[] getRenderableDisplays() {
         IRenderableDisplay[] displays = new IRenderableDisplay[displayPane.length];
@@ -1171,7 +1181,7 @@ public class NsharpEditor extends AbstractEditor implements  IRenderableDisplayC
 
 	@Override
 	protected PaneManager getNewPaneManager() {
-		
+		//return new PaneManager();
 		return null;
 	}
 	private  void initDisplayPublicParms(){

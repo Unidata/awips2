@@ -50,11 +50,12 @@ public class NsharpTimeStnPaneMouseHandler extends NsharpAbstractMouseHandler{
             NsharpTimeStnPaneResource timeStnRsc = (NsharpTimeStnPaneResource)getDescriptor().getPaneResource();
             if(timeStnRsc.getTimeLineRectangle().contains((int) c.x, (int) c.y)== true) {
             	this.mode = Mode.TIMELINE_DOWN;
-            	//changeMouse(this.mode);
             }
             else if(timeStnRsc.getStnIdRectangle().contains((int) c.x, (int) c.y) == true) {
             	this.mode = Mode.STATIONID_DOWN;
-            	//changeMouse(this.mode);
+            }
+            else if(timeStnRsc.getSndRectangle().contains((int) c.x, (int) c.y) == true) {
+            	this.mode = Mode.SNDTYPE_DOWN;
             }
             editor.refresh();
         }
@@ -87,6 +88,11 @@ public class NsharpTimeStnPaneMouseHandler extends NsharpAbstractMouseHandler{
     			else if(timeStnRsc.getStnIdRectangle().contains((int) c.x, (int) c.y) == true && this.mode == Mode.STATIONID_DOWN) {
     				//stn id line has been touched, and may be changed
     				timeStnRsc.getRscHandler().handleUserClickOnStationId(c);
+    				handleMouseMove(x,y);
+    			}
+    			else if(timeStnRsc.getSndRectangle().contains((int) c.x, (int) c.y) == true && this.mode == Mode.SNDTYPE_DOWN) {
+    				//stn id line has been touched, and may be changed
+    				timeStnRsc.getRscHandler().handleUserClickOnSndLine(c);
     				handleMouseMove(x,y);
     			}
     			

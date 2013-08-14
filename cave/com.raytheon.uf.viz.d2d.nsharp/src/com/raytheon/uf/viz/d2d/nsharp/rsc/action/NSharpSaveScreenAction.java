@@ -62,7 +62,7 @@ public class NSharpSaveScreenAction extends SaveScreenAction {
         }
         NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         int startIndex = 0;
-        int endIndex = NsharpFrameIndexUtil.getFrameCount(handler);
+        int endIndex = handler .getFrameCount(); // Chin NsharpFrameIndexUtil.getFrameCount(handler);
         return captureFrames(editor, startIndex, endIndex);
     }
 
@@ -75,18 +75,20 @@ public class NSharpSaveScreenAction extends SaveScreenAction {
         IDisplayPane pane = editor.getActiveDisplayPane();
         NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         // save the frame we are on;
-        int startingIndex = NsharpFrameIndexUtil.getCurrentIndex(handler);
+        int startingIndex = handler.getCurrentIndex(); // Chin NsharpFrameIndexUtil.getCurrentIndex(handler);
         List<BufferedImage> images = new ArrayList<BufferedImage>();
         LoopProperties loopProperties = ((AbstractEditor) editor)
                 .getLoopProperties();
         renderPane(pane, loopProperties);
         for (int i = startIndex; i < endIndex; i++) {
-            NsharpFrameIndexUtil.setCurrentIndex(handler, i);
+        	//Chin NsharpFrameIndexUtil.setCurrentIndex(handler, i);
+        	if(handler.setCurrentIndex(i)== false)
+        		continue;
             pane.refresh();
             renderPane(pane, loopProperties);
             images.add(captureCurrentFrames(editor));
         }
-        NsharpFrameIndexUtil.setCurrentIndex(handler, startingIndex);
+        handler.setCurrentIndex(startingIndex); // Chin NsharpFrameIndexUtil.setCurrentIndex(handler, startingIndex);
         pane.refresh();
         renderPane(pane, loopProperties);
         return images;
