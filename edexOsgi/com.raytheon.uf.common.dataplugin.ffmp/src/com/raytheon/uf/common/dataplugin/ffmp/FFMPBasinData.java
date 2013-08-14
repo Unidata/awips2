@@ -688,6 +688,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param times
      */
     public void populate(List<Long> times) {
+        
         if (mapFactory == null) {
             mapFactory = new BasinMapFactory<Date>(Collections.reverseOrder(),
                     getBasins().size());
