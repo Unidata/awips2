@@ -46,6 +46,9 @@
 #                                                 Cleaned up some constants
 #    Jun 21, 2013    14983         ryu            Fixed encodeEditArea() to evaluate query
 #                                                 when necessary
+#    Aug 14, 2013     1571         randerso       Fixed encodeEditArea() to return astype(numpy.bool8)
+#                                                 so mask can be used with advanced indexing
+#                                                 (e.g. grid[mask] = value)
 #
 ########################################################################
 import types, string, time, sys
@@ -2080,7 +2083,7 @@ class SmartScript(BaseTool.BaseTool):
         if editArea.isQuery():
             editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
 
-        return editArea.getGrid().__numpy__[0]
+        return editArea.getGrid().__numpy__[0].astype(numpy.bool8)
 
     def decodeEditArea(self, mask):
         # Returns a refData object for the given mask
