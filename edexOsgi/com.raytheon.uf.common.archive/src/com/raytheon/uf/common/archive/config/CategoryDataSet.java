@@ -92,7 +92,7 @@ public class CategoryDataSet {
     private String filePattern;
 
     @XmlElement(name = "timeType")
-    private TimeType timeType;
+    private TimeType timeType = TimeType.Date;
 
     /**
      * The display label.
@@ -197,12 +197,11 @@ public class CategoryDataSet {
     }
 
     /**
-     * Get time stamp for file based on timetype. Assumes file path matches
+     * Get time stamp for file based on time type.
      * 
      * @param timeIndices
      * @param matcher
-     * @param file
-     * @return
+     * @return fileTime
      */
     public Long getMatchTimeInMilliseconds(int[] timeIndices, Matcher matcher) {
         return CategoryDataSet.getMatchTimeInMilliseconds(timeType,
@@ -210,13 +209,15 @@ public class CategoryDataSet {
     }
 
     /**
-     * Get file time based on time type.
+     * Get file time based on time type. Assumes the matcher is set up matching
+     * a file's path name so the groups in the matcher can be used to get the
+     * time stamp.
      * 
      * @param timeType
      * @param timeIndices
      * @param matcher
-     * @param file
-     * @return fileTime
+     * @return fileTime or null if time type does not get time using the
+     *         matcher.
      */
     public static Long getMatchTimeInMilliseconds(
             CategoryDataSet.TimeType timeType, int[] timeIndices,
@@ -265,7 +266,7 @@ public class CategoryDataSet {
     public String toString() {
         StringBuilder sb = new StringBuilder("DataSet[ ");
         sb.append("TimeType: ").append(getTimeType());
-        sb.append("dateGroupIndices: ").append(getDateGroupIndices());
+        sb.append(", dateGroupIndices: ").append(getDateGroupIndices());
         sb.append(", isDirOnly: ").append(isDirOnly());
         sb.append(", displayLabel: ").append(getDisplayLabel());
         sb.append(", dirPatterns[ ");
