@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * Mar 26, 2008				rbell	    Initial creation
  * Mar 20, 2013    #1774    randerso    Use TimeUtil constants
+ * Aug 14, 2013    #1571    randerso    Changed to use ProjectionType enum
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ public class VectorGridDataTest {
 
     private final float testFA1[] = new float[145 * 145];
     {
-        for (int i = 0; i < 145 * 145; i++) {
+        for (int i = 0; i < (145 * 145); i++) {
             this.testFA1[i] = (float) (i + (i / (Math.pow(10.0,
                     (i + "").length()))));
         }
@@ -81,7 +82,7 @@ public class VectorGridDataTest {
 
     private final float testFA1b[] = new float[145 * 145];
     {
-        for (int i = 0; i < 145 * 145; i++) {
+        for (int i = 0; i < (145 * 145); i++) {
             this.testFA1b[i] = i % 365;
         }
     }
@@ -99,10 +100,9 @@ public class VectorGridDataTest {
             "OAX_GRID__Practice_00000000_0000", ParmID.defaultLevel());
 
     private final ProjectionData grid211 = new ProjectionData("Grid211",
-            ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                    -133.459, 12.190), new Coordinate(-49.385, 57.290),
-            new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
-            new Point(93, 65), 0.0f, 0.0f, 0.0f);
+            ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459, 12.190),
+            new Coordinate(-49.385, 57.290), new Coordinate(-95.0, 25.0),
+            25.0f, 25.0f, new Point(1, 1), new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
     private final GridLocation testGL1 = new GridLocation("OAX", this.grid211,
             new Point(145, 145), new Coordinate(45, 30), new Coordinate(9, 9),
@@ -126,7 +126,7 @@ public class VectorGridDataTest {
 
     private final byte testBA2[] = new byte[145 * 145];
     {
-        for (int i = 0; i < 145 * 145; i++) {
+        for (int i = 0; i < (145 * 145); i++) {
             this.testFA1[i] = 0;
         }
         this.testFA1[0] = 1;
@@ -136,7 +136,7 @@ public class VectorGridDataTest {
 
     private final float testFA2[] = new float[145 * 145];
     {
-        for (int i = 0; i < 145 * 145; i++) {
+        for (int i = 0; i < (145 * 145); i++) {
             this.testFA1[i] = -1;
         }
     }
