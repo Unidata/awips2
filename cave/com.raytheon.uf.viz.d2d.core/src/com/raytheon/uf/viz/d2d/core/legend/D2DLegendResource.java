@@ -501,9 +501,15 @@ public class D2DLegendResource extends
         legendFont = target.initializeFont(D2DLegendResource.class.getName());
         IDisplayPaneContainer rc = getResourceContainer();
         if (rc != null) {
+            /*
+             * The legendHandler needs to have higher priority that the
+             * changeModeHandler. The following assumes that the legendHandler,
+             * by being added later, runs before the changeModelHandler. See
+             * InputManager.handeMouseXxx.
+             */
+            rc.registerMouseHandler(changeModeHandler, InputPriority.SYSTEM_RESOURCE_LOW);
             rc.registerMouseHandler(legendHandler,
                     InputPriority.SYSTEM_RESOURCE_LOW);
-            rc.registerMouseHandler(changeModeHandler, InputPriority.RESOURCE);
         }
     }
 

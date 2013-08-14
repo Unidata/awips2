@@ -39,6 +39,10 @@ import org.eclipse.swt.widgets.Event;
  */
 public interface IInputHandler {
 
+    /*
+     * Note that these values are not only used for priority. They are also used
+     * to determine which event handlers are swapped in SideView.swapPanes.
+     */
     public static enum InputPriority {
         LOWEST(0), SYSTEM_RESOURCE_LOW(1), RESOURCE(3), SYSTEM_RESOURCE(4), PART(5), PERSPECTIVE(6),
         WINDOW(7);
