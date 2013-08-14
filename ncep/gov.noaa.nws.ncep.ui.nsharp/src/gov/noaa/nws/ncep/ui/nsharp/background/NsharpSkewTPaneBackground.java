@@ -261,6 +261,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     	if(target==null)
  			return;
         String s = "";
+       
         presslinesNumbersShape = target.createWireframeShape(false,desc );
         presslinesNumbersShape.allocate(150);
        // System.out.println("NsharpConstants.left="+NsharpConstants.left+"NsharpConstants.right"+NsharpConstants.right+" top="+NsharpConstants.top + " bot="+ NsharpConstants.bottom);
@@ -288,9 +289,9 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         	double [][] lines = {{world.mapX(NsharpConstants.left), world.mapY(coor.y)},{ world.mapX(NsharpConstants.left)+15* currentZoomLevel*xRatio,
         		world.mapY(coor.y)}};
         	presslinesNumbersShape.addLineSegment(lines);
-        	//System.out.println("coor.x="+coor.x+"coor.y="+coor.y);
+        	//System.out.println("lines="+ lines[0] + "; "+ lines[1]);
         	//System.out.println("x1="+world.mapX(NsharpConstants.left)+"y1=" +world.mapY(coor.y)+"x2="+world.mapX(NsharpConstants.right)+"y2="+
-            //		world.mapY(coor.y));
+            //		world.mapY(coor.y));     
         }
         IExtent ext = desc.getRenderableDisplay().getExtent();
         double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
@@ -372,6 +373,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 				target.drawLine(xmin, world.mapY(coor.y), 0.0, xend,
 						world.mapY(coor.y), 0.0,
 						NsharpConstants.pressureColor, 1);
+				//System.out.println("lines ="+ NsharpConstants.PRESSURE_MARK_LEVELS[i] + "; "+ world.mapY(coor.y));
 			} catch (VizException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
