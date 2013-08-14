@@ -123,6 +123,8 @@ if [ "${1}" = "-64bit" ]; then
 fi
 
 if [ "${1}" = "-rh6" ]; then
+   buildRPM "awips2-common-base"
+   buildJava
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-nose"
