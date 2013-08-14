@@ -22,7 +22,6 @@ package com.raytheon.viz.pointdata;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
-import java.io.File;
 
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.GVTBuilder;
@@ -35,6 +34,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -73,8 +73,10 @@ public class PointIconFactory {
         SAXDocumentFactory f = new SAXSVGDocumentFactory(parser);
 
         try {
-            document = f.createDocument(PathManagerFactory.getPathManager()
-                    .getStaticFile("plotModels" + File.separator + "Icon.svg")
+            document = f.createDocument(PathManagerFactory
+                    .getPathManager()
+                    .getStaticFile(
+                            "plotModels" + IPathManager.SEPARATOR + "Icon.svg")
                     .toURI().toString());
         } catch (Exception e) {
             throw new VizException("Error loading symbol file: Icon.svg", e);
@@ -98,8 +100,8 @@ public class PointIconFactory {
                 BufferedImage.TYPE_BYTE_INDEXED, colorModel);
         Graphics2D g2d = bImage.createGraphics();
         document.getElementsByTagName("svg").item(0).getAttributes()
-                .getNamedItem("viewBox").setNodeValue(
-                        "0 0 " + size + " " + size);
+                .getNamedItem("viewBox")
+                .setNodeValue("0 0 " + size + " " + size);
         Element iconNode = document.getElementById("icon");
         iconNode.getFirstChild().setNodeValue(Integer.toString(i));
         iconNode.getAttributeNode("x").setNodeValue(String.valueOf(size / 2));
