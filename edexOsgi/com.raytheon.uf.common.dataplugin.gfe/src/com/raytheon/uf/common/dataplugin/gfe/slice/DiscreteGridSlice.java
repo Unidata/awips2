@@ -56,6 +56,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * 06/10/2009   2159       rjpeter     Updated checkDims to check grid for null
  * 01/30/2013   15719      jdynina     Allowed more than 128 char width wx
  *                                     string
+ * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
+ *                                     debugger when trying to display the grid
  * </pre>
  * 
  * @author chammack
@@ -167,8 +169,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
         if (gsDiscreteGrid != null) {
             Grid2DByte discreteGrid = getDiscreteGrid();
-            if (discreteGrid.getXdim() != gsDiscreteGrid.getXdim()
-                    || discreteGrid.getYdim() != gsDiscreteGrid.getYdim()) {
+            if ((discreteGrid.getXdim() != gsDiscreteGrid.getXdim())
+                    || (discreteGrid.getYdim() != gsDiscreteGrid.getYdim())) {
                 throw new IllegalArgumentException(
                         "Supplied grid is not of same dimension");
             }
@@ -302,8 +304,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         Grid2DByte discreteGrid = getDiscreteGrid();
         Point gridSize = new Point(discreteGrid.getXdim(),
                 discreteGrid.getYdim());
-        if (editArea.getXdim() != gridSize.x
-                || editArea.getYdim() != gridSize.y) {
+        if ((editArea.getXdim() != gridSize.x)
+                || (editArea.getYdim() != gridSize.y)) {
             return false;
         }
 
@@ -353,8 +355,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      */
     public boolean assign(DiscreteGridSlice gs, Grid2DBit editArea) {
         Grid2DByte discreteGrid = getDiscreteGrid();
-        if (editArea.getXdim() != discreteGrid.getXdim()
-                || editArea.getYdim() != discreteGrid.getYdim()) {
+        if ((editArea.getXdim() != discreteGrid.getXdim())
+                || (editArea.getYdim() != discreteGrid.getYdim())) {
             return false;
         }
 
@@ -637,7 +639,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
          * for duplicate keys, set all locations in grid that match that key to
          * the "first" of the duplicate keys
          */
-        for (int i = 0; i < key.length - 1; i++) {
+        for (int i = 0; i < (key.length - 1); i++) {
             for (int j = i; j < key.length; j++) {
                 if (key[i].equals(key[j])) {
                     discreteGrid.setAllOfValue((byte) j, (byte) i);
@@ -693,16 +695,6 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         return new DiscreteGridSlice(aValidTime, aGpi, aHistory, aGrid, aKey);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder rVal = new StringBuilder(super.toString());
-
-        rVal.append("Discrete grid: ").append(getDiscreteGrid()).append("\n");
-        rVal.append("Discrete keys: ").append(getKey()).append("\n");
-
-        return rVal.toString();
-    }
-
     private String checkDims() {
         Grid2DByte discreteGrid = getDiscreteGrid();
         if (discreteGrid == null) {
@@ -712,8 +704,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         int x = discreteGrid.getXdim();
         int y = discreteGrid.getYdim();
 
-        if (x != gridParmInfo.getGridLoc().getNx()
-                || y != gridParmInfo.getGridLoc().getNy()) {
+        if ((x != gridParmInfo.getGridLoc().getNx())
+                || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
                     + x
                     + ","
@@ -733,7 +725,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      * @return the discrete grid
      */
     public Grid2DByte getDiscreteGrid() {
-        if (useCache && cacheId != null) {
+        if (useCache && (cacheId != null)) {
             try {
                 @SuppressWarnings("unchecked")
                 ICache<IGrid2D> diskCache = CacheFactory.getInstance()
