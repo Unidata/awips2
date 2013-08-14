@@ -26,7 +26,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -62,9 +61,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mpduff     Initial creation.
- * Nov 26, 2012   1347     mpduff     Make resizable.
- * Jan 09, 2013 1412        djohnson    Listen for user authentication data changes.
+ * May 23, 2012            mpduff      Initial creation.
+ * Nov 26, 2012   1347     mpduff      Make resizable.
+ * Jan 09, 2013   1412     djohnson    Listen for user authentication data changes.
+ * Aug 12, 2013   2247     mpduff      Dialog cleanup and consistency.
  * 
  * </pre>
  * 
@@ -344,83 +344,11 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
             @Override
             public void mouseDown(MouseEvent arg0) {
                 if (arg0.button == 3) {
-                    Menu menu = new Menu(shell, SWT.POP_UP);
-                    MenuItem item1 = new MenuItem(menu, SWT.PUSH);
-                    item1.setText("Description...");
-                    item1.addSelectionListener(new SelectionAdapter() {
-                        @Override
-                        public void widgetSelected(SelectionEvent arg0) {
-                            String selection = userPermList
-                                    .getItem(userPermList.getSelectionIndex());
-                            StringBuilder messageText = new StringBuilder();
-                            boolean roleFlag = false;
-                            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
-                            for (RoleXML role : man.getRoleData(
-                                    selectedApplication).getRoleList()) {
-                                if (selection.equals(role.getRoleId())) {
-                                    messageText.append("Role: " + selection);
-                                    messageText.append("\n\nDescription: "
-                                            + role.getRoleDescription().trim());
-                                    if (role.getPermissionList().size() > 0) {
-                                        messageText.append("\n\nPermissions: ");
-                                        for (String perm : role
-                                                .getPermissionList()) {
-                                            messageText.append("\n  " + perm);
-                                        }
-                                    }
-                                    roleFlag = true;
-                                    break;
-                                }
-                            }
-
-                            if (roleFlag == false) {
-                                for (PermissionXML perm : man.getRoleData(
-                                        selectedApplication)
-                                        .getPermissionList()) {
-                                    if (perm.getId().equals(selection)) {
-                                        messageText.append("Permission: "
-                                                + selection);
-                                        messageText.append("\nDescription: "
-                                                + perm.getDescription());
-                                        break;
-                                    }
-                                }
-                            }
-                            if (messageText.length() == 0) {
-                                messageText.append("No Description");
-                            }
-                            MessageBox messageDialog = new MessageBox(shell,
-                                    SWT.ICON_INFORMATION);
-                            if (roleFlag) {
-                                messageDialog.setText("Role Description");
-                            } else {
-                                messageDialog.setText("Permission Description");
-                            }
-                            messageDialog.setMessage(messageText.toString());
-                            messageDialog.open();
-                        }
-                    });
-
-                    shell.setMenu(menu);
-                    menu.setVisible(true);
+                    showPermissionMenu(userPermList);
                 }
             }
         });
 
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
-        /************************************************************************************************/
         /************************************************************************************************/
         // Roles tab
         roleTab = new TabItem(tabFolder, SWT.NONE);
@@ -466,52 +394,12 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
                 populatePermissionList();
             }
         });
-        roleList.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseUp(MouseEvent arg0) {
-                // Not Implemented
-            }
-
+        roleList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent arg0) {
                 if (arg0.button == 3) {
-                    Menu menu = new Menu(shell, SWT.POP_UP);
-                    MenuItem item1 = new MenuItem(menu, SWT.PUSH);
-                    item1.setText("Description...");
-                    item1.addSelectionListener(new SelectionAdapter() {
-                        @Override
-                        public void widgetSelected(SelectionEvent arg0) {
-                            String selection = roleList.getItem(roleList
-                                    .getSelectionIndex());
-                            String messageText = null;
-                            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
-                            String app = appCombo.getItem(appCombo
-                                    .getSelectionIndex());
-                            for (RoleXML role : man.getRoleData(app)
-                                    .getRoleList()) {
-                                if (selection.equals(role.getRoleId())) {
-                                    messageText = role.getRoleDescription();
-                                    break;
-                                }
-                            }
-                            MessageBox messageDialog = new MessageBox(shell,
-                                    SWT.ICON_INFORMATION);
-                            messageDialog.setText("Role Description");
-                            messageDialog.setMessage(messageText.toString());
-                            messageDialog.open();
-                        }
-                    });
-
-                    shell.setMenu(menu);
-                    menu.setVisible(true);
+                    showPermissionMenu(roleList);
                 }
-            }
-
-            @Override
-            public void mouseDoubleClick(MouseEvent arg0) {
-                // Not implemented
-
             }
         });
 
@@ -572,6 +460,15 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         rolePermList = new List(permComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
                 | SWT.H_SCROLL);
         rolePermList.setLayoutData(listData);
+        rolePermList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent arg0) {
+                if (arg0.button == 3) {
+                    showPermissionMenu(rolePermList);
+                }
+            }
+        });
+
     }
 
     private void populateLists() {
@@ -715,6 +612,77 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         if (changes) {
             dirty = true;
         }
+    }
+
+    private void showPermissionMenu(final List list) {
+        Menu menu = new Menu(shell, SWT.POP_UP);
+        MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+        item1.setText("Description...");
+        item1.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent arg0) {
+                String selection = list.getItem(list.getSelectionIndex());
+                StringBuilder messageText = new StringBuilder();
+                boolean roleFlag = false;
+                NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+                for (RoleXML role : man.getRoleData(selectedApplication)
+                        .getRoleList()) {
+                    if (selection.equals(role.getRoleId())) {
+                        messageText.append(getRoleDetails(role));
+                        roleFlag = true;
+                        break;
+                    }
+                }
+
+                if (!roleFlag) {
+                    for (PermissionXML perm : man.getRoleData(
+                            selectedApplication).getPermissionList()) {
+                        if (perm.getId().equals(selection)) {
+                            messageText.append(getPermissionDetails(perm));
+                            break;
+                        }
+                    }
+                }
+                if (messageText.length() == 0) {
+                    messageText.append("No Description");
+                }
+                MessageBox messageDialog = new MessageBox(shell,
+                        SWT.ICON_INFORMATION);
+                if (roleFlag) {
+                    messageDialog.setText("Role Description");
+                } else {
+                    messageDialog.setText("Permission Description");
+                }
+                messageDialog.setMessage(messageText.toString());
+                messageDialog.open();
+            }
+        });
+
+        shell.setMenu(menu);
+        menu.setVisible(true);
+    }
+
+    private String getRoleDetails(RoleXML role) {
+        StringBuilder details = new StringBuilder();
+        details.append("Role: ").append(role.getRoleId());
+        details.append("\n\nDescription: ").append(
+                role.getRoleDescription().trim());
+        if (!role.getPermissionList().isEmpty()) {
+            details.append("\n\nPermissions: ");
+            for (String perm : role.getPermissionList()) {
+                details.append("\n  ").append(perm);
+            }
+        }
+
+        return details.toString();
+    }
+
+    private String getPermissionDetails(PermissionXML perm) {
+        StringBuilder details = new StringBuilder();
+        details.append("Permission: ").append(perm.getId());
+        details.append("\n\nDescription: ").append(perm.getDescription());
+
+        return details.toString();
     }
 
     private void handleOK() {
