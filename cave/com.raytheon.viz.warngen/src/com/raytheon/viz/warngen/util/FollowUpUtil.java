@@ -14,8 +14,8 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
-import com.raytheon.viz.warngen.gis.Direction;
 import com.raytheon.viz.warngen.gis.GisUtil;
+import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.raytheon.viz.warngen.text.ICommonPatterns;
 
 /**
@@ -56,8 +56,6 @@ public class FollowUpUtil {
     public static boolean checkApplicable(String site,
             WarngenConfiguration config, AbstractWarningRecord record,
             WarningAction action) {
-
-        // Current Time
 
         boolean rval = false;
         if (record == null) {
