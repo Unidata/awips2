@@ -104,6 +104,7 @@ public class NsharpConfigManager {
 				try {
 					//System.out.println("lFile name="+ lFile.getName());
 
+					@SuppressWarnings("deprecation")
 					Object xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
 							lFile.getFile().getAbsolutePath() );
 

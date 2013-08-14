@@ -19,7 +19,7 @@ package gov.noaa.nws.ncep.ui.nsharp.view;
  * @version 1.0
  */
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpOperationElement;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 public class NsharpStnConfigDialog extends Dialog {
@@ -43,8 +44,12 @@ public class NsharpStnConfigDialog extends Dialog {
 	private   org.eclipse.swt.widgets.List stnList;
 	private  List<String> selectedStnList = new ArrayList<String>(); 
 	protected Composite top;
+	private MessageBox mb;
 	protected NsharpStnConfigDialog(Shell parentShell) {
 		super(parentShell);
+		mb = new MessageBox(parentShell, SWT.ICON_WARNING
+				| SWT.OK );
+		mb.setMessage( "Current station can't be deactivated!");
 	}
 	public static NsharpStnConfigDialog getInstance( Shell parShell){
 		
@@ -121,6 +126,11 @@ public class NsharpStnConfigDialog extends Dialog {
     				selectedStnList.clear();
     				for(int i=0; i < stnList.getSelectionCount(); i++) {
     					selectedSndTime = stnList.getSelection()[i];
+    					if(selectedSndTime.contains("Active-Current") == true){
+    						stnList.deselect(stnList.indexOf(selectedSndTime));
+    						mb.open();
+    						break;
+    					}
     					//remove "--InActive" or "--Active" from string
     					selectedSndTime= selectedSndTime.substring(0, selectedSndTime.indexOf('-'));
     					selectedStnList.add(selectedSndTime);
@@ -139,7 +149,7 @@ public class NsharpStnConfigDialog extends Dialog {
 		activateBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
 				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();			
-				rsc.handleStationActConfig(selectedStnList, NsharpConstants.State.ACTIVE);
+				rsc.handleStationActConfig(selectedStnList, NsharpConstants.ActState.ACTIVE);
 				selectedStnList.clear();
 				close();
 			}
@@ -152,7 +162,7 @@ public class NsharpStnConfigDialog extends Dialog {
 			public void handleEvent(Event event) {  
 				//System.out.println("Unload Selected");
 				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();				
-				rsc.handleStationActConfig(selectedStnList, NsharpConstants.State.INACTIVE);
+				rsc.handleStationActConfig(selectedStnList, NsharpConstants.ActState.INACTIVE);
 				selectedStnList.clear();
 				close();
 			}          		            	 	
@@ -174,14 +184,19 @@ public class NsharpStnConfigDialog extends Dialog {
 			return;
 		//after checking, rsc is not null guaranteed.
 		NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
-		List<NsharpStationStateProperty>  stnStList = rsc.getStnStateList();
-		for(NsharpStationStateProperty stn: stnStList){
+		List<NsharpOperationElement>  stnStList = rsc.getStnElementList();
+		int curStnIndex = rsc.getCurrentStnElementListIndex();
+		for(NsharpOperationElement stn: stnStList){
 			String s;
-			if(stn.getStnState() == NsharpConstants.State.INACTIVE)
+			if(stn.getActionState() == NsharpConstants.ActState.INACTIVE)
 				s = "--(InActive)";
-			else
-				s="--(Active)";
-			stnList.add(stn.getStnDescription() +s);
+			else{
+				if(stnStList.indexOf(stn)== curStnIndex)
+					s="--(Active-Current)";
+				else
+					s="--(Active)";
+			}
+			stnList.add(stn.getElementDescription() +s);
 		}
 	}
 }

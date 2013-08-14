@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp.ui.thread;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
@@ -51,6 +52,9 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
 
 public class BackgroundLoadJob extends AbstractLoadJob {
 
+    private static final SimpleDateFormat sdf = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss");
+
     protected boolean preloadAvailableUris = false;
 
     public BackgroundLoadJob(String name, FFMPResourceData resourceData,
@@ -66,6 +70,9 @@ public class BackgroundLoadJob extends AbstractLoadJob {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
+        System.out.println("FFMP background load job running for: "
+                + sdf.format(startTime) + " to " + sdf.format(endTime));
+
         try {
             SubMonitor smonitor = SubMonitor.convert(monitor, "Loading Data",
                     2500);

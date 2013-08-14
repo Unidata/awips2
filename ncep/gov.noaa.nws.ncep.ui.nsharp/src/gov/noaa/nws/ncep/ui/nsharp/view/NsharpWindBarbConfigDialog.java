@@ -59,6 +59,7 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 	private ColorMatrixSelector cms;
 	private Text windBarbWidthText, windBarbSizeText, windBarbDistText;
 	private MessageBox mb;
+	private boolean showFilteredWind;
 	public static NsharpWindBarbConfigDialog getInstance(Shell parentShell) {
 		if(instance == null)
 			instance = new NsharpWindBarbConfigDialog(parentShell);
@@ -77,6 +78,7 @@ public class NsharpWindBarbConfigDialog extends Dialog {
         	curColor = configStore.getGraphProperty().getWindBarbColor();
         	curSize = configStore.getGraphProperty().getWindBarbSize();
         	curDist = configStore.getGraphProperty().getWindBarbDistance();
+        	showFilteredWind = configStore.getGraphProperty().isShowFilteredWindInCircle();
         }
 	}
 	
@@ -85,7 +87,7 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 		FormLayout layout0 = new FormLayout();
 		composite.setLayout(layout0);
 		//  Lay out the various groups within the dialog
-		Group lineConfigGroup = new Group ( composite, SWT.SHADOW_NONE );
+		Group lineConfigGroup = new Group ( composite, SWT.SHADOW_NONE | SWT.NO_RADIO_GROUP );
 		lineConfigGroup.setText("Properties");
 		GridLayout lineConfigGridLayout = new GridLayout();
 		lineConfigGridLayout.numColumns = 1;
@@ -115,9 +117,9 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 		colorConfigGroup.setLayoutData(formData5);
 		//  Parameters to give a uniform look to all line width/style buttons
 
-		final int lblWidth = 100;
+		final int lblWidth = 110;
 		final int lblHeight = 20;
-		final int textWidth = 100;
+		final int textWidth = 110;
 
 
 		//  Line Width
@@ -154,7 +156,21 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 		windBarbDistText.setVisible(true); 
 		//listen to Integer data type, use 0 as input
 		windBarbDistText.addListener (SWT.Verify,new InEditListener ( 0) );
-
+		/* TBDWB
+		Button showFilteredWBtn = new Button(lineConfigGroup, SWT.RADIO | SWT.BORDER);
+		showFilteredWBtn.setText("Show Filter wb in Crc");
+		if(showFilteredWind == true)
+			showFilteredWBtn.setSelection(true);
+		else
+			showFilteredWBtn.setSelection(false);
+		showFilteredWBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) { 
+				if(showFilteredWind == true)
+					showFilteredWind=false;
+				else
+					showFilteredWind=true;
+			}          		            	 	
+		} );  */
 		//  Line Color
 
 		cms = new ColorMatrixSelector(colorConfigGroup, false, false,
@@ -283,6 +299,7 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 		configStore.getGraphProperty().setWindBarbDistance(curDist);
 		configStore.getGraphProperty().setWindBarbLineWidth(curLineWidth);
 		configStore.getGraphProperty().setWindBarbSize(curSize);
+		configStore.getGraphProperty().setShowFilteredWindInCircle(showFilteredWind);
 		//inform editor
 		NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
         if (editor != null) {
