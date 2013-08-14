@@ -40,7 +40,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
@@ -71,7 +70,6 @@ import com.raytheon.uf.common.util.TestUtil;
  * @author bgonzale
  * @version 1.0
  */
-@Ignore
 public class ArchiveConfigManagerTest {
 
     private static final String RAW = "Raw";
@@ -173,22 +171,22 @@ public class ArchiveConfigManagerTest {
         // **** binlightning ****
         MessageFormat binlightningFormat_Raw = new MessageFormat(
                 "/binlightning/{0}{1}{2}/{3}/SFUS41_KWBC_{6}{7}{8}_22725485.nldn.{4}{5}{6}{7}");
-        createTestFiles(binlightningFormat_Raw, archiveRaw, "Misc", false,
-                archiveStart, archiveEnd);
+        createTestFiles(binlightningFormat_Raw, archiveRaw, "Observation",
+                false, archiveStart, archiveEnd);
         MessageFormat binlightningFormat_Processed = new MessageFormat(
                 "/binlightning/binlightning-{4}-{5}-{6}-{7}.h5");
-        createTestFiles(binlightningFormat_Processed, archiveProcessed, "Misc",
-                false, archiveStart, archiveEnd);
+        createTestFiles(binlightningFormat_Processed, archiveProcessed,
+                "Observation", false, archiveStart, archiveEnd);
 
         // **** bufrsigwx ****
         MessageFormat bufrsigwxFormat_Raw = new MessageFormat(
                 "/bufrsigwx/{0}{1}{2}/{3}/JUWE96_KKCI_{6}{7}{8}_31368878.bufr.{4}{5}{6}{7}");
-        createTestFiles(bufrsigwxFormat_Raw, archiveRaw, "Observation", false,
+        createTestFiles(bufrsigwxFormat_Raw, archiveRaw, "Products", false,
                 archiveStart, archiveEnd);
         MessageFormat bufrsigwxFormat_Processed = new MessageFormat(
                 "/bufrsigwx/SWH/sigwxCAT-{4}-{5}-{6}-{7}.h5");
         createTestFiles(bufrsigwxFormat_Processed, archiveProcessed,
-                "Observation", false, archiveStart, archiveEnd);
+                "Products", false, archiveStart, archiveEnd);
 
         // create test archive data dir
         archiveDir = new File(TEST_DIR, TEST_ARCHIVE_DIR);
