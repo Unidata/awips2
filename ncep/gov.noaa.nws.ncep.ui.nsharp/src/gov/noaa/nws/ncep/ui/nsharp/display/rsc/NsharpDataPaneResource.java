@@ -337,9 +337,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    			float layerPressure1 = NsharpNativeConstants.parcelToLayerMap.get(parcelNumber);
    			if(parcelNumber == NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
    				//get user selected parcel type, if available
-   				if(NsharpParcelDialog.getAccess() != null){
-   					layerPressure1 = NsharpParcelDialog.getAccess().getUserDefdParcelMb();   			   			
-   				}
+   				layerPressure1 = NsharpParcelDialog.getUserDefdParcelMb();   			   			
    			}
    			//System.out.println("drawPanel1-1 called define_parcel pType="+parcelNumber+" pre="+ layerPressure1);
 
@@ -439,11 +437,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    	    target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
    	    parcelLineYEnd= curY;
    	    if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
-   	    	if(NsharpParcelDialog.getAccess() != null){
-   	    		layerPressure = NsharpParcelDialog.getAccess().getUserDefdParcelMb();
-   	    	}
-   	    	else
-   	    		layerPressure = NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
+   	    	layerPressure = NsharpParcelDialog.getUserDefdParcelMb();
    	    }
    	    else
    	    	layerPressure = NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
@@ -1099,11 +1093,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		        //System.out.println("drawPanel2-2 called define_parcel pType="+oldlplchoice+" pre="+ pres);
 		        try{
 		        	if(oldlplchoice == NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
-		        		if(NsharpParcelDialog.getAccess() != null){
-		        			pres = NsharpParcelDialog.getAccess().getUserDefdParcelMb();
-		        		}
-		        		else
-		        			pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
+		        		pres = NsharpParcelDialog.getUserDefdParcelMb();
 		        	}
 		        	else
 		        		pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
@@ -1429,10 +1419,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		hdrStr  = NsharpNativeConstants.parcelToHdrStrMap.get(currentParcel);
 		layerPressure = NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
 		if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED ){
-			if(NsharpParcelDialog.getAccess() != null){
-				layerPressure = NsharpParcelDialog.getAccess().getUserDefdParcelMb();
-			}
-			
+			layerPressure = NsharpParcelDialog.getUserDefdParcelMb();
 			hdrStr = String.format(hdrStr, layerPressure);
 		}
 		curY = curY + charHeight;
@@ -2744,8 +2731,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		// set default
 		//short currentParcel; 
 		float layerPressure; 
-		if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED && NsharpParcelDialog.getAccess() != null){
-			layerPressure = NsharpParcelDialog.getAccess().getUserDefdParcelMb();
+		if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED ){
+			layerPressure = NsharpParcelDialog.getUserDefdParcelMb();
 		}
 		else
 			layerPressure = NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
