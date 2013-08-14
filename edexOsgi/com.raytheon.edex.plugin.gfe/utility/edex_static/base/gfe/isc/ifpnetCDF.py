@@ -67,6 +67,8 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
 #    06/13/13        2044          randerso       Updated for changes to TopoDatabaseManager
 #    07/25/13        2233          randerso       Improved memory utilization and performance
+#    08/09/2013      1571          randerso       Changed projections to use the Java             
+#                                                 ProjectionType enumeration
 # 
 #
 
@@ -650,15 +652,15 @@ def storeProjectionAttributes(var, projectionData):
     setattr(var, "projectionType", projectionType.toString())
 
     # Now store the projection specific attributes
-    if projectionType.toString() == "LAMBERT_CONFORMAL":
+    if ProjectionType.LAMBERT_CONFORMAL.equals(projectionType):
         setattr(var, "latLonOrigin", (projectionData.getLatLonOrigin().x, projectionData.getLatLonOrigin().y))
         setattr(var, "stdParallelOne", projectionData.getStdParallelOne())
         setattr(var, "stdParallelTwo", projectionData.getStdParallelTwo())
 
-    if projectionType.toString() == "POLAR_STEREOGRAPHIC":
+    if ProjectionType.POLAR_STEREOGRAPHIC.equals(projectionType):
         setattr(var, "lonOrigin", projectionData.getLonOrigin())
 
-    if projectionType.toString() == "MERCATOR":
+    if ProjectionType.MERCATOR.equals(projectionType):
         setattr(var, "lonCenter", projectionData.getLonCenter())
 
     return
@@ -1098,7 +1100,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
         grid = clipToExtrema(dis[0], clipArea)
         byteCube[i] = grid
         keyList.append(dis[1])
-    
+
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1349,8 +1351,8 @@ def main(outputFilename, parmList, databaseID, startTime,
     clipArea = extremaOfSetBits(maskGrid)
     maskGrid = clipToExtrema(maskGrid, clipArea)
     clippedGridSize = maskGrid.shape
-    validPointCount = numpy.add.reduce(numpy.add.reduce(maskGrid))
-    
+    validPointCount = numpy.add.reduce(numpy.add.reduce(maskGrid)) 
+
     #invert the mask grid
     invMask = numpy.logical_not(maskGrid)
     #del maskGrid
