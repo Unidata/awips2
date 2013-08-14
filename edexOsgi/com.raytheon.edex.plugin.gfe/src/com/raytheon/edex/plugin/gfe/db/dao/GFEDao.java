@@ -93,6 +93,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 05/22/13     #2025      dgilling    Re-implement functions needed by 
  *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
  * 05/20/13     #2127      rjpeter     Set session's to read only and switched to stateless where possible.
+ * 08/08/13     DR16485    ryu         Remove call to getDatabaseId() from getMaxInsertTimeByDbId()
+ *                                     so new GFE databases aren't accidentally created.
  * </pre>
  * 
  * @author bphillip
@@ -1126,7 +1128,13 @@ public class GFEDao extends DefaultPluginDao {
     public Date getMaxInsertTimeByDbId(final DatabaseID dbId)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
-        query.addQueryParam("parmId.dbId", getDatabaseId(dbId),
+        query.addQueryParam("parmId.dbId.siteId", dbId.getSiteId(),
+                QueryOperand.EQUALS);
+        query.addQueryParam("parmId.dbId.format", dbId.getFormat(),
+                QueryOperand.EQUALS);
+        query.addQueryParam("parmId.dbId.modelName", dbId.getModelName(),
+                QueryOperand.EQUALS);
+        query.addQueryParam("parmId.dbId.modelTime", dbId.getModelTime(),
                 QueryOperand.EQUALS);
         query.addReturnedField("insertTime");
         query.addOrder("insertTime", false);
