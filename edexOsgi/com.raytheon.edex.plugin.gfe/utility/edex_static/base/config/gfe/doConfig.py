@@ -17,8 +17,21 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+# doConfig - validate and convert serverConfig into simple Java objects
+#
 # this file was originally config.py
 # it was renamed to avoid a conflict with jep's built-in config module
+#
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    08/09/2013          #1571     randerso       Changed projections to use the Java             
+#                                                 ProjectionType enumeration
+#
+########################################################################
 import types
 
 from java.util import ArrayList,LinkedHashMap
@@ -51,9 +64,15 @@ def check(data, fmt, message, allData = None):
              m = m + ' All: ' + `allData`
          raise AssertionError, m
      for i in xrange(len(data)):
-         if type(data[i]) != fmt[i]:
+         obj = data[i]
+         if hasattr(obj, "jclassname"):
+             t = obj.jclassname
+         else:
+             t = type(obj)
+         
+         if t != fmt[i]:
              m = message + ": Wrong data type found, " + \
-               "Expected " + `fmt[i]` + ", got " + `type(data[i])` + \
+               "Expected " + `fmt[i]` + ", got " + `t` + \
                " for position #" + `i+1` + " Input: " + `data`
              if allData is not None:
                  m = m + ' All: ' + `allData`
@@ -235,8 +254,9 @@ def parseDBItm(site, domain, item):
 def updateProjections(projection):
     from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
     # extract projection data
-    projFmt = (str, int, tuple, tuple, tuple, float, float, tuple, tuple,
-      float, float, float)
+    projFmt = (str, 
+      "com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData$ProjectionType", 
+      tuple, tuple, tuple, float, float, tuple, tuple, float, float, float)
     projID, ptype, pllll, pllur, pllo, pspo, pspt, pgpll, pgpur, pli, \
       plc, plo = check(projection, projFmt, "Format error in Projection")
     check(pllll, (float, float),
@@ -276,8 +296,9 @@ def parseGridLocation(domain):
     check(origin, (float, float), "Origin format error from SITES", domain)
     check(extent, (float, float), "Extent format error from SITES", domain)
 
-    projFmt = (str, int, tuple, tuple, tuple, float, float, tuple, tuple,
-      float, float, float)
+    projFmt = (str, 
+      "com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData$ProjectionType", 
+      tuple, tuple, tuple, float, float, tuple, tuple, float, float, float)
     projID, projType, llll, llur, llo, sp1, sp2, gpll, gpur, li, lc, lo = \
         check(proj, projFmt, "Format error in Projection")
     check(llll, (float, float),
