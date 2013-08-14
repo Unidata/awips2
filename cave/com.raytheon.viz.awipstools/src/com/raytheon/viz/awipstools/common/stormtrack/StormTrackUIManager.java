@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                     the Storm Track Display that it
  *                                     needs to update the track because
  *                                     the point has been moved.
+ * 08-12-2013   DR 16427   D. Friedman Prevent NPE.
  * 
  * </pre>
  * 
@@ -260,7 +261,7 @@ public class StormTrackUIManager extends InputAdapter {
         StormTrackState state = controller.getStormTrackState();
         boolean rval = false;
         if (((mouseButton == 1) || (mouseButton == 2 && pointCreated))
-                && moveType != null) {
+                && moveType != null && state.mouseDownGeom != null) {
             state.dragMeGeom = state.mouseDownGeom;
             state.mouseDownGeom = null;
             if (state.mode == Mode.DRAG_ME) {
