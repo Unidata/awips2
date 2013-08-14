@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2009            chammack     Initial creation
+ * Aug  9, 2013 DR 16448   D. Friedman Validate time match basis in redoTimeMatching
  * 
  * </pre>
  * 
@@ -191,6 +192,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     @Override
     public void redoTimeMatching(IDescriptor descriptor) throws VizException {
         synchronized (this) {
+            if (timeMatchBasis != null && ! validateTimeMatchBasis(descriptor.getResourceList()))
+                timeMatchBasis = null;
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
                 if (tmDescriptor != null && tmDescriptor != descriptor) {
@@ -988,6 +991,24 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
 
     public void resetMultiload() {
         configFactory.resetMultiload();
+    }
+
+    private boolean validateTimeMatchBasis(ResourceList list) {
+        for (ResourcePair rp : list) {
+            AbstractVizResource<?, ?> rsc = rp.getResource();
+            if (rsc == timeMatchBasis) {
+                return true;
+            } else if (rp.getProperties().isMapLayer()
+                    || rp.getProperties().isSystemResource()) {
+                continue;
+            } else if (rsc.getResourceData() instanceof IResourceGroup) {
+                if (validateTimeMatchBasis(((IResourceGroup) rsc.getResourceData())
+                        .getResourceList())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
