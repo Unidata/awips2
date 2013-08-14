@@ -28,6 +28,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 requires: boost >= 1.33.1
+requires: awips2-qpid-lib
 provides: awips2-notification
 
 %description
