@@ -185,7 +185,7 @@
         <includeMode>excludeDpaAndOgc</includeMode>
         <includeMode>statsTemplate</includeMode>
 	</mode>
-	<mode name="registry">
+	<mode name="wfoRegistry">
         <!-- WFO Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
@@ -251,16 +251,13 @@
 
 	<!-- modes listed below are not supported in a production setting, they 
 		are for DEVELOPMENT purposes only -->
-    <mode name="devWfoRegistry">
-         <!-- This is the development WFO registry mode.
-         It runs the sbn simulator for development. -->
+    <mode name="devRegistry">
+         <!-- This is the development registry mode that acts as both
+         an NCF and WFO. It also runs the sbn simulator. -->
         <include>.*sbn-simulator.*</include>
         <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
-        <exclude>.*datadelivery-ncf.*</exclude>
-        <exclude>harvester-*</exclude>
-        <exclude>crawler-*</exclude>
     </mode>
 	<mode name="grib">
 		<include>grib-common.xml</include>
