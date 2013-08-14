@@ -107,12 +107,18 @@
         <name>Observation</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-           <dirPattern>(acars|airep|airmet|taf)</dirPattern>
+           <dirPattern>(airep|airmet|taf)</dirPattern>
            <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
            <displayLabel>{1}</displayLabel>
            <timeType>Date</timeType>
            <dateGroupIndices>2,3,4,5</dateGroupIndices>
            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+        </dataSet>
+        <dataSet>
+            <dirPattern>(acars)/(.*)</dirPattern>
+            <displayLabel>{1}</displayLabel>
+            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+            finish this
         </dataSet>
      </category>
      The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.
@@ -161,7 +167,6 @@
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>
         <dataSet>
-            <dirPattern>(airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|MAROB|maritime|metar|misc_sfc_obs|pirep|sfcobs|shef|svrwx|synoptic)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <dirPattern>(acars)/(.*)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
