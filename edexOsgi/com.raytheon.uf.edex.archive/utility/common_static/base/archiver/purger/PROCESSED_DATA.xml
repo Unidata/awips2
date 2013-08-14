@@ -153,12 +153,12 @@
     <category>
         <name>Local</name>
         <extRetentionHours>168</extRetentionHours>
-        <dataset>
+        <dataSet>
             <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|mesowest|qc)</dirPattern>
             <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        </dataset>
+        </dataSet>
     </category>
     <category>
         <name>Model</name>
@@ -167,7 +167,7 @@
             <dirPattern>(grid)/(.*)/(.*)</dirPattern>
             <displayLabel>{2}</displayLabel>
             <dateGroupIndices>4,5,6,7</dateGroupIndices>
-            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
+            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
         </dataSet>
         <dataSet>
             <dirPattern>(modelsounding)/(.*)</dirPattern>
@@ -196,7 +196,7 @@
             <dirPattern>(sfcobs)/.*</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
-            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
     </category>
     <category>
@@ -223,7 +223,7 @@
             <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler)</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
-            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
     </category>
     <category>
