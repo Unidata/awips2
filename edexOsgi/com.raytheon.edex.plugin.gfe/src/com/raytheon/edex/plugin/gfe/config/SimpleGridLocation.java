@@ -32,7 +32,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 03/13/08     #1030      randerso    Initial port	
+ * 03/13/08     #1030      randerso    Initial port
+ * 08/09/2013   #1571      randerso    Changed to use ProjectionType enum
  * 
  * </pre>
  * 
@@ -52,9 +53,8 @@ public class SimpleGridLocation {
     // ProjectionData
     public String projectionID;
 
-    public ProjectionData.ProjectionType projectionType; // NONE,
+    public ProjectionData.ProjectionType projectionType;
 
-    // // LAMBERT_CONFORMAL, MERCATOR, POLAR_STEOGRAPHIC, LATLON
     public Coordinate latLonLL;
 
     public Coordinate latLonUR;
@@ -82,14 +82,14 @@ public class SimpleGridLocation {
     }
 
     public SimpleGridLocation(Point gridSize, Coordinate origin,
-            Coordinate extent, String projID, int projType, Coordinate llll,
-            Coordinate llur, Coordinate llo, float sp1, float sp2, Point gpll,
-            Point gpur, float li, float lc, float lo) {
+            Coordinate extent, String projID, ProjectionType projType,
+            Coordinate llll, Coordinate llur, Coordinate llo, float sp1,
+            float sp2, Point gpll, Point gpur, float li, float lc, float lo) {
         this.gridSize = gridSize;
         this.domainOrigin = origin;
         this.domainExtent = extent;
         this.projectionID = projID;
-        this.projectionType = ProjectionType.values()[projType];
+        this.projectionType = projType;
         this.latLonLL = llll;
         this.latLonUR = llur;
         this.latLonOrigin = llo;
