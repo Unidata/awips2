@@ -22,6 +22,7 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataRecordLoader.LoadTask;
+import com.raytheon.uf.common.dataplugin.ffmp.collections.BasinMapFactory;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
@@ -55,6 +57,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 07/09/13      2152       njensen     Ensure purgeData() does not load data
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 07/16/13      2197       njensen     Added hasAnyBasins() and moved getBasins() calls out of loops
+ * Jul 31, 2013  2242       bsteffen    Optimize FFMP NavigableMap memory.
+ * 
  * 
  * </pre>
  * 
@@ -82,6 +86,20 @@ public class FFMPBasinData implements ISerializableObject {
      * Cache of basins in order for easy population from Load Tasks.
      */
     private final Map<String, FFMPBasin[]> orderedBasinsCache = new HashMap<String, FFMPBasin[]>();
+
+    /**
+     * Shared factory for efficient storage of data in basins.
+     */
+    private BasinMapFactory<Date> mapFactory = null;
+
+    /**
+     * Public one arg constructor
+     * 
+     * @param huc_level
+     */
+    public FFMPBasinData(String hucLevel) {
+        setHucLevel(hucLevel);
+    }
 
     /**
      * No arg hibernate constructor
@@ -672,13 +690,18 @@ public class FFMPBasinData implements ISerializableObject {
      * @param times
      */
     public void populate(List<Long> times) {
+        
+        if (mapFactory == null) {
+            mapFactory = new BasinMapFactory<Date>(Collections.reverseOrder(),
+                    getBasins().size());
+        }
 
         long[] timesArr = new long[times.size()];
         for (int i = 0; i < timesArr.length; i += 1) {
             timesArr[i] = times.get(i);
         }
         for (FFMPBasin basin : getBasins().values()) {
-            basin.deserialize(timesArr);
+            basin.deserialize(timesArr, mapFactory);
         }
     }
 
@@ -736,7 +759,12 @@ public class FFMPBasinData implements ISerializableObject {
                         if (guidance) {
                             basin = new FFMPGuidanceBasin(pfaf, aggregate);
                         } else {
-                            basin = new FFMPBasin(pfaf, aggregate);
+                            if (mapFactory == null) {
+                                mapFactory = new BasinMapFactory<Date>(
+                                        Collections.reverseOrder(),
+                                        orderedPfafs.size());
+                            }
+                            basin = new FFMPBasin(pfaf, aggregate, mapFactory);
                         }
                         this.basins.put(pfaf, basin);
                     }
