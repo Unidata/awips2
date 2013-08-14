@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 02/04/2008              chammack    Initial Creation
  * 03/20/2013     #1774    randerso    Use TimeUtil constants
+ * 08/06/2013     #1571    randerso    Changed ProjectionData constructor call
  * 
  * </pre>
  * 
@@ -98,10 +99,9 @@ public class MockParmManager extends AbstractParmManager {
     private static final int TIME_OFFSET = -6;
 
     private static final ProjectionData grid211 = new ProjectionData("Grid211",
-            ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                    -133.459, 12.190), new Coordinate(-49.385, 57.290),
-            new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
-            new Point(93, 65), 0.0f, 0.0f, 0.0f);
+            ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459, 12.190),
+            new Coordinate(-49.385, 57.290), new Coordinate(-95.0, 25.0),
+            25.0f, 25.0f, new Point(1, 1), new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
     private static final GridLocation gloc = new GridLocation("OAX", grid211,
             new Point(145, 145), new Coordinate(45, 30), new Coordinate(9, 9),
@@ -208,7 +208,7 @@ public class MockParmManager extends AbstractParmManager {
 
         // Hack for simulated data
         float[][] data = null;
-        if (Activator.getDefault() != null
+        if ((Activator.getDefault() != null)
                 && (gpi.getDescriptiveName().equals("Surface Temperature") || gpi
                         .getDescriptiveName().equals("Dewpoint"))) {
             UnitConverter conv = SI.KELVIN.getConverterTo(NonSI.FAHRENHEIT);
@@ -281,8 +281,11 @@ public class MockParmManager extends AbstractParmManager {
                             / (g2dFloat.getXdim() + g2dFloat.getYdim());
                     for (int m = 0; m < g2dFloat.getXdim(); m++) {
                         for (int n = 0; n < g2dFloat.getYdim(); n++) {
-                            g2dFloat.set(m, n,
-                                    ((float) m + n) * step + gpi.getMinValue());
+                            g2dFloat.set(
+                                    m,
+                                    n,
+                                    (((float) m + n) * step)
+                                            + gpi.getMinValue());
                         }
                     }
                 }
@@ -306,7 +309,7 @@ public class MockParmManager extends AbstractParmManager {
                 for (int m = 0; m < g2dFloat.getXdim(); m++) {
                     for (int n = 0; n < g2dFloat.getYdim(); n++) {
                         g2dFloat.set(m, n,
-                                ((float) m + n) * step + gpi.getMinValue());
+                                (((float) m + n) * step) + gpi.getMinValue());
                     }
                 }
 
@@ -330,10 +333,10 @@ public class MockParmManager extends AbstractParmManager {
                 // ADDED TO DISPLAY SOME DISCRETE DATA
                 for (int m = 0; m < g2dByte.getXdim(); m++) {
                     for (int n = 0; n < g2dByte.getYdim(); n++) {
-                        if (m > 80 && m < 110 && n > 80 && n < 110) {
+                        if ((m > 80) && (m < 110) && (n > 80) && (n < 110)) {
                             g2dByte.set(m, n, (byte) 1);
                         }
-                        if (m > 90 && m < 100 && n > 110 && n < 140) {
+                        if ((m > 90) && (m < 100) && (n > 110) && (n < 140)) {
                             g2dByte.set(m, n, (byte) 1);
                         }
                     }
@@ -362,10 +365,10 @@ public class MockParmManager extends AbstractParmManager {
                 // ADDED TO DISPLAY SOME DISCRETE DATA
                 for (int m = 0; m < g2dByte.getXdim(); m++) {
                     for (int n = 0; n < g2dByte.getYdim(); n++) {
-                        if (m > 80 && m < 110 && n > 80 && n < 110) {
+                        if ((m > 80) && (m < 110) && (n > 80) && (n < 110)) {
                             g2dByte.set(m, n, (byte) 1);
                         }
-                        if (m > 90 && m < 100 && n > 110 && n < 140) {
+                        if ((m > 90) && (m < 100) && (n > 110) && (n < 140)) {
                             g2dByte.set(m, n, (byte) 1);
                         }
                     }
@@ -421,7 +424,7 @@ public class MockParmManager extends AbstractParmManager {
                 this.dataManager);
 
         IGridData grid = null;
-        if (data == null || data.length == 0) {
+        if ((data == null) || (data.length == 0)) {
             grid = null;
         } else if (gpi.getGridType() == GridType.SCALAR) {
             grid = new ScalarGridData(parm, data[0]);
@@ -715,13 +718,13 @@ public class MockParmManager extends AbstractParmManager {
         parms.acquireWriteLock();
         try {
             for (Parm addParm : addParms) {
-                if (addParm != null && !this.parms.contains(addParm)) {
+                if ((addParm != null) && !this.parms.contains(addParm)) {
                     this.parms.add(addParm); // add the additions
                 }
             }
 
             for (Parm removeParm : removeParms) {
-                if (removeParm != null && this.parms.contains(removeParm)) {
+                if ((removeParm != null) && this.parms.contains(removeParm)) {
                     this.parms.remove(removeParm);
                 }
             }
@@ -738,7 +741,7 @@ public class MockParmManager extends AbstractParmManager {
         }
 
         // send ParmListChanged notification
-        if (addParms.size() > 0 || removeParms.size() > 0) {
+        if ((addParms.size() > 0) || (removeParms.size() > 0)) {
             parms.acquireReadLock();
             try {
                 fireParmListChanged(
@@ -765,7 +768,7 @@ public class MockParmManager extends AbstractParmManager {
         }
 
         // send DisplayedParmListChanged notification
-        if (removedDisplayed.size() > 0 || addedDisplayed.size() > 0) {
+        if ((removedDisplayed.size() > 0) || (addedDisplayed.size() > 0)) {
             parms.acquireReadLock();
             try {
                 fireDisplayedParmListChanged(this.parms
