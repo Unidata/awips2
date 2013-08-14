@@ -29,8 +29,6 @@ import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -202,12 +200,9 @@ public class ViewPlotModelAction extends AbstractRightClickAction implements
                     .getStaticLocalizationFile(
                             PlotResourceData.PLOT_DIR + plotModelFile);
 
-            LocalizationPerspectiveUtils.changeToLocalizationPerspective();
-            IWorkbenchPage page = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage();
-            if (page != null) {
-                ILocalizationService service = LocalizationPerspectiveUtils
-                        .getService(page);
+            ILocalizationService service = LocalizationPerspectiveUtils
+                    .changeToLocalizationPerspective();
+            if (service != null) {
                 service.openFile(file);
             }
         }
