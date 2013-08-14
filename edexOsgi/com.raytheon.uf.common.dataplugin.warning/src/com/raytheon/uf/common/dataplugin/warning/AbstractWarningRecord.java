@@ -52,6 +52,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 03/12/2007   1003        bwoodle     initial creation
  * 04/12/2013   1857        bgonzale    Added SequenceGenerator annotation.
  * 05/02/2013   1949        rjpeter     Moved ugcZones to be a column inside table.
+ * 08/08/2013   2243        jsanchez    Removed super method in copy constructor.
  * </pre>
  * 
  * @author bwoodle
@@ -233,7 +234,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      *            The text of the message
      */
     public AbstractWarningRecord(AbstractWarningRecord old) {
-        super((String) old.getMessageData());
         this.setCountyheader(old.getCountyheader());
         this.setDataTime(old.getDataTime());
         this.setForecaster(old.getForecaster());
