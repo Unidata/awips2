@@ -19,7 +19,7 @@ package gov.noaa.nws.ncep.ui.nsharp.view;
  * @version 1.0
  */
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpTimeLineStateProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpOperationElement;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 public class NsharpTimeLineConfigDialog extends Dialog {
@@ -43,8 +44,12 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 	private   org.eclipse.swt.widgets.List timeLineList;
 	private  List<String> selectedTimeList = new ArrayList<String>(); 
 	protected Composite top;
+	private MessageBox mb;
 	protected NsharpTimeLineConfigDialog(Shell parentShell) {
 		super(parentShell);
+		mb = new MessageBox(parentShell, SWT.ICON_WARNING
+				| SWT.OK );
+		mb.setMessage( "Current time line can't be deactivated!");
 	}
 	public static NsharpTimeLineConfigDialog getInstance( Shell parShell){
 		
@@ -111,7 +116,7 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 		//create file widget list 
 		Group sndTimeListGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		timeLineList = new org.eclipse.swt.widgets.List(sndTimeListGp, SWT.BORDER | SWT.MULTI| SWT.V_SCROLL  );
-		timeLineList.setBounds(0,0, 2*NsharpConstants.listWidth, NsharpConstants.listHeight * 8);
+		timeLineList.setBounds(0,0, 2*NsharpConstants.listWidth, NsharpConstants.listHeight * 4);
 		createSndList();
         //create a selection listener to handle user's selection on list		
 		timeLineList.addListener ( SWT.Selection, new Listener () {
@@ -121,6 +126,11 @@ public class NsharpTimeLineConfigDialog extends Dialog {
     				selectedTimeList.clear();
     				for(int i=0; i < timeLineList.getSelectionCount(); i++) {
     					selectedSndTime = timeLineList.getSelection()[i]; 
+    					if(selectedSndTime.contains("Active-Current") == true){
+    						timeLineList.deselect(timeLineList.indexOf(selectedSndTime));
+    						mb.open();
+    						break;
+    					}
     					//remove "--InActive" or "--Active"
     					selectedSndTime= selectedSndTime.substring(0, selectedSndTime.indexOf("--"));
     					selectedTimeList.add(selectedSndTime);
@@ -138,8 +148,9 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 		activateBtn.setEnabled( true );
 		activateBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
-				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();			
-				rsc.handleTimeLineActConfig(selectedTimeList, NsharpConstants.State.ACTIVE);
+				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();	
+				rsc.handleTimeLineActConfig(selectedTimeList, NsharpConstants.ActState.ACTIVE);
+				
 				selectedTimeList.clear();
 				close();
 			}
@@ -151,8 +162,8 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 		deactivateBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {  
 				//System.out.println("Unload Selected");
-				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();			
-				rsc.handleTimeLineActConfig(selectedTimeList, NsharpConstants.State.INACTIVE);
+				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();	
+				rsc.handleTimeLineActConfig(selectedTimeList, NsharpConstants.ActState.INACTIVE);
 				selectedTimeList.clear();
 				close();
 			}          		            	 	
@@ -174,14 +185,19 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 			return;
 		//after checking, rsc is not null guaranteed.
 		NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
-		List<NsharpTimeLineStateProperty>  tlList = rsc.getTimeLineStateList();
-		for(NsharpTimeLineStateProperty tl: tlList){
+		List<NsharpOperationElement>  tlList = rsc.getTimeElementList();
+		int curTmIndex = rsc.getCurrentTimeElementListIndex();
+		for(NsharpOperationElement tl: tlList){
 			String s;
-			if(tl.getTimeState() == NsharpConstants.State.INACTIVE)
+			if(tl.getActionState() == NsharpConstants.ActState.INACTIVE)
 				s = "--(InActive)";
-			else
-				s="--(Active)";
-			timeLineList.add(tl.getTimeDescription() +s);
+			else {
+				if(tlList.indexOf(tl) == curTmIndex)
+					s="--(Active-Current)";
+				else
+					s="--(Active)";
+			}
+			timeLineList.add(tl.getElementDescription() +s);
 		}
 	}
 }

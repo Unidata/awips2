@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "mpe_log_utils.h"
 
 const int MPEUtil_num_bytes_to_discard = 94 ;
 

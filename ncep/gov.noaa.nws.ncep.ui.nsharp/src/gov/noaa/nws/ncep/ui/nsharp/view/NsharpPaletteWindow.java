@@ -57,6 +57,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -71,13 +73,13 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
 DisposeListener, IPartListener{
 	private MessageBox mb ;
 	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,dataEditBtn,  
-	compareStnBtn,compareTmBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,
-	graphModeBtnTurb, effBulkShearBtn, stpBtn, shipBtn, winterBtn, fireBtn,hailBtn,sarsBtn;
+	compareStnBtn,compareSndBtn,compareTmBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,
+	graphModeBtnTurb, effBulkShearBtn, stpBtn, shipBtn, winterBtn, fireBtn,hailBtn,sarsBtn,cfgBtn;
 	private Shell shell;
 	private Label spcGplbl;
 	private Composite parent;
 	private Group spcGp;
-	private boolean overlayIsOn=false, compareStnIsOn=false, compareTmIsOn=false;
+	private boolean overlayIsOn=false, compareStnIsOn=false, compareSndIsOn=false,compareTmIsOn=false;
 	protected boolean interpolateIsOn=false, editGraphOn=false;
 	private static String INTP_OFF = "  Interp(off)    ";
 	private static String INTP_ON = "  Interp(on)     ";
@@ -85,6 +87,8 @@ DisposeListener, IPartListener{
 	private static String COMP_STN_ON=  "CompStn(on)  ";
 	private static String COMP_TM_OFF= "CompTm(off)";
 	private static String COMP_TM_ON=  "CompTm(on)  ";
+	private static String COMP_SND_OFF= "CompSrc(off)";
+	private static String COMP_SND_ON=  "CompSrc(on)  ";
 	private static String OVLY_OFF= "Ovrlay2(off)  ";
 	private static String OVLY_ON=  "Ovrlay2(on)   ";
 	protected static String EDIT_GRAPH_OFF= "EditGraph(off)";
@@ -116,13 +120,14 @@ DisposeListener, IPartListener{
 	}
 	
 	public void restorePaletteWindow( String paneConfigurationName,int currentGraphMode, boolean interpolateIsOn, boolean overlayIsOn, boolean compareStnIsOn,
-			boolean compareTmIsOn, boolean editGraphOn) {
+			boolean compareTmIsOn, boolean editGraphOn, boolean compareSndIsOn) {
 		//System.out.println("restorePaletteWindow "+ this.toString());
 		updateSpcGraphBtn(paneConfigurationName);
 		this.currentGraphMode = currentGraphMode;
 		this.interpolateIsOn = interpolateIsOn;
 		this.overlayIsOn = overlayIsOn;
 		this.compareStnIsOn =  compareStnIsOn;
+		this.compareSndIsOn =  compareSndIsOn;
 		this.compareTmIsOn =  compareTmIsOn;
 		this.editGraphOn =  editGraphOn;
 		graphModeBtnSkew.setEnabled(true);
@@ -135,6 +140,7 @@ DisposeListener, IPartListener{
 			graphEditBtn.setEnabled(true);
 			dataEditBtn.setEnabled(true);
 			compareTmBtn.setEnabled( true );
+			compareSndBtn.setEnabled( true );
 			compareStnBtn.setEnabled( true );
 			overlayBtn.setEnabled( true );
 			interpBtn.setEnabled(true);
@@ -142,11 +148,13 @@ DisposeListener, IPartListener{
 			interpBtn.setText(INTP_OFF);
 			graphEditBtn.setText(EDIT_GRAPH_OFF);
 			compareTmBtn.setText(COMP_TM_OFF);
+			compareSndBtn.setText(COMP_SND_OFF);
 			compareStnBtn.setText(COMP_STN_OFF);
 			if(interpolateIsOn) {
 				graphEditBtn.setEnabled(false);
 				dataEditBtn.setEnabled(false);
 				compareTmBtn.setEnabled( false );
+				compareSndBtn.setEnabled( false );
 				compareStnBtn.setEnabled( false );
 				overlayBtn.setEnabled( false );
 				interpBtn.setText(INTP_ON);
@@ -156,6 +164,7 @@ DisposeListener, IPartListener{
 				graphEditBtn.setEnabled(false);
 				dataEditBtn.setEnabled(false);
 				compareTmBtn.setEnabled( false );
+				compareSndBtn.setEnabled( false );
 				compareStnBtn.setEnabled( false );
 				interpBtn.setEnabled(false);
 				graphModeBtnIcing.setEnabled(false);
@@ -166,6 +175,18 @@ DisposeListener, IPartListener{
 				graphEditBtn.setEnabled(false);
 				dataEditBtn.setEnabled(false);
 				compareTmBtn.setEnabled( false );
+				compareSndBtn.setEnabled( false );
+				overlayBtn.setEnabled( false );
+				interpBtn.setEnabled(false);
+				graphModeBtnIcing.setEnabled(false);
+				graphModeBtnTurb.setEnabled(false);		
+			}
+			else if(compareSndIsOn){
+				compareSndBtn.setText(COMP_SND_ON);
+				graphEditBtn.setEnabled(false);
+				dataEditBtn.setEnabled(false);
+				compareTmBtn.setEnabled( false );
+				compareStnBtn.setEnabled( false );
 				overlayBtn.setEnabled( false );
 				interpBtn.setEnabled(false);
 				graphModeBtnIcing.setEnabled(false);
@@ -173,6 +194,7 @@ DisposeListener, IPartListener{
 			}
 			else if(compareTmIsOn){
 				compareTmBtn.setText(COMP_TM_ON);
+				compareSndBtn.setEnabled( false );
 				graphEditBtn.setEnabled(false);
 				dataEditBtn.setEnabled(false);
 				compareStnBtn.setEnabled( false );
@@ -186,6 +208,7 @@ DisposeListener, IPartListener{
 				dataEditBtn.setEnabled(false);
 				compareStnBtn.setEnabled( false );
 				compareTmBtn.setEnabled( false );
+				compareSndBtn.setEnabled( false );
 				overlayBtn.setEnabled( false );
 				interpBtn.setEnabled(false);
 				graphModeBtnIcing.setEnabled(false);
@@ -200,6 +223,7 @@ DisposeListener, IPartListener{
 			graphEditBtn.setEnabled(false);
 			dataEditBtn.setEnabled(false);
 			compareTmBtn.setEnabled( false );
+			compareSndBtn.setEnabled( false );
 			compareStnBtn.setEnabled( false );
 			overlayBtn.setEnabled( false );
 			if(interpolateIsOn)
@@ -215,6 +239,7 @@ DisposeListener, IPartListener{
 			graphEditBtn.setEnabled(false);
 			dataEditBtn.setEnabled(false);
 			compareTmBtn.setEnabled( false );
+			compareSndBtn.setEnabled( false );
 			compareStnBtn.setEnabled( false );
 			overlayBtn.setEnabled( false );
 			if(interpolateIsOn)
@@ -304,7 +329,7 @@ DisposeListener, IPartListener{
 		}
 		//System.out.println("view NsharpPaletteWindow constructed!! "+ this.toString());
 		printHandle = NsharpPrintHandle.getPrintHandle();
-		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
+		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
 
 		mb = new MessageBox(shell, SWT.ICON_WARNING
 				| SWT.OK );
@@ -350,7 +375,9 @@ DisposeListener, IPartListener{
 			interpolateIsOn = rsc.isInterpolateIsOn();
 			overlayIsOn = rsc.isOverlayIsOn();
 			compareStnIsOn = rsc.isCompareStnIsOn();
-			editGraphOn = rsc.isEditGraphOn();				
+			editGraphOn = rsc.isEditGraphOn();	
+			compareSndIsOn = rsc.isCompareSndIsOn();
+			compareTmIsOn = rsc.isCompareTmIsOn();
 		}
 
 	}
@@ -437,7 +464,7 @@ DisposeListener, IPartListener{
 	}
 
 	public void createDataControlGp(Composite parent){
-		this.parent = parent;
+		this.parent = parent; 
 		Group textModeGp = new Group(parent,SWT.SHADOW_OUT);
 		textModeGp.setLayout( new RowLayout(SWT.HORIZONTAL) );
 		textModeGp.setLayoutData( new GridData(GridData.FILL_HORIZONTAL) );
@@ -466,7 +493,7 @@ DisposeListener, IPartListener{
 				} 				
 			}          		            	 	
 		} );
-
+		
 		unloadBtn = new Button(textModeGp, SWT.PUSH);
 		unloadBtn.setFont(newFont);
 		unloadBtn.setText("     UnLoad     ");
@@ -505,7 +532,7 @@ DisposeListener, IPartListener{
 		} );
 
 		// Push buttons for CONFIGURE
-		Button cfgBtn = new Button(textModeGp, SWT.PUSH);
+		cfgBtn = new Button(textModeGp, SWT.PUSH);
 		cfgBtn.setFont(newFont);
 		cfgBtn.setText("  Configure    ");
 		cfgBtn.setEnabled(true);
@@ -532,7 +559,7 @@ DisposeListener, IPartListener{
 			public void handleEvent(Event event) {
 				//RESET should turn off everything...
 				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
-
+				cfgBtn.setEnabled(true);
 				overlayIsOn = false;
 				overlayBtn.setText(OVLY_OFF);
 				overlayBtn.setEnabled(true);
@@ -542,6 +569,9 @@ DisposeListener, IPartListener{
 				compareTmIsOn = false;
 				compareTmBtn.setText(COMP_TM_OFF);
 				compareTmBtn.setEnabled(true);
+				compareSndIsOn = false;
+				compareSndBtn.setText(COMP_SND_OFF);
+				compareSndBtn.setEnabled(true);
 				interpolateIsOn = false;
 				interpBtn.setText(INTP_OFF);
 				interpBtn.setEnabled(true);
@@ -665,6 +695,7 @@ DisposeListener, IPartListener{
 						graphEditBtn.setEnabled(false);
 						dataEditBtn.setEnabled(false);
 						compareTmBtn.setEnabled( false );
+						compareSndBtn.setEnabled( false );
 						compareStnBtn.setEnabled( false );
 						overlayBtn.setEnabled( false );
 					}
@@ -675,6 +706,7 @@ DisposeListener, IPartListener{
 							graphEditBtn.setEnabled(true);
 							dataEditBtn.setEnabled(true);
 							compareTmBtn.setEnabled( true );
+							compareSndBtn.setEnabled( true );
 							compareStnBtn.setEnabled( true );
 							overlayBtn.setEnabled( true );
 						}
@@ -711,7 +743,7 @@ DisposeListener, IPartListener{
 		else{
 			overlayBtn.setText(OVLY_OFF);
 			//comparison and overlay is mutual exclusive
-			if((rscHandler!= null) && (rscHandler.isCompareStnIsOn() || rscHandler.isCompareTmIsOn()))
+			if((rscHandler!= null) && (rscHandler.isCompareStnIsOn() || rscHandler.isCompareTmIsOn()|| rscHandler.isCompareSndIsOn()))
 				overlayBtn.setEnabled( false );
 			else
 				overlayBtn.setEnabled( true );
@@ -725,22 +757,26 @@ DisposeListener, IPartListener{
 					overlayBtn.setText(OVLY_ON);
 					compareStnBtn.setEnabled(false);
 					compareTmBtn.setEnabled(false);
+					compareSndBtn.setEnabled(false);
 					graphEditBtn.setEnabled(false);
 					dataEditBtn.setEnabled(false);
 					graphModeBtnTurb.setEnabled( false );
 					graphModeBtnIcing.setEnabled( false );
 					interpBtn.setEnabled( false );
+					cfgBtn.setEnabled( false );
 				}
 				else {
 					overlayIsOn = false;
 					overlayBtn.setText(OVLY_OFF);
 					compareStnBtn.setEnabled(true);
 					compareTmBtn.setEnabled(true);
+					compareSndBtn.setEnabled(true);
 					graphEditBtn.setEnabled(true);
 					dataEditBtn.setEnabled(true);
 					graphModeBtnTurb.setEnabled( true );
 					graphModeBtnIcing.setEnabled( true );
 					interpBtn.setEnabled( true );		
+					cfgBtn.setEnabled( true );
 				}
 				NsharpResourceHandler rsc = getRscHandler();
 				if(rsc!= null){
@@ -759,7 +795,7 @@ DisposeListener, IPartListener{
 		else{
 			//comparison and overlay is mutual exclusive
 			compareStnBtn.setText(COMP_STN_OFF);
-			if((rscHandler!= null) && (rscHandler.isOverlayIsOn() || rscHandler.isCompareTmIsOn()))
+			if((rscHandler!= null) && (rscHandler.isOverlayIsOn() || rscHandler.isCompareTmIsOn()|| rscHandler.isCompareSndIsOn()))
 				compareStnBtn.setEnabled( false );
 			else
 				compareStnBtn.setEnabled( true );
@@ -773,22 +809,26 @@ DisposeListener, IPartListener{
 					compareStnBtn.setText(COMP_STN_ON);
 					overlayBtn.setEnabled(false);
 					compareTmBtn.setEnabled( false );
+					compareSndBtn.setEnabled(false);
 					graphEditBtn.setEnabled(false);
 					dataEditBtn.setEnabled(false);
 					graphModeBtnTurb.setEnabled( false );
 					graphModeBtnIcing.setEnabled( false );
 					interpBtn.setEnabled( false );
+					cfgBtn.setEnabled( false );
 				}
 				else {
 					compareStnIsOn = false;
 					compareStnBtn.setText(COMP_STN_OFF);
 					overlayBtn.setEnabled(true);
 					compareTmBtn.setEnabled( true );
+					compareSndBtn.setEnabled(true);
 					graphEditBtn.setEnabled(true);
 					dataEditBtn.setEnabled(true);
 					graphModeBtnTurb.setEnabled( true );
 					graphModeBtnIcing.setEnabled( true );
 					interpBtn.setEnabled( true );		
+					cfgBtn.setEnabled( true );
 				}
 				NsharpResourceHandler rsc = getRscHandler();
 				if(rsc!= null){
@@ -808,7 +848,7 @@ DisposeListener, IPartListener{
 		else{
 			//comparison and overlay is mutual exclusive
 			compareTmBtn.setText(COMP_TM_OFF);
-			if((rscHandler!= null) && (rscHandler.isOverlayIsOn() || rscHandler.isCompareStnIsOn()))
+			if((rscHandler!= null) && (rscHandler.isOverlayIsOn() || rscHandler.isCompareStnIsOn() || rscHandler.isCompareSndIsOn()))
 				compareTmBtn.setEnabled( false );
 			else
 				compareTmBtn.setEnabled( true );
@@ -820,6 +860,7 @@ DisposeListener, IPartListener{
 
 					compareTmIsOn = true;
 					compareTmBtn.setText(COMP_TM_ON);
+					compareSndBtn.setEnabled(false);
 					overlayBtn.setEnabled(false);
 					compareStnBtn.setEnabled( false );
 					graphEditBtn.setEnabled(false);
@@ -827,17 +868,20 @@ DisposeListener, IPartListener{
 					graphModeBtnTurb.setEnabled( false );
 					graphModeBtnIcing.setEnabled( false );
 					interpBtn.setEnabled( false );		
+					cfgBtn.setEnabled( false );
 				}
 				else {
 					compareTmIsOn = false;
 					compareTmBtn.setText(COMP_TM_OFF);
+					compareSndBtn.setEnabled(true);
 					overlayBtn.setEnabled(true);
 					compareStnBtn.setEnabled( true );
 					graphEditBtn.setEnabled(true);
 					dataEditBtn.setEnabled(true);
 					graphModeBtnTurb.setEnabled( true );
 					graphModeBtnIcing.setEnabled( true );
-					interpBtn.setEnabled( true );		
+					interpBtn.setEnabled( true );	
+					cfgBtn.setEnabled( true );
 				}
 				NsharpResourceHandler rsc = getRscHandler();
 				if(rsc!= null){
@@ -847,6 +891,59 @@ DisposeListener, IPartListener{
 				
 			}          		            	 	
 		} );
+		// Push buttons for CompBySrc info
+		compareSndBtn = new Button(textModeGp, SWT.PUSH);
+		compareSndBtn.setFont(newFont);
+		if(compareSndIsOn){
+			compareSndBtn.setText(COMP_SND_ON);
+			compareSndBtn.setEnabled( true );
+		}
+		else{
+			//comparison and overlay is mutual exclusive
+			compareSndBtn.setText(COMP_SND_OFF);
+			if((rscHandler!= null) && (rscHandler.isOverlayIsOn() || rscHandler.isCompareStnIsOn() || rscHandler.isCompareTmIsOn()))
+				compareSndBtn.setEnabled( false );
+			else
+				compareSndBtn.setEnabled( true );
+		}
+		compareSndBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
+				if(compareSndIsOn == false){
+					compareSndIsOn = true;
+					compareSndBtn.setText(COMP_SND_ON);
+					overlayBtn.setEnabled(false);
+					compareStnBtn.setEnabled( false );
+					compareTmBtn.setEnabled( false );
+					graphEditBtn.setEnabled(false);
+					dataEditBtn.setEnabled(false);
+					graphModeBtnTurb.setEnabled( false );
+					graphModeBtnIcing.setEnabled( false );
+					interpBtn.setEnabled( false );		
+					cfgBtn.setEnabled( false );
+				}
+				else {
+					compareSndIsOn = false;
+					compareSndBtn.setText(COMP_SND_OFF);
+					overlayBtn.setEnabled(true);
+					compareStnBtn.setEnabled( true );
+					compareTmBtn.setEnabled( true );
+					graphEditBtn.setEnabled(true);
+					dataEditBtn.setEnabled(true);
+					graphModeBtnTurb.setEnabled( true );
+					graphModeBtnIcing.setEnabled( true );
+					interpBtn.setEnabled( true );		
+					cfgBtn.setEnabled( true );
+				}
+				NsharpResourceHandler rsc = getRscHandler();
+				if(rsc!= null){
+					rsc.setCompareSndIsOn(compareSndIsOn);
+					rsc.refreshPane();
+				}
+				
+			}          		            	 	
+		} );
+		
 		dataEditBtn = new Button(textModeGp, SWT.PUSH);
 		dataEditBtn.setFont(newFont);
 		dataEditBtn.setText("   Edit  Data    ");
@@ -890,6 +987,7 @@ DisposeListener, IPartListener{
 						dataEditBtn.setEnabled( true );
 						interpBtn.setEnabled( true );	
 						compareTmBtn.setEnabled( true );
+						compareSndBtn.setEnabled( true );
 						compareStnBtn.setEnabled( true );
 						overlayBtn.setEnabled( true );
 					}
@@ -901,6 +999,7 @@ DisposeListener, IPartListener{
 						dataEditBtn.setEnabled( false );
 						interpBtn.setEnabled( false );	
 						compareTmBtn.setEnabled( false );
+						compareSndBtn.setEnabled( false );
 						compareStnBtn.setEnabled( false );
 						overlayBtn.setEnabled( false );
 					}
@@ -965,6 +1064,7 @@ DisposeListener, IPartListener{
 						graphEditBtn.setEnabled(true);
 						dataEditBtn.setEnabled(true);
 						compareTmBtn.setEnabled( true );
+						compareSndBtn.setEnabled( true );
 						compareStnBtn.setEnabled( true );
 						overlayBtn.setEnabled( true );
 					}
@@ -972,6 +1072,7 @@ DisposeListener, IPartListener{
 						graphEditBtn.setEnabled(false);
 						dataEditBtn.setEnabled(false);
 						compareTmBtn.setEnabled( false );
+						compareSndBtn.setEnabled( false );
 						compareStnBtn.setEnabled( false );
 						overlayBtn.setEnabled( false );
 					}
@@ -998,6 +1099,7 @@ DisposeListener, IPartListener{
 					graphEditBtn.setEnabled(false);
 					dataEditBtn.setEnabled(false);
 					compareTmBtn.setEnabled( false );
+					compareSndBtn.setEnabled( false );
 					compareStnBtn.setEnabled( false );
 					overlayBtn.setEnabled( false );
 					NsharpResourceHandler rsc = getRscHandler();
@@ -1022,6 +1124,7 @@ DisposeListener, IPartListener{
 					graphEditBtn.setEnabled(false);
 					dataEditBtn.setEnabled(false);
 					compareTmBtn.setEnabled( false );
+					compareSndBtn.setEnabled( false );
 					compareStnBtn.setEnabled( false );
 					overlayBtn.setEnabled( false );
 					NsharpResourceHandler rsc = getRscHandler();
@@ -1070,7 +1173,7 @@ DisposeListener, IPartListener{
 		if(rscHandler!= null){
 			restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
     				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
-    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn()); 
+    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn(),rscHandler.isCompareSndIsOn()); 
 		}
 		parent.redraw();
 	}
@@ -1294,10 +1397,15 @@ DisposeListener, IPartListener{
 
 
 	}
+	private IContextActivation context;
 	@Override
 	public void partActivated(IWorkbenchPart part) {
-		// TODO Auto-generated method stub
-
+		if(context==null){
+			IContextService ctxSvc = (IContextService) PlatformUI
+			.getWorkbench().getService(IContextService.class);
+			context = ctxSvc.activateContext("gov.noaa.nws.ncep.ui.nsharp.nsharpContext");
+			//System.out.println("Activated " + context.getContextId());
+		}
 	}
 	@Override
 	public void partBroughtToTop(IWorkbenchPart part) {
@@ -1309,7 +1417,14 @@ DisposeListener, IPartListener{
 	}
 	@Override
 	public void partDeactivated(IWorkbenchPart part) {
-		// TODO Auto-generated method stub
+		if (context != null) {
+			
+			IContextService ctxSvc = (IContextService) PlatformUI
+					.getWorkbench().getService(IContextService.class);
+			ctxSvc.deactivateContext(context);
+			//System.out.println("Deactivated " + context.getContextId());
+			context = null;
+		}
 
 	}
 	@Override

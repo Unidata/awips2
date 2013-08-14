@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.ffmp;
+package com.raytheon.uf.common.dataplugin.ffmp.collections;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -34,7 +34,6 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 
 /**
@@ -66,7 +65,9 @@ import java.util.TreeMap;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 18, 2013            bsteffen     Initial creation
+ * Apr 18, 2013            bsteffen    Initial creation
+ * Jul 31, 2013 2242       bsteffen    Extracted NavigableKeySet to its own
+ *                                     file and moved to collections package.
  * 
  * </pre>
  * 
@@ -264,7 +265,7 @@ public class ArrayBackedMap extends AbstractMap<Date, Float> implements
 
     @Override
     public NavigableSet<Date> navigableKeySet() {
-        return new NavigableKeySet(this);
+        return new NavigableKeySet<Date>(this);
     }
 
     private int lowerIndex(Date key, boolean inclusive) {
@@ -592,113 +593,7 @@ public class ArrayBackedMap extends AbstractMap<Date, Float> implements
 
     }
 
-    private static class NavigableKeySet extends AbstractSet<Date> implements
-            NavigableSet<Date> {
 
-        private final NavigableMap<Date, Float> map;
-
-        public NavigableKeySet(NavigableMap<Date, Float> map) {
-            this.map = map;
-        }
-
-        @Override
-        public Iterator<Date> iterator() {
-            return map.keySet().iterator();
-        }
-
-        @Override
-        public int size() {
-            return map.size();
-        }
-
-        @Override
-        public Comparator<? super Date> comparator() {
-            return map.comparator();
-        }
-
-        @Override
-        public Date first() {
-            return map.firstKey();
-        }
-
-        @Override
-        public Date last() {
-            return map.lastKey();
-        }
-
-        @Override
-        public Date lower(Date e) {
-            return map.lowerKey(e);
-        }
-
-        @Override
-        public Date floor(Date e) {
-            return map.floorKey(e);
-        }
-
-        @Override
-        public Date ceiling(Date e) {
-            return map.ceilingKey(e);
-        }
-
-        @Override
-        public Date higher(Date e) {
-            return map.higherKey(e);
-        }
-
-        @Override
-        public Date pollFirst() {
-            return map.pollFirstEntry().getKey();
-        }
-
-        @Override
-        public Date pollLast() {
-            return map.pollLastEntry().getKey();
-        }
-
-        @Override
-        public NavigableSet<Date> descendingSet() {
-            return map.descendingKeySet();
-        }
-
-        @Override
-        public Iterator<Date> descendingIterator() {
-            return descendingSet().iterator();
-        }
-
-        @Override
-        public NavigableSet<Date> subSet(Date fromElement,
-                boolean fromInclusive, Date toElement, boolean toInclusive) {
-            return map.subMap(fromElement, fromInclusive, toElement,
-                    toInclusive).navigableKeySet();
-        }
-
-        @Override
-        public NavigableSet<Date> headSet(Date toElement, boolean inclusive) {
-            return map.headMap(toElement, inclusive).navigableKeySet();
-        }
-
-        @Override
-        public NavigableSet<Date> tailSet(Date fromElement, boolean inclusive) {
-            return map.tailMap(fromElement, inclusive).navigableKeySet();
-        }
-
-        @Override
-        public SortedSet<Date> subSet(Date fromElement, Date toElement) {
-            return subSet(fromElement, true, toElement, false);
-        }
-
-        @Override
-        public SortedSet<Date> headSet(Date toElement) {
-            return headSet(toElement, false);
-        }
-
-        @Override
-        public SortedSet<Date> tailSet(Date fromElement) {
-            return tailSet(fromElement, true);
-        }
-
-    }
 
     private class SubMap extends AbstractMap<Date, Float> implements
             NavigableMap<Date, Float> {
@@ -854,7 +749,7 @@ public class ArrayBackedMap extends AbstractMap<Date, Float> implements
 
         @Override
         public NavigableSet<Date> navigableKeySet() {
-            return new NavigableKeySet(this);
+            return new NavigableKeySet<Date>(this);
         }
 
         @Override
@@ -1066,7 +961,7 @@ public class ArrayBackedMap extends AbstractMap<Date, Float> implements
 
         @Override
         public NavigableSet<Date> navigableKeySet() {
-            return new NavigableKeySet(this);
+            return new NavigableKeySet<Date>(this);
         }
 
         @Override
