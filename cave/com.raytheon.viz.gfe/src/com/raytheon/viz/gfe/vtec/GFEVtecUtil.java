@@ -20,6 +20,8 @@
 package com.raytheon.viz.gfe.vtec;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.google.common.base.Strings;
@@ -44,6 +46,9 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Jul 19, 2013  #1842     dgilling     Use VtecUtil.replaceFirstVtecString()
  *                                      to ensure start times of in progress
  *                                      events aren't set to the wrong time.
+ * Aug 07, 2013  #1842     dgilling     Fix ETN assignment for products with
+ *                                      multiple NEW segments with the same 
+ *                                      phensig.
  * 
  * </pre>
  * 
@@ -82,6 +87,13 @@ public class GFEVtecUtil {
             return message;
         }
 
+        // With GFE VTEC products, it's possible to have multiple segments with
+        // NEW vtec action codes and the same phensig. For this reason,
+        // HazardsTable.py implemented a "cache" that would ensure all NEWs for
+        // the same phensig would be assigned the same ETN. This Map replicates
+        // that legacy behavior.
+        Map<String, Integer> etnCache = new HashMap<String, Integer>();
+
         Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(message);
         StringBuffer finalOutput = new StringBuffer();
         while (vtecMatcher.find()) {
@@ -93,8 +105,13 @@ public class GFEVtecUtil {
                     && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
                             .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
                             .contains(vtec.getPhensig())))) {
-                int newEtn = VtecUtil.getNextEtn(vtec.getOffice(),
-                        vtec.getPhensig(), true);
+                String cacheKey = vtec.getPhensig();
+                Integer newEtn = etnCache.get(cacheKey);
+                if (newEtn == null) {
+                    newEtn = VtecUtil.getNextEtn(vtec.getOffice(),
+                            vtec.getPhensig(), true);
+                    etnCache.put(cacheKey, newEtn);
+                }
                 vtec.setSequence(newEtn);
             }
             vtecMatcher
