@@ -121,6 +121,9 @@ public class NsharpGraphProperty implements ISerializableObject{
     @XmlJavaTypeAdapter(RGBColorAdapter.class)
     private RGB windBarbColor= NsharpConstants.color_yellow;
 	
+	@XmlAttribute
+    private boolean showFilteredWindInCircle=false;
+	
 	public boolean isTemp() {
 		return temp;
 	}
@@ -345,6 +348,14 @@ public class NsharpGraphProperty implements ISerializableObject{
 
 	public void setWindBarbColor(RGB windBarbColor) {
 		this.windBarbColor = windBarbColor;
+	}
+
+	public boolean isShowFilteredWindInCircle() {
+		return showFilteredWindInCircle;
+	}
+
+	public void setShowFilteredWindInCircle(boolean showFilteredWindInCircle) {
+		this.showFilteredWindInCircle = showFilteredWindInCircle;
 	}
 
 	

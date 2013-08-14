@@ -88,6 +88,8 @@ public class AlertalarmStdTextProductUtil {
         setCurrentReportfile();
 
         reportAlarm();
+        
+        System.exit(reportWriter.getAlarmCount());
     }
 
     /*
@@ -230,7 +232,7 @@ public class AlertalarmStdTextProductUtil {
         if (alarmCount > 0) {
             log.info(alarmCount + " alarms reported, report written to "
                     + reportWriter.getFilename());
-            saveReportTotextDb();
+            //saveReportTotextDb();
         } else {
             log.info("No alarms reported, info sent to "
                     + reportWriter.getFilename());

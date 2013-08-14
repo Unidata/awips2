@@ -57,8 +57,6 @@ public class RGBColorAdapter extends XmlAdapter<String, RGB> {
 		
 		int sz = colorString.split(",").length;
 		if( colorString.split(",").length == 1) {
-			System.out.println("   Convert string color "
-					+ colorString + ",,,");
 			rgb = RGBColors.getRGBColor(colorString);
 			
 		}

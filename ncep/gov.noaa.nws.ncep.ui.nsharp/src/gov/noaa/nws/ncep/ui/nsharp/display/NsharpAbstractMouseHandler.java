@@ -39,7 +39,7 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
 public class NsharpAbstractMouseHandler extends InputHandlerDefaultImpl{//implements IInputHandler {
 
 	protected enum Mode {
-        CREATE, SKEWT_DOWN, HODO_DOWN, HODO_DOWN_MOVE, TIMELINE_DOWN, STATIONID_DOWN, PARCELLINE_DOWN, HODO_WIND_MOTION_DOWN
+        CREATE, SKEWT_DOWN, HODO_DOWN, HODO_DOWN_MOVE, TIMELINE_DOWN, STATIONID_DOWN,SNDTYPE_DOWN, PARCELLINE_DOWN, HODO_WIND_MOTION_DOWN
     };
     protected static Display display;
     protected NsharpEditor editor;
