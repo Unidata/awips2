@@ -1,7 +1,5 @@
 package com.raytheon.viz.pointdata;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,9 +19,8 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -181,30 +178,12 @@ public class PlotModelDataDefinition extends
 
     private void populateModels() {
         if (models == null) {
-            models = new HashMap<String, List<String>>();
-            LocalizationContext ctx = null;
+            Map<String, List<String>> models = new HashMap<String, List<String>>();
 
             IPathManager pm = PathManagerFactory.getPathManager();
-
-            ctx = pm.getContext(LocalizationType.CAVE_STATIC,
-                    LocalizationLevel.BASE);
-            File dir = pm.getFile(ctx, PLOTLOCATION);
-
-            if (!dir.exists() || !dir.isDirectory()) {
-                throw new RuntimeException("Cannot find plot model files");
-            }
-
-            FileFilter filter = new FileFilter() {
-
-                @Override
-                public boolean accept(File f) {
-                    return (!f.isHidden() && f.canRead() && f.getName()
-                            .contains("svg"));
-                }
-
-            };
-
-            File[] files = dir.listFiles(filter);
+            LocalizationFile[] files = pm.listFiles(
+                    pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+                    PLOTLOCATION, new String[] { ".svg" }, true, true);
 
             MapDescriptor fakeDescriptor = null;
             try {
@@ -213,10 +192,11 @@ public class PlotModelDataDefinition extends
                 throw new RuntimeException(e);
             }
 
-            for (File file : files) {
-                try {
+            for (LocalizationFile file : files) {
+                String fileName = file.getName();
+                if (models.containsKey(fileName) == false) {
                     List<PlotModelElement> fields = new PlotModelFactory2(
-                            fakeDescriptor, file.getName()).getPlotFields();
+                            fakeDescriptor, fileName).getPlotFields();
                     List<String> params = new ArrayList<String>();
                     for (PlotModelElement p : fields) {
                         if (!p.parameter.equals("")
@@ -229,11 +209,10 @@ public class PlotModelDataDefinition extends
                             }
                         }
                     }
-                    models.put(file.getName(), params);
-                } catch (Exception e) {
-                    ;//
+                    models.put(fileName, params);
                 }
             }
+            PlotModelDataDefinition.models = models;
         }
     }
 

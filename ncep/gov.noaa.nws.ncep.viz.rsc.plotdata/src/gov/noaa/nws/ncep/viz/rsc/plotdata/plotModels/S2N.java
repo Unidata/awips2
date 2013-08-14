@@ -12,8 +12,6 @@ import java.util.HashMap;
 
 public class S2N {
 
-    private static final String plotmodelDir = "plotModels";
-
     private final String filename;
 
     private final HashMap<String, Integer> lookup;
@@ -54,9 +52,10 @@ public class S2N {
     public static S2N readS2NFile(String s2nFilename) {
         BufferedReader input = null;
         S2N lookup = new S2N(s2nFilename);
-        
+
         File s2nFile = NcPathManager.getInstance().getStaticFile(
-        		NcPathConstants.PLOT_PARAMETERS_DIR+File.separator + s2nFilename);
+                NcPathConstants.PLOT_PARAMETERS_DIR + File.separator
+                        + s2nFilename);
 
         int counter = 0;
         int highestValue = -1;
