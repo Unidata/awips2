@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -48,7 +47,6 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
 import com.raytheon.uf.viz.npp.sounding.Activator;
-import com.raytheon.uf.viz.npp.sounding.math.NPPSoundingCalculations;
 import com.raytheon.viz.pointdata.PointDataRequest;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -62,7 +60,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2013            mschenke    Initial creation
- * Aug 2,  2013       2190 mschenke    Moved common npp sounding calculations to utility class
+ * Aug 02, 2013 2190       mschenke    Moved common npp sounding calculations to
+ *                                     utility class
+ * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * 
  * </pre>
  * 
@@ -107,18 +107,6 @@ public abstract class AbstractNPPNSharpResourceData extends
             }
         }
     }
-
-    protected static final Unit<?> PRESSURE_UNIT = NPPSoundingCalculations.PRESSURE_UNIT;
-
-    protected static final Unit<?> HEIGHT_UNIT = NPPSoundingCalculations.HEIGHT_UNIT;
-
-    protected static final Unit<?> TEMPERATURE_UNIT = NPPSoundingCalculations.TEMPERATURE_UNIT;
-
-    protected static final Unit<?> TEMPERATURE_CALC_UNIT = NPPSoundingCalculations.TEMPERATURE_CALC_UNIT;
-
-    protected static final Unit<?> H2O_UNIT = NPPSoundingCalculations.H2O_UNIT;
-
-    protected static final Unit<?> DEWPOINT_UNIT = NPPSoundingCalculations.DEWPOINT_UNIT;
 
     private final String plugin;
 
