@@ -37,10 +37,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
-import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
+import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * 
@@ -53,7 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2009            lvenable    Initial creation
  * 24 Jul 2013  #2143      skorolev    Changes non-blocking dialogs.
- * 
+ * Aug 15, 2013  2143      mpduff      Remove resize.
  * </pre>
  * 
  * @author lvenable
@@ -142,7 +141,7 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
     /**
      * Spinner width.
      */
-    private int spinnerWidth = 60;
+    private final int spinnerWidth = 60;
 
     private StringBuilder infoText;
 
@@ -153,11 +152,13 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
      *            Parent shell.
      */
     public SCANUnwarnedDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Unwarned Alarm Control");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -169,7 +170,9 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
      */
     @Override
@@ -177,8 +180,12 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         topLabelFont.dispose();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
@@ -561,34 +568,21 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
 
         infoText.append("SCAN identifies those storm cells that contain a\n");
         infoText.append("Tornado Vortex Signature (TVS) and to some extent\n");
-        infoText
-                .append("severe weather (based on various storm cell parameters).\n");
-        infoText
-                .append("Now SCAN can determine which storm cells currently have\n");
+        infoText.append("severe weather (based on various storm cell parameters).\n");
+        infoText.append("Now SCAN can determine which storm cells currently have\n");
         infoText.append("an active TOR or SVR warning and which do not. For\n");
-        infoText
-                .append("those that do not, the SCAN user can set various storm\n");
-        infoText
-                .append("cell parameter thresholds (see below). If these thresholds\n");
-        infoText
-                .append("are met or exceeded and no TOR and/or SVR is in effect\n");
-        infoText
-                .append("in the polygon  where the cell is located, an Unwarned Storm\n");
+        infoText.append("those that do not, the SCAN user can set various storm\n");
+        infoText.append("cell parameter thresholds (see below). If these thresholds\n");
+        infoText.append("are met or exceeded and no TOR and/or SVR is in effect\n");
+        infoText.append("in the polygon  where the cell is located, an Unwarned Storm\n");
         infoText.append("Alarm will be issued.\n\n");
-        infoText
-                .append("To turn this functionality on for TOR and/or SVR warnings,\n");
-        infoText
-                .append("simply click the toggle below on and then check and specify\n");
-        infoText
-                .append("the thresholds you would like be used in order to issue a TOR\n");
-        infoText
-                .append("and/or SVR Unwarned Storm Cell Alarm. You will know that\n");
-        infoText
-                .append("an Unwarned Storm Alarm has been issued when the storm\n");
-        infoText
-                .append("cell identifier in the Storm Cell Table changes color to\n");
-        infoText
-                .append("magenta for TOR warnings and yellow for SVR warnings.");
+        infoText.append("To turn this functionality on for TOR and/or SVR warnings,\n");
+        infoText.append("simply click the toggle below on and then check and specify\n");
+        infoText.append("the thresholds you would like be used in order to issue a TOR\n");
+        infoText.append("and/or SVR Unwarned Storm Cell Alarm. You will know that\n");
+        infoText.append("an Unwarned Storm Alarm has been issued when the storm\n");
+        infoText.append("cell identifier in the Storm Cell Table changes color to\n");
+        infoText.append("magenta for TOR warnings and yellow for SVR warnings.");
     }
 
     /**
@@ -621,8 +615,11 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         });
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#
+     * closeDialog()
      */
     @Override
     public void closeDialog() {
