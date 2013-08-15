@@ -37,7 +37,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
  * Jul 22, 2013 2176       jsanchez    Added EMER to the display string in the update list.
  * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
- * 
+ * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute.
  * </pre>
  * 
  * @author rferrel
@@ -143,9 +143,11 @@ public class FollowupData extends WarningRecord {
         StringBuilder rval = new StringBuilder();
         long timeInMillis = SimulatedTime.getSystemTime().getMillis();
         if (status != WarningAction.COR) {
-            // Positive means not yet expired
-            long diffMins = (record.getEndTime().getTimeInMillis() - timeInMillis)
-                    / TimeUtil.MILLIS_PER_MINUTE;
+            // use double to keep precision until it's casted to an integer
+            double diffMillis = record.getEndTime().getTimeInMillis()
+                    - timeInMillis;
+            int diffMins = (int) Math.round(diffMillis
+                    / TimeUtil.MILLIS_PER_MINUTE);
             if (diffMins == 0) {
                 rval.append(" Expired");
             } else if (diffMins > 0) {
@@ -154,8 +156,12 @@ public class FollowupData extends WarningRecord {
                 rval.append(" Exp ").append(-diffMins).append(" min ago");
             }
         } else {
-            long diffMins = (timeInMillis - record.getIssueTime()
-                    .getTimeInMillis()) / TimeUtil.MILLIS_PER_MINUTE;
+            // use double to keep precision until it's casted to an integer
+            double diffMillis = timeInMillis
+                    - record.getIssueTime().getTimeInMillis();
+            int diffMins = (int) Math.round(diffMillis
+                    / TimeUtil.MILLIS_PER_MINUTE);
+
             if (diffMins == 0) {
                 rval.append(" Just Issued");
             } else {
