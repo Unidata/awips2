@@ -57,6 +57,22 @@ function buildQPID()
    if [ $? -ne 0 ]; then
       return 1
    fi
+   cd ../x86_64
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid v0.18 lib."
+      return 1
+   fi
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/x86_64 ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/x86_64
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/x86_64
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid v0.18 lib."
+      return 1
+   fi
    popd > /dev/null 2>&1
 
    pushd . > /dev/null 2>&1
