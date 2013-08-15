@@ -936,6 +936,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Select the previously selected item.
         invalidFollowUpAction = false;
         if (currentSelection != null) {
+            // isValid checks if the current selection is still in the list
             boolean isValid = false;
             for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                 if (updateListCbo.getItem(i).startsWith(
@@ -954,7 +955,9 @@ public class WarngenDialog extends CaveSWTDialog implements
             // up option could be removed due to an action such as a CAN or an
             // EXP. If an action removes the follow up, then no warning message
             // should be displayed.
-            if (!timeRange.contains(SimulatedTime.getSystemTime().getTime())) {
+            if (!isValid
+                    && !timeRange.contains(SimulatedTime.getSystemTime()
+                            .getTime())) {
                 invalidFollowUpAction = true;
                 preventFollowUpAction(currentSelection);
             }
