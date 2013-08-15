@@ -185,8 +185,8 @@
         <includeMode>excludeDpaAndOgc</includeMode>
         <includeMode>statsTemplate</includeMode>
 	</mode>
-	<mode name="wfoRegistry">
-        <!-- WFO Registry production mode -->
+	<mode name="registry">
+        <!-- Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
@@ -194,7 +194,8 @@
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
 	</mode>
-    <mode name="ncfRegistry">
+    <mode name="centralRegistry">
+        <!-- Central Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
