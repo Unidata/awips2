@@ -38,10 +38,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
-import com.raytheon.uf.common.monitor.scan.config.TrendSetConfigMgr;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
+import com.raytheon.uf.common.monitor.scan.config.TrendSetConfigMgr;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * 
@@ -54,7 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable     Initial creation
  * 24 Jul 2013  #2143      skorolev     Changes for non-blocking dialog.
- * 
+ * Aug 15, 2013  2143      mpduff       Remove resize.
  * </pre>
  * 
  * @author lvenable
@@ -116,12 +115,12 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
     /**
      * Attribute button width.
      */
-    private int attrBtnWidth = 100;
+    private final int attrBtnWidth = 100;
 
     /**
      * SCAN table identifier.
      */
-    private ScanTables scanTable;
+    private final ScanTables scanTable;
 
     /**
      * Flag indicating if the OK button was selected.
@@ -137,13 +136,15 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
      *            SCAN table identifier.
      */
     public EditCreateTrendDlg(Shell parentShell, ScanTables scanTable) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Edit/Create Trend Sets");
 
         this.scanTable = scanTable;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -155,8 +156,12 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
@@ -188,8 +193,7 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
     private void createAttributeControls() {
         Composite attrComp = new Composite(shell, SWT.NONE);
         attrComp.setLayout(new GridLayout(3, false));
-        attrComp
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        attrComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         /*
          * Create the top labels.
@@ -425,8 +429,7 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
         if (selectedAttrList.getItemCount() >= 5) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
             mb.setText("Attribute Add");
-            mb
-                    .setMessage("There can only be a maximum of 5 attributes in a trend set.");
+            mb.setMessage("There can only be a maximum of 5 attributes in a trend set.");
             mb.open();
             return;
         }
@@ -504,8 +507,7 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
         if (availTrendsList.indexOf(newTrendName) >= 0) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Entry Error");
-            mb
-                    .setMessage("That trend name already exists.  Please enter a new one.");
+            mb.setMessage("That trend name already exists.  Please enter a new one.");
             mb.open();
 
             newTrendTF.setFocus();
@@ -528,8 +530,8 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
         String selectedTrend = availTrendsList.getItem(availTrendsList
                 .getSelectionIndex());
 
-        SCANConfig.getInstance().getTrendConfigMgr(scanTable).removeTrendSet(
-                selectedTrend);
+        SCANConfig.getInstance().getTrendConfigMgr(scanTable)
+                .removeTrendSet(selectedTrend);
 
         availTrendsList.remove(selectedTrend);
 
