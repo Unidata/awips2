@@ -22,7 +22,6 @@ package com.raytheon.viz.texteditor.util;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -35,11 +34,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.python.PythonLocalizationPathBuilder;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.HTTPQueryTransport;
@@ -174,28 +170,10 @@ public class TextEditorUtil {
 
     public static String getPythonIncludeDir() {
         if (pythonIncludeDir == null) {
-            StringBuilder builder = new StringBuilder();
-
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext cx = pathMgr.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-            File file = pathMgr.getFile(cx, TEXTEDITOR_PYTHON_DIR);
-            builder.append(file.getAbsolutePath());
-            builder.append(File.pathSeparator); // Win32
-
-            cx = pathMgr.getContext(LocalizationType.CAVE_STATIC,
-                    LocalizationLevel.SITE);
-            file = pathMgr.getFile(cx, TEXTEDITOR_PYTHON_DIR);
-            builder.append(file.getAbsolutePath());
-            builder.append(File.pathSeparator); // Win32
-
-            cx = pathMgr.getContext(LocalizationType.CAVE_STATIC,
-                    LocalizationLevel.BASE);
-            file = pathMgr.getFile(cx, TEXTEDITOR_PYTHON_DIR);
-            builder.append(file.getAbsolutePath());
-            pythonIncludeDir = builder.toString();
+            PythonLocalizationPathBuilder builder = new PythonLocalizationPathBuilder();
+            builder.append(TEXTEDITOR_PYTHON_DIR, LocalizationType.CAVE_STATIC);
+            pythonIncludeDir = builder.getPathString();
         }
-
         return pythonIncludeDir;
     }
 
