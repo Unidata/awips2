@@ -39,7 +39,7 @@ import numpy
 def ztopsa(Z):
     if isinstance(Z, float) or isinstance(Z, numpy.float32):
         if (Z > -9998): 
-            return ZToPsa.ZToPsa(float(Z))
+            return ZToPsa.ztopsa(float(Z))
     elif isinstance(Z, numpy.ndarray):
         result = numpy.ndarray(Z.shape, numpy.float32)
         for i in range(len(Z)):
