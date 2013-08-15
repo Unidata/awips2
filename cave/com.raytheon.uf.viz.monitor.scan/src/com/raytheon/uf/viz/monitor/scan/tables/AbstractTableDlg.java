@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -80,6 +81,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     button if they want to close the dialog.
  * Jul 24, 2013 #2218      mpduff      Changed method signature.
  * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialog.
+ * Aug 15, 2013 #2143      mpduff      Change how the dialogs close to prevent ConcurrentModificationException.
  * </pre>
  * 
  * @author lvenable
@@ -269,11 +271,15 @@ public abstract class AbstractTableDlg extends CaveSWTDialog implements
 
         // Loop and close all of the open dialogs;
         Set<ICommonDialogAction> keys = dialogsMap.keySet();
-
+        List<ICommonDialogAction> toClose = new ArrayList<ICommonDialogAction>(
+                keys.size());
         for (ICommonDialogAction icda : keys) {
-            icda.closeDialog();
+            toClose.add(icda);
         }
 
+        for (ICommonDialogAction icda : toClose) {
+            icda.closeDialog();
+        }
         dialogsMap.clear();
 
         return true;
