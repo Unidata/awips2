@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -56,6 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2009            njensen     Initial creation
+ * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
+ *                                     with hodo.
  * 
  * </pre>
  * 
@@ -136,6 +139,14 @@ public class VarHeightResourceData extends AbstractRequestableResourceData
         VarHeightResource rsc = null;
         if (objects.length > 0) {
             PluginDataObject pdo = objects[0];
+            if (point == null && pdo instanceof ISpatialEnabled) {
+                /*
+                 * This is here to allow more flexibility in bundles, if a
+                 * bundle has no point than use the point in the pdo.
+                 */
+                point = ((ISpatialEnabled) pdo).getSpatialObject()
+                        .getGeometry().getCoordinate();
+            }
             AbstractVarHeightAdapter<?> adapter = getAdapter(pdo);
             adapter.setResourceData(this);
             rsc = new VarHeightResource(this, loadProperties, adapter);
