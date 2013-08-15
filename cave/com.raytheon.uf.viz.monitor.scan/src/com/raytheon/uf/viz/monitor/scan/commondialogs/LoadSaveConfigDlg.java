@@ -38,30 +38,29 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * Open and Save Dialog for configuration files.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
- *
+ * 15 Aug 2013   2143      mpduff      Remove resize.
  * </pre>
- *
- * @author 
- * @version 1.0	
+ * 
+ * @author
+ * @version 1.0
  */
 public class LoadSaveConfigDlg extends CaveSWTDialog {
 
@@ -69,26 +68,35 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         OPEN, SAVE_AS
     };
 
-    /* Type of dialog */
-    private DialogType dialogType;
-    /* Font type */
+    /** Type of dialog */
+    private final DialogType dialogType;
+
+    /** Font type */
     private Font controlFont;
-    /* File list control */
+
+    /** File list control */
     private List cfgFileList;
-    /*  LocalizationFile  */
+
+    /** LocalizationFile */
     private LocalizationFile selectedFile;
-    /*  Localization Files  */
+
+    /** Localization Files */
     private LocalizationFile[] locFiles;
-    /*  Tree map of localization files   */
+
+    /** Tree map of localization files */
     private TreeMap<String, LocalizationFile> locFileMap;
-    /*  Name of new file  */
+
+    /** Name of new file */
     private Text newFileNameTF;
-    /*  Action button   */
+
+    /** Action button */
     private Button actionBtn;
-    /*  SCAN Table   */
-    private ScanTables scanTable;
-    /*   SCAN configuration  */
-    private SCANConfig scanCfg;
+
+    /** SCAN Table */
+    private final ScanTables scanTable;
+
+    /** SCAN configuration */
+    private final SCANConfig scanCfg;
 
     /**
      * Constructor
@@ -98,7 +106,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
      * @param scanTable
      */
     public LoadSaveConfigDlg(Shell parent, DialogType type, ScanTables scanTable) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         if (type == DialogType.OPEN) {
             setText("Load " + scanTable.name() + " Configuration");
         } else {
@@ -110,7 +118,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         scanCfg = SCANConfig.getInstance();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -123,7 +133,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
      */
     @Override
@@ -132,8 +144,12 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         setReturnValue(selectedFile);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
@@ -219,6 +235,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         if (dialogType == DialogType.OPEN) {
             actionBtn.setText("Open");
             actionBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
                 public void widgetSelected(SelectionEvent event) {
                     openAction();
                 }
@@ -226,6 +243,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         } else if (dialogType == DialogType.SAVE_AS) {
             actionBtn.setText("Save");
             actionBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
                 public void widgetSelected(SelectionEvent event) {
                     if (validateFileName() == true) {
                         saveAction();
@@ -240,6 +258,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectedFile = null;
                 setReturnValue(null);
@@ -295,9 +314,8 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         if (strBuf.toString().matches("[A-Za-z0-9._-]+") == false) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Warning");
-            mb
-                    .setMessage("File name contains invalid charaters.  The file name can only\n"
-                            + "contain A-Z, a-z, 0-9, or periods, underscores, or dashes.");
+            mb.setMessage("File name contains invalid charaters.  The file name can only\n"
+                    + "contain A-Z, a-z, 0-9, or periods, underscores, or dashes.");
             mb.open();
             return false;
         }
@@ -312,9 +330,8 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.YES
                         | SWT.NO);
                 mb.setText("Warning");
-                mb
-                        .setMessage("File name already exists.  Do you wish to overwrite\n"
-                                + "the existing file?.");
+                mb.setMessage("File name already exists.  Do you wish to overwrite\n"
+                        + "the existing file?.");
                 int result = mb.open();
 
                 if (result == SWT.NO) {
