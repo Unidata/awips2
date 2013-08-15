@@ -42,7 +42,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
-import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -224,8 +223,7 @@ public class CombinationsFileUtil {
         map.put("comboName", comboName);
         PythonScript python = null;
         try {
-            python = new PythonScript(scriptPath,
-                    PyUtil.buildJepIncludePath(comboPath));
+            python = new PythonScript(scriptPath, comboPath);
             Object com = python.execute("getCombinations", map);
             combos = (List<List<String>>) com;
         } catch (JepException e) {
