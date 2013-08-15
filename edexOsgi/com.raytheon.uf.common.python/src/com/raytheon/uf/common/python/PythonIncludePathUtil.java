@@ -71,10 +71,6 @@ public class PythonIncludePathUtil {
         return fsPath;
     }
 
-    public static LocalizationFile getCommonPythonLF(LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, PYTHON);
-    }
-
     public static String getCommonPythonIncludePath() {
         return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.BASE), PYTHON);
