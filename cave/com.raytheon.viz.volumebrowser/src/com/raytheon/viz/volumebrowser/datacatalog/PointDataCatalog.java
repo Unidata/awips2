@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.BufruaNSharpResourceData;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.MdlSndNSharpResourceData;
+import com.raytheon.uf.viz.d2d.nsharp.rsc.PoesSndNSharpResourceData;
 import com.raytheon.uf.viz.objectiveanalysis.rsc.OAResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
@@ -76,6 +77,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     work without dataURI.
  * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
  *                                     with hodo.
+ * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * 
  * </pre>
  * 
@@ -493,10 +495,13 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 return new BufruaNSharpResourceData();
             } else if (catalogEntry.getSelectedData().getSourcesKey()
                     .equals("modelsoundingETA")) {
-                return resourceData = new MdlSndNSharpResourceData("NAMSND");
+                return new MdlSndNSharpResourceData("NAMSND");
             } else if (catalogEntry.getSelectedData().getSourcesKey()
                     .equals("modelsoundingGFS")) {
-                return resourceData = new MdlSndNSharpResourceData("GFSSND");
+                return new MdlSndNSharpResourceData("GFSSND");
+            } else if (catalogEntry.getSelectedData().getSourcesKey()
+                    .equals("poessounding")) {
+                return new PoesSndNSharpResourceData();
             } else if (catalogEntry.getSelectedData().getSourcesKey()
                     .equals("profiler")) {
                 VarHeightResourceData vhData = new VarHeightResourceData();
