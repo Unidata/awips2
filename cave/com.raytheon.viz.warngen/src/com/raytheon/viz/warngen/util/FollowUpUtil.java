@@ -32,6 +32,7 @@ import com.raytheon.viz.warngen.text.ICommonPatterns;
  * Mar 13, 2013 DR 15892    D. Friedman  Handle SMW format in canceledAreasFromText
  * Aug  6, 2013 2243        jsanchez     Updated the time ranges to be removed from the follow up list correctly.
  * Aug 13, 2013 2243        jsanchez     Removed calendar object.
+ * Aug 15, 2013 2243        jsanchez     Reset the time ranges to the correct values.
  * 
  * </pre>
  * 
@@ -314,45 +315,40 @@ public class FollowUpUtil {
 
         TimeRange rval = null;
 
-        // The time ranges are offset by 1 minute so that after a refresh and on
-        // the final minute of the time range the follow up data will be
-        // removed. For example, if a CON is only a available until 5 minutes
-        // before a warnings expiration, when the time reaches 5 minutes the
-        // follow up data for a CON is correctly removed.
         if (action == WarningAction.NEW) {
             /* Calculate NEW Time Range */
             start.setTime(record.getEndTime().getTime());
-            start.add(Calendar.MINUTE, -21);
+            start.add(Calendar.MINUTE, -20);
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, 29);
+            end.add(Calendar.MINUTE, 30);
             rval = new TimeRange(start, end);
         } else if (action == WarningAction.COR) {
             /* Calculate COR Time Range */
             end.setTime(record.getIssueTime().getTime());
-            end.add(Calendar.MINUTE, 9);
+            end.add(Calendar.MINUTE, 10);
             rval = new TimeRange(record.getStartTime(), end);
         } else if (action == WarningAction.CAN) {
             /* Calculate CAN Time Range */
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, -11);
+            end.add(Calendar.MINUTE, -10);
             rval = new TimeRange(record.getStartTime(), end);
         } else if (action == WarningAction.CON) {
             /* Calculate CON Time Range */
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, -6);
+            end.add(Calendar.MINUTE, -5);
             rval = new TimeRange(record.getStartTime(), end);
         } else if (action == WarningAction.EXP) {
             /* Calculate EXP Time Range */
             start.setTime(record.getEndTime().getTime());
-            start.add(Calendar.MINUTE, -11);
+            start.add(Calendar.MINUTE, -10);
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, 9);
+            end.add(Calendar.MINUTE, 10);
             rval = new TimeRange(start, end);
         } else if (action == WarningAction.EXT) {
             /* Calculate EXT Time Range */
             start.setTime(record.getStartTime().getTime());
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, -6);
+            end.add(Calendar.MINUTE, -5);
             rval = new TimeRange(start, end);
         }
 
