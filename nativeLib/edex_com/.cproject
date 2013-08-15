@@ -39,7 +39,7 @@
 								<option id="gnu.cpp.compiler.so.release.option.optimization.level.1190342998" name="Optimization Level" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.so.release.option.debugging.level.1948609588" name="Debug Level" superClass="gnu.cpp.compiler.so.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1888011361" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.qpid/include}&quot;"/>
+									<listOptionValue builtIn="false" value="/awips2/qpid/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.thrift/include}&quot;"/>
@@ -60,14 +60,14 @@
 								<option defaultValue="true" id="gnu.cpp.link.so.release.option.shared.393797976" name="Shared (-shared)" superClass="gnu.cpp.link.so.release.option.shared" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.libs.60193779" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="thrift"/>
+									<listOptionValue builtIn="false" value="uuid"/>
 									<listOptionValue builtIn="false" value="qpidcommon"/>
 									<listOptionValue builtIn="false" value="qpidtypes"/>
 									<listOptionValue builtIn="false" value="qpidmessaging"/>
 									<listOptionValue builtIn="false" value="curl"/>
-									<listOptionValue builtIn="false" value="qpidclient"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1171960394" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.qpid/lib}&quot;"/>
+									<listOptionValue builtIn="false" value="/awips2/qpid/lib"/>
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/usr/kerberos/lib"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.thrift/lib}&quot;"/>
@@ -137,7 +137,6 @@
 								<option id="gnu.cpp.compiler.so.release.option.debugging.level.280582007" name="Debug Level" superClass="gnu.cpp.compiler.so.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.931221899" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/awips2/qpid/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.qpid/include}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.thrift/include}&quot;"/>
@@ -158,17 +157,17 @@
 								<option defaultValue="true" id="gnu.cpp.link.so.release.option.shared.340284127" name="Shared (-shared)" superClass="gnu.cpp.link.so.release.option.shared" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.libs.1646606439" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="thrift"/>
+									<listOptionValue builtIn="false" value="uuid"/>
 									<listOptionValue builtIn="false" value="qpidcommon"/>
 									<listOptionValue builtIn="false" value="qpidtypes"/>
 									<listOptionValue builtIn="false" value="qpidmessaging"/>
 									<listOptionValue builtIn="false" value="curl"/>
-									<listOptionValue builtIn="false" value="qpidclient"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.400490599" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="/awips2/qpid/lib"/>
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/usr/kerberos/lib"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.thrift/lib64}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.qpid/lib64}&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.flags.1587670958" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-m64" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.522117352" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -201,6 +200,9 @@
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="edex_com.cdt.managedbuild.target.gnu.so.206598592" name="Shared Library" projectType="cdt.managedbuild.target.gnu.so"/>
+	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/edex_com"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile"/>
