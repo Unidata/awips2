@@ -1061,7 +1061,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             } else if (rp.getProperties().isMapLayer()
                     || rp.getProperties().isSystemResource()) {
                 continue;
-            } else if (rsc.getResourceData() instanceof IResourceGroup) {
+            } else if (rsc != null
+                    && rsc.getResourceData() instanceof IResourceGroup) {
                 if (validateTimeMatchBasis(((IResourceGroup) rsc.getResourceData())
                         .getResourceList())) {
                     return true;
