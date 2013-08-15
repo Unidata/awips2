@@ -50,52 +50,67 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SCAN Alarm Threshold Dialog.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
- *
+ * 15 Aug 2013   2143      mpduff      Remove resize.
  * </pre>
- *
- * @author 
- * @version 1.0	
+ * 
+ * @author
+ * @version 1.0
  */
 public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         ICommonDialogAction {
 
-    /* SCAN Table */
-    private ScanTables scanTable;
-    /* SCAN Configuration */
+    /** SCAN Table */
+    private final ScanTables scanTable;
+
+    /** SCAN Configuration */
     private SCANConfig scanCfg;
-    /* Attribute combo control */
+
+    /** Attribute combo control */
     private Combo attributeCbo;
-    /* Disable All Alarms Checkbox */
+
+    /** Disable All Alarms Checkbox */
     private Button disableAllAlarmChk;
-    /* Absolute Value Rdo */
+
+    /** Absolute Value Rdo */
     private Button absValueRdo;
-    /* Rate Of Change Rdo */
+
+    /** Rate Of Change Rdo */
     private Button rateOfChangeRdo;
-    /* Selected Choice Label */
+
+    /** Selected Choice Label */
     private Label selectedChoiceLbl;
-    /* Time Frame Value */
+
+    /** Time Frame Value */
     private Text valueTF;
-    /* Unit Label */
+
+    /** Unit Label */
     private Label unitsLbl;
-    /* "Absolute Value" */
+
+    /** "Absolute Value" */
     private final String absValStr = "Absolute Value";
-    /* "Rate of Change" */
+
+    /** "Rate of Change" */
     private final String rocStr = "Rate of Change";
-    /* Bell Checkbox */
+
+    /** Bell Checkbox */
     private Button bellChk;
-    /* SCAN Alarm Alert Manager */
-    private SCANAlarmAlertManager mgr;
-    /* Alarm Type */
+
+    /** SCAN Alarm Alert Manager */
+    private final SCANAlarmAlertManager mgr;
+
+    /** Alarm Type */
     private AlarmType type;
-    /* prevAttr */
+
+    /** prevAttr */
     private String prevAttr;
-    /* Site */
+
+    /** Site */
     private String site = null;
 
     /**
@@ -107,7 +122,7 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
      */
     public SCANAlarmThreshDlg(String site, Shell parentShell,
             ScanTables scanTable) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         if (scanTable == ScanTables.CELL) {
             setText("CELL Alarm Thresh");
         } else {
@@ -119,7 +134,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         this.site = site;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -131,8 +148,12 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
@@ -279,13 +300,13 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
                 alarmChoiceChanged();
                 String columnName = attributeCbo.getText();
                 mgr.clearAlertedAlarms(site, scanTable);
-				AbstractTableDlg tableDlg = ScanMonitor.getInstance()
-						.getDialog(scanTable, site);
-				tableDlg.updateThresh(columnName);
+                AbstractTableDlg tableDlg = ScanMonitor.getInstance()
+                        .getDialog(scanTable, site);
+                tableDlg.updateThresh(columnName);
                 if (mgr.getAlertedAlarmCount(site, scanTable) == 0) {
-                	tableDlg.turnOffAlarm();
+                    tableDlg.turnOffAlarm();
                 } else {
-                	tableDlg.turnOnAlarm();
+                    tableDlg.turnOnAlarm();
                 }
                 close();
             }
@@ -444,8 +465,11 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#
+     * closeDialog()
      */
     @Override
     public void closeDialog() {
