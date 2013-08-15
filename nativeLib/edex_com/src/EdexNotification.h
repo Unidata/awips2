@@ -29,6 +29,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 11/2/09       3375       brockwoo    Initial Creation
+ * 08/13/13      2257       bkowal      Update for qpid 0.18.
  *
  * </pre>
  *
@@ -43,18 +44,18 @@ typedef void CEdexNotification;
 
 #ifdef __cplusplus
 
-#include <qpid/client/Connection.h>
-#include <qpid/client/Session.h>
-#include <qpid/client/Message.h>
-#include <qpid/client/MessageListener.h>
-#include <qpid/client/SubscriptionManager.h>
+#include <qpid/messaging/Connection.h>
+#include <qpid/messaging/Session.h>
+#include <qpid/messaging/Message.h>
+#include <qpid/messaging/Duration.h>
+#include <qpid/messaging/Receiver.h>
 #include <qpid/sys/Time.h>
 #include <thrift/transport/TBufferTransports.h>
 #include <sys/timeb.h>
 #include "Notification_types.h"
 #include "NotificationProtocol.h"
 
-using namespace qpid::client;
+using namespace qpid::messaging;
 using namespace qpid::framing;
 using namespace std;
 using apache::thrift::transport::TMemoryBuffer;
@@ -65,16 +66,16 @@ private:
 
 	Connection connection;
 	Session session;
+	Receiver receiver;
+	const Duration duration;
 	bool useTopic;
 	bool sessionTransacted;
 	bool isConnected;
 	int listSize;
 	com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage * mess;
-	SubscriptionManager * subman;
 	vector<string>::iterator myStringIterator;
 	std::string brokerURI;
 	std::string queue;
-	LocalQueue * localQueue;
 	bool timeout;
 	int timeoutLength;
 
