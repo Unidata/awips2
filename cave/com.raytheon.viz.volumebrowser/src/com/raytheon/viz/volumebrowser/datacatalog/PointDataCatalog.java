@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.objectiveanalysis.rsc.OAResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
+import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
@@ -73,6 +74,8 @@ import com.vividsolutions.jts.geom.LineString;
  * May 08, 2013 DR14824 mgamazaychikov Added alterProductParameters method
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
+ *                                     with hodo.
  * 
  * </pre>
  * 
@@ -485,7 +488,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             ((CrossSectionResourceData) resourceData).setStationIDs(closest);
             return resourceData;
         case SOUNDING:
-            if (catalogEntry.getSelectedData().getSourcesKey().equals("bufrua")) {
+            if (getPlugin(catalogEntry.getSelectedData().getSourcesKey())
+                    .equals("bufrua")) {
                 return new BufruaNSharpResourceData();
             } else if (catalogEntry.getSelectedData().getSourcesKey()
                     .equals("modelsoundingETA")) {
@@ -493,6 +497,16 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             } else if (catalogEntry.getSelectedData().getSourcesKey()
                     .equals("modelsoundingGFS")) {
                 return resourceData = new MdlSndNSharpResourceData("GFSSND");
+            } else if (catalogEntry.getSelectedData().getSourcesKey()
+                    .equals("profiler")) {
+                VarHeightResourceData vhData = new VarHeightResourceData();
+                vhData.setPoint(getPointCoordinate(catalogEntry));
+                vhData.setParameter("Wind");
+                vhData.setParameterName("Wind");
+                vhData.setPointLetter(getPointLetter(catalogEntry));
+                vhData.setSource(catalogEntry.getSelectedData()
+                        .getSourcesText());
+                return vhData;
             }
         default:
             return super.getResourceData(catalogEntry, resourceType);
