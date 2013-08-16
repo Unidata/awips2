@@ -31,8 +31,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
@@ -51,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ * 15 Aug 2013   2143      mpduff      Use the existing display.
  * 
  * </pre>
  * 
@@ -69,16 +68,14 @@ public class SCANSplash extends CaveSWTDialog {
     /**
      * Canvas width.
      */
-    private int canvasWidth = 300;
+    private final int canvasWidth = 300;
 
     /**
      * Canvas height.
      */
-    private int canvasHeight = 200;
+    private final int canvasHeight = 200;
 
     private Image loadImage = null;
-
-    private Display display;
 
     /**
      * Constructor
@@ -102,12 +99,11 @@ public class SCANSplash extends CaveSWTDialog {
     @Override
     protected void initializeComponents(Shell parentShell) {
         // Initialize all of the controls and layouts
-        display = shell.getDisplay();
         centerOnScreen();
-        textFont = new Font(display, "Monospace", 50, SWT.BOLD);
+        textFont = new Font(getDisplay(), "Monospace", 50, SWT.BOLD);
         String imageName = loadImage();
         if (imageName != null) {
-            loadImage = new Image(display, imageName);
+            loadImage = new Image(getDisplay(), imageName);
         }
 
         createCanvas();
@@ -123,6 +119,7 @@ public class SCANSplash extends CaveSWTDialog {
 
         canvas.setLayoutData(gd);
         canvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }
@@ -136,11 +133,11 @@ public class SCANSplash extends CaveSWTDialog {
         if (loadImage != null) {
             gc.drawImage(loadImage, 0, 0);
         } else {
-            gc.setBackground(display.getSystemColor(SWT.COLOR_BLUE));
+            gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
             gc.fillRectangle(0, 0, canvasWidth, canvasHeight);
         }
 
-        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
         gc.setLineWidth(3);
         gc.drawRectangle(1, 1, canvasWidth - 3, canvasHeight - 3);
     }
