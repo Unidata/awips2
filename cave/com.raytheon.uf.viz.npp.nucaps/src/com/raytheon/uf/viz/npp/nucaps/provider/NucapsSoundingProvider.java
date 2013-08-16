@@ -24,12 +24,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Temperature;
 import javax.measure.unit.Unit;
 
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.edex.meteolibrary.Meteolibrary;
 import com.raytheon.uf.common.dataplugin.npp.nucaps.NucapsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -43,8 +44,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.d2d.nsharp.SoundingLayerBuilder;
 import com.raytheon.uf.viz.npp.NPPTimeUtility;
-import com.raytheon.uf.viz.npp.sounding.math.NPPSoundingCalculations;
 import com.raytheon.uf.viz.sounding.providers.AbstractVerticalSoundingProvider;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.pointdata.PointDataRequest;
@@ -61,7 +62,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 25, 2013       2190 mschenke    Initial creation
+ * Jul 25, 2013 2190       mschenke    Initial creation
+ * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * 
  * </pre>
  * 
@@ -117,58 +119,41 @@ public class NucapsSoundingProvider extends
                 // Get pressure values
                 Number[] pressures = pdv
                         .getNumberAllLevels(NucapsRecord.PDV_PRESSURE);
-                Unit<?> pressureUnit = pdv.getUnit(NucapsRecord.PDV_PRESSURE);
-                UnitConverter dataToSLPressureUnit = pressureUnit
-                        .getConverterTo(SoundingLayer.DATA_TYPE.PRESSURE
-                                .getUnit());
+                Unit<Pressure> pressureUnit = pdv.getUnit(
+                        NucapsRecord.PDV_PRESSURE).asType(Pressure.class);
 
                 // Get temperature values
                 Number[] temperatures = pdv
                         .getNumberAllLevels(NucapsRecord.PDV_TEMPERATURE);
-                Unit<?> tempUnit = pdv.getUnit(NucapsRecord.PDV_TEMPERATURE);
-                UnitConverter dataToSLTempUnit = tempUnit
-                        .getConverterTo(SoundingLayer.DATA_TYPE.TEMPERATURE
-                                .getUnit());
+                Unit<Temperature> tempUnit = pdv.getUnit(
+                        NucapsRecord.PDV_TEMPERATURE).asType(Temperature.class);
 
                 // Water-vapor mixing ratios
                 Number[] wvMixingRatios = pdv
                         .getNumberAllLevels(NucapsRecord.PDV_WATER_VAPOR_MIXING_RATIO);
-                Unit<?> wvUnit = pdv
-                        .getUnit(NucapsRecord.PDV_WATER_VAPOR_MIXING_RATIO);
-                UnitConverter wvUnitConverter = wvUnit
-                        .getConverterTo(NPPSoundingCalculations.H2O_UNIT);
+                Unit<Dimensionless> wvUnit = pdv.getUnit(
+                        NucapsRecord.PDV_WATER_VAPOR_MIXING_RATIO).asType(
+                        Dimensionless.class);
 
                 if (pressures.length == temperatures.length) {
                     int length = pressures.length;
                     List<SoundingLayer> layers = new ArrayList<SoundingLayer>(
                             length);
 
-                    float surfacePressure = (float) dataToSLPressureUnit
-                            .convert(pdv
-                                    .getFloat(NucapsRecord.PDV_SURFACE_PRESSURE));
+                    float surfacePressure = pdv
+                            .getFloat(NucapsRecord.PDV_SURFACE_PRESSURE);
                     for (int idx = 0; idx < length; ++idx) {
-                        float pressure = (float) dataToSLPressureUnit
-                                .convert(pressures[idx].doubleValue());
+                        double pressure = pressures[idx].doubleValue();
                         // Don't add entries where pressure below surface
                         if (pressure <= surfacePressure) {
-                            // Pressure to height
-                            float gh = Meteolibrary.ptozsa(
-                                    new float[] { (float) pressure }, 0);
-                            // Temperature
-                            float temperature = (float) dataToSLTempUnit
-                                    .convert(temperatures[idx].doubleValue());
-                            // Water vapor mixing ratio
-                            float h20 = (float) wvUnitConverter
-                                    .convert(wvMixingRatios[idx].doubleValue());
-                            // Calculate dewpoint and RH from pressure and h20
-                            float dewpoint = NPPSoundingCalculations
-                                    .convertH2OtoDewpoint(h20, pressure);
+                            SoundingLayerBuilder builder = new SoundingLayerBuilder();
+                            builder.addPressure(pressure, pressureUnit);
+                            builder.addTemperature(
+                                    temperatures[idx].doubleValue(), tempUnit);
+                            builder.addSpecificHumidity(
+                                    wvMixingRatios[idx].doubleValue(), wvUnit);
 
-                            layers.add(new SoundingLayer(pressure, gh,
-                                    temperature, dewpoint,
-                                    SoundingLayer.MISSING,
-                                    SoundingLayer.MISSING,
-                                    SoundingLayer.MISSING));
+                            layers.add(builder.toSoundingLayer());
                         }
                     }
                     sounding.addLayers(layers);
