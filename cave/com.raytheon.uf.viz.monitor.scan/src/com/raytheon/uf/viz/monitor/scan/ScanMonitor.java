@@ -114,6 +114,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Apr 26, 2013     1926   njensen     Optimized getAvailableUris()
  * Jul 24, 2013     2218   mpduff      Improved error handling, optimizations
  * Jul 30, 2013     2143   skorolev    Changes for non-blocking dialogs.
+ * Aug 15, 2013     2143   mpduff      Fixed bug in nullifyMonitor()
  * </pre>
  * 
  * @author dhladky
@@ -347,14 +348,14 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     @Override
     public void nullifyMonitor(String icao) {
 
-        if (cellDialogs.get(icao) != null) {
+        if (cellDialogs.get(icao) == null) {
             monitor.removeMonitorListener(cellDialogs.get(icao));
             monitor.cellData.remove(icao);
             monitor.mdData.remove(icao);
             monitor.tvsData.remove(icao);
             cellDialogs.remove(icao);
         }
-        if (dmdDialogs.get(icao) != null) {
+        if (dmdDialogs.get(icao) == null) {
             monitor.removeMonitorListener(dmdDialogs.get(icao));
             monitor.dmdData.remove(icao);
             dmdDialogs.remove(icao);
@@ -754,7 +755,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (cellDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.CELL);
             }
-            if (cellDialogs.get(icao) == null||cellDialogs.get(icao).isDisposed()) {
+            if (cellDialogs.get(icao) == null
+                    || cellDialogs.get(icao).isDisposed()) {
                 SCANCellTableDlg cellDialog = new SCANCellTableDlg(shell, icao,
                         new SCANTableData(ScanTables.CELL));
                 cellDialogs.put(icao, cellDialog);
@@ -767,20 +769,22 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (dmdDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.DMD);
             }
-            if (dmdDialogs.get(icao) == null||dmdDialogs.get(icao).isDisposed()) {
+            if (dmdDialogs.get(icao) == null
+                    || dmdDialogs.get(icao).isDisposed()) {
                 SCANDmdTableDlg dmdDialog = new SCANDmdTableDlg(shell, icao,
                         new SCANTableData(ScanTables.DMD));
                 dmdDialogs.put(icao, dmdDialog);
                 monitor.addMonitorListener(dmdDialog);
                 dmdDialog.addMonitorControlListener(monitor);
-            }else{
+            } else {
                 dmdDialogs.get(icao).bringToTop();
             }
         } else if (table.equals(ScanTables.MESO)) {
             if (mesoDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.MESO);
             }
-            if (mesoDialogs.get(icao) == null || mesoDialogs.get(icao).isDisposed()) {
+            if (mesoDialogs.get(icao) == null
+                    || mesoDialogs.get(icao).isDisposed()) {
                 SCANMesoTableDlg mesoDialog = new SCANMesoTableDlg(shell, icao,
                         new SCANTableData(ScanTables.MESO));
                 mesoDialogs.put(icao, mesoDialog);
@@ -794,7 +798,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (tvsDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.TVS);
             }
-            if (tvsDialogs.get(icao) == null||tvsDialogs.get(icao).isDisposed()) {
+            if (tvsDialogs.get(icao) == null
+                    || tvsDialogs.get(icao).isDisposed()) {
                 SCANTvsTableDlg tvsDialog = new SCANTvsTableDlg(shell, icao,
                         new SCANTableData(ScanTables.TVS));
                 tvsDialogs.put(icao, tvsDialog);
