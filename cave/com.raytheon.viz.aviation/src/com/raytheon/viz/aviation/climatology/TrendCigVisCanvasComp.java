@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Composite;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation 
  * 14 JUN 2008  1119       lvenable    Updated to draw graph data.
+ * 12 Aug 2013  #2256      lvenable    Disposed of image when the composite is disposed of.
  * 
  * </pre>
  * 
@@ -238,6 +239,10 @@ public class TrendCigVisCanvasComp extends Composite {
                 ifrColor.dispose();
                 lifrColor.dispose();
                 vlifrColor.dispose();
+
+                if (image != null) {
+                    image.dispose();
+                }
             }
         });
     }
@@ -500,15 +505,17 @@ public class TrendCigVisCanvasComp extends Composite {
 
                 gc.setBackground(mvfrColor);
 
-                gc.fillRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.fillRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
 
-                gc.drawRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.drawRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
             }
 
             // Draw the MVFR label
@@ -526,15 +533,17 @@ public class TrendCigVisCanvasComp extends Composite {
 
                 gc.setBackground(ifrColor);
 
-                gc.fillRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.fillRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
 
-                gc.drawRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.drawRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
             }
 
             // Draw the IFR label
@@ -552,15 +561,17 @@ public class TrendCigVisCanvasComp extends Composite {
 
                 gc.setBackground(lifrColor);
 
-                gc.fillRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.fillRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
 
-                gc.drawRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.drawRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
             }
 
             // Draw the LIFR data
@@ -578,15 +589,17 @@ public class TrendCigVisCanvasComp extends Composite {
 
                 gc.setBackground(vlifrColor);
 
-                gc.fillRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.fillRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
 
-                gc.drawRectangle(graphXCoord + graphDataCellWidth * x
-                        + barOffset, Math.round(graphHeight + graphYCoord
-                        - total * pixelPerInc), graphDataCellWidth - barOffset
-                        * 2, Math.round(total * pixelPerInc));
+                gc.drawRectangle(
+                        graphXCoord + graphDataCellWidth * x + barOffset,
+                        Math.round(graphHeight + graphYCoord - total
+                                * pixelPerInc), graphDataCellWidth - barOffset
+                                * 2, Math.round(total * pixelPerInc));
             }
 
             // Draw the VLIFR data
