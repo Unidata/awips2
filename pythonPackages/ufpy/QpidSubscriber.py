@@ -28,20 +28,22 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/17/10                      njensen       Initial Creation.
-#    
+#    08/15/13        2169          bkowal        Optionally gzip decompress any data that is read.
 # 
 #
 
 import qpid
+import zlib
 
 from Queue import Empty
 from qpid.exceptions import Closed
 
 class QpidSubscriber:
     
-    def __init__(self, host='127.0.0.1', port=5672):
+    def __init__(self, host='127.0.0.1', port=5672, decompress=False):
         self.host = host
         self.port = port
+        self.decompress = decompress;
         socket = qpid.util.connect(host, port)
         self.__connection = qpid.connection.Connection(sock=socket, username='guest', password='guest')
         self.__connection.start()
@@ -49,6 +51,11 @@ class QpidSubscriber:
         self.subscribed = True
     
     def topicSubscribe(self, topicName, callback):
+        # if the queue is edex.alerts, set decompress to true always for now to
+        # maintain compatibility with existing python scripts.
+        if (topicName == 'edex.alerts'):
+            self.decompress = True        
+        
         print "Establishing connection to broker on", self.host
         queueName = topicName + self.__session.name
         self.__session.queue_declare(queue=queueName, exclusive=True, auto_delete=True, arguments={'qpid.max_count':100, 'qpid.policy_type':'ring'})
@@ -66,7 +73,16 @@ class QpidSubscriber:
             try:
                 message = queue.get(timeout=10)
                 content = message.body
-                self.__session.message_accept(qpid.datatypes.RangedSet(message.id))                
+                self.__session.message_accept(qpid.datatypes.RangedSet(message.id))
+                if (self.decompress):
+                    print "Decompressing received content"
+                    try:
+                        # http://stackoverflow.com/questions/2423866/python-decompressing-gzip-chunk-by-chunk
+                        d = zlib.decompressobj(16+zlib.MAX_WBITS)
+                        content = d.decompress(content)
+                    except:
+                        # decompression failed, return the original content
+                        pass           
                 callback(content)
             except Empty:
                 pass
