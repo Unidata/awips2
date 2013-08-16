@@ -60,6 +60,7 @@
 								<option defaultValue="true" id="gnu.cpp.link.so.release.option.shared.393797976" name="Shared (-shared)" superClass="gnu.cpp.link.so.release.option.shared" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.libs.60193779" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="thrift"/>
+									<listOptionValue builtIn="false" value="boost_iostreams"/>
 									<listOptionValue builtIn="false" value="uuid"/>
 									<listOptionValue builtIn="false" value="qpidcommon"/>
 									<listOptionValue builtIn="false" value="qpidtypes"/>
@@ -157,6 +158,7 @@
 								<option defaultValue="true" id="gnu.cpp.link.so.release.option.shared.340284127" name="Shared (-shared)" superClass="gnu.cpp.link.so.release.option.shared" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.libs.1646606439" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="thrift"/>
+									<listOptionValue builtIn="false" value="boost_iostreams"/>
 									<listOptionValue builtIn="false" value="uuid"/>
 									<listOptionValue builtIn="false" value="qpidcommon"/>
 									<listOptionValue builtIn="false" value="qpidtypes"/>

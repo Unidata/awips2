@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.serialization;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -29,6 +30,7 @@ import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.util.ServiceLoaderUtil;
+import com.raytheon.uf.common.util.DataUnzipper;
 
 /**
  * Provides utilities for serialization support
@@ -46,6 +48,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * May 01, 2013 1968       djohnson     Prevent deadlock due to SerializableManager threads needing to serialize things.
  * Aug 06, 2013 2228       njensen      More efficient transformFromThrift(Class, byte[])
+ * Aug 13, 2013 2169       bkowal       Unzip any gzipped data before applying thrift transformations
  * 
  * </pre>
  * 
@@ -333,6 +336,14 @@ public final class SerializationUtil {
     @Deprecated
     public static Object transformFromThrift(byte[] bytes)
             throws SerializationException {
+        try {
+            if (DataUnzipper.isGzipped(bytes)) {
+                return transformFromThrift(Object.class,
+                        new DataUnzipper().gunzip(bytes));
+            }
+        } catch (IOException e) {
+            throw new SerializationException("GZip analysis failed!", e);
+        }
         return transformFromThrift(Object.class, bytes);
     }
 
