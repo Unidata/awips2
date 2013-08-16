@@ -21,6 +21,8 @@ package com.raytheon.viz.aviation.editor;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
@@ -57,6 +59,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                     display tool tip in dataStTxt.
  * 12/09/2010   7380       rferrel     Remove no longer needed constructor and now
  *                                     adjust both hight and width of text filed.
+ * 12 Aug 2013  #2256      lvenable    Added code to dispose of the cursor.
  * 
  * </pre>
  * 
@@ -135,6 +138,15 @@ public class HeaderTextComp extends Composite {
         this.setLayoutData(gd);
 
         initializeComponents(configMgr);
+
+        this.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (textCursor != null) {
+                    textCursor.dispose();
+                }
+            }
+        });
 
         this.pack();
     }
