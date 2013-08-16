@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Nov 2, 2011  #7391      bkowal      Ensure that the generated WsId is properly formatted to be
  *                                     included in a url.
  * May 09, 2013 1814       rjpeter     Updated prefetch to 10.
+ * Aug 16, 2013 2169       bkowal      CAVE will now synchronously acknowledge messages.
  * </pre>
  * 
  * @author chammack
@@ -82,7 +83,7 @@ public class JMSConnection {
                                     "UTF-8")
                             + "/edex?brokerlist='"
                             + this.jndiProviderUrl
-                            + "?connecttimeout='5000'&heartbeat='0''&maxprefetch='10'&sync_publish='all'&failover='nofailover'");
+                            + "?connecttimeout='5000'&heartbeat='0''&maxprefetch='10'&sync_publish='all'&failover='nofailover'&sync_ack='true'");
         } catch (URLSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
