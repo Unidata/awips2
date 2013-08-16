@@ -39,7 +39,6 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * This class displays the DMD Display Filter Control dialog.
@@ -51,7 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2009 3039       lvenable     Initial creation.
  * 24 Jul 2013 #2143       skorolev     Changes for non-blocking dialog.
- * 
+ * Aug 15, 2013  2143      mpduff       Remove resize.
  * </pre>
  * 
  * @author lvenable
@@ -104,7 +103,7 @@ public class DmdDisplayFilterDlg extends CaveSWTDialog implements
      *            Callback that is called when changes are made.
      */
     public DmdDisplayFilterDlg(Shell parentShell, IDisplayFilterUpdate cb) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("DMD Display Filter Control");
 
         displayFilterUpdateCB = cb;
