@@ -80,5 +80,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave
 %dir /awips2/cave/etc
 /awips2/cave/etc/*
-%defattr(664,awips,fxalpha,755)
-/awips2/cave/etc/aviation/config/*
