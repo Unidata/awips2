@@ -21,9 +21,16 @@ package com.raytheon.uf.edex.ingest.notification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
+import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.message.PracticeDataURINotificationMessage;
+import com.raytheon.uf.common.util.ByteArrayOutputStreamPool;
 
 /**
  * Combines multiple messages of URIs into a single message that can be
@@ -35,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.message.PracticeDataURINotificationMess
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2008            njensen     Initial creation
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ * Aug 16, 2013 2169       bkowal      gzip data uris
  * </pre>
  * 
  * @author njensen
@@ -77,14 +85,16 @@ public class DataUriAggregator {
      * 
      * @return
      */
-    public DataURINotificationMessage sendQueuedUris() {
+    public byte[] sendQueuedUris() throws SerializationException {
+        DataURINotificationMessage msg = null;
         synchronized (this) {
             String[] uris = dataUris.toArray(new String[dataUris.size()]);
             dataUris.clear();
-            DataURINotificationMessage msg = new DataURINotificationMessage();
+            msg = new DataURINotificationMessage();
             msg.setDataURIs(uris);
-            return msg;
         }
+
+        return this.encodeMessage(msg);
     }
 
     /**
@@ -92,13 +102,45 @@ public class DataUriAggregator {
      * 
      * @return
      */
-    public PracticeDataURINotificationMessage sendPracticeQueuedUris() {
+    public byte[] sendPracticeQueuedUris() throws SerializationException {
+        PracticeDataURINotificationMessage msg = null;
         synchronized (this) {
             String[] uris = dataUris.toArray(new String[dataUris.size()]);
             dataUris.clear();
-            PracticeDataURINotificationMessage msg = new PracticeDataURINotificationMessage();
+            msg = new PracticeDataURINotificationMessage();
             msg.setDataURIs(uris);
-            return msg;
+        }
+
+        return this.encodeMessage(msg);
+    }
+
+    public byte[] encodeMessage(ISerializableObject msg)
+            throws SerializationException {
+        ByteArrayOutputStream baos = ByteArrayOutputStreamPool.getInstance()
+                .getStream();
+        GZIPOutputStream gzippedURIs = null;
+
+        try {
+            gzippedURIs = new GZIPOutputStream(baos);
+        } catch (IOException e) {
+            throw new SerializationException(
+                    "Failed to prepare the gzipped data stream!", e);
+        }
+
+        SerializationUtil.transformToThriftUsingStream(msg, gzippedURIs);
+        try {
+            gzippedURIs.finish();
+            gzippedURIs.flush();
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new SerializationException(
+                    "Failed to write the gzipped data stream!", e);
+        } finally {
+            try {
+                gzippedURIs.close();
+            } catch (IOException e) {
+                // ignore, we no longer need the stream
+            }
         }
     }
 }
