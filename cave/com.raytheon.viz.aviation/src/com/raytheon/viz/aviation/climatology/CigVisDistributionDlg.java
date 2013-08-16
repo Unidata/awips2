@@ -31,7 +31,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -88,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
  * 04/08/2012   1229       rferrel     Made dialog non-blocking.
  * 10/15/2012   1229       rferrel      Changes for non-blocking HelpUsageDlg.
+ * 16 Aug 2013  #2256      lvenable    Fixed image and cursor memory leaks.
  * 
  * </pre>
  * 
@@ -192,10 +192,6 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
      */
     private RGB statusCompRGB;
 
-    private Cursor waitCursor;
-
-    private Cursor defaultCursor;
-
     private Button drawBtn;
 
     private boolean firstReceived;
@@ -248,9 +244,6 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
             pythonScript.killProcess();
         }
         canvasFont.dispose();
-        if (waitCursor != null) {
-            waitCursor.dispose();
-        }
         super.disposed();
     }
 
@@ -606,9 +599,6 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
      */
     public void closeDisplay() {
         shell.dispose();
-        if (waitCursor != null) {
-            waitCursor.dispose();
-        }
     }
 
     /**
@@ -703,6 +693,8 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
     private void printImage() {
         PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
         PrinterData printerData = dialog.open();
+        Image tmpImage = null;
+        Image rotatedImage = null;
         if (printerData != null) {
             // set the orientation to landscape
             printerData.orientation = PrinterData.PORTRAIT;
@@ -724,19 +716,27 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
                 }
 
                 Image image = comp.getCigVisDistImage();
-                image = new Image(gc.getDevice(), image.getImageData()
+                tmpImage = new Image(gc.getDevice(), image.getImageData()
                         .scaledTo(printer.getBounds().height,
                                 printer.getBounds().width));
 
                 // rotate the image
-                image = ImageUtil.rotateImage(image);
+                rotatedImage = ImageUtil.rotateImage(tmpImage);
 
-                gc.drawImage(image, 0, 0);
+                gc.drawImage(rotatedImage, 0, 0);
                 printer.endPage();
             }
             gc.dispose();
             printer.endJob();
             printer.dispose();
+
+            if (tmpImage != null) {
+                tmpImage.dispose();
+            }
+
+            if (rotatedImage != null) {
+                rotatedImage.dispose();
+            }
         }
     }
 
@@ -789,10 +789,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
     private void retrieveData(final String site) {
         final int timeout = ClimateTimeoutManager.getInstance()
                 .getCigVisDistTimeout();
-        if (waitCursor == null) {
-            waitCursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            defaultCursor = shell.getCursor();
-        }
+
         setBusyCursor(true);
         data = new CigVisDistDataManager();
         data.setSite(site);
@@ -854,12 +851,12 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
         if (state == true) {
             ++busyCount;
             drawBtn.setEnabled(false);
-            shell.setCursor(waitCursor);
+            shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         } else {
             --busyCount;
             if (busyCount == 0) {
                 drawBtn.setEnabled(true);
-                shell.setCursor(defaultCursor);
+                shell.setCursor(null);
             }
         }
     }
