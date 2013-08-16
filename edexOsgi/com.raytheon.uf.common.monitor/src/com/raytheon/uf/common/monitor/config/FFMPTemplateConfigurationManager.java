@@ -21,6 +21,7 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -35,6 +36,9 @@ import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
 import com.raytheon.uf.common.monitor.xml.VGBXML;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Template area configuration xml.
@@ -46,6 +50,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2009            lvenable     Initial creation
  * Oct 25, 2012 DR 15514   gzhang		Adding getHucLevelsInArray()
+ * Aug 18, 2013  1742      dhladky      Concurrent mod exception on update fixed
  * </pre>
  * 
  * @author dhladky
@@ -71,8 +76,11 @@ public class FFMPTemplateConfigurationManager implements
 
     private LocalizationFile lf = null;
 
-    private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
-
+    private CopyOnWriteArrayList<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPTemplateConfigurationManager.class);
+    
     /* Private Constructor */
     private FFMPTemplateConfigurationManager() {
         configXml = new FFMPTemplateXML();
@@ -118,8 +126,9 @@ public class FFMPTemplateConfigurationManager implements
         }
 
         File file = lf.getFile();
-        FFMPTemplateXML configXmltmp = (FFMPTemplateXML) SerializationUtil
-                .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+        FFMPTemplateXML configXmltmp = SerializationUtil
+                .jaxbUnmarshalFromXmlFile(FFMPTemplateXML.class,
+                        file.getAbsolutePath());
         configXml = configXmltmp;
     }
 
@@ -151,7 +160,8 @@ public class FFMPTemplateConfigurationManager implements
 
             lf = newXmlFile;
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't save config file.", e);
         }
     }
 
@@ -244,8 +254,9 @@ public class FFMPTemplateConfigurationManager implements
 
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
-        try {
-            if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+
+        if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+            try {
                 readConfigXml();
                 // inform listeners
                 synchronized (listeners) {
@@ -253,9 +264,13 @@ public class FFMPTemplateConfigurationManager implements
                         fl.configChanged(new MonitorConfigEvent(this));
                     }
                 }
+            } catch (Exception e) {
+                statusHandler.handle(
+                        Priority.WARN,
+                        "FFMPTemplateConfigurationManager: "
+                                + message.getFileName()
+                                + " couldn't be updated.", e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
