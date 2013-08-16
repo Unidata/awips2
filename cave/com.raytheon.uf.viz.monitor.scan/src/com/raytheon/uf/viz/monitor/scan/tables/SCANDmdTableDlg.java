@@ -96,7 +96,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     button if they want to close the dialog.
  * Jul 24, 2013  2218      mpduff      Change method signature.
  * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialogs.
- * 
+ * Aug 15, 2013  2143      mpduff      Added some isDisposed() checks.
  * </pre>
  * 
  * @author lvenable
@@ -105,7 +105,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public class SCANDmdTableDlg extends AbstractTableDlg implements
         IAttributeUpdate, IThresholdUpdate, IDisplayFilterUpdate,
         IRequestTimeHeightData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SCANDmdTableDlg.class);
 
     /**
@@ -519,20 +519,21 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         alarmBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if(alarmsDlg==null || alarmsDlg.isDisposed()){
-                alarmsDlg = new SCANAlarmsDlg(shell, ScanTables.DMD, site);
-                alarmsDlg.setCloseCallback(new ICloseCallback(){
+                if (alarmsDlg == null || alarmsDlg.isDisposed()) {
+                    alarmsDlg = new SCANAlarmsDlg(shell, ScanTables.DMD, site);
+                    alarmsDlg.setCloseCallback(new ICloseCallback() {
 
-                    @Override
-                    public void dialogClosed(Object returnValue) {
-                        if (!alarmBtn.isDisposed()
-                                && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
-                            turnOffAlarm();
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (!alarmBtn.isDisposed()
+                                    && mgr.getAlertedAlarms(site, scanTable)
+                                            .isEmpty()) {
+                                turnOffAlarm();
+                            }
                         }
-                    }
-                    
-                });
-                alarmsDlg.open();
+
+                    });
+                    alarmsDlg.open();
                 } else {
                     alarmsDlg.close();
                 }
@@ -723,7 +724,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the alert time limit dialog.
      */
     private void displayAlarmTimeLimitDialog() {
-        if (alarmTimeLimitDlg == null) {
+        if (alarmTimeLimitDlg == null || alarmTimeLimitDlg.isDisposed()) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
             alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
@@ -746,7 +747,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the alarm threshold dialog.
      */
     private void displayAlarmThresholdDialog() {
-        if (alarmThreshDlg == null) {
+        if (alarmThreshDlg == null || alarmThreshDlg.isDisposed()) {
             alarmThreshDlg = new SCANAlarmThreshDlg(site, shell, scanTable);
             alarmThreshDlg.setCloseCallback(new ICloseCallback() {
 
