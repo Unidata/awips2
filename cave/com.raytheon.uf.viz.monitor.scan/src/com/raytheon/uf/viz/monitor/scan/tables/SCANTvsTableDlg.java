@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ * Aug 15, 2013  2143      mpduff      Added some isDisposed() checks.
  * 
  * </pre>
  * 
@@ -129,16 +130,22 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         open();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#setTableType()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#setTableType()
      */
     @Override
     protected void setTableType() {
         scanTable = ScanTables.TVS;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#initComponents()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#initComponents()
      */
     @Override
     protected void initComponents() {
@@ -399,17 +406,16 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
      * Display Attributes Dialog.
      */
     private void displayAttributesDialog() {
-        if ((attributeDlg == null)
-                || (attributeDlg.getParent().isDisposed() == true)) {
+        if ((attributeDlg == null) || (attributeDlg.getParent().isDisposed())) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
-            attributeDlg.setCloseCallback(new ICloseCallback(){
+            attributeDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
                     unregisterDialog(attributeDlg);
                     attributeDlg = null;
                 }
-                
+
             });
             registerDialog(attributeDlg);
             attributeDlg.open();
@@ -422,17 +428,17 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
      * Display Alarm Time Limit Dialog.
      */
     private void displayAlarmTimeLimitDialog() {
-        if (alarmTimeLimitDlg == null) {
+        if (alarmTimeLimitDlg == null || alarmTimeLimitDlg.isDisposed()) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
-            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback(){
+            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
                     unregisterDialog(alarmTimeLimitDlg);
-                    alarmTimeLimitDlg = null;     
+                    alarmTimeLimitDlg = null;
                 }
-                
+
             });
             registerDialog(alarmTimeLimitDlg);
             alarmTimeLimitDlg.open();
@@ -445,16 +451,16 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
      * Display Color Threshold Dialog.
      */
     private void displayColorThresholdDialog() {
-        if (colorThresholdDlg == null) {
+        if (colorThresholdDlg == null || colorThresholdDlg.isDisposed()) {
             colorThresholdDlg = new SCANColorThreshDlg(shell, scanTable, this);
-            colorThresholdDlg.setCloseCallback(new ICloseCallback(){
+            colorThresholdDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
                     unregisterDialog(colorThresholdDlg);
                     colorThresholdDlg = null;
                 }
-                
+
             });
             registerDialog(colorThresholdDlg);
             colorThresholdDlg.open();
@@ -463,8 +469,12 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#handleRankMenuEvent(org.eclipse.swt.events.SelectionEvent)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#handleRankMenuEvent
+     * (org.eclipse.swt.events.SelectionEvent)
      */
     @Override
     protected void handleRankMenuEvent(SelectionEvent event) {
@@ -503,8 +513,12 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         this.fireDialogShutdown(this);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#shellDisposeAction()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#shellDisposeAction
+     * ()
      */
     @Override
     protected void shellDisposeAction() {
@@ -523,16 +537,23 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         });
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#shellDisposeDialog()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#shellDisposeDialog
+     * ()
      */
     @Override
     public void shellDisposeDialog() {
         close();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#setShellText()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#setShellText()
      */
     @Override
     protected void setShellText() {
@@ -541,16 +562,24 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.ITableAction#sortedColumn(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#sortedColumn(java
+     * .lang.String)
      */
     @Override
     public void sortedColumn(String columnName) {
         rankBtn.setText("Rank: " + columnName);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#notify(com.raytheon.uf.viz.monitor.events.IMonitorEvent)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#notify(com.raytheon
+     * .uf.viz.monitor.events.IMonitorEvent)
      */
     @Override
     public void notify(IMonitorEvent me) {
@@ -596,32 +625,47 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
                 ScanTables.TVS, site, time)));
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByIdent(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByIdent(java
+     * .lang.String)
      */
     @Override
     public void centerByIdent(String ident) {
         fireRecenter(ident, ScanTables.TVS, site);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(
+     * java.lang.String)
      */
     @Override
     public void centerByStormId(String stormId) {
         fireRecenter(stormId, ScanTables.CELL, site);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData#getCurrentDate()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData
+     * #getCurrentDate()
      */
     @Override
     public Date getCurrentDate() {
         return currentTime;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.ITableAction#getTrendSetName()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#getTrendSetName()
      */
     @Override
     public String getTrendSetName() {
@@ -629,8 +673,11 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IAttributeUpdate#attributeUpdates(boolean[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IAttributeUpdate#
+     * attributeUpdates(boolean[])
      */
     @Override
     public void attributeUpdates(boolean[] visibleAttrs) {
@@ -641,8 +688,11 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         createRankPopupMenu(rankPopupMenu, rankBtn);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IThresholdUpdate#thresholdsUpdated(java.lang.String, double, double, double)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IThresholdUpdate#
+     * thresholdsUpdated(java.lang.String, double, double, double)
      */
     @Override
     public void thresholdsUpdated(String attrName, double upper, double mid,
@@ -654,8 +704,11 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         fireThresholdUpdate(new IMonitorThresholdEvent(this));
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#updateAfterConfigLoad()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#
+     * updateAfterConfigLoad()
      */
     @Override
     protected void updateAfterConfigLoad() {
@@ -677,8 +730,11 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#displayTrendSetGraphs(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#
+     * displayTrendSetGraphs(java.lang.String)
      */
     @Override
     public void displayTrendSetGraphs(String ident) {
@@ -707,16 +763,22 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOffAlarm()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOffAlarm()
      */
     @Override
     public void turnOffAlarm() {
         mgr.setRing(false);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOnAlarm()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOnAlarm()
      */
     @Override
     public void turnOnAlarm() {
