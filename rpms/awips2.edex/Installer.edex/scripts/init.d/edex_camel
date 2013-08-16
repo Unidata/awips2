@@ -44,9 +44,10 @@ TODAY=`/bin/date +%Y%m%d`
 
 # We will no longer be using hard-coded paths that need to be replaced.
 # Use rpm to find the paths that we need.
-JAVA_INSTALL="/awips2/java"
-PYTHON_INSTALL="/awips2/python"
+export JAVA_INSTALL="/awips2/java"
+export PYTHON_INSTALL="/awips2/python"
 EDEX_INSTALL="/awips2/edex"
+export PSQL_INSTALL="/awips2/psql"
 
 # The path that is to be used for the script
 export JAVA_HOME=${JAVA_INSTALL}
