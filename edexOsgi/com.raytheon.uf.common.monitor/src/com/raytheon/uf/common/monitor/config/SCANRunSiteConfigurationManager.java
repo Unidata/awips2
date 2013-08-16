@@ -3,6 +3,7 @@ package com.raytheon.uf.common.monitor.config;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -34,7 +35,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/07/2009   2037       dhladky    Initial Creation.
- * 02/25/13     1660       D. Hladky Fixed configuration bug in scan.
+ * 02/25/13     1660       dhladky     Fixed configuration bug in scan.
+ * Aug 13, 2013 1742       dhladky     Concurrent mod exception on update fixed
  * 
  * </pre>
  * 
@@ -63,7 +65,7 @@ public class SCANRunSiteConfigurationManager implements
 
     private LocalizationFile lf = null;
 
-    private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
+    private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     protected boolean isPopulated;
 
@@ -76,7 +78,6 @@ public class SCANRunSiteConfigurationManager implements
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Can not read the SCAN configuration", e);
         }
-
     }
 
     /**
@@ -170,18 +171,18 @@ public class SCANRunSiteConfigurationManager implements
             try {
                 readConfigXml();
                 // inform listeners
-                final ArrayList<MonitorConfigListener> flistners = listeners;
-                synchronized (flistners) {
-                    for (MonitorConfigListener fl : flistners) {
-                        fl.configChanged(new MonitorConfigEvent(this));
-                    }
+                for (MonitorConfigListener fl : listeners) {
+                    fl.configChanged(new MonitorConfigEvent(this));
                 }
-            } catch (SerializationException e) {
-                statusHandler.handle(Priority.WARN, "SCANRunSiteConfigurationManager: "
-                        + message.getFileName() + " couldn't be updated.", e);
+
+            } catch (Exception e) {
+                statusHandler.handle(
+                        Priority.WARN,
+                        "SCANRunSiteConfigurationManager: "
+                                + message.getFileName()
+                                + " couldn't be updated.", e);
             }
         }
-
     }
 
     public void addRunConfig(SCANSiteRunConfigXML configXml) {
