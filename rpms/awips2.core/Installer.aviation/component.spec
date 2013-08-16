@@ -36,7 +36,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation/tmp
 %build
 
 %install
-AVIATION_SRC_DIR="build/static/common/cave/etc/aviation/thresholds"
+AVIATION_SRC_DIR="com.raytheon.viz.avnconfig/localization/aviation/thresholds"
 
 # Copy the aviation *ish files to their destination.
 cp %{_baseline_workspace}/${AVIATION_SRC_DIR}/*.txt \
