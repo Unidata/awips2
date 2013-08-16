@@ -44,23 +44,22 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANConfigCellXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * Storm Cell ID Display Dialog
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
- *
+ * 15 Aug 2013   2143      mpduff      Remove resize.
  * </pre>
- *
- * @author 
- * @version 1.0	
+ * 
+ * @author
+ * @version 1.0
  */
 public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         ICommonDialogAction {
@@ -176,7 +175,7 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
     private Button fullShaftChk;
 
     /**
-     * Conversion 
+     * Conversion
      */
     private Spinner conversionSpnr;
 
@@ -199,13 +198,15 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
      * @param cb
      */
     public StormCellIdDisplayDlg(Shell parentShell, IStormCellDisplayUpdate cb) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Storm Cell Identification Display Parameters");
 
         stormCellCB = cb;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -217,7 +218,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
      */
     @Override
@@ -226,8 +229,12 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         smLabelFont.dispose();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
@@ -844,8 +851,11 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         stormCellCB.stormCellUpdated();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#
+     * closeDialog()
      */
     @Override
     public void closeDialog() {
