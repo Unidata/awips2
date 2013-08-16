@@ -54,9 +54,10 @@ export EDEX_HOME=$(dirname $dir)
 awips_home=$(dirname $EDEX_HOME)
 
 # Find the locations of awips2-python and awips2-java.
-PYTHON_INSTALL="$awips_home/python"
-JAVA_INSTALL="$awips_home/java"
-PSQL_INSTALL="$awips_home/psql"
+# only set if the location has not already been exported
+if [ -z "$PYTHON_INSTALL" ]; then PYTHON_INSTALL="$awips_home/python"; fi
+if [ -z "$JAVA_INSTALL" ]; then JAVA_INSTALL="$awips_home/java"; fi
+if [ -z "$PSQL_INSTALL" ]; then PSQL_INSTALL="$awips_home/psql"; fi
 
 # Source The File With The Localization Information
 source ${dir}/setup.env
