@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.common.util.DataUnzipper;
 
 /**
  * Encapsulation object for notification messages
@@ -44,6 +45,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Oct 4, 2010  7193       cjeanbap     Added a new method, isNotExpired().
  * Feb 1, 2011  7193       cjeanbap     Added a new method, getPublishedTime().
  * Aug 6, 2013  2228       njensen      Use deserialize(byte[])
+ * Aug 16, 2013 2169       bkowal       Unzip any gzipped information
  * </pre>
  * 
  * @author chammack
@@ -98,7 +100,9 @@ public class NotificationMessage {
                             throw new NotificationException(
                                     "Message payload terminated early.  Expected: "
                                             + length + ".  Got: " + readLength);
-
+                        if (DataUnzipper.isGzipped(data)) {
+                            data = new DataUnzipper().gunzip(data);
+                        }
                         this.unmarshalledObject = DynamicSerializationManager
                                 .getManager(SerializationType.Thrift)
                                 .deserialize(data);
