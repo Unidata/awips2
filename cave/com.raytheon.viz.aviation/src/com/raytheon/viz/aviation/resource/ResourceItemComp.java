@@ -22,6 +22,8 @@ package com.raytheon.viz.aviation.resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
@@ -64,6 +66,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceType;
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2009            lvenable     Initial creation
  * Feb 18, 2011            rferrel      Selecting audio file now works.
+ * 12 Aug 2013  #2256      lvenable     Reworked the code to dispose of the font after it has been used.
  * 
  * </pre>
  * 
@@ -84,17 +87,23 @@ public class ResourceItemComp extends Composite {
     /**
      * Map containing the resource tag (key) and the String value.
      */
-    private HashMap<ResourceTag, String> resTagValMap;
+    private Map<ResourceTag, String> resTagValMap;
 
     /**
      * Array of all the Reset buttons.
      */
-    private ArrayList<Button> resetButtons;
+    private List<Button> resetButtons;
+
+    /**
+     * Array of all the Font buttons. The Font buttons will always contain Fonts
+     * that have been create so the Font will need to be disposed of.
+     */
+    private List<Button> fontButtons = new ArrayList<Button>();
 
     /**
      * Temporary font.
      */
-    private Font tmpFont;
+    // private Font tmpFont;
 
     /**
      * Constructor.
@@ -138,7 +147,11 @@ public class ResourceItemComp extends Composite {
         this.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                tmpFont.dispose();
+                // Dispose of the fonts that were create for the buttons. Since
+                // the buttons were using them they will be disposed of here.
+                for (Button b : fontButtons) {
+                    b.getFont().dispose();
+                }
             }
         });
     }
@@ -224,6 +237,7 @@ public class ResourceItemComp extends Composite {
             });
 
             resTagValMap.put(tag, configMgr.getResourceAsString(tag));
+            fontButtons.add(fontBtn);
 
             return fontBtn;
         } else if (resType == ResourceType.COLOR) {
@@ -394,7 +408,8 @@ public class ResourceItemComp extends Composite {
             sourceBtn.getFont().dispose();
 
             // Create the new font and set it into the label
-            tmpFont = new Font(this.getShell().getDisplay(), dlg.getFontList());
+            Font tmpFont = new Font(this.getShell().getDisplay(),
+                    dlg.getFontList());
 
             FontData fd = tmpFont.getFontData()[0];
 
@@ -474,8 +489,9 @@ public class ResourceItemComp extends Composite {
 
         String[] string = fontStr.split("-");
 
-        tmpFont = new Font(getParent().getDisplay(), new FontData(string[0],
-                Integer.valueOf(string[1]), configMgr.getStyleInt(string[2])));
+        Font tmpFont = new Font(getParent().getDisplay(), new FontData(
+                string[0], Integer.valueOf(string[1]),
+                configMgr.getStyleInt(string[2])));
 
         fontBtn.setFont(tmpFont);
         fontBtn.setText(fontStr);
@@ -550,7 +566,9 @@ public class ResourceItemComp extends Composite {
             break;
 
         case FONT:
-            updateFontButton(configMgr, (Button) c, tag);
+            Button btn = (Button) c;
+            btn.getFont().dispose();
+            updateFontButton(configMgr, btn, tag);
             break;
 
         case SPINNER:

@@ -70,6 +70,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  *                                          non-blocking dialogs.
  *    10/12/2012   1229        rferrel     Changes for non-blocking MessageViewerDlg.
  *    08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
+ *    12 Aug 2013  #2256      lvenable     Cleanup to remove deprecated code.
  * 
  * </pre>
  * 
@@ -109,13 +110,6 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
     private MessageViewerDlg msgViewerDlg;
 
     /**
-     * Background RGB color. Only used at construction time to create
-     * newBgColor. No need to keep it around in a class variable.
-     */
-    @Deprecated
-    private RGB bgRGB;
-
-    /**
      * New background color for the msgViewerBtn.
      */
     private Color newBgColor;
@@ -151,13 +145,6 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
     private boolean timerDone = true;
 
     /**
-     * Message background RGB color. Only used at construction time to create
-     * messageBgColor. No need to keep it around in a class variable.
-     */
-    @Deprecated
-    private RGB messageBgRGB;
-
-    /**
      * The normal back ground color for the text field.
      */
     private Color messageBgColor;
@@ -181,9 +168,7 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
 
         msgType = null;
 
-        this.messageBgRGB = messageBgRGB;
-
-        init();
+        init(null, messageBgRGB);
     }
 
     /**
@@ -205,19 +190,15 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
 
         this.parent = parent;
 
-        this.bgRGB = bgRGB;
-
         this.msgType = msgType;
 
-        this.messageBgRGB = messageBgRGB;
-
-        init();
+        init(bgRGB, messageBgRGB);
     }
 
     /**
      * Initialize method.
      */
-    private void init() {
+    private void init(RGB bgRGB, RGB messageBgRGB) {
 
         msgLogImg = new Image(parent.getDisplay(), loadMessageGif());
 
