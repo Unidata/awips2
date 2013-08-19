@@ -277,7 +277,7 @@ public class FFMPDataGenerator {
 
                                     statusHandler.handle(Priority.PROBLEM,
 
-                                            "Couldn't create table row", e);
+                                    "Couldn't create table row", e);
                                 }
                             }
                         }
@@ -414,14 +414,14 @@ public class FFMPDataGenerator {
         try {
             if (rateRecord != null) {
                 rateBasin = rateRecord.getBasinData();
-                if (!rateBasin.getBasins().isEmpty()) {
+                if (rateBasin.hasAnyBasins()) {
                     field = FIELDS.RATE;
                     baseRec = rateRecord;
                 }
             }
             if (qpeRecord != null) {
                 qpeBasin = qpeRecord.getBasinData();
-                if (!qpeBasin.getBasins().isEmpty()) {
+                if (qpeBasin.hasAnyBasins()) {
 
                     field = FIELDS.QPE;
                     if (baseRec == null) {
