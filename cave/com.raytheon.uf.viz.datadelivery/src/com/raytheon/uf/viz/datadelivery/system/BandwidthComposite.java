@@ -36,9 +36,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
+import com.raytheon.viz.ui.widgets.ApplyCancelComposite;
+import com.raytheon.viz.ui.widgets.IApplyCancelAction;
 
 /**
- * Subscription overlap configuration.
+ * Bandwidth settings composite
  * 
  * <pre>
  * 
@@ -46,53 +48,58 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 14, 2013 2000       djohnson     Initial creation
- * May 23, 2013 1650       djohnson     Reword change bandwidth message.
- * Jun 12, 2013 2064       mpduff       Update label.
- * Jul 11, 2013 2106       djohnson     SystemRuleManager now returns names of subscriptions.
+ * Aug 6, 2013    2180     mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
-public class BandwidthTab extends SystemApplyCancelTab {
 
+public class BandwidthComposite extends Composite implements IApplyCancelAction {
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(BandwidthTab.class);
+            .getHandler(BandwidthComposite.class);
 
     /** Available bandwidth spinner widget */
     private Spinner availBandwidthSpinner;
 
+    /** The listener that should be used to signify changes were made **/
+    private final Runnable changesWereMade = new Runnable() {
+        @Override
+        public void run() {
+            buttonComp.enableButtons(true);
+        }
+    };
+
+    /** Button composite */
+    private ApplyCancelComposite buttonComp;
+
     /**
      * Constructor.
      * 
-     * @param parentComp
-     *            The Composite holding these controls
+     * @param parent
+     *            Parent Composite
+     * @param style
+     *            Style bits
      */
-    public BandwidthTab(Composite parentComp) {
-        super(parentComp);
+    public BandwidthComposite(Composite parent, int style) {
+        super(parent, style);
+        init();
     }
 
     /**
-     * Get the tab text.
-     * 
-     * @return the tab text
+     * Initialize the class
      */
-    @Override
-    public String getTabText() {
-        return "Bandwidth";
-    }
+    private void init() {
+        GridLayout gl = new GridLayout(1, true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        this.setLayout(gl);
+        this.setLayoutData(gd);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void initializeTabComponents(Composite mainComp) {
-        GridLayout gl = new GridLayout(1, false);
-        GridData gd = new GridData(SWT.VERTICAL, SWT.DEFAULT, true, false);
-        Composite configurationComposite = new Composite(mainComp, SWT.NONE);
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.VERTICAL, SWT.DEFAULT, true, false);
+        Composite configurationComposite = new Composite(this, SWT.NONE);
         configurationComposite.setLayout(gl);
         configurationComposite.setLayoutData(gd);
 
@@ -122,13 +129,16 @@ public class BandwidthTab extends SystemApplyCancelTab {
         availBandwidthSpinner.setToolTipText("Select bandwidth in Kilobytes");
         this.availBandwidthSpinner = availBandwidthSpinner;
 
+        // Buttons
+        buttonComp = new ApplyCancelComposite(this, SWT.NONE, this);
+
+        loadConfiguration();
     }
 
     /**
-     * {@inheritDoc}
+     * Load the configuration
      */
-    @Override
-    protected void loadConfiguration() {
+    private void loadConfiguration() {
         DataDeliveryGUIUtils.removeListeners(availBandwidthSpinner,
                 SWT.Selection, SWT.DefaultSelection);
 
@@ -142,10 +152,11 @@ public class BandwidthTab extends SystemApplyCancelTab {
     }
 
     /**
-     * {@inheritDoc}
+     * Save the configuration.
+     * 
+     * @return true if saved
      */
-    @Override
-    protected boolean saveConfiguration() {
+    private boolean saveConfiguration() {
         boolean changesApplied = false;
         final int bandwidth = availBandwidthSpinner.getSelection();
 
@@ -163,8 +174,9 @@ public class BandwidthTab extends SystemApplyCancelTab {
                     subscriptionNames));
             sb.append(StringUtil.NEWLINE).append(StringUtil.NEWLINE);
             sb.append("Would you like to change the bandwidth anyway?");
-            int response = DataDeliveryUtils.showMessage(parentComp.getShell(),
-                    SWT.YES | SWT.NO, "Bandwidth Amount", sb.toString());
+            int response = DataDeliveryUtils.showMessage(
+                    getParent().getShell(), SWT.YES | SWT.NO,
+                    "Bandwidth Amount", sb.toString());
             if (response == SWT.YES) {
                 changesApplied = SystemRuleManager.forceSetAvailableBandwidth(
                         Network.OPSNET, bandwidth);
@@ -183,4 +195,23 @@ public class BandwidthTab extends SystemApplyCancelTab {
         return changesApplied;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean apply() {
+        if (saveConfiguration()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cancel() {
+        loadConfiguration();
+    }
 }
