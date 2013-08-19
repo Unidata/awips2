@@ -19,10 +19,8 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
-import org.eclipse.swt.widgets.Composite;
-
 /**
- * Base class for system management tabs.
+ * New/Edit/Delete button action interface.
  * 
  * <pre>
  * 
@@ -30,44 +28,33 @@ import org.eclipse.swt.widgets.Composite;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 17, 2013 2000       djohnson     Initial creation
+ * Aug 7, 2013    2180     mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
 
-public abstract class SystemTab {
-
-    /** Parent Composite */
-    protected final Composite parentComp;
-
+public interface INewEditDeleteAction {
     /**
-     * @return the parentComp
-     */
-    public Composite getParentComp() {
-        return parentComp;
-    }
-
-    /**
-     * Constructor.
+     * New action.
      * 
-     * @param parentComp
+     * @return true if successfully created
      */
-    protected SystemTab(Composite parentComp) {
-        this.parentComp = parentComp;
-    }
+    boolean newAction();
 
     /**
-     * Initialize the tab.
-     */
-    public abstract void init();
-
-    /**
-     * Get the tab's title text.
+     * Edit action.
      * 
-     * @return the title text
+     * @return true if successfully edited
      */
-    public abstract String getTabText();
+    boolean editAction();
+
+    /**
+     * Delete action.
+     * 
+     * @return true if successfully deleted
+     */
+    boolean deleteAction();
 }
