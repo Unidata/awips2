@@ -46,7 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Jul 24, 2012    955      djohnson    Add copy constructor.
  * Jun 11, 2013    1763     dhladky     Added Encryption type
  * Jun 17, 2013    2106     djohnson    Check for encryption to not be null, getPassword() must be left alone for dynamic serialize.
- * 
+ * Aug 08, 2013    2108     mpduff      Serialize the provider key.
  * </pre>
  * 
  * @author dhladky
@@ -58,7 +58,7 @@ import com.raytheon.uf.common.status.UFStatus;
 public class Connection implements ISerializableObject, Serializable {
 
     private static final long serialVersionUID = 8223819912383198409L;
-    
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Connection.class);
 
@@ -87,8 +87,9 @@ public class Connection implements ISerializableObject, Serializable {
     @DynamicSerializeElement
     private String password;
 
+    @DynamicSerializeElement
     private String providerKey;
-    
+
     @XmlElement(name = "encryption")
     @DynamicSerializeElement
     private Encryption encryption;
@@ -118,34 +119,31 @@ public class Connection implements ISerializableObject, Serializable {
     }
 
     /**
-     * You pass in the providerKey to the local DD client
-     * The reason for this is you don't want the key and 
-     * password ever stored in the same place.  providerKey is kept
-     * in the registry at the WFO & NCF.  The password is stored
-     * encrypted in a connection object file stored in localization.
-     * You can only decrypt when they come together in code here.
-     * 
+     * You pass in the providerKey to the local DD client The reason for this is
+     * you don't want the key and password ever stored in the same place.
+     * providerKey is kept in the metadata database at the WFO. The password is
+     * stored encrypted in a connection object file stored in localization. You
      * 
      * @param providerKey
      * @return
      */
     public String getUnencryptedPassword() {
-        
+
         if (password != null && providerKey != null) {
 
             try {
                 return encryption.decrypt(providerKey, password);
             } catch (Exception e) {
-                statusHandler.error("Unable to decrypt password!"+e);
+                statusHandler.error("Unable to decrypt password!", e);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * encrypt password with providerKey
-     *
+     * 
      * 
      * @param providerKey
      * @return
@@ -160,40 +158,39 @@ public class Connection implements ISerializableObject, Serializable {
                 encryptPassword = encryption.encrypt(providerKey, password);
                 setPassword(encryptPassword);
             } catch (Exception e) {
-                statusHandler.error("Unable to crypt password!" + e);
+                statusHandler.error("Unable to crypt password!", e);
             }
         }
     }
-    
+
     /**
-     * You pass in the providerKey to the local DD client
-     * The reason for this is you don't want the key and 
-     * password ever stored in the same place.  providerKey is kept
-     * in the registry at the WFO & NCF.  The password is stored
-     * encrypted in a connection object file stored in localization.
-     * You can only decrypt when they come together in code here.
+     * You pass in the providerKey to the local DD client The reason for this is
+     * you don't want the key and password ever stored in the same place.
+     * providerKey is kept in the metadata database at the WFO. The password is
+     * stored encrypted in a connection object file stored in localization. You
+     * can only decrypt when they come together in code here.
      * 
      * 
      * @param providerKey
      * @return
      */
     public String getUnencryptedUsername() {
-        
+
         if (userName != null && providerKey != null) {
 
             try {
                 return encryption.decrypt(providerKey, userName);
             } catch (Exception e) {
-                statusHandler.error("Unable to decrypt userName!"+e);
+                statusHandler.error("Unable to decrypt userName!", e);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * encrypt userName with providerKey
-     *
+     * 
      * 
      * @param providerKey
      * @return
@@ -208,7 +205,7 @@ public class Connection implements ISerializableObject, Serializable {
                 encryptUserName = encryption.encrypt(providerKey, userName);
                 setUserName(encryptUserName);
             } catch (Exception e) {
-                statusHandler.error("Unable to crypt userName!" + e);
+                statusHandler.error("Unable to crypt userName!", e);
             }
         }
     }
@@ -216,7 +213,7 @@ public class Connection implements ISerializableObject, Serializable {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    
+
     public Encryption getEncryption() {
         return encryption;
     }
