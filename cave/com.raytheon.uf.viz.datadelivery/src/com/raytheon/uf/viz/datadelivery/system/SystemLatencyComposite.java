@@ -23,10 +23,8 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-
 /**
- * System Management Main Dialog.
+ * System Latency Rules composite.
  * 
  * <pre>
  * 
@@ -34,40 +32,25 @@ import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 17, 2012   730       jpiatt     Initial creation.
- * Oct 03, 2012  1241       djohnson   Use {@link DataDeliveryPermission} and registry handlers.
- * Jan 04, 2012  1420       mpduff     Add delete rule function.
- * Jan 14, 2013  1286       djohnson   Rule list is single item selectable.
- * May 17, 2013  2000       djohnson   Consolidate duplicate code into {@link SystemRulesTab}.
+ * Aug 07, 2013    2180    mpduff      Initial creation.
  * 
  * </pre>
  * 
- * @author jpiatt
+ * @author mpduff
  * @version 1.0
  */
-public class SystemLatencyTab extends SystemRulesTab {
-
-    /** Rule type constant */
-    private static final String LATENCY_TYPE = "latency";
+public class SystemLatencyComposite extends SystemRulesComposite {
 
     /**
-     * Constructor.
+     * Constructor
      * 
-     * @param parentComp
-     *            the parent comp
+     * @param parent
+     *            Parent Composite
+     * @param style
+     *            Style bits
      */
-    public SystemLatencyTab(Composite parentComp) {
-        super(parentComp, LATENCY_TYPE);
-    }
-
-    /**
-     * Get the tab text.
-     * 
-     * @return the tab text
-     */
-    @Override
-    public String getTabText() {
-        return "Latency Rules";
+    public SystemLatencyComposite(Composite parent, int style) {
+        super(parent, style, "latency");
     }
 
     /**
