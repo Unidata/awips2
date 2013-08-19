@@ -186,7 +186,8 @@ public class SoundingLayerBuilder {
         if (relativeHumidity != null) {
             layer.setRelativeHumidity(relativeHumidity
                     .floatValue(NC_RELATIVE_HUMIDITY_UNIT));
-        } else {
+        } else if (specificHumidity != null && temperature != null
+                && pressure != null) {
             Measure<?, Dimensionless> relativeHumidity = RelativeHumidity
                     .calculate(pressure, temperature, specificHumidity);
             layer.setRelativeHumidity(relativeHumidity
