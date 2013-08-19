@@ -22,10 +22,12 @@ package com.raytheon.uf.viz.d2d.nsharp;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 
 import javax.measure.Measure;
+import javax.measure.quantity.Angle;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Temperature;
+import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -63,6 +65,10 @@ public class SoundingLayerBuilder {
 
     private static final Unit<Temperature> DEWPOINT_UNIT = SI.CELSIUS;
 
+    private static final Unit<Angle> WIND_DIRECTION_UNIT = NonSI.DEGREE_ANGLE;
+
+    private static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
+
     private static final Unit<Pressure> NC_PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
 
     private static final Unit<Length> NC_HEIGHT_UNIT = SI.METER;
@@ -70,6 +76,10 @@ public class SoundingLayerBuilder {
     private static final Unit<Temperature> NC_TEMPERATURE_UNIT = SI.CELSIUS;
 
     private static final Unit<Temperature> NC_DEWPOINT_UNIT = SI.CELSIUS;
+
+    private static final Unit<Angle> NC_WIND_DIRECTION_UNIT = NonSI.DEGREE_ANGLE;
+
+    private static final Unit<Velocity> NC_WIND_SPEED_UNIT = NonSI.KNOT;
 
     private static final Unit<Dimensionless> NC_RELATIVE_HUMIDITY_UNIT = NonSI.PERCENT;
 
@@ -83,6 +93,10 @@ public class SoundingLayerBuilder {
     private Measure<?, Temperature> temperature;
 
     private Measure<?, Temperature> dewpoint;
+
+    private Measure<?, Angle> windDirection;
+
+    private Measure<?, Velocity> windSpeed;
 
     private Measure<?, Dimensionless> relativeHumidity;
 
@@ -136,6 +150,28 @@ public class SoundingLayerBuilder {
         return this;
     }
 
+    public SoundingLayerBuilder addWindDirection(Measure<?, Angle> windDirection) {
+        this.windDirection = windDirection;
+        return this;
+    }
+
+    public SoundingLayerBuilder addWindDirection(double windDirection,
+            Unit<Angle> unit) {
+        this.windDirection = Measure.valueOf(windDirection, unit);
+        return this;
+    }
+
+    public SoundingLayerBuilder addWindSpeed(Measure<?, Velocity> windSpeed) {
+        this.windSpeed = windSpeed;
+        return this;
+    }
+
+    public SoundingLayerBuilder addWindSpeed(double windSpeed,
+            Unit<Velocity> unit) {
+        this.windSpeed = Measure.valueOf(windSpeed, unit);
+        return this;
+    }
+
     public SoundingLayerBuilder addSpecificHumidity(
             Measure<?, Dimensionless> specificHumidity) {
         this.specificHumidity = specificHumidity;
@@ -183,6 +219,13 @@ public class SoundingLayerBuilder {
                     specificHumidity);
             layer.setDewpoint(dewpoint.floatValue(NC_DEWPOINT_UNIT));
         }
+        if (windDirection != null) {
+            layer.setWindDirection(windDirection
+                    .floatValue(NC_WIND_DIRECTION_UNIT));
+        }
+        if (windSpeed != null) {
+            layer.setWindSpeed(windSpeed.floatValue(NC_WIND_SPEED_UNIT));
+        }
         if (relativeHumidity != null) {
             layer.setRelativeHumidity(relativeHumidity
                     .floatValue(NC_RELATIVE_HUMIDITY_UNIT));
@@ -222,6 +265,13 @@ public class SoundingLayerBuilder {
             Measure<?, Temperature> dewpoint = Dewpoint.calculate(pressure,
                     specificHumidity);
             layer.setDewpoint(dewpoint.floatValue(DEWPOINT_UNIT));
+        }
+        if (windDirection != null) {
+            layer.setWindDirection(windDirection
+                    .floatValue(WIND_DIRECTION_UNIT));
+        }
+        if (windSpeed != null) {
+            layer.setWindSpeed(windSpeed.floatValue(WIND_SPEED_UNIT));
         }
         return layer;
     }
