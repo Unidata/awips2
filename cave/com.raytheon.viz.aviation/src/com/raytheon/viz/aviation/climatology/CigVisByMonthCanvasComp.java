@@ -25,7 +25,6 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 
@@ -37,6 +36,7 @@ import org.eclipse.swt.widgets.Composite;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
+ * 12 Aug 2013  #2256      lvenable    Moved getCigVisDistImage() to parent class.
  * 
  * </pre>
  * 
@@ -184,10 +184,8 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
     /**
-     * A copy of the image CigVisDist image to save to file.
+     * By Month tab composite.
      */
-    private Image image;
-
     private CigVisByMonthTabComp tabComp;
 
     /**
@@ -294,8 +292,9 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
                 .getSelectedElement();
         int startHour = tabComp.getStartHour();
         int endHour = tabComp.getEndHour();
-        mainLabel = String.format("%s %s %sZ (%d-%d)", site, elements[element
-                .ordinal()], hourStr(startHour, endHour), startYear, endYear);
+        mainLabel = String.format("%s %s %sZ (%d-%d)", site,
+                elements[element.ordinal()], hourStr(startHour, endHour),
+                startYear, endYear);
 
         pixelPerInc = (double) graphHeight / (double) maxPercent;
 
@@ -588,13 +587,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(vlifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(vlifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(vlifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(vlifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -625,13 +624,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(lifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(lifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(lifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(lifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -663,13 +662,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(ifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(ifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(ifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(ifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -700,13 +699,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(mvfrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(mvfrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(mvfrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(mvfrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -752,13 +751,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
             }
 
             gc.fillRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(vlifrAnnual
-                            * pixelPerInc)
+                    yStartPos, barWidth,
+                    (int) Math.round(vlifrAnnual * pixelPerInc)
                             - barLengthOffset);
 
             gc.drawRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(vlifrAnnual
-                            * pixelPerInc)
+                    yStartPos, barWidth,
+                    (int) Math.round(vlifrAnnual * pixelPerInc)
                             - barLengthOffset);
 
             if (yStartPos == graphYCoord) {
@@ -788,13 +787,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
             }
 
             gc.fillRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(lifrAnnual
-                            * pixelPerInc)
+                    yStartPos, barWidth,
+                    (int) Math.round(lifrAnnual * pixelPerInc)
                             - barLengthOffset);
 
             gc.drawRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(lifrAnnual
-                            * pixelPerInc)
+                    yStartPos, barWidth,
+                    (int) Math.round(lifrAnnual * pixelPerInc)
                             - barLengthOffset);
 
             if (yStartPos == graphYCoord) {
@@ -824,14 +823,12 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
             }
 
             gc.fillRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(ifrAnnual
-                            * pixelPerInc)
-                            - barLengthOffset);
+                    yStartPos, barWidth,
+                    (int) Math.round(ifrAnnual * pixelPerInc) - barLengthOffset);
 
             gc.drawRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(ifrAnnual
-                            * pixelPerInc)
-                            - barLengthOffset);
+                    yStartPos, barWidth,
+                    (int) Math.round(ifrAnnual * pixelPerInc) - barLengthOffset);
 
             if (yStartPos == graphYCoord) {
                 yStartPos = graphYCoord + graphHeight;
@@ -860,13 +857,13 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
             }
 
             gc.fillRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(mvfrAnnual
-                            * pixelPerInc)
+                    yStartPos, barWidth,
+                    (int) Math.round(mvfrAnnual * pixelPerInc)
                             - barLengthOffset);
 
             gc.drawRectangle(cellWidth * arrayLength + graphXCoord + barOffset,
-                    yStartPos, barWidth, (int) Math.round(mvfrAnnual
-                            * pixelPerInc)
+                    yStartPos, barWidth,
+                    (int) Math.round(mvfrAnnual * pixelPerInc)
                             - barLengthOffset);
 
             if (yStartPos == graphYCoord) {
@@ -878,21 +875,6 @@ public class CigVisByMonthCanvasComp extends CigVisCanvasComp {
 
         // Reset the Y coordinate position
         yStartPos = graphYCoord + graphHeight;
-    }
-
-    public Image getCigVisDistImage() {
-        if (image != null) {
-            image.dispose();
-        }
-
-        image = new Image(parent.getDisplay(), CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        GC gc = new GC(image);
-        drawCanvas(gc);
-
-        gc.dispose();
-
-        return image;
     }
 
     @Override
