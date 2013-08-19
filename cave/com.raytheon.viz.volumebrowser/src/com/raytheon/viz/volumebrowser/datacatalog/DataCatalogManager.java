@@ -44,7 +44,9 @@ import com.raytheon.viz.volumebrowser.vbui.VbUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2009 #2161      lvenable     Initial creation
+ * May 27, 2009 2161       lvenable    Initial creation
+ * Aug 19, 2013 2269       bsteffen    Fix MDCRS data and switch acars to use
+ *                                     nsharp.
  * 
  * </pre>
  * 
@@ -169,7 +171,6 @@ public class DataCatalogManager {
         // TODO these should be read from an extension point.
         catalogs = new ArrayList<IDataCatalog>();
         catalogs.add(new GridDataCatalog());
-        catalogs.add(new AcarsSoundingDataCatalog());
         catalogs.add(new DmdDataCatalog());
         catalogs.add(new PointDataCatalog());
         catalogs.add(new ModelSoundingCatalog());
