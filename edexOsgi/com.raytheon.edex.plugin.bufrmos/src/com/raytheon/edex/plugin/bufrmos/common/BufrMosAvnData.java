@@ -19,6 +19,9 @@
  **/
 package com.raytheon.edex.plugin.bufrmos.common;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -48,6 +51,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
+ * Aug 19, 2013 2275       bsteffen    Add dataURI column back into bufrmos
+ *                                     types.
  * 
  * </pre>
  * 
@@ -75,6 +80,13 @@ public class BufrMosAvnData extends BufrMosData {
     @Override
     public MOSType getType() {
         return MOSType.AVN;
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 
 }
