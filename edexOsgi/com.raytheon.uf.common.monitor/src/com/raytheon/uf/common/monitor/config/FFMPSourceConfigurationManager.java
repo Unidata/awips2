@@ -39,6 +39,9 @@ import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * FFMPSourceConfigurationManager
@@ -50,6 +53,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * ------------ ---------- ----------- --------------------------
  * 2012-09-04   DR 14404   gzhang      Fixing ConcurrentModificationException
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * Aug 18, 2013  1742      dhladky     Concurrent mod exception on update fixed
  * 
  * </pre>
  * 
@@ -84,6 +88,9 @@ public class FFMPSourceConfigurationManager implements
     
     private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPSourceConfigurationManager.class);
+    
     /* Private Constructor */
     private FFMPSourceConfigurationManager() {
         configXml = new FFMPSourceConfigXML();
@@ -137,11 +144,12 @@ public class FFMPSourceConfigurationManager implements
 
             FFMPSourceConfigXML configXmltmp = null;
             try {
-                configXmltmp = (FFMPSourceConfigXML) SerializationUtil
+                configXmltmp = SerializationUtil
                         .jaxbUnmarshalFromXmlFile(FFMPSourceConfigXML.class,
                                 file);
             } catch (SerializationException e1) {
-                e1.printStackTrace();
+                statusHandler.handle(Priority.ERROR,
+                        "Couldn't serialize file.", e1);
             }
 
             configXml = configXmltmp;
@@ -173,7 +181,8 @@ public class FFMPSourceConfigurationManager implements
             lf = newXmlFile;
             lf.addFileUpdatedObserver(this);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't save config file.", e);
         }
 
     }
@@ -474,14 +483,19 @@ public class FFMPSourceConfigurationManager implements
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         if (message.getFileName().equals(CONFIG_FILE_NAME)) {
-            readConfigXml();
-            // inform listeners
-            //synchronized (listeners) {// DR 14404
+            try {
+                readConfigXml();
+                // inform listeners
                 for (MonitorConfigListener fl : listeners) {
                     fl.configChanged(new MonitorConfigEvent(this));
                 }
-            //}// DR 14404
+            } catch (Exception e) {
+                statusHandler.handle(Priority.WARN,
+                        "FFMPSourceConfigurationManager: " + message.getFileName()
+                                + " couldn't be updated.", e);
+            }
         }
+
     }
 
 }
