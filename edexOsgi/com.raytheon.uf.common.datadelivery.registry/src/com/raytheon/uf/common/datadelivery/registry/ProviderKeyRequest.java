@@ -1,4 +1,5 @@
 package com.raytheon.uf.common.datadelivery.registry;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -18,8 +19,14 @@ package com.raytheon.uf.common.datadelivery.registry;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlEnumValue;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
+
 /**
  * A request providerKey.
  * 
@@ -29,30 +36,33 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * July 14, 2013 2184      dhladky     Initial creation
- *  
+ * Jul 14, 2013 2184      dhladky      Initial creation.
+ * Aug 08, 2013 2180      mpduff       Made serializable.
  * @author dhladky
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
 public class ProviderKeyRequest implements IServerRequest {
-    
+
     @DynamicSerializeElement
     private Provider provider;
 
     @DynamicSerializeElement
     private String providerKey;
-    
+
     @DynamicSerializeElement
     private RequestType requestType;
-    
+
     @DynamicSerializeElement
     private Status status;
-    
+
     public ProviderKeyRequest() {
-        
+
     }
-    
-    public ProviderKeyRequest(String providerKey, Provider provider, RequestType requestType) {
+
+    public ProviderKeyRequest(String providerKey, Provider provider,
+            RequestType requestType) {
         this.providerKey = providerKey;
         this.provider = provider;
         this.requestType = requestType;
@@ -73,15 +83,15 @@ public class ProviderKeyRequest implements IServerRequest {
     public void setProviderKey(String providerKey) {
         this.providerKey = providerKey;
     }
-    
+
     public RequestType getRequestType() {
         return requestType;
     }
-    
+
     public void setRequestType(RequestType requestType) {
         this.requestType = requestType;
     }
-    
+
     /**
      * Request Type
      * 
@@ -99,22 +109,27 @@ public class ProviderKeyRequest implements IServerRequest {
      * @version 1.0
      */
     public enum RequestType {
+        @XmlEnumValue(RequestType.save)
+        SAVE("SAVE"), @XmlEnumValue(RequestType.retrieve)
+        RETRIEVE("RETRIEVE");
 
-        SAVE("SAVE"), RETRIEVE("RETRIEVE");
-        
+        private static final String save = "SAVE";
+
+        private static final String retrieve = "RETRIEVE";
+
         private final String requestType;
 
         private RequestType(String name) {
             requestType = name;
         }
-        
+
         @Override
         public String toString() {
             return requestType;
         }
 
     }
-    
+
     /**
      * Transaction Status
      * 
@@ -132,15 +147,20 @@ public class ProviderKeyRequest implements IServerRequest {
      * @version 1.0
      */
     public enum Status {
+        @XmlEnumValue(Status.success)
+        SUCCESS("SUCCESS"), @XmlEnumValue(Status.fail)
+        FAILURE("FAILURE");
 
-        SUCCESS("SUCCESS"), FAILURE("FAILURE");
-        
+        private static final String success = "SUCCESS";
+
+        private static final String fail = "FAILURE";
+
         private final String status;
 
         private Status(String name) {
             status = name;
         }
-        
+
         @Override
         public String toString() {
             return status;
