@@ -21,9 +21,9 @@ package com.raytheon.uf.common.monitor.config;
  **/
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -36,8 +36,26 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
+
+/**
+ * FFMPRetentionTimeManager
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 13, 2013 1742       dhladky     fixed concurrent mod exception on update
+ * 
+ * </pre>
+ * 
+ */
+
 
 public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
 
@@ -52,11 +70,14 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      */
     protected PurgeRuleSet configXml;
 
-    private final ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
+    private CopyOnWriteArrayList<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     /** Singleton instance of this class */
     private static FFMPRetentionTimeManager instance = new FFMPRetentionTimeManager();
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPRetentionTimeManager.class);
+    
     /* Private Constructor */
     private FFMPRetentionTimeManager() {
         configXml = new PurgeRuleSet();
@@ -103,14 +124,16 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
 
             PurgeRuleSet configXmltmp = null;
 
-            configXmltmp = (PurgeRuleSet) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+            configXmltmp = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                    PurgeRuleSet.class, file.getAbsolutePath());
 
             configXml = configXmltmp;
 
         } catch (Exception e) {
-            System.err.println("No SITE Purge Rule file found");
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.WARN,
+                            "No SITE level purge file found.",
+                            e);
         }
 
     }
@@ -143,7 +166,8 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
 
             lf = newXmlFile;
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.WARN,
+                    "Couldn't save config.", e);
         }
 
     }
@@ -151,12 +175,18 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         if (message.getFileName().equals(CONFIG_FILE_NAME)) {
-            readConfigXml();
-            // inform listeners
-            synchronized (listeners) {
+            try {
+                readConfigXml();
+
+                // inform listeners
                 for (MonitorConfigListener fl : listeners) {
                     fl.configChanged(new MonitorConfigEvent(this));
                 }
+
+            } catch (Exception e) {
+                statusHandler.handle(Priority.WARN,
+                        "FFMPRetentionTimeManager: " + message.getFileName()
+                                + " couldn't be updated.", e);
             }
         }
     }
