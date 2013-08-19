@@ -26,3 +26,4 @@ com.raytheon.uf.common.datadelivery.registry.Provider
 com.raytheon.uf.common.datadelivery.registry.Time
 com.raytheon.uf.common.datadelivery.registry.PointTime
 com.raytheon.uf.common.datadelivery.registry.GriddedTime
+com.raytheon.uf.common.datadelivery.registry.ProviderKeyRequest
