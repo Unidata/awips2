@@ -19,13 +19,14 @@
  **/
 package com.raytheon.uf.viz.acarssounding;
 
-import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.BundleContext;
-
-import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
+import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
+import com.raytheon.viz.volumebrowser.datacatalog.PointDataCatalog;
+import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
- * The activator class controls the plug-in life cycle
+ * Volume browser catalog which enables acars sounding data to work.
  * 
  * <pre>
  * 
@@ -42,47 +43,22 @@ import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
  * @author unknown
  * @version 1.0
  */
-public class Activator extends Plugin {
+public class AcarsSoundingVbDataCatalog extends PointDataCatalog {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "com.raytheon.uf.viz.acarssounding";
+    @Override
+    protected String[] getPlugins(ViewMenu setting) {
+        return new String[] { "acarssounding" };
+    }
 
-	// The shared instance
-	private static Activator plugin;
-	
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-        DataCatalogManager.getDataCatalogManager().addDataCatalog(
-                new AcarsSoundingVbDataCatalog());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-	}
-
-	/**
-	 * Returns the shared instance
-	 *
-	 * @return the shared instance
-	 */
-	public static Activator getDefault() {
-		return plugin;
-	}
+    @Override
+    protected AbstractRequestableResourceData getResourceData(
+            IDataCatalogEntry catalogEntry, ResourceType resourceType) {
+        if (resourceType == ResourceType.SOUNDING
+                && catalogEntry.getSelectedData().getSourcesKey()
+                        .equals("acarssounding")) {
+            return new AcarsSndNSharpResourceData();
+        }
+        return super.getResourceData(catalogEntry, resourceType);
+    }
 
 }
