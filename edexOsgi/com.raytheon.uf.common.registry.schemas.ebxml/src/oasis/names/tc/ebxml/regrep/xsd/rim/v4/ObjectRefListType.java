@@ -70,7 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ObjectRefList")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ObjectRefListType", propOrder = { "objectRef" })
 @DynamicSerialize

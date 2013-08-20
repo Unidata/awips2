@@ -64,7 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(schema = "ebxml", name = "StringQueryExpression")
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlRootElement
+@XmlRootElement(name = "StringQueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "StringQueryExpressionType", propOrder = { "value" })
 @DynamicSerialize
@@ -73,6 +73,15 @@ public class StringQueryExpressionType extends QueryExpressionType {
     @XmlElement(name = "Value", required = true)
     @DynamicSerializeElement
     protected String value;
+
+    public StringQueryExpressionType() {
+        super();
+    }
+
+    public StringQueryExpressionType(String queryLanguage, String value) {
+        super(queryLanguage);
+        this.value = value;
+    }
 
     /**
      * Gets the value of the value property.
