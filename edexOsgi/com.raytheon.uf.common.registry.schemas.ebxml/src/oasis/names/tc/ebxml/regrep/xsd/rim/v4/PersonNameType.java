@@ -61,12 +61,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "PersonName")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PersonNameType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "PersonName")
 public class PersonNameType extends ExtensibleObjectType implements
         Serializable {

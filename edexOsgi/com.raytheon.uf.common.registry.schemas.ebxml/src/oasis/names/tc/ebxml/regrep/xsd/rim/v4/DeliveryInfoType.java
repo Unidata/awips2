@@ -72,7 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "DeliveryInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DeliveryInfoType")
 @DynamicSerialize
