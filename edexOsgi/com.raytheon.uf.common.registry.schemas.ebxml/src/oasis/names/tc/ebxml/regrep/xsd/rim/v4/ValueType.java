@@ -63,7 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Value")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ValueType")
 @XmlSeeAlso({ StringValueType.class, DateTimeValueType.class,
