@@ -63,7 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "DurationValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DurationValueType", propOrder = { "durationValue" })
 @DynamicSerialize

@@ -78,15 +78,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Slot")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SlotType", propOrder = { "slotValue" })
 @DynamicSerialize
 @Entity
-// @AssociationOverride(name = "slot", joinTable = @JoinTable(name =
-// "slot_join_slot", joinColumns = @JoinColumn(name = "parent_slot_key",
-// referencedColumnName = "key"), inverseJoinColumns = @JoinColumn(name =
-// "child_slot_key", referencedColumnName = "key")))
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Table(schema = "ebxml", name = "Slot")
 public class SlotType extends ExtensibleObjectType implements

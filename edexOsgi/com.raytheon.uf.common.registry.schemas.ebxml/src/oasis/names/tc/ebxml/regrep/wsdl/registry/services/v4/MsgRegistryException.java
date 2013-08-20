@@ -77,4 +77,12 @@ public class MsgRegistryException extends Exception {
         return faultInfo;
     }
 
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("REGISTRY EXCEPTION:\n");
+        builder.append("\t Message: ").append(this.getMessage()).append("\n");
+        builder.append(faultInfo.toString());
+        return builder.toString();
+    }
+
 }
