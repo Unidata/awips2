@@ -62,7 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ExternalIdentifier")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExternalIdentifierType")
 @DynamicSerialize

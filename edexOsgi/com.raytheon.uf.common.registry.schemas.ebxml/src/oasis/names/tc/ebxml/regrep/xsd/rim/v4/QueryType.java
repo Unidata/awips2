@@ -65,7 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Query")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryType")
 @DynamicSerialize

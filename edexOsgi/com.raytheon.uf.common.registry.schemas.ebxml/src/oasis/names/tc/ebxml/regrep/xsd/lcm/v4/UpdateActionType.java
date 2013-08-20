@@ -67,11 +67,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "UpdateAction")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UpdateActionType", propOrder = { "valueHolder", "selector" })
 @DynamicSerialize
 public class UpdateActionType {
+
+    public enum UPDATE_MODE {
+        Insert, Update, Delete
+    }
 
     @XmlElement(name = "ValueHolder")
     @DynamicSerializeElement
@@ -138,6 +142,10 @@ public class UpdateActionType {
         return mode;
     }
 
+    public UPDATE_MODE getUpdateMode() {
+        return UPDATE_MODE.valueOf(mode);
+    }
+
     /**
      * Sets the value of the mode property.
      * 
@@ -147,6 +155,10 @@ public class UpdateActionType {
      */
     public void setMode(String value) {
         this.mode = value;
+    }
+
+    public void setUpdateMode(UPDATE_MODE mode) {
+        this.mode = mode.toString();
     }
 
 }

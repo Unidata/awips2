@@ -53,6 +53,7 @@ import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -117,7 +118,16 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
         super(federationEnabled, lcm, federationPropertiesFileName,
                 replicationManager);
         this.ncfAddress = ncfAddress;
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        if (this.replicationManager.getServers() == null
+                || CollectionUtil.isNullOrEmpty(replicationManager.getServers()
+                        .getRegistryReplicationServers())) {
+            statusHandler
+                    .warn("No servers configured for replication.  Federation functionality is disabled");
+            this.federationEnabled = false;
+            this.replicationManager.setSubscriptionProcessingEnabled(false);
+        } else {
+            scheduler = Executors.newSingleThreadScheduledExecutor();
+        }
     }
 
     @Override

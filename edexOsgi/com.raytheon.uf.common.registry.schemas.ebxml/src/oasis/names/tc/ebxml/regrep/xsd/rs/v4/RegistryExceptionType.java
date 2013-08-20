@@ -62,7 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "RegistryException")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryExceptionType")
 @XmlSeeAlso({ ObjectNotFoundExceptionType.class,
@@ -184,17 +184,16 @@ public class RegistryExceptionType extends ExtensibleObjectType {
     @Override
     public String toString() {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n").append(this.getClass().getName()).append("\n");
         if (code == null) {
-            strBuilder.append("    CODE: [").append("NONE SPECIFIED")
+            strBuilder.append("\t    CODE: ").append("NONE SPECIFIED")
                     .append("]\n");
         } else {
-            strBuilder.append("    CODE: [").append(code).append("]\n");
+            strBuilder.append("\t    CODE: ").append(code).append("\n");
         }
 
-        strBuilder.append("SEVERITY: [").append(severity).append("]\n");
-        strBuilder.append(" MESSAGE: [").append(message).append("]\n");
-        strBuilder.append("  DETAIL: [").append(detail).append("]\n");
+        strBuilder.append("\tSEVERITY: ").append(severity).append("\n");
+        strBuilder.append("\t MESSAGE: ").append(message).append("\n");
+        strBuilder.append("\t  DETAIL: ").append(detail).append("\n");
 
         return strBuilder.toString();
     }
