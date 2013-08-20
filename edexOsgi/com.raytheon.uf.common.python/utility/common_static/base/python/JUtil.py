@@ -19,10 +19,14 @@
 # #
 
 
-from java.lang import Integer, Float, Long, Boolean, String
+from java.lang import Integer, Float, Long, Boolean, String, Object, Double
 from java.util import HashMap, LinkedHashMap, ArrayList
 from java.util import Collections
+from java.util import Date
 from collections import OrderedDict
+
+import jep
+import datetime
 
 #
 # Provides convenience methods for Java-Python bridging
@@ -36,7 +40,7 @@ from collections import OrderedDict
 #    05/01/08                      njensen       Initial Creation.
 #    03/12/13         1759         dgilling      Extend Java List types handled
 #                                                by javaObjToPyVal().
-#
+#    08/20/13         2250         mnash         Handle Dates, doubles, and arrays
 #
 #
 
@@ -120,6 +124,10 @@ def pyValToJavaObj(val):
         for i in val:
             tempList.add(pyValToJavaObj(i))
         retObj = Collections.unmodifiableList(tempList)
+    elif valtype is datetime.datetime:
+        epoch = datetime.datetime.utcfromtimestamp(0)
+        delta = val - epoch
+        retObj = Date(long(delta.total_seconds()) * 1000)
     elif issubclass(valtype, dict):
         retObj = pyDictToJavaMap(val)
     elif issubclass(valtype, JavaWrapperClass):
@@ -140,6 +148,15 @@ def javaObjToPyVal(obj, customConverter=None):
         retVal = obj.longValue()
     elif objtype == "java.lang.Boolean":
         retVal = bool(obj.booleanValue())
+    elif objtype == "java.lang.Double":
+        retVal = obj.doubleValue()
+    elif objtype == "java.util.Date":
+        retVal = datetime.datetime.fromtimestamp(obj.getTime() / 1000)
+    elif isinstance(obj, type(jep.jarray(0, Object))):
+        retVal = []
+        size = len(obj)
+        for i in range(size):
+            retVal.append(javaObjToPyVal(obj.get(i), customConverter))
     elif objtype in ["java.util.ArrayList", "java.util.Arrays$ArrayList"]:
         retVal = []
         size = obj.size()
