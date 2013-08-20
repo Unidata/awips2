@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,6 +26,8 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestTy
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.event.retrieval.AdhocSubscriptionRequestEvent;
+import com.raytheon.uf.common.datadelivery.event.retrieval.SubscriptionRequestEvent;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -32,6 +36,7 @@ import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
@@ -109,6 +114,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jul 10, 2013 2106       djohnson     Move EDEX instance specific code into its own class.
  * Jul 11, 2013 2106       djohnson     Propose changing available bandwidth returns subscription names.
  * Jul 18, 2013 1653       mpduff       Added case GET_SUBSCRIPTION_STATUS.
+ * Aug 06, 2013 1654       bgonzale     Added SubscriptionRequestEvents.
  * </pre>
  * 
  * @author dhladky
@@ -897,8 +903,42 @@ public abstract class BandwidthManager extends
 
         Set<BandwidthAllocation> unscheduledAllocations = new HashSet<BandwidthAllocation>();
 
+        Map<String, SubscriptionRequestEvent> subscriptionEventsMap = new HashMap<String, SubscriptionRequestEvent>();
+
         for (Subscription subscription : subscriptions) {
-            unscheduledAllocations.addAll(subscriptionUpdated(subscription));
+            List<BandwidthAllocation> unscheduled = subscriptionUpdated(subscription);
+            unscheduledAllocations.addAll(unscheduled);
+
+            /*
+             * Create a subscription event or increment an existing event's
+             * count.
+             */
+            String key = new StringBuilder(subscription.getId())
+                    .append(subscription.getOwner())
+                    .append(subscription.getRoute().toString())
+                    .append(subscription.getProvider()).toString();
+            SubscriptionRequestEvent event = subscriptionEventsMap.get(key);
+            if (event == null) {
+                if (subscription instanceof AdhocSubscription) {
+                    event = new AdhocSubscriptionRequestEvent();
+                } else {
+                    event = new SubscriptionRequestEvent();
+                }
+                event.setId(subscription.getId());
+                event.setOwner(subscription.getOwner());
+                event.setNetwork(subscription.getRoute().toString());
+                event.setProvider(subscription.getProvider());
+                subscriptionEventsMap.put(key, event);
+            } else {
+                event.incrementNumRecords();
+            }
+        }
+
+        /*
+         * publish the subscription events.
+         */
+        for (SubscriptionRequestEvent event : subscriptionEventsMap.values()) {
+            EventBus.publish(event);
         }
 
         for (BandwidthAllocation allocation : unscheduledAllocations) {
