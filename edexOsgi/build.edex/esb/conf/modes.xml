@@ -335,7 +335,7 @@
 		<include>.*-ogc-request.xml</include>
 		<!--  Purge OGC/DPA registred plugins -->
 		<include>purge-spring.xml</include>
-		<include>ogc-purge.xml</include>
+		<include>purge-spring-impl.xml</include>
         <include>purge-logs.xml</include>
 	</mode>
 	<!-- This is MADIS implmentation of dataprovideragent -->
