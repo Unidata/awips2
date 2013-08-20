@@ -23,7 +23,8 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 
-import com.raytheon.edex.meteoLib.Controller;
+import com.raytheon.uf.common.wxmath.DistFilter;
+import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
 import com.raytheon.uf.viz.core.interp.IInterpolation;
 import com.raytheon.uf.viz.core.interp.InterpolationRequest;
 import com.raytheon.uf.viz.core.interp.InterpolationResult;
@@ -31,14 +32,16 @@ import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 
 /**
  * 
- * TODO Add Description
+ * Interpolation which uses functionality from A1 meteolib to map scattered
+ * points onto a grid.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 12, 2010            bsteffen     Initial creation
+ * May 12, 2010            bsteffen    Initial creation
+ * Aug 20, 2013 2262       njensen     Use wxmath instead of meteolib
  * 
  * </pre>
  * 
@@ -89,12 +92,11 @@ public class MeteolibInterpolation implements IInterpolation {
                 z[i] = 1e37f;
             }
         }
-        float[] grid = new float[(int) (gridX * gridY)];
-        Controller.scaleless_analysis(x, y, z, x.length, (int) gridX,
-                (int) gridY, grid);
 
-        float[] newgrid = Controller.dist_filter(grid, 5.0f, (int) gridX, 0, 0,
+        float[] grid = ScalelessAnalysis.scaleless_analysis(x, y, z, x.length,
                 (int) gridX, (int) gridY);
+        float[] newgrid = DistFilter.filter(grid, 5.0f, (int) gridX,
+                (int) gridY, 1);
 
         for (int i = 0; i < grid.length; i++) {
             if (newgrid[i] < -999999 || newgrid[i] > 999999) {
