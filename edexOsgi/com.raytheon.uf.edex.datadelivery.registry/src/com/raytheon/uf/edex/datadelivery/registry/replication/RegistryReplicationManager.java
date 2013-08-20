@@ -79,6 +79,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistryMonitor;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.exception.NoReplicationServersAvailableException;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -240,7 +241,7 @@ public class RegistryReplicationManager {
 
                         // No available registry was found!
                         if (registryToSyncFrom == null) {
-                            throw new EbxmlRegistryException(
+                            throw new NoReplicationServersAvailableException(
                                     "No available registries found! Registry data will not be synchronized with the federation!");
                         } else {
                             synchronizeRegistryWithFederation(registryToSyncFrom
@@ -256,6 +257,11 @@ public class RegistryReplicationManager {
                         }
                     }
                 } catch (Exception e) {
+                    // If no servers are found, don't retry, just throw the
+                    // exception
+                    if (e instanceof NoReplicationServersAvailableException) {
+                        throw e;
+                    }
                     if (syncAttempt < maxSyncRetries) {
                         statusHandler.error(
                                 "Federation registry data synchronization attempt #"
