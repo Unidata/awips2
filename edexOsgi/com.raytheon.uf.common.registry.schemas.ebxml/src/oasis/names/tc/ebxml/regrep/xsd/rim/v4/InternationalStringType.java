@@ -75,7 +75,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "InternationalString")
 @XmlAccessorType(XmlAccessType.FIELD)
 @DynamicSerialize
 @XmlType(name = "InternationalStringType", propOrder = { "localizedString" })

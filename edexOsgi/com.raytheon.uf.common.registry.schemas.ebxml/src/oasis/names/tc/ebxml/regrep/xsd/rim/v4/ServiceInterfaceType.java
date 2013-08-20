@@ -58,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "ServiceInterface")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ServiceInterfaceType")
 @DynamicSerialize
