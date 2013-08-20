@@ -37,7 +37,6 @@ import javax.xml.ws.WebServiceContext;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
@@ -47,15 +46,12 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.registry.constants.Format;
 import com.raytheon.uf.common.registry.constants.Languages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
@@ -114,6 +110,8 @@ public class QueryManagerImpl implements QueryManager {
     /** The logger */
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(QueryManagerImpl.class);
+
+    private static final String QUERY_ERROR_MSG = "Error executing query";
 
     @Resource
     private WebServiceContext wsContext;
@@ -218,13 +216,11 @@ public class QueryManagerImpl implements QueryManager {
             // TODO: Implement support for different response formats
             response.getException()
                     .add(EbxmlExceptionUtil
-                            .createRegistryException(
-                                    UnsupportedCapabilityExceptionType.class,
-                                    "",
-                                    "Non default response formats not currently supported",
+                            .createUnsupportedCapabilityExceptionType(
+                                    QUERY_ERROR_MSG,
                                     "This EBXML registry currently does not currently support queries specifying response types other than "
-                                            + DEFAULT_RESPONSE_FORMAT,
-                                    ErrorSeverity.WARNING, statusHandler));
+                                            + DEFAULT_RESPONSE_FORMAT)
+                            .getFaultInfo());
         }
 
         if (lang != null) {
@@ -246,9 +242,7 @@ public class QueryManagerImpl implements QueryManager {
             }
         } catch (EbxmlRegistryException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
-                    "Error executing query!", QueryExceptionType.class, "",
-                    "Error executing query", e.getMessage(),
-                    ErrorSeverity.ERROR, e, statusHandler);
+                    QUERY_ERROR_MSG, e);
 
         }
         timer.stop();
@@ -370,17 +364,29 @@ public class QueryManagerImpl implements QueryManager {
                             statusHandler.error(
                                     "Federated query invocation was cancelled",
                                     e);
-                            queryResponse.getException().add(getException(e));
+                            queryResponse.getException().add(
+                                    EbxmlExceptionUtil
+                                            .createMsgRegistryException(
+                                                    QUERY_ERROR_MSG, e)
+                                            .getFaultInfo());
                         } catch (ExecutionException e) {
                             statusHandler
                                     .error("Federated query invocation encountered an erroring execution!",
                                             e);
-                            queryResponse.getException().add(getException(e));
+                            queryResponse.getException().add(
+                                    EbxmlExceptionUtil
+                                            .createMsgRegistryException(
+                                                    QUERY_ERROR_MSG, e)
+                                            .getFaultInfo());
                         } catch (InterruptedException e) {
                             statusHandler
                                     .error("Federated query invocation was interrupted",
                                             e);
-                            queryResponse.getException().add(getException(e));
+                            queryResponse.getException().add(
+                                    EbxmlExceptionUtil
+                                            .createMsgRegistryException(
+                                                    QUERY_ERROR_MSG, e)
+                                            .getFaultInfo());
                         }
                     }
                 }
@@ -405,19 +411,6 @@ public class QueryManagerImpl implements QueryManager {
                         "Error executing federated query!", e);
             }
         }
-    }
-
-    /**
-     * Convenience method to wrap an exception in a RegistryExceptionType
-     * 
-     * @param e
-     *            The exception to wrap
-     * @return The RegistryExceptionType wrapper
-     */
-    private RegistryExceptionType getException(Exception e) {
-        return EbxmlExceptionUtil.createRegistryException(
-                QueryExceptionType.class, "", e.getLocalizedMessage(),
-                e.getLocalizedMessage(), ErrorSeverity.ERROR, e, statusHandler);
     }
 
     /**
@@ -602,13 +595,10 @@ public class QueryManagerImpl implements QueryManager {
 
         IRegistryQuery query = queryTypeMgr.getQueryType(queryDefinition);
         if (query == null) {
-            throw EbxmlExceptionUtil.createMsgRegistryException(
-                    "Query Type Not Supported",
-                    UnsupportedCapabilityExceptionType.class, "",
-                    "Unsupported query type",
+            throw EbxmlExceptionUtil.createUnsupportedCapabilityExceptionType(
+                    QUERY_ERROR_MSG,
                     "The query type [" + queryType.getQueryDefinition()
-                            + "] is not registered as a vaild query type",
-                    ErrorSeverity.ERROR, statusHandler);
+                            + "] is not registered as a vaild query type");
         }
         return query;
     }

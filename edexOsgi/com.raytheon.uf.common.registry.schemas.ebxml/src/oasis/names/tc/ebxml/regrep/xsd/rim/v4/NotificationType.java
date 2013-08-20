@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Notification")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "NotificationType", propOrder = { "event" })
 @DynamicSerialize

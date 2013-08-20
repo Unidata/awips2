@@ -26,11 +26,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationSchemeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
-import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
@@ -54,9 +50,6 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 public class ClassificationTypeValidator extends
         ValidatorPlugin<ClassificationType> {
-
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ClassificationType.class);
 
     /**
      * Constructor.
@@ -93,9 +86,8 @@ public class ClassificationTypeValidator extends
         if ((classificationScheme != null && classificationNode != null)
                 || (classificationScheme == null && classificationNode == null)) {
             final String message = "One and only one of classificationNode or classificationScheme must be specified";
-            exceptions.add(EbxmlExceptionUtil.createRegistryException(
-                    ValidationExceptionType.class, "", message, message,
-                    ErrorSeverity.ERROR, statusHandler));
+            exceptions.add(EbxmlExceptionUtil.createValidationExceptionType(
+                    message, message).getFaultInfo());
         }
 
         final String registryObjectId = registryObject.getId();
@@ -103,7 +95,7 @@ public class ClassificationTypeValidator extends
                 ClassificationSchemeType.class, exceptions);
         validateReferenceOfType(classificationNode,
                 ClassificationNodeType.class, exceptions);
-        
+
         validateNotNull(classifiedObject, "classifiedObject", registryObjectId,
                 exceptions);
         validateReference(classifiedObject, exceptions);
