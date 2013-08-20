@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(schema = "ebxml", name = "XMLQueryExpression")
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlRootElement
+@XmlRootElement(name = "XMLQueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "XMLQueryExpressionType", propOrder = { "any" })
 @DynamicSerialize
@@ -78,6 +78,15 @@ public class XMLQueryExpressionType extends QueryExpressionType {
     @Column(name = "anyValue", columnDefinition = "text")
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.SerializedType")
     protected Object any;
+
+    public XMLQueryExpressionType() {
+        super();
+    }
+
+    public XMLQueryExpressionType(String queryLanguage, Object any) {
+        super(queryLanguage);
+        this.any = any;
+    }
 
     /**
      * Gets the value of the any property.

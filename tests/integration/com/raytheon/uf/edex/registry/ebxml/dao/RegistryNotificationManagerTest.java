@@ -49,6 +49,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -97,7 +98,12 @@ public class RegistryNotificationManagerTest extends AbstractRegistryTest {
     private MockNotificationListenerFactory notificationListenerFactory;
 
     @Autowired
+    @Qualifier("pluginSubscribedListener")
     private PluginSubscribedListener pluginSubscribedListener;
+
+    @Autowired
+    @Qualifier("pluginSubscribedListener2")
+    private PluginSubscribedListener pluginSubscribedListener2;
 
     @BeforeClass
     public static void classSetUp() {
@@ -179,7 +185,7 @@ public class RegistryNotificationManagerTest extends AbstractRegistryTest {
                 Mode.CREATE_OR_REPLACE);
         lifecycleManager.submitObjects(objectsRequest);
 
-        assertThat(pluginSubscribedListener.hasBeenNotified(), is(false));
+        assertThat(pluginSubscribedListener2.hasBeenNotified(), is(false));
     }
 
     private SubmitObjectsRequest createSubmitObjectsRequestForSubscription(

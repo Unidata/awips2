@@ -108,7 +108,7 @@ public class JAXBManager {
 
     private final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
 
-    private final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
+    protected final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
 
     public JAXBManager(Class<?>... clazz) throws JAXBException {
         jaxbContext = JAXBContext.newInstance(clazz);
@@ -138,7 +138,7 @@ public class JAXBManager {
         return m;
     }
 
-    private Marshaller getMarshaller() throws JAXBException {
+    protected Marshaller getMarshaller() throws JAXBException {
         Marshaller m = marshallers.poll();
         if (m == null) {
             m = getJaxbContext().createMarshaller();

@@ -63,12 +63,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "RegistryPackage")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryPackageType", propOrder = { "registryObjectList" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "RegistryPackage")
 public class RegistryPackageType extends RegistryObjectType {
 
