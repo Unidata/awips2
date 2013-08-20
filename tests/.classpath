@@ -160,5 +160,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/awips2/edex/lib/dependencies/meteolib.jni.linux32"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.jface_3.6.1.M20100825-0800.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
