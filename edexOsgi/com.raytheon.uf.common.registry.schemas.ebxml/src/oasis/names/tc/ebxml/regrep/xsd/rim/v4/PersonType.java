@@ -60,12 +60,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Person")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PersonType", propOrder = { "personName" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "Person")
 public class PersonType extends PartyType {
 
