@@ -72,7 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Map")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MapType", propOrder = { "entry" })
 @DynamicSerialize

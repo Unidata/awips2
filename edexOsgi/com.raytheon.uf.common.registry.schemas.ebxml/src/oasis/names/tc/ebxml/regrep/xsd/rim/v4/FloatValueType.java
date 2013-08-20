@@ -61,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "FloatValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FloatValueType", propOrder = { "floatValue" })
 @DynamicSerialize
