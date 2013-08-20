@@ -24,6 +24,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -161,6 +162,13 @@ public class RegistryObjectDao extends
      */
     public void deleteWithoutMerge(RegistryObjectType obj) {
         this.template.delete(obj);
+    }
+
+    public void deleteObjectWithoutDeletingChildren(RegistryObjectType obj)
+            throws DataAccessLayerException {
+        this.executeHQLStatement(
+                "DELETE FROM RegistryObjectType obj where obj.id=:id", "id",
+                obj.getId());
     }
 
     /**

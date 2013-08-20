@@ -39,6 +39,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.exception.NoReplicationServersAvailableException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
 /**
@@ -112,6 +113,9 @@ public class NcfRegistryFederationManager extends RegistryFederationManager
             replicationManager.submitRemoteSubscriptions(registry);
             try {
                 replicationManager.checkDownTime();
+            } catch (NoReplicationServersAvailableException e) {
+                statusHandler
+                        .warn("No replication servers have been specified!");
             } catch (Exception e) {
                 throw new EbxmlRegistryException("Error checking down time!", e);
             }

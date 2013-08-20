@@ -59,12 +59,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "WorkflowAction")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "WorkflowActionType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "WorkflowAction")
 public class WorkflowActionType extends RegistryObjectType {
 

@@ -66,7 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlRootElement
+@XmlRootElement(name = "AnyValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnyValueType", propOrder = { "anyValue" })
 @DynamicSerialize

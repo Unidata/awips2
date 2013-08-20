@@ -48,7 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "QuotaExceededException")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QuotaExceededExceptionType")
 @DynamicSerialize

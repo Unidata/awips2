@@ -75,7 +75,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Subscription")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SubscriptionType", propOrder = { "deliveryInfo", "selector" })
 @DynamicSerialize
