@@ -32,7 +32,6 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -40,18 +39,22 @@ import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.util.GridUtil;
+import com.raytheon.uf.common.wxmath.DistFilter;
+import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * TODO Add Description
+ * Requests point data and performs objective analysis to map then data onto a
+ * grid geometry.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 20, 2010            bsteffen     Initial creation
+ * May 20, 2010            bsteffen    Initial creation
+ * Aug 20, 2013 2262       njensen     Use wxmath instead of meteolib
  * 
  * </pre>
  * 
@@ -165,10 +168,10 @@ public class OAGridTransformer {
         if (!hasData) {
             return null;
         }
-        float[] grid = new float[nx * ny];
-        Controller.scaleless_analysis(xind, yind, values, size, nx, ny, grid);
 
-        grid = Controller.dist_filter(grid, smoothPts, nx, 0, 0, nx, ny);
+        float[] grid = ScalelessAnalysis.scaleless_analysis(xind, yind, values,
+                size, nx, ny);
+        grid = DistFilter.filter(grid, smoothPts, nx, ny, 1);
 
         for (int i = 0; i < grid.length; i++) {
             if (grid[i] > 1e36f) {
