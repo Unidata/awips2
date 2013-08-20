@@ -75,7 +75,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "RegistryResponse")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryResponseType", propOrder = { "exception",
         "registryObjectList", "objectRefList" })

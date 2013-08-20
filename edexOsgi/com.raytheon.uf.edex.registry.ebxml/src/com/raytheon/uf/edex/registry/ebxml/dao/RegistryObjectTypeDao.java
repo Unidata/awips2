@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.hibernate.SessionFactory;
@@ -32,7 +30,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
 /**
@@ -214,55 +211,6 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
                 "Classifications.classificationNode", classifications);
 
         return this.executeHQLQuery(str.toString());
-    }
-
-    /**
-     * Deletes objects based on the reference (id field)
-     * 
-     * @param objRefs
-     *            The objectRefs pointing to objects to be deleted
-     * @throws EbxmlRegistryException
-     *             If the delete fails
-     */
-    @SuppressWarnings("unchecked")
-    public void deleteByRefs(final List<ObjectRefType> objRefs)
-            throws EbxmlRegistryException {
-        // TODO: FIX THIS METHOD TO ELIMINATE CASTING OR MOVE IT ELSEWHERE
-        try {
-            List<String> objIds = new ArrayList<String>();
-            for (ObjectRefType ref : objRefs) {
-                objIds.add(ref.getId());
-            }
-            List<ENTITY> objs = getById(objIds);
-            for (RegistryObjectType regObj : objs) {
-                if (regObj.getClassification() != null) {
-                    for (RegistryObjectType classification : regObj
-                            .getClassification()) {
-                        delete((ENTITY) classification);
-                    }
-                }
-            }
-            for (RegistryObjectType regObj : objs) {
-                if (regObj.getExternalIdentifier() != null) {
-                    for (RegistryObjectType extId : regObj
-                            .getExternalIdentifier()) {
-                        delete((ENTITY) extId);
-                    }
-                }
-            }
-            for (RegistryObjectType regObj : objs) {
-                if (regObj.getExternalLink() != null) {
-                    for (RegistryObjectType extLink : regObj.getExternalLink()) {
-                        delete((ENTITY) extLink);
-                    }
-                }
-            }
-            for (ENTITY obj : objs) {
-                delete(obj);
-            }
-        } catch (Throwable e) {
-            throw new EbxmlRegistryException("Error deleting objects", e);
-        }
     }
 
     /**

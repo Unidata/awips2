@@ -71,7 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Action")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ActionType", propOrder = { "affectedObjects",
         "affectedObjectRefs" })
