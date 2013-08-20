@@ -38,4 +38,5 @@ Export-Package: com.raytheon.uf.edex.datadelivery.bandwidth,
  com.raytheon.uf.edex.datadelivery.bandwidth.retrieval,
  com.raytheon.uf.edex.datadelivery.bandwidth.util
 Import-Package: com.raytheon.uf.common.datadelivery.event.retrieval,
- com.raytheon.uf.common.datadelivery.registry
+ com.raytheon.uf.common.datadelivery.registry,
+ com.raytheon.uf.common.stats
