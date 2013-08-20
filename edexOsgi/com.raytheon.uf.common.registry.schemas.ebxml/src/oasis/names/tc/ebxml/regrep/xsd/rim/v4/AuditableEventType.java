@@ -72,7 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "AuditableEvent")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AuditableEventType", propOrder = { "action" })
 @DynamicSerialize

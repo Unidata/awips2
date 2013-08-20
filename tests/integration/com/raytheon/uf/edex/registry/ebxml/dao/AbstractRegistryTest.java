@@ -22,6 +22,8 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -88,9 +90,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 @ContextConfiguration(locations = { SpringFiles.DATADELIVERY_HANDLERS_XML,
         SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML, SpringFiles.EBXML_XML,
         SpringFiles.EBXML_IMPL_XML, SpringFiles.EBXML_QUERYTYPES_XML,
-        SpringFiles.EBXML_REGISTRY_DAO_XML,
-        SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
-        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
+        SpringFiles.EBXML_REGISTRY_DAO_XML, SpringFiles.EBXML_WEBSERVICES_XML,
+        SpringFiles.EBXML_XACML_XML, SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
         SpringFiles.EBXML_SUBSCRIPTION_XML, SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
@@ -103,6 +104,12 @@ public class AbstractRegistryTest {
     protected static final String MY_REGISTRY_OBJECT_ID = "myRegistryObjectId";
 
     protected static final String REGISTRY_OBJECT_TYPE = "myRegistryObjectType";
+
+    @Autowired
+    protected SlotTypeDao slotDao;
+
+    @Autowired
+    protected RegistryObjectDao registryObjectDao;
 
     @Autowired
     protected LifecycleManager lifecycleManager;
@@ -261,6 +268,46 @@ public class AbstractRegistryTest {
         assertResponseStatus(
                 "The response did not have a partial success status!",
                 response, RegistryResponseStatus.FAILURE);
+    }
+
+    /**
+     * Asserts that the object with the given ID exists in the registry
+     * 
+     * @param objectId
+     *            The id of the object to check
+     */
+    protected void assertObjectExists(String objectId) {
+        RegistryObjectType result = registryObjectDao.getById(objectId);
+        assertNotNull(result);
+        assertThat(result.getId(), is(equalTo(objectId)));
+    }
+
+    /**
+     * Asserts that the object with the give ID does NOT exist in the registry
+     * 
+     * @param objectId
+     *            The id of the object to check
+     */
+    protected void assertObjectDoesNotExist(String objectId) {
+        RegistryObjectType result = registryObjectDao.getById(objectId);
+        assertNull(result);
+    }
+
+    protected void assertSlotExists(String slotName) {
+        List<SlotType> result = slotDao.executeHQLQuery(
+                "from SlotType slot where slot.name=:slotName", "slotName",
+                slotName);
+        assertNotNull(result);
+        assertThat(result.isEmpty(), is(equalTo(false)));
+        assertThat(result.get(0).getName(), is(equalTo(slotName)));
+    }
+
+    protected void assertSlotDoesNotExist(String slotName) {
+        List<SlotType> result = slotDao.executeHQLQuery(
+                "from SlotType slot where slot.name=:slotName", "slotName",
+                slotName);
+        assertNotNull(result);
+        assertThat(result.isEmpty(), is(equalTo(true)));
     }
 
     /**
