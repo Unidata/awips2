@@ -17,23 +17,21 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="com.raytheon.uf.edex.registry.client.feature"
+         version="0.0.0"/>
+
    <requires>
       <import feature="com.raytheon.uf.edex.common.core.feature" version="0.0.0"/>
       <import feature="com.raytheon.uf.edex.core.feature" version="0.0.0"/>
    </requires>
 
    <plugin
-         id="com.sun.xml.bind"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="net.opengis"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-         
+
    <plugin
          id="net.dods"
          download-size="0"
@@ -143,5 +141,5 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
- 
+
 </feature>
