@@ -101,7 +101,8 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * May 15, 2013 1040       mpduff      Add Shared sites.
  * Jun 04, 2013  223       mpduff      Modify for point data.
  * Jun 12, 2013 2038       djohnson    No longer modal.
- * Jul 26, 2031   2232     mpduff      Refactored Data Delivery permissions.
+ * Jul 26, 2013   2232     mpduff      Refactored Data Delivery permissions.
+ * Aug 21, 2013   1848     mpduff      Check subscription.create and shared.subscription.create.
  * 
  * </pre>
  * 
@@ -339,19 +340,25 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         btn.setToolTipText("Select sites for sharing");
         btn.setEnabled(false);
 
-        final String permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE
+        final String createSharedSubPermission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE
                 .toString();
+        final String createSubPermission = DataDeliveryPermission.SUBSCRIPTION_CREATE
+                .toString();
+
         final IUser user = UserController.getUserObject();
         final String msg = user.uniqueId()
                 + " is not authorized to create shared subscriptions. "
-                + StringUtil.NEWLINE + "Permission: " + permission;
+                + StringUtil.NEWLINE + "Permission: "
+                + createSharedSubPermission;
         try {
-            if (DataDeliveryServices.getPermissionsService()
-                    .checkPermission(user, msg, permission).isAuthorized()) {
+            if (DataDeliveryServices
+                    .getPermissionsService()
+                    .checkPermissions(user, msg, createSharedSubPermission,
+                            createSubPermission)
+                    .hasPermission(createSharedSubPermission)) {
                 btn.setEnabled(true);
             } else {
                 c.addMouseTrackListener(new MouseTrackAdapter() {
-
                     @Override
                     public void mouseExit(MouseEvent e) {
                         DataDeliveryGUIUtils.hideToolTip();
