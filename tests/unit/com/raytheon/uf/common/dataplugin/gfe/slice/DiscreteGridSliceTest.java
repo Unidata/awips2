@@ -52,7 +52,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/27/2008   879        rbell       Initial Creation.
- * 01/30/2013   15719      jdynina     Allowed more than 128 chars in wx string 
+ * 01/30/2013   15719      jdynina     Allowed more than 128 chars in wx string
+ * 08/14/2013       1571   randerso    Changed to use ProjectionType enum
  * 
  * </pre>
  * 
@@ -244,10 +245,9 @@ public class DiscreteGridSliceTest {
     private final TimeRange testTR1 = new TimeRange(new Date(), 1000);
 
     private final ProjectionData grid211 = new ProjectionData("Grid211",
-            ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                    -133.459, 12.190), new Coordinate(-49.385, 57.290),
-            new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
-            new Point(93, 65), 0.0f, 0.0f, 0.0f);
+            ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459, 12.190),
+            new Coordinate(-49.385, 57.290), new Coordinate(-95.0, 25.0),
+            25.0f, 25.0f, new Point(1, 1), new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
     private final GridLocation gloc = new GridLocation("BOU", grid211,
             new Point(4, 4), new Coordinate(38, 27), new Coordinate(9, 9),

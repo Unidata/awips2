@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * ------------ ---------- ----------- --------------------------
  * 03/14/08     #1030      randerso    Initial port
  * 04/8/08      #875       bphillip    Added getter for Grid Parm Info dictionary
+ * 08/05/2013   #1571      randerso    Made GridParmInfo a field in ParmStorageInfo
  * 
  * </pre>
  * 
@@ -55,8 +57,6 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
 
 public class GridDbConfig {
     private final Log theLogger = LogFactory.getLog(this.getClass());
-
-    private HashMap<String, GridParmInfo> _gridInfoDict;
 
     private HashMap<String, ParmStorageInfo> _parmInfoDict;
 
@@ -108,33 +108,33 @@ public class GridDbConfig {
         int nentries = (int) (((maxV - minV) * dprecision));
 
         // check for byte possibilities
-        if (nentries <= Math.pow(2.0, 8.0) - 1) {
+        if (nentries <= (Math.pow(2.0, 8.0) - 1)) {
             format.dataMultiplier = dprecision;
             format.dataOffset = 0;
             int minVarValue = 0;
             int maxVarValue = 255;
-            if (minV * format.dataMultiplier < minVarValue) {
-                format.dataOffset = minV - minVarValue / format.dataMultiplier;
+            if ((minV * format.dataMultiplier) < minVarValue) {
+                format.dataOffset = minV
+                        - (minVarValue / format.dataMultiplier);
             }
-            if (maxV * format.dataMultiplier > maxVarValue) {
-                format.dataOffset = maxV - maxVarValue / format.dataMultiplier;
+            if ((maxV * format.dataMultiplier) > maxVarValue) {
+                format.dataOffset = maxV
+                        - (maxVarValue / format.dataMultiplier);
             }
             format.storageFormat = "byte";
         }
 
         // check for short possibilities
-        else if (nentries <= Math.pow(2.0, 16.0) - 2) {
+        else if (nentries <= (Math.pow(2.0, 16.0) - 2)) {
             format.dataMultiplier = dprecision;
             format.dataOffset = 0;
             double maxVarValue = Math.pow(2.0, 15.0) - 1;
             double minVarValue = -(Math.pow(2.0, 15.0) - 2);
-            if (minV * format.dataMultiplier < minVarValue) {
-                format.dataOffset = (float) (minV - minVarValue
-                        / format.dataMultiplier);
+            if ((minV * format.dataMultiplier) < minVarValue) {
+                format.dataOffset = (float) (minV - (minVarValue / format.dataMultiplier));
             }
-            if (maxV * format.dataMultiplier > maxVarValue) {
-                format.dataOffset = (float) (maxV - maxVarValue
-                        / format.dataMultiplier);
+            if ((maxV * format.dataMultiplier) > maxVarValue) {
+                format.dataOffset = (float) (maxV - (maxVarValue / format.dataMultiplier));
             }
             format.storageFormat = "short";
         }
@@ -156,11 +156,9 @@ public class GridDbConfig {
      * @param parmStorageInfo
      * @return
      */
-    private boolean addParmInfo(final GridParmInfo gridParmInfo,
-            final ParmStorageInfo parmStorageInfo) {
-        String key = gridParmInfo.getParmID().getParmName() + "_"
-                + gridParmInfo.getParmID().getParmLevel();
-        _gridInfoDict.put(key, gridParmInfo);
+    private boolean addParmInfo(final ParmStorageInfo parmStorageInfo) {
+        String key = parmStorageInfo.getParmName() + "_"
+                + parmStorageInfo.getParmLevel();
         _parmInfoDict.put(key, parmStorageInfo);
 
         return true;
@@ -258,10 +256,9 @@ public class GridDbConfig {
         calcKrunchValues(dataFormat, config.maxAllowedValue,
                 config.minAllowedValue, precision, format);
 
-        ParmStorageInfo psi = new ParmStorageInfo(dataFormat, config.gridSize,
-                parmID.getParmName(), parmID.getParmLevel(), format.dataOffset,
-                format.dataMultiplier, format.storageFormat);
-        return addParmInfo(gpi, psi);
+        ParmStorageInfo psi = new ParmStorageInfo(dataFormat, gpi,
+                format.dataOffset, format.dataMultiplier, format.storageFormat);
+        return addParmInfo(psi);
     }
 
     /**
@@ -280,7 +277,6 @@ public class GridDbConfig {
         this._wxDefinition = wxDef;
         this._discreteDefinition = dDef;
         this._projectionData = projectionData;
-        this._gridInfoDict = new HashMap<String, GridParmInfo>();
         this._parmInfoDict = new HashMap<String, ParmStorageInfo>();
 
         for (int i = 0; i < smc.grids.size(); i++) {
@@ -302,8 +298,6 @@ public class GridDbConfig {
         this._wxDefinition = orig._wxDefinition;
         this._discreteDefinition = orig._discreteDefinition;
         this._projectionData = orig._projectionData;
-        this._gridInfoDict = (HashMap<String, GridParmInfo>) orig._gridInfoDict
-                .clone();
         this._parmInfoDict = (HashMap<String, ParmStorageInfo>) orig._parmInfoDict
                 .clone();
     }
@@ -320,7 +314,7 @@ public class GridDbConfig {
     public List<String> parmAndLevelList() {
         List<String> parmAndLevels = new ArrayList<String>();
 
-        for (String key : _gridInfoDict.keySet()) {
+        for (String key : _parmInfoDict.keySet()) {
             parmAndLevels.add(key);
         }
 
@@ -340,7 +334,7 @@ public class GridDbConfig {
     public GridParmInfo getGridParmInfo(final String parmName,
             final String level) {
         String composite = parmName + "_" + level;
-        return _gridInfoDict.get(composite);
+        return _parmInfoDict.get(composite).getGridParmInfo();
     }
 
     /**
@@ -364,8 +358,10 @@ public class GridDbConfig {
         StringBuffer s = new StringBuffer();
 
         s.append("GRID INFO DICT\n");
-        for (Map.Entry<String, GridParmInfo> entry : _gridInfoDict.entrySet()) {
-            s.append(entry.getKey() + ' ' + entry.getValue() + '\n');
+        for (Map.Entry<String, ParmStorageInfo> entry : _parmInfoDict
+                .entrySet()) {
+            s.append(entry.getKey() + ' ' + entry.getValue().getGridParmInfo()
+                    + '\n');
         }
 
         s.append("PARM INFO DICT\n");
@@ -401,9 +397,5 @@ public class GridDbConfig {
      */
     public ProjectionData projectionData() {
         return this._projectionData;
-    }
-
-    public HashMap<String, GridParmInfo> get_gridInfoDict() {
-        return _gridInfoDict;
     }
 }
