@@ -32,6 +32,22 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * GridLocation Unit Test
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 14, 2013       1571 randerso    Changed to use ProjectionType enum
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public class GridLocationTest {
     private static final double LATLON_TOLERANCE = 1e-3;
 
@@ -43,30 +59,28 @@ public class GridLocationTest {
     }
 
     private static final ProjectionData grid211 = new ProjectionData("Grid211",
-            ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                    -133.459, 12.190), new Coordinate(-49.385, 57.290),
-            new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
-            new Point(93, 65), 0.0f, 0.0f, 0.0f);
+            ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459, 12.190),
+            new Coordinate(-49.385, 57.290), new Coordinate(-95.0, 25.0),
+            25.0f, 25.0f, new Point(1, 1), new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
     private static final ProjectionData grid204 = new ProjectionData("Grid204",
-            ProjectionType.MERCATOR.ordinal(), new Coordinate(-250.0, -25.0),
+            ProjectionType.MERCATOR, new Coordinate(-250.0, -25.0),
             new Coordinate(-109.129, 60.644), new Coordinate(0.0, 0.0), 0.0f,
             0.0f, new Point(1, 1), new Point(93, 68), 0.0f, -179.564f, 0.0f);
 
     private static final ProjectionData grid208 = new ProjectionData("Grid208",
-            ProjectionType.MERCATOR.ordinal(),
-            new Coordinate(-166.219, 10.656), new Coordinate(-147.844, 27.917),
-            new Coordinate(0.0, 0.0), 0.0f, 0.0f, new Point(1, 1), new Point(
-                    25, 25), 0.0f, -157.082f, 0.0f);
+            ProjectionType.MERCATOR, new Coordinate(-166.219, 10.656),
+            new Coordinate(-147.844, 27.917), new Coordinate(0.0, 0.0), 0.0f,
+            0.0f, new Point(1, 1), new Point(25, 25), 0.0f, -157.082f, 0.0f);
 
     private static final ProjectionData grid210 = new ProjectionData("Grid210",
-            ProjectionType.MERCATOR.ordinal(), new Coordinate(-77.000, 9.000),
+            ProjectionType.MERCATOR, new Coordinate(-77.000, 9.000),
             new Coordinate(-58.625, 26.422), new Coordinate(0.0, 0.0), 0.0f,
             0.0f, new Point(1, 1), new Point(25, 25), 0.0f, -67.812f, 0.0f);
 
     private static final ProjectionData grid214AK = new ProjectionData(
-            "Grid214AK", ProjectionType.POLAR_STEREOGRAPHIC.ordinal(),
-            new Coordinate(-178.571, 40.5301), new Coordinate(-93.689, 63.975),
+            "Grid214AK", ProjectionType.POLAR_STEREOGRAPHIC, new Coordinate(
+                    -178.571, 40.5301), new Coordinate(-93.689, 63.975),
             new Coordinate(0.0, 0.0), 0.0f, 0.0f, new Point(1, 1), new Point(
                     104, 70), 0.0f, 0.0f, -150.0f);
 
@@ -116,7 +130,7 @@ public class GridLocationTest {
             ),
 
             new TestCase(
-                    //
+            //
                     new GridLocation("HFO", grid208, new Point(321, 225),
                             new Coordinate(7.00, 11.00), new Coordinate(10.0,
                                     7.0), "Pacific/Honolulu"),
@@ -133,7 +147,7 @@ public class GridLocationTest {
             ),
 
             new TestCase(
-                    //
+            //
                     new GridLocation("SJU", grid210, new Point(32, 28),
                             new Coordinate(10.0, 10.0),
                             new Coordinate(8.0, 7.0), "America/Puerto_Rico"),
@@ -150,7 +164,7 @@ public class GridLocationTest {
             ),
 
             new TestCase(
-                    //
+            //
                     new GridLocation("AJK", grid214AK, new Point(337, 241),
                             new Coordinate(62.0, 23.0), new Coordinate(21.0,
                                     15.0), "America/Juneau"),
@@ -179,11 +193,11 @@ public class GridLocationTest {
                         orientation, testCase.gloc);
                 System.out.println(gridCoord + "  " + latLon);
                 Assert.assertTrue("expected: " + expected.x + ", got: "
-                        + latLon.x, withinTolerance(latLon.x, expected.x,
-                        LATLON_TOLERANCE));
+                        + latLon.x,
+                        withinTolerance(latLon.x, expected.x, LATLON_TOLERANCE));
                 Assert.assertTrue("expected: " + expected.y + ", got: "
-                        + latLon.y, withinTolerance(latLon.y, expected.y,
-                        LATLON_TOLERANCE));
+                        + latLon.y,
+                        withinTolerance(latLon.y, expected.y, LATLON_TOLERANCE));
             }
         }
     }
@@ -201,12 +215,14 @@ public class GridLocationTest {
                         orientation, testCase.gloc);
                 System.out.println(String.format("(%.3f,%.3f)  (%.4f,%.4f)",
                         gridCoord.x, gridCoord.y, latLon.x, latLon.y));
-                Assert.assertTrue("expected: " + expected.x + ", got: "
-                        + gridCoord.x, withinTolerance(gridCoord.x, expected.x,
-                        GRIDCELL_TOLERANCE));
-                Assert.assertTrue("expected: " + expected.y + ", got: "
-                        + gridCoord.y, withinTolerance(gridCoord.y, expected.y,
-                        GRIDCELL_TOLERANCE));
+                Assert.assertTrue(
+                        "expected: " + expected.x + ", got: " + gridCoord.x,
+                        withinTolerance(gridCoord.x, expected.x,
+                                GRIDCELL_TOLERANCE));
+                Assert.assertTrue(
+                        "expected: " + expected.y + ", got: " + gridCoord.y,
+                        withinTolerance(gridCoord.y, expected.y,
+                                GRIDCELL_TOLERANCE));
             }
         }
     }

@@ -50,7 +50,9 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
@@ -98,6 +100,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 07/30/13     #2057      randerso    Added support marking and eventually purging obsolete databases
  * 08/08/13     DR16485    ryu         Remove call to getDatabaseId() from getMaxInsertTimeByDbId()
  *                                     so new GFE databases aren't accidentally created.
+ * 08/05/13     #1571      randerso    Added support for storing GridLocation and ParmStorageInfo in database
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -219,13 +223,13 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
-     * Retrieves all known parm ids for the given database id.
+     * Retrieves ParmStorageInfo for all known ParmIDs for the given DatabaseID.
      * 
      * @param dbId
-     * @return the list of ParmIDs for the database
+     * @return the list of ParmStorageInfo for the database
      * @throws DataAccessLayerException
      */
-    public List<ParmID> getParmIds(final DatabaseID dbId)
+    public List<ParmStorageInfo> getParmStorageInfo(final DatabaseID dbId)
             throws DataAccessLayerException {
         Session sess = null;
         Transaction tx = null;
@@ -240,11 +244,17 @@ public class GFEDao extends DefaultPluginDao {
             // relations
             sess.buildLockRequest(LockOptions.NONE).lock(dbId);
 
-            Query query = sess.createQuery("FROM ParmID WHERE dbId = ?");
+            Query query = sess
+                    .createQuery("FROM ParmStorageInfo WHERE gridParmInfo.parmID.dbId = ?");
             query.setParameter(0, dbId);
             @SuppressWarnings("unchecked")
-            List<ParmID> list = query.list();
+            List<ParmStorageInfo> list = query.list();
             tx.commit();
+
+            // initialize the grid location objects
+            for (ParmStorageInfo psi : list) {
+                psi.getGridParmInfo().getGridLoc().init();
+            }
             return list;
         } catch (Exception e) {
             if (tx != null) {
@@ -256,8 +266,102 @@ public class GFEDao extends DefaultPluginDao {
             }
 
             throw new DataAccessLayerException(
-                    "Unable to look up parm id inventory for database id "
+                    "Unable to retrieve ParmStorageInfos for DatabaseID: "
                             + dbId, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Stores a list of ParmStorageInfo
+     * 
+     * @param psiList
+     * @throws DataAccessLayerException
+     */
+    public void saveParmStorageInfo(List<ParmStorageInfo> psiList)
+            throws DataAccessLayerException {
+
+        if (psiList.isEmpty()) {
+            return;
+        }
+
+        StatelessSession sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+
+            for (ParmStorageInfo psi : psiList) {
+                sess.insert(psi);
+            }
+
+            tx.commit();
+            return;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to save ParmStorageInfos for "
+                            + psiList.get(0).getParmID().getDbId(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Update a ParmStorageInfo
+     * 
+     * @param psi
+     * @throws DataAccessLayerException
+     */
+    public void updateParmStorageInfo(ParmStorageInfo psi)
+            throws DataAccessLayerException {
+
+        StatelessSession sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+            sess.update(psi);
+            tx.commit();
+            return;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to update ParmStorageInfos for " + psi.getParmID(),
+                    e);
         } finally {
             if (sess != null) {
                 try {
@@ -353,7 +457,7 @@ public class GFEDao extends DefaultPluginDao {
      * transaction.
      * 
      * @param sess
-     * @param dbId
+     * @param parmId
      * @return
      */
     private ParmID getParmId(Session sess, ParmID parmId) {
@@ -960,8 +1064,7 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
-     * Removes GridParmInfo from the HDF5 file and any data associated with that
-     * info
+     * Removes all grids associated with a parm
      * 
      * @param parmId
      *            The parm to delete data for
@@ -969,20 +1072,8 @@ public class GFEDao extends DefaultPluginDao {
      *             If errors occur
      */
     public void removeParmData(ParmID parmId) throws DataAccessLayerException {
-
-        try {
-            IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
-                    .getGridParmHdf5File(GridDatabase.gfeBaseDataDir,
-                            parmId.getDbId()));
-            ds.deleteDatasets("/GridParmInfo/" + parmId.getCompositeName(),
-                    "/GridParmStorageInfo/" + parmId.getCompositeName());
-        } catch (Exception e1) {
-            throw new DataAccessLayerException("Error deleting data from HDF5",
-                    e1);
-        }
         List<TimeRange> trs = this.getTimes(parmId);
         this.deleteRecords(parmId, trs);
-        // TODO: Remove all Locks??
     }
 
     /**
@@ -1306,6 +1397,47 @@ public class GFEDao extends DefaultPluginDao {
         } catch (Exception e) {
             throw new DataAccessLayerException("Unable to look up DatabaseID: "
                     + dbId.toString(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Save or update a GridLocation object
+     * 
+     * @param gloc
+     *            the GridLocation object
+     * @throws DataAccessLayerException
+     */
+    public void saveOrUpdateGridLocation(GridLocation gloc)
+            throws DataAccessLayerException {
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+            sess.saveOrUpdate(gloc);
+            tx.commit();
+            return;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to save GridLocation for " + gloc.getSiteId(), e);
         } finally {
             if (sess != null) {
                 try {
