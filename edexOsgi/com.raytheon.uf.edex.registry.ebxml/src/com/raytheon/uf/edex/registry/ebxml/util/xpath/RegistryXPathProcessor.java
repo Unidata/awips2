@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.util.xpath;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,7 +43,6 @@ import javax.xml.xpath.XPathFactory;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -293,8 +294,8 @@ public class RegistryXPathProcessor {
         Document domDocument = null;
         InputStream stream = null;
         try {
-            stream = IOUtils.toInputStream(jaxbManager
-                    .marshalToXml(registryObject));
+            stream = new ByteArrayInputStream(jaxbManager.marshalToXml(
+                    registryObject).getBytes("UTF-8"));
             documentBuilder.reset();
             domDocument = documentBuilder.parse(stream);
         } catch (Exception e) {
@@ -327,7 +328,9 @@ public class RegistryXPathProcessor {
         try {
             transformer.reset();
             transformer.transform(new DOMSource(doc), result);
-            return jaxbManager.unmarshalFromXml(writer.toString());
+
+            return ((JAXBElement<?>) jaxbManager.unmarshalFromXml(writer
+                    .toString())).getValue();
         } catch (Exception e) {
             throw new EbxmlRegistryException(
                     "Error converting object from dom", e);
