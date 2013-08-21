@@ -49,7 +49,6 @@ import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -68,6 +67,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/09/13     #2044      randerso    Made SoftReferences to interp and rotation since 
  *                                     they can be quite large and may not be needed frequently
  * 07/17/13     #2185      bsteffen    Cache computed grid reprojections.
+ * 08/13/13     #1571      randerso    Passed fill values into interpolator.
  * 
  * </pre>
  * 
@@ -154,7 +154,7 @@ public class RemapGrid {
             float max, float min, float outputFill) throws FactoryException,
             TransformException {
 
-        Grid2DFloat retVal = resample(input);
+        Grid2DFloat retVal = resample(input, inputFill, outputFill);
         limitGrid(retVal, inputFill, max, min, outputFill);
         return retVal;
     }
@@ -195,7 +195,7 @@ public class RemapGrid {
             return input;
         }
 
-        retVal = resample(input);
+        retVal = resample(input, inputFill, outputFill);
 
         ByteBuffer buffer = retVal.getBuffer();
         buffer.rewind();
@@ -259,7 +259,7 @@ public class RemapGrid {
      *            The max value for data values
      * @param minLimit
      *            The min value for data values
-     * @param outputFillValue
+     * @param outputFill
      *            The output fill value
      * @param rotate
      *            The rotation flag
@@ -273,9 +273,9 @@ public class RemapGrid {
      *             If grid dimensions do not match or resampling fails
      */
     public void remapUV(final Grid2DFloat uinput, final Grid2DFloat vinput,
-            float inputFill, float maxLimit, float minLimit,
-            float outputFillValue, boolean rotate, boolean flip,
-            Grid2DFloat magGrid, Grid2DFloat dirGrid) throws Exception {
+            float inputFill, float maxLimit, float minLimit, float outputFill,
+            boolean rotate, boolean flip, Grid2DFloat magGrid,
+            Grid2DFloat dirGrid) throws Exception {
 
         if ((uinput.getXdim() != sourceGloc.getNx())
                 || (uinput.getYdim() != sourceGloc.getNy())
@@ -303,13 +303,13 @@ public class RemapGrid {
             }
         }
 
-        Grid2DFloat resampledUinput = resample(uinput);
-        Grid2DFloat resampledVinput = resample(vinput);
+        Grid2DFloat resampledUinput = resample(uinput, Float.NaN, Float.NaN);
+        Grid2DFloat resampledVinput = resample(vinput, Float.NaN, Float.NaN);
 
         calculateWindGrid(resampledUinput, resampledVinput, rotate, flip,
                 magGrid, dirGrid);
 
-        limitGrid(magGrid, inputFill, maxLimit, minLimit, outputFillValue);
+        limitGrid(magGrid, inputFill, maxLimit, minLimit, outputFill);
         limitGrid(dirGrid, 0.0f, 360.0f, 0.0f, 0.0f);
     }
 
@@ -476,12 +476,16 @@ public class RemapGrid {
      * 
      * @param input
      *            The input data
+     * @param inputFill
+     *            the input fill value
+     * @param outputFill
+     *            the output fill value
      * @return The resampled data
      * @throws TransformException
      * @throws FactoryException
      */
-    private Grid2DByte resample(final Grid2DByte input)
-            throws FactoryException, TransformException {
+    private Grid2DByte resample(final Grid2DByte input, float inputFill,
+            float outputFill) throws FactoryException, TransformException {
 
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
 
@@ -491,10 +495,15 @@ public class RemapGrid {
         GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
         GridReprojection interp = PrecomputedGridReprojection.getReprojection(
                 sourceGeometry, destGeometry);
-        DataSource source = new ByteBufferWrapper(data, sourceGeometry);
+
+        ByteBufferWrapper source = new ByteBufferWrapper(data, sourceGeometry);
+        source.setFillValue(inputFill);
+
+        ByteBufferWrapper dest = new ByteBufferWrapper(destGeometry);
+        dest.setFillValue(outputFill);
+
         resampledData = interp.reprojectedGrid(
-                new NearestNeighborInterpolation(), source,
-                new ByteBufferWrapper(destGeometry)).getBuffer();
+                new NearestNeighborInterpolation(), source, dest).getBuffer();
 
         // Remap the the output data into a Grid2DFloat object
 
@@ -510,12 +519,16 @@ public class RemapGrid {
      * 
      * @param input
      *            The input data
+     * @param inputFill
+     *            the input fill value
+     * @param outputFill
+     *            the output fill value
      * @return The resampled data
      * @throws TransformException
      * @throws FactoryException
      */
-    private Grid2DFloat resample(final Grid2DFloat input)
-            throws FactoryException, TransformException {
+    private Grid2DFloat resample(final Grid2DFloat input, float inputFill,
+            float outputFill) throws FactoryException, TransformException {
 
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
 
@@ -566,9 +579,16 @@ public class RemapGrid {
 
             GridReprojection interp = PrecomputedGridReprojection
                     .getReprojection(sourceGeometry, destGeometry);
-            DataSource source = new FloatArrayWrapper(data, sourceGeometry);
+
+            FloatArrayWrapper source = new FloatArrayWrapper(data,
+                    sourceGeometry);
+            source.setFillValue(inputFill);
+
+            FloatArrayWrapper dest = new FloatArrayWrapper(destGeometry);
+            dest.setFillValue(outputFill);
+
             f1 = interp.reprojectedGrid(new BilinearInterpolation(), source,
-                    new FloatArrayWrapper(destGeometry)).getArray();
+                    dest).getArray();
         }
 
         // Remap the the output data into a Grid2DFloat object

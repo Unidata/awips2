@@ -54,13 +54,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * TODO Add Description
+ * ReferenceSetManager Unit Test
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 8, 2008				randerso	Initial creation
+ * Aug 14, 2013       1571  randerso    Changed to use ProjectionType enum
  * 
  * </pre>
  * 
@@ -133,10 +134,9 @@ public class ReferenceSetManagerTest {
     private static final RefIDChangedListener refIDChangedListener = new RefIDChangedListener();
 
     private static final ProjectionData grid211 = new ProjectionData("Grid211",
-            ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                    -133.459, 12.190), new Coordinate(-49.385, 57.290),
-            new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
-            new Point(93, 65), 0.0f, 0.0f, 0.0f);
+            ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459, 12.190),
+            new Coordinate(-49.385, 57.290), new Coordinate(-95.0, 25.0),
+            25.0f, 25.0f, new Point(1, 1), new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
     private static final GridLocation gloc = new GridLocation("OAX", grid211,
             new Point(145, 145), new Coordinate(45, 30), new Coordinate(9, 9),
@@ -184,7 +184,7 @@ public class ReferenceSetManagerTest {
     static {
         Grid2DBit grid = new Grid2DBit(gloc1.getNx(), gloc1.getNy(), true);
         for (int i = 0; i < grid.getXdim(); i++) {
-            if (i == 0 || i == grid.getXdim() - 1) {
+            if ((i == 0) || (i == (grid.getXdim() - 1))) {
                 for (int j = 0; j < grid.getYdim(); j++) {
                     grid.clear(i, j);
                 }
