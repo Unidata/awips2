@@ -179,7 +179,6 @@ public class PlotModelDataDefinition extends
     private void populateModels() {
         if (models == null) {
             Map<String, List<String>> models = new HashMap<String, List<String>>();
-
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationFile[] files = pm.listFiles(
                     pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
@@ -194,22 +193,31 @@ public class PlotModelDataDefinition extends
 
             for (LocalizationFile file : files) {
                 String fileName = file.getName();
-                if (models.containsKey(fileName) == false) {
-                    List<PlotModelElement> fields = new PlotModelFactory2(
-                            fakeDescriptor, fileName).getPlotFields();
-                    List<String> params = new ArrayList<String>();
-                    for (PlotModelElement p : fields) {
-                        if (!p.parameter.equals("")
-                                && !p.parameter.contains(",")) {
-                            params.add(p.parameter);
-                        } else if (p.parameter.contains(",")) {
-                            String[] individualParams = p.parameter.split(",");
-                            for (String param : individualParams) {
-                                params.add(param);
+                fileName = fileName.substring(PLOTLOCATION.length() + 1);
+                try {
+                    if (models.containsKey(fileName) == false) {
+                        List<String> params = new ArrayList<String>();
+                        List<PlotModelElement> fields = new PlotModelFactory2(
+                                fakeDescriptor, fileName).getPlotFields();
+                        for (PlotModelElement p : fields) {
+                            if (!p.parameter.equals("")
+                                    && !p.parameter.contains(",")) {
+                                params.add(p.parameter);
+                            } else if (p.parameter.contains(",")) {
+                                String[] individualParams = p.parameter
+                                        .split(",");
+                                for (String param : individualParams) {
+                                    params.add(param);
+                                }
                             }
                         }
+                        models.put(fileName, params);
                     }
-                    models.put(fileName, params);
+                } catch (Throwable t) {
+                    // Ignore as some svg files are fonts and not plot models
+                    // and the only way to tell is by catching exceptions thrown
+                    // from PlotModelFactory2 when constructed with the non-plot
+                    // model svg
                 }
             }
             PlotModelDataDefinition.models = models;
@@ -254,20 +262,23 @@ public class PlotModelDataDefinition extends
                 possibleLevels.retainAll(returnQueue);
             }
         }
+
         List<String> validLevels = new ArrayList<String>();
-        for (String levelid : possibleLevels) {
-            try {
-                Level level = LevelFactory.getInstance().getLevel(
-                        Long.parseLong(levelid));
-                validLevels
-                        .add(LevelMappingFactory
-                                .getInstance(
-                                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                                .getLevelMappingForLevel(level)
-                                .getDisplayName());
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+        if (possibleLevels != null) {
+            for (String levelid : possibleLevels) {
+                try {
+                    Level level = LevelFactory.getInstance().getLevel(
+                            Long.parseLong(levelid));
+                    validLevels
+                            .add(LevelMappingFactory
+                                    .getInstance(
+                                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                    .getLevelMappingForLevel(level)
+                                    .getDisplayName());
+                } catch (CommunicationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
             }
         }
         return validLevels.toArray(new String[0]);
