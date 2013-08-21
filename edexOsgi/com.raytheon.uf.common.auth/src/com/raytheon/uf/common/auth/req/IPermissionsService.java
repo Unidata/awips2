@@ -32,7 +32,8 @@ import com.raytheon.uf.common.auth.user.IUser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2013 1441       djohnson     Initial creation
- * Jul 26, 2031 2232       mpduff       Moved to common.auth.req.
+ * Jul 26, 2013 2232       mpduff       Moved to common.auth.req.
+ * Aug 21, 2013 1848       mpduff       Added to javadoc.
  * 
  * </pre>
  * 
@@ -63,7 +64,8 @@ public interface IPermissionsService {
     }
 
     /**
-     * Check whether a user has the specified permissions.
+     * Check whether a user has the specified permissions. If not authorized an
+     * AlertViz message is displayed to the user.
      * 
      * @param user
      *            the user to check permissions for
@@ -81,7 +83,9 @@ public interface IPermissionsService {
             throws AuthException;
 
     /**
-     * Check whether a user has one of the specified permissions.
+     * Check whether a user has one of the specified permissions. If no
+     * permissions are authorized then an AlertViz message is displayed to the
+     * user.
      * 
      * @param user
      *            the user to check permissions for
