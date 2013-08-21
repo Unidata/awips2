@@ -43,6 +43,22 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Op;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * VectorGridSlice Unit Test
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 14, 2013       1571 randerso    Changed to use ProjectionType enum
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 // TODO fix?
 @Ignore
 public class VectorGridSliceTest {
@@ -61,10 +77,9 @@ public class VectorGridSliceTest {
     private final TimeRange testTR1 = new TimeRange(new Date(), 1000);
 
     private final ProjectionData grid211 = new ProjectionData("Grid211",
-            ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                    -133.459, 12.190), new Coordinate(-49.385, 57.290),
-            new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
-            new Point(93, 65), 0.0f, 0.0f, 0.0f);
+            ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459, 12.190),
+            new Coordinate(-49.385, 57.290), new Coordinate(-95.0, 25.0),
+            25.0f, 25.0f, new Point(1, 1), new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
     private final GridLocation gloc = new GridLocation("BOU", grid211,
             new Point(4, 4), new Coordinate(38, 27), new Coordinate(9, 9),
