@@ -17,8 +17,21 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+# serverConfig -- base GFE server configuration file
+#
 # NOTE: THIS FILE SHOULD NOT BE USER-MODIFIED.  INSTEAD REFER TO THE
 # LOCAL CONFIG DOCUMENTATION ON HOW TO OVERRIDE SETTINGS IN THIS FILE.
+#
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    08/09/2013          #1571     randerso       Changed projections to use the Java             
+#                                                 ProjectionType enumeration
+#
+########################################################################
 
 #----------------------------------------------------------------------------
 # USEFUL DEFINES
@@ -458,11 +471,12 @@ if not BASELINE and siteImport('localWxConfig'):
 #  Projection Configuration section.
 #
 #---------------------------------------------------------------------------
-NONE = 0
-LAMBERT_CONFORMAL = 1
-MERCATOR = 2
-POLAR_STEREOGRAPHIC = 3
-LATLON = 4
+from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
+NONE = ProjectionType.NONE
+LAMBERT_CONFORMAL = ProjectionType.LAMBERT_CONFORMAL
+MERCATOR = ProjectionType.MERCATOR
+POLAR_STEREOGRAPHIC = ProjectionType.POLAR_STEREOGRAPHIC
+LATLON = ProjectionType.LATLON
 
 # projectionID / projectionType / latLonLL / latLonUR /
 # latLonOrigin / stdParallelOne / stdParallelTwo / gridPointLL / gridPointUR
