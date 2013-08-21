@@ -1,3 +1,12 @@
+#!/usr/bin/python
+# This script will update any saved displays which use older skewT displays to
+# use Nsharp.
+#
+# This update only needs to be run if there are saved displays being stored
+# outside of localization, for procedures saved in localization,
+# updateSkewtProcedures.sh will automatically call this.
+
+
 import sys
 import xml.etree.ElementTree as ET
 
@@ -29,7 +38,7 @@ def upgradeBundle(bundleFile):
             display.set(xsitype,'nsharpSkewTPaneDisplay')
             descriptor = display.find('descriptor')
             descriptor.set(xsitype,'nsharpSkewTPaneDescriptor')
-    tree.write(bundleFile.replace('.xml','-converted.xml'))
+    tree.write(bundleFile)
     
 def getPlugins(xmlDisplay):
     plugins = set()
@@ -54,16 +63,64 @@ def getConstraintValue(resourceData, key):
 
 def isNsharp(plugin):
    return plugin == 'grib' or plugin == 'bufrua' or\
-          plugin == 'goes' or plugin == 'poes' or\
-          plugin == 'acarssounding' or\
-          plugin == 'NAM' or plugin == 'GFS'
+          plugin == 'goessounding' or plugin == 'poessounding' or\
+          plugin == 'acarssounding' or plugin == 'modelsounding' 
           
 def isHodoVarHeight(plugin):
     return plugin == 'radar' or plugin == 'profiler'
 
 def convertDisplayToNsharp(xmlDisplay):
-    # TODO this will be written when all the nsharp types are converted.
-    pass
+    xmlDisplay.set(xsitype,'nsharpSkewTPaneDisplay')
+    descriptor = xmlDisplay.find('descriptor')
+    descriptor.set(xsitype,'nsharpSkewTPaneDescriptor')
+    toRemove = []
+    for resource in descriptor.iterfind('resource'):
+        resourceData = resource.find('resourceData')
+        type = resourceData.get(xsitype)
+        if type == 'skewTBkgResourceData':
+            toRemove.append(resource)
+        elif type == 'gribSoundingSkewTResourceData':
+            convertResourceToNsharp(resource)
+        elif type == 'skewTResourceData':
+            convertResourceToNsharp(resource)
+        else:
+            print "Removing unrecognized resource of type: " + type
+            toRemove.append(resource)
+    for resource in toRemove:
+        descriptor.remove(resource)
+
+def convertResourceToNsharp(xmlResource):
+    resourceData = xmlResource.find('resourceData')
+    plugin = getPluginName(resourceData)
+    if(plugin == 'grib'):
+        resourceData.set(xsitype,'gribNSharpResourceData')
+        resourceData.set('soundingType', getConstraintValue(resourceData, 'info.datasetId'))
+        resourceData.set('pointName', 'Point' + resourceData.get('point'))
+        resourceData.attrib.pop('point')
+    elif(plugin == 'bufrua'):
+        resourceData.set(xsitype,'bufruaNSharpResourceData')
+        resourceData.set('soundingType', 'BUFRUA')
+    elif(plugin == 'modelsounding'):
+        reportType = getConstraintValue(resourceData, 'reportType')
+        if reportType == 'ETA':
+            reportType = 'NAM'
+        resourceData.set('soundingType', reportType + 'SND')
+        resourceData.set(xsitype,'mdlSndNSharpResourceData')
+    elif(plugin == 'goessounding'):
+        resourceData.set('soundingType', 'GOES')
+        resourceData.set(xsitype,'goesSndNSharpResourceData')
+    elif(plugin == 'poessounding'):
+        resourceData.set('soundingType', 'POES')
+        resourceData.set(xsitype,'poesSndNSharpResourceData')
+    elif(plugin == 'acarssounding'):
+        resourceData.set('soundingType', 'MDCRS')
+        resourceData.set(xsitype,'acarsSndNSharpResourceData')
+    loadProperties = xmlResource.find('loadProperties')
+    if loadProperties is not None:
+        # since nsharp doesn't use any capabilities just drop them all.
+        capabilities = loadProperties.find('capabilities')
+        if capabilities is not None:
+            loadProperties.remove(capabilities)
 
 def convertDisplayToHodoVarHeight(xmlDisplay):
     xmlDisplay.set(xsitype,'varHeightRenderableDisplay')
