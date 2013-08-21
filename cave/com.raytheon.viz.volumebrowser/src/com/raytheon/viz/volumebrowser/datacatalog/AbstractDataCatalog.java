@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.grid.GridLevelTranslator;
 import com.raytheon.viz.grid.rsc.GridLoadProperties;
-import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -71,13 +70,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 6, 2009  2987       jelkins     Initial creation
- * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
- * 01/30/2012   DR 14308   D.Friedman  Use correct style for arrow types.
- * 07/31/2012   #875       rferrel     Now uses points.
+ * Oct 06, 2009 2987       jelkins     Initial creation
+ * Oct 21, 2009 1711       bsteffen    Updated Baseline and Points to use new
+ *                                     ToolsDataManager
+ * Jan 30, 2012 14308      D.Friedman  Use correct style for arrow types.
+ * Jul 31, 2012 875        rferrel     Now uses points.
  * Feb 21, 2013 1617       bsteffen    fixed vb sounding point selection for
  *                                     points which contain the word Point
  * May 03, 2013 DR14824 mgamazaychikov Added alterProductParameters method
+ * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
  * 
  * 
  * </pre>
@@ -193,14 +194,6 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
             thData.setSource(catalogEntry.getSelectedData().getSourcesText());
             resourceData = thData;
             break;
-        case SOUNDING:
-            resourceData = inputResourceData;
-            if ((catalogEntry != null)
-                    && (resourceData instanceof SkewTResourceData)) {
-                ((SkewTResourceData) resourceData)
-                        .setPointLetter(getPointLetter(catalogEntry));
-            }
-            break;
         default: // PLAN_VIEW
             resourceData = null;
             break;
@@ -240,10 +233,6 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         case TIME_HEIGHT:
             resourceData = getResourceData(catalogEntry, resourceType,
                     new TimeHeightResourceData());
-            break;
-        case SOUNDING:
-            resourceData = getResourceData(catalogEntry, resourceType,
-                    new SkewTResourceData());
             break;
         default: // PLAN_VIEW
             resourceData = null;
