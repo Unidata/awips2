@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.sounding;
 
 import com.raytheon.edex.meteoLib.Controller;
+import com.raytheon.uf.common.sounding.util.SoundingPrefs;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -33,9 +34,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 06 Nov 2006             jkorman     Initial Coding
  * 29 Sept 2008            dhladky     Added more stuff to finish SkewT.
- * 25 Jul 2013  2190       mschenke    Moved common sounding calculation  from
- *                                     PopupSkewTDialog to here
- * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
+ * 25 Jul 2013        2190 mschenke    Moved common sounding calculation 
+ *                                     from PopupSkewTDialog to here
  * </pre>
  * 
  * @author jkorman
@@ -203,6 +203,46 @@ public class WxMath {
             dir += 360;
         }
         return new Coordinate(spd, dir);
+    }
+
+    /**
+     * Convert a pressure and temperature to a skew-t x,y coordinate in
+     * centimeters where 0,0 occurs at 1000 hPa and 0 degrees Celsius.
+     * 
+     * @param pressure
+     *            The pressure in hectoPascals (millibars).
+     * @param temperature
+     *            The temperature in degrees Celsius.
+     * @return The calculated coordinate in centimeters.
+     */
+    public static final Coordinate getSkewTXY(double pressure,
+            double temperature) {
+        temperature -= SoundingPrefs.getSoundingPrefs().getTemperatureOffset();
+        Coordinate point = new Coordinate();
+
+        point.y = 132.182 - 44.061 * Math.log10(pressure);
+        point.x = (0.54 * temperature) + (0.90692 * point.y);
+
+        return point;
+    }
+
+    /**
+     * Reverse a skewT coordinate (in centimeters) to the corresponding
+     * temperature and pressure.
+     * 
+     * @param point
+     * @return The temperature and pressure. coordinate.x = temperature in
+     *         Celsius, coordinate.y = the pressure in hectoPascals (millibars).
+     */
+    public static final Coordinate reverseSkewTXY(Coordinate point) {
+        Coordinate tempPressure = new Coordinate();
+        tempPressure.y = Math.pow(10, ((point.y - 132.182) / -44.061));
+        tempPressure.x = (point.x - (0.90692 * point.y)) / 0.54;
+
+        tempPressure.x += SoundingPrefs.getSoundingPrefs()
+                .getTemperatureOffset();
+
+        return tempPressure;
     }
 
     /**
