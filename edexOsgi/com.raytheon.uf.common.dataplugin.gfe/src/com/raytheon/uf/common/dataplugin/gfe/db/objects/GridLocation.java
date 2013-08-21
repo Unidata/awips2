@@ -24,10 +24,18 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -42,7 +50,8 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -91,6 +100,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 07/10/13      #2044      randerso    Changed constructor to take ISpatialObject instead of GridCoverage
  * 07/16/13      #2181      bsteffen    Convert geometry types to use hibernate-
  *                                      spatial
+ * 08/06/13      #1571      randerso    Added hibernate annotations, javadoc cleanup, 
+ *                                      made init method public for use in GFEDao
  * 
  * 
  * </pre>
@@ -99,24 +110,27 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * @version 1.0
  */
 @Entity
-@Table(name = "gfe_spatial")
+@Table(name = "gfe_gridlocation", uniqueConstraints = { @UniqueConstraint(columnNames = { "dbId_id" }) })
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class GridLocation extends PersistableDataObject implements
+public class GridLocation extends PersistableDataObject<String> implements
         ISpatialObject, ISerializableObject {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridLocation.class);
 
-    private static class PythonNumpyFloatGrid implements INumpyable {
-        private int nx;
-
-        private int ny;
-
+    /**
+     * Container for lat/lon grids to be returned to python where they are
+     * reshaped using numpy for performance
+     * 
+     */
+    private static class PythonNumpyLatLonGrid implements INumpyable {
         private float[] data;
 
-        public PythonNumpyFloatGrid(int nx, int ny, float[] data) {
-            this.nx = nx;
-            this.ny = ny;
+        public PythonNumpyLatLonGrid(int nx, int ny, float[] data) {
+            if ((nx * ny * 2) != data.length) {
+                throw new IllegalArgumentException(
+                        "data must be of length nx*ny*2");
+            }
             this.data = data;
         }
 
@@ -144,24 +158,38 @@ public class GridLocation extends PersistableDataObject implements
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Auto-generated surrogate key
+     */
     @Id
+    @SequenceGenerator(name = "GFE_GRIDLOCATION_GENERATOR", sequenceName = "gfe_gridlocation_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GFE_GRIDLOCATION_GENERATOR")
+    private int id;
+
+    /** The database id associated with this grid location */
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(referencedColumnName = "id", name = "dbId_id")
+    private DatabaseID dbId;
+
+    @Column(length = 8, nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     private String siteId;
 
     /** Number of points along the x-axis */
-    @Column
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     protected Integer nx;
 
     /** Number of points along the y-axis */
-    @Column
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     protected Integer ny;
 
-    @Column
+    @Column(length = 32, nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     private String timeZone;
@@ -169,31 +197,30 @@ public class GridLocation extends PersistableDataObject implements
     @Transient
     private Coordinate gridCellSize;
 
-    @Transient
+    @Embedded
     @XmlElement
     @DynamicSerializeElement
     private ProjectionData projection;
 
-    @Transient
+    @Column(nullable = false)
     @XmlElement
     @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate origin;
 
-    @Transient
+    @Column(nullable = false)
     @XmlElement
     @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate extent;
 
-    @Column(name = "coverage")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Transient
     @XmlElement
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Polygon geometry;
 
-    @Column(name = "crs", length = 2047)
+    @Transient
     @XmlElement
     @DynamicSerializeElement
     private String crsWKT;
@@ -201,32 +228,50 @@ public class GridLocation extends PersistableDataObject implements
     @Transient
     private CoordinateReferenceSystem crsObject;
 
+    /**
+     * Default constructor for serialization
+     */
     public GridLocation() {
 
     }
 
     /**
-     * @param data
+     * Constructor
+     * 
+     * @param id
+     * @param proj
      * @param gridSize
      * @param domainOrigin
      * @param domainExtent
+     * @param timeZone
      */
     public GridLocation(String id, ProjectionData proj,
             java.awt.Point gridSize, Coordinate domainOrigin,
             Coordinate domainExtent, String timeZone) {
+        if ((id == null) || id.isEmpty()) {
+            throw new IllegalArgumentException("id may not be null or empty");
+        }
+        this.siteId = id;
+        this.nx = gridSize.x;
+        this.ny = gridSize.y;
+        this.projection = proj;
+        this.origin = domainOrigin;
+        this.extent = domainExtent;
+        this.timeZone = timeZone;
+
+        init();
+    }
+
+    /**
+     * Initialize the object. Must be called after database retrieval
+     */
+    /**
+     * 
+     */
+    public void init() {
         try {
-            if ((id == null) || id.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "id may not be null or empty");
-            }
-            this.siteId = id;
-            this.nx = gridSize.x;
-            this.ny = gridSize.y;
-            this.projection = proj;
-            this.origin = domainOrigin;
-            this.extent = domainExtent;
-            this.timeZone = timeZone;
-            this.crsObject = proj.getCrs();
+            this.projection.init();
+            this.crsObject = this.projection.getCrs();
             this.crsWKT = this.crsObject.toWKT();
 
             // This is here to help find issues where the WKT won't parse.
@@ -241,13 +286,13 @@ public class GridLocation extends PersistableDataObject implements
             }
 
             // transform the grid corners from grid coordinates to CRS units
-            Coordinate ll = domainOrigin;
-            Coordinate ur = new Coordinate(domainOrigin.x + domainExtent.x,
-                    domainOrigin.y + domainExtent.y);
+            Coordinate ll = this.origin;
+            Coordinate ur = new Coordinate(this.origin.x + this.extent.x,
+                    this.origin.y + this.extent.y);
 
-            Coordinate llCrs = proj.gridCoordinateToCrs(ll,
+            Coordinate llCrs = this.projection.gridCoordinateToCrs(ll,
                     PixelOrientation.CENTER);
-            Coordinate urCrs = proj.gridCoordinateToCrs(ur,
+            Coordinate urCrs = this.projection.gridCoordinateToCrs(ur,
                     PixelOrientation.CENTER);
 
             // construct the grid geometry that covers the GFE grid
@@ -296,6 +341,9 @@ public class GridLocation extends PersistableDataObject implements
         }
     }
 
+    /**
+     * @param proj
+     */
     public GridLocation(ProjectionData proj) {
         this(
                 proj.getProjectionID(), //
@@ -311,6 +359,10 @@ public class GridLocation extends PersistableDataObject implements
                 "GMT");
     }
 
+    /**
+     * @param id
+     * @param coverage
+     */
     public GridLocation(String id, ISpatialObject coverage) {
         this.siteId = id;
         this.crsObject = coverage.getCrs();
@@ -320,6 +372,11 @@ public class GridLocation extends PersistableDataObject implements
         this.ny = coverage.getNy();
     }
 
+    /**
+     * @param id
+     * @param gloc
+     * @param subGrid
+     */
     public GridLocation(String id, GridLocation gloc, Rectangle subGrid) {
         try {
             this.siteId = id;
@@ -360,6 +417,29 @@ public class GridLocation extends PersistableDataObject implements
     }
 
     /**
+     * @return the id
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     * @param dbId
+     *            the dbId to set
+     */
+    public void setDbId(DatabaseID dbId) {
+        this.dbId = dbId;
+    }
+
+    /**
      * @return the timeZone
      */
     public String getTimeZone() {
@@ -375,7 +455,7 @@ public class GridLocation extends PersistableDataObject implements
     }
 
     /**
-     * @return
+     * @return the grid size
      */
     public java.awt.Point gridSize() {
         return new java.awt.Point(nx, ny);
@@ -431,7 +511,7 @@ public class GridLocation extends PersistableDataObject implements
      * make sure each point is exactly one point away and save it.
      * 
      * @param points
-     * @return
+     * @return the connected grid points array
      */
     public java.awt.Point[] connectGridPoints(java.awt.Point points[]) {
         if (points.length == 0) {
@@ -454,7 +534,7 @@ public class GridLocation extends PersistableDataObject implements
     /**
      * Returns the size in kilometers for each grid cell.
      * 
-     * @return
+     * @return grid cell size in kilometers
      */
     public Coordinate gridCellSize() {
 
@@ -577,10 +657,23 @@ public class GridLocation extends PersistableDataObject implements
         return ref.getGrid();
     }
 
+    /**
+     * Compute grid cell coordinate containing a lat/lon
+     * 
+     * @param lat
+     * @param lon
+     * @return the grid cell coordinate
+     */
     public Point gridCell(float lat, float lon) {
         return gridCoordinate(new Coordinate(lon, lat));
     }
 
+    /**
+     * Compute grid cell coordinate containing a lat/lon
+     * 
+     * @param lonLat
+     * @return the grid cell coordinate
+     */
     public Point gridCoordinate(Coordinate lonLat) {
         Coordinate gcf = MapUtil.latLonToGridCoordinate(lonLat,
                 PixelOrientation.CENTER, this);
@@ -589,6 +682,12 @@ public class GridLocation extends PersistableDataObject implements
         return new Point(x, y);
     }
 
+    /**
+     * Compute the lat/lon coordinate at the center of a grid cell
+     * 
+     * @param gridCell
+     * @return the lat/lon
+     */
     public Coordinate latLonCenter(Coordinate gridCell) {
         return MapUtil.gridCoordinateToLatLon(gridCell,
                 PixelOrientation.CENTER, this);
@@ -605,30 +704,54 @@ public class GridLocation extends PersistableDataObject implements
         return s;
     }
 
+    /**
+     * @return the projection
+     */
     public ProjectionData getProjection() {
         return projection;
     }
 
+    /**
+     * @return the origin
+     */
     public Coordinate getOrigin() {
         return origin;
     }
 
+    /**
+     * @return the extent
+     */
     public Coordinate getExtent() {
         return extent;
     }
 
+    /**
+     * @return the serialVersionUID
+     */
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
+    /**
+     * @param projection
+     *            the projection
+     */
     public void setProjection(ProjectionData projection) {
         this.projection = projection;
     }
 
+    /**
+     * @param origin
+     *            the origin
+     */
     public void setOrigin(Coordinate origin) {
         this.origin = origin;
     }
 
+    /**
+     * @param extent
+     *            the extent
+     */
     public void setExtent(Coordinate extent) {
         this.extent = extent;
     }
@@ -701,11 +824,11 @@ public class GridLocation extends PersistableDataObject implements
             return false;
         }
 
-        if (projection == null) {
-            if (other.projection != null) {
+        if (crsWKT == null) {
+            if (other.crsWKT != null) {
                 return false;
             }
-        } else if (!projection.equals(other.projection)) {
+        } else if (!crsWKT.equals(other.crsWKT)) {
             return false;
         }
         return true;
@@ -761,47 +884,91 @@ public class GridLocation extends PersistableDataObject implements
         return ny;
     }
 
+    /**
+     * @return the siteId
+     */
     public String getSiteId() {
         return siteId;
     }
 
+    /**
+     * @param siteId
+     *            the siteId
+     */
     public void setSiteId(String siteId) {
         this.siteId = siteId;
     }
 
+    /**
+     * @return the crsWKT
+     */
     public String getCrsWKT() {
         return crsWKT;
     }
 
+    /**
+     * @param crsWKT
+     *            the crsWKT
+     */
     public void setCrsWKT(String crsWKT) {
         this.crsWKT = crsWKT;
     }
 
+    /**
+     * @return the crs
+     */
     public CoordinateReferenceSystem getCrsObject() {
         return getCrs();
     }
 
+    /**
+     * @param crsObject
+     *            the crs
+     */
     public void setCrsObject(CoordinateReferenceSystem crsObject) {
         this.crsObject = crsObject;
     }
 
+    /**
+     * @param nx
+     *            the nx
+     */
     public void setNx(Integer nx) {
         this.nx = nx;
     }
 
+    /**
+     * @param ny
+     *            the ny
+     */
     public void setNy(Integer ny) {
         this.ny = ny;
     }
 
+    /**
+     * @param geometry
+     */
     public void setGeometry(Geometry geometry) {
         this.geometry = (Polygon) geometry;
     }
 
+    /**
+     * @param geometry
+     */
     public void setGeometry(Polygon geometry) {
         this.geometry = geometry;
     }
 
-    public PythonNumpyFloatGrid getLatLonGrid() {
+    /**
+     * Returns a 1-dimensional lat/lon grid to be reshaped by numpy for
+     * performance. End users should use the getLatLonGrids function in
+     * SmartScript.py or MetLib.py
+     * 
+     * This function is not intended for use by Java code.
+     * 
+     * @return the lat/lon grid
+     */
+    public PythonNumpyLatLonGrid getLatLonGrid() {
         float[] gridCells = new float[2 * nx * ny];
         int i = 0;
         for (float x = 0; x < nx; x++) {
@@ -820,13 +987,16 @@ public class GridLocation extends PersistableDataObject implements
             e.printStackTrace();
         }
 
-        return new PythonNumpyFloatGrid(nx, ny, latLon);
+        return new PythonNumpyLatLonGrid(nx, ny, latLon);
     }
 
+    /**
+     * @param args
+     */
     public static void main(String[] args) {
         ProjectionData grid211 = new ProjectionData("Grid211",
-                ProjectionType.LAMBERT_CONFORMAL.ordinal(), new Coordinate(
-                        -133.459, 12.190), new Coordinate(-49.385, 57.290),
+                ProjectionType.LAMBERT_CONFORMAL, new Coordinate(-133.459,
+                        12.190), new Coordinate(-49.385, 57.290),
                 new Coordinate(-95.0, 25.0), 25.0f, 25.0f, new Point(1, 1),
                 new Point(93, 65), 0.0f, 0.0f, 0.0f);
 
@@ -863,7 +1033,7 @@ public class GridLocation extends PersistableDataObject implements
         latLon = MapUtil.gridCoordinateToLatLon(gridCoord, orientation, gloc);
         System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
 
-        PythonNumpyFloatGrid latLonGrid = gloc.getLatLonGrid();
+        PythonNumpyLatLonGrid latLonGrid = gloc.getLatLonGrid();
         float[] data = (float[]) latLonGrid.getNumPy()[0];
         for (int x = 0; x < gloc.getNx(); x++) {
             for (int y = 0; y < gloc.getNy(); y++) {
