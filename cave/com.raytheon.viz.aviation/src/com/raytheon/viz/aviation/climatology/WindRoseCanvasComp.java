@@ -28,6 +28,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -45,6 +46,10 @@ import org.eclipse.swt.widgets.Composite;
  * 18 JUN 2008  1119       lvenable    Updated to draw the Wind Rose diagram.
  * 19 AUG 2008  1454       lvenable    Fix saving wind rose image.
  * 09 MAR 2012  14530      zhao        Revised wind rose plot to match AWIPS-1
+ * 21 Aug 2265  #2265      lvenable    Fixed infinite loop issue that will hang CAVE. Put a
+ *                                     message on the display to show data is not available
+ *                                     and changed the formatting of the data to not display
+ *                                     nulls and NaNs when data is not available.
  * 
  * </pre>
  * 
@@ -162,17 +167,17 @@ public class WindRoseCanvasComp extends Composite {
      * number of wind directions on the wind rose diagram
      */
     private int numWindDirections = 0;
-    
+
     /**
      * radius of calm wind circle on the wind rose diagram
      */
     private double calmRingPercent = 0.0;
-    
+
     /**
      * radius of variable wind on the wind rose diagram
      */
     private double variableRingPercent = 0.0;
-    
+
     /**
      * Maximum percent of the outer Wind Rose ring.
      */
@@ -299,34 +304,54 @@ public class WindRoseCanvasComp extends Composite {
         // ----------------------------------------
         // Draw the Wind Rose circles
         // ----------------------------------------
-        
+
         gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        
+
         String format = "%d%%";
         String percentLbl = "";
         int fontAveWidth = gc.getFontMetrics().getAverageCharWidth();
-       
+
         double ringPercent = 0.02; // start with 2%
-        int radiusPix = 0; 
-        
-        for (;;) {
-        	
-        	radiusPix = (int) Math.round( pixPerUnit * Math.sqrt( ringPercent + variableRingPercent*variableRingPercent ) );
-        	if ( radiusPix >= maxCircleRadius ) {
-        		break;
-        	}
-        	gc.drawOval(centerX - radiusPix, circleCenterY - radiusPix, radiusPix * 2, radiusPix * 2);
-        	
-        	percentLbl = String.format(format, Math.round(ringPercent*100));
-            gc.drawText(percentLbl, centerX - (percentLbl.length() * fontAveWidth / 2), circleCenterY + radiusPix + 3, true);
-            
-            if ( ringPercent < 0.09 ) {
-            	ringPercent += 0.02; 
-            } else if ( ringPercent < 0.29 ) {
-            	ringPercent += 0.05;
-            } else {
-            	ringPercent += 0.1;
+        int radiusPix = 0;
+
+        /*
+         * This code was ported over from AWIPS I (see software history). We
+         * need to verify that pixPerUnit is not zero or NaN and
+         * variableRingPercent is not NaN. This is to prevent an infinite loop
+         * from occurring because the break is not getting called under certain
+         * instances.
+         */
+        if ((!Double.isNaN(pixPerUnit) || pixPerUnit != 0.0)
+                && !Double.isNaN(variableRingPercent)) {
+
+            while (radiusPix < maxCircleRadius) {
+                radiusPix = (int) Math.round(pixPerUnit
+                        * Math.sqrt(ringPercent + variableRingPercent
+                                * variableRingPercent));
+
+                gc.drawOval(centerX - radiusPix, circleCenterY - radiusPix,
+                        radiusPix * 2, radiusPix * 2);
+
+                percentLbl = String.format(format,
+                        Math.round(ringPercent * 100));
+                gc.drawText(percentLbl, centerX
+                        - (percentLbl.length() * fontAveWidth / 2),
+                        circleCenterY + radiusPix + 3, true);
+
+                if (ringPercent < 0.09) {
+                    ringPercent += 0.02;
+                } else if (ringPercent < 0.29) {
+                    ringPercent += 0.05;
+                } else {
+                    ringPercent += 0.1;
+                }
             }
+        } else {
+            String tmpStr = "NO DATA AVAILABLE FOR: " + windRoseHeader;
+            gc.setFont(canvasFontLrg);
+            Point strExt = gc.stringExtent(tmpStr);
+            gc.drawText(tmpStr, CANVAS_WIDTH / 2 - strExt.x / 2,
+                    CANVAS_HEIGHT / 2, true);
         }
 
         // -------------------------------
@@ -383,9 +408,19 @@ public class WindRoseCanvasComp extends Composite {
         gc.fillRectangle(aboveRect);
         gc.drawRectangle(aboveRect);
 
-        String tmpStr = String.format("%4S+ kt: %4.1f%%",
-                windRoseConfigData.getVar3Max(), knotPercents[5]);
-        gc.drawString(tmpStr, rectStartX + rectWidth + 5, aboveRect.y, true);
+        String tmpStr = null;
+
+        if (Double.isNaN(knotPercents[5])) {
+            tmpStr = String.format("%4S+ kt:", windRoseConfigData.getVar3Max());
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, aboveRect.y, true);
+        } else {
+            tmpStr = String.format("%4S+ kt: %4.1f%%",
+                    windRoseConfigData.getVar3Max(), knotPercents[5]);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, aboveRect.y, true);
+        }
+        // tmpStr = String.format("%4S+ kt: %4.1f%%",
+        // windRoseConfigData.getVar3Max(), knotPercents[5]);
+        // gc.drawString(tmpStr, rectStartX + rectWidth + 5, aboveRect.y, true);
 
         // --------------------------------------------
         // Draw Wind speed var 3 information
@@ -400,8 +435,16 @@ public class WindRoseCanvasComp extends Composite {
 
         String tmpKt = String.format("%S-%S", windRoseConfigData.getVar2Max(),
                 windRoseConfigData.getVar3Max());
-        tmpStr = String.format("%5S kt: %4.1f%%", tmpKt, knotPercents[4]);
-        gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar3Rect.y, true);
+
+        if (Double.isNaN(knotPercents[4])) {
+            tmpStr = String.format("%5S kt:", tmpKt);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar3Rect.y,
+                    true);
+        } else {
+            tmpStr = String.format("%5S kt: %4.1f%%", tmpKt, knotPercents[4]);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar3Rect.y,
+                    true);
+        }
 
         // --------------------------------------------
         // Draw Wind speed var 2 information
@@ -416,8 +459,16 @@ public class WindRoseCanvasComp extends Composite {
 
         tmpKt = String.format("%S-%S", windRoseConfigData.getVar1Max(),
                 windRoseConfigData.getVar2Max());
-        tmpStr = String.format("%5S kt: %4.1f%%", tmpKt, knotPercents[3]);
-        gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar2Rect.y, true);
+
+        if (Double.isNaN(knotPercents[3])) {
+            tmpStr = String.format("%5S kt:", tmpKt);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar2Rect.y,
+                    true);
+        } else {
+            tmpStr = String.format("%5S kt: %4.1f%%", tmpKt, knotPercents[3]);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar2Rect.y,
+                    true);
+        }
 
         // --------------------------------------------
         // Draw Wind speed var 1 information
@@ -431,8 +482,16 @@ public class WindRoseCanvasComp extends Composite {
         gc.drawRectangle(windVar1Rect);
 
         tmpKt = String.format("%S-%S", "0", windRoseConfigData.getVar1Max());
-        tmpStr = String.format("%5S kt: %4.1f%%", tmpKt, knotPercents[2]);
-        gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar1Rect.y, true);
+
+        if (Double.isNaN(knotPercents[2])) {
+            tmpStr = String.format("%5S kt:", tmpKt);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar1Rect.y,
+                    true);
+        } else {
+            tmpStr = String.format("%5S kt: %4.1f%%", tmpKt, knotPercents[2]);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, windVar1Rect.y,
+                    true);
+        }
 
         // --------------------------------------------
         // Draw variable information
@@ -445,8 +504,14 @@ public class WindRoseCanvasComp extends Composite {
         gc.fillRectangle(variableRect);
         gc.drawRectangle(variableRect);
 
-        tmpStr = String.format("variable: %4.1f%%", knotPercents[1]);
-        gc.drawString(tmpStr, rectStartX + rectWidth + 5, variableRect.y, true);
+        if (Double.isNaN(knotPercents[1])) {
+            gc.drawString("variable: ", rectStartX + rectWidth + 5,
+                    variableRect.y, true);
+        } else {
+            tmpStr = String.format("variable: %4.1f%%", knotPercents[1]);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, variableRect.y,
+                    true);
+        }
 
         // --------------------------------------------
         // Draw calm information
@@ -459,16 +524,30 @@ public class WindRoseCanvasComp extends Composite {
         gc.fillRectangle(calmRect);
         gc.drawRectangle(calmRect);
 
-        tmpStr = String.format("    calm: %4.1f%%", knotPercents[0]);
-        gc.drawString(tmpStr, rectStartX + rectWidth + 5, calmRect.y, true);
+        if (Double.isNaN(knotPercents[1])) {
+            gc.drawString("    calm:", rectStartX + rectWidth + 5, calmRect.y,
+                    true);
+        } else {
+            tmpStr = String.format("    calm: %4.1f%%", knotPercents[0]);
+            gc.drawString(tmpStr, rectStartX + rectWidth + 5, calmRect.y, true);
+        }
 
         // --------------------------------------------
         // Draw years & hours information
         // --------------------------------------------
-        tmpStr = String.format("Years: %9S", windRoseDataMgr.getYears());
+        if (windRoseDataMgr.getYears() != null) {
+            tmpStr = String.format("Years: %S", windRoseDataMgr.getYears());
+        } else {
+            tmpStr = "Years:";
+        }
         gc.drawString(tmpStr, 425, variableRect.y, true);
 
-        tmpStr = String.format("Total Hours: %S", windRoseDataMgr.getHours());
+        if (windRoseDataMgr.getHours() != null) {
+            tmpStr = String.format("Total Hours: %S",
+                    windRoseDataMgr.getHours());
+        } else {
+            tmpStr = "Total Hours:";
+        }
         gc.drawString(tmpStr, 425, calmRect.y, true);
 
         tmpColor.dispose();
@@ -503,7 +582,7 @@ public class WindRoseCanvasComp extends Composite {
             // Get an array of calculate pixel values that will be used to
             // draw the current wind direction.
             int[] windDirPixels = getWindDirPixelValues(dataArray[i]);
-            
+
             // Loop through the array of pixels for each knot range for
             // the current wind direction. We are looping from the outer
             // most range to the inner most range. This allows us to draw
@@ -549,11 +628,10 @@ public class WindRoseCanvasComp extends Composite {
                 // Determine how many wind directions will be drawn on the
                 // Wind Rose diagram.
                 /**
-                 * DR14530:
-                 * Angle of wind direction is measured clockwise with North (12 o'clock) = 0 degree, 
-                 * whereas, angle in GC.fillAra() and GC.drawArc() is measured counter-clockwise, 
-                 * with East (3 o'clock) = 0 degree
-                 * [zhao, 3/2/2012]
+                 * DR14530: Angle of wind direction is measured clockwise with
+                 * North (12 o'clock) = 0 degree, whereas, angle in GC.fillAra()
+                 * and GC.drawArc() is measured counter-clockwise, with East (3
+                 * o'clock) = 0 degree [zhao, 3/2/2012]
                  */
                 if (directions == 8) {
                     // Draw a filled arc for the current knot range.
@@ -569,7 +647,7 @@ public class WindRoseCanvasComp extends Composite {
                     gc.drawArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
                             windDirPixels[j] * 2, 90 - (i * 45) - 21, 42);
-                    
+
                 } else if (directions == 16) {
                     int degree = (int) Math.round(i * 22.5);
 
@@ -704,8 +782,7 @@ public class WindRoseCanvasComp extends Composite {
                 windRoseConfigData.getVariableRgb());
         gc.setBackground(tmpColor);
 
-        int variablePix = (int) Math
-                .round(variableRingPercent * pixPerUnit);
+        int variablePix = (int) Math.round(variableRingPercent * pixPerUnit);
         gc.fillOval(centerX - variablePix, circleCenterY - variablePix,
                 variablePix * 2, variablePix * 2);
 
@@ -722,7 +799,7 @@ public class WindRoseCanvasComp extends Composite {
                 windRoseConfigData.getCalmRgb());
         gc.setBackground(tmpColor);
 
-        int calmPix = (int) Math.round( calmRingPercent * pixPerUnit);
+        int calmPix = (int) Math.round(calmRingPercent * pixPerUnit);
         gc.fillOval(centerX - calmPix, circleCenterY - calmPix, calmPix * 2,
                 calmPix * 2);
 
@@ -761,8 +838,9 @@ public class WindRoseCanvasComp extends Composite {
             for (int j = 1; j <= i + 1; j++) {
                 sum += knotsData[j];
             }
-            
-            pixelVals[i] = (int) Math.round( Math.sqrt( (calmAve + variableAve + sum)/totalWindValue )
+
+            pixelVals[i] = (int) Math.round(Math
+                    .sqrt((calmAve + variableAve + sum) / totalWindValue)
                     * pixPerUnit);
         }
 
@@ -774,13 +852,14 @@ public class WindRoseCanvasComp extends Composite {
      * diagram (percent of the outer ring).
      */
     private void calcPercentData() {
-    	numWindDirections = windRoseDataMgr.getNumOfWindDirections();
-    	double totalValue = windRoseDataMgr.getTotalWindDirCount();
-    	double calmValue = windRoseDataMgr.getCalmValue();
-    	double variableValue = windRoseDataMgr.getVariableValue();
-    	calmRingPercent = Math.sqrt(calmValue/totalValue/numWindDirections);
-    	variableRingPercent = Math.sqrt((calmValue+variableValue)/totalValue/numWindDirections);
-    	
+        numWindDirections = windRoseDataMgr.getNumOfWindDirections();
+        double totalValue = windRoseDataMgr.getTotalWindDirCount();
+        double calmValue = windRoseDataMgr.getCalmValue();
+        double variableValue = windRoseDataMgr.getVariableValue();
+        calmRingPercent = Math.sqrt(calmValue / totalValue / numWindDirections);
+        variableRingPercent = Math.sqrt((calmValue + variableValue)
+                / totalValue / numWindDirections);
+
         double highestPercent = Math.sqrt(windRoseDataMgr
                 .getLargestWindDirectionPercent()) * 100;
 
@@ -865,7 +944,7 @@ public class WindRoseCanvasComp extends Composite {
                 }
             }
         }
-        
+
         pixPerUnit = maxCircleRadius / maxRingPercent;
     }
 
