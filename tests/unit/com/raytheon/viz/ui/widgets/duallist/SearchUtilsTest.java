@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.browser;
+package com.raytheon.viz.ui.widgets.duallist;
 
 import static org.junit.Assert.assertNull;
 
@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+
+import com.raytheon.viz.ui.widgets.duallist.SearchUtils;
 
 /**
  * Test the filter functionality of the Dataset Discovery Brower's FilterComps.
@@ -37,6 +39,7 @@ import org.junit.Test;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 25, 2013   1588     mpduff      Initial creation.
+ * Aug 20, 2013   1733     mpduff      Moved and renamed.
  * 
  * </pre>
  * 
@@ -44,7 +47,7 @@ import org.junit.Test;
  * @version 1.0
  */
 
-public class DataBrowserRegexTest {
+public class SearchUtilsTest {
 
     private static final List<String> itemList = Arrays.asList("temp",
             "surface", "temp2", "temp3", "temp4", "wndSpd", "wndDir", "pres",
@@ -66,8 +69,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "Emp";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, false, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                false, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -87,8 +90,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "emp";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, true, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                true, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -110,8 +113,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "emp";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, false, true);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                false, true);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -133,8 +136,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "emp";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, true, true);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                true, true);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -154,8 +157,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "Te 3";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, false, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                false, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -172,8 +175,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "Te 3";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                false, false, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, false,
+                false, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -190,8 +193,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "te 3";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                false, true, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, false,
+                true, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -208,8 +211,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "T*3";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, false, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                false, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -226,8 +229,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "t*3";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, true, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                true, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -249,8 +252,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "te*3";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, false, true);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                false, true);
         String msg = checkResults(expected, results);
         assertNull(msg);
     }
@@ -268,8 +271,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "t*3 wnd";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                true, false, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, true,
+                false, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
@@ -286,8 +289,8 @@ public class DataBrowserRegexTest {
         String searchTerm = "t*3 mp";
         String[] fullList = itemList.toArray(new String[itemList.size()]);
 
-        List<String> results = DataBrowserUtils.search(searchTerm, fullList,
-                false, false, false);
+        List<String> results = SearchUtils.search(searchTerm, fullList, false,
+                false, false);
 
         String msg = checkResults(expected, results);
         assertNull(msg);
