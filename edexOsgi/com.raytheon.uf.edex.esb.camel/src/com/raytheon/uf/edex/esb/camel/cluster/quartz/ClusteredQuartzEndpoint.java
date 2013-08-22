@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2010            njensen     Initial creation
+ * Aug 21, 2013 DR 16521   D. Friedman Ensure endpoint URI is used for cluster entry
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ public class ClusteredQuartzEndpoint extends QuartzEndpoint {
     @Override
     public void onJobExecute(final JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
-        String jName = jobExecutionContext.getJobDetail().getName();
+        String jName = getEndpointUri();
         long period = Math.abs(jobExecutionContext.getFireTime().getTime()
                 - jobExecutionContext.getNextFireTime().getTime()) / 2;
         ClusterTask ct = ClusterLockUtils.lock(TASK, jName, period, false);
