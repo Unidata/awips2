@@ -19,10 +19,8 @@
  **/
 package com.raytheon.viz.warngen.gui;
 
-import java.util.Calendar;
-
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
-import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -37,14 +35,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
- * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string.
- * 
+ * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
+ * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute. Fixed for practice mode.
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class FollowupData extends WarningRecord {
+public class FollowupData extends AbstractWarningRecord {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,7 +63,7 @@ public class FollowupData extends WarningRecord {
     private String expirationString;
 
     public FollowupData(WarningAction action, AbstractWarningRecord record) {
-        super((WarningRecord) record);
+        super(record);
         setAct(action.toString());
 
         displayString = createDisplayString(action, record);
@@ -121,6 +119,8 @@ public class FollowupData extends WarningRecord {
             message = "Continuation no longer allowed; within 5 minutes of warning expiration.";
         } else if (action == WarningAction.EXP) {
             message = "Expiration no longer allowed; after 10 minutes of warning expiration.";
+        } else if (action == WarningAction.EXT) {
+            message = "Extention no longer allowed; within 5 minutes of warning expiration.";
         }
         return message;
     }
@@ -137,12 +137,13 @@ public class FollowupData extends WarningRecord {
     private String buildExpStr(WarningAction status,
             AbstractWarningRecord record) {
         StringBuilder rval = new StringBuilder();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(SimulatedTime.getSystemTime().getTime());
+        long timeInMillis = SimulatedTime.getSystemTime().getMillis();
         if (status != WarningAction.COR) {
-            // Positive means not yet expired
-            long diffMins = (record.getEndTime().getTimeInMillis() - cal
-                    .getTimeInMillis()) / TimeUtil.MILLIS_PER_MINUTE;
+            // use double to keep precision until it's casted to an integer
+            double diffMillis = record.getEndTime().getTimeInMillis()
+                    - timeInMillis;
+            int diffMins = (int) Math.round(diffMillis
+                    / TimeUtil.MILLIS_PER_MINUTE);
             if (diffMins == 0) {
                 rval.append(" Expired");
             } else if (diffMins > 0) {
@@ -151,8 +152,12 @@ public class FollowupData extends WarningRecord {
                 rval.append(" Exp ").append(-diffMins).append(" min ago");
             }
         } else {
-            long diffMins = (cal.getTimeInMillis() - record.getIssueTime()
-                    .getTimeInMillis()) / TimeUtil.MILLIS_PER_MINUTE;
+            // use double to keep precision until it's casted to an integer
+            double diffMillis = timeInMillis
+                    - record.getIssueTime().getTimeInMillis();
+            int diffMins = (int) Math.round(diffMillis
+                    / TimeUtil.MILLIS_PER_MINUTE);
+
             if (diffMins == 0) {
                 rval.append(" Just Issued");
             } else {

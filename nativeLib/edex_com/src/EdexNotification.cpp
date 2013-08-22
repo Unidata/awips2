@@ -28,6 +28,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 11/2/09       3375       brockwoo    Initial Creation
+ * 08/13/13      2257       bkowal      Update for qpid 0.18.
  *
  * </pre>
  *
@@ -35,14 +36,18 @@
  * @version 1
  */
 
-#include <qpid/client/QueueOptions.h>
-#include <qpid/client/Connection.h>
+#include <iostream>
+#include <sstream>
+#include <uuid/uuid.h>
+#include <qpid/messaging/Connection.h>
+#include <qpid/messaging/Duration.h>
 #include <qpid/Url.h>
 #include "EdexNotification.h"
 
 using qpid::Url;
 
-EdexNotification::EdexNotification(const string & brokerURI) {
+EdexNotification::EdexNotification(const string & brokerURI) :
+	duration(Duration(1000 * 120)) {
 	this->sessionTransacted = false;
 	this->brokerURI = brokerURI;
 	this->isConnected = false;
@@ -50,8 +55,6 @@ EdexNotification::EdexNotification(const string & brokerURI) {
 	this->mess = new com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage();
 	this->timeout = false;
 	this->timeoutLength = 999999;
-	this->subman = NULL;
-	this->localQueue = NULL;
 }
 
 EdexNotification::~EdexNotification() {
@@ -92,24 +95,14 @@ void EdexNotification::listen() {
 		Message message;
 		bool result;
 		try {
-			result = localQueue->get(message, 120 * qpid::sys::TIME_SEC);
+			result = this->receiver.fetch(message, this->duration);
 		} catch(...) {
 			cleanup();
 			throw;
 		}
 		if (result) {
-			std::string output = message.getData();
-			/* Message * message;
-			 if(timeout) {
-			 message = this->consumer->receive();
-			 }
-			 else {
-			 message = this->consumer->receive(timeoutLength);
-			 }
-			 if (message == NULL) {
-			 listSize = 0;
-			 } else {
-			 */
+			this->session.acknowledge(message);
+			std::string output = message.getContent();
 			uint8_t * data = (uint8_t *) output.c_str();
 			TMemoryBuffer * buffer = new TMemoryBuffer(data,
 					output.length(),
@@ -136,16 +129,52 @@ void EdexNotification::listen() {
 
 void EdexNotification::cleanup() {
 	// Destroy resources.
-	try {
-		delete subman;
-		subman = NULL;
-		delete localQueue;
-		localQueue = NULL;
-		session.close();
-		connection.close();
-	} catch (const std::exception& error) {
-		this->isConnected = false;
+
+	// attempt to close the receiver
+	if (this->receiver != 0)
+	{
+		try
+		{
+			this->receiver.close();
+			this->receiver = 0;
+		}
+		catch (const std::exception& error)
+		{
+			std::cout << "WARNING: Failed to close the receiver -"
+				<< error.what() << std::endl;
+		}
 	}
+
+	// attempt to close the session
+	if (this->session != 0)
+	{
+		try
+		{
+			this->session.close();
+			this->session = 0;
+		}
+		catch (const std::exception& error)
+		{
+			std::cout << "WARNING: Failed to close the session -"
+				<< error.what() << std::endl;
+		}
+	}
+
+	// attempt to close the connection
+	if (this->connection != 0)
+	{
+		try
+		{
+			this->connection.close();
+			this->connection = 0;
+		}
+		catch (const std::exception& error)
+		{
+			std::cout << "WARNING: Failed to close the connection -"
+				<< error.what() << std::endl;
+		}
+	}
+
 	this->isConnected = false;
 }
 
@@ -154,23 +183,38 @@ bool EdexNotification::connect() {
 		return this->isConnected;
 	}
 	try {
-		this->connection.open(Url(brokerURI));
-		this->session = this->connection.newSession();
+		// initialize
+		this->connection = 0;
+		this->session = 0;
+		this->receiver = 0;
+
+		char uuidBuff[37];
+		uuid_t uuidGenerated;
+		uuid_generate_random(uuidGenerated);
+		uuid_unparse(uuidGenerated, uuidBuff);
+
+		std::string connectionOptions = "{sasl-mechanism:PLAIN,"
+			"username:guest,password:guest}";
+
+		this->connection = Connection(this->brokerURI, connectionOptions);
+		this->connection.open();
 		queue = "_edex.alert-edex_com@amq.topic_";
-		queue += session.getId().getName();
-		QueueOptions qo;
-		qo.setSizePolicy(RING, 100 * 1024 * 1024, 5000);
-		session.queueDeclare(arg::queue = queue, arg::exclusive = true,
-				arg::autoDelete = true, arg::arguments=qo);
-		session.exchangeBind(arg::exchange = "amq.topic", arg::queue = queue,
-				arg::bindingKey = "edex.alerts");
-		subman = new SubscriptionManager(session);
-		localQueue = new LocalQueue();
-		subman->subscribe(*localQueue, queue);
+		queue += std::string(uuidBuff);
+
+		std::stringstream addressBuilder;
+		addressBuilder << queue;
+		addressBuilder << "; {create:always,delete:always,node:{type:queue,";
+		addressBuilder << "x-bindings:[{exchange:amq.topic,queue:";
+		addressBuilder << queue;
+		addressBuilder << ",key:edex.alerts}]}}";
+		const std::string address = addressBuilder.str();
+
+		this->session = this->connection.createSession();
+		this->receiver = this->session.createReceiver(address);
+
 		this->isConnected = true;
 	} catch (const std::exception& error) {
-		this->isConnected = false;
-		cleanup();
+		this->cleanup();
 		throw;
 	}
 	return this->isConnected;
