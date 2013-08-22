@@ -54,4 +54,67 @@
         <Field abbreviation="SHx"/>
         <ConstantField value="0.0"/>
     </Method>
+	<!-- For Composite Agl levels it is better to explicitly list the levels 
+		to Average to avoid pulling in extra levels, specifically levels defined at 
+		kft heights. -->
+    <Method name="Average" levels="0-1kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-2kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-3kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-4kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+        <Field abbreviation="cCin" level="3.5kmAgl" />
+        <Field abbreviation="cCin" level="4kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-5kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+        <Field abbreviation="cCin" level="3.5kmAgl" />
+        <Field abbreviation="cCin" level="4kmAgl" />
+        <Field abbreviation="cCin" level="4.5kmAgl" />
+        <Field abbreviation="cCin" level="5kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-6kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+        <Field abbreviation="cCin" level="3.5kmAgl" />
+        <Field abbreviation="cCin" level="4kmAgl" />
+        <Field abbreviation="cCin" level="4.5kmAgl" />
+        <Field abbreviation="cCin" level="5kmAgl" />
+        <Field abbreviation="cCin" level="5.5kmAgl" />
+        <Field abbreviation="cCin" level="6kmAgl" />
+    </Method>
 </DerivedParameter>
