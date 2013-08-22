@@ -54,8 +54,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2010            mnash     Initial creation
- * 05/02/2013   DR 14587   D. Friedman Refactor to store multiple types.
+ * Aug 04, 2010            mnash       Initial creation
+ * May 02, 2013 14587      D. Friedman Refactor to store multiple types.
+ * Aug 22, 2013 2278       bsteffen    Allow radar interrogation to work
+ *                                     without ColorMapParameters.
  * 
  * </pre>
  * 
@@ -220,7 +222,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         UnitConverter converter = getConverter(params, radarRecord);
         double dispVal = converter.convert(dataValue);
         dataMap.put(baseName + "numericValue", String.valueOf(dispVal));
-        if (params.getDataMapping() != null) {
+        if (params != null && params.getDataMapping() != null) {
             for (DataMappingEntry entry : params.getDataMapping().getEntries()) {
                 if (entry.getSample() == null) {
                     continue;
@@ -239,7 +241,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             }
         }
         String unitString = "";
-        if (params.getDisplayUnit() != Unit.ONE) {
+        if (params != null && params.getDisplayUnit() != Unit.ONE) {
             unitString = UnitFormat.getUCUMInstance().format(
                     params.getDisplayUnit());
         }
@@ -277,7 +279,9 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             RadarRecord radarRecord) {
         UnitConverter converter = null;
         Unit<?> dataUnit = radarRecord.getDataUnit();
-        if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
+        if (params == null) {
+            converter = UnitConverter.IDENTITY;
+        } else if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
             Unit<?> displayUnit = params.getDisplayUnit();
             if (dataUnit.isCompatible(displayUnit)) {
                 converter = dataUnit.getConverterTo(displayUnit);
@@ -285,6 +289,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         } else {
             converter = params.getDataToDisplayConverter();
         }
+
         return converter;
     }
 }
