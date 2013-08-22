@@ -46,7 +46,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
-import com.raytheon.viz.warngen.suppress.SuppressMap;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
@@ -74,6 +73,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Nov  9, 2012 DR 15430    D. Friedman Extracted method converFeAreaToPartList.
  *    Apr 29, 2013  1955       jsanchez    Ignored comparing the geometry's user data when finding intersected areas.
  *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
+ *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
  * </pre>
  * 
  * @author chammack
@@ -89,13 +89,15 @@ public class Area {
      */
     public static final double DEFAULT_PORTION_TOLERANCE = 0.60;
 
-    private Area() {
+    private PortionsUtil portionsUtil;
 
+    public Area(PortionsUtil portionsUtil) {
+        this.portionsUtil = portionsUtil;
     }
 
-    public static AffectedAreas[] findAffectedAreas(
-            WarngenConfiguration config, Geometry polygon,
-            Geometry warningArea, String localizedSite) throws VizException {
+    public AffectedAreas[] findAffectedAreas(WarngenConfiguration config,
+            Geometry polygon, Geometry warningArea, String localizedSite)
+            throws VizException {
 
         // --- Begin argument checking ---
         Validate.notNull(config.getGeospatialConfig().getAreaSource(),
@@ -113,7 +115,7 @@ public class Area {
                 localizedSite, geoms);
     }
 
-    private static AffectedAreas[] findAffectedAreas(
+    private AffectedAreas[] findAffectedAreas(
             AreaSourceConfiguration areaConfig,
             GeospatialConfiguration geospatialConfig, Geometry polygon,
             String localizedSite, List<Geometry> geoms) throws VizException {
@@ -183,7 +185,6 @@ public class Area {
             area.stateabbr = regionFeature.attributes.get(areaNotationField)
                     .toString();
             area.size = regionGeom.getArea();
-            area.suppress = suppressType(areaSource, area.stateabbr, area.fips);
 
             Object tzData = regionFeature.attributes.get(timezonePathcastField);
 
@@ -219,9 +220,16 @@ public class Area {
             double tolerCheck = regionGeom.getArea()
                     * DEFAULT_PORTION_TOLERANCE;
             if (areaIntersection < tolerCheck) {
-                area.partOfArea = GisUtil
-                        .asStringList(GisUtil.calculatePortion(regionGeom,
-                                intersection, true, true));
+                try {
+                    String entityID = area.stateabbr + areaSource.charAt(0)
+                            + area.fips.substring(2);
+                    area.partOfArea = GisUtil.asStringList(portionsUtil
+                            .getPortions(entityID, regionGeom, intersection,
+                                    true));
+                } catch (Exception e) {
+                    statusHandler.error("Unable to calculate part of area for "
+                            + area.name, e);
+                }
             }
 
             // Search the parent region
@@ -277,10 +285,9 @@ public class Area {
      * @return
      * @throws VizException
      */
-    public static Map<String, Object> findInsectingAreas(
-            WarngenConfiguration config, Geometry warnPolygon,
-            Geometry warnArea, String localizedSite, WarngenLayer warngenLayer)
-            throws VizException {
+    public Map<String, Object> findInsectingAreas(WarngenConfiguration config,
+            Geometry warnPolygon, Geometry warnArea, String localizedSite,
+            WarngenLayer warngenLayer) throws VizException {
         Map<String, Object> areasMap = new HashMap<String, Object>();
 
         String hatchedAreaSource = config.getHatchedAreaSource()
@@ -309,18 +316,6 @@ public class Area {
 
         return areasMap;
 
-    }
-
-    private static String suppressType(String areaSource, String state,
-            String fips) {
-        String retVal = SuppressMap.NONE;
-        String type = areaSource.equalsIgnoreCase("zone") ? "Z" : "C";
-
-        if (state != null && fips != null) {
-            String key = state + type + fips.substring(2);
-            retVal = SuppressMap.getInstance().getType(key);
-        }
-        return retVal;
     }
 
     public static List<String> converFeAreaToPartList(String feArea) {
