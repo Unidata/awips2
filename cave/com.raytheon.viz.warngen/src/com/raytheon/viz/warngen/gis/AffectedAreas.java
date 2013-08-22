@@ -32,6 +32,7 @@ import java.util.List;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Dec 11, 2007 #601        chammack    Initial Creation.
+ *    Aug 19, 2013  2177       jsanchez    Removed suppress attribute.
  * 
  * </pre>
  * 
@@ -48,11 +49,6 @@ public class AffectedAreas {
      * If the entire area is affected this will be null
      */
     protected List<String> partOfArea;
-
-    /**
-     * The partOfArea to suppress (e.g. "ns")
-     */
-    protected String suppress;
 
     /** The notation of the area affected (e.g. "COUNTY") */
     protected String areaNotation;
@@ -89,16 +85,14 @@ public class AffectedAreas {
     public String getName() {
         return name;
     }
-    
 
     /**
-     * @param name 
-     *          the name to set
+     * @param name
+     *            the name to set
      */
     public void setName(String name) {
         this.name = name;
     }
-
 
     /**
      * @return the areaNotation
