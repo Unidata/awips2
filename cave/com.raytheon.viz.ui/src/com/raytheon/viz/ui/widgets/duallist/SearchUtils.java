@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.browser;
+package com.raytheon.viz.ui.widgets.duallist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 25, 2013   1588     mpduff      Initial creation.
+ * Aug 20, 2013   1733     mpduff      Moved and renamed.
  * 
  * </pre>
  * 
@@ -40,7 +41,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  */
 
-public class DataBrowserUtils {
+public class SearchUtils {
 
     private static final Pattern WILDCARD_PATTERN = Pattern.compile("\\*");
 
@@ -120,7 +121,9 @@ public class DataBrowserUtils {
                 } else {
                     if (testCaseItem.contains(term) != excludeSearchFlag) {
                         if (matchAnyFlag) {
-                            results.add(item);
+                            if (!results.contains(item)) {
+                                results.add(item);
+                            }
                         } else {
                             holder.add(term);
                         }
