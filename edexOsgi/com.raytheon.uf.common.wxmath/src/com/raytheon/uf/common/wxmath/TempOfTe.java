@@ -22,6 +22,8 @@ package com.raytheon.uf.common.wxmath;
 import static com.raytheon.uf.common.wxmath.AdiabeticTemperature.adiabatic_te;
 import static java.lang.Math.sqrt;
 
+import java.util.Arrays;
+
 /**
  * This routine calculates the saturation tempurature of an equivalent
  * temperature at given pressure using the adiabatic definition
@@ -34,6 +36,10 @@ import static java.lang.Math.sqrt;
  * ------------ ---------- ----------- --------------------------
  * Jun 03, 2013 2043       bsteffen    Ported from meteolib C
  * Aug 13, 2013 2262       njensen     Moved from deriv params
+ * Aug 21, 2013 2289       bsteffen    Add more pressure levels to TeTable.
+ *                                     Remove redundant adiabatic_te calls.
+ *                                     Use binary search in Arrays class.
+ *                                     Return table values when possible.
  * 
  * </pre>
  * 
@@ -47,116 +53,111 @@ public class TempOfTe {
 
     private static final int tmax = 333;
 
-    private static final int nval = 1 + tmax - tmin;
+    private static final int nt = 1 + tmax - tmin;
 
-    private static final double[] Te1000 = new double[nval];
+    private static final int pmin = 100;
 
-    private static final double[] Te850 = new double[nval];
+    private static final int pmax = 1000;
 
-    private static final double[] Te700 = new double[nval];
+    private static final int pspace = 25;
 
-    private static final double[] Te600 = new double[nval];
+    private static final int np = 1 + (pmax - pmin) / pspace;
 
-    private static final double[] Te500 = new double[nval];
+    private static final float[][] TeTable = new float[np][nt];
 
-    private static final double[] Te350 = new double[nval];
-
-    private static final double[] Te200 = new double[nval];
     static {
         int i = 0;
-        for (int t = tmin; t <= tmax; t += 1) {
-            Te1000[i] = adiabatic_te(t, 1000);
-            Te850[i] = adiabatic_te(t, 850);
-            Te700[i] = adiabatic_te(t, 700);
-            Te600[i] = adiabatic_te(t, 600);
-            Te500[i] = adiabatic_te(t, 500);
-            Te350[i] = adiabatic_te(t, 350);
-            Te200[i] = adiabatic_te(t, 200);
+        for (int p = pmin; p <= pmax; p += pspace) {
+            int j = 0;
+            for (int t = tmin; t <= tmax; t += 1) {
+                TeTable[i][j] = (float) adiabatic_te(t, p);
+                j += 1;
+            }
             i += 1;
         }
     }
 
     public static double temp_of_te(double te, double press) {
-        double[] TeLookup = null;
-        double base;
-        /* find correct table, check for beyond bounds of table */
-        if (press <= 250) {
-            TeLookup = Te200;
-            base = 200;
-        } else if (press <= 400) {
-            TeLookup = Te350;
-            base = 350;
-        } else if (press <= 550) {
-            TeLookup = Te500;
-            base = 500;
-        } else if (press <= 650) {
-            TeLookup = Te600;
-            base = 600;
-        } else if (press <= 750) {
-            TeLookup = Te700;
-            base = 700;
-        } else if (press <= 900) {
-            TeLookup = Te850;
-            base = 850;
-        } else {
-            TeLookup = Te1000;
-            base = 1000;
+        /* find the closest table row */
+        int pIndex = (int) ((press - pmin) / pspace);
+        if (pIndex < 0) {
+            pIndex = 0;
         }
+        if (pIndex >= np) {
+            pIndex = np - 1;
+        }
+        float[] TeLookup = TeTable[pIndex];
+
         if (te < TeLookup[1]) {
             return te;
         }
-        if (te >= TeLookup[nval - 1]) {
+        if (te >= TeLookup[nt - 1]) {
             return Double.NaN;
         }
+        double base = pmin + pIndex * pspace;
+
         /* use table to get first guesses for value of temp */
-        double t1 = tmin;
-        double t2 = (int) te;
-        if (t2 > tmax) {
-            t2 = tmax;
-        }
-        double t;
-        while (t2 - t1 >= 3) {
-            t = (int) ((t1 + t2) / 2);
-            if (TeLookup[(int) t - tmin] > te) {
-                t2 = t;
-            } else if (TeLookup[(int) t - tmin] < te) {
-                t1 = t;
-            } else {
-                if (t1 < t - 1) {
-                    t1 = t - 1;
-                }
-                if (t2 > t + 1) {
-                    t2 = t + 1;
-                }
-                break;
-            }
+        int indexHigh = (int) te - tmin + 1;
+        if (indexHigh > nt) {
+            indexHigh = nt - 1;
         }
 
-        double w = sqrt(base / press);
-        t1 = (1 - w) * TeLookup[(int) t1 - tmin] + w * t1;
-        t2 = (1 - w) * TeLookup[(int) t2 - tmin] + w * t2;
+        int indexLow = Arrays.binarySearch(TeLookup, 0, indexHigh, (float) te);
+        if (indexLow >= 0) {
+            if (base == press) {
+                return tmin + indexLow;
+            } else {
+                indexHigh = indexLow + 1;
+                indexLow = indexLow - 1;
+            }
+        } else {
+            indexHigh = -(indexLow) - 1;
+            indexLow = -(indexLow) - 2;
+        }
+
+        double tempLow = indexLow + tmin;
+        double tempHigh = indexHigh + tmin;
+        double diffLow = te - TeLookup[indexLow];
+        double diffHigh = TeLookup[indexHigh] - te;
+
+        if (base != press) {
+            /* use weight to take into account pressure difference */
+            double weight = sqrt(base / press);
+
+            tempLow = (1 - weight) * TeLookup[indexLow] + weight * tempLow;
+            diffLow = te - adiabatic_te(tempLow, press);
+
+            tempHigh = (1 - weight) * TeLookup[indexHigh] + weight * tempHigh;
+            diffHigh = adiabatic_te(tempHigh, press) - te;
+
+        }
+
+        if (diffLow < 0.01 && diffLow > -0.01) {
+            return tempLow;
+        }
+
+        if (diffHigh < 0.01 && diffHigh > -0.01) {
+            return tempHigh;
+        }
 
         /* Iterate to find the exact solution */
-        double d1 = te - adiabatic_te(t1, press);
-        double d2 = adiabatic_te(t2, press) - te;
-        w = d2 / (d1 + d2);
-        t = w * t1 + (1 - w) * t2;
-        double d = adiabatic_te(t, press) - te;
-        int i = 0;
-        while (i++ < 10) {
-            if (d > 0.01) {
-                d2 = d;
-                t2 = t;
-            } else if (d < -0.01) {
-                d1 = -d;
-                t1 = t;
+        double weight = diffHigh / (diffLow + diffHigh);
+        double temp = weight * tempLow + (1 - weight) * tempHigh;
+        double diff = adiabatic_te(temp, press) - te;
+        for (int i = 0; i <= 10; i += 1) {
+            if (diff > 0.01) {
+                diffHigh = diff;
+                tempHigh = temp;
+            } else if (diff < -0.01) {
+                diffLow = -diff;
+                tempLow = temp;
             } else {
                 break;
             }
-            w = d2 / (d1 + d2);
-            t = w * t1 + (1 - w) * t2;
-            d = adiabatic_te(t, press) - te;
+            weight = diffHigh / (diffLow + diffHigh);
+            temp = weight * tempLow + (1 - weight) * tempHigh;
+            diff = adiabatic_te(temp, press) - te;
         }
-        return t;
+        return temp;
     }
 }
