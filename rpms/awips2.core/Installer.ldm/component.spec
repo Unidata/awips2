@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 6
+Release: 7
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -20,9 +20,9 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-Requires: awips2-notification
-Requires: qpid-cpp-client-devel
+Requires: awips2-qpid-lib
 Requires: zlib-devel
+requires: awips2-python
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -275,6 +275,7 @@ popd > /dev/null 2>&1
 # build decrypt_file & edexBridge
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
+
 /bin/tar -xf decrypt_file.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
@@ -319,10 +320,10 @@ export _current_dir=`pwd`
 su ldm -lc "cd ${_current_dir}; g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
    -I${_ldm_root_dir}/include \
    -I${_ldm_root_dir}/src \
-   -I/usr/include/qpid \
+   -I/awips2/qpid/include \
    -L${_ldm_root_dir}/lib \
-   -L%{_libdir} \
-   -l ldm -l xml2 -l qpidclient -l qpidcommon -o edexBridge" > \
+   -L/awips2/qpid/lib \
+   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge" > \
    edexBridge.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to build edexBridge!"
