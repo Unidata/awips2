@@ -98,6 +98,7 @@ import com.raytheon.viz.warngen.gis.Area;
 import com.raytheon.viz.warngen.gis.ClosestPointComparator;
 import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.PathCast;
+import com.raytheon.viz.warngen.gis.PortionsUtil;
 import com.raytheon.viz.warngen.gis.Wx;
 import com.raytheon.viz.warngen.gui.BackupData;
 import com.raytheon.viz.warngen.gui.FollowupData;
@@ -154,6 +155,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 10, 2013   1951     rjpeter     Updated ugcZones references
  * May 30, 2013   DR 16237 D. Friedman Fix watch query.
  * Jun 18, 2013   2118     njensen     Only calculate pathcast if it's actually used
+ * Aug 19, 2013   2177     jsanchez    Passed PortionsUtil to Area class.
  * </pre>
  * 
  * @author njensen
@@ -301,17 +303,18 @@ public class TemplateRunner {
         AffectedAreas[] cancelareas = null;
         Map<String, Object> intersectAreas = null;
         Wx wx = null;
+        Area area = new Area(new PortionsUtil(warngenLayer));
         long wwaMNDTime = 0l;
         try {
             t0 = System.currentTimeMillis();
-            areas = Area.findAffectedAreas(config, warnPolygon, warningArea,
+            areas = area.findAffectedAreas(config, warnPolygon, warningArea,
                     threeLetterSiteId);
             System.out.println("Time to get areas = "
                     + (System.currentTimeMillis() - t0));
             context.put(config.getHatchedAreaSource().getVariable(), areas);
 
             t0 = System.currentTimeMillis();
-            intersectAreas = Area.findInsectingAreas(config, warnPolygon,
+            intersectAreas = area.findInsectingAreas(config, warnPolygon,
                     warningArea, threeLetterSiteId, warngenLayer);
             System.out.println("Time to get intersecting areas = "
                     + (System.currentTimeMillis() - t0));
@@ -324,10 +327,11 @@ public class TemplateRunner {
             double minSize = 1.0E-3d;
             if ((areas != null) && (areas.length > 0)) {
                 Set<String> timeZones = new HashSet<String>();
-                for (AffectedAreas area : areas) {
-                    if (area.getTimezone() != null) {
+                for (AffectedAreas affectedAreas : areas) {
+                    if (affectedAreas.getTimezone() != null) {
                         // Handles counties that span two time zones
-                        String oneLetterTimeZones = area.getTimezone().trim();
+                        String oneLetterTimeZones = affectedAreas.getTimezone()
+                                .trim();
                         oneLetterTZ = new String[oneLetterTimeZones.length()];
                         if (oneLetterTimeZones.length() == 1) {
                             timeZones.add(String.valueOf(oneLetterTimeZones
@@ -799,14 +803,14 @@ public class TemplateRunner {
                     Geometry removedAreas = warngenLayer.getWarningAreaForGids(
                             oldGids, oldWarningArea);
                     if (removedAreas.isEmpty() == false) {
-                        cancelareas = Area.findAffectedAreas(config,
+                        cancelareas = area.findAffectedAreas(config,
                                 oldWarn.getGeometry(), removedAreas,
                                 threeLetterSiteId);
                         for (int i = 0; i < cancelareas.length; i++) {
-                            for (AffectedAreas area : areas) {
+                            for (AffectedAreas affectedAreas : areas) {
                                 if ((cancelareas[i] != null)
                                         && cancelareas[i].getFips().equals(
-                                                area.getFips())) {
+                                                affectedAreas.getFips())) {
                                     cancelareas[i] = null;
                                 }
                             }
@@ -824,7 +828,7 @@ public class TemplateRunner {
                         // This may not be efficient enough. Is it possible that
                         // a removed intersected county be in the affected
                         // intersected county. Need an example to fully test.
-                        Map<String, Object> intersectRemovedAreas = Area
+                        Map<String, Object> intersectRemovedAreas = area
                                 .findInsectingAreas(config, warnPolygon,
                                         removedAreas, threeLetterSiteId,
                                         warngenLayer);
