@@ -39,7 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class Encryption {
 
-    // entropy
+    // entropy input vector length
     private static final int IV_LENGTH = 16;
 
     private IvParameterSpec ivSpec;
@@ -58,6 +58,9 @@ public class Encryption {
     @DynamicSerializeElement
     public Padding padding;
 
+    /**
+     * Constructor.
+     */
     public Encryption() {
 
     }
@@ -66,14 +69,10 @@ public class Encryption {
     public enum Algorithim {
         // CLEAR, No encryption
         // AES, AES encryption
-        // DES, DES encryption
         @XmlEnumValue(Algorithim.aes)
-        AES("AES"), @XmlEnumValue(Algorithim.des)
-        DES("DES");
+        AES("AES");
 
         private static final String aes = "AES";
-
-        private static final String des = "DES";
 
         private final String algo;
 
@@ -91,14 +90,10 @@ public class Encryption {
     public enum Padding {
         // CLEAR, No encryption
         // AES, AES encryption
-        // DES, DES encryption
         @XmlEnumValue(Padding.aes_pad)
-        AES("AES/CFB8/NoPadding"), @XmlEnumValue(Padding.des_pad)
-        DES("DES/CBC/PKCS5Padding");
+        AES("AES/CFB8/NoPadding");
 
         private static final String aes_pad = "AES/CFB8/NoPadding";
-
-        private static final String des_pad = "DES/CBC/PKCS5Padding";
 
         private final String padd;
 
@@ -112,18 +107,32 @@ public class Encryption {
         }
     }
 
+    /**
+     * @return algorithm
+     */
     public Algorithim getAlgorithim() {
         return algorithim;
     }
 
+    /**
+     * @param algorithim
+     *            the algorithim to set
+     */
     public void setAlgorithim(Algorithim algorithim) {
         this.algorithim = algorithim;
     }
 
+    /**
+     * @return the padding
+     */
     public Padding getPadding() {
         return padding;
     }
 
+    /**
+     * @param padding
+     *            the padding to set
+     */
     public void setPadding(Padding padding) {
         this.padding = padding;
     }
@@ -139,13 +148,15 @@ public class Encryption {
         byte[] keyBytes = null;
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
         keyBytes = sha.digest(Base64.decodeBase64(sharedKey));
-        keyBytes = Arrays.copyOf(keyBytes, 16); // use only first 128 bit
+        keyBytes = Arrays.copyOf(keyBytes, IV_LENGTH); // use only first 128 bit
 
         byte[] ivBytes = new byte[IV_LENGTH];
         ivSpec = new IvParameterSpec(ivBytes);
-        // create the cipher with the algorithm you choose
-        // see javadoc for Cipher class for more info, e.g.
 
+        /*
+         * create the cipher with the algorithm you choose see javadoc for
+         * Cipher class for more info, e.g.
+         */
         key = new SecretKeySpec(keyBytes, getAlgorithim().algo);
         deCipher = Cipher.getInstance(getPadding().padd);
         enCipher = Cipher.getInstance(getPadding().padd);
@@ -155,12 +166,14 @@ public class Encryption {
      * Encrypts a string using AES/DES encoding
      * 
      * @param sharedKey
+     *            The encryption key
      * @param password
-     * @return
+     *            The string to encrypt
+     * @return The encrypted string
      * @throws Exception
+     *             on error
      */
-    public String encrypt(String sharedKey, String password)
-            throws Exception {
+    public String encrypt(String sharedKey, String password) throws Exception {
 
         setupCipher(sharedKey);
         enCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
@@ -172,9 +185,12 @@ public class Encryption {
      * Decrypts an AES/DES encoded string
      * 
      * @param sharedKey
+     *            The encryption key
      * @param encryptedPass
-     * @return
+     *            The encrypted string to decrypt
+     * @return The encrypted string
      * @throws Exception
+     *             on error
      */
     public String decrypt(String sharedKey, String encryptedPass)
             throws Exception {
