@@ -10,6 +10,7 @@ import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
 import com.raytheon.uf.common.comm.IHttpsConfiguration;
 import com.raytheon.uf.common.comm.IHttpsCredentialsHandler;
 import com.raytheon.uf.common.datadelivery.registry.Connection;
+import com.raytheon.uf.common.datadelivery.registry.ProviderCredentials;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -29,6 +30,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jun 17, 2013 2106       djohnson    Use getUnencryptedPassword().
  * Jun 18, 2013 2120       dhladky     Times fixes and SSL changes
  * Jul 10, 2013 2180       dhladky     Updated credential requests
+ * Aug 23, 2013 2180       mpduff      Implement changes to ProviderCredentialsUtil
  * 
  * </pre>
  * 
@@ -40,7 +42,18 @@ public class WfsConnectionUtil {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsConnectionUtil.class);
- 
+
+    /**
+     * Connect to the provided URL and return the xml response.
+     * 
+     * @param url
+     *            The URL
+     * @param providerConn
+     *            The Connection object
+     * @param providerName
+     *            The data provider's name
+     * @return xml response
+     */
     public static String wfsConnect(String url, Connection providerConn,
             String providerName) {
         String xmlResponse = null;
@@ -52,18 +65,18 @@ public class WfsConnectionUtil {
             HttpGet get = new HttpGet();
             URI uri = new URI(url);
             // check for the need to do a username password auth check
-            Connection localConnection = ProviderCredentialsUtil.retrieveCredentials(providerName);
-            
-            if (localConnection != null && localConnection.getProviderKey() != null) {
+            ProviderCredentials creds = ProviderCredentialsUtil
+                    .retrieveCredentials(providerName);
+            Connection localConnection = creds.getConnection();
+
+            if (localConnection != null
+                    && localConnection.getProviderKey() != null) {
                 statusHandler.handle(Priority.INFO,
                         "Attempting credentialed request: " + providerName);
                 // Local Connection object contains the username, password and
-                // encryption method for
-                // password storage and decrypt.
-                String userName = localConnection
-                        .getUnencryptedUsername();
-                String password = localConnection
-                        .getUnencryptedPassword();
+                // encryption method for password storage and decrypt.
+                String userName = localConnection.getUnencryptedUsername();
+                String password = localConnection.getUnencryptedPassword();
 
                 http.setHandler(new WfsCredentialsHandler(userName, password));
                 http.setHttpsConfiguration(new WfsHttpsConfiguration(uri));
@@ -74,8 +87,6 @@ public class WfsConnectionUtil {
             get.setURI(uri);
             HttpClientResponse response = http.executeRequest(get);
             xmlResponse = new String(response.data);
-            //System.out.println("Response: "+xmlResponse);
-
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Couldn't connect to WFS server: " + url, e);
@@ -83,67 +94,66 @@ public class WfsConnectionUtil {
 
         return xmlResponse;
     }
-   
-    
+
     /**
      * 
      * Credentials Holder
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Jun 19, 2013  2120       dhladky     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author dhladky
      * @version 1.0
      */
-    private static class WfsCredentialsHandler implements IHttpsCredentialsHandler {
+    private static class WfsCredentialsHandler implements
+            IHttpsCredentialsHandler {
 
-        private String username;
-        
-        private String password;
-        
+        private final String username;
+
+        private final String password;
+
         @Override
         public String[] getCredentials(String message) {
-            return new String[] { username,
-                    password };
+            return new String[] { username, password };
         }
-        
+
         public WfsCredentialsHandler(String username, String password) {
             this.password = password;
             this.username = username;
         }
     }
-    
+
     /**
      * 
      * HTTPS Configuration
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Jun 19, 2013  2120       dhladky     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author dhladky
      * @version 1.0
      */
     private static class WfsHttpsConfiguration implements IHttpsConfiguration {
-        
+
         private int httpsPort = 443;
-        
+
         private int httpPort = 80;
 
-        public WfsHttpsConfiguration(URI uri) {
+        public WfsHttpsConfiguration(URI uri) throws URISyntaxException {
 
             try {
                 if (uri.getScheme().equals("http")) {
@@ -158,7 +168,8 @@ public class WfsConnectionUtil {
                             "Invalid server");
                 }
             } catch (URISyntaxException e) {
-                statusHandler.handle(Priority.PROBLEM, "Syntax or URI is bad!", e);
+                throw new URISyntaxException(uri.toString(),
+                        "Syntax or URI is bad!");
             }
         }
 
@@ -172,5 +183,4 @@ public class WfsConnectionUtil {
             return httpPort;
         }
     }
-
 }
