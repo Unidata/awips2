@@ -215,10 +215,15 @@ public class CloudHeightCalculatorPorted {
                         // solve for T of Parcel Trajectory at P
                         presTrajL = ((int) ((sounding.get(j).getPressure() + 49.0) / 50)) * 50;
                         presTrajU = presTrajL - 50;
-                        Tparcel = (parcelTrajectory[20 - (int) (presTrajU / 50)] - parcelTrajectory[20 - (int) (presTrajL / 50)])
+                        int lIdx = 20 - (int) (presTrajL / 50);
+                        int uIdx = 20 - (int) (presTrajU / 50);
+                        if (lIdx < 0 || uIdx >= parcelTrajectory.length) {
+                            continue;
+                        }
+                        Tparcel = (parcelTrajectory[uIdx] - parcelTrajectory[lIdx])
                                 / -50
                                 * (sounding.get(j).getPressure() - presTrajL)
-                                + parcelTrajectory[20 - (int) (presTrajL / 50)];
+                                + parcelTrajectory[lIdx];
                         if (sounding.get(j).getTemperature() > Tparcel) {
                             presEL = sounding.get(j - 1).getPressure();
                             break;

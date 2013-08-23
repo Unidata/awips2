@@ -31,6 +31,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataServerRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -62,6 +63,8 @@ public class PointDataRequest {
     private static final String STATIONID_KEY = "location.stationId";
 
     private static final String DATATIME_KEY = "dataTime";
+
+    private static final String REFTIME_KEY = DATATIME_KEY + ".refTime";
 
     private static final String REQUESTED_PARAMETERS_KEY = "requestedParameters";
 
@@ -122,6 +125,30 @@ public class PointDataRequest {
 
     /**
      * Request all levels for point data for a set of stations or points, over a
+     * given set of parameters
+     * 
+     * The request can be additionally constrained by optional
+     * RequestConstraints.
+     * 
+     * @param pluginName
+     *            the plugin to use (required)
+     * @param parameters
+     *            the parameters to request (required)
+     * @param stationIds
+     *            the station IDs to constrain to (optional)
+     * @param constraints
+     *            additional constraints (optional)
+     * @return
+     */
+    public static PointDataContainer requestPointDataAllLevels(
+            String pluginName, String[] parameters, String[] stationIds,
+            Map<String, RequestConstraint> constraints) throws VizException {
+        return requestPointDataInternal(null, null, pluginName, parameters,
+                stationIds, constraints, true, null, null);
+    }
+
+    /**
+     * Request all levels for point data for a set of stations or points, over a
      * given set of parameters, at a specific point in time.
      * 
      * The request can be additionally constrained by optional
@@ -147,6 +174,32 @@ public class PointDataRequest {
             dts = new DataTime[] { dt };
         }
         return requestPointDataInternal(dts, null, pluginName, parameters,
+                stationIds, constraints, true, null, null);
+    }
+
+    /**
+     * Request all levels for point data for a set of stations or points, over a
+     * given set of parameters, over a time range.
+     * 
+     * The request can be additionally constrained by optional
+     * RequestConstraints.
+     * 
+     * @param tr
+     *            the time range to request the data for (required)
+     * @param pluginName
+     *            the plugin to use (required)
+     * @param parameters
+     *            the parameters to request (required)
+     * @param stationIds
+     *            the station IDs to constrain to (optional)
+     * @param constraints
+     *            additional constraints (optional)
+     * @return
+     */
+    public static PointDataContainer requestPointDataAllLevels(TimeRange tr,
+            String pluginName, String[] parameters, String[] stationIds,
+            Map<String, RequestConstraint> constraints) throws VizException {
+        return requestPointDataInternal(null, tr, pluginName, parameters,
                 stationIds, constraints, true, null, null);
     }
 
@@ -240,14 +293,13 @@ public class PointDataRequest {
                 dtConstraint.setConstraintType(ConstraintType.IN);
                 rcMap.put(DATATIME_KEY, dtConstraint);
             } else if (tr != null) {
-                DataTime start = new DataTime(tr.getStart());
-                DataTime end = new DataTime(tr.getEnd());
-
                 RequestConstraint dtConstraint = new RequestConstraint();
-                String[] constraintList = { start.toString(), end.toString() };
+                String[] constraintList = {
+                        TimeUtil.formatToSqlTimestamp(tr.getStart()),
+                        TimeUtil.formatToSqlTimestamp(tr.getEnd()) };
                 dtConstraint.setBetweenValueList(constraintList);
                 dtConstraint.setConstraintType(ConstraintType.BETWEEN);
-                rcMap.put(DATATIME_KEY, dtConstraint);
+                rcMap.put(REFTIME_KEY, dtConstraint);
             }
 
             if (stationIds != null) {
