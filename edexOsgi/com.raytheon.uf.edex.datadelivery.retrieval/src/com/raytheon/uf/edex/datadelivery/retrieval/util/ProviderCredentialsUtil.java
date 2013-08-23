@@ -4,6 +4,8 @@ import java.io.File;
 
 import com.raytheon.uf.common.datadelivery.registry.Connection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.ProviderCredentials;
+import com.raytheon.uf.common.datadelivery.registry.ProviderKeyRequest.Status;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -49,6 +51,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.ProviderKeyRecord;
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2013 2180       dhladky     Initial
  * Aug 08, 2013 2180       mpduff      Corrected the filename and blanked the key before saving
+ * Aug 23, 2013 2180       mpduff      Changed return types and add status messages.
  * 
  * </pre>
  * 
@@ -71,12 +74,15 @@ public class ProviderCredentialsUtil {
      * providerKey This will be used by the SSMI to update userName and password
      * stores
      * 
-     * @param providerKey
-     * @param conn
+     * @param creds
+     *            ProviderCredentials object
+     * 
+     * @return ProviderCredentials object with status and message set
      */
-    public static boolean saveCredentials(String providerKey, Provider provider) {
-
+    public static ProviderCredentials saveCredentials(ProviderCredentials creds) {
+        Provider provider = creds.getProvider();
         Connection conn = null;
+        String providerKey = creds.getProviderKey();
 
         try {
             // encrypt userName and password
@@ -87,7 +93,9 @@ public class ProviderCredentialsUtil {
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Failed! Couldn't encrypt credentials!", e);
-            return false;
+            creds.setMessage("Error encrypting credentials.  See server log for error details.");
+            creds.setStatus(Status.FAILURE);
+            return creds;
         }
 
         try {
@@ -98,7 +106,9 @@ public class ProviderCredentialsUtil {
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Failed! Couldn't store provider key record!", e);
-            return false;
+            creds.setMessage("Error storing provider key record.  See server log for error details.");
+            creds.setStatus(Status.FAILURE);
+            return creds;
         }
 
         if (conn != null && providerKey != null) {
@@ -109,35 +119,41 @@ public class ProviderCredentialsUtil {
                         .handle(Priority.ERROR,
                                 "Failed! Couldn't store encrypted Connection to Localization!",
                                 e);
-                return false;
+                creds.setStatus(Status.FAILURE);
+                creds.setMessage("Error saving encrypted connection.  See server log for error details.");
+                return creds;
             }
         }
 
-        return true;
+        creds.setStatus(Status.SUCCESS);
+        return creds;
     }
 
     /**
-     * Gets the encrypted credentials connection object stored locally
+     * Gets the ProviderCredentials object containing the encrytped credentials.
      * 
-     * @param providerKey
-     * @return
+     * @param providerName
+     *            The data provider name
+     * 
+     * @return The ProviderCredentials object
+     * @throws Exception
+     *             Exception on error
      */
-    public static Connection retrieveCredentials(String providerName)
+    public static ProviderCredentials retrieveCredentials(String providerName)
             throws Exception {
+        ProviderCredentials creds = new ProviderCredentials();
 
-        // retrieve the providerKey from the name
         Connection conn = getConnection(providerName);
 
         if (conn != null) {
-
             ProviderKeyDao pkd = new ProviderKeyDao();
             ProviderKeyRecord pkr = pkd.queryByProvider(providerName);
             if (pkr != null) {
                 conn.setProviderKey(pkr.getProviderKey());
             }
         }
-
-        return conn;
+        creds.setConnection(conn);
+        return creds;
     }
 
     /**
@@ -145,9 +161,13 @@ public class ProviderCredentialsUtil {
      * encrypted password.
      * 
      * @param providerName
-     * @return
+     *            The data provider name
+     * @return The Connection object, or null if localization file doesn't
+     *         exist.
+     * @throws Exception
+     *             On error
      */
-    private static Connection getConnection(String providerName)
+    public static Connection getConnection(String providerName)
             throws Exception {
 
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -159,11 +179,13 @@ public class ProviderCredentialsUtil {
 
         LocalizationFile lf = pm.getLocalizationFile(lc, connectionFileName);
         File file = lf.getFile();
-        // System.out.println("Reading -- " + file.getAbsolutePath());
+
         if (!file.exists()) {
-            statusHandler.handle(Priority.DEBUG, providerName
-                    + " connection file: " + file.getAbsolutePath()
-                    + " does not exist.");
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.handle(Priority.DEBUG, providerName
+                        + " connection file: " + file.getAbsolutePath()
+                        + " does not exist.");
+            }
             return null;
         }
 
@@ -179,8 +201,9 @@ public class ProviderCredentialsUtil {
      * username, and encrypted password.
      * 
      * @param Connection
+     *            The Connection object
      * @param providerName
-     * @return
+     *            The data provider's name
      */
     private static void storeConnection(Connection conn, String providerName)
             throws Exception {
@@ -202,5 +225,4 @@ public class ProviderCredentialsUtil {
         conn.setProviderKey(null);
         SerializationUtil.jaxbMarshalToXmlFile(conn, file.getAbsolutePath());
     }
-
 }
