@@ -1130,7 +1130,7 @@ public class GFEDao extends DefaultPluginDao {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         query.addQueryParam("parmId.dbId.siteId", dbId.getSiteId(),
                 QueryOperand.EQUALS);
-        query.addQueryParam("parmId.dbId.format", dbId.getFormat(),
+        query.addQueryParam("parmId.dbId.dbType", dbId.getDbType(),
                 QueryOperand.EQUALS);
         query.addQueryParam("parmId.dbId.modelName", dbId.getModelName(),
                 QueryOperand.EQUALS);
