@@ -235,7 +235,7 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
     public PointDataContainer getBaseRecords(Collection<String> baseParams,
             Map<String, RequestConstraint> queryParams) throws VizException {
         String plugin = queryParams.get(PLUGIN_NAME).getConstraintValue();
-        return PointDataRequest.requestPointDataAllLevels(null, plugin,
+        return PointDataRequest.requestPointDataAllLevels(plugin,
                 baseParams.toArray(new String[] {}), null, queryParams);
     }
 
