@@ -38,6 +38,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * ------------ ---------- ----------- --------------------------
  * Jul 14, 2013 2184      dhladky      Initial creation.
  * Aug 08, 2013 2180      mpduff       Made serializable.
+ * Aug 23, 2013 2180      mpduff       Added message.
+ * 
  * @author dhladky
  * @version 1.0
  */
@@ -56,6 +58,9 @@ public class ProviderKeyRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private Status status;
+
+    @DynamicSerializeElement
+    private String message;
 
     public ProviderKeyRequest() {
 
@@ -176,4 +181,22 @@ public class ProviderKeyRequest implements IServerRequest {
         this.status = status;
     }
 
+    /**
+     * Set the status message
+     * 
+     * @param message
+     *            The status message
+     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
+     * Get the status message.
+     * 
+     * @return The status message
+     */
+    public String getMessage() {
+        return this.message;
+    }
 }
