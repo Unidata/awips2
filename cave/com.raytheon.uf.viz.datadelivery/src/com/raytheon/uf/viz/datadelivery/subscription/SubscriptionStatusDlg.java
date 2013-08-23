@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2013    1653    mpduff      Initial creation
+ * Aug 21, 2013    2248    bgonzale    Changed label to minutes.
  * 
  * </pre>
  * 
@@ -157,7 +158,7 @@ public class SubscriptionStatusDlg extends CaveSWTDialog {
 
         Label l22 = new Label(sumComp, SWT.NONE);
         l22.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT, true, false));
-        l22.setText(summary.getLatency() + " seconds");
+        l22.setText(summary.getLatency() + " minutes");
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
