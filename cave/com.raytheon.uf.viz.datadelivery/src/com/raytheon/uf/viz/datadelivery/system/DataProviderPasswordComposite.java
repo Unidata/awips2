@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.widgets.ApplyCancelComposite;
 import com.raytheon.viz.ui.widgets.IApplyCancelAction;
 
@@ -85,9 +86,6 @@ public class DataProviderPasswordComposite extends Composite implements
 
     /** Username text field */
     private Text userTxt;
-
-    /** Encryption type combo box */
-    private Combo encryptionCbo;
 
     /** Button composite */
     private ApplyCancelComposite buttonComp;
@@ -139,6 +137,7 @@ public class DataProviderPasswordComposite extends Composite implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleProviderSelection();
+                checkUserInput();
             }
         });
 
@@ -153,12 +152,12 @@ public class DataProviderPasswordComposite extends Composite implements
         userTxt.addKeyListener(new KeyListener() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkTextFields();
+                checkUserInput();
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                checkTextFields();
+                checkUserInput();
             }
         });
 
@@ -174,12 +173,12 @@ public class DataProviderPasswordComposite extends Composite implements
         passTxt.addKeyListener(new KeyListener() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkTextFields();
+                checkUserInput();
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                checkTextFields();
+                checkUserInput();
             }
         });
 
@@ -206,12 +205,12 @@ public class DataProviderPasswordComposite extends Composite implements
         keyTxt.addKeyListener(new KeyListener() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkTextFields();
+                checkUserInput();
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                checkTextFields();
+                checkUserInput();
             }
         });
 
@@ -228,14 +227,6 @@ public class DataProviderPasswordComposite extends Composite implements
                 }
             }
         });
-
-        Label encryptionLabel = new Label(comp, SWT.NONE);
-        encryptionLabel.setText("Encryption Type:");
-
-        encryptionCbo = new Combo(comp, SWT.READ_ONLY);
-        encryptionCbo.add(Encryption.Algorithim.AES.toString());
-        encryptionCbo.add(Encryption.Algorithim.DES.toString());
-        encryptionCbo.select(0);
 
         // Buttons
         buttonComp = new ApplyCancelComposite(this, SWT.NONE, this);
@@ -262,11 +253,17 @@ public class DataProviderPasswordComposite extends Composite implements
     /**
      * Check the text fields to determine of buttons should be enabled or not
      */
-    private void checkTextFields() {
+    private boolean validation() {
         if ((!userTxt.getText().isEmpty() && !keyTxt.getText().isEmpty() && !passTxt
                 .getText().isEmpty()) && providerCombo.getSelectionIndex() > -1) {
-            buttonComp.enableButtons(true);
+            return true;
         }
+
+        return false;
+    }
+
+    private void checkUserInput() {
+        buttonComp.enableButtons(validation());
     }
 
     /**
@@ -314,27 +311,44 @@ public class DataProviderPasswordComposite extends Composite implements
      */
     @Override
     public boolean apply() {
-        ProviderKeyRequest req = new ProviderKeyRequest();
-        Connection conn = provider.getConnection();
-        conn.setPassword(passTxt.getText());
-        conn.setUserName(userTxt.getText());
-        conn.setProviderKey(keyTxt.getText());
-        conn.setEncryption(getEncryption(encryptionCbo.getText()));
-        provider.setConnection(conn);
-        req.setProvider(provider);
-        req.setRequestType(RequestType.SAVE);
-        req.setProviderKey(keyTxt.getText());
+        if (validation()) {
+            ProviderKeyRequest req = new ProviderKeyRequest();
+            Connection conn = provider.getConnection();
+            conn.setPassword(passTxt.getText());
+            conn.setUserName(userTxt.getText());
+            conn.setProviderKey(keyTxt.getText());
+            conn.setEncryption(getEncryption());
+            provider.setConnection(conn);
+            req.setProvider(provider);
+            req.setRequestType(RequestType.SAVE);
+            req.setProviderKey(keyTxt.getText());
 
-        ProviderKeyRequest resp;
-        Status status = Status.FAILURE;
-        try {
-            resp = (ProviderKeyRequest) RequestRouter.route(req,
-                    RegistryConstants.EBXML_REGISTRY_SERVICE);
-            status = resp.getStatus();
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            ProviderKeyRequest resp;
+            Status status = Status.FAILURE;
+            try {
+                resp = (ProviderKeyRequest) RequestRouter.route(req,
+                        RegistryConstants.EBXML_REGISTRY_SERVICE);
+                status = resp.getStatus();
+                if (status == Status.FAILURE) {
+                    statusHandler.error(resp.getMessage());
+                }
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+                return false;
+            }
+
+            if (status == Status.SUCCESS) {
+                DataDeliveryUtils.showMessage(getShell(), SWT.OK,
+                        "Change Successful",
+                        "The username/password has been updated.");
+            }
+
+            return status == Status.SUCCESS;
         }
-        return status == Status.SUCCESS;
+
+        return false;
+
     }
 
     /**
@@ -344,18 +358,10 @@ public class DataProviderPasswordComposite extends Composite implements
      *            The encryption algorithm
      * @return The Encryption object
      */
-    private Encryption getEncryption(String text) {
-        Encryption enc = null;
-        if (text.equals(Encryption.Algorithim.AES.toString())) {
-            enc = new Encryption();
-            enc.setAlgorithim(Algorithim.AES);
-            enc.setPadding(Padding.AES);
-        }
-        if (text.equals(Encryption.Algorithim.DES.toString())) {
-            enc = new Encryption();
-            enc.setAlgorithim(Algorithim.DES);
-            enc.setPadding(Padding.DES);
-        }
+    private Encryption getEncryption() {
+        Encryption enc = new Encryption();
+        enc.setAlgorithim(Algorithim.AES);
+        enc.setPadding(Padding.AES);
 
         return enc;
     }
