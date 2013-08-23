@@ -452,11 +452,6 @@ public class CloudHeightResource extends
 
         int x = (int) c.x;
         int y = (int) c.y;
-        int nx = spatialObject.getNx();
-        int ny = spatialObject.getNy();
-        if (x < 0 || x >= nx || y < 0 || y >= ny) {
-            return temps;
-        }
 
         double temp = getTemperature(rsc, latLon);
         if (Double.isNaN(temp)) {
@@ -474,15 +469,10 @@ public class CloudHeightResource extends
 
         for (j = yStart; j < yEnd; j++) {
             jj = y + j;
-            if (jj < 0 || jj >= ny) {
-                continue;
-            }
             for (i = xStart; i < xEnd; i++) {
                 ii = x + i;
-                if (ii >= 0 && ii < nx) {
-                    elements[numElements++] = getTemperature(rsc,
-                            spatialObject, ii, jj);
-                }
+                elements[numElements++] = getTemperature(rsc, spatialObject,
+                        ii, jj);
             }
         }
 

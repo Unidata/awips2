@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +68,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 14, 2013            mschenke     Initial creation
+ * Jan 14, 2013            mschenke    Initial creation
+ * Aug 27, 2013       2190 mschenke    Fixed so can't click point when not visible
  * 
  * </pre>
  * 
@@ -80,7 +82,7 @@ public class NPPSoundingMapResource extends
 
     private NPPSoundingMapInputHandler inputManager;
 
-    private Collection<NPPSoundingRecord> allRecords = new ArrayList<NPPSoundingRecord>();
+    private Collection<NPPSoundingRecord> allRecords = new HashSet<NPPSoundingRecord>();
 
     private Map<DataTime, Collection<NPPSoundingRecord>> groupedRecords = new HashMap<DataTime, Collection<NPPSoundingRecord>>();
 
@@ -113,11 +115,10 @@ public class NPPSoundingMapResource extends
     public synchronized void addRecords(PluginDataObject... records) {
         for (PluginDataObject record : records) {
             if (record instanceof NPPSoundingRecord) {
-                if (allRecords.contains(record) == false) {
-                    allRecords.add((NPPSoundingRecord) record);
-                }
+                allRecords.add((NPPSoundingRecord) record);
             }
         }
+
         Map<DataTime, Collection<NPPSoundingRecord>> groupedRecords = resourceData
                 .groupRecordTimes(allRecords);
         List<DataTime> dataTimes = new ArrayList<DataTime>(
@@ -184,7 +185,8 @@ public class NPPSoundingMapResource extends
      * 
      */
     public boolean isEditable() {
-        return getCapability(EditableCapability.class).isEditable();
+        return getCapability(EditableCapability.class).isEditable()
+                && getProperties().isVisible();
     }
 
     double getRadius() {
