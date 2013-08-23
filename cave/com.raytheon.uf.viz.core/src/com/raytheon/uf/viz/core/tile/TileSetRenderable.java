@@ -229,6 +229,25 @@ public class TileSetRenderable implements IRenderable {
         }
     }
 
+    /**
+     * Returns the {@link GeneralGridGeometry} the {@link TileSet} is currently
+     * projected for
+     * 
+     * @return
+     */
+    public GeneralGridGeometry getTargetGeometry() {
+        return tileSet != null ? tileSet.getTargetGeometry() : null;
+    }
+
+    /**
+     * Returns the {@link GridGeometry2D} of the {@link TileSet}
+     * 
+     * @return
+     */
+    public GridGeometry2D getTileSetGeometry() {
+        return tileSetGeometry;
+    }
+
     /*
      * (non-Javadoc)
      * 
