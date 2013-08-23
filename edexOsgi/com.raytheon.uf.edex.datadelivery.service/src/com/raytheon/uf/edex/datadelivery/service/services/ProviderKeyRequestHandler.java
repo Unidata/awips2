@@ -1,4 +1,5 @@
 package com.raytheon.uf.edex.datadelivery.service.services;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -20,12 +21,14 @@ package com.raytheon.uf.edex.datadelivery.service.services;
  **/
 import com.raytheon.uf.common.datadelivery.registry.Connection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.ProviderCredentials;
 import com.raytheon.uf.common.datadelivery.registry.ProviderKeyRequest;
 import com.raytheon.uf.common.datadelivery.registry.ProviderKeyRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.ProviderKeyRequest.Status;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.ProviderCredentialsUtil;
-
 
 /**
  * A ProviderKeyRequestHandler.
@@ -36,38 +39,54 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ProviderCredentialsUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * July 14, 2013 2184      dhladky     Initial creation
+ * Jul 14, 2013  2184      dhladky     Initial creation
+ * Aug 23, 2013  2180      mpduff      Implement changes to ProviderCredentialsUtil
  *  
  * @author dhladky
  * @version 1.0
  */
 
-public class ProviderKeyRequestHandler implements IRequestHandler<ProviderKeyRequest> {
+public class ProviderKeyRequestHandler implements
+        IRequestHandler<ProviderKeyRequest> {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ProviderKeyRequestHandler.class);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object handleRequest(ProviderKeyRequest request) throws Exception {
-                
         if (request.getRequestType() == RequestType.SAVE) {
-            
-            boolean status = ProviderCredentialsUtil.saveCredentials(request.getProviderKey(),
-                    request.getProvider());
-            if (status) {
+            ProviderCredentials creds = new ProviderCredentials(
+                    request.getProvider(), request.getProviderKey());
+            creds = ProviderCredentialsUtil.saveCredentials(creds);
+            if (creds.getStatus() == Status.SUCCESS) {
                 request.setStatus(Status.SUCCESS);
             } else {
                 request.setStatus(Status.FAILURE);
+                request.setMessage(creds.getMessage());
             }
-            
         } else if (request.getRequestType() == RequestType.RETRIEVE) {
-
             Provider provider = request.getProvider();
-            Connection conn = ProviderCredentialsUtil
-                    .retrieveCredentials(request.getProvider().getName());
-            if (conn != null) {
+            ProviderCredentials creds = null;
+            Connection conn = null;
+            try {
+                creds = ProviderCredentialsUtil.retrieveCredentials(request
+                        .getProvider().getName());
+
+                conn = creds.getConnection();
+            } catch (Exception e) {
+                String msg = "Error retrieving credentials";
+                statusHandler.error(msg, e);
+                request.setStatus(Status.FAILURE);
+                request.setMessage(msg);
+                return request;
+            }
+
+            if (creds != null) {
                 provider.setConnection(conn);
                 request.setProvider(provider);
                 request.setStatus(Status.SUCCESS);
-            } else {
-                request.setStatus(Status.FAILURE);
             }
         }
 
