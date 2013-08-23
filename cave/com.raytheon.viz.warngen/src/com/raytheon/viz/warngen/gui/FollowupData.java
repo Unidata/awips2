@@ -20,7 +20,7 @@
 package com.raytheon.viz.warngen.gui;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
-import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -37,13 +37,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
  * Jul 22, 2013 2176       jsanchez    Added EMER to the display string in the update list.
  * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
+ * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute. Fixed for practice mode.
  * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute.
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class FollowupData extends WarningRecord {
+public class FollowupData extends AbstractWarningRecord {
 
     private static final long serialVersionUID = 1L;
 
@@ -64,7 +65,7 @@ public class FollowupData extends WarningRecord {
     private String expirationString;
 
     public FollowupData(WarningAction action, AbstractWarningRecord record) {
-        super((WarningRecord) record);
+        super(record);
         setAct(action.toString());
 
         displayString = createDisplayString(action, record);
