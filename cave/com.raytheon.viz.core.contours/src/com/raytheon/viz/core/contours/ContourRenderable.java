@@ -30,10 +30,10 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * Jul 10, 2008	#1233	    chammack	Initial creation
  * Jul 18, 2013 #2199       mschenke    Made code only smooth data once
+ * Aug 23, 2013 #2157       dgilling    Remove meteolib dependency.
  * 
  * </pre>
  * 
@@ -439,7 +440,7 @@ public abstract class ContourRenderable implements IRenderable {
                     data[j] = 1.0E37f;
                 }
             }
-            data = Controller.dist_filter(data, npts, nx, 0, 0, nx, ny);
+            data = DistFilter.filter(data, npts, nx, ny, 1);
             // Replace their NaN with our NaN
             for (int j = 0; j < data.length; j++) {
                 if (data[j] == 1.0E37f) {
