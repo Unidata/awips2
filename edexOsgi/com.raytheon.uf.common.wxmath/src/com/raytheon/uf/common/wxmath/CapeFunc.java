@@ -56,6 +56,7 @@ import static java.lang.Math.sqrt;
  * ------------ ---------- ----------- --------------------------
  * Jun 03, 2013 2043       bsteffen    Ported from meteolib C
  * Aug 13, 2013 2262       njensen     Moved from deriv params
+ * Aug 22, 2013 2289       bsteffen    Performance improvements.
  * 
  * </pre>
  * 
@@ -128,11 +129,17 @@ public class CapeFunc {
                 if (Double.isNaN(pc) || Double.isNaN(pp) || Double.isNaN(tve)) {
                     tvp[k] = Double.NaN;
                 } else {
-                    double t0 = tvc * pow(pp / pc, kapa);
+                    /*
+                     * The following line was originally pow(pp /pc, kapa) but
+                     * this is much faster and accurate enough(15 decimal
+                     * places).
+                     */
+                    double pr = exp(kapa * log(pp / pc));
+                    double t0 = tvc * pr;
                     if (pp > pc) {
                         tvp[k] = t0;
                     } else {
-                        double td = tec * pow(pp / pc, kapa);
+                        double td = tec * pr;
                         tvp[k] = td = temp_of_te(td, pp);
                         if (usetv > 0) {
                             tvp[k] *= pp
@@ -396,11 +403,17 @@ public class CapeFunc {
                     tvp[k] = Double.NaN;
                 } else {
                     pp1 = pp;
-                    double t0 = tvc * pow(pp / pc, kapa);
+                    /*
+                     * The following line was originally pow(pp /pc, kapa) but
+                     * this is much faster and accurate enough(15 decimal
+                     * places).
+                     */
+                    double pr = exp(kapa * log(pp / pc));
+                    double t0 = tvc * pr;
                     if (pp > pc) {
                         tvp[k] = t0;
                     } else {
-                        double td = tec * pow(pp / pc, kapa);
+                        double td = tec * pr;
                         tvp[k] = td = temp_of_te(td, pp);
                         if (usetv > 0) {
                             tvp[k] *= pp
