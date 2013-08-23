@@ -568,9 +568,9 @@ public class PlotModelGenerator2 extends Job {
                         // Datacube didn't have proper plugin; going directly
                         // to the data store
                         tempPdc = PointDataRequest.requestPointDataAllLevels(
-                                null, this.plugin, 
-                                params.toArray( new String[params.size()] ),
-                                null, map );
+                                this.plugin,
+                                params.toArray(new String[params.size()]),
+                                null, map);
                     }
 
                     // I think this happens when  the data has been purged
