@@ -61,6 +61,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Feb 27, 2013 1638        mschenke   Cleaned up localization code to fix null pointer
  *                                     when no distribution files present
  * Mar 19, 2013 1794       djohnson    PatternWrapper is immutable, add toString() to it for debugging.
+ * Aug 19, 2013 2257       bkowal      edexBridge to qpid 0.18 upgrade
  * 
  * </pre>
  * 
@@ -72,6 +73,8 @@ public class DistributionSrv {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DistributionSrv.class);
+
+    private static final String HEADER_QPID_SUBJECT = "qpid.subject";
 
     private static class PatternWrapper {
         private final String plugin;
@@ -223,7 +226,15 @@ public class DistributionSrv {
         StringBuilder pluginNames = new StringBuilder();
         List<String> dest = new ArrayList<String>();
         Message in = exchange.getIn();
-        String header = (String) in.getHeader("header");
+        // determine if the header is in the qpid subject field?
+        String header = (String) in.getHeader(HEADER_QPID_SUBJECT);
+        if (header != null) {
+            // make the qpid subject the header so that everything downstream
+            // will be able to read it as the header.
+            in.setHeader("header", header);
+        }
+
+        header = (String) in.getHeader("header");
         Object payload = in.getBody();
         String bodyString = null;
         if (payload instanceof byte[]) {
@@ -277,8 +288,8 @@ public class DistributionSrv {
             throws DistributionException {
         RequestPatterns patternSet = null;
         try {
-            patternSet = SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(RequestPatterns.class, modelFile.getPath());
+            patternSet = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                    RequestPatterns.class, modelFile.getPath());
         } catch (Exception e) {
             throw new DistributionException("File "
                     + modelFile.getAbsolutePath()
