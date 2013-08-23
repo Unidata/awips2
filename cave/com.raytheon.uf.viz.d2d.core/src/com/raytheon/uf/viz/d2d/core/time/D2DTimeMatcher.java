@@ -42,6 +42,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.comm.PerspectiveSpecificLoadProperties;
@@ -192,8 +193,10 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     @Override
     public void redoTimeMatching(IDescriptor descriptor) throws VizException {
         synchronized (this) {
-            if (timeMatchBasis != null && ! validateTimeMatchBasis(descriptor.getResourceList()))
-                timeMatchBasis = null;
+            if (timeMatchBasis != null && timeMatchBasis.getDescriptor() == descriptor &&
+                    ! validateTimeMatchBasis(descriptor)) {
+                changeTimeMatchBasis(null);
+            }
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
                 if (tmDescriptor != null && tmDescriptor != descriptor) {
@@ -991,6 +994,33 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
 
     public void resetMultiload() {
         configFactory.resetMultiload();
+    }
+
+    private boolean validateTimeMatchBasis(IDescriptor descriptor ) {
+        /*
+         * If a resource is shared by multiple panels (this can be the case with
+         * tools, at least), then it is necessary to search all of them as
+         * resource.descriptor() may not contain resource. TODO: Don't allow
+         * this condition to occur?
+         */
+        IRenderableDisplay display = descriptor.getRenderableDisplay();
+        IDisplayPaneContainer container = display != null ?
+                display.getContainer() : null;
+        if (container != null) {
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                IRenderableDisplay paneDisplay = pane.getRenderableDisplay();
+                IDescriptor paneDescriptor = paneDisplay != null ?
+                        paneDisplay.getDescriptor() : null;
+                if (paneDescriptor != null
+                        && validateTimeMatchBasis(paneDescriptor
+                                .getResourceList())) {
+                    return true;
+                }
+            }
+        } else {
+            return validateTimeMatchBasis(descriptor.getResourceList());
+        }
+        return false;
     }
 
     private boolean validateTimeMatchBasis(ResourceList list) {
