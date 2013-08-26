@@ -55,6 +55,7 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * Nov 11, 2012 1298       rferrel     Non-blocking dialog discovered problem
  *                                      adding dispose listener when not on the
  *                                      UI thread.
+ * Aug 26, 2013 #2283      lvenable    Cleaned up some synchronized code.
  * 
  * </pre>
  * 
@@ -200,7 +201,7 @@ public class PythonCacheGuidanceJob extends
      * 
      * @param req
      */
-    private synchronized void waitAdd(CacheGuidanceRequest req) {
+    private void waitAdd(CacheGuidanceRequest req) {
         synchronized (waitMonitor) {
             if (waitList.contains(req) == false) {
                 waitList.add(req);
@@ -213,7 +214,7 @@ public class PythonCacheGuidanceJob extends
      * 
      * @param req
      */
-    private synchronized void waitRemove(CacheGuidanceRequest req) {
+    private void waitRemove(CacheGuidanceRequest req) {
         synchronized (waitMonitor) {
             waitList.remove(req);
             waitMonitor.notify();
@@ -286,11 +287,13 @@ public class PythonCacheGuidanceJob extends
      *            - Unique tag
      * @return siteObj
      */
-    public synchronized String getSiteObj(String siteID, String tag) {
+    public String getSiteObj(String siteID, String tag) {
         String siteObj = null;
-        Map<String, String> siteObjs = siteObjMaps.get(siteID);
-        if (siteObjs != null) {
-            siteObj = siteObjs.get(tag);
+        synchronized (siteObjMaps) {
+            Map<String, String> siteObjs = siteObjMaps.get(siteID);
+            if (siteObjs != null) {
+                siteObj = siteObjs.get(tag);
+            }
         }
         return siteObj;
     }
@@ -303,10 +306,12 @@ public class PythonCacheGuidanceJob extends
      * @param tag
      *            - Unique tag
      */
-    private synchronized void clearSiteObj(String siteID, String tag) {
+    private void clearSiteObj(String siteID, String tag) {
         Map<String, String> siteObjs = siteObjMaps.get(siteID);
-        if (siteObjs != null) {
-            siteObjs.remove(tag);
+        synchronized (siteObjMaps) {
+            if (siteObjs != null) {
+                siteObjs.remove(tag);
+            }
         }
     }
 
@@ -317,7 +322,7 @@ public class PythonCacheGuidanceJob extends
      *            A map with key of stites an array of tags to clear for the
      *            site
      */
-    public synchronized void clearSiteObjs(Map<String, ArrayList<String>> tags) {
+    public void clearSiteObjs(Map<String, ArrayList<String>> tags) {
         for (Object s : tags.keySet().toArray()) {
             String siteID = s.toString();
             for (String tag : tags.get(siteID)) {
@@ -336,14 +341,15 @@ public class PythonCacheGuidanceJob extends
      * @param siteObj
      *            - Pickle string to cache
      */
-    private synchronized void setSiteObj(String siteID, String tag,
-            String siteObj) {
-        Map<String, String> siteObjs = siteObjMaps.get(siteID);
-        if (siteObjs == null) {
-            siteObjs = new HashMap<String, String>();
-            siteObjMaps.put(siteID, siteObjs);
+    private void setSiteObj(String siteID, String tag, String siteObj) {
+        synchronized (siteObjMaps) {
+            Map<String, String> siteObjs = siteObjMaps.get(siteID);
+            if (siteObjs == null) {
+                siteObjs = new HashMap<String, String>();
+                siteObjMaps.put(siteID, siteObjs);
+            }
+            siteObjs.put(tag, siteObj);
         }
-        siteObjs.put(tag, siteObj);
     }
 
     /*
