@@ -48,6 +48,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2010 #5050      rjpeter     Initial creation from SmartInitTransaction.
+ * Aug 26, 2013 #2272      bkowal      Add a function to see if a cluster suffix has
+ *                                     been specified via the environment.
  * 
  * </pre>
  * 
@@ -55,6 +57,16 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * @version 1.0
  */
 public class ClusterLockUtils {
+    /*
+     * An optional context suffix can be included in an EDEX properties file.
+     * This suffix will be appended to the details of each cluster task.
+     */
+    public static final String CLUSTER_SUFFIX;
+
+    static {
+        CLUSTER_SUFFIX = System.getProperty("cluster.suffix") != null ? "-"
+                + System.getProperty("cluster.suffix") : "";
+    }
 
     public enum LockState {
         SUCCESSFUL, ALREADY_RUNNING, FAILED, OLD;
