@@ -20,7 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.d2d.nsharp;bundle-version="1.0.0",
  gov.noaa.nws.ncep.ui.nsharp;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
- meteolib.jni;bundle-version="1.0.0",
  com.raytheon.uf.viz.sounding;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
