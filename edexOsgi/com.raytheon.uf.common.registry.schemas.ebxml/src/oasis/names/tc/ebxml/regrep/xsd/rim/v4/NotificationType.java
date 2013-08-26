@@ -23,7 +23,6 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -78,7 +77,7 @@ public class NotificationType extends RegistryObjectType {
 
     @XmlElement(name = "Event", required = true)
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.DETACH)
+    @ManyToMany(cascade = {})
     @JoinTable(schema = "ebxml")
     protected List<AuditableEventType> event;
 
