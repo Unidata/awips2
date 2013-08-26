@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2010            njensen     Initial creation
  * Aug 21, 2013 DR 16521   D. Friedman Ensure endpoint URI is used for cluster entry
+ * Aug 26, 2013 DR 2272    bkowal      Append an optional suffix to the cluster task details
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public class ClusteredQuartzEndpoint extends QuartzEndpoint {
     @Override
     public void onJobExecute(final JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
-        String jName = getEndpointUri();
+        String jName = getEndpointUri() + ClusterLockUtils.CLUSTER_SUFFIX;
         long period = Math.abs(jobExecutionContext.getFireTime().getTime()
                 - jobExecutionContext.getNextFireTime().getTime()) / 2;
         ClusterTask ct = ClusterLockUtils.lock(TASK, jName, period, false);
