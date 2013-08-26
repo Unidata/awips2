@@ -33,6 +33,7 @@ import com.raytheon.uf.common.localization.IPathManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2013 #2221      rferrel     Initial creation
+ * Aug 26, 2013 #2225      rferrel     Added tar extension.
  * 
  * </pre>
  * 
@@ -65,6 +66,9 @@ public class ArchiveConstants {
             this.selectionDir = selectionDir;
         }
     }
+
+    /** Extension for compressed tar files. */
+    public final static String TAR_EXTENSION = ".tgz";
 
     /**
      * Do not allow an instance of this class.
