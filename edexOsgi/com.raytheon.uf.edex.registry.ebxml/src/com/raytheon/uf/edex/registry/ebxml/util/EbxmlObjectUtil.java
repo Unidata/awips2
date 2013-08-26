@@ -86,6 +86,12 @@ public class EbxmlObjectUtil {
     public static final String EMAIL_NOTIFICATION_FORMATTER_SLOT = "urn:oasis:names:tc:ebxml-regrep:rim:DeliveryInfo:emailNotificationFormatter";
 
     /**
+     * The name of the environment variable used to configure which hosts to
+     * ignore using http
+     */
+    public static final String NON_PROXY_HOSTS = "http.nonProxyHosts";
+
+    /**
      * Slot name of the slot on the subscription object that holds the last run
      * time
      */
