@@ -23,10 +23,17 @@ from java.lang import Integer, Float, Long, Boolean, String, Object, Double
 from java.util import HashMap, LinkedHashMap, ArrayList
 from java.util import Collections
 from java.util import Date
+from java.lang.reflect import Array
 from collections import OrderedDict
+
+from shapely.geometry.base import BaseGeometry
+from shapely import wkt
 
 import jep
 import datetime
+from com.vividsolutions.jts.io import WKTReader
+from com.raytheon.uf.common.python import PyJavaUtil
+from org.apache.commons.lang import ArrayUtils
 
 #
 # Provides convenience methods for Java-Python bridging
@@ -44,6 +51,7 @@ import datetime
 #
 #
 
+JEP_ARRAY_TYPE = type(jep.jarray(0,Object))
 
 def javaStringListToPylist(jlist):
     pylist = []
@@ -132,49 +140,64 @@ def pyValToJavaObj(val):
         retObj = pyDictToJavaMap(val)
     elif issubclass(valtype, JavaWrapperClass):
         retObj = val.toJavaObj()
+    elif issubclass(valtype, BaseGeometry):
+        reader = WKBReader()
+        retObj = reader.read(val.to_wkb)
     return retObj
 
 def javaObjToPyVal(obj, customConverter=None):
     retVal = None
     if obj is None:
         return retVal
-
-    objtype = obj.jclassname
-    if objtype == "java.lang.Integer":
-        retVal = obj.intValue()
-    elif objtype == "java.lang.Float":
-        retVal = obj.floatValue()
-    elif objtype == "java.lang.Long":
-        retVal = obj.longValue()
-    elif objtype == "java.lang.Boolean":
-        retVal = bool(obj.booleanValue())
-    elif objtype == "java.lang.Double":
-        retVal = obj.doubleValue()
-    elif objtype == "java.util.Date":
-        retVal = datetime.datetime.fromtimestamp(obj.getTime() / 1000)
-    elif isinstance(obj, type(jep.jarray(0, Object))):
+    # handle pyjobjects
+    if hasattr(obj, 'jclassname'):
+        objtype = obj.jclassname
+        if objtype == "java.lang.Integer":
+            retVal = obj.intValue()
+        elif objtype == "java.lang.Float":
+            retVal = obj.floatValue()
+        elif objtype == "java.lang.Long":
+            retVal = obj.longValue()
+        elif objtype == "java.lang.Boolean":
+            retVal = bool(obj.booleanValue())
+        elif objtype == "java.lang.Double":
+            retVal = obj.doubleValue()
+        elif objtype == "java.util.Date":
+            retVal = datetime.datetime.fromtimestamp(obj.getTime() / 1000)
+        elif objtype in ["com.vividsolutions.jts.geom.Geometry", "com.vividsolutions.jts.geom.GeometryCollection",
+                         "com.vividsolutions.jts.geom.Polygon", "com.vividsolutions.jts.geom.MultiPolygon",
+                         "com.vividsolutions.jts.geom.LineString", "com.vividsolutions.jts.geom.MultiLineString",
+                         "com.vividsolutions.jts.geom.Point", "com.vividsolutions.jts.geom.MultiPoint",
+                         "com.vividsolutions.jts.geom.LinearRing"] :
+            retVal = wkt.loads(obj.toText())
+        elif objtype in ["java.util.ArrayList", "java.util.Arrays$ArrayList"]:
+            retVal = []
+            size = obj.size()
+            for i in range(size):
+                retVal.append(javaObjToPyVal(obj.get(i), customConverter))
+        elif objtype == "java.util.Collections$UnmodifiableRandomAccessList":
+            tempList = []
+            size = obj.size()
+            for i in range(size):
+                tempList.append(javaObjToPyVal(obj.get(i), customConverter))
+            retVal = tuple(tempList)
+        elif objtype == "java.util.HashMap":
+            retVal = javaMapToPyDict(obj, customConverter)
+        elif PyJavaUtil.isArray(obj):
+            retVal = []
+            size = Array.getLength(obj)
+            for i in range(size):
+                retVal.append(javaObjToPyVal(Array.get(obj, i), customConverter))
+        elif customConverter is not None:
+            retVal = customConverter(obj)
+        if retVal is None:
+            retVal = str(obj)
+    # test for jep array type
+    elif isinstance(obj, JEP_ARRAY_TYPE):
         retVal = []
         size = len(obj)
         for i in range(size):
-            retVal.append(javaObjToPyVal(obj.get(i), customConverter))
-    elif objtype in ["java.util.ArrayList", "java.util.Arrays$ArrayList"]:
-        retVal = []
-        size = obj.size()
-        for i in range(size):
-            retVal.append(javaObjToPyVal(obj.get(i), customConverter))
-    elif objtype == "java.util.Collections$UnmodifiableRandomAccessList":
-        tempList = []
-        size = obj.size()
-        for i in range(size):
-            tempList.append(javaObjToPyVal(obj.get(i), customConverter))
-        retVal = tuple(tempList)
-    elif objtype == "java.util.HashMap":
-        retVal = javaMapToPyDict(obj, customConverter)
-    elif customConverter is not None:
-        retVal = customConverter(obj)
-
-    if retVal is None:
-        retVal = str(obj)
+            retVal.append(javaObjToPyVal(obj[i], customConverter))        
     return retVal
 
 class JavaWrapperClass(object):
