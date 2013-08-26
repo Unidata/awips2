@@ -95,6 +95,7 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * May 2, 2011  9067       cjeanbap    Preserve text component text on relayout().
  * 27 May 2011  9575       cjeanbap    Moved moveLabel to first image in list.
  * 31 May 2011  8058       cjeanbap    Kill sound based on TextMsgBox id.
+ * 26 Aug 2013  #2293      lvenable    Fixed color memory leaks.
  * </pre>
  * 
  * @author lvenable
@@ -207,6 +208,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     private Button errorBtn;
 
+    /**
+     * Error button background color.
+     */
+    private Color errorBtnBgColor = null;
+
     private TabControlDlg tabControlDlg;
 
     private static final String ERROR_FILE_IMAGE = "alertVizErrorLog.png";
@@ -267,6 +273,15 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         Shell shell1 = new Shell(parentShell, SWT.NO_TRIM);
         shell = new Shell(shell1, SWT.ON_TOP);
 
+        shell.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (errorBtnBgColor != null) {
+                    errorBtnBgColor.dispose();
+                }
+            }
+        });
+
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 0;
@@ -286,11 +301,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         } else {
             enabled = true;
         }
-
-        // if (!(configData.getGlobalConfiguration().getMode() ==
-        // TrayConfiguration.TrayMode.MO)) {
-        // setInitialDialogLocation();
-        // }
 
         return returnValue;
     }
@@ -1074,8 +1084,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     private void errorButtonAction() {
         opened = !opened;
 
-        RGB background = new RGB(237, 233, 227);
-        errorBtn.setBackground(new Color(display, background));
+        if (errorBtnBgColor != null) {
+            errorBtnBgColor.dispose();
+        }
+        errorBtnBgColor = new Color(display, 237, 233, 227);
+        errorBtn.setBackground(errorBtnBgColor);
 
         if (tabControlDlg == null || tabControlDlg.isDisposed()) {
             tabControlDlg = TabControlDlg.getInstance(shell);
@@ -1116,7 +1129,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     public void setErrorLogBtnBackground(RGB background) {
-        errorBtn.setBackground(new Color(this.display, background));
+
+        if (errorBtnBgColor != null) {
+            errorBtnBgColor.dispose();
+        }
+
+        errorBtnBgColor = new Color(this.display, background);
+        errorBtn.setBackground(errorBtnBgColor);
     }
 
     /**
