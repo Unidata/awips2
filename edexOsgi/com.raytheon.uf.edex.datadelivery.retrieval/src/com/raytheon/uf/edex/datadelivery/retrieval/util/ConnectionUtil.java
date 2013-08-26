@@ -61,7 +61,7 @@ public class ConnectionUtil {
             + File.separator + "proxy.properties";
 
     static ConnectionUtil instance = new ConnectionUtil();
-    
+
     static volatile boolean initialized;
 
     private ProxyConfiguration proxySettings;
@@ -69,6 +69,7 @@ public class ConnectionUtil {
     static void clearSettings() {
         System.clearProperty(ProxyUtil.HTTP_PROXY_HOST);
         System.clearProperty(ProxyUtil.HTTP_PROXY_PORT);
+        System.clearProperty(ProxyUtil.HTTP_NON_PROXY_HOSTS);
         instance = new ConnectionUtil();
         initialized = false;
     }
@@ -108,8 +109,6 @@ public class ConnectionUtil {
         return instance.getProxyInformation();
     }
 
-
-   
     private static synchronized void initialize() {
         ProxyConfiguration proxyInformation = instance.getProxyInformation();
 
@@ -118,6 +117,8 @@ public class ConnectionUtil {
                     proxyInformation.getHost());
             System.setProperty(ProxyUtil.HTTP_PROXY_PORT,
                     proxyInformation.getPortString());
+            System.setProperty(ProxyUtil.HTTP_NON_PROXY_HOSTS,
+                    proxyInformation.getNonProxyHosts());
         }
         initialized = true;
     }
