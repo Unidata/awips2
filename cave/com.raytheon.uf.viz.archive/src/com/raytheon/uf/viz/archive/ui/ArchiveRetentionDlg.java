@@ -52,6 +52,7 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * Jun 10, 2013 #1966      rferrel      Implemented hooks to get display and save to work.
  * Jul 24, 2013 #2220      rferrel      Add recompute size button.
  * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
+ * Aug 26, 2013 #2225      rferrel      Make dialog perspective independent.
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     public ArchiveRetentionDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
-                | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+                | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
+                | CAVE.PERSPECTIVE_INDEPENDENT);
         this.type = Type.Retention;
     }
 
