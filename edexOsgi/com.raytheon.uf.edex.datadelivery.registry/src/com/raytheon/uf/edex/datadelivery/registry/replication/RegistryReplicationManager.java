@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.registry.replication;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -158,12 +159,13 @@ public class RegistryReplicationManager {
      * @throws JAXBException
      *             If errors occur while creating the JAXBManager
      * @throws SerializationException
+     * @throws MalformedURLException
      */
     public RegistryReplicationManager(boolean subscriptionProcessingEnabled,
             String notificationServerConfigFileName, RegistryObjectDao dao,
             FederatedRegistryMonitor availabilityMonitor,
             TransactionTemplate txTemplate, int registrySyncThreads)
-            throws JAXBException, SerializationException {
+            throws JAXBException, SerializationException, MalformedURLException {
         this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
         this.replicationConfigFileName = notificationServerConfigFileName;
         this.dao = dao;
