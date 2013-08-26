@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -71,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 24, 2013 #2220      rferrel     Add recompute size button.
  * Jul 24, 2013 #2221      rferrel     Changes for select configuration.
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
+ * Aug 26, 2013 #2225      rferrel     Make perspective independent and no longer modal.
  * 
  * </pre>
  * 
@@ -152,6 +154,12 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     /** Dialog to delete a select case. */
     private CaseLoadSaveDeleteDlg deleteDlg;
 
+    /** Allow only single instance of dialog. */
+    private CaseNameDialog caseNameDlg;
+
+    /** Allow only single instance of dialog. */
+    private GenerateCaseDlg generateCaseDlg;
+
     /**
      * Constructor.
      * 
@@ -160,7 +168,8 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
      */
     public CaseCreationDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
-                | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+                | CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                | CAVE.INDEPENDENT_SHELL);
         this.type = Type.Case;
         this.setSelect = false;
         this.type = Type.Case;
@@ -623,7 +632,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     }
 
     /**
-     * Display modal dialog that performs the Generation of the case.
+     * Display dialog that performs the Generation of the case.
      */
     private void generateCase() {
         setCursorBusy(true);
@@ -638,30 +647,44 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         int compressSize = fileSizeSpnr.getSelection();
         String sizeType = fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex());
 
-        // Assume Model dialog.
-        GenerateCaseDlg dialog = new GenerateCaseDlg(shell, targetDir, caseDir,
-                startCal, endCal, displayDatas, doCompress, doMultiFiles,
-                compressSize, sizeType);
-        dialog.addJobChangeListener(new JobChangeAdapter() {
-
-            @Override
-            public void done(IJobChangeEvent event) {
-                VizApp.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateLocationState();
-                    }
-                });
+        setCursorBusy(true);
+        if (generateCaseDlg == null || generateCaseDlg.isDisposed()) {
+            long splitSize = 0L;
+            if (doCompress && doMultiFiles) {
+                if (sizeType.equals("MB")) {
+                    splitSize = compressSize * FileUtils.ONE_MB;
+                } else {
+                    splitSize = compressSize * FileUtils.ONE_GB;
+                }
             }
-        });
-        dialog.setCloseCallback(new ICloseCallback() {
+            generateCaseDlg = new GenerateCaseDlg(shell, targetDir, caseDir,
+                    startCal, endCal, displayDatas, doCompress, doMultiFiles,
+                    splitSize);
+            generateCaseDlg.addJobChangeListener(new JobChangeAdapter() {
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                setCursorBusy(false);
-            }
-        });
-        dialog.open();
+                @Override
+                public void done(IJobChangeEvent event) {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateLocationState();
+                            setCursorBusy(false);
+                            generateCaseDlg = null;
+                        }
+                    });
+                }
+            });
+            generateCaseDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    setCursorBusy(false);
+                }
+            });
+            generateCaseDlg.open();
+        } else {
+            generateCaseDlg.bringToTop();
+        }
 
     }
 
@@ -690,22 +713,29 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         }
 
         File targetDir = (File) o;
-        // Assume modal dialog.
-        CaseNameDialog dialog = new CaseNameDialog(shell, targetDir);
-        dialog.setCloseCallback(new ICloseCallback() {
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                if (returnValue instanceof File) {
-                    File caseDir = (File) returnValue;
-                    String caseName = caseDir.getAbsolutePath();
-                    caseNameLbl.setText(caseName);
-                    caseNameLbl.setData(caseDir);
-                    checkGenerateButton();
+        setCursorBusy(true);
+        if (caseNameDlg == null || caseNameDlg.isDisposed()) {
+            caseNameDlg = new CaseNameDialog(shell, targetDir);
+            caseNameDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof File) {
+                        File caseDir = (File) returnValue;
+                        String caseName = caseDir.getAbsolutePath();
+                        caseNameLbl.setText(caseName);
+                        caseNameLbl.setData(caseDir);
+                        checkGenerateButton();
+                    }
+                    caseNameDlg = null;
+                    setCursorBusy(false);
                 }
-            }
-        });
-        dialog.open();
+            });
+            caseNameDlg.open();
+        } else {
+            caseNameDlg.bringToTop();
+        }
     }
 
     /**
@@ -783,6 +813,9 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
      * Update location's state.
      */
     private void updateLocationState() {
+        if (isDisposed()) {
+            return;
+        }
         File dir = (File) locationLbl.getData();
         long totSpace = dir.getTotalSpace();
         long freeSpace = dir.getUsableSpace();
@@ -824,51 +857,57 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
      *            True for start time, false for end time.
      */
     private void displayDateTimeControls(boolean startTimeFlag) {
+        setCursorBusy(true);
+        try {
+            Date acDate = startTimeFlag ? startDate : endDate;
+            AwipsCalendar ac = new AwipsCalendar(shell, acDate, 1);
+            ac.setTimeZone(TimeUtil.newCalendar().getTimeZone());
+            ac.setText((startTimeFlag ? "Start" : "End") + " Time Calendar");
 
-        Date acDate = startTimeFlag ? startDate : endDate;
-        AwipsCalendar ac = new AwipsCalendar(shell, acDate, 1);
-        ac.setTimeZone(TimeUtil.newCalendar().getTimeZone());
-        Date date = (Date) ac.open();
+            Date date = (Date) ac.open();
 
-        if (date == null) {
-            return;
-        }
-
-        if (startTimeFlag) {
-            if (date.after(endDate)) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                        | SWT.OK);
-                mb.setText("Date Error");
-                mb.setMessage("The selected start date is after the end date.  Resetting.");
-                mb.open();
+            if (date == null) {
                 return;
             }
 
-            if (!startDate.equals(date)) {
-                startDate = date;
-                sizeJob.resetTime(getStart(), getEnd());
-                modified();
-            }
-        } else {
-            if (date.before(startDate)) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                        | SWT.OK);
-                mb.setText("Date Error");
-                mb.setMessage("The selected end date is before the start date.  Resetting.");
-                mb.open();
-                return;
-            }
-            if (!endDate.equals(date)) {
-                endDate = date;
-                sizeJob.resetTime(getStart(), getEnd());
-                modified();
-            }
-        }
+            if (startTimeFlag) {
+                if (date.after(endDate)) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                            | SWT.OK);
+                    mb.setText("Date Error");
+                    mb.setMessage("The selected start date is after the end date.  Resetting.");
+                    mb.open();
+                    return;
+                }
 
-        if (startTimeFlag) {
-            startTimeLbl.setText(dateFmt.format(date));
-        } else {
-            endTimeLbl.setText(dateFmt.format(date));
+                if (!startDate.equals(date)) {
+                    startDate = date;
+                    sizeJob.resetTime(getStart(), getEnd());
+                    modified();
+                }
+            } else {
+                if (date.before(startDate)) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                            | SWT.OK);
+                    mb.setText("Date Error");
+                    mb.setMessage("The selected end date is before the start date.  Resetting.");
+                    mb.open();
+                    return;
+                }
+                if (!endDate.equals(date)) {
+                    endDate = date;
+                    sizeJob.resetTime(getStart(), getEnd());
+                    modified();
+                }
+            }
+
+            if (startTimeFlag) {
+                startTimeLbl.setText(dateFmt.format(date));
+            } else {
+                endTimeLbl.setText(dateFmt.format(date));
+            }
+        } finally {
+            setCursorBusy(false);
         }
     }
 
