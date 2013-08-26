@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 31, 2013 2221       rferrel     Initial creation
+ * Aug 26, 2013 2225       rferrel     Make perspective independent.
  * 
  * </pre>
  * 
@@ -85,7 +86,8 @@ public class CaseLoadSaveDeleteDlg extends CaveSWTDialog {
     private Button cancelBtn;
 
     protected CaseLoadSaveDeleteDlg(Shell parentShell, Type type) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
+                | CAVE.PERSPECTIVE_INDEPENDENT);
         this.type = type;
     }
 
