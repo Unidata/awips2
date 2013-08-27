@@ -24,7 +24,8 @@ Import-Package: com.raytheon.uf.common.python,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.python.swt,
  com.raytheon.uf.viz.python.swt.widgets,
- org.apache.log4j
+ org.apache.log4j,
+ org.slf4j
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: ch.qos.logback, org.apache.log4j
+Eclipse-RegisterBuddy: ch.qos.logback
