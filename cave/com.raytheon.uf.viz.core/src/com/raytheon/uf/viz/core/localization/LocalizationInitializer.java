@@ -50,6 +50,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Nov 5, 2009            mschenke     Initial creation
  * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * Jan 14, 2013 1469      bkowal       Removed the hdf5 data directory.
+ * Aug 27, 2013 2295      bkowal       The entire jms connection string is now
+ *                                     provided by EDEX.
  * 
  * </pre>
  * 
@@ -125,7 +127,7 @@ public class LocalizationInitializer {
         GetServersResponse resp = (GetServersResponse) ThriftClient
                 .sendLocalizationRequest(req);
         VizApp.setHttpServer(resp.getHttpServer());
-        VizApp.setJmsServer(resp.getJmsServer());
+        VizApp.setJmsConnectionString(resp.getJmsConnectionString());
         VizApp.setPypiesServer(resp.getPypiesServer());
         VizServers.getInstance().setServerLocations(resp.getServerLocations());
     }
