@@ -46,6 +46,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 11, 2010            mpduff     Initial creation
+ * Aug 27, 2013  #2301     dgilling   Fix mouse handler registration so they
+ *                                    can't trigger events until map is loaded.
  * 
  * </pre>
  * 
@@ -127,10 +129,6 @@ public class GhgMapManager extends PaneManager implements
      */
     public void createComponent(Composite parent) {
         initializeComponents(this, parent);
-        registerMouseHandler(new GhgMapInputAdapter());
-        registerMouseHandler(new PanHandler(this));
-        dragDetector = new GhgDragDetector();
-        registerMouseHandler(dragDetector);
     }
 
     /**
@@ -239,4 +237,19 @@ public class GhgMapManager extends PaneManager implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.panes.PaneManager#registerHandlers(com.raytheon.uf
+     * .viz.core.IDisplayPane)
+     */
+    @Override
+    protected void registerHandlers(IDisplayPane pane) {
+        super.registerHandlers(pane);
+        registerMouseHandler(new GhgMapInputAdapter());
+        registerMouseHandler(new PanHandler(this));
+        dragDetector = new GhgDragDetector();
+        registerMouseHandler(dragDetector);
+    }
 }
