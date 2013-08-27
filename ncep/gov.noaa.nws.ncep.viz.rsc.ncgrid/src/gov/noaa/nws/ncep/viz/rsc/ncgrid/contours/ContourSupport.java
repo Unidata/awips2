@@ -45,30 +45,32 @@ import java.util.TreeMap;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
-import org.opengis.parameter.ParameterValueGroup;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
-import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.viz.core.contours.util.StreamLineContainer;
+import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
+import com.raytheon.viz.core.contours.util.StrmPak;
+import com.raytheon.viz.core.contours.util.StrmPakConfig;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -111,6 +113,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Apr 26, 2013			   B. Yin	   Fixed the world wrap problem for centeral line 0/180.
  *    Jun 06, 2013			   B. Yin	   fixed the half-degree grid porblem.
  *    Jul 19, 2013             B. Hebbard  Merge in RTS change of Util-->ArraysUtil
+ *    Aug 27, 2013 2262        bsteffen    Convert to use new StrmPak.
  * 
  * </pre>
  * 
@@ -1216,10 +1219,8 @@ public class ContourSupport {
             return ;
         }
         
-        float[] adjustedUw = new float[totalSz];
-        float[] adjustedVw = new float[totalSz];
-
-        int n = 0;
+        float[][] adjustedUw = new float[szX][szY];
+        float[][] adjustedVw = new float[szX][szY];
 
         if ( globalData ){
         	for (int j = 0; j < szY; j++) {
@@ -1227,20 +1228,20 @@ public class ContourSupport {
         			if (( i+minX )== 360 ) {
         				continue;
         			}
-        			adjustedUw[n] = uW[((x+1) * (j + minY)) + (i + minX)];
-        			adjustedVw[n] = vW[((x+1) * (j + minY)) + (i + minX)];
-
-        			n++;
+                    adjustedUw[szX - i - 1][j] = uW[((x + 1) * (j + minY))
+                            + (i + minX)];
+                    adjustedVw[szX - i - 1][j] = vW[((x + 1) * (j + minY))
+                            + (i + minX)];
         		}
         	}
         }
         else {
         	for (int j = 0; j < szY; j++) {
         		for (int i = 0; i < szX; i++) {
-        			adjustedUw[n] = uW[(x * (j + minY)) + (i + minX)];
-        			adjustedVw[n] = vW[(x * (j + minY)) + (i + minX)];
-
-        			n++;
+                    adjustedUw[szX - i - 1][j] = uW[(x * (j + minY))
+                            + (i + minX)];
+                    adjustedVw[szX - i - 1][j] = vW[(x * (j + minY))
+                            + (i + minX)];
         		}
         	}
         }
@@ -1248,19 +1249,9 @@ public class ContourSupport {
    //     for ( int kk = 0; kk < 365; kk++ ){
    //     	System.out.println( kk + "  " + adjustedUw[kk]+ "  " + uW[kk]);
    //     }
-
-        ArraysUtil.flipVert(adjustedUw, szY, szX);
-        ArraysUtil.flipVert(adjustedVw, szY, szX);
-
-        int arrSz = Math.max(10 * adjustedUw.length, uW.length);
+        
         uW = null;
         vW = null;
-        
-        
-        int[] work = new int[arrSz];
-        float[] xPoints = new float[arrSz];
-        float[] yPoints = new float[arrSz];
-        int[] numPoints = new int[1];
 
         // Use ported legacy code to determine contour interval
 //        contourGroup.lastDensity = currentDensity;
@@ -1292,9 +1283,10 @@ public class ContourSupport {
         float arrowSize = (float) (0.4f / Math.sqrt(zoom));
         if (arrowSize > 0.4) arrowSize = 0.4f;
         
-        Controller.strmpak(adjustedUw, adjustedVw, work, szX, szX, szY,
-                arrowSize, xPoints, yPoints, numPoints, minspc, maxspc,
+        StrmPakConfig config = new StrmPakConfig(arrowSize, minspc, maxspc,
                 -1000000f, -999998f);
+        StreamLineContainer streamLines = StrmPak.strmpak(adjustedUw,
+                adjustedVw, szX, szX, szY, config);
         
 //        long t1 = System.currentTimeMillis();
 //        System.out.println("Streamline Contouring took: " + (t1 - t0));
@@ -1305,48 +1297,29 @@ public class ContourSupport {
 
         long tAccum = 0;
         try {
-            for (int i = 0; i < numPoints[0] && i < xPoints.length; i++) {
-                if (xPoints[i] == -99999.0) {
-                	if (pts.size() > 0 ) {
-                			
-            				if ( worldWrap ) {
-            					screen = toScreenRightOfZero( pts.toArray(new Coordinate[pts.size()]), rastPosToWorldGrid, minX, minY );
-            					if ( screen != null )	contourGroup.posValueShape.addLineSegment(screen);
-
-            					screenx = toScreenLeftOfZero( pts.toArray(new Coordinate[pts.size()]),rastPosToWorldGrid, minX, minY );
-            					if ( screenx != null )	contourGroup.posValueShape.addLineSegment(screenx);
-            				}
-            				else {
-            					double[][] valsArr = vals.toArray(new double[vals.size()][2]);
-            					contourGroup.posValueShape.addLineSegment(valsArr);
-            				}
-
-            				vals.clear();
-            				pts.clear();
-                		
-                    }
-                } else {
+            for (List<StreamLinePoint> line : streamLines.streamLines) {
+                for (StreamLinePoint point : line) {
                     double[] out = new double[2];
                     try {
                         long tZ0 = System.currentTimeMillis();
                         
                         float f;
                         
-                        if ( xPoints[i] >= 360 ){
-                        	f = 0;
+                        if (point.getX() >= 360) {
+                            f = 0;
                         }
                         
                         else {
-                        	f= maxX + 1 - xPoints[i];
+                            f = maxX + 1 - point.getX();
                         }
                     
                         if (f > 180) f = f - 360;
                         
-                        rastPosToWorldGrid.transform(new double[] {
-                                f, yPoints[i] + minY }, 0,
+                        rastPosToWorldGrid.transform(
+                                new double[] { f, point.getY() + minY }, 0,
                                 out, 0, 1);
                         
-                        pts.add( new Coordinate(f, yPoints[i] + minY));
+                        pts.add(new Coordinate(f, point.getY() + minY));
                         
                         long tZ1 = System.currentTimeMillis();
                         tAccum += (tZ1 - tZ0);
@@ -1357,6 +1330,31 @@ public class ContourSupport {
                   
                     vals.add(out);
                 }
+                if (pts.size() > 0) {
+
+                    if (worldWrap) {
+                        screen = toScreenRightOfZero(
+                                pts.toArray(new Coordinate[pts.size()]),
+                                rastPosToWorldGrid, minX, minY);
+                        if (screen != null)
+                            contourGroup.posValueShape.addLineSegment(screen);
+
+                        screenx = toScreenLeftOfZero(
+                                pts.toArray(new Coordinate[pts.size()]),
+                                rastPosToWorldGrid, minX, minY);
+                        if (screenx != null)
+                            contourGroup.posValueShape.addLineSegment(screenx);
+                    } else {
+                        double[][] valsArr = vals.toArray(new double[vals
+                                .size()][2]);
+                        contourGroup.posValueShape.addLineSegment(valsArr);
+                    }
+
+                    vals.clear();
+                    pts.clear();
+
+                }
+
             }
 
 //            System.out.println("streamline transformation time: " + tAccum);
