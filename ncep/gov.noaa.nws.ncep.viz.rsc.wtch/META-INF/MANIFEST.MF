@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.edex.decodertools,
  gov.noaa.nws.ncep.common.dataplugin.aww;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: org.apache.log4j, gov.noaa.nws.ncep.resources, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: gov.noaa.nws.ncep.resources, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
 Eclipse-BuddyPolicy: ext, global
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: gov.noaa.nws.ncep.common.log.logger
