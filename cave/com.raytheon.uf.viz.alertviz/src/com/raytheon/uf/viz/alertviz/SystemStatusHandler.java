@@ -19,13 +19,16 @@
  **/
 package com.raytheon.uf.viz.alertviz;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.AbstractStatusHandler;
 import org.eclipse.ui.statushandlers.StatusAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -42,7 +45,8 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 9, 2008  1433       chammack    Initial creation
+ * Sep 09, 2008 1433       chammack    Initial creation
+ * Aug 26, 2013 2142       njensen     Changed to use SLF4J
  * </pre>
  * 
  * @author chammack
@@ -51,10 +55,12 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
 
 public class SystemStatusHandler extends AbstractStatusHandler {
 
-    private transient static final org.apache.log4j.Logger logger = Logger
+    private transient static final Logger logger = LoggerFactory
             .getLogger("CaveLogger");
 
     private static final String WORKSTATION = "WORKSTATION";
+
+    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
 
     /*
      * (non-Javadoc)
@@ -189,22 +195,23 @@ public class SystemStatusHandler extends AbstractStatusHandler {
     }
 
     private void logStatus(StatusMessage status) {
+        String msg = status.getDetails();
         switch (status.getPriority()) {
         case CRITICAL:
-            logger.fatal(status);
+            logger.error(FATAL, msg);
             break;
         case SIGNIFICANT:
-            logger.error(status);
+            logger.error(msg);
             break;
         case PROBLEM:
-            logger.warn(status);
+            logger.warn(msg);
             break;
         case EVENTA: // fall through
         case EVENTB:
-            logger.info(status);
+            logger.info(msg);
             break;
         case VERBOSE:
-            logger.debug(status);
+            logger.debug(msg);
             break;
         }
     }
