@@ -74,15 +74,21 @@ public class SystemStatusHandler extends AbstractStatusHandler {
         final IStatus status = statusAdapter.getStatus();
         StatusMessage sm = null;
 
+        String msg = null;
+        Throwable t = null;
         if (status instanceof VizStatusInternal) {
             VizStatusInternal vs = (VizStatusInternal) status;
+            msg = vs.getMessage();
+            t = vs.getException();
             sm = vs.toStatusMessage();
         } else {
             sm = from(status);
+            msg = sm.getDetails();
         }
+        Priority p = sm.getPriority();
 
         try {
-            logStatus(sm);
+            logStatus(p, msg, t);
             AlertVizClient.sendMessage(sm);
         } catch (final AlertvizException e) {
             // not a good situation, since we can't communicate with the log
@@ -194,24 +200,23 @@ public class SystemStatusHandler extends AbstractStatusHandler {
         return LogMessageDAO.getInstance().load(count, category);
     }
 
-    private void logStatus(StatusMessage status) {
-        String msg = status.getDetails();
-        switch (status.getPriority()) {
+    private void logStatus(Priority priority, String message, Throwable t) {
+        switch (priority) {
         case CRITICAL:
-            logger.error(FATAL, msg);
+            logger.error(FATAL, message, t);
             break;
         case SIGNIFICANT:
-            logger.error(msg);
+            logger.error(message, t);
             break;
         case PROBLEM:
-            logger.warn(msg);
+            logger.warn(message, t);
             break;
         case EVENTA: // fall through
         case EVENTB:
-            logger.info(msg);
+            logger.info(message, t);
             break;
         case VERBOSE:
-            logger.debug(msg);
+            logger.debug(message, t);
             break;
         }
     }
