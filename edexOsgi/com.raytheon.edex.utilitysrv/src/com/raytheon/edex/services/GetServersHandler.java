@@ -43,6 +43,8 @@ import com.raytheon.uf.common.util.registry.GenericRegistry;
  * Jan 14, 2013 1469      bkowal       No longer includes the hdf5 data directory
  *                                     in the response.
  * May 28, 2013 1989      njensen      Uses env variables instead of system props
+ * Aug 27, 2013 2295      bkowal       Return the entire jms connection url in
+ *                                     the response.
  * 
  * </pre>
  * 
@@ -61,18 +63,41 @@ public class GetServersHandler extends GenericRegistry<String, String>
         GetServersResponse response = new GetServersResponse();
         String httpServer = System.getenv("HTTP_SERVER");
         String jmsServer = System.getenv("JMS_SERVER");
+        String jmsVirtualHost = System.getenv("JMS_VIRTUALHOST");
         String pypiesServer = System.getenv("PYPIES_SERVER");
+        String jmsConnectionString = this.constructJMSConnectionString(
+                jmsServer, jmsVirtualHost);
 
         logger.info("http.server=" + httpServer);
         logger.info("jms.server=" + jmsServer);
+        logger.info("jms.virtualhost=" + jmsVirtualHost);
         logger.info("pypies.server=" + pypiesServer);
         logger.info("server locations=" + registry);
         ;
         response.setHttpServer(httpServer);
-        response.setJmsServer(jmsServer);
+        response.setJmsConnectionString(jmsConnectionString);
         response.setPypiesServer(pypiesServer);
         response.setServerLocations(Collections.unmodifiableMap(this.registry));
 
         return response;
+    }
+
+    // do not enable retry/connectdelay connection and factory will
+    // silently reconnect and user will never be notified qpid is down
+    // and cave/text workstation will just act like they are hung
+    // up to each individual component that opens a connection to handle
+    // reconnect
+    private String constructJMSConnectionString(String jmsServer,
+            String jmsVirtualHost) {
+        /* build the connection String that CAVE will use. */
+        StringBuilder stringBuilder = new StringBuilder(
+                "amqp://guest:guest@__WSID__/");
+        stringBuilder.append(jmsVirtualHost);
+        stringBuilder.append("?brokerlist='");
+        stringBuilder.append(jmsServer);
+        stringBuilder
+                .append("?connecttimeout='5000'&heartbeat='0''&maxprefetch='10'&sync_publish='all'&failover='nofailover'&sync_ack='true'");
+
+        return stringBuilder.toString();
     }
 }
