@@ -94,6 +94,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *    06/19/2012   14988       D. Friedman Make oversampling more like AWIPS 1
  *    09/18/2012   #1091       randerso    corrected getBoundingEnvelope
  *    11/06/2012   15406       ryu         Added convertToNativeEnvelope()
+ *    08/27/2013   #2287       randerso    Fixed rotation methods so it is not necessary 
+ *                                         to subtract 180 from the returned value
  * 
  * </pre>
  * 
@@ -1062,12 +1064,13 @@ public class MapUtil {
      * the right of UP is north (or 360) degrees.
      * 
      * @param latLon
+     * @param spatialObject
      * @return rotation angle
      */
     public static double rotation(Coordinate latLon,
             ISpatialObject spatialObject) {
 
-        double newLatLonY = latLon.y + 0.05;
+        double newLatLonY = latLon.y - 0.05;
         if (newLatLonY > 90) {
             newLatLonY -= 180;
         }
@@ -1098,11 +1101,12 @@ public class MapUtil {
      * the right of UP is north (or 360) degrees.
      * 
      * @param latLon
+     * @param geometry
      * @return rotation angle
      */
     public static double rotation(Coordinate latLon, GridGeometry2D geometry) {
 
-        double newLatLonY = latLon.y + 0.05;
+        double newLatLonY = latLon.y - 0.05;
         if (newLatLonY > 90) {
             newLatLonY -= 180;
         }
