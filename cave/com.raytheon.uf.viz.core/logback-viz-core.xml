@@ -21,6 +21,7 @@
    <appender name="CaveLogAppender" class="com.raytheon.uf.common.status.logback.EnvConfigurableRollingFileAppender">
       <!--  file and fileNamePattern will be overridden by the env variable if present, but are required by logback -->
       <file>cave-alertviz.log</file>
+      <envLogVar>LOGFILE_CAVE</envLogVar>
       <rollingPolicy class="com.raytheon.uf.common.status.logback.EnvConfigurableFixedWindowRollingPolicy">
          <fileNamePattern>cave-alertviz.log%i</fileNamePattern>
          <envLogVar>LOGFILE_CAVE</envLogVar>
@@ -39,6 +40,7 @@
    <appender name="PerformanceLogAppender" class="com.raytheon.uf.common.status.logback.EnvConfigurableRollingFileAppender">
       <!--  file and fileNamePattern will be overridden by the env variable if present, but are required by logback -->
       <file>cave-performance.log</file>
+      <envLogVar>LOGFILE_PERFORMANCE</envLogVar>
       <rollingPolicy class="com.raytheon.uf.common.status.logback.EnvConfigurableFixedWindowRollingPolicy">
          <fileNamePattern>cave-performance.log%i</fileNamePattern>
          <envLogVar>LOGFILE_PERFORMANCE</envLogVar>
