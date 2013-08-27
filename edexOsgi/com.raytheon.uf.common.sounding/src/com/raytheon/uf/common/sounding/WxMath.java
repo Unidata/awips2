@@ -19,8 +19,9 @@
  **/
 package com.raytheon.uf.common.sounding;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.sounding.util.SoundingPrefs;
+import com.raytheon.uf.common.wxmath.EquivalentPotentialTemperature;
+import com.raytheon.uf.common.wxmath.TempOfTe;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -34,8 +35,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 06 Nov 2006             jkorman     Initial Coding
  * 29 Sept 2008            dhladky     Added more stuff to finish SkewT.
- * 25 Jul 2013        2190 mschenke    Moved common sounding calculation 
- *                                     from PopupSkewTDialog to here
+ * 25 Jul 2013  2190       mschenke    Moved common sounding calculation  from
+ *                                     PopupSkewTDialog to here
+ * Aug 26, 2013 2262       bsteffen    Port ept to java.
  * </pre>
  * 
  * @author jkorman
@@ -158,14 +160,14 @@ public class WxMath {
             float tt = soundingData.get(i).getTemperature();
             float td = soundingData.get(i).getDewpoint();
             float p = soundingData.get(i).getPressure();
-            thetae = Controller.ept(tt, td, p);
+            thetae = (float) EquivalentPotentialTemperature.ept(tt, td, p);
             if (thetae > maxthetae && soundingData.get(i).getPressure() > 500)
                 maxthetae = thetae;
         }
         for (int i = 0; i < muParcelTrajectoryPressures.length; ++i) {
             float p = muParcelTrajectoryPressures[i];
             etpar = (float) (maxthetae * (Math.pow(p / 1000.0f, 0.286f)));
-            tp = Controller.temp_of_te(etpar, p);
+            tp = (float) TempOfTe.temp_of_te(etpar, p);
             muParcelTrajectory[20 - (int) (p / 50)] = tp;
         }
         return muParcelTrajectory;
