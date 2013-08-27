@@ -26,6 +26,8 @@ import org.eclipse.core.internal.registry.osgi.OSGIUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 
 /**
@@ -83,4 +85,16 @@ public class IconUtil {
         return ImageDescriptor.createFromURL(url);
     }
 
+    /**
+     * Creates an Image for an icon
+     * 
+     * @param bundleName
+     *            the name of the bundle to find the icon in
+     * @param name
+     *            the name of the icon
+     * @return the Image corresponding to the icon
+     */
+    public static Image getImage(Bundle bundle, String name, Device device) {
+        return getImageDescriptor(bundle, name).createImage(device);
+    }
 }
