@@ -65,6 +65,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2010            bsteffen     Initial creation
+ * Aug 27, 2013     #2287  randerso     Replaced hard coded constant with densityFactor
+ *                                      parameter to allow application specific density
+ *                                      scaling to better match A1 displays
  * 
  * </pre>
  * 
@@ -111,6 +114,8 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
     protected final int size;
 
+    protected final double densityFactor;
+
     protected RGB color;
 
     protected double density = 1.0;
@@ -128,16 +133,18 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
      * @param descriptor
      * @param gridGeometryOfGrid
      * @param size
-     * @param plotLocations
-     *            Pre-configured plot locations. If null, they will be created.
+     * @param densityFactor
+     *            adjustment factor to make density match A1
      */
     public AbstractGriddedDisplay(IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid, int size) {
+            GeneralGridGeometry gridGeometryOfGrid, int size,
+            double densityFactor) {
         this.calculationQueue = new ConcurrentLinkedQueue<Coordinate>();
 
         this.descriptor = descriptor;
         this.gridGeometryOfGrid = gridGeometryOfGrid;
         this.size = size;
+        this.densityFactor = densityFactor;
 
         this.gridDims = new int[] {
                 this.gridGeometryOfGrid.getGridRange().getSpan(0),
@@ -233,7 +240,8 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
         List<GridCellRenderable> renderables = new ArrayList<GridCellRenderable>();
         int increment = Math.max(
-                (int) Math.ceil(adjSize * 0.75 / pixelSize / density), 1);
+                (int) Math.ceil(adjSize * densityFactor / pixelSize / density),
+                1);
         for (int x = 0; x < gridDims[0]; x += increment) {
             for (int y = 0; y < gridDims[1]; y += increment) {
 
