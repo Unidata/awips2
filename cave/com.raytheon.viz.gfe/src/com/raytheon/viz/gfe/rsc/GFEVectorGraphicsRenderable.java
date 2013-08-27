@@ -17,20 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.util;
-
-import org.eclipse.swt.graphics.RGB;
+package com.raytheon.viz.gfe.rsc;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.IWireframeShape;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
- * TODO Add Description
+ * GFE version of VectorGraphicsRenderable. Subclassed to better match A1 GFE
+ * behavior
  * 
  * <pre>
  * 
@@ -38,45 +34,38 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2011            bsteffen    Initial creation
- * Aug 27, 2013     #2287  randerso    Refactored to allow subclassing
+ * Aug 22, 2013     #2287  randerso     Initial creation
  * 
  * </pre>
  * 
- * @author bsteffen
+ * @author randerso
  * @version 1.0
  */
-public class VectorGraphicsRenderable {
 
-    protected IWireframeShape lastShape;
+public class GFEVectorGraphicsRenderable extends VectorGraphicsRenderable {
+    double minLog = 0.0;
 
-    protected double size = 80;
+    double maxLog = 0.0;
 
-    protected double scale = 1.0;
+    private double maxLimit;
 
-    protected RGB color;
+    /**
+     * @param descriptor
+     * @param target
+     * @param size
+     * @param logFactor
+     * @param maxLimit
+     */
+    public GFEVectorGraphicsRenderable(IDescriptor descriptor,
+            IGraphicsTarget target, double size, double logFactor,
+            double maxLimit) {
+        super(descriptor, target, size, logFactor);
 
-    protected float lineWidth = 1.0f;
-
-    protected LineStyle lineStyle;
-
-    public VectorGraphicsRenderable(IDescriptor descriptor,
-            IGraphicsTarget target, double size, double scale) {
-        this.lastShape = target.createWireframeShape(true, descriptor);
-        this.size = size;
-        this.scale = scale;
-    }
-
-    public void setColor(RGB color) {
-        this.color = color;
-    }
-
-    public void setLineWidth(float lineWidth) {
-        this.lineWidth = lineWidth;
-    }
-
-    public void setLineStyle(LineStyle lineStyle) {
-        this.lineStyle = lineStyle;
+        this.maxLimit = maxLimit;
+        if (logFactor > 0.0) {
+            minLog = Math.log(logFactor);
+            maxLog = Math.log(logFactor + 1.0);
+        }
     }
 
     /**
@@ -87,12 +76,10 @@ public class VectorGraphicsRenderable {
      * @param dir
      *            barb direction in radians
      */
+    @Override
     public void paintBarb(Coordinate plotLoc, double adjSize, double spd,
             double dir) {
-        if (spd < 2.5) {
-            paintPoint(plotLoc, adjSize);
-            return;
-        }
+        paintPoint(plotLoc, adjSize);
 
         int speed = (int) (spd + 2.5);
         double staff = adjSize * .4;
@@ -170,110 +157,40 @@ public class VectorGraphicsRenderable {
         }
     }
 
-    protected void paintPoint(Coordinate plotLoc, double adjSize) {
-        double[][] line = new double[9][2];
-
-        double aa = adjSize * .030;
-        double saa = aa * 0.707;
-
-        line[8][0] = line[0][0] = plotLoc.x + aa;
-        line[8][1] = line[0][1] = plotLoc.y;
-        line[1][0] = plotLoc.x + saa;
-        line[1][1] = plotLoc.y + saa;
-
-        line[2][0] = plotLoc.x;
-        line[2][1] = plotLoc.y + aa;
-
-        line[3][0] = plotLoc.x - saa;
-        line[3][1] = plotLoc.y + saa;
-
-        line[4][0] = plotLoc.x - aa;
-        line[4][1] = plotLoc.y;
-
-        line[5][0] = plotLoc.x - saa;
-        line[5][1] = plotLoc.y - saa;
-
-        line[6][0] = plotLoc.x;
-        line[6][1] = plotLoc.y - aa;
-
-        line[7][0] = plotLoc.x + saa;
-        line[7][1] = plotLoc.y - saa;
-
-        lastShape.addLineSegment(line);
-    }
-
-    public void paintDualArrow(Coordinate plotLoc, double adjSize, double spd,
+    @Override
+    public void paintArrow(Coordinate plotLoc, double adjSize, double mag,
             double dir) {
-        if (spd < 4.0) {
-            return;
-        }
+        paintPoint(plotLoc, adjSize);
+
         double staff = 0.0;
-        if (this.scale > 0.0) {
-            staff = spd * this.scale;
+
+        double logFactor = this.scale;
+
+        // linear scaling
+        if (logFactor == 0.00) {
+            staff = mag * size / maxLimit;
         } else {
-            staff = Math.log10(spd * -this.scale) * 10 + 10;
+            double pcentRange = mag / maxLimit;
+            double lg = Math.log(logFactor + pcentRange);
+            double pcentLog = (lg - minLog) / (maxLog - minLog);
+            staff = pcentLog * size;
         }
 
-        double barb = 4.0;
+        double barb = staff / 7.0;
 
-        if (staff < barb) {
-            return;
-        }
+        // if (staff < barb) {
+        // return;
+        // }
 
         double ratio = adjSize / size;
         staff *= ratio;
         barb *= ratio;
 
         // DIRECTIONS
-        double uudd = -spd * Math.sin(dir);
-        double vvff = -spd * Math.cos(dir);
-        double dix = uudd / spd;
-        double djy = vvff / spd;
-        double dix1 = -dix - djy;
-        double djy1 = dix - djy;
-
-        // DRAW BODY OF ARROW
-        double ix2 = plotLoc.x;
-        double jy2 = plotLoc.y;
-        double ix1 = ix2 + dix * staff;
-        double jy1 = jy2 - djy * staff;
-
-        double ix3 = ix1 + dix1 * barb;
-        double jy3 = jy1 - djy1 * barb;
-        double ix4 = ix2 - dix1 * barb;
-        double jy4 = jy2 + djy1 * barb;
-        lastShape.addLineSegment(new double[][] { { ix4, jy4 }, { ix2, jy2 },
-                { ix1, jy1 }, { ix3, jy3 } });
-
-    }
-
-    public void paintArrow(Coordinate plotLoc, double adjSize, double spd,
-            double dir) {
-        if (spd == 0.0) {
-            return;
-        }
-        double staff = 0.0;
-        if (this.scale > 0.0) {
-            staff = spd * this.scale;
-        } else {
-            staff = Math.log10(spd * -this.scale) * 10 + 10;
-        }
-
-        double barb = 4.0;
-
-        if (staff < barb) {
-            return;
-        }
-
-        double ratio = adjSize / size;
-        staff *= ratio;
-        barb *= ratio;
-
-        // DIRECTIONS
-        double uudd = -spd * Math.sin(dir);
-        double vvff = -spd * Math.cos(dir);
-        double dix = uudd / spd;
-        double djy = vvff / spd;
+        double uudd = -mag * Math.sin(dir);
+        double vvff = -mag * Math.cos(dir);
+        double dix = uudd / mag;
+        double djy = vvff / mag;
         double dix1 = -dix - djy;
         double djy1 = dix - djy;
         double dix2 = -dix + djy;
@@ -293,18 +210,4 @@ public class VectorGraphicsRenderable {
         lastShape.addLineSegment(new double[][] { { ix2, jy2 }, { ix1, jy1 },
                 { ix3, jy3 } });
     }
-
-    public void paint(IGraphicsTarget target) throws VizException {
-        if (lastShape != null) {
-            target.drawWireframeShape(lastShape, color, lineWidth, lineStyle);
-        }
-    }
-
-    public void dispose() {
-        if (lastShape != null) {
-            lastShape.dispose();
-            lastShape = null;
-        }
-    }
-
 }
