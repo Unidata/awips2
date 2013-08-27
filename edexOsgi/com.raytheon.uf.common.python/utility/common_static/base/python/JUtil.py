@@ -141,8 +141,8 @@ def pyValToJavaObj(val):
     elif issubclass(valtype, JavaWrapperClass):
         retObj = val.toJavaObj()
     elif issubclass(valtype, BaseGeometry):
-        reader = WKBReader()
-        retObj = reader.read(val.to_wkb)
+        reader = WKTReader()
+        retObj = reader.read(val.to_wkt())
     return retObj
 
 def javaObjToPyVal(obj, customConverter=None):
