@@ -31,7 +31,6 @@
 
 from com.raytheon.uf.common.wxmath import PToZsa
 from com.raytheon.uf.common.wxmath import ZToPsa
-from com.raytheon.edex.meteoLib import Controller
 from jep import jarray, JFLOAT_ID
 import numpy
 
@@ -58,14 +57,6 @@ def ptozsa(P):
             result[i] = ptozsa(P[i]);
         return result
     return P
-
-def calctd2(P,T,Q):
-    jP = numpy2java(P)
-    jT = numpy2java(T)
-    jQ = numpy2java(Q)
-    jresult = Controller.calctd2(jP,jT,jQ,int(P.shape[0]),int(P.shape[1]))
-    result = java2numpy(jresult, P.shape)
-    return result
 
 def numpy2java(a):
     if (len(a.shape) == 1):
