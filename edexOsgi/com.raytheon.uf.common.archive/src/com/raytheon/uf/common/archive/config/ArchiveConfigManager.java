@@ -87,7 +87,7 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     Added warn logging for failure to delete.
  * Jul 24, 2013 2221       rferrel     Changes for select configuration.
  * Aug 06, 2013 2224       rferrel     Changes to use DataSet.
- * 
+ * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns the number of files purged.
  * </pre>
  * 
  * @author rferrel
@@ -288,18 +288,22 @@ public class ArchiveConfigManager {
      * Archive.
      * 
      * @param archive
-     * @return the list of expired Files purged
+     * @return purgeCount
      */
-    public Collection<File> purgeExpiredFromArchive(ArchiveConfig archive) {
-        Collection<File> filesPurged = new ArrayList<File>();
+    public int purgeExpiredFromArchive(ArchiveConfig archive) {
         String archiveRootDirPath = archive.getRootDir();
         File archiveRootDir = new File(archiveRootDirPath);
+
         String[] topLevelDirs = archiveRootDir.list();
+
         List<String> topLevelDirsNotPurged = new ArrayList<String>();
+        int purgeCount = 0;
 
         if (topLevelDirs != null) {
             topLevelDirsNotPurged.addAll(Arrays.asList(topLevelDirs));
+            topLevelDirs = null;
         }
+
         for (CategoryConfig category : archive.getCategoryList()) {
             Calendar purgeTime = calculateExpiration(archive, category);
             CategoryFileDateHelper helper = new CategoryFileDateHelper(
@@ -323,68 +327,92 @@ public class ArchiveConfigManager {
                 List<File> displayFiles = getDisplayFiles(display, null,
                         purgeTime);
                 for (File file : displayFiles) {
-                    filesPurged.addAll(purgeFile(file, fileDateFilter,
-                            archiveRootDirPath));
+                    purgeCount += purgeFile(file, fileDateFilter);
                 }
             }
         }
 
         // check for other expired in top level directories not covered
-        // by the categories in the archives
+        // by the categories in the archive.
         Calendar defaultPurgeTime = calculateExpiration(archive, null);
+        IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
+                .fileFileFilter(), new FileDateFilter(null, defaultPurgeTime));
         for (String topDirName : topLevelDirsNotPurged) {
-            IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
-                    .fileFileFilter(), new FileDateFilter(null,
-                    defaultPurgeTime));
             File topLevelDir = new File(archiveRootDir, topDirName);
 
-            filesPurged.addAll(purgeFile(topLevelDir, fileDateFilter,
-                    archiveRootDirPath));
+            // Keep both top level hidden files and hidden directories.
+            if (!topLevelDir.isHidden()) {
+                purgeCount += purgeFile(topLevelDir, fileDateFilter);
+            }
         }
-        return filesPurged;
+        return purgeCount;
     }
 
-    private Collection<File> purgeFile(File fileToPurge, IOFileFilter filter,
-            final String archiveRootDir) {
-        Collection<File> filesPurged = new ArrayList<File>();
+    /**
+     * Recursive method for purging files. Never pass in a directory you do not
+     * want deleted when purging makes it an empty directory.
+     * 
+     * @param fileToPurge
+     * @param filter
+     * @return purgeCount number of files and directories purged
+     */
+    private int purgeFile(File fileToPurge, IOFileFilter filter) {
+        int purgeCount = 0;
 
         if (fileToPurge.isFile() && filter.accept(fileToPurge)) {
             if (fileToPurge.delete()) {
-                filesPurged.add(fileToPurge);
+                ++purgeCount;
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.debug("Purged file: \""
+                            + fileToPurge.getAbsolutePath() + "\"");
+                }
             } else {
                 statusHandler.warn("Failed to purge file: "
                         + fileToPurge.getAbsolutePath());
             }
-        } else if (fileToPurge.isDirectory()) {
-            Collection<File> expiredFilesInDir = FileUtils.listFiles(
-                    fileToPurge, filter, FileFilterUtils.trueFileFilter());
+        } else if (fileToPurge.isDirectory() && !fileToPurge.isHidden()) {
+            // Purge only visible directories.
+            File[] expiredFilesInDir = fileToPurge.listFiles();
 
             for (File dirFile : expiredFilesInDir) {
-                filesPurged.addAll(purgeFile(dirFile, filter, archiveRootDir));
+                purgeCount += purgeFile(dirFile, filter);
             }
 
-            // if the directory is empty and not the archive root dir, then
-            // delete it
-            if (fileToPurge.list().length == 0
-                    && !fileToPurge.getAbsolutePath().equals(archiveRootDir)) {
+            // Attempt to delete empty directory.
+            if ((purgeCount >= expiredFilesInDir.length)
+                    && (fileToPurge.list().length == 0)) {
                 if (!fileToPurge.delete()) {
                     statusHandler.warn("Failed to purge directory: "
                             + fileToPurge.getAbsolutePath());
+                } else {
+                    ++purgeCount;
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler.debug("Purged directory: \""
+                                + fileToPurge.getAbsolutePath()
+                                + File.separator + "\"");
+                    }
                 }
             }
         }
-        return filesPurged;
+        return purgeCount;
     }
 
+    /**
+     * Get expiration time for the category.
+     * 
+     * @param archive
+     * @param category
+     * @return expireCal
+     */
     private Calendar calculateExpiration(ArchiveConfig archive,
             CategoryConfig category) {
-        Calendar newCal = TimeUtil.newGmtCalendar();
+        Calendar expireCal = TimeUtil.newGmtCalendar();
         int retHours = category == null || category.getRetentionHours() == 0 ? archive
                 .getRetentionHours() : category.getRetentionHours();
         if (retHours != 0) {
-            newCal.add(Calendar.HOUR, (-1) * retHours);
+            expireCal.add(Calendar.HOUR, (-1) * retHours);
         }
-        return newCal;
+        return expireCal;
     }
 
     /**
