@@ -21,6 +21,7 @@ import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenRemindDialog;
 import gov.noaa.nws.ncep.ui.pgen.controls.ReplaceElementCommand;
 import gov.noaa.nws.ncep.ui.pgen.controls.ReplaceElementsCommand;
+import gov.noaa.nws.ncep.ui.pgen.controls.StoreActivityDialog;
 import gov.noaa.nws.ncep.ui.pgen.display.SymbolImageUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
@@ -1149,15 +1150,15 @@ public class PgenResourceData extends AbstractResourceData implements
          * Launch SAVE dialog, if requested
          */
         if (confirmDlg.getReturnCode() == MessageDialog.OK) {
-            PgenFileManageDialog file_dlg = null;
+            StoreActivityDialog  storeDialog = null;
             try {
-                file_dlg = new PgenFileManageDialog(PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getShell(), "Save As");
+               storeDialog = new StoreActivityDialog( PlatformUI.getWorkbench()
+                       .getActiveWorkbenchWindow().getShell(), "Save As" );
             } catch (VizException e) {
                 e.printStackTrace();
             }
-            if (file_dlg != null)
-                file_dlg.open();
+            if ( storeDialog!= null)
+            	storeDialog.open();
         }
 
     }
