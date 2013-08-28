@@ -27,19 +27,21 @@
  */
 package com.raytheon.uf.edex.ogc.common.http;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool;
+
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * @author bclement
  * 
  */
-public class OgcHttpPool extends GenericKeyedObjectPool {
+public class OgcHttpPool extends GenericKeyedObjectPool implements
+        IOgcHttpPooler {
 
 	/** The logger */
-	private transient Log logger = LogFactory.getLog(getClass());
+	private transient IUFStatusHandler log = UFStatus.getHandler(getClass());
 
 	public OgcHttpPool(KeyedPoolableObjectFactory ogcFactory) {
 		super(ogcFactory);
@@ -51,7 +53,7 @@ public class OgcHttpPool extends GenericKeyedObjectPool {
 		try {
 			retVal = super.borrowObject(key);
 		} catch (IllegalStateException e) {
-			logger.error(
+			log.error(
 					"Unable to borrow Ogc HTTP instance from pool for key: "
 							+ key, e);
 			throw new RuntimeException(e);
@@ -63,7 +65,7 @@ public class OgcHttpPool extends GenericKeyedObjectPool {
 
 			if (retVal == null) {
 				// it still didn't work, blow up
-				logger.error(
+				log.error(
 						"Unable to borrow Ogc HTTP instance from pool for key: "
 								+ key, e);
 				throw new RuntimeException(e);
@@ -79,7 +81,7 @@ public class OgcHttpPool extends GenericKeyedObjectPool {
 				super.returnObject(key, borrowed);
 			}
 		} catch (Exception e) {
-			logger.error("Unable to return Ogc HTTP instance to pool for key: "
+			log.error("Unable to return Ogc HTTP instance to pool for key: "
 					+ key, e);
 		}
 	}

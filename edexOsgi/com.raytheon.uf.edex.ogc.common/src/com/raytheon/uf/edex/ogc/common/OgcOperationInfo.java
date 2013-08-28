@@ -41,6 +41,8 @@ public class OgcOperationInfo<T> {
 	protected String httpPostRes;
 
 	protected String httpGetRes;
+	
+	protected String postEncoding;
 
 	protected List<String> formats = new LinkedList<String>();
 
@@ -205,5 +207,20 @@ public class OgcOperationInfo<T> {
 	public void setInterpolationtypes(List<String> interpolationtypes) {
 		this.interpolationtypes = interpolationtypes;
 	}
+
+    /**
+     * @return the postEncoding
+     */
+    public String getPostEncoding() {
+        return postEncoding;
+    }
+
+    /**
+     * @param postEncoding
+     *            the postEncoding to set
+     */
+    public void setPostEncoding(String postEncoding) {
+        this.postEncoding = postEncoding;
+    }
 
 }

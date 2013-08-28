@@ -44,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geotools.legend.Glyph;
 import org.geotools.styling.Description;
 import org.geotools.styling.FeatureTypeStyle;
@@ -63,6 +61,8 @@ import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.ogc.common.OgcStyle;
 import com.raytheon.uf.edex.ogc.common.StyleLookup;
@@ -91,8 +91,8 @@ public abstract class AbstractSldStyleProvider implements StyleLookup {
 
 	protected StyledLayerMatcher matcher = null;
 
-	protected static Log log = LogFactory
-			.getLog(AbstractSldStyleProvider.class);
+    protected static IUFStatusHandler log = UFStatus
+            .getHandler(AbstractSldStyleProvider.class);
 
 	/**
 	 * @param styleLibraryFileName

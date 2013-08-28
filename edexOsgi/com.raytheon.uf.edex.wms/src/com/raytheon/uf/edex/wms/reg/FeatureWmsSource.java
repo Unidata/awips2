@@ -44,6 +44,8 @@ import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.edex.ogc.common.OgcStyle;
 import com.raytheon.uf.edex.ogc.common.StyleLookup;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
+import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 import com.raytheon.uf.edex.ogc.common.feature.FeatureFactory;
 import com.raytheon.uf.edex.wms.WmsException;
 import com.raytheon.uf.edex.wms.WmsException.Code;
@@ -55,7 +57,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author bclement
  * @version 1.0	
  */
-public abstract class FeatureWmsSource extends AbstractWmsSource {
+public abstract class FeatureWmsSource<D extends SimpleDimension, L extends SimpleLayer<D>>
+        extends AbstractWmsSource<D, L> {
 
 	protected FeatureFactory featureFactory;
 
@@ -66,7 +69,7 @@ public abstract class FeatureWmsSource extends AbstractWmsSource {
 	 * @param styles
 	 */
 	public FeatureWmsSource(PluginProperties props, String key,
-			LayerTransformer transformer, FeatureFactory featureFactory) {
+            LayerTransformer<D, L> transformer, FeatureFactory featureFactory) {
 		super(props, key, transformer);
 		this.featureFactory = featureFactory;
 	}
