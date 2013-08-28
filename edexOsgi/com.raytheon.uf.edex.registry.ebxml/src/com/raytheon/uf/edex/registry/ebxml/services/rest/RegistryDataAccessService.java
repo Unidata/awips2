@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -28,12 +27,9 @@ import javax.ws.rs.PathParam;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.RemoveObjectsRequest;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,41 +92,23 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
         if (subscriptions.isEmpty()) {
             statusHandler.info("No subscriptions present for site: " + siteId);
         } else {
-            List<Integer> deliveryInfoKeys = new ArrayList<Integer>();
             ObjectRefListType refList = new ObjectRefListType();
             for (SubscriptionType sub : subscriptions) {
                 refList.getObjectRef().add(new ObjectRefType(sub.getId()));
-                for (DeliveryInfoType deliveryInfo : sub.getDeliveryInfo()) {
-                    deliveryInfoKeys.add(deliveryInfo.getKey());
-                }
             }
             RemoveObjectsRequest removeRequest = new RemoveObjectsRequest();
+            removeRequest.setDeleteChildren(true);
             removeRequest.setId("Remote subscription removal request for "
                     + siteId);
             removeRequest.setComment("Removal of remote subscriptions for "
                     + siteId);
             removeRequest.setObjectRefList(refList);
             try {
-                RegistryResponseType response = lcm
-                        .removeObjects(removeRequest);
-                if (response.getStatus().equals(RegistryResponseStatus.SUCCESS)) {
-                    registryObjectDao
-                            .executeHQLStatement(
-                                    "DELETE FROM DeliveryInfoType deliveryInfo where deliveryInfo.key in (:keys)",
-                                    "keys", deliveryInfoKeys);
-                    statusHandler
-                            .info("Successfully removed subscriptions for site "
-                                    + siteId);
-                } else {
-                    statusHandler
-                            .info("Failed to remove subscriptions for site "
-                                    + siteId);
-                }
+                lcm.removeObjects(removeRequest);
             } catch (Exception e) {
                 throw new RegistryException(
                         "Error removing subscriptions for site " + siteId, e);
             }
-
         }
     }
 
