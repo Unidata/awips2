@@ -57,31 +57,7 @@ public class ColorMapUtility {
 
 	public static final double CALCULATED_PAD_RATIO = 0.25;
 
-    public static RenderedImage applyColorMap(ByteDataRecord record,
-			ColorMap cmap, StyleRule styleRule) throws Exception {
-        ColorMapData prep = buildColorMapData(record);
-		return applyColorMap(prep, cmap, styleRule, record);
-	}
-
-    public static RenderedImage applyColorMap(IntegerDataRecord record,
-			ColorMap cmap, StyleRule styleRule) throws Exception {
-        ColorMapData prep = buildColorMapData(record);
-		return applyColorMap(prep, cmap, styleRule, record);
-	}
-
-	// public static BufferedImage applyColorMap(LongDataRecord record,
-	// ColorMap cmap) {
-	// IColormappedDataPreparer prep = buildPreparer(record);
-	// return applyColorMap(prep, cmap);
-	// }
-
-    public static RenderedImage applyColorMap(ShortDataRecord record,
-			ColorMap cmap, StyleRule styleRule) throws Exception {
-        ColorMapData prep = buildColorMapData(record);
-		return applyColorMap(prep, cmap, styleRule, record);
-	}
-
-    public static RenderedImage applyColorMap(FloatDataRecord record,
+    public static RenderedImage applyColorMap(IDataRecord record,
 			ColorMap cmap, StyleRule styleRule) throws Exception {
         ColorMapData prep = buildColorMapData(record);
 		return applyColorMap(prep, cmap, styleRule, record);
@@ -94,7 +70,6 @@ public class ColorMapUtility {
         cmapParams = getCmapParams(cmap, styleRule, record);
 
         return Colormapper.colorMap(prep, cmapParams);
-
 	}
 
 	public static ColorMapParameters getCmapParams(ColorMap colormap,
@@ -157,65 +132,35 @@ public class ColorMapUtility {
 		return params;
 	}
 
-    public static ColorMapData buildColorMapData(ByteDataRecord dataRecord) {
-        ByteBuffer bbuff = ByteBuffer.wrap(dataRecord.getByteData());
+    public static ColorMapData buildColorMapData(IDataRecord dataRecord)
+            throws Exception {
         long[] sizes = dataRecord.getSizes();
         int[] dims = { (int) sizes[0], (int) sizes[1] };
-        return new ColorMapData(bbuff, dims);
-    }
-
-    public static ColorMapData buildColorMapData(IntegerDataRecord dataRecord) {
-		IntBuffer buff = IntBuffer.wrap(dataRecord.getIntData());
-		long[] sizes = dataRecord.getSizes();
-		int[] dims = { (int) sizes[0], (int) sizes[1] };
-        return new ColorMapData(buff, dims);
-	}
-
-    public static ColorMapData buildColorMapData(
-			ShortDataRecord dataRecord) {
-		ShortBuffer buff = ShortBuffer.wrap(dataRecord.getShortData());
-		long[] sizes = dataRecord.getSizes();
-		int[] dims = { (int) sizes[0], (int) sizes[1] };
-        return new ColorMapData(buff, dims);
-	}
-
-    public static ColorMapData buildColorMapData(
-			FloatDataRecord dataRecord) {
-		FloatBuffer buff = FloatBuffer.wrap(dataRecord.getFloatData());
-		long[] sizes = dataRecord.getSizes();
-		int[] dims = { (int) sizes[0], (int) sizes[1] };
-        return new ColorMapData(buff, dims);
-	}
-
-    public static ColorMapData buildColorMapData(IDataRecord dataRecord)
-			throws Exception {
-		long[] sizes = dataRecord.getSizes();
-		int[] dims = { (int) sizes[0], (int) sizes[1] };
         ColorMapData rval = null;
-		if (dataRecord instanceof ByteDataRecord) {
-			ByteBuffer buff = ByteBuffer.wrap(((ByteDataRecord) dataRecord)
-					.getByteData());
+        if (dataRecord instanceof ByteDataRecord) {
+            ByteBuffer buff = ByteBuffer.wrap(((ByteDataRecord) dataRecord)
+                    .getByteData());
             rval = new ColorMapData(buff, dims);
-		} else if (dataRecord instanceof ShortDataRecord) {
-			ShortBuffer buff = ShortBuffer.wrap(((ShortDataRecord) dataRecord)
-					.getShortData());
+        } else if (dataRecord instanceof ShortDataRecord) {
+            ShortBuffer buff = ShortBuffer.wrap(((ShortDataRecord) dataRecord)
+                    .getShortData());
             rval = new ColorMapData(buff, dims);
-		} else if (dataRecord instanceof IntegerDataRecord) {
-			IntBuffer buff = IntBuffer.wrap(((IntegerDataRecord) dataRecord)
-					.getIntData());
+        } else if (dataRecord instanceof IntegerDataRecord) {
+            IntBuffer buff = IntBuffer.wrap(((IntegerDataRecord) dataRecord)
+                    .getIntData());
             rval = new ColorMapData(buff, dims);
-		} else if (dataRecord instanceof FloatDataRecord) {
-			FloatBuffer buff = FloatBuffer.wrap(((FloatDataRecord) dataRecord)
-					.getFloatData());
+        } else if (dataRecord instanceof FloatDataRecord) {
+            FloatBuffer buff = FloatBuffer.wrap(((FloatDataRecord) dataRecord)
+                    .getFloatData());
             rval = new ColorMapData(buff, dims);
-		} else {
-			throw new IllegalArgumentException(
-					"Unable to apply colormap to class "
-							+ dataRecord.getClass());
-		}
+        } else {
+            throw new IllegalArgumentException(
+                    "Unable to apply colormap to class "
+                            + dataRecord.getClass());
+        }
 
-		return rval;
-	}
+        return rval;
+    }
 
 	/**
 	 * Returns an 2D GeneralEnvelope of data bounds. Dimension 1 contains the

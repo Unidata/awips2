@@ -1,18 +1,15 @@
 package com.raytheon.uf.edex.plugin.madis.ogc;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.JAXBElement;
-
-import net.opengis.gml.v_3_1_1.AbstractFeatureType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.edex.plugin.madis.MadisPointDataTransform;
 import com.raytheon.uf.edex.plugin.madis.ogc.feature.Madis;
 import com.raytheon.uf.edex.plugin.madis.ogc.feature.MadisObjectFactory;
-import com.raytheon.uf.edex.wfs.reg.WfsTranslator;
+import com.raytheon.uf.edex.wfs.reg.IPdoGmlTranslator;
 
 /**
  * 
@@ -30,23 +27,23 @@ import com.raytheon.uf.edex.wfs.reg.WfsTranslator;
  * @author dhladky
  * @version 1.0
  */
-public class MadisTranslator implements WfsTranslator {
-    
-    
+public class MadisTranslator implements IPdoGmlTranslator {
+
+    public static final String GML_VERSION = "3.1.1";
+
     public MadisTranslator() {
 
     }
 
     @Override
-    public List<JAXBElement<? extends AbstractFeatureType>> translate(
-            PluginDataObject[] pdos) {
-        ArrayList<JAXBElement<? extends AbstractFeatureType>> rval = new ArrayList<JAXBElement<? extends AbstractFeatureType>>(
+    public ArrayList<JAXBElement<?>> translate(PluginDataObject[] pdos) {
+        ArrayList<JAXBElement<?>> rval = new ArrayList<JAXBElement<?>>(
                 pdos.length);
 
         MadisPointDataTransform.populatePointDataFields(pdos);
-        
+
         for (PluginDataObject pdo : pdos) {
-             rval.add(translate(pdo));
+            rval.add(translate(pdo));
         }
         return rval;
     }
@@ -57,7 +54,17 @@ public class MadisTranslator implements WfsTranslator {
      */
     public JAXBElement<Madis> translate(PluginDataObject pdo) {
 
-        return new MadisObjectFactory().create(new Madis((MadisRecord)pdo));
+        return new MadisObjectFactory().create(new Madis((MadisRecord) pdo));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.PdoGmlTranslator#getVersion()
+     */
+    @Override
+    public String getVersion() {
+        return GML_VERSION;
     }
 
 }

@@ -30,94 +30,43 @@
  */
 package com.raytheon.uf.edex.wcs.reg;
 
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.List;
 
 /**
+ * WCS Coverage
  * 
  * @author bclement
  * @version 1.0
  */
 public class Coverage {
 
-	protected IDataRecord dataRecord;
-	private CoordinateReferenceSystem crs;
-	private Envelope envelope;
-	private String time;
-	private GridGeometry2D gridGeometry;
+    private final String name;
 
-	/**
-	 * @return the crs
-	 */
-	public CoordinateReferenceSystem getCrs() {
-		return crs;
-	}
+    private final List<CoverageField> fields;
 
-	/**
-	 * @return the envelope
-	 */
-	public Envelope getEnvelope() {
-		return envelope;
-	}
+    /**
+     * @param name
+     * @param fields
+     */
+    public Coverage(String name, List<CoverageField> fields) {
+        super();
+        this.name = name;
+        this.fields = fields;
+    }
 
-	/**
-	 * @return the dataRecord
-	 */
-	public IDataRecord getDataRecord() {
-		return dataRecord;
-	}
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * @param dataRecord
-	 *            the dataRecord to set
-	 */
-	public void setDataRecord(IDataRecord dataRecord) {
-		this.dataRecord = dataRecord;
-	}
+    /**
+     * @return the fields
+     */
+    public List<CoverageField> getFields() {
+        return fields;
+    }
 
-	/**
-	 * @param envelope
-	 */
-	public void setEnvelope(Envelope env) {
-		this.envelope = env;
-	}
-
-	/**
-	 * @param crs
-	 */
-	public void setCrs(CoordinateReferenceSystem crs) {
-		this.crs = crs;
-	}
-
-	/**
-	 * @param timeString
-	 */
-	public void setTime(String timeString) {
-		this.time = timeString;
-	}
-
-	/**
-	 * @return the time
-	 */
-	public String getTime() {
-		return time;
-	}
-
-	/**
-	 * @param gridGeometry the gridGeometry to set
-	 */
-	public void setGridGeometry(GridGeometry2D gridGeometry) {
-		this.gridGeometry = gridGeometry;
-	}
-
-	/**
-	 * @return the gridGeometry
-	 */
-	public GridGeometry2D getGridGeometry() {
-		return gridGeometry;
-	}
 
 }

@@ -32,15 +32,12 @@ package com.raytheon.uf.edex.ogc.common.colormap;
 
 import java.io.InputStream;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -50,8 +47,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.edex.ogc.common.spatial.AltUtil;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate.Reference;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalEnabled;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalSpatialFactory;
 
 /**
  * TODO Add Description
@@ -65,8 +66,6 @@ public class StyleRuleLibrary {
 
 	@XmlElements({ @XmlElement(name = "styleRule", type = StyleRule.class) })
 	private List<StyleRule> rules;
-
-	private Log log = LogFactory.getLog(this.getClass());
 
 	private Map<String, List<StyleRule>> _ruleMap;
 
@@ -111,43 +110,51 @@ public class StyleRuleLibrary {
 		return _ruleMap;
 	}
 
-	/**
-	 * @param rule
-	 * @param dimensions
-	 * @param levelUnits
-	 * @return false if there was a range and it was out of bounds, true
-	 *         otherwise
-	 * @throws ParseException
-	 */
-	protected boolean initRule(StyleRule rule, Map<String, String> dimensions,
-			Map<String, String> levelUnits) throws ParseException {
+	    /**
+     * @param rule
+     * @param record
+     * @return false if there was a range and it was out of bounds, true
+     *         otherwise
+     * @throws ParseException
+     */
+    protected boolean initRule(StyleRule rule, PluginDataObject record)
+            throws ParseException {
 		LevelRange range = rule.getLevelRange();
 		if (range != null) {
 			// only accept if range is ok
-			return initRange(rule, dimensions, levelUnits);
+            return initRange(rule, record);
 		}
 		// if there is no range, we accept the rule
 		return true;
 	}
 
-	/**
-	 * @param rule
-	 * @param dimensions
-	 * @param levelUnits
-	 * @return true if range is in bounds
-	 * @throws ParseException
-	 */
-	protected boolean initRange(StyleRule rule, Map<String, String> dimensions,
-			Map<String, String> levelUnits) throws ParseException {
+	    /**
+     * @param rule
+     * @param record
+     * @return true if range is in bounds
+     * @throws ParseException
+     */
+    @SuppressWarnings("unchecked")
+    protected boolean initRange(StyleRule rule, PluginDataObject record)
+            throws ParseException {
 		LevelRange range = rule.getLevelRange();
-		String level = range.getLevel();
-		String levelValue = dimensions.get(level);
-		if (levelValue != null) {
-			Double lvlVal = Double.parseDouble(levelValue);
-			String styleLevelUnit = range.getUnit();
-			lvlVal = convert(lvlVal, styleLevelUnit, styleLevelUnit, levelUnits);
-			if (lvlVal >= range.getLower() && lvlVal <= range.getUpper()) {
-				setupLevelRange(rule, lvlVal);
+        VerticalEnabled<PluginDataObject> enabled;
+        if (record instanceof VerticalEnabled<?>) {
+            enabled = (VerticalEnabled<PluginDataObject>) record;
+        } else if ((enabled = (VerticalEnabled<PluginDataObject>) VerticalSpatialFactory
+                .getEnabled(record.getClass())) != null) {
+        } else {
+            return false;
+        }
+        VerticalCoordinate vert = enabled.getVerticalCoordinate(record);
+
+        if (vert != null) {
+            Unit<?> styleLevelUnit = Unit.valueOf(range.getUnit());
+            double levelValue = AltUtil.convert(styleLevelUnit,
+                    Reference.UNKNOWN, vert).getValue();
+            if (levelValue >= range.getLower()
+                    && levelValue <= range.getUpper()) {
+                setupLevelRange(rule, levelValue);
 				// range is in bounds
 				return true;
 			}
@@ -156,43 +163,17 @@ public class StyleRuleLibrary {
 		return false;
 	}
 
-	protected Double convert(Double lvlVal, String styleLevelUnit,
-			String level, Map<String, String> levelUnits) throws ParseException {
-		if (styleLevelUnit == null || levelUnits == null) {
-			return lvlVal;
-		}
-		String dataLevelUnit = levelUnits.get(level);
-		if (dataLevelUnit == null) {
-			return lvlVal;
-		}
-		UnitFormat formatter = UnitFormat.getInstance();
-		try {
-			Unit<?> ruleUnit = formatter.parseSingleUnit(styleLevelUnit,
-					new ParsePosition(0));
-			Unit<?> dataUnit = formatter.parseSingleUnit(dataLevelUnit,
-					new ParsePosition(0));
-
-			UnitConverter dataToRuleConv = dataUnit.getConverterTo(ruleUnit);
-
-			return dataToRuleConv.convert(lvlVal.doubleValue());
-
-		} catch (ParseException e) {
-			log.error("Cannot convert units", e);
-			throw e;
-		}
-	}
-
-	public StyleRule getMatchForLayer(String layer,
-			Map<String, String> dimensions, Map<String, String> levelUnits)
+    public StyleRule getMatchForLayer(PluginDataObject record)
 			throws ParseException {
-		if (layer == null) {
+        if (record == null) {
 			return null;
 		}
+        String datauri = record.getDataURI();
 		for (StyleRule rule : rules) {
 			String pattern = rule.getLayerRegex();
-			if (layer.matches(pattern)) {
+            if (datauri.matches(pattern)) {
 				// do not return rule if there is an invalid range
-				if (initRule(rule, dimensions, levelUnits)) {
+                if (initRule(rule, record)) {
 					return rule;
 				}
 			}
@@ -200,10 +181,22 @@ public class StyleRuleLibrary {
 		return null;
 	}
 
-    public StyleRule getLayerStyleWithNewCmap(String layer,
-            Map<String, String> dimensions, Map<String, String> levelUnits,
+    public StyleRule getMatchForLayer(String layerName) throws ParseException {
+        if (layerName == null) {
+            return null;
+        }
+        for (StyleRule rule : rules) {
+            String pattern = rule.getLayerRegex();
+            if (layerName.matches(pattern)) {
+                return rule;
+            }
+        }
+        return null;
+    }
+
+    public StyleRule getLayerStyleWithNewCmap(PluginDataObject record,
             String newColormap) throws ParseException {
-        StyleRule rule = getMatchForLayer(layer, dimensions, levelUnits);
+        StyleRule rule = getMatchForLayer(record);
         if (rule != null && newColormap != null) {
             rule.setColorMapName(newColormap);
             return rule;
