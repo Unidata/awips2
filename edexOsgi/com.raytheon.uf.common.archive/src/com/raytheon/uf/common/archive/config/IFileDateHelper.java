@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
+import java.io.File;
 import java.util.Calendar;
 
 /**
@@ -31,6 +32,7 @@ import java.util.Calendar;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 21, 2013            bgonzale     Initial creation
+ * Aug 28, 2013 2299       rferrel     Change getFileDate argument.
  * 
  * </pre>
  * 
@@ -40,6 +42,12 @@ import java.util.Calendar;
 
 public interface IFileDateHelper {
 
-    public Calendar getFileDate(String filenamePath);
+    /**
+     * Get data associated with the file.
+     * 
+     * @param file
+     * @return calendar
+     */
+    public Calendar getFileDate(File file);
 
 }
