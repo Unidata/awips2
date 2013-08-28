@@ -69,7 +69,6 @@
 			<colorCodeName>${colorCodeName}</colorCodeName>
 			<colorCodeEnable>${colorCodeEnable}</colorCodeEnable>
 		
-			<requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />

@@ -10,10 +10,12 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.CloudAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.TurbAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
@@ -217,6 +219,8 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         					
         					drawingLayer.addElement( elem );
         					labeledLine = (LabeledLine)elem;
+                    		AttrSettings.getInstance().setSettings(elem);
+
         	//			}
         			}
 

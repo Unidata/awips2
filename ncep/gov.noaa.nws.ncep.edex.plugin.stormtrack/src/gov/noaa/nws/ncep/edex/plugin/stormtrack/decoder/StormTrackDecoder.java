@@ -16,6 +16,8 @@ import gov.noaa.nws.ncep.common.dataplugin.stormtrack.StormTrackRecord;
 import gov.noaa.nws.ncep.edex.plugin.stormtrack.util.StormTrackParser;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
  * ------------	----------	-----------	--------------------------
  * 08/2011					T. Lee		ATCF and Ensemble storm tracks	
  * 06/2012       #606       G. Hull     constructDataURI() after setReportType so it gets into the URI	
+ * 07/2013				    T. Lee		Improved performance via batch processing	
  * 
  * </pre>
  * 
@@ -66,10 +69,9 @@ public class StormTrackDecoder extends AbstractDecoder {
         pluginName = name;
     }
 
-    public synchronized PluginDataObject[] decode(byte[] data, Headers headers)
+    public PluginDataObject[] decode(byte[] data, Headers headers)
             throws DecoderException {
         String traceId = "";
-        String theBulletin = null;
         byte[] messageData = null;
         // STORMTRACK_DATA is REGEX for a StormTrack record
         final String STORMTRACK_DATA = IDecoderConstantsN.STORM_BULLSEPARATOR;
@@ -82,31 +84,33 @@ public class StormTrackDecoder extends AbstractDecoder {
         /*
          * Check if there are more records
          */
+        StormTrackRecord record = null;
+        List <StormTrackRecord> records =  new ArrayList <StormTrackRecord>();
         StormTrackSeparator sep = StormTrackSeparator.separate(data, headers);
+        
+        while (sep.hasNext()) {
         messageData = sep.next();
         String theMessage = new String(messageData);
-        theBulletin = theMessage;
-        StormTrackRecord record = null;
 
         try {
-            Matcher stormTrackMatcher = stormTrackPattern.matcher(theBulletin);
+        		Matcher stormTrackMatcher = stormTrackPattern.matcher(theMessage);
 
             if (stormTrackMatcher.find()) {
        
             } else {
                 System.out.println("StormTrack WARNING:  Ignored invalid record:  "
-                        + theBulletin);
+        					+ theMessage);
             }
         } catch (Exception e) {
             System.out.println("StormTrack WARNING exception:  Unable to decode:  "
-                    + theBulletin);
+        				+ theMessage);
             e.printStackTrace();
         }
 
         /*
          * Process the StormTrack fields
          */
-        record = StormTrackParser.processFields(theBulletin);
+        	record = StormTrackParser.processFields(theMessage);
 
         /*
          * Check the StormTrack record object
@@ -126,6 +130,10 @@ public class StormTrackDecoder extends AbstractDecoder {
             	}                             
 
             	record.constructDataURI();
+        			if ( record.getClat() != IDecoderConstantsN.FLOAT_MISSING &&
+        					record.getClon() != IDecoderConstantsN.FLOAT_MISSING ) {
+        				records.add(record);
+        			}
 
             } catch (PluginException e) {
             	throw new DecoderException(
@@ -133,16 +141,15 @@ public class StormTrackDecoder extends AbstractDecoder {
             			e);
             }
         }
+        }
         
         /*
          * Return StormTrack record object if not null
          */
-        
-
         if (record == null) {
             return new PluginDataObject[0];
         } else {
-            return new PluginDataObject[] { record };
+            return records.toArray (new PluginDataObject[records.size()]);
         }
     }
 }

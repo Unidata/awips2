@@ -27,12 +27,12 @@
  * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869            bsteffen    Remove dataURI column from
  *                                          PluginDataObject.
+ * July 29, 2013 1028           ghull       add AwwReportType enum
  * 
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
-
 package gov.noaa.nws.ncep.common.dataplugin.aww;
 
 import java.util.Calendar;
@@ -112,6 +112,69 @@ public class AwwRecord extends PluginDataObject{
 	 * 30. HYDROLOGIC STATEMENT
 	 * 31. URGENT WEATHER MESSAGE
 	 */
+	public static enum AwwReportType {
+		  SEVERE_THUNDERSTORM_WARNING,
+		  SEVERE_THUNDERSTORM_WATCH,
+		  TORNADO_WARNING,
+		  TORNADO_WATCH,
+		  SEVERE_THUNDERSTORM_OUTLINE_UPDATE,
+		  TORNADO_WATCH_OUTLINE_UPDATE,
+		  FLASH_FLOOD_WARNING,
+		  FLASH_FLOOD_WATCH,
+		  FLOOD_WARNING,
+		  FLOOD_WATCH,
+		  FLOOD_STATEMENT,
+		  // WINTER STORM. something is getting decoded as WINTER STORM
+		  WINTER_STORM_WARNING,
+		  WINTER_STORM_WATCH,
+		  WATCH_COUNTY_NOTIFICATION, 
+		  SEVERE_WEATHER_STATEMENT,
+		  WIND_ADVISORY,  // ?WIND CHILL ADVISORY?  
+		  // WIND CHILL ADVISORYs getting decoded as "ADVISORY"
+		  FOG_ADVISORY,
+		  HEAT_ADVISORY,
+		  FROST_ADVISORY,
+		  SMOKE_ADVISORY,
+		  WEATHER_ADVISORY,
+		  WINTER_WEATHER_ADVISORY,
+		  SIGNIGICANT_WEATHER_ADVISORY,
+		  SPECIAL_WEATHER_STATEMENT,
+		  RED_FLAG_WARNING,
+		  TORNADO_REPORT,
+		  HIGH_WIND_WARNING,
+		  FREEZE_WARNING,
+		  ADVERTENCIA_DE_INUNDACIONES,
+		  HYDROLOGIC_STATEMENT,
+		  URGENT_WEATHER_MESSAGE,
+		  UNKNOWN_AWW_REPORT_TYPE,
+		  // DON"T know what this is but WTCH is looking for it (isSevereWeatherStatusNotification)?
+		  STATUS_REPORT; 
+
+		  public static AwwReportType getReportType( String rtStr ) {
+			  rtStr = rtStr.trim().replace(" ", "_" );
+			  for( AwwReportType rt : values() ) {
+				  if( rt.toString().equals( rtStr ) ) {
+					  return rt;
+				  }
+			  }
+			  // WTCH is looking for 
+			  if( rtStr.equals("THUNDERSTORM_REPORT" ) ) {
+				  return SEVERE_THUNDERSTORM_WATCH;
+			  }
+			  if( rtStr.endsWith( "STATUS REPORT" ) ) {
+// ???				  return AwwReportType.SEVERE_WEATHER_STATUS_NOTIFICATION
+			  }
+			  // WSTM is looking for 
+			  if( rtStr.equals( "WINTER_STORM" ) ) {
+				  // ???
+			  }
+			  if( rtStr.equals( "ADVISORY" ) ) {
+				  // ???? WIND CHILL ADVISORY is getting decoded as "ADVISORY"???
+			  }
+			  return UNKNOWN_AWW_REPORT_TYPE;
+		  } 		  
+	}
+
 	@Column(length=40)
 	@DataURI(position=1)
 	@DynamicSerializeElement
