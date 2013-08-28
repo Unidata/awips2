@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 06/10		#223		M.Laryukhin	Initial creation
  * 07/11		?			B. Yin		Use fixed font for text message.
  * 04/29        #977        S. Gilbert  PGEN Database support
+ * 07/13		?			J. Wu		Reposition "Generate" and "Cancel".
  * 
  * </pre>
  * 
@@ -304,8 +305,13 @@ public class GfaFormatAttrDlg extends AttrDlg {
 
     @Override
     public void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, OK_ID, SAVE_LABEL, true);
-        createButton(parent, CANCEL_ID, CANCEL_LABEL, false);
+
+    	super.createButtonsForButtonBar(parent);
+  		this.getButton( OK_ID ).setText( SAVE_LABEL );
+  		this.getButton( CANCEL_ID).setText( CANCEL_LABEL );
+
+ //   	createButton(parent, OK_ID, SAVE_LABEL, true);
+ //       createButton(parent, CANCEL_ID, CANCEL_LABEL, false);
     }
 
     @Override
@@ -409,7 +415,10 @@ public class GfaFormatAttrDlg extends AttrDlg {
             shellLocation = centerOfParent();
         }
 
-        return super.open();
+        int op = super.open();
+        super.enableButtons();
+
+        return op;
     }
 
     public Point centerOfParent() {
