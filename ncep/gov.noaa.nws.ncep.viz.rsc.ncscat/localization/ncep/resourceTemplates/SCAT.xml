@@ -34,7 +34,6 @@
              <availabilityFlagEnable>${availabilityFlagEnable}</availabilityFlagEnable>
              <use2ndColorForRainEnable>${use2ndColorForRainEnable}</use2ndColorForRainEnable>
              <plotCirclesForRainEnable>${plotCirclesForRainEnable}</plotCirclesForRainEnable>
-             <requestStyle>METADATA</requestStyle>
              <metadataMap> 
                <mapping key="pluginName">
                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
