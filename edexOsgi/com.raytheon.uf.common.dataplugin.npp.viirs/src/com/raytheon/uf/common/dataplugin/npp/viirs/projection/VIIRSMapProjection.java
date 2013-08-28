@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.npp.viirs.projection;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.acos;
 import static java.lang.Math.atan;
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
@@ -33,7 +32,6 @@ import java.util.Arrays;
 
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
-import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.projection.ProjectionException;
@@ -45,13 +43,12 @@ import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineSegment;
 
 /**
- * TODO Add Description
+ * VIIRS map projection
  * 
  * <pre>
  * 
@@ -64,6 +61,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *                                      calculations. Switched projection extrapolation
  *                                      algorithm to use great circle intersections for
  *                                      more accurate results
+ * Aug 27, 2013  #2190     mschenke     Sped up transform functions
  * 
  * </pre>
  * 
@@ -107,15 +105,17 @@ public class VIIRSMapProjection extends MapProjection {
 
     public static final double PIO2 = Math.PI / 2;
 
-    private float[] centerLats;
+    private final float[] centerLats;
 
-    private float[] centerLons;
+    private final float[] centerLons;
 
-    private float[] directions;
+    private final float[] directions;
 
-    private double resolution;
+    private final double resolution;
 
-    private int actualHeight;
+    private final int validHeight;
+
+    private final int actualHeight;
 
     /**
      * @param values
@@ -129,6 +129,12 @@ public class VIIRSMapProjection extends MapProjection {
         this.directions = Provider.getValue(Provider.CENTER_DIRECTIONS, values);
         this.resolution = Provider.getValue(Provider.RESOLUTION, values);
         this.actualHeight = Provider.getValue(Provider.CENTER_LENGTH, values);
+        if (centerLats.length != centerLons.length
+                || centerLats.length != directions.length) {
+            throw new IllegalArgumentException(
+                    "Center lat/lon and direction arrays must be same length");
+        }
+        this.validHeight = centerLats.length;
     }
 
     /*
@@ -153,115 +159,145 @@ public class VIIRSMapProjection extends MapProjection {
             Point2D ptDst) throws ProjectionException {
         double xi = x / resolution;
         double yi = y / resolution;
-        double lon = Math.toRadians(getInterpolatedValue(xi - 0.5, actualHeight
-                - yi - 0.5, 0));
-        double lat = Math.toRadians(getInterpolatedValue(xi - 0.5, actualHeight
-                - yi - 0.5, 1));
+        Coordinate latLon = getInterpolatedCoordinate(xi - 0.5, actualHeight
+                - yi - 0.5);
+
         Point2D point = ptDst != null ? ptDst : new Point2D.Double();
-        point.setLocation(lon, lat);
+        point.setLocation(Math.toRadians(latLon.x), Math.toRadians(latLon.y));
         return point;
     }
 
-    protected float getInterpolatedValue(double xd, double yd, int dim) {
-        float baseVal = Float.NaN;
-        float value = 0.0f;
-        float missing = 1.0f;
+    /**
+     * @param d
+     * @param e
+     * @return
+     */
+    private Coordinate getInterpolatedCoordinate(double xd, double yd) {
+        double baseLon = Double.NaN;
+        float latValue = 0.0f;
+        float lonValue = 0.0f;
+        float latMissing = 1.0f;
+        float lonMissing = 1.0f;
 
         float x = (float) xd;
         float y = (float) yd;
 
-        int xi = (int) x;
-        int yi = (int) y;
+        int xi = (int) xd;
+        int yi = (int) yd;
+
         // Upper left corner
         float xWeight = 1 - x + xi;
         float yWeight = 1 - y + yi;
         float weight = xWeight * yWeight;
-        float val = getRawDataValue(xi, yi, dim);
-        if (Float.isNaN(val)) {
-            missing -= weight;
+        Coordinate c = getRawDataCoordinate(xi, yi);
+        if (Double.isNaN(c.x)) {
+            lonMissing -= weight;
         } else {
-            value += weight * val;
-            baseVal = val;
+            lonValue += weight * c.x;
+            baseLon = c.x;
         }
+        if (Double.isNaN(c.y)) {
+            latMissing -= weight;
+        } else {
+            latValue += weight * c.y;
+        }
+
         // upper right corner
         xi = xi + 1;
         xWeight = 1 - xi + x;
         yWeight = 1 - y + yi;
         weight = xWeight * yWeight;
-        val = getRawDataValue(xi, yi, dim);
-        if (Float.isNaN(val)) {
-            missing -= weight;
+        c = getRawDataCoordinate(xi, yi);
+        if (Double.isNaN(c.x)) {
+            lonMissing -= weight;
         } else {
-            if (Float.isNaN(baseVal)) {
-                baseVal = val;
+            if (Double.isNaN(baseLon)) {
+                baseLon = c.x;
             } else {
-                val = correct(baseVal, val, dim);
+                c.x = correct(baseLon, c.x);
             }
-            value += weight * val;
+            lonValue += weight * c.x;
         }
+        if (Double.isNaN(c.y)) {
+            latMissing -= weight;
+        } else {
+            latValue += weight * c.y;
+        }
+
         // lower right corner
         yi = yi + 1;
         xWeight = 1 - xi + x;
         yWeight = 1 - yi + y;
         weight = xWeight * yWeight;
-        val = getRawDataValue(xi, yi, dim);
-        if (Float.isNaN(val)) {
-            missing -= weight;
+        c = getRawDataCoordinate(xi, yi);
+        if (Double.isNaN(c.x)) {
+            lonMissing -= weight;
         } else {
-            if (Float.isNaN(baseVal)) {
-                baseVal = val;
+            if (Double.isNaN(baseLon)) {
+                baseLon = c.x;
             } else {
-                val = correct(baseVal, val, dim);
+                c.x = correct(baseLon, c.x);
             }
-            value += weight * val;
+            lonValue += weight * c.x;
         }
+        if (Double.isNaN(c.y)) {
+            latMissing -= weight;
+        } else {
+            latValue += weight * c.y;
+        }
+
         // lower left corner
         xi = xi - 1;
         xWeight = 1 - x + xi;
         yWeight = 1 - yi + y;
         weight = xWeight * yWeight;
-        val = getRawDataValue(xi, yi, dim);
-        if (Float.isNaN(val)) {
-            missing -= weight;
+        c = getRawDataCoordinate(xi, yi);
+        if (Double.isNaN(c.x)) {
+            lonMissing -= weight;
         } else {
-            if (Float.isNaN(baseVal) == false) {
-                val = correct(baseVal, val, dim);
+            if (Double.isNaN(baseLon) == false) {
+                c.x = correct(baseLon, c.x);
             }
-            value += weight * val;
+            lonValue += weight * c.x;
+        }
+        if (Double.isNaN(c.y)) {
+            latMissing -= weight;
+        } else {
+            latValue += weight * c.y;
         }
 
-        value /= missing;
-        if (dim == 0) {
-            // If we did any normalization, reverse it here
-            if (value > 180.0f) {
-                value -= 360.0f;
-            } else if (value <= -180.0f) {
-                value += 360.0f;
-            }
+        lonValue /= lonMissing;
+        latValue /= latMissing;
+
+        // If we did any normalization, reverse it here
+        if (lonValue > 180.0f) {
+            lonValue -= 360.0f;
+        } else if (lonValue <= -180.0f) {
+            lonValue += 360.0f;
         }
-        return value / missing;
+
+        return new Coordinate(lonValue, latValue);
     }
 
-    private float correct(double baseVal, double val, int dim) {
-        if (dim == 0 && Math.abs(baseVal - val) > 180.0f) {
-            if (baseVal > val) {
-                val += 360.0f;
+    private double correct(double baseLon, double lon) {
+        if (Math.abs(baseLon - lon) > 180.0f) {
+            if (baseLon > lon) {
+                lon += 360.0f;
             } else {
-                val -= 360.0f;
+                lon -= 360.0f;
             }
         }
-        return (float) val;
+        return lon;
     }
 
     /**
      * @param xi
      * @param yi
-     * @param dim
      * @return
      */
-    private float getRawDataValue(int xi, int yi, int dim) {
+    private Coordinate getRawDataCoordinate(int xi, int yi) {
         Coordinate c = null;
-        if (yi >= 0 && yi < centerLats.length) {
+        if (yi >= 0 && yi < validHeight) {
             c = index(xi, yi);
         } else {
             int closestY = yi;
@@ -270,7 +306,7 @@ public class VIIRSMapProjection extends MapProjection {
                 closestY = 0;
                 closestY2 = closestY + 1;
             } else {
-                closestY = centerLats.length - 1;
+                closestY = validHeight - 1;
                 closestY2 = closestY - 1;
             }
 
@@ -280,9 +316,8 @@ public class VIIRSMapProjection extends MapProjection {
             Coordinate b = index(xi, closestY2);
             LineSegment ls = new LineSegment(a, b);
             c = ls.pointAlong(-Math.abs(yDiff));
-
         }
-        return (float) (dim == 0 ? c.x : c.y);
+        return c;
     }
 
     private Coordinate index(int xi, int yi) {
@@ -298,7 +333,154 @@ public class VIIRSMapProjection extends MapProjection {
         double earthRadius = getRadius(latitude);
         double[] latLon = target_pt(latitude, Math.toRadians(nadirCoord.x),
                 (resolution * abs(xi)) / earthRadius, az);
-        return new Coordinate(latLon[0], latLon[1]);
+        return new Coordinate(Math.toDegrees(latLon[0]),
+                Math.toDegrees(latLon[1]));
+    }
+
+    private static class DistanceResult {
+
+        private final int index;
+
+        private final double xDist;
+
+        private final double yDist;
+
+        public DistanceResult(int index, double xDist, double yDist) {
+            this.index = index;
+            this.xDist = xDist;
+            this.yDist = yDist;
+        }
+
+    }
+
+    private DistanceResult distance(int index, double aLonR, double aLatR) {
+        double clon = centerLons[index];
+        double clat = centerLats[index];
+
+        // Compute azm_sidb for center point to lat/lon point
+        double[] azm_sidb = azm_sidb(Math.toRadians(clat),
+                Math.toRadians(clon), aLatR, aLonR);
+
+        double actual = azm_sidb[0];
+        double expected = directions[index];
+
+        // Correct for world wrapping
+        if (Math.abs(actual - expected) > Math.PI) {
+            if (actual > expected) {
+                expected += TWOPI;
+            } else {
+                expected -= TWOPI;
+            }
+        }
+        double xFactor = 1;
+        double yFactor = 1;
+        if (actual < expected) {
+            expected -= PIO2;
+            yFactor = -1;
+        } else {
+            expected += PIO2;
+            xFactor = -1;
+        }
+
+        // Get angle difference between actual and expected as well as
+        // multiplication factor for whether left or right of center points
+        double diff = actual - expected;
+
+        // Because diff is always [0,90], we must account for what quadrant it
+        // is in and adjust sign appropriately based on factor
+        double yDist = yFactor * azm_sidb[1] * Math.sin(diff);
+        double xDist = xFactor * azm_sidb[1] * Math.cos(diff);
+
+        return new DistanceResult(index, xDist, yDist);
+    }
+
+    /**
+     * Intelligently searches for the best index for the given lat/lon in the
+     * range of startIdx->endIdx
+     * 
+     * @param startIdx
+     * @param endIdx
+     * @param aLonR
+     * @param aLatR
+     * @return
+     */
+    private DistanceResult findBest(int startIdx, int endIdx, double aLonR,
+            double aLatR) {
+        // Get search results for start/end idx
+        DistanceResult below = distance(startIdx, aLonR, aLatR);
+        DistanceResult above = distance(endIdx, aLonR, aLatR);
+        DistanceResult best = null;
+        boolean done = false;
+        do {
+            double aboveDist = above.yDist;
+            double belowDist = below.yDist;
+            int aboveIndex = above.index;
+            int belowIndex = below.index;
+
+            // get range of y distances
+            double range = aboveDist - belowDist;
+            // Calculate best index to search when looking for yDist of 0
+            double testIdx = belowIndex + (-belowDist / range)
+                    * (aboveIndex - belowIndex);
+            // Ensure index within search bounds
+            int index = (int) testIdx;
+            if (index < belowIndex) {
+                index = belowIndex;
+            } else if (index > aboveIndex) {
+                index = aboveIndex;
+            }
+            // Get other index to check which will be 1 greater than index due
+            // to casting of testIdx
+            int otherIndex = index + 1;
+            if (otherIndex >= validHeight) {
+                otherIndex = validHeight - 1;
+            }
+            if (index == belowIndex || index == aboveIndex
+                    || otherIndex == aboveIndex) {
+                // Exit case, one of the indices to search is same as our bounds
+                if (index == belowIndex) {
+                    best = below;
+                } else if (index == aboveIndex) {
+                    best = above;
+                } else {
+                    // otherIndex is equal to above index, swap index and
+                    // otherIndex and search index before other
+                    index = otherIndex;
+                    otherIndex = index - 1;
+                    best = above;
+                }
+                // Search other index, set best result
+                DistanceResult other = distance(otherIndex, aLonR, aLatR);
+                double otherDist = Math.abs(other.yDist);
+                if (otherDist < Math.abs(best.yDist)) {
+                    best = other;
+                }
+                // Mark done
+                done = true;
+            } else {
+                // Search the test index and determine new above/below indices
+                DistanceResult test = distance(index, aLonR, aLatR);
+                double testDist = test.yDist;
+                if (testDist < 0) {
+                    if (aboveDist > 0) {
+                        above = test;
+                    } else {
+                        below = test;
+                    }
+                } else if (testDist > 0) {
+                    if (aboveDist < 0) {
+                        below = test;
+                    } else {
+                        above = test;
+                    }
+                } else {
+                    // Exactly 0!!! we are done!!
+                    best = test;
+                    done = true;
+                }
+            }
+        } while (!done);
+        return best;
     }
 
     /*
@@ -311,369 +493,22 @@ public class VIIRSMapProjection extends MapProjection {
     protected Point2D transformNormalized(double aLonR, double aLatR,
             Point2D ptDst) throws ProjectionException {
         double bestY = Double.NaN, bestX = 1;
+        DistanceResult best = findBest(0, validHeight - 1, aLonR, aLatR);
+        int idxToUse = best.index;
+        // Get radius to convert xDist/yDist into meters
+        double radius = getRadius(Math.toRadians(centerLats[idxToUse]));
 
-        Coordinate c1 = new Coordinate(Math.toRadians(centerLons[0]),
-                Math.toRadians(centerLats[0]));
-        Coordinate c2 = new Coordinate(Math.toRadians(centerLons[1]),
-                Math.toRadians(centerLats[1]));
+        // Compute bestX value based on hypotenuse and angle diff
+        bestX = resolution * 0.5 + best.xDist * radius;
 
-        // Extrapolate from the bottom of the image
-        double[] bottom = extrapolate(c1, c2, aLonR, aLatR);
+        // Compute potential bestY grid value
+        bestY = actualHeight - idxToUse - 0.5;
+        // Compute bestY value based on hypotenuse and angle diff in grid space
+        bestY = bestY * resolution - best.yDist * radius;
 
-        c1 = new Coordinate(Math.toRadians(centerLons[centerLons.length - 2]),
-                Math.toRadians(centerLats[centerLats.length - 2]));
-        c2 = new Coordinate(Math.toRadians(centerLons[centerLons.length - 1]),
-                Math.toRadians(centerLats[centerLats.length - 1]));
-
-        // Extrapolate from the top of the image
-        double[] top = extrapolate(c1, c2, aLonR, aLatR);
-
-        double dist1 = bottom[0], potentialY1;
-        double angleDiff1 = bottom[1];
-        double potentialX1 = bottom[2];
-
-        // Check to see if intersection point used is going same direction
-        // from c1 to c2 or if opposite
-        if (angleDiff1 > 90.0) {
-            potentialY1 = actualHeight + dist1;
-        } else {
-            potentialY1 = actualHeight - dist1;
-        }
-
-        double dist2 = top[0], potentialY2;
-        double angleDiff2 = top[1];
-        double potentialX2 = top[2];
-
-        // Check to see if intersection point used is going same direction
-        // from c1 to c2 or if opposite
-        if (angleDiff2 > 90.0) {
-            potentialY2 = actualHeight + dist2 - centerLons.length - 2;
-        } else {
-            potentialY2 = actualHeight - dist2 - centerLons.length - 2;
-        }
-
-        int validHeight = centerLats.length;
-        if ((potentialY1 >= 0 && potentialY1 < validHeight)
-                || (potentialY2 >= 0 && potentialY2 < validHeight)) {
-            potentialY1 = validHeight - potentialY1;
-            potentialY2 = validHeight - potentialY2;
-            int startI = (int) Math.floor(Math.min(potentialY1, potentialY2));
-            if (startI < 0) {
-                startI = 0;
-            }
-            int endI = (int) Math.ceil(Math.max(potentialY1, potentialY2));
-            if (endI >= validHeight) {
-                endI = validHeight - 1;
-            }
-
-            // Lat/Lon to CRS, within our known area
-            double alat = Math.toDegrees(aLatR);
-            double alon = Math.toDegrees(aLonR);
-            double bestDiff = Double.NaN;
-            double bestDist = Double.NaN;
-            double bestFactor = 1;
-            for (int i = startI; i <= endI; ++i) {
-                double clon = centerLons[i];
-                double clat = centerLats[i];
-
-                double[] azm_sidb = azm_sidb(Math.toRadians(clat),
-                        Math.toRadians(clon), aLatR, aLonR);
-                double actual = azm_sidb[0];
-                double expected = directions[i];
-                // Correct for world wrapping
-                if (Math.abs(actual - expected) > Math.PI) {
-                    if (actual > expected) {
-                        expected += TWOPI;
-                    } else {
-                        expected -= TWOPI;
-                    }
-                }
-                double factor = 1;
-                if (actual < expected) {
-                    expected -= PIO2;
-                } else {
-                    expected += PIO2;
-                    factor = -1;
-                }
-                double diff = Math.abs(actual - expected);
-                double dist = azm_sidb[1] * getRadius(Math.toRadians(clat));
-                if (Double.isNaN(bestDiff) || diff <= bestDiff) {
-                    bestFactor = factor;
-                    bestDist = dist;
-                    bestDiff = diff;
-                    bestY = actualHeight - i - 0.5;
-                }
-            }
-
-            // We found a point which meets our threshold criteria, this means
-            // that the point is somewhere between our valid Y range
-            bestDist = Math.cos(bestDiff) * bestDist;
-            bestX = 0.5 + (bestFactor * (bestDist / resolution));
-
-            int yIdx = (int) bestY;
-            int otherYIdx;
-            if (yIdx < centerLats.length - 1) {
-                otherYIdx = yIdx + 1;
-            } else {
-                otherYIdx = yIdx - 1;
-            }
-
-            try {
-                Point2D latLon = new Point2D.Double(), otherLatLon = new Point2D.Double();
-                inverse().transform(
-                        new Point2D.Double(bestX * resolution, (yIdx + 0.5)
-                                * resolution), latLon);
-                inverse().transform(
-                        new Point2D.Double(bestX * resolution,
-                                (otherYIdx + 0.5) * resolution), otherLatLon);
-
-                Coordinate a = new Coordinate(latLon.getX(), latLon.getY());
-                Coordinate b = new Coordinate(otherLatLon.getX(),
-                        otherLatLon.getY());
-
-                // Correct for world wrapping a, b and alon
-                if (Math.abs(a.x - b.x) > 180.0) {
-                    if (a.x > b.x) {
-                        b.x += 360.0;
-                    } else {
-                        b.x -= 360.0;
-                    }
-                }
-                if (Math.abs(a.x - alon) > 180.0) {
-                    if (a.x > alon) {
-                        alon += 360.0;
-                    } else {
-                        alon -= 360.0;
-                    }
-                }
-
-                LineSegment ls = new LineSegment(a, b);
-                if (yIdx < centerLats.length - 1) {
-                    bestY += ls.projectionFactor(new Coordinate(alon, alat));
-                } else {
-                    bestY -= ls.projectionFactor(new Coordinate(alon, alat));
-                }
-            } catch (TransformException e) {
-                return null;
-            }
-        } else {
-            // Outside range, use closest distance for values
-            if (dist1 < dist2) {
-                bestX = potentialX1;
-                bestY = potentialY1;
-            } else {
-                bestX = potentialX2;
-                bestY = potentialY2;
-            }
-        }
         Point2D point = ptDst != null ? ptDst : new Point2D.Double();
-        point.setLocation(bestX * resolution, bestY * resolution);
+        point.setLocation(bestX, bestY);
         return point;
-    }
-
-    /**
-     * Given two coordinates (radians), intersect the great circle for those two
-     * coordinates with the great circle perpendicular that goes through point
-     * (aLonR, aLatR)
-     * 
-     * @param c1
-     * @param c2
-     * @param aLonR
-     * @param aLatR
-     * @return the minimum dist value to c1 [0], the angle difference of the
-     *         intersecting point and c1-c2 angle [1] and the x value [2]
-     */
-    private double[] extrapolate(Coordinate c1, Coordinate c2, double aLonR,
-            double aLatR) {
-        // Create GeodeticCalculator for calculations...
-        GeodeticCalculator gc = new GeodeticCalculator();
-
-        // Set start/end points as c1/c2
-        gc.setStartingGeographicPoint(Math.toDegrees(c1.x),
-                Math.toDegrees(c1.y));
-        gc.setDestinationGeographicPoint(Math.toDegrees(c2.x),
-                Math.toDegrees(c2.y));
-
-        // Get the angle of
-        double c12Dir = gc.getAzimuth();
-        double c12Dist = gc.getOrthodromicDistance();
-
-        // Set starting point (c1) and calculate another point on the great
-        // circle which we will call (c3)
-        gc.setStartingGeographicPoint(Math.toDegrees(c1.x),
-                Math.toDegrees(c1.y));
-        gc.setDirection(c12Dir, 2 * c12Dist);
-        Point2D dest = gc.getDestinationGeographicPoint();
-        Coordinate c3 = new Coordinate(Math.toRadians(dest.getX()),
-                Math.toRadians(dest.getY()));
-
-        // Get angle from c2 to c3
-        gc.setStartingGeographicPoint(Math.toDegrees(c2.x),
-                Math.toDegrees(c2.y));
-        gc.setDestinationGeographicPoint(Math.toDegrees(c3.x),
-                Math.toDegrees(c3.y));
-        double c23Dir = gc.getAzimuth();
-        double c23Dist = gc.getOrthodromicDistance();
-
-        // Get point perpendicular to c1 (c1_90)
-        gc.setStartingGeographicPoint(Math.toDegrees(c1.x),
-                Math.toDegrees(c1.y));
-        gc.setDirection(adjustAngle(c12Dir + 90.0), c12Dist);
-        dest = gc.getDestinationGeographicPoint();
-        Coordinate c1_90 = new Coordinate(Math.toRadians(dest.getX()),
-                Math.toRadians(dest.getY()));
-
-        // Get point perpendicular to c2 (c2_90)
-        gc.setStartingGeographicPoint(Math.toDegrees(c2.x),
-                Math.toDegrees(c2.y));
-        gc.setDirection(adjustAngle(c23Dir + 90.0), c23Dist);
-        dest = gc.getDestinationGeographicPoint();
-        Coordinate c2_90 = new Coordinate(Math.toRadians(dest.getX()),
-                Math.toRadians(dest.getY()));
-
-        // Find intersecting point from c1-c1_90 and c2-c2_90, this will give us
-        // one of our pole locations
-        Coordinate interA = findIntersection(c1, c1_90, c2, c2_90);
-        // Now intersect great circle of c1-c2 and pole-(aLonR,aLatR). This will
-        // give us closest/farthest intersecting point
-        interA = findIntersection(c1, c2, interA, new Coordinate(aLonR, aLatR));
-        Coordinate interB = new Coordinate(Math.toRadians(adjustAngle(Math
-                .toDegrees(interA.x + PI))), -interA.y);
-
-        // Next we are going to get the angle and distance of interA and interB
-        // from point c1 to make sure we use the closest point
-        double radius = getRadius(c1.y);
-        double[] azm_sidb = azm_sidb(c1.y, c1.x, interA.y, interA.x);
-        double azimuthA = azm_sidb[0];
-        double distA = (azm_sidb[1] * radius) / resolution;
-
-        azm_sidb = azm_sidb(c1.y, c1.x, interB.y, interB.x);
-        double azimuthB = azm_sidb[0];
-        double distB = (azm_sidb[1] * radius) / resolution;
-
-        // Now we use the closest intersection point to c1
-        double azimuth, dist;
-        Coordinate inter;
-        if (distA < distB) {
-            // Closest point is A
-            azimuth = azimuthA;
-            dist = distA;
-            inter = interA;
-        } else {
-            // Closest point is B
-            azimuth = azimuthB;
-            dist = distB;
-            inter = interB;
-        }
-
-        // Get angle and distance from intersection point used to initial
-        // point aLonR, aLatR for bestX value
-        azm_sidb = azm_sidb(inter.y, inter.x, aLatR, aLonR);
-        // Convert side_b into projection space
-        double bestX = (azm_sidb[1] * getRadius(inter.y)) / resolution;
-
-        // Figure if bestX is negative or positive
-        double actual = Math.toRadians(c12Dir);
-        double expected = azm_sidb[0];
-        // Correct for world wrapping
-        if (Math.abs(actual - expected) > Math.PI) {
-            if (actual > expected) {
-                expected += TWOPI;
-            } else {
-                expected -= TWOPI;
-            }
-        }
-        if (actual < expected) {
-            bestX = -bestX;
-        }
-
-        // Return {y distance in projection space, difference between angle of
-        // closest intersecting point and c1 and c1-c2, and our x value in
-        // projection space}
-        return new double[] { dist,
-                Math.abs(adjustAngle(Math.toDegrees(azimuth)) - c12Dir), bestX };
-    }
-
-    /**
-     * Find the first intersecting point using great circle algorithm for the
-     * two great circles defined by c1-c2 and c3-c4. Other intersecting point
-     * will be exactly 180 degrees and -lat on the other side of the world
-     * 
-     * @param c1
-     * @param c2
-     * @param c3
-     * @param c4
-     * @return
-     */
-    private static Coordinate findIntersection(Coordinate c1, Coordinate c2,
-            Coordinate c3, Coordinate c4) {
-        // Find intersecting points using great circle algorithm...
-        Coordinate e1Xe2 = correctiveCrossProduct(c1, c2);
-        Coordinate e3Xe4 = correctiveCrossProduct(c3, c4);
-
-        Coordinate ea = normalize(e1Xe2);
-        Coordinate eb = normalize(e3Xe4);
-
-        Coordinate eaXeb = crossProduct(ea, eb);
-        return new Coordinate(atan2(-eaXeb.y, eaXeb.x), atan2(eaXeb.z,
-                sqrt(eaXeb.x * eaXeb.x + eaXeb.y * eaXeb.y)));
-    }
-
-    /**
-     * Adjusts an angle to ensure it is between -180/180
-     * 
-     * @param angle
-     * @return
-     */
-    private static double adjustAngle(double angle) {
-        double newVal = angle % 360;
-        if (newVal > 180) {
-            newVal -= 360;
-        } else if (newVal < -180) {
-            newVal += 360;
-        }
-        return newVal;
-    }
-
-    private static Coordinate correctiveCrossProduct(Coordinate c1,
-            Coordinate c2) {
-        Coordinate e1Xe2 = new Coordinate();
-        double lat1 = c1.y;
-        double lat2 = c2.y;
-        double lon1 = c1.x;
-        double lon2 = c2.x;
-        e1Xe2.x = sin(lat1 - lat2) * sin((lon1 + lon2) / 2)
-                * cos((lon1 - lon2) / 2) - sin(lat1 + lat2)
-                * cos((lon1 + lon2) / 2) * sin((lon1 - lon2) / 2);
-        e1Xe2.y = sin(lat1 - lat2) * cos((lon1 + lon2) / 2)
-                * cos((lon1 - lon2) / 2) + sin(lat1 + lat2)
-                * sin((lon1 + lon2) / 2) * sin((lon1 - lon2) / 2);
-        e1Xe2.z = cos(lat1) * cos(lat2) * sin(lon1 - lon2);
-        return e1Xe2;
-    }
-
-    private static Coordinate crossProduct(Coordinate e1, Coordinate e2) {
-        Coordinate e1Xe2 = new Coordinate();
-        e1Xe2.x = e1.y * e2.z - e2.y * e1.z;
-        e1Xe2.y = e1.z * e2.x - e2.z * e1.x;
-        e1Xe2.z = e1.x * e2.y - e1.y * e2.x;
-        return e1Xe2;
-    }
-
-    /**
-     * @param e1Xe2
-     * @param e1
-     * @param e2
-     * @return
-     */
-    private static Coordinate normalize(Coordinate e1Xe2) {
-        Coordinate ea = new Coordinate();
-        double length = Math.sqrt(e1Xe2.x * e1Xe2.x + e1Xe2.y * e1Xe2.y
-                + e1Xe2.z * e1Xe2.z);
-        ea.x = e1Xe2.x / length;
-        ea.y = e1Xe2.y / length;
-        ea.z = e1Xe2.z / length;
-        return ea;
     }
 
     /*
@@ -820,8 +655,13 @@ public class VIIRSMapProjection extends MapProjection {
             }
         } else {
             side_a = PIO2 - clat;
-            val_trig = (cos(side_a) * cos(side_b))
-                    + (sin(side_a) * sin(side_b) * cos(angle_C));
+            double cos_side_a = cos(side_a);
+            double sin_side_a = sin(side_a);
+            double cos_side_b = cos(side_b);
+            double sin_side_b = sin(side_b);
+
+            val_trig = (cos_side_a * cos_side_b)
+                    + (sin_side_a * sin_side_b * cos(angle_C));
             if (val_trig > 1.e0) {
                 side_c = 0.e0;
             } else if (val_trig < -1.e0) {
@@ -837,8 +677,8 @@ public class VIIRSMapProjection extends MapProjection {
             if ((side_c < 1.e-6) || (side_c == PI)) {
                 angle_B = 0.e0;
             } else {
-                val_trig = (cos(side_b) - (cos(side_c) * cos(side_a)))
-                        / (sin(side_c) * sin(side_a));
+                val_trig = (cos_side_b - (cos(side_c) * cos_side_a))
+                        / (sin(side_c) * sin_side_a);
                 if (val_trig > 1.e0) {
                     angle_B = 0.e0;
                 } else if (val_trig < -1.e0) {
@@ -859,7 +699,7 @@ public class VIIRSMapProjection extends MapProjection {
             }
         }
 
-        return new double[] { Math.toDegrees(alon), Math.toDegrees(alat) };
+        return new double[] { alon, alat };
     }
 
     public static double getRadius(double latitude) {
@@ -920,10 +760,16 @@ public class VIIRSMapProjection extends MapProjection {
             if (angle_B < -PI)
                 angle_B = angle_B + TWOPI;
 
-            side_b = acos((cos(side_c) * cos(side_a))
-                    + (sin(side_c) * sin(side_a) * cos(angle_B)));
-            cos_angle_C = (cos(side_c) - (cos(side_a) * cos(side_b)))
-                    / (sin(side_a) * sin(side_b));
+            double cos_side_c = cos(side_c);
+            double cos_side_a = cos(side_a);
+            double sin_side_c = sin(side_c);
+            double sin_side_a = sin(side_a);
+
+            double acos_in = (cos_side_c * cos_side_a)
+                    + (sin_side_c * sin_side_a * cos(angle_B));
+            side_b = acos(acos_in);
+            cos_angle_C = (cos_side_c - (cos_side_a * cos(side_b)))
+                    / (sin_side_a * sin(side_b));
             if (cos_angle_C < -9.9999999e-1) {
                 angle_C = PI;
             } else if (cos_angle_C > 9.9999999e-1) {
@@ -941,6 +787,14 @@ public class VIIRSMapProjection extends MapProjection {
             }
         }
         return new double[] { azimuth, side_b };
+    }
+
+    private static double acos(double a) {
+        double atan = atan(sqrt(1 - a * a) / a);
+        if (atan < 0) {
+            atan += PI;
+        }
+        return atan;
     }
 
     public static class Provider extends AbstractProvider {

@@ -64,6 +64,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2013 2190       mschenke    Initial creation
  * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
+ * Aug 27, 2013 2190       mschenke    Fixed point query request
  * 
  * </pre>
  * 
@@ -77,14 +78,14 @@ public class NucapsSoundingProvider extends
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(NucapsSoundingProvider.class);
 
-    private static String[] SOUNDING_PARAMS = {
-            NucapsRecord.PDV_SURFACE_PRESSURE, NucapsRecord.PDV_PRESSURE,
-            NucapsRecord.PDV_TEMPERATURE,
+    private static String[] SOUNDING_PARAMS = { NucapsRecord.LATITUDE,
+            NucapsRecord.LONGITUDE, NucapsRecord.PDV_SURFACE_PRESSURE,
+            NucapsRecord.PDV_PRESSURE, NucapsRecord.PDV_TEMPERATURE,
             NucapsRecord.PDV_WATER_VAPOR_MIXING_RATIO };
 
     private static final double ENVELOPE_DISTANCE_DEG = 1.0;
 
-    private static final double MAX_SOUNDING_DISTANCE_METERS = 50 * 1000;
+    private static final double MAX_SOUNDING_DISTANCE_METERS = 100 * 1000;
 
     private static final long GROUP_TIMERANGE_MILLIS = 15 * TimeUtil.MILLIS_PER_MINUTE;
 
@@ -206,9 +207,10 @@ public class NucapsSoundingProvider extends
         STRtree tree = new STRtree();
 
         try {
-            PointDataContainer pdc = PointDataRequest.requestPointData(
-                    time.getValidPeriod(), NucapsRecord.PLUGIN_NAME,
-                    SOUNDING_PARAMS, null, constraints);
+            PointDataContainer pdc = PointDataRequest
+                    .requestPointDataAllLevels(time.getValidPeriod(),
+                            NucapsRecord.PLUGIN_NAME, SOUNDING_PARAMS, null,
+                            constraints);
             int size = pdc.getCurrentSz();
             for (int i = 0; i < size; ++i) {
                 NucapsVerticalSounding sounding = new NucapsVerticalSounding(

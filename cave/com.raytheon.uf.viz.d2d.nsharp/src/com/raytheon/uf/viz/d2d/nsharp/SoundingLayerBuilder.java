@@ -48,6 +48,7 @@ import com.raytheon.uf.common.wxmath.ZToPsa;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 14, 2013 2260       bsteffen    Initial creation
+ * Aug 27, 2013 2190       mschenke    Fixed unit for VerticalSounding creation
  * 
  * </pre>
  * 
@@ -61,9 +62,9 @@ public class SoundingLayerBuilder {
 
     private static final Unit<Length> HEIGHT_UNIT = SI.METER;
 
-    private static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
+    private static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
 
-    private static final Unit<Temperature> DEWPOINT_UNIT = SI.CELSIUS;
+    private static final Unit<Temperature> DEWPOINT_UNIT = SI.KELVIN;
 
     private static final Unit<Angle> WIND_DIRECTION_UNIT = NonSI.DEGREE_ANGLE;
 
