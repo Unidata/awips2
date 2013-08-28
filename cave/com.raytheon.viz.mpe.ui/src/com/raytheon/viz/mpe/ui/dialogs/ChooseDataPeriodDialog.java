@@ -381,6 +381,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 final QcPrecipOptionsDialog dialog = new QcPrecipOptionsDialog(
                         getParentShell().getShell());
                 display.asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         dialog.open();
                     }
@@ -407,6 +408,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 final QcTempOptionsDialog dialog = new QcTempOptionsDialog(
                         getParentShell().getShell());
                 display.asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         dialog.open();
                     }
@@ -433,6 +435,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 final QcFreezeOptionsDialog dialog = new QcFreezeOptionsDialog(
                         getParentShell().getShell());
                 display.asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         dialog.open();
                     }
@@ -559,7 +562,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                         j = area_names.length();
                     }
                     aList.add(area_names.substring(i, j));
-                    i += j + 1;
+                    i = j + 1;
                 }
             } else {
                 aList.add(0, area_names.trim());

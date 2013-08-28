@@ -12,24 +12,39 @@
       <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
       <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
       <legendColor>${color}</legendColor>
-<!-- <pgenDirectory>${pgenDirectory}</pgenDirectory>
-      <productName>${productName}</productName>
-  -->
-      <legendString>${legendString}</legendString>
       <monoColorEnable>${monoColorEnable}</monoColorEnable>
       <monoColor>${monoColor}</monoColor>
       <fillModeEnable>${fillModeEnable}</fillModeEnable>
-      <requestStyle>METADATA</requestStyle>
       <metadataMap>
-<!-- not used : there is no pgen plugin -->
         <mapping key="pluginName">
           <constraint constraintValue="pgen" constraintType="EQUALS" />
         </mapping>
-        <mapping key="productLocation">
-          <constraint constraintValue="${pgenDirectory}" constraintType="EQUALS" />
+        <mapping key="dataTime">
+          <constraint constraintValue="${dataTime}" constraintType="EQUALS" />
         </mapping>
-        <mapping key="productName">
-          <constraint constraintValue="${productName}" constraintType="EQUALS" />
+        <mapping key="activityName">
+          <constraint constraintValue="${activityName}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="activityType">
+          <constraint constraintValue="${activityType}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="activitySubtype">
+          <constraint constraintValue="${activitySubtype}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="activityLabel">
+          <constraint constraintValue="${activityLabel}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="site">
+          <constraint constraintValue="${site}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="desk">
+          <constraint constraintValue="${desk}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="forecaster">
+          <constraint constraintValue="${forecaster}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="operatingMode">
+          <constraint constraintValue="${operatingMode}" constraintType="EQUALS" />
         </mapping>
       </metadataMap>
     </resourceData>

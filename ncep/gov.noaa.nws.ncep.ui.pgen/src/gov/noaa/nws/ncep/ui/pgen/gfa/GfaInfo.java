@@ -20,6 +20,8 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.eclipse.swt.graphics.RGB;
 
+import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.*;
+
 /**
  * Helper class to read the GFA configuration.
  * 
@@ -341,14 +343,14 @@ public class GfaInfo {
 			for ( String st : bosStr ) {
 				bos.add( st );
 			}
-			stateOrderByArea.put( "BOS", bos);
+			stateOrderByArea.put( BOS, bos);
 			
 			ArrayList<String>  mia = new ArrayList<String>();
 			String[] miaStr = new String[]{"NC", "SC", "GA", "FL" , "CSTL WTRS"};
 			for ( String st : miaStr ) {
 				mia.add( st );
 			}
-			stateOrderByArea.put( "MIA", mia );
+			stateOrderByArea.put( MIA, mia );
 
 			ArrayList<String>  chi = new ArrayList<String>();
 			String[] chiStr = new String[]{"ND", "SD", "NE", "KS", "MN", "IA", 
@@ -357,7 +359,7 @@ public class GfaInfo {
 			for ( String st : chiStr ) {
 				chi.add( st );
 			}
-			stateOrderByArea.put( "CHI", chi );
+			stateOrderByArea.put( CHI, chi );
 
 			ArrayList<String>  dfw = new ArrayList<String>();
 			String[] dfwStr = new String[]{"OK", "TX", "AR", "TN", "LA", "MS", 
@@ -365,7 +367,7 @@ public class GfaInfo {
 			for ( String st : dfwStr ) {
 				dfw.add( st );
 			}
-			stateOrderByArea.put( "DFW", dfw );
+			stateOrderByArea.put( DFW, dfw );
 			
 			ArrayList<String>  slc = new ArrayList<String>();
 			String[] slcStr = new String[]{"ID", "MT", "WY", "NV", "UT", "CO", 
@@ -373,14 +375,14 @@ public class GfaInfo {
 			for ( String st : slcStr ) {
 				slc.add( st );
 			}
-			stateOrderByArea.put( "SLC", slc );
+			stateOrderByArea.put( SLC, slc );
 			
 			ArrayList<String>  sfo = new ArrayList<String>();
 			String[] sfoStr = new String[]{"WA", "OR", "CA", "CSTL WTRS"};
 			for ( String st : sfoStr ) {
 				sfo.add( st );
 			}
-			stateOrderByArea.put( "SFO", mia );
+			stateOrderByArea.put( SFO, sfo );
 			
 		}
 		
@@ -413,4 +415,5 @@ public class GfaInfo {
 		return clr;
 
 	}
+		
 }
