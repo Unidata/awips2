@@ -65,7 +65,7 @@ public class Provider implements ISerializableObject {
     public enum ServiceType {
 
         // TODO: Only OPENDAP and WFS have the correct amounts
-        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(2411724,
+        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(1411724,
                 OneByOneBox), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
                 BYTES_IN_FLOAT);
 
@@ -85,12 +85,11 @@ public class Provider implements ISerializableObject {
         }
 
         /**
-         * Takes in a WFS request and gives you a nominal byte size based 
-         * on the size in lat/lon of the bounding box and the interval in multiples of 
+         * Takes in a WFS request and gives you a nominal byte size based on the
+         * size in lat/lon of the bounding box and the interval in multiples of
          * 5 min intervals.
          * 
-         * timeSpan ~ minutes
-         * latSpan ~ span in degrees of lat for bounding box
+         * timeSpan ~ minutes latSpan ~ span in degrees of lat for bounding box
          * lonSpan ~ span in degrees of lon for bounding box
          * 
          * @param latSpan
@@ -101,7 +100,7 @@ public class Provider implements ISerializableObject {
         public long getRequestBytesPerLatLonBoxAndTime(double latSpan,
                 double lonSpan, int timeSpan) {
             // increments are in 5 minutes so 5/5 = 1
-            return (long) (latSpan * lonSpan * timeSpan/5 * requestOverheadInBytes);
+            return (long) (latSpan * lonSpan * timeSpan / 5 * requestOverheadInBytes);
         }
     }
 
