@@ -203,6 +203,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 						if (newEl instanceof Jet.JetBarb ){
 							newEl.update(this);
 							((Jet.JetBarb) newEl).setSpeed(((Jet.JetBarb)newEl).getSpeed());
+							JetAttrDlg.getInstance(this.getShell()).updateBarbTemplate( (Jet.JetBarb)newEl );
 						}
 					}
 				}
@@ -218,7 +219,12 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 						((Jet)adc).getJetLine().update(this);
 					}
         		}
-        		
+				else if ( de instanceof Jet.JetHash ){
+					JetAttrDlg.getInstance(this.getShell()).updateHashTemplate((Jet.JetHash)newEl );
+				}
+				else if ( de instanceof Jet.JetText ){
+					JetAttrDlg.getInstance(this.getShell()).updateFlTemplate((Jet.JetText)newEl );
+				}
 			}
 			
 			drawingLayer.removeSelected();

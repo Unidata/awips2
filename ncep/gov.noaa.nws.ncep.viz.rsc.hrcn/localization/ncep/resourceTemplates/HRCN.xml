@@ -45,7 +45,6 @@
 			<forecastPosHour90>${forecastPosHour90}</forecastPosHour90>
 			<forecastPosHour96>${forecastPosHour96}</forecastPosHour96>
 			<forecastPosHour120>${forecastPosHour120}</forecastPosHour120>
-			<requestStyle>METADATA</requestStyle>
 			<metadataMap>
 				<mapping key="pluginName">
 					<constraint constraintValue="${pluginName}" constraintType="EQUALS" />

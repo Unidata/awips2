@@ -1076,7 +1076,7 @@ public class NsharpResourceHandler {
 	public boolean deleteRsc(List<String> deletingDataTimeList){
 		boolean curSndDeleted = false;
 		for(String dataTmLine: deletingDataTimeList){
-			if(curSndProfileProp.getElementDescription().equals(dataTmLine)){
+			if(curSndProfileProp!=null && curSndProfileProp.getElementDescription().equals(dataTmLine)){
 				curSndDeleted = true;
 			}
 			//find deleting element from stnTimeSndTable and null it
@@ -1404,7 +1404,7 @@ public class NsharpResourceHandler {
 		refreshPane();
 		
 	}
-*/
+	 */
 	
 	private void addRsc( boolean displayNewData,Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
 		/* testing code

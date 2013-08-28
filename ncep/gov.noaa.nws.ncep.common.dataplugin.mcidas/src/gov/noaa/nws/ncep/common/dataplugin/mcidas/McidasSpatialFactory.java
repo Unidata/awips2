@@ -18,6 +18,8 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.mcidas;
 
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.dao.McidasMapCoverageDao;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,9 +35,6 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
-
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.dao.McidasMapCoverageDao;
 
 public class McidasSpatialFactory {
 
@@ -58,7 +57,8 @@ public class McidasSpatialFactory {
     }
 
     /**
-     * Retrieves or generates a satellite map coverage object for remapped projections
+     * Retrieves or generates a satellite map coverage object for remapped
+     * projections
      * 
      * @param mapProjection
      *            The projection
@@ -88,30 +88,32 @@ public class McidasSpatialFactory {
      *             If errors occur during db interaction or creation of the
      *             coverage object
      */
-    public synchronized McidasMapCoverage getMapCoverage(
-            Integer iproj, Integer nx, Integer ny, Float dx, Float dy, Float clon, 
-            Float stdlat1, Float stdlat2, Float lllat, Float lllon, Float urlat, Float urlon)
-            throws Exception {
+    public synchronized McidasMapCoverage getMapCoverage(Integer iproj,
+            Integer nx, Integer ny, Float dx, Float dy, Float clon,
+            Float stdlat1, Float stdlat2, Float lllat, Float lllon,
+            Float urlat, Float urlon, double earthRadius) throws Exception {
         McidasMapCoverage mapCoverage = null;
         McidasMapCoverageDao satDao = new McidasMapCoverageDao();
 
         try {
             // Check the database to see if a coverage already exists
-            mapCoverage = satDao.getSatCoverage(iproj, nx, ny, dx, dy,
-                    clon, stdlat1, stdlat2, lllat, lllon, urlat, urlon);
+            mapCoverage = satDao.getSatCoverage(iproj, nx, ny, dx, dy, clon,
+                    stdlat1, stdlat2, lllat, lllon, urlat, urlon);
 
             // If the database does not contain an existing sat map coverage for
             // the given values, create one
             if (mapCoverage == null) {
-                mapCoverage = createMapCoverage(iproj, nx, ny, dx, dy,
-                        clon, stdlat1, stdlat2, lllat, lllon, urlat, urlon);
-                
+                mapCoverage = createMapCoverage(iproj, nx, ny, dx, dy, clon,
+                        stdlat1, stdlat2, lllat, lllon, urlat, urlon,
+                        earthRadius);
+
                 // Persist the new coverage to the database
                 satDao.persist(mapCoverage);
             }
         } catch (Exception e) {
             throw new DataAccessLayerException(
-                    "Unable to retrieve or construct valid Satellite Map Coverage", e);
+                    "Unable to retrieve or construct valid Satellite Map Coverage",
+                    e);
         }
 
         if (mapCoverage == null) {
@@ -155,30 +157,30 @@ public class McidasSpatialFactory {
      */
     private synchronized McidasMapCoverage createMapCoverage(
             Integer mapProjection, Integer nx, Integer ny, Float dx, Float dy,
-            Float clon, Float stdlat1, Float stdlat2, Float lllat, Float lllon, 
-            Float urlat, Float urlon) throws Exception {
+            Float clon, Float stdlat1, Float stdlat2, Float lllat, Float lllon,
+            Float urlat, Float urlon, double earthRadius) throws Exception {
 
         logger.debug("Creating map coverage object");
         ProjectedCRS crs = null;
-        
+
         // Get the correct CRS
         if (mapProjection == 1) {
-            //double cm = 0.0;
-            //if ((lllon > 0.0) && (urlon < 0.0)) {
-            //    cm = 180.0;
-            //}
-            crs = MapUtil.constructMercator(MapUtil.AWIPS_EARTH_RADIUS,
-                    MapUtil.AWIPS_EARTH_RADIUS, stdlat1, clon);
+            // double cm = 0.0;
+            // if ((lllon > 0.0) && (urlon < 0.0)) {
+            // cm = 180.0;
+            // }
+            crs = MapUtil.constructMercator(earthRadius, earthRadius, stdlat1,
+                    clon);
         } else if (mapProjection == 3) {
-            crs = MapUtil.constructLambertConformal(MapUtil.AWIPS_EARTH_RADIUS,
-                    MapUtil.AWIPS_EARTH_RADIUS, stdlat1, stdlat2, clon);
+            crs = MapUtil.constructLambertConformal(earthRadius, earthRadius,
+                    stdlat1, stdlat2, clon);
         } else {
-        	if ( stdlat1 >= 0. )
-        		crs = MapUtil.constructNorthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
-        				MapUtil.AWIPS_EARTH_RADIUS, stdlat1, clon);
-        	else
-        		crs = constructSouthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
-        				MapUtil.AWIPS_EARTH_RADIUS, stdlat1, clon);
+            if (stdlat1 >= 0.)
+                crs = MapUtil.constructNorthPolarStereo(earthRadius,
+                        earthRadius, stdlat1, clon);
+            else
+                crs = constructSouthPolarStereo(earthRadius, earthRadius,
+                        stdlat1, clon);
         }
 
         DirectPosition2D firstPosition = null;
@@ -191,8 +193,8 @@ public class McidasSpatialFactory {
         DirectPosition2D corner4 = new DirectPosition2D();
 
         /*
-         * Projection is Mercator. Determine corner points from lllat,lllon,urlat,urlon
-         * provided in the satellite file
+         * Projection is Mercator. Determine corner points from
+         * lllat,lllon,urlat,urlon provided in the satellite file
          */
         if (mapProjection == 1) {
             logger.debug("Determining corner points for Mercator projection");
@@ -214,8 +216,7 @@ public class McidasSpatialFactory {
          * the corner points must be calculated
          */
         else {
-            logger
-                    .debug("Determining corner points for Lambert Conformal or Polar Stereographic projection");
+            logger.debug("Determining corner points for Lambert Conformal or Polar Stereographic projection");
 
             // Get the transforms to be used to convert between meters and
             // lat/lon
@@ -224,15 +225,18 @@ public class McidasSpatialFactory {
 
             // Use lllat and lllon to specify the first point
             firstPosition = new DirectPosition2D();
-            fromLatLon.transform(new DirectPosition2D(lllon, lllat), firstPosition);
+            fromLatLon.transform(new DirectPosition2D(lllon, lllat),
+                    firstPosition);
 
+            int nxm1 = nx - 1;
+            int nym1 = ny - 1;
             // Determine the 3 other corner points using the given dx,dy,nx, and
             // ny in meters
-            secondPosition = new DirectPosition2D(dx * nx + firstPosition.x,
+            secondPosition = new DirectPosition2D(dx * nxm1 + firstPosition.x,
                     firstPosition.y);
-            thirdPosition = new DirectPosition2D(dx * nx + firstPosition.x, dy
-                    * ny + firstPosition.y);
-            fourthPosition = new DirectPosition2D(firstPosition.x, dx * ny
+            thirdPosition = new DirectPosition2D(dx * nxm1 + firstPosition.x,
+                    dy * nym1 + firstPosition.y);
+            fourthPosition = new DirectPosition2D(firstPosition.x, dy * nym1
                     + firstPosition.y);
 
             // Convert the corner points from meters to lat/lon
@@ -256,12 +260,12 @@ public class McidasSpatialFactory {
         Geometry geometry = new WKTReader().read(buffer.toString());
 
         McidasMapCoverage mapCoverage = new McidasMapCoverage(mapProjection,
-                nx, ny, dx, dy, clon, stdlat1, stdlat2, lllat, lllon, urlat, 
+                nx, ny, dx, dy, clon, stdlat1, stdlat2, lllat, lllon, urlat,
                 urlon, crs, geometry);
 
         return mapCoverage;
     }
-    
+
     /**
      * Construct a south polar stereographic projection
      * 
@@ -278,7 +282,7 @@ public class McidasSpatialFactory {
     private ProjectedCRS constructSouthPolarStereo(double majorAxis,
             double minorAxis, double stdParallel, double centralMeridian) {
         try {
-        	DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
+            DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
             ParameterValueGroup parameters = dmtFactory
                     .getDefaultParameters("Stereographic_South_Pole");
 
@@ -299,49 +303,60 @@ public class McidasSpatialFactory {
         }
     }
 
-
     /**
-     * Retrieves or generates a satellite map coverage object for native satellite navigation
+     * Retrieves or generates a satellite map coverage object for native
+     * satellite navigation
+     * 
      * @param iproj
-     * @param nx Number of elements per line in area
-     * @param ny Number of lines in area
-     * @param reflon Reference Longitude
-     * @param upperLeftElement image element coordinate of area line 0, element 0
-     * @param upperLeftLine image line coordinate of area line 0, element 0
-     * @param xres Element resolution
-     * @param yres Line resolution
-     * @param navigation Satellite NAV BLOCK
+     * @param nx
+     *            Number of elements per line in area
+     * @param ny
+     *            Number of lines in area
+     * @param reflon
+     *            Reference Longitude
+     * @param upperLeftElement
+     *            image element coordinate of area line 0, element 0
+     * @param upperLeftLine
+     *            image line coordinate of area line 0, element 0
+     * @param xres
+     *            Element resolution
+     * @param yres
+     *            Line resolution
+     * @param navigation
+     *            Satellite NAV BLOCK
      * @return
      * @throws Exception
      */
-	public McidasMapCoverage getMapCoverage(Integer iproj, Integer nx,
-			Integer ny, Float reflon, int upperLeftElement, int upperLeftLine, int xres, int yres,
-			byte[] navigation) throws Exception {
+    public McidasMapCoverage getMapCoverage(Integer iproj, Integer nx,
+            Integer ny, Float reflon, int upperLeftElement, int upperLeftLine,
+            int xres, int yres, byte[] navigation) throws Exception {
 
         McidasMapCoverage mapCoverage = null;
         McidasMapCoverageDao satDao = new McidasMapCoverageDao();
 
         String type = new String(navigation, 0, 4);
         String encodedNav = encodeNavBlock(navigation);
-        
+
         try {
             // Check the database to see if a coverage already exists
-            mapCoverage = satDao.getSatCoverage(iproj, nx, ny, upperLeftElement, 
-            		upperLeftLine, xres, yres, encodedNav);
-        	//TODO
-        	
+            mapCoverage = satDao.getSatCoverage(iproj, nx, ny,
+                    upperLeftElement, upperLeftLine, xres, yres, encodedNav);
+            // TODO
+
             // If the database does not contain an existing sat map coverage for
             // the given values, create one
             if (mapCoverage == null) {
-                mapCoverage = createMapCoverage(iproj, nx, ny, reflon, upperLeftElement,
-                		upperLeftLine, xres, yres, type, encodedNav);
-                
+                mapCoverage = createMapCoverage(iproj, nx, ny, reflon,
+                        upperLeftElement, upperLeftLine, xres, yres, type,
+                        encodedNav);
+
                 // Persist the new coverage to the database
                 satDao.persist(mapCoverage);
             }
         } catch (Exception e) {
             throw new DataAccessLayerException(
-                    "Unable to retrieve or construct valid raw Satellite Map Coverage", e);
+                    "Unable to retrieve or construct valid raw Satellite Map Coverage",
+                    e);
         }
 
         if (mapCoverage == null) {
@@ -350,84 +365,85 @@ public class McidasSpatialFactory {
         }
 
         return mapCoverage;
-	}
+    }
 
-	private McidasMapCoverage createMapCoverage(Integer mapProjection, Integer nx,
-			Integer ny, Float reflon, int upperLeftElement, int upperLeftLine, int xres, int yres,
-			String type, String encodedNav) throws Exception {
+    private McidasMapCoverage createMapCoverage(Integer mapProjection,
+            Integer nx, Integer ny, Float reflon, int upperLeftElement,
+            int upperLeftLine, int xres, int yres, String type,
+            String encodedNav) throws Exception {
 
         ProjectedCRS crs = null;
-        
+
         // Get the correct CRS
         if (mapProjection == 7585) {
             crs = constructCRS(type, encodedNav);
         }
-        
+
         // Construct the polygon constructor String
         StringBuffer buffer = new StringBuffer();
         buffer.append("POLYGON((");
-        buffer.append(reflon-90.+" -90.0,");
-        buffer.append(reflon+90.+" -90.0,");
-        buffer.append(reflon+90.+" 90.0,");
-        buffer.append(reflon-90.+" 90.0,");
-        buffer.append(reflon-90.+" -90.0");
+        buffer.append(reflon - 90. + " -90.0,");
+        buffer.append(reflon + 90. + " -90.0,");
+        buffer.append(reflon + 90. + " 90.0,");
+        buffer.append(reflon - 90. + " 90.0,");
+        buffer.append(reflon - 90. + " -90.0");
         buffer.append("))");
 
         // Create the geometry from the constructed String
         Geometry geometry = new WKTReader().read(buffer.toString());
 
         McidasMapCoverage mapCoverage = new McidasMapCoverage(mapProjection,
-                nx, ny, reflon, upperLeftElement, upperLeftLine, xres, yres, 
+                nx, ny, reflon, upperLeftElement, upperLeftLine, xres, yres,
                 crs, geometry);
 
         return mapCoverage;
-        
-	}
 
-	private String encodeNavBlock( byte[] navigation ) {
-		
-		Base64 b64 = new Base64();
-		byte[] coded = b64.encode(navigation);
+    }
 
-		return new String(coded);
-	}
-	
-	public ProjectedCRS constructCRS(String type, String encoded) {
-		
-		ParameterValueGroup pvg = null;
-		
-		DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
-		try {
-			pvg = dmtFactory.getDefaultParameters("MCIDAS_AREA_NAV");
-		} catch (NoSuchIdentifierException e1) {
-			e1.printStackTrace();
-		}
-		
-		/*
-         * semi_major and semi_minor parameters are set to 1, so that no global scaling
-         * is performed during coordinate transforms by 
-         * org.geotools.referencing.operation.projection.MapProjection
-         * based on the radius of earth 
-		 */
+    private String encodeNavBlock(byte[] navigation) {
+
+        Base64 b64 = new Base64();
+        byte[] coded = b64.encode(navigation);
+
+        return new String(coded);
+    }
+
+    public ProjectedCRS constructCRS(String type, String encoded) {
+
+        ParameterValueGroup pvg = null;
+
+        DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
+        try {
+            pvg = dmtFactory.getDefaultParameters("MCIDAS_AREA_NAV");
+        } catch (NoSuchIdentifierException e1) {
+            e1.printStackTrace();
+        }
+
+        /*
+         * semi_major and semi_minor parameters are set to 1, so that no global
+         * scaling is performed during coordinate transforms by
+         * org.geotools.referencing.operation.projection.MapProjection based on
+         * the radius of earth
+         */
         pvg.parameter("semi_major").setValue(1.0);
         pvg.parameter("semi_minor").setValue(1.0);
         pvg.parameter("central_meridian").setValue(0.0);
-        //pvg.parameter("scale_factor").setValue(1.0);
+        // pvg.parameter("scale_factor").setValue(1.0);
 
-		pvg.parameter("NAV_BLOCK_BASE64").setValue(encoded);
-		//System.out.println(pvg.toString() );
-		
-		String projectionName = "MCIDAS AREA "+type;
-		ProjectedCRS mcidasCRS = null;
-		try {
-			mcidasCRS = MapUtil.constructProjection(projectionName, pvg);
-		} catch (NoSuchIdentifierException e) {
-			e.printStackTrace();
-		} catch (FactoryException e) {
-			e.printStackTrace();
-		}
-		
-		return mcidasCRS;
-	}
+        pvg.parameter("NAV_BLOCK_BASE64").setValue(encoded);
+        // System.out.println(pvg.toString() );
+
+        String projectionName = "MCIDAS AREA " + type;
+        ProjectedCRS mcidasCRS = null;
+        try {
+            mcidasCRS = MapUtil.constructProjection(projectionName, pvg);
+        } catch (NoSuchIdentifierException e) {
+            e.printStackTrace();
+        } catch (FactoryException e) {
+            e.printStackTrace();
+        }
+
+        return mcidasCRS;
+    }
 
 }
