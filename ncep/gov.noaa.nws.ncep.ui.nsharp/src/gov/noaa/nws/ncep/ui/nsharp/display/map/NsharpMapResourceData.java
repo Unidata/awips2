@@ -19,7 +19,10 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.display.map;
 
-import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.*;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
+
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -28,11 +31,17 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 public class NsharpMapResourceData extends AbstractResourceData {
 
 	private MarkerState 	markerState = MarkerState.MARKER_ONLY;
+
 	private MarkerType  	markerType = MarkerType.DIAMOND;
+
 	private Float       	markerSize = 1f;
+
 	private Integer     	markerWidth = 2;
+
 	private MarkerTextSize 	markerTextSize = MarkerTextSize.MEDIUM;
+
 	private String 			mapName = "NSHARP";
+
 	private MarkerType  	stnMarkerType = MarkerType.LARGE_X;
 	
 	public MarkerType getStnMarkerType() {
@@ -43,8 +52,13 @@ public class NsharpMapResourceData extends AbstractResourceData {
 		super();
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon.uf.viz.core.comm.LoadProperties, com.raytheon.uf.viz.core.drawables.IDescriptor)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
+     * .uf.viz.core.comm.LoadProperties,
+     * com.raytheon.uf.viz.core.drawables.IDescriptor)
 	 */
 	@Override
 	public NsharpMapResource construct(LoadProperties loadProperties,
@@ -53,8 +67,12 @@ public class NsharpMapResourceData extends AbstractResourceData {
 		return new NsharpMapResource(this, loadProperties);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
+     * )
 	 */
 	@Override
 	public void update(Object updateData) {
@@ -64,6 +82,17 @@ public class NsharpMapResourceData extends AbstractResourceData {
 
 	@Override
 	public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof NsharpMapResourceData))
+            return false;
+        NsharpMapResourceData rdata = (NsharpMapResourceData) obj;
+        if (this.markerState.equals(rdata.getMarkerState())
+                && this.markerType.equals(rdata.getMarkerType())
+                && this.markerSize.equals(rdata.getMarkerSize())
+                && this.markerWidth.equals(rdata.getMarkerWidth())
+                && this.markerTextSize.equals(rdata.getMarkerTextSize())
+                && this.stnMarkerType.equals(rdata.getStnMarkerType()))
+            return true;
+
 		return false;
 	}
 	

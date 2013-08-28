@@ -199,7 +199,7 @@ public class StoreActivityDialog extends CaveJFACEDialog {
         GridData gdata = new GridData(SWT.FILL, SWT.CENTER, true, false);
 
         Label infoLabel = new Label(g1, SWT.NONE);
-        infoLabel.setText("Activity Info:");
+        infoLabel.setText("Activity Label:");
 
         infoText = new Text(g1, SWT.NONE);
         infoText.setLayoutData(gdata);
@@ -247,7 +247,7 @@ public class StoreActivityDialog extends CaveJFACEDialog {
         modeText.setLayoutData(gdata);
 
         Label statusLabel = new Label(g1, SWT.NONE);
-        statusLabel.setText("Operating Mode:");
+        statusLabel.setText("Activity Status:");
 
         statusText = new Text(g1, SWT.NONE);
         statusText.setLayoutData(gdata);

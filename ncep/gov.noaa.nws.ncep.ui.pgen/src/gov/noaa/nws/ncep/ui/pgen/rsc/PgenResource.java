@@ -2044,6 +2044,12 @@ public class PgenResource extends
         return getCapability(EditableCapability.class).isEditable();
     }
 
+    public void setEditable(boolean enable) {
+        getCapability(EditableCapability.class).setEditable(enable);
+        EditableManager.makeEditable(this,
+                getCapability(EditableCapability.class).isEditable());
+    }
+
     /**
      * Finds the PGEN resource and fill the context menu.
      */

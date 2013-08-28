@@ -7,12 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
-import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.DVLPG_HR;
-import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.ENDG_HR;
-import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.ISSUE_TIME;
-import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.SNAPSHOT_TYPE;
-import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.UNTIL_TIME;
-import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.OUTLOOK_END_TIME;
+import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.*;
 import static gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool.pad;
 import static java.lang.Math.abs;
 import static java.lang.Math.ceil;
@@ -57,6 +52,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 06/12	    TTR393		J. Wu		Adjust algorithm in "processMaybe" to speed
  *                                      up processing by 200 times.
  * 11/12	    #909/TTR650	J. Wu		Remove outlooks if "genOlk" is "NO".
+ * 07/13		?			J. Wu		Re-order state list in specified order.
  * 
  * </pre>
  * 
@@ -360,6 +356,7 @@ public class GfaRules {
 				nState++;
 				updateGfaStatesField( smear, key );				
 			}
+		    
 		}
 		
 		
@@ -414,6 +411,11 @@ public class GfaRules {
 			
 		    smear.setGfaStates( s.toString() );
 	    }
+	    					    	    
+	    /*
+	     * Re-order the state list in the specified FA-Area based order.
+	     */
+	    reorderStateList( smear );
 	    					    	    
 	}
     
@@ -1564,5 +1566,86 @@ public class GfaRules {
 		}
 
 	}
+	
+	/**
+	 *  Re-order the state list in a GFA.
+	 *  
+	 *  1. If there are two FA areas, the state in the primary area go first.
+	 *  2. For each FA area, the states in that area should follow the given order.
+	 *  3. "CSTL WATERS" goes last, if exists.
+	 *  
+	 */
+	public static void reorderStateList( Gfa gg ) {
+		
+		String area = gg.getGfaArea();
+
+		if ( area == null || !isValidGfaArea( area ) || gg.getGfaStates() == null ||
+				gg.getGfaStates().trim().length() == 0 ) {
+			return;
+		}
+
+		ArrayList<String> oldStates = new ArrayList<String>();
+		ArrayList<String> oldStatesNoWater = new ArrayList<String>();
+		for ( String ss : gg.getGfaStates().split(" ") ) {
+			oldStates.add( ss );
+			if ( ss.length() == 2 )
+				oldStatesNoWater.add(ss);
+		}
+
+		String[] s = area.split( "-" );
+
+		ArrayList<String> statesInArea1 = GfaInfo.getStateOrderByArea().get( s[0] );
+		ArrayList<String> statesInArea2 = null;
+		if ( s.length > 1 ) {
+			statesInArea2 = GfaInfo.getStateOrderByArea().get( s[1] );
+		}
+
+		// Sort states in primary FA area
+		StringBuilder newStates = new StringBuilder();
+		for (String st : statesInArea1) {
+			if ( st.length() == 2 && oldStatesNoWater.contains( st ) ) {
+				newStates.append( st );
+				newStates.append(" ");
+			}
+		}
+
+		// Sort and add states in second FA area, if any.
+		if ( statesInArea2 != null ) {
+			for ( String st : statesInArea2 ) {
+				if ( st.length() == 2 && oldStatesNoWater.contains( st ) ) {
+					newStates.append( st );
+					newStates.append(" ");
+				}
+			}
+		}
+
+		// Add back "CSTL WTRS" or "AND CSTL WTRS".
+		for ( String st : oldStates ) {
+			if ( st.length() > 2 ) {
+				newStates.append( st );
+				newStates.append(" ");
+			}
+		}
+        
+		// Set the state list to the re-ordered one.
+		gg.setGfaStates( newStates.toString().trim() );
+		
+	}
+	
+	/*
+	 * Check if the input is a valid FA area name.
+	 */	
+	private static boolean isValidGfaArea( String area ) {		
+		boolean validArea = false;
+		
+		if ( area.equalsIgnoreCase( BOS ) || area.equalsIgnoreCase( MIA ) || 
+			 area.equalsIgnoreCase( CHI ) || area.equalsIgnoreCase( DFW ) ||
+			 area.equalsIgnoreCase( SLC ) || area.equalsIgnoreCase( SFO )  ) {
+			
+			validArea = true;
+		}
+		
+		return validArea;
+	}	
 	
 }

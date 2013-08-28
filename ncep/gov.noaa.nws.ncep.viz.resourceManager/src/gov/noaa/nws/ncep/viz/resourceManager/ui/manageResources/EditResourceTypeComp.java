@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 04/10/13       #864      Greg Hull    move the isEnabled flag. Show the resource implementation.
  * 04/11/13       #864      Greg Hull    new TimelineGenMethods and EVENT TimeMatchMthd
  * 06/10/13       #997	    Greg Hull    Copy AttrSets with RDs
+ * 07/18/13      #1011      Greg Hull    Add ALL_DATA as a frameSpan option.
  * 
  * </pre>
  * 
@@ -118,10 +119,10 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 	
 	String availFrameSpanStrings[] = { //"N/A",
 			"1 min", "2 mins", "5 mins", "10 mins", "15 mins", "20 mins", "30 mins",
-			"1 hr", "90 mins", "2 hrs",  "3 hrs",  "6 hrs",  "12 hrs",  "24 hrs" };
+			"1 hr", "90 mins", "2 hrs",  "3 hrs",  "6 hrs",  "12 hrs",  "24 hrs", "All Data" };
 	
 	int availFrameSpanMins[] = { //0,
-			1, 2, 5, 10, 15, 20, 30, 60, 90, 120, 180, 360, 720, 1440 };  
+			1, 2, 5, 10, 15, 20, 30, 60, 90, 120, 180, 360, 720, 1440, Integer.MAX_VALUE };  
 	
 	public EditResourceTypeComp( Composite parent, int style, 
 			ManageResourceControl mgrCtl) {
@@ -362,7 +363,6 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
     	timeMatchMthdLbl.setLayoutData( fd );
 
 
-    	
     	binDataBtn = new Button(top_form, SWT.CHECK );
     	binDataBtn.setText( "Enable Binning" );
     	fd = new FormData();
@@ -680,8 +680,7 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 			timeMatchMethodCombo.removeAll();
 			frameSpanCombo.removeAll();
 			
-			if( seldRscDefn.getTimeMatchMethod() == TimeMatchMethod.EVENT || 
-				seldRscDefn.isPgenResource() ) {
+			if( seldRscDefn.getTimeMatchMethod() == TimeMatchMethod.EVENT ) {
 				
 				useDataTimesBtn.setSelection( false );  // sanity check since
 				useFrameIntrvlBtn.setSelection( false ); //  all event resources should
@@ -897,12 +896,6 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		// it. The user will need to edit this later.
 		// TODO : allow the user to copy all (or some?) of the attributeSetGroups from the 
 		// original rscDefn.
-		if( newRscDefn.applyAttrSetGroups() && 
-		   !newRscDefn.isPgenResource() ) {
-
-//			newRscDefn.setAttrSetGroupNames( new ArrayList<String>() );
-//			newRscDefn.addAttrSetGroupName("standard");
-		}
 		
     	String newLocFilename = seldRscDefn.getLocalizationFile().getName();
     	
