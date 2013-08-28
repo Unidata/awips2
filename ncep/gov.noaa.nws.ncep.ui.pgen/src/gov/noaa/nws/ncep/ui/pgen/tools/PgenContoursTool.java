@@ -27,7 +27,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
-import gov.noaa.nws.ncep.viz.gempak.nativelib.LibraryLoader;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/11		#?			J. Wu		Add check for the existing Contours of
  * 										the same type.
  * 03/13		#927		B. Yin		Added right mouse click context menu
+ * 08/13		TTR778		J. Wu		Move loading libg2g to GraphToGridParamDialog.
  * 
  * </pre>
  * 
@@ -107,7 +107,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
     protected void activateTool() {
 
         super.activateTool();
-        LibraryLoader.load("g2g");
+//        LibraryLoader.load("g2g");
 
       
         /*

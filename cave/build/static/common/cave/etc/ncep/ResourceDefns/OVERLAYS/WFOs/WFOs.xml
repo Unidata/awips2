@@ -3,10 +3,11 @@
     <resourceDefnName>WFOs</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-LpiFilename=wfo.lpi
+sourceType=LPI_FILE
+sourceName=wfo.lpi
 mapName=WFO
     </resourceParameters>
-    <rscImplementation>LpiOverlay</rscImplementation>
+    <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

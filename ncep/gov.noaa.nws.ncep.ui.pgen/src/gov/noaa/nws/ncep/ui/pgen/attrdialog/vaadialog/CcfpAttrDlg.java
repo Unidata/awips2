@@ -89,7 +89,7 @@ public class CcfpAttrDlg extends AttrDlg implements ICcfp{
 	private static final String[] ITEMS_CVRG = new String[]{"75-100%","40-74%","25-39%"};	
 	private static final String[] ITEMS_TOPS = new String[]{"400+","350-390","300-340","250-290" };
 	private static final String[] ITEMS_CONF = new String[]{"50-100%","25-49%"};
-	private static final String[] ITEMS_GWTH = new String[]{"+","NC","-"};
+	private static final String[] ITEMS_GWTH = new String[]{"\u2191","NC","\u2193"};
 	private static final String[] ITEMS_SPD = new String[]{"0","5","10","15","20","25","30","35","40","45","50","55","60"};
 	private static final String[] ITEMS_DIR = SigmetInfo.DIRECT_ARRAY;//new String[]{"N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"};
 	

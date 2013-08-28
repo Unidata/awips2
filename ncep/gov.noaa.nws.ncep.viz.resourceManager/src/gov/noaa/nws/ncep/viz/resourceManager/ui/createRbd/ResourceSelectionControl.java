@@ -104,8 +104,6 @@ public class ResourceSelectionControl extends Composite {
 	// a map to store the previous selections for each category.
 	private static HashMap<ResourceCategory,ResourceName> prevCatSeldRscNames;
 	
-	private Boolean isPgenMode = false;
-	
 	// this list must stay in sync with the cycleTimeCombo.
 	private ArrayList<DataTime> cycleTimes = new ArrayList<DataTime>();
 		
@@ -207,11 +205,6 @@ public class ResourceSelectionControl extends Composite {
         addSelectionListeners();
 
         initWidgets();    
-    }
-
-
-    public IStructuredContentProvider createPgenFileContentProvider() {
-    	return NmapCommon.createFileContentProvider( new String[]{".xml"} );
     }
 
     // create all the widgets in the Resource Selection (top) section of the sashForm.  
@@ -1056,6 +1049,9 @@ public class ResourceSelectionControl extends Composite {
 							enableSelections = false;
 						}
 					}
+					else if( rscDefn.isPgenResource() ) {
+						availMsg = "";
+					}
 					else if( !rscDefn.isRequestable() ) {
 						availMsg = ""; 
 					}
@@ -1162,33 +1158,6 @@ public class ResourceSelectionControl extends Composite {
 		rscSelListeners.add( lstnr );
 	}
 	
-	public boolean isPgenMode() {
-		return isPgenMode;
-	}
-
-	public void setPgenMode(boolean pgenMode) {
-		if( pgenMode != isPgenMode ) {
-			isPgenMode = pgenMode;
-			
-			rscTypeLViewer.setInput(null);
-			rscGroupLViewer.setInput(null);
-			
-		    if( isPgenMode ) {
-		    	rscTypeLbl.setText("PGEN Location");
-		    	rscTypeGroupLbl.setText("PGEN File");
-		    	
-		    	rscGroupLViewer.setContentProvider( createPgenFileContentProvider() );    
-		    }
-		    else {
-		    	rscTypeLbl.setText("Resource Type");
-		    	rscTypeGroupLbl.setText("Resource Group");
-
-		    	rscGroupLViewer.setContentProvider( NmapCommon.createSubDirContentProvider() );    
-		    }
-		}
-	}
-
-
 	// TODO: add a way to let the user specifically choose the "LATEST" cycle time.
 	// Currently the user cannot select a forecast resource without selecting an 
 	// available cycle time.
