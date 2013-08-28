@@ -25,14 +25,13 @@ package com.raytheon.uf.edex.wms.provider;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geotools.styling.StyledLayerDescriptor;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.wms.WmsException;
 import com.raytheon.uf.edex.wms.reg.WmsSource;
 import com.raytheon.uf.edex.wms.styling.SldStyleProvider;
@@ -56,7 +55,7 @@ public class GetLegendProcessor {
 
 	protected WmsLayerManager layerManager;
 
-	protected Log log = LogFactory.getLog(this.getClass());
+    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	public GetLegendProcessor(WmsLayerManager layerManager, String time,
 			String elevation, Map<String, String> dimensions, Integer width,
@@ -94,12 +93,10 @@ public class GetLegendProcessor {
 	 * @return
 	 * @throws WmsException
 	 */
-	public BufferedImage getLegendStyleLib(String layer, String style,
-			StyledLayerDescriptor sld) throws WmsException {
+    public BufferedImage getLegendStyleLib(String layer, String datauri,
+            String style, StyledLayerDescriptor sld) throws WmsException {
 		SldStyleProvider styler = new SldStyleProvider(sld);
-		Map<String, String> dims = new HashMap<String, String>(0);
-		Map<String, String> units = new HashMap<String, String>(0);
-		return styler.getLegend(layer, style, dims, units, width, height);
+        return styler.getLegend(layer, null, style, width, height);
 	}
 
 	public static BufferedImage applyBackground(BufferedImage img, Color bgColor) {

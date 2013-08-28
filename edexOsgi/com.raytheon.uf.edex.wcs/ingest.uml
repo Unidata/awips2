@@ -1,0 +1,19 @@
+@startuml
+
+node "EDEX Data Plug-in Adapter" {
+  () "Ingest Endpoint" as ingest
+  [Plug-in Data Decoder] as decoder
+  [Plug-in Layer Metadata Collector] as collector
+} 
+
+database "PostgreSQL" {
+  frame "MetaData" {
+    [Layer Metadata] as layer
+  }
+}
+
+ingest -> decoder
+decoder -> collector
+collector -> layer
+
+@enduml
