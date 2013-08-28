@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.registry.federation;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -139,11 +140,12 @@ public abstract class RegistryFederationManager {
      *             If errors occur when creating the jaxb manager
      * @throws SerializationException
      *             If errors occur when unmarshalling the federation properties
+     * @throws MalformedURLException
      */
     protected RegistryFederationManager(boolean federationEnabled,
             LifecycleManager lcm, String federationPropertiesFileName,
             RegistryReplicationManager replicationManager)
-            throws JAXBException, SerializationException {
+            throws JAXBException, SerializationException, MalformedURLException {
         this.federationEnabled = federationEnabled;
         this.lcm = lcm;
         this.replicationManager = replicationManager;
