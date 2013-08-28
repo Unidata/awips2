@@ -52,9 +52,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -82,6 +84,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.warngen.Activator;
 import com.raytheon.viz.warngen.WarngenConstants;
 import com.raytheon.viz.warngen.comm.WarningSender;
@@ -144,6 +147,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 16, 2013 DR 16387    Qinglu Lin  Reset totalSegments for each followup product.
  *  Jul 29, 2013 DR 16352    D. Friedman Move 'result' to okPressed().
  *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
+ *  Aug 15, 2013 DR 16418    D. Friedman Make dialog visibility match editable state.
  * </pre>
  * 
  * @author chammack
@@ -306,6 +310,14 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        shell.addListener(SWT.Close, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                event.doit = false;
+                closePressed();
+            }
+        });
+
         Composite mainComposite = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
@@ -1256,7 +1268,8 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Action for Close button
      */
     private void closePressed() {
-        close();
+        EditableManager.makeEditable(warngenLayer, false);
+        hide();
     }
 
     /**
@@ -2194,6 +2207,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
                 // Move above parent shell if we are showing it
                 shell.moveAbove(getParent());
+            } else {
+                shell.setVisible(false);
             }
         }
     }
