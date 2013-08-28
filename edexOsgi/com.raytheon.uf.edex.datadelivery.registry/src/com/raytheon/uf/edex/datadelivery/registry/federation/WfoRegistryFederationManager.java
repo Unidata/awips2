@@ -127,6 +127,7 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
             this.replicationManager.setSubscriptionProcessingEnabled(false);
         } else {
             scheduler = Executors.newSingleThreadScheduledExecutor();
+
         }
     }
 
