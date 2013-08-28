@@ -78,6 +78,8 @@ import com.raytheon.uf.viz.core.time.TimeMatchingJob;
  *    Aug 15, 2007             chammack    Initial Creation.
  *    Nov 30, 2007 461         bphillip    Using VizTime now for time matching
  *    Oct  22, 2009   #3348    bsteffen    added ability to limit number of frames
+ *    July 20, 2013 NCEP #1015 Greg Hull   check for rotated/derived CRS in getWorldToCRSTransform()
+ *    
  * </pre>
  * 
  * @author chammack
@@ -874,6 +876,13 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         if (crs instanceof GeneralDerivedCRS) {
             GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
             CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
+            
+            // NCEP #1015 : support of for ICAO-B PredefinedArea which
+            // has a FITTED_CS (ie rotated) CRS 
+            if( worldCRS instanceof GeneralDerivedCRS ) {
+            	worldCRS = ((GeneralDerivedCRS)worldCRS).getBaseCRS();
+            }
+
             try {
                 return CRS.findMathTransform(worldCRS, crs);
             } catch (FactoryException e) {

@@ -317,7 +317,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 			MidCloudText mtxt = (MidCloudText)def.create(DrawableType.MID_CLOUD_TEXT, (IAttribute)((CloudAttrDlg)dlg).getLabelDlg(),
 			        		"Text", "MID_LEVEL_CLOUD", loc, drawingLayer.getActiveLayer() );
 			
-			//mtxt.setTwoColumns(false);
+			mtxt.setTwoColumns(false);
 			
 			spe = mtxt;
 			
