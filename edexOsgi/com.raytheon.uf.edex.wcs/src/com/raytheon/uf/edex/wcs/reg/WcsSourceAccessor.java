@@ -31,11 +31,18 @@
 package com.raytheon.uf.edex.wcs.reg;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.wcs.WcsException;
+import com.raytheon.uf.edex.wcs.format.IWcsDataFormatter;
 
 /**
  * 
@@ -44,27 +51,109 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  */
 public class WcsSourceAccessor {
 
-	public synchronized List<CoverageDescription> getCoverages() {
-		ApplicationContext ctx = EDEXUtil.getSpringContext();
-		String[] beans = ctx.getBeanNamesForType(WcsSource.class);
-		List<CoverageDescription> cd = new ArrayList<CoverageDescription>(
-				beans.length);
-		for (String bean : beans) {
-			WcsSource s = (WcsSource) ctx.getBean(bean);
-			cd.addAll(s.listCoverages());
-		}
-		return cd;
-	}
+    private static Map<String, IWcsSource<?, ?>> cache;
 
-	public synchronized WcsSource getSource(String id) {
-		ApplicationContext ctx = EDEXUtil.getSpringContext();
-		String[] beans = ctx.getBeanNamesForType(WcsSource.class);
-		for (String bean : beans) {
-			WcsSource s = (WcsSource) ctx.getBean(bean);
-			if (s.hasCoverageDescription(id)) {
-				return s;
-			}
-		}
-		return null;
-	}
+    private static Map<String, IWcsDataFormatter> formatMap;
+
+    private static IUFStatusHandler log = UFStatus
+            .getHandler(WcsSourceAccessor.class);
+
+    private WcsSourceAccessor() {
+
+    }
+
+    static {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!EDEXUtil.isRunning()) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                    }
+                }
+                try {
+                    ApplicationContext ctx = EDEXUtil.getSpringContext();
+                    String[] beans = ctx.getBeanNamesForType(IWcsSource.class);
+                    cache = new HashMap<String, IWcsSource<?, ?>>(beans.length);
+                    for (String bean : beans) {
+                        IWcsSource<?, ?> s = (IWcsSource<?, ?>) ctx
+                                .getBean(bean);
+                        cache.put(s.getKey(), s);
+                    }
+                } catch (Throwable e) {
+                    log.error("Unable to init wcs sources", e);
+                }
+                try {
+                    ApplicationContext ctx = EDEXUtil.getSpringContext();
+                    String[] beans = ctx
+                            .getBeanNamesForType(IWcsDataFormatter.class);
+                    HashMap<String, IWcsDataFormatter> map = new HashMap<String, IWcsDataFormatter>(
+                            beans.length);
+                    for (String bean : beans) {
+                        IWcsDataFormatter df = (IWcsDataFormatter) ctx
+                                .getBean(bean);
+                        map.put(df.getIdentifier(), df);
+                    }
+                    formatMap = Collections.unmodifiableMap(map);
+                } catch (Throwable e) {
+                    log.error("Unable to init wcs formats", e);
+                }
+            }
+        }).run();
+    }
+
+    /**
+     * @param summary
+     * @return empty list if accessor isn't initialized
+     */
+    public static List<CoverageDescription> getCoverages(boolean summary) {
+        if (cache == null) {
+            return new ArrayList<CoverageDescription>(0);
+        }
+        List<CoverageDescription> cd = new ArrayList<CoverageDescription>();
+        for (String key : cache.keySet()) {
+            IWcsSource<?, ?> s = cache.get(key);
+            cd.addAll(s.listCoverages(summary));
+        }
+        return cd;
+    }
+
+    /**
+     * @param id
+     * @return null if source is not found or accessor isn't initialized
+     * @throws WcsException
+     */
+    public static IWcsSource<?, ?> getSource(String id) throws WcsException {
+        if (cache == null) {
+            return null;
+        }
+        for (String key : cache.keySet()) {
+            IWcsSource<?, ?> s = cache.get(key);
+            if (s.hasCoverage(id)) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return empty map if accessor isn't initialized
+     */
+    public static Map<String, IWcsDataFormatter> getFormatMap() {
+        if (formatMap == null) {
+            return new HashMap<String, IWcsDataFormatter>(0);
+        }
+        return formatMap;
+    }
+
+    /**
+     * @return empty list if accessor isn't initialized
+     */
+    public static List<String> getFormats() {
+        if (formatMap == null) {
+            return new ArrayList<String>(0);
+        }
+        return new ArrayList<String>(formatMap.keySet());
+    }
 }

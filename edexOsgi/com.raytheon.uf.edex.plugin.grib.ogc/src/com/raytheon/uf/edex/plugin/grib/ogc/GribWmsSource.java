@@ -30,86 +30,87 @@
  */
 package com.raytheon.uf.edex.plugin.grib.ogc;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
-import com.raytheon.uf.edex.plugin.grib.ogc.GribRecordFinder;
 import com.raytheon.uf.edex.wms.WmsException;
 import com.raytheon.uf.edex.wms.WmsException.Code;
 import com.raytheon.uf.edex.wms.reg.DefaultWmsSource;
 import com.raytheon.uf.edex.wms.styling.ColormapStyleProvider;
-import com.raytheon.uf.edex.wms.styling.CoverageStyleProvider;
+import com.raytheon.uf.edex.wms.styling.ICoverageStyleProvider;
 
 /**
  * 
  * @author jelkins
  * @version 1.0
  */
-public class GribWmsSource extends DefaultWmsSource {
+public class GribWmsSource extends
+        DefaultWmsSource<GribDimension, GridParamLayer> {
 
-	protected ColormapStyleProvider styler = new ColormapStyleProvider(
-			"grib_style_library.xml", "Grid/Default");
+    protected ColormapStyleProvider styler = new ColormapStyleProvider(
+            "grib_style_library.xml", "Grid/Default");
 
-	public GribWmsSource(PluginProperties props, LayerTransformer transformer)
-			throws PluginException {
-		super(props, props.getPluginName(), transformer);
-	}
+    public GribWmsSource(PluginProperties props,
+            LayerTransformer<GribDimension, GridParamLayer> transformer)
+            throws PluginException {
+        super(props, props.getPluginName(), transformer);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.wms.reg.DefaultWmsSource#getRecord(java.lang.String,
-	 * java.lang.String, java.lang.String, java.util.Map)
-	 */
-	@Override
-	protected PluginDataObject getRecord(String layer, String time,
-			String elevation, Map<String, String> dimensions,
-			Map<String, String> levelUnits) throws WmsException {
-		LayerTransformer transformer;
-		List<GribRecord> res;
-		try {
-			transformer = getTransformer();
-			res = GribRecordFinder.find(transformer, key, layer, time,
-					dimensions);
-		} catch (OgcException e) {
-			WmsException err = new WmsException(e);
-			if (err.getCode().equals(Code.InternalServerError)) {
-				log.error("Problem getting grib layer: " + layer);
-			}
-			throw err;
-		} catch (PluginException e) {
-			log.error("Unable to get transformer for grib", e);
-			throw new WmsException(Code.InternalServerError);
-		}
-		if (res.isEmpty()) {
-			throw new WmsException(Code.LayerNotDefined,
-					"No layer matching all specified dimensions found");
-		}
-		if (res.size() > 1) {
-			throw new WmsException(Code.InternalServerError,
-					"Too many matches for criteria");
-		}
-		return res.get(0);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wms.reg.DefaultWmsSource#getRecord(java.lang.String,
+     * java.lang.String, java.lang.String, java.util.Map)
+     */
+    @Override
+    protected PluginDataObject getRecord(String layer, String time,
+            String elevation, Map<String, String> dimensions,
+            Map<String, String> levelUnits) throws WmsException {
+        LayerTransformer<GribDimension, GridParamLayer> transformer;
+        List<GridRecord> res;
+        try {
+            transformer = getTransformer();
+            res = GribRecordFinder.findWms(transformer, key, layer, time,
+                    dimensions);
+        } catch (OgcException e) {
+            WmsException err = new WmsException(e);
+            if (err.getCode().equals(Code.InternalServerError)) {
+                log.error("Problem getting grib layer: " + layer);
+            }
+            throw err;
+        } catch (PluginException e) {
+            log.error("Unable to get transformer for grib", e);
+            throw new WmsException(Code.InternalServerError);
+        }
+        if (res.isEmpty()) {
+            throw new WmsException(Code.LayerNotDefined,
+                    "No layer matching all specified dimensions found");
+        }
+        if (res.size() > 1) {
+            Collections.sort(res, new GribRecordFinder.Comp());
+        }
+        return res.get(0);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.wms.reg.DefaultWmsSource#getStyleProvider(java.lang
-	 * .String)
-	 */
-	@Override
-	protected CoverageStyleProvider getStyleProvider(String layer)
-			throws WmsException {
-		return styler;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wms.reg.DefaultWmsSource#getStyleProvider(java.lang
+     * .String)
+     */
+    @Override
+    protected ICoverageStyleProvider getStyleProvider(String layer)
+            throws WmsException {
+        return styler;
+    }
 
 }

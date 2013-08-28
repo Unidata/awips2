@@ -38,6 +38,7 @@ import java.awt.image.WritableRaster;
 
 import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.image.Colormapper;
 
 public class LegendUtility {
 
@@ -78,9 +79,9 @@ public class LegendUtility {
 		g2.drawString(text, x0, (int) (y + (textBounds.getHeight() / 2) - 1));
 	}
 
-	public static BufferedImage buildColorbar(ColorMap cmap, int width,
+    public static BufferedImage buildColorbar(ColorMap cmap, int width,
 			int height) {
-		IndexColorModel cm = ColorMapManager.buildColorModel(cmap);
+        IndexColorModel cm = Colormapper.buildColorModel(cmap);
 		byte[] data = prepData(cmap.getSize(), width, height);
 		DataBufferByte byteArray = new DataBufferByte(data, width * height);
 		MultiPixelPackedSampleModel sample = new MultiPixelPackedSampleModel(
