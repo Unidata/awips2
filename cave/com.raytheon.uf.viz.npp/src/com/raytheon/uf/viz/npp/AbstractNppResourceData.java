@@ -19,16 +19,15 @@
  **/
 package com.raytheon.uf.viz.npp;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2013             mschenke    Initial creation
  * Aug 2, 2013        2190 mschenke    Moved time grouping functions to utility class
+ * Aug 27, 2013       2190 mschenke    Fixed groupRecordTimes function
  * 
  * </pre>
  * 
@@ -65,34 +66,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractNppResourceData extends
         AbstractRequestableResourceData {
-
-    private static class DataTimeIterator<T extends PluginDataObject>
-            implements Iterator<DataTime> {
-
-        private Iterator<T> pdoIter;
-
-        private T lastAccesed;
-
-        private DataTimeIterator(Iterator<T> pdoIter) {
-            this.pdoIter = pdoIter;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return pdoIter.hasNext();
-        }
-
-        @Override
-        public DataTime next() {
-            lastAccesed = pdoIter.next();
-            return lastAccesed.getDataTime();
-        }
-
-        @Override
-        public void remove() {
-            pdoIter.remove();
-        }
-    }
 
     @XmlElement
     private int groupTimeRangeMinutes = 15;
@@ -129,14 +102,17 @@ public abstract class AbstractNppResourceData extends
                 getMetadataMap());
         RequestConstraint timeConst = new RequestConstraint();
         timeConst.setConstraintType(ConstraintType.BETWEEN);
-        timeConst.setBetweenValueList(new String[] {
-                new DataTime(first.getValidPeriod().getStart()).toString(),
-                new DataTime(last.getValidPeriod().getEnd()).toString() });
+        timeConst
+                .setBetweenValueList(new String[] {
+                        TimeUtil.formatToSqlTimestamp(first.getValidPeriod()
+                                .getStart()),
+                        TimeUtil.formatToSqlTimestamp(last.getValidPeriod()
+                                .getEnd()) });
         requestMap.put("dataTime.refTime", timeConst);
 
         LayerProperty property = new LayerProperty();
         property.setEntryQueryParameters(requestMap, false);
-        property.setNumberOfImages(9999);
+        property.setNumberOfImages(Integer.MAX_VALUE);
 
         List<Object> pdos = DataCubeContainer.getData(property, 60000);
         List<PluginDataObject> finalList = new ArrayList<PluginDataObject>(
@@ -152,8 +128,8 @@ public abstract class AbstractNppResourceData extends
                     }
                 }
             }
-            Collections.sort(finalList, layerComparator);
         }
+        Collections.sort(finalList, layerComparator);
         return finalList.toArray(new PluginDataObject[finalList.size()]);
     }
 
@@ -185,29 +161,26 @@ public abstract class AbstractNppResourceData extends
      */
     public <T extends PluginDataObject> Map<DataTime, Collection<T>> groupRecordTimes(
             Collection<T> records) {
-        long groupTimeInMillis = groupTimeRangeMinutes * 60 * 1000;
-        Map<DataTime, Collection<T>> grouped = new HashMap<DataTime, Collection<T>>();
-        Queue<T> objects = new ArrayDeque<T>(records);
-        while (objects.size() > 0) {
-            T record = objects.remove();
-            DataTime current = record.getDataTime();
-            TimeRange prev, curr;
-            prev = curr = current.getValidPeriod();
+        Set<DataTime> times = new HashSet<DataTime>();
+        for (T record : records) {
+            times.add(record.getDataTime());
+        }
 
-            List<T> group = new ArrayList<T>();
-            while (curr != null) {
-                prev = curr;
-                DataTimeIterator<T> iter = new DataTimeIterator<T>(
-                        objects.iterator());
-                curr = NPPTimeUtility.match(iter, prev, groupTimeInMillis);
-                if (curr != null) {
-                    group.add(iter.lastAccesed);
+        Collection<DataTime> groupedTimes = groupTimes(times);
+        Map<DataTime, List<T>> grouped = new HashMap<DataTime, List<T>>();
+        for (T record : records) {
+            for (DataTime time : groupedTimes) {
+                if (withinRange(time.getValidPeriod(), record.getDataTime())) {
+                    List<T> group = grouped.get(time);
+                    if (group == null) {
+                        group = new ArrayList<T>();
+                        grouped.put(time, group);
+                    }
+                    group.add(record);
                 }
             }
-
-            grouped.put(new DataTime(prev.getStart().getTime(), prev), group);
         }
-        return grouped;
+        return new HashMap<DataTime, Collection<T>>(grouped);
     }
 
     /**
