@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2013    1653    mpduff      Initial creation
  * Aug 21, 2013    2248    bgonzale    Changed label to minutes.
+ * Aug 28, 2013    2290    mpduff      Changed output to work with unscheduled subs.
  * 
  * </pre>
  * 
@@ -168,10 +169,15 @@ public class SubscriptionStatusDlg extends CaveSWTDialog {
         l3.setText("Start Time:  ");
 
         Calendar cal = TimeUtil.newGmtCalendar();
-        cal.setTimeInMillis(summary.getStartTime());
         Label l33 = new Label(sumComp, SWT.NONE);
         l33.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT, true, false));
-        l33.setText(sdf.format(cal.getTime()));
+        if (summary.getStartTime() != SubscriptionStatusSummary.MISSING_VALUE) {
+            cal.setTimeInMillis(summary.getStartTime());
+            l33.setText(sdf.format(cal.getTime()));
+        } else {
+            l33.setText("");
+
+        }
 
         Label l4 = new Label(sumComp, SWT.NONE);
         l4.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT, false, false));
@@ -180,6 +186,10 @@ public class SubscriptionStatusDlg extends CaveSWTDialog {
         cal.setTimeInMillis(summary.getEndTime());
         Label l44 = new Label(sumComp, SWT.NONE);
         l44.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT, true, false));
-        l44.setText(sdf.format(cal.getTime()));
+        if (summary.getEndTime() != SubscriptionStatusSummary.MISSING_VALUE) {
+            l44.setText(sdf.format(cal.getTime()));
+        } else {
+            l44.setText("");
+        }
     }
 }
