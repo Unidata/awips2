@@ -80,7 +80,7 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
 
     		Jet newJet = jet.copy();
     		
-    		newJet.addHash( createHash(newJet, loc) );
+    		newJet.addHash( createHash(newJet, loc, true) );
 
     		drawingLayer.replaceElement(jet, newJet);
     		jet = newJet;
@@ -128,7 +128,7 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     	Jet jet = prevTool.getJet();
     	if ( jet == null ) return false;
     	
-        drawingLayer.setGhostLine( createHash( jet, loc ) );      
+        drawingLayer.setGhostLine( createHash( jet, loc, false ) );      
       	mapEditor.refresh();
    	
     	return true;
@@ -141,7 +141,7 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     	else return true;
 	}
 
-	private JetHash createHash( Jet aJet, Coordinate loc  ){
+	private JetHash createHash( Jet aJet, Coordinate loc, boolean updateTemplate  ){
     	JetHash hash = aJet.new JetHash(null, new Color[]{ new Color(0,255,0), new Color(255,0,0)},
 				2.0f, 2.0, true, loc, VectorType.HASH_MARK,
 				100, 0, 1.0, false, "Vector", "Hash");
@@ -150,6 +150,10 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
 		
 		if ( hashAttr != null ){
 			hash.update(hashAttr);
+		}
+		
+		if ( updateTemplate ) {
+			jetDlg.updateHashTemplate( hash );
 		}
 		
 		return hash;

@@ -48,6 +48,7 @@ import gov.noaa.nws.ncep.ui.pgen.tools.PgenInterpolationTool;
  * 08/09		#142		S. Gilbert	Initial creation from PgenExtrapDlg
  * 11/12		#?			J. Wu		Allow using Gfa forecast hour
  * 03/13		#928		B. Yin		Made the button bar smaller.
+ * 07/13		#?			J. Wu		Interpolate GFA's top/bottom
  *
  * </pre>
  * 
@@ -251,6 +252,8 @@ public class PgenInterpDlg extends AttrDlg {
 			} 
 			else {
 				interpolationTool.performInterpolation();
+				enableStartTime();				
+				enableEndTime();				
 			}
 		}
 		
@@ -367,6 +370,34 @@ public class PgenInterpDlg extends AttrDlg {
 			endTimeText.addVerifyListener(new DigitVerifyListener() );
 					
 		}
+	}
+
+	/**
+	 * Disables the startTime text input
+	 */
+	public void disableStartTime() {
+		startTimeText.setEnabled(false);
+	}
+
+	/**
+	 * Enables the startTime text input
+	 */
+	public void enableStartTime() {
+		startTimeText.setEnabled(true);
+	}
+
+	/**
+	 * Disables the endTime text input
+	 */
+	public void disableEndTime() {
+		endTimeText.setEnabled(false);
+	}
+
+	/**
+	 * Enables the endTime text input
+	 */
+	public void enableEndTime() {
+		endTimeText.setEnabled(true);
 	}
 
 }
