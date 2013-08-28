@@ -305,7 +305,8 @@ public class RegistrySubscriptionManager implements
                     .values();
 
             for (SubscriptionNotificationListeners subNotificationListener : subs) {
-                SubscriptionType sub = subNotificationListener.subscription;
+                SubscriptionType sub = subscriptionDao
+                        .getById(subNotificationListener.subscription.getId());
                 try {
                     if (subscriptionShouldRun(sub)) {
                         try {
@@ -424,13 +425,14 @@ public class RegistrySubscriptionManager implements
     private void processSubscription(
             final SubscriptionNotificationListeners subscriptionNotificationsListeners)
             throws MsgRegistryException, EbxmlRegistryException {
-        updateLastRunTime(subscriptionNotificationsListeners.subscription,
-                TimeUtil.currentTimeMillis());
-        SubscriptionType subscription = subscriptionNotificationsListeners.subscription;
+        SubscriptionType subscription = subscriptionDao
+                .getById(subscriptionNotificationsListeners.subscription
+                        .getId());
+        updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
         statusHandler.info("Processing subscription [" + subscription.getId()
                 + "]...");
 
-        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscriptionNotificationsListeners.subscription);
+        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
         if (!objectsOfInterest.isEmpty()) {
             notificationManager.sendNotifications(
                     subscriptionNotificationsListeners, objectsOfInterest);
@@ -443,7 +445,8 @@ public class RegistrySubscriptionManager implements
             throws MsgRegistryException, EbxmlRegistryException {
         SubscriptionNotificationListeners subscriptionListener = listeners
                 .get(subscriptionId);
-        SubscriptionType subscription = subscriptionListener.subscription;
+        SubscriptionType subscription = subscriptionDao
+                .getById(subscriptionListener.subscription.getId());
         List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
         List<AuditableEventType> eventsOfInterest = notificationManager
                 .getEventsOfInterest(startTime, null, objectsOfInterest);
