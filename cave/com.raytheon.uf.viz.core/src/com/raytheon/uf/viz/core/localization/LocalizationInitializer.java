@@ -76,10 +76,11 @@ public class LocalizationInitializer {
         LocalizationContext baseContext = pm.getContext(
                 LocalizationType.CAVE_CONFIG, LocalizationLevel.BASE);
         String filePath = "config.xml";
-        for (String bundle : BundleScanner.getListOfBundles()) {
-            File copyFrom = BundleScanner.searchInBundle(bundle, "", filePath);
+        BundleScanner scanner = new BundleScanner(filePath);
+        for (String bundle : scanner.getContributingBundles()) {
+            File copyFrom = scanner.searchInBundle(bundle, null);
             if (copyFrom != null) {
-                String searchPath = bundle + File.separator + filePath;
+                String searchPath = bundle + IPathManager.SEPARATOR + filePath;
                 File copyTo = pm.getFile(baseContext, searchPath);
                 if (copyTo.exists() == false
                         || copyFrom.lastModified() != copyTo.lastModified()) {
