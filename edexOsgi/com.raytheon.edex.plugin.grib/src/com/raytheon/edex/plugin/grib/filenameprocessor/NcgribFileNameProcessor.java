@@ -54,11 +54,11 @@ public class NcgribFileNameProcessor implements Processor {
     
     // grab global wind and wave ensemble IDs
     private static final Pattern ENSEMBLE_WAVE_PATTERN = Pattern
-    		.compile("^gep(\\d{0,2}{2})$");
+    		.compile("^\\d{8}_gep(\\d{0,2}{2})$");
 
     // grab global wind and wave ensemble IDs
     private static final Pattern ENSEMBLE_NFC_PATTERN = Pattern
-    		.compile("^HTSGW_(\\d{0,2}{2})$"); 
+    		.compile("^\\d{8}_HTSGW_(\\d{2})$"); 
     // anything that ends in nest is assumed to be a nested grid identifier
     // might add alaska fire weather later...
     private static final Pattern FIREWXNEST_ID_PATTERN = Pattern
@@ -73,7 +73,7 @@ public class NcgribFileNameProcessor implements Processor {
     // This is the least generic pattern ever, are there any constraints on
     // event names, who knows?
     private static final Pattern HURRICANE_PATTERN = Pattern
-            .compile("^([a-z]*)\\d{1,2}[lewcs]$");
+            .compile("^\\d{10}_([a-z]*)\\d{1,2}[lewcs]$");
     
     private static NcgribModelNameMap modelMap = null;
 
@@ -85,6 +85,7 @@ public class NcgribFileNameProcessor implements Processor {
         String secondaryid = null;
         String ensembleid = null;
         String[] nameTokens = flName.split("\\.");
+
         for (String token : nameTokens) {
             if (ENSEMBLE_ID_PATTERN.matcher(token).find()) {
                 ensembleid = token;
@@ -112,15 +113,17 @@ public class NcgribFileNameProcessor implements Processor {
                 matcher.find();
                 secondaryid = matcher.group(1);
                 datasetid = "GHM";
-                if (nameTokens[2].equalsIgnoreCase("gribn3")) {
+                
+                if (nameTokens[3].equalsIgnoreCase("gribn3")) {
                     datasetid = "GHMNEST";
-                } else if (nameTokens[2].equalsIgnoreCase("grib6th")) {
+                } else if (nameTokens[3].equalsIgnoreCase("grib6th")) {
                     datasetid = "GHM6TH";
-                } else if (nameTokens[2].equalsIgnoreCase("hwrfprs_n")) {
+                } else if (nameTokens[3].equalsIgnoreCase("hwrfprs_n")) {
                     datasetid = "HWRFNEST";
-                } else if (nameTokens[2].equalsIgnoreCase("hwrfprs_p")) {
+                } else if (nameTokens[3].equalsIgnoreCase("hwrfprs_p")) {
                     datasetid = "HWRF";
                 }
+
             }
         }
         
@@ -128,6 +131,7 @@ public class NcgribFileNameProcessor implements Processor {
     		modelMap = NcgribModelNameMap.load();
     	}
     	
+    	// Get model name from grib file template
         if (datasetid == null) {
         	datasetid = modelMap.getModelName(flName);
         }

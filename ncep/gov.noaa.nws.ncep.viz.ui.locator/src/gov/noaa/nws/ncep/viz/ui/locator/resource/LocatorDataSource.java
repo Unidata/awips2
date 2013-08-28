@@ -10,8 +10,15 @@ package gov.noaa.nws.ncep.viz.ui.locator.resource;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import gov.noaa.nws.ncep.viz.common.LocatorUtil;
+import gov.noaa.nws.ncep.viz.common.staticPointDataSource.IStaticPointDataSource;
+import gov.noaa.nws.ncep.viz.common.staticPointDataSource.DbTablePointDataSource;
+import gov.noaa.nws.ncep.viz.common.staticPointDataSource.IStaticPointDataSource.StaticPointDataSourceType;
+import gov.noaa.nws.ncep.viz.common.staticPointDataSource.StaticPointDataSourceMngr;
+import gov.noaa.nws.ncep.viz.common.staticPointDataSource.PointDirDist;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -41,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/07/2011    #561       G. Hull    renamed class; split table into multiple files; use NcPathManager
  * 12/23/2011    #561       G. Hull    use BoundsDataSource,PointDataSource classes to lookup data
  * 12/14/2012    #903       G. Hull    add the Source name when there is no data found.
+ * 07/05/2013    #1010      G. Hull    IStaticPointDataSource
  *                              
  * </pre>
  * 
@@ -51,7 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlAccessorType(XmlAccessType.NONE)
 public class LocatorDataSource implements ISerializableObject {
 
-	public static enum SourceType {
+	
+	public static enum LocatorType {
 		POINT,
 		BOUNDED_AREA,
 		LATLON//,
@@ -64,8 +73,12 @@ public class LocatorDataSource implements ISerializableObject {
 	@XmlElement
     protected String sourceName;
     
+	// not to be confused with the sourceType of the point data. 
+	// currently this only works for the ncep db table point data sources. 
+	// It would not be a big change to support other point source types such as the common_obs_spatial db.
+	//
     @XmlElement
-    protected SourceType sourceType;
+    protected LocatorType sourceType;
 
     @XmlElement
     protected String dbName;    // default to 'ncep'
@@ -84,7 +97,7 @@ public class LocatorDataSource implements ISerializableObject {
 	private BoundsDataSource boundsSource = null;
 	
 //	private CitiesDataSource citiesSource = null;
- 	private PointDataSource pointSource = null;
+ 	private IStaticPointDataSource pointSource = null;
 	
 	private Boolean dataLoaded = false;
 	
@@ -117,11 +130,11 @@ public class LocatorDataSource implements ISerializableObject {
         this.sourceName = value;
     }
 
-	public SourceType getSourceType() {
+	public LocatorType getLocatorType() {
 		return sourceType;
 	}
 
-	public void setSourceType(SourceType sourceType) {
+	public void setSourceType(LocatorType sourceType) {
 		this.sourceType = sourceType;
 	}
 
@@ -172,18 +185,27 @@ public class LocatorDataSource implements ISerializableObject {
 			return;
 		}
 		
-		if( getSourceType() == SourceType.POINT )  {
-			pointSource = new PointDataSource( this );	
+		if( getLocatorType() == LocatorType.POINT )  {
+			// TODO : could improve on this to get a factory for
+			// NcepDbTable point data sources. but for now just 
+			// use a list since there are diff number of params for diff 
+			// types of point data sources (ie. LPI files, common_obs_spatial....)
+			List<String> initParams = new ArrayList<String>();
+			//initParams.add( dbName );
+//			initParams.add( dbTableName );
+			initParams.add( dbFieldName );
+			pointSource = StaticPointDataSourceMngr.createPointDataSource( 
+					StaticPointDataSourceType.NCEP_DB_TABLE, dbTableName, initParams);	
 			pointSource.loadData();
 		}
-		else if( getSourceType() == SourceType.BOUNDED_AREA )  {
+		else if( getLocatorType() == LocatorType.BOUNDED_AREA )  {
 			boundsSource = new BoundsDataSource( this );	
 			boundsSource.loadData();
 		}
 //		else if( getSourceType() == SourceType.SFC_STATIONS ) {
 //			//SurfaceStationPointData();
 //		}
-		else if( getSourceType() == SourceType.LATLON )  {
+		else if( getLocatorType() == LocatorType.LATLON )  {
 			// continue
 		}		
 		dataLoaded = true;
@@ -199,17 +221,17 @@ public class LocatorDataSource implements ISerializableObject {
 		}
 		
 		//TODO: SFSTATION is null too, maybe others!
-		if( sourceType == SourceType.LATLON ) {
+		if( sourceType == LocatorType.LATLON ) {
 			return formatLatLongCoordinate( coor, dispAttrs );
 		}		
 //		else if( sourceType == SourceType.SFC_STATIONS ) {
 //			return SurfaceStationPointData.calculateNearestPoint( coor );   
 //	        	//return("STN lon = "+ aLatLon.x+ " lat = "+ aLatLon.y );
 //		}
-		else if( sourceType == SourceType.POINT ) { //.contains("stns"))
+		else if( sourceType == LocatorType.POINT ) { //.contains("stns"))
 			return getNearestPointFormattedString( coor, dispAttrs);
 		}
-		else if( sourceType == SourceType.BOUNDED_AREA ) { //s.contains("bounds"))
+		else if( sourceType == LocatorType.BOUNDED_AREA ) { //s.contains("bounds"))
 			try{ 
 				String s = boundsSource.getBoundsValue(coor, dispAttrs);
 				
@@ -251,8 +273,7 @@ public class LocatorDataSource implements ISerializableObject {
 							 
 		String label = null;
 		try{
-			PointData nearestPt = pointSource.calculateNearestPoint2( coord );//, dispAttrs );
-			
+			PointDirDist nearestPt = pointSource.calculateNearestPoint2( coord );//, dispAttrs );
 			if( nearestPt == null ) {
 				return "No "+dispAttrs.getLocatorSource()+" Data";//NOT_AVAILABLE;
 			}
@@ -277,7 +298,7 @@ public class LocatorDataSource implements ISerializableObject {
 			   !dispAttrs.getDirectionUnit().equalsIgnoreCase("omit") ) {
 				
 				String dirOutput = LocatorUtil.directionDisplay(
-						nearestPt.getDir(), dispAttrs.getDirectionUnit());
+						nearestPt.getDirection(), dispAttrs.getDirectionUnit());
 				
 				sb.append(dirOutput).append(" ");	
 			}
