@@ -18,7 +18,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.display.IMultiPoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
@@ -48,6 +47,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 06/12        TTR102		B. Yin		Make it work for Jet
  * 03/13		#927		B. Yin		Added constructor for the handler class.
+ * 07/13		TTR765		J. Wu   	DEL_PART between vertexes.
+ * 07/13		TTR802		J. Wu   	Fix the map-jumping issue.
  *
  * </pre>
  * 
@@ -159,12 +160,12 @@ public class PgenDeletePart extends PgenSelectingTool {
         				
         				// create a LocationIndexedLine for the selected line 
         				// in screen coordinates for future queries
-        				
+/*        				
         				Coordinate[] coords = preprocessLine(((ILine)elSelected).getSmoothFactor(), 
         						((ILine)elSelected).isClosedLine(), ((IMultiPoint)elSelected).getLinePoints() );
         				LineString	ls = gf.createLineString( coords );
         		 		lil = new LocationIndexedLine(ls);
-        			}
+*/        			}
         			else { 
         				return false;
         			}
@@ -173,12 +174,13 @@ public class PgenDeletePart extends PgenSelectingTool {
         			
         			//select first point
         			
-        			MultiPointElement des = (MultiPointElement)drawingLayer.getSelectedDE();
-        			if ( des.getParent() instanceof ContourLine ) {
-        				pt1Index = getNearestPtIndex((MultiPointElement)drawingLayer.getSelectedDE(), loc); 
-        				drawingLayer.addPtSelected( pt1Index );
+        			// Get the line into a LocationIndexedLine
+                	lil =  getLil( loc, gf,drawingLayer.getSelectedDE() );
+        			if ( lil == null ) {
+        				point2 = null;
+        				return false;       				
         			}
-        			else {
+        			
         				/*
         				 * if clicked close enough to line, save this first point
         				 */
@@ -191,7 +193,6 @@ public class PgenDeletePart extends PgenSelectingTool {
         				point1 = mapEditor.translateClick( screen1.x, screen1.y );
         				DOT.setLocation(point1);
         				drawingLayer.setGhostLine(DOT);
-        			}
         			ptSelected = true;
         			
         		}
@@ -200,19 +201,13 @@ public class PgenDeletePart extends PgenSelectingTool {
         			//select second point
         			Line des = (Line)drawingLayer.getSelectedDE();
             		
-            		if ( des.getParent() instanceof ContourLine ) {
-            			pt2Index = getNearestPtIndex( des, loc); 
-                		drawingLayer.addPtSelected( pt2Index );
-                		
-                		//remove part between pt1 and pt2
-                		int start = Math.min( pt1Index, pt2Index );
-                		int end =  Math.max( pt1Index, pt2Index );
-            			Contours oldContours = (Contours)des.getParent().getParent();
-            			Contours newContours = oldContours.split( (ContourLine)des.getParent(), start, end);
-            			            			
-            			drawingLayer.replaceElement( oldContours, newContours );
-            		}
-            		else {
+        			// Get the line into a LocationIndexedLine
+        			lil =  getLil( loc, gf, des );
+        			if ( lil == null ) {
+        				point2 = null;
+        				return false;       				
+        			}
+            		
             			/*
             			 * if clicked close enough to line, save this 2nd point, and delete
             			 * proper segment
@@ -224,6 +219,14 @@ public class PgenDeletePart extends PgenSelectingTool {
         					return false;
         				}
         				point2 = mapEditor.translateClick( screen2.x, screen2.y );
+
+        			if ( des.getParent() instanceof ContourLine ) {
+        				Contours oldContours = (Contours)des.getParent().getParent();
+        				Contours newContours = oldContours.split( (ContourLine)des.getParent(), point1, point2);
+
+        				drawingLayer.replaceElement( oldContours, newContours );       					
+        			}
+        			else {
                		    drawingLayer.deleteElementPart( des, point1 , point2 );
             		}
 
@@ -264,8 +267,14 @@ public class PgenDeletePart extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button){
+//          return false;
+        	if (  !isResourceEditable() || shiftDown ) {
         	 return false;
         }
+        	else {
+        		return true;
+        	}
+         }
         
         /*
          * overrides the function in selecting tool
@@ -314,6 +323,25 @@ public class PgenDeletePart extends PgenSelectingTool {
         	ptSelected = false;
         	drawingLayer.removeSelected();
         }
+        
+        /*
+         * Get a LocationIndexedLine for a line.
+         */
+        private LocationIndexedLine getLil( Coordinate loc, GeometryFactory gf,
+        		                            DrawableElement elem  ) {
+        	LocationIndexedLine locIL = null;
+			if ( elem instanceof ILine  && !(elem instanceof WatchBox)) {
+				
+				// create a LocationIndexedLine for the selected line 
+				// in screen coordinates for future queries				
+				Coordinate[] coords = preprocessLine(((ILine)elem).getSmoothFactor(), 
+						((ILine)elem).isClosedLine(), ((IMultiPoint)elem).getLinePoints() );
+				LineString	ls = gf.createLineString( coords );
+		 		locIL = new LocationIndexedLine(ls);
+			}
+			
+			return locIL;
+        } 
         
     }
 

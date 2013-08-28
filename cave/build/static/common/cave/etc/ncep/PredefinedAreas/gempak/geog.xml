@@ -9,7 +9,17 @@
      In the Eclipse IDE, after removing the '&' character, right-click and select Validate
      to get rid of any error messages attributed to the '&' character. -->
 
-
+     <geographical_data>
+          <geog_code>SHM</geog_code>
+          <geog_area_name>SOUTHERN_HEMISPHERE</geog_area_name>
+          <center_lat>-89.50</center_lat>
+          <center_lon>-142</center_lon>
+          <lower_left_lat>30.00</lower_left_lat>
+          <lower_left_lon>88.00</lower_left_lon>
+          <upper_right_lat>30.00</upper_right_lat>
+          <upper_right_lon>-92.00</upper_right_lon>
+          <map_projection_string> STR/-90;-142</map_projection_string>
+     </geographical_data> 
 
      <geographical_data>
           <geog_code>105</geog_code>

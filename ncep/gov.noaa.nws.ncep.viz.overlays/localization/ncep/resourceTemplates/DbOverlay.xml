@@ -10,6 +10,7 @@
             <dbName>${dbName}</dbName>
             <table>${tableName}</table>
             <labelField>${labelField}</labelField>
+            <displayLabelField>${displayLabelField}</displayLabelField>
             <mapName>${mapName}</mapName>
             <lineWidth>${lineWidth}</lineWidth>
             <lineStyle>${lineStyle}</lineStyle>
