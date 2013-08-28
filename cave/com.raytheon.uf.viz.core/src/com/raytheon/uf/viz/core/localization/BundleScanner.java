@@ -119,14 +119,18 @@ public class BundleScanner {
         File file = null;
         Bundle bundle = getBundle(bundleToSearch);
         if (bundle != null && bundle.getState() != Bundle.UNINSTALLED) {
-            URL url = FileLocator.find(bundle, new Path(basePath
-                    + IPathManager.SEPARATOR + pathToLookFor), null);
+            String path = basePath;
+            if (pathToLookFor != null
+                    && pathToLookFor.trim().isEmpty() == false) {
+                path += IPathManager.SEPARATOR + pathToLookFor;
+            }
+            URL url = FileLocator.find(bundle, new Path(path), null);
             if (url != null) {
                 URL resolvedURL = null;
                 try {
                     resolvedURL = FileLocator.toFileURL(url);
                 } catch (IOException e) {
-
+                    
                 }
                 if (resolvedURL != null) {
                     file = new File(resolvedURL.getPath());
