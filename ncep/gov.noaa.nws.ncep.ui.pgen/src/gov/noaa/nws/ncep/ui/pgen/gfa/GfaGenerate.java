@@ -59,6 +59,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 12/12		#953		J. Wu		Use deep copy when generating XML to avoid 
  * 04/13        #977        S. Gilbert  PGEN Database support
  * 05/13		#610		J. Wu		Implemented FZLVL range (TTR425) 
+ * 07/13		?			J. Wu		Move state list ordering to GfaRules.
+ * 08/13		TTR714/715	J. Wu		Fixed issue type and times.
+ * 
  * </pre>
  * 
  * @author M.Laryukhin
@@ -68,6 +71,7 @@ public class GfaGenerate {
 
     private static final String TEXT_TYPE = "TEXT";
 	private GeometryFactory gf = new GeometryFactory();
+    private static final String ISSUE_TYPE_FROM_OUTLOOK = "ISSUE_TYPE_FROM_OUTLOOK";
 
     // private final static Logger logger = Logger.getLogger(GfaGenerate.class);
     private Transformer transformer;
@@ -103,83 +107,22 @@ public class GfaGenerate {
         List<Gfa> adjusted = new ArrayList<Gfa>();
 
         /*
-         * Adjust the state list for smears with two FA areas:
-         * 
-         * 1. the state list in the primary area should be reordered (states in
-         * the primary area precede states in the adjacent area). 2. an
-         * additional smear should be created - switching the order of primary
-         * area and the adjacent area, as well as the order of the state list.
+         * Create an additional smear for the adjacent area.
          */
-        for (Gfa g : all) {
+        for ( Gfa g : all) {                      
+        	Gfa sg = createAdjacentGfa( g );
 
-            Gfa sg = createAdjacentGfa(g);
+            adjusted.add( g );
 
-            adjusted.add(g);
-
-            if (sg != null) {
-                adjusted.add(sg);
+            if ( sg != null ) {
+                adjusted.add( sg );
             }
-
         }
 
         /*
-         * Need to reorder the state list in FA area.
+         * Find issue type for an Airmet's associated Outlook
          */
-        for (Gfa gg : adjusted) {
-            String area = gg.getGfaArea();
-
-            if ( area == null || gg.getGfaStates() == null ||
-            		gg.getGfaStates().trim().length() == 0 ) {
-            	continue;
-            }
-            
-            ArrayList<String> oldStates = new ArrayList<String>();
-            ArrayList<String> oldStatesNoWater = new ArrayList<String>();
-            for (String ss : gg.getGfaStates().split(" ")) {
-                oldStates.add(ss);
-                if (ss.length() == 2)
-                    oldStatesNoWater.add(ss);
-            }
-
-            String[] s = area.split("-");
-
-            ArrayList<String> statesInArea1 = GfaInfo.getStateOrderByArea()
-                    .get(s[0]);
-            ArrayList<String> statesInArea2 = null;
-            if (s.length > 1) {
-                statesInArea2 = GfaInfo.getStateOrderByArea().get(s[1]);
-            }
-
-            // Sort states in primary FA area
-            StringBuilder newStates = new StringBuilder();
-            for (String st : statesInArea1) {
-                if (st.length() == 2 && oldStatesNoWater.contains(st)) {
-                    newStates.append(st);
-                    newStates.append(" ");
-                }
-            }
-
-            // Sort and add states in second FA area, if any.
-            if (statesInArea2 != null) {
-                for (String st : statesInArea2) {
-                    if (st.length() == 2 && oldStatesNoWater.contains(st)) {
-                        newStates.append(st);
-                        newStates.append(" ");
-                    }
-                }
-            }
-
-            // Add back "CSTL WTRS" or "AND CSTL WTRS".
-            for (String st : oldStates) {
-                if (st.length() > 2) {
-                    newStates.append(st);
-                    newStates.append(" ");
-                }
-            }
-
-            gg.setGfaStates(newStates.toString().trim());
-
-        }
+        trackOtlkIssueTypeToAirmet( adjusted );
 
         /*
          * Find GFA smears in each area and hazard category, generate xml, and
@@ -187,6 +130,7 @@ public class GfaGenerate {
          */
         for (String category : categories) {
             for (String area : areas) {
+                
                 List<Gfa> ret = filterSelected( adjusted, area, category );
 
                 // If no issue/until times, assign them.
@@ -219,6 +163,11 @@ public class GfaGenerate {
                  */
                 for ( Gfa gss : ret) {
                 	Gfa gfaCopy = gss.copy();
+                	String otlkIssueType = nvl( gfaCopy.getGfaValue( ISSUE_TYPE_FROM_OUTLOOK ) );
+                	if (  !otlkIssueType.equals( "NRML" ) ) {
+                		gfaCopy.setGfaIssueType( otlkIssueType );
+                	}
+               	
                 	if ( fzlvlRange != null ) {
                 		gfaCopy.setGfaValue( Gfa.FZL_RANGE, fzlvlRange );
                	    }
@@ -346,15 +295,12 @@ public class GfaGenerate {
     }
 
     /**
-     * Adjust the state list for smears with two FA areas:
+     * Create a new smear for smears with two FA areas and re-order the state list.
      * 
-     * 1. the state list in the primary area should be reordered (states in the
-     * primary area precede states in the adjacent area). 2. an additional smear
-     * should be created - switching the order of primary area and the adjacent
-     * area, as well as the order of the state list.
+     *  The States in the primary area precede states in the adjacent area.
      * 
-     * @param g
-     *            Gfa to be processed
+     * @param g		Gfa to be processed
+     * 
      * @return
      */
     private static Gfa createAdjacentGfa(Gfa g) {
@@ -364,63 +310,12 @@ public class GfaGenerate {
         String[] s = nvl(g.getGfaArea()).split("-");
 
         if (s.length > 1) {
+            String sname = new String( s[1].trim() + "-" + s[0].trim() );
 
-            StringBuilder sname = new StringBuilder();
-            StringBuilder firstList = new StringBuilder();
-            StringBuilder secondList = new StringBuilder();
-            StringBuilder tailList = new StringBuilder();
-
-            String parea = s[0].trim();
-
-            sname.append(s[1].trim());
-            sname.append("-");
-            sname.append(parea);
-
-            Geometry primaryAreaBnd = GfaClip.getInstance().getFaAreaBounds()
-                    .get(parea);
-            if (primaryAreaBnd != null) {
-                for (String oneState : g.getGfaStates().split(" ")) {
-                    Geometry stBnd = GfaClip.getInstance().getStateBounds()
-                            .get(oneState);
-                    if (stBnd != null) {
-                        if (stBnd.intersects(primaryAreaBnd)) {
-                            firstList.append(oneState);
-                            firstList.append(" ");
-                        } else {
-                            secondList.append(oneState);
-                            secondList.append(" ");
-                        }
-                    } else {
-                        tailList.append(oneState);
-                        tailList.append(" ");
-                    }
-                }
-
-                // update the order of the state list
-                StringBuilder stateList1 = new StringBuilder();
-                stateList1.append(firstList.toString().trim());
-                stateList1.append(" ");
-                stateList1.append(secondList.toString().trim());
-                stateList1.append(" ");
-                stateList1.append(tailList.toString().trim());
-
-                g.setGfaStates(stateList1.toString().trim());
-
-                // create an additional smear
+            // create an additional smear and re-order state list.
                 secondg = g.copy();
-                secondg.setGfaArea(sname.toString());
-
-                StringBuilder stateList2 = new StringBuilder();
-                stateList2.append(secondList.toString().trim());
-                stateList2.append(" ");
-                stateList2.append(firstList.toString().trim());
-                stateList2.append(" ");
-                stateList2.append(tailList.toString().trim());
-
-                secondg.setGfaStates(stateList2.toString().trim());
-
-            }
-
+            secondg.setGfaArea( sname );
+            GfaRules.reorderStateList( secondg );            
         }
 
         return secondg;
@@ -896,6 +791,36 @@ public class GfaGenerate {
     	
     	return minDist;
     	
+    }
+    
+    /**
+     * Find if a smear has an associated outlook that are generated from the same series of 
+     * snapshots (with same hazard type, tag and desk.
+     * 
+     * This is used to get around the issue when a pair of airmet and outlook is generated from
+     * the same series of snapshots, and the airmet's issue tyep is "NRML" while outlook's issue
+     * type is not "NRML". In this case, the formatted header should show the outlook's issue type.
+     * 
+     * @param all
+     * @return
+     */
+    private static void trackOtlkIssueTypeToAirmet( List<Gfa> all ) {
+
+        for ( Gfa gg : all) {            
+			gg.setGfaValue( ISSUE_TYPE_FROM_OUTLOOK, "NRML" );       		
+        	if ( gg.isAirmet() &&  "NRML".equalsIgnoreCase( gg.getGfaIssueType() ) ) {   			
+        		String akey = gg.getGfaHazard() + gg.getGfaTag() + gg.getGfaDesk();
+				for ( Gfa gotlk : all) { 
+        			if ( gotlk.isOutlook() && !("NRML".equalsIgnoreCase( gotlk.getGfaIssueType() ) ) ) {
+        				String okey = gotlk.getGfaHazard() + gotlk.getGfaTag() + gotlk.getGfaDesk();
+        				if ( okey.equals( akey ) ) {
+        					gg.setGfaValue( ISSUE_TYPE_FROM_OUTLOOK, gotlk.getGfaIssueType() );
+        					break;
+        				}
+        			}        				
+        		}
+            }       		
+        }
     }
     
 }
