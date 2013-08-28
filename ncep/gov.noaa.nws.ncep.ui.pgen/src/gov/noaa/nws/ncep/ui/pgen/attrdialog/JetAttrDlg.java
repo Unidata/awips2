@@ -12,6 +12,8 @@ import java.awt.Color;
 import java.util.Iterator;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.display.IText;
+import gov.noaa.nws.ncep.ui.pgen.display.IVector;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -1091,5 +1093,41 @@ public class JetAttrDlg extends LineAttrDlg {
 		
 		segPane.pack();
 		segPane.layout();
+	}
+	
+	public void updateBarbTemplate(IVector barb){
+		if (barbTemplate == null ) {
+			barbTemplate = (Vector)new DrawableElementFactory().create(DrawableType.VECTOR, 
+					this, "Vector", "Barb", (Coordinate)null, null);
+		}
+		this.barbTemplate.update( barb );
+		
+		// Barb will be snapped and the direction is ignored. 
+		// The direction here is to make the "ghosting" consistent.
+		this.barbTemplate.setDirection(323);
+	}
+	
+	public void updateFlTemplate(IText txt){
+		if ( flTemplate == null ) {
+			flTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Text)new DrawableElementFactory().create(DrawableType.TEXT, 
+					this, "Text", "General Text", (Coordinate)null, null);
+		}
+		this.flTemplate.update( txt );
+		
+		// Text will be snapped and the direction is ignored. 
+		// The direction here is to make the "ghosting" consistent.
+		this.flTemplate.setRotation(289);
+	}
+	
+	public void updateHashTemplate(IVector hash){
+		if ( hashTemplate == null ) {
+			hashTemplate = (Vector)new DrawableElementFactory().create(DrawableType.VECTOR, 
+					this, "Vector", "Hash", (Coordinate)null, null);
+		}
+		this.hashTemplate.update( hash );
+		
+		// Hash will be snapped and the direction is ignored. 
+		// The direction here is to make the "ghosting" consistent.
+		this.hashTemplate.setDirection(291);
 	}
 }
