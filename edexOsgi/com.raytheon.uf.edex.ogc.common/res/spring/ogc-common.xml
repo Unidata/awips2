@@ -9,5 +9,9 @@
 	
 	<bean id="shapeFeatureFormatter" class="com.raytheon.uf.edex.ogc.common.feature.ShpFeatureFormatter" >
 	</bean>
-  
+    
+    <bean id="layerStore" class="com.raytheon.uf.edex.ogc.common.db.FsLayerStore">
+    	<constructor-arg value="layerStore"/>
+ 	</bean>
+ 	
   </beans>

@@ -66,6 +66,8 @@ public class OgcNamespace {
 
 	public static final String WCS112 = "http://www.opengis.net/wcs/1.1.2";
 
+    public static final String WCS11 = "http://www.opengis.net/wcs/1.1";
+
 	public static final String WMS = "http://www.opengis.net/wms";
 
 	public static final String WFS = "http://www.opengis.net/wfs";
@@ -77,5 +79,27 @@ public class OgcNamespace {
 	public static final String SE = "http://www.opengis.net/se";
 
 	public static final String WMTS100 = "http://www.opengis.net/wmts/1.0";
+
+    public static final String WFS20 = "http://www.opengis.net/wfs/2.0";
+
+    public static final String FES20 = "http://www.opengis.net/fes/2.0";
+
+    public static final String GML32 = "http://www.opengis.net/gml/3.2";
+
+    public static final String SWE_GML32 = "http://www.opengis.net/swe/1.0/gml32";
+
+    public static final String AVWX11 = "http://www.eurocontrol.int/avwx/1.1";
+
+    public static final String OM_GML32 = "http://www.opengis.net/om/1.0/gml32";
+
+    public static final String SML_GML32 = "http://www.opengis.net/sensorML/1.0/gml32";
+
+    public static final String WX = "http://www.eurocontrol.int/wx/1.1";
+
+    public static final String WSNT = "http://docs.oasis-open.org/wsn/b-2";
+
+    public static final String WSA = "http://www.w3.org/2005/08/addressing";
+
+    public static final String OWSNT = "http://www.opengis.net/owsnt/1.1";
 
 }
