@@ -44,6 +44,7 @@ import org.geotools.styling.StyledLayerDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.edex.wms.WmsException;
+import com.raytheon.uf.edex.wms.WmsException.Code;
 import com.raytheon.uf.edex.wms.reg.WmsImage;
 import com.raytheon.uf.edex.wms.reg.WmsSource;
 import com.raytheon.uf.edex.wms.util.StyleLibrary;
@@ -58,7 +59,6 @@ public class GetMapProcessor {
 
 	protected CoordinateReferenceSystem crs;
 	protected Envelope env;
-	protected String time;
 	protected String elevation;
 	protected Map<String, String> dimensions;
 	protected int width;
@@ -69,24 +69,23 @@ public class GetMapProcessor {
 	protected double scale;
 
 	public GetMapProcessor(WmsLayerManager layerManager,
-			CoordinateReferenceSystem crs, Envelope env, String time,
+			CoordinateReferenceSystem crs, Envelope env,
 			String elevation, Map<String, String> dimensions, int width,
 			int height, double scale, String username, String[] roles) {
-		this(layerManager, crs, env, time, elevation, dimensions, width,
+		this(layerManager, crs, env, elevation, dimensions, width,
 				height, scale);
 		this.username = username;
 		this.roles = getAsSet(roles);
 	}
 
 	public GetMapProcessor(WmsLayerManager layerManager,
-			CoordinateReferenceSystem crs, Envelope env, String time,
+			CoordinateReferenceSystem crs, Envelope env,
 			String elevation, Map<String, String> dimensions, int width,
 			int height, double scale) {
 		super();
 		this.layerManager = layerManager;
 		this.crs = crs;
 		this.env = env;
-		this.time = time;
 		this.elevation = elevation;
 		this.dimensions = dimensions;
 		this.width = width;
@@ -94,10 +93,17 @@ public class GetMapProcessor {
 		this.scale = scale;
 	}
 
-	public List<WmsImage> getMapSld(StyledLayerDescriptor sld)
+	public List<WmsImage> getMapSld(StyledLayerDescriptor sld, String[] times)
 			throws WmsException {
 		StyledLayer[] layers = sld.getStyledLayers();
 		ArrayList<WmsImage> rval = new ArrayList<WmsImage>(layers.length);
+		String time;
+		if (times.length == 1) {
+			time = times[0];
+		} else {
+			throw new WmsException(Code.InvalidParameterValue,
+					"times per layer not supported for sld");
+		}
 		for (StyledLayer sl : layers) {
 			if (sl instanceof NamedLayer) {
 				NamedLayer layer = (NamedLayer) sl;
@@ -135,13 +141,14 @@ public class GetMapProcessor {
 	}
 
 	public List<WmsImage> getMapStyleLib(String[] layers, String[] styles,
-			StyledLayerDescriptor sld) throws WmsException {
+			String[] times, StyledLayerDescriptor sld) throws WmsException {
 		StyleLibrary lib = new StyleLibrary(sld);
 		ArrayList<WmsImage> rval = new ArrayList<WmsImage>(layers.length);
 		for (int i = 0; i < layers.length; ++i) {
 			String layerName = layers[i];
 			WmsSource source = getSource(layerName);
 			String styleName = styles[i];
+			String time = times[i];
 			Style style = null;
 			if (styleName != null && styleName.trim().isEmpty()) {
 				// use default
@@ -166,13 +173,15 @@ public class GetMapProcessor {
 		return rval;
 	}
 
-	public List<WmsImage> getMap(String[] layers, String[] styles)
+	public List<WmsImage> getMap(String[] layers, String[] styles,
+			String[] times)
 			throws WmsException {
 		ArrayList<WmsImage> rval = new ArrayList<WmsImage>(layers.length);
 		for (int i = 0; i < layers.length; ++i) {
 			String layerName = layers[i];
 			WmsSource source = getSource(layerName);
 			String styleName = styles[i];
+			String time = times[i];
 			boolean defaultStyle = (styleName == null || styleName.isEmpty());
 			WmsImage img = source.getImage(layerName, styleName, defaultStyle,
 					crs, env, time, elevation, dimensions, scale);

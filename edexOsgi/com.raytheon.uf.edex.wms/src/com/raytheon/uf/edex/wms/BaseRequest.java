@@ -32,7 +32,8 @@ package com.raytheon.uf.edex.wms;
 
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
-import com.raytheon.uf.edex.wms.WmsProvider.WmsOpType;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
+import com.raytheon.uf.edex.wms.IWmsProvider.WmsOpType;
 
 /**
  * 
@@ -43,13 +44,13 @@ public class BaseRequest<T> {
 
 	protected String version;
 
-	protected String format;
+    protected MimeType format;
 
 	protected String userName;
 
 	protected String[] roles;
 
-	protected String exceptionFormat = "text/xml";
+    protected MimeType exceptionFormat = OgcResponse.TEXT_XML_MIME;
 
 	protected String updateSequence;
 
@@ -62,7 +63,7 @@ public class BaseRequest<T> {
 		// TODO Auto-generated constructor stub
 	}
 
-	public BaseRequest(String version, String format, String userName,
+    public BaseRequest(String version, MimeType format, String userName,
 			String[] roles) {
 		super();
 		this.version = version;
@@ -72,7 +73,7 @@ public class BaseRequest<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public OgcResponse execute(WmsProvider provider) {
+	public OgcResponse execute(IWmsProvider provider) {
 		return provider.getCapabilities((BaseRequest<WmsOpType>) this);
 	}
 
@@ -94,7 +95,7 @@ public class BaseRequest<T> {
 	/**
 	 * @return the format
 	 */
-	public String getFormat() {
+    public MimeType getFormat() {
 		return format;
 	}
 
@@ -102,14 +103,14 @@ public class BaseRequest<T> {
 	 * @param format
 	 *            the format to set
 	 */
-	public void setFormat(String format) {
+    public void setFormat(MimeType format) {
 		this.format = format;
 	}
 
 	/**
 	 * @return the exceptionFormat
 	 */
-	public String getExceptionFormat() {
+    public MimeType getExceptionFormat() {
 		return exceptionFormat;
 	}
 
@@ -117,7 +118,7 @@ public class BaseRequest<T> {
 	 * @param exceptionFormat
 	 *            the exceptionFormat to set
 	 */
-	public void setExceptionFormat(String exceptionFormat) {
+    public void setExceptionFormat(MimeType exceptionFormat) {
 		this.exceptionFormat = exceptionFormat;
 	}
 
