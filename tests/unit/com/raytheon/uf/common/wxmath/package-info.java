@@ -17,32 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.status;
 
 /**
- * Constants for VizStatus categories and subcategories
+ * Junit tests for <code>com.raytheon.uf.common.wxmath</code>.
  * 
  * <pre>
+ *
  * SOFTWARE HISTORY
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 06, 2008 1433       chammack     Initial creation
- * Aug 28, 2013 2262       bsteffen     Remove meteolib category.
- * 
+ * Aug 14, 2013            dgilling     Initial creation
+ *
  * </pre>
- * 
- * @author chammack
- * @version 1.0
+ *
+ * @author dgilling
+ * @version 1.0	
  */
-public class StatusConstants {
 
-    /** Category for general workstation */
-    public static final String CATEGORY_WORKSTATION = "WORKSTATION";
-
-    /** Indicates a data availability issue/notification */
-    public static final String SUBCATEGORY_DATAAVAIL = "DATA_AVAIL";
-
-    /** Indicates a connectivity issue/notification */
-    public static final String SUBCATEGORY_CONNECTIVITY = "CONNECTIVITY";
-
-}
+package com.raytheon.uf.common.wxmath;
