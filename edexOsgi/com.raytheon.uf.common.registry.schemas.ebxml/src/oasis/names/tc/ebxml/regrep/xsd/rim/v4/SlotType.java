@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -104,6 +105,7 @@ public class SlotType extends ExtensibleObjectType implements
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     @Index(name = "slot_name_idx")
+    @Column(length = 1024)
     protected String name;
 
     @XmlAttribute
