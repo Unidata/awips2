@@ -10,8 +10,7 @@ package gov.noaa.nws.ncep.staticdataprovider;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
-import gov.noaa.nws.ncep.viz.rsc.wtch.util.WtchConstant;
-import gov.noaa.nws.ncep.viz.rsc.wtch.util.WtchUtil;
+import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord.AwwReportType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,6 +39,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * ------------	----------	-----------	--------------------------
  * 08/12		#770		Q. Zhou   	Initial Creation.
  * 09/12		#770		Q. Zhou   	Clean up and change selectedWatch to a collection
+ * 08/13        #1028       G. Hull     rm dependency on viz.rsc.wtch project
  * </pre>
  * 
  * @author	Q. Zhou
@@ -78,7 +78,8 @@ public class ContinuingWatch {
     	GregorianCalendar currCal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
     	Calendar endTime = null;
 		
-    	if(WtchUtil.isWtchRecord(awwRecord)) {
+    	
+    	if( isWtchRecord(awwRecord)) {
     		WtchRscDataObj wtchData = new WtchRscDataObj(); 
     		wtchData.issueTime = new DataTime(awwRecord.getIssueTime());
     		wtchData.reportType = awwRecord.getReportType();
@@ -133,12 +134,17 @@ public class ContinuingWatch {
 		AwwRecord awwRecord = null;
 		
 		HashMap<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>();
-        String wtch[]={WtchConstant.SEVERE_WEATHER_STATUS_REPORT, WtchConstant.SEVERE_WEATHER_THUNDERSTORM_WATCH, WtchConstant.SEVERE_WEATHER_TORNADO_WATCH};  
+       
+		// TODO : from WtchContant but I don't think these were all correct.
+		
+		String wtch[]= { "TORNADO REPORT", "THUNDERSTORM REPORT", "STATUS REPORT" };  				
+		//WtchConstant.SEVERE_WEATHER_STATUS_REPORT, WtchConstant.SEVERE_WEATHER_THUNDERSTORM_WATCH, WtchConstant.SEVERE_WEATHER_TORNADO_WATCH};  
 		
 		RequestConstraint ids = new RequestConstraint();
         ids.setConstraintType(ConstraintType.IN);
         ids.setConstraintValueList(wtch);              
-		metadataMap.put("reportType",ids);		
+        // query everything and let WtchUtil.isWtchRecord filter out the others.
+		metadataMap.put( "reportType",ids );		
 		metadataMap.put( "pluginName", new RequestConstraint("aww") );     
 		
 		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(metadataMap);
@@ -158,7 +164,7 @@ public class ContinuingWatch {
 			awwRecord = (AwwRecord) pdo;
 			Collection<String> num = getAwwRecord( awwRecord );
 			if (num != null && !num.isEmpty())
-				contWatch.addAll( num);
+				contWatch.addAll( num );
 		}
 		
 	    //Retrieving unique items from the list
@@ -168,4 +174,25 @@ public class ContinuingWatch {
 		return contWatch;
 	}
 	
+	// from WtchUtil
+	private static boolean isWtchRecord(AwwRecord awwRecord) {
+
+		if( awwRecord == null ) {
+			return false;
+		}
+			/*
+			 * This IF condition may be not necessary if a constrain condition added in WTCH.xml
+			 */
+		AwwReportType rt = AwwReportType.getReportType( awwRecord.getReportType() );
+
+//			if(WtchConstant.SEVERE_WEATHER_TORNADO_WATCH.equalsIgnoreCase(reportType) 
+//					|| WtchConstant.SEVERE_WEATHER_THUNDERSTORM_WATCH.equalsIgnoreCase(reportType) 
+//					|| WtchConstant.SEVERE_WEATHER_STATUS_REPORT.equalsIgnoreCase(reportType))  
+//				result = true;
+		
+		return ( rt == AwwReportType.TORNADO_REPORT ); // || 
+//				 rt == AwwReportType.THUNDERSTORM_REPORT ???
+//				 rt == AwwReportType.STATUS_REPORT );  ???
+	}
+
 }
