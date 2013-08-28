@@ -7,20 +7,34 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.display;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.images.GLImage;
 import com.vividsolutions.jts.geom.Coordinate;
+
 /**
- * Contains a raster image and information needed to readily display that image on a graphics target
- * at one or more locations.
+ * Contains a raster image and information needed to readily display that image
+ * on a graphics target at one or more locations.
  * <P>
- * Objects of this class are typically created from Symbol or SymbolLocationSet elements using the 
- * DisplayElementFactory class.
- * @author sgilbert
+ * Objects of this class are typically created from Symbol or SymbolLocationSet
+ * elements using the DisplayElementFactory class.
+ * 
+ * <pre>
+ * 
+ *    SOFTWARE HISTORY
+ *   
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 
+ * 04/22/09       ?        S. Gilbert	Initial coding
+ * 08/06/13       ?        J. Wu		Add Matt's (Hazard Services) changes 
+ * 										to speed up the performance.
  *
  */
 public class SymbolSetElement implements IDisplayable {
@@ -35,9 +49,6 @@ public class SymbolSetElement implements IDisplayable {
      */
     private final double[][] locations;
 
-    private final Coordinate ul = new Coordinate(), ur = new Coordinate(),
-            lr = new Coordinate(), ll = new Coordinate();
-
     /**
      * Constructor used to set an image and its associated locations
      * 
@@ -48,8 +59,7 @@ public class SymbolSetElement implements IDisplayable {
      * @param locations
      *            pixel coordinate locations to display the image
      */
-    public SymbolSetElement(IImage raster,
-            double[][] locations) {
+    public SymbolSetElement(IImage raster, double[][] locations) {
         this.raster = raster;
         this.locations = locations;
     }
@@ -79,45 +89,27 @@ public class SymbolSetElement implements IDisplayable {
 		/*
          * Scale image
          */
-        double halfWidth;
-        double halfHeight;
         double screenToWorldRatio = paintProps.getCanvasBounds().width
                 / paintProps.getView().getExtent().getWidth();
-        double scale = 0.5 / screenToWorldRatio;
-        if (raster instanceof GLImage) {
-            halfWidth = ((GLImage) raster).getImage().getWidth() * scale;
-            halfHeight = ((GLImage) raster).getImage().getHeight() * scale;
-        } else {
-            halfWidth = raster.getWidth() * scale;
-            halfHeight = raster.getHeight() * scale;
-        }
+        double scale = 1 / screenToWorldRatio;
 
 		/*
-         * draw raster image at each location
+         * Add image at each location to the list
          */
+        List<DrawableImage> images = new ArrayList<DrawableImage>();
         for (int j = 0; j < locations.length; j++) {
             loc = locations[j];
-            ul.x = loc[0] - halfWidth;
-            ul.y = loc[1] - halfHeight;
-            ur.x = loc[0] + halfWidth;
-            ur.y = loc[1] - halfHeight;
-            lr.x = loc[0] + halfWidth;
-            lr.y = loc[1] + halfHeight;
-            ll.x = loc[0] - halfWidth;
-            ll.y = loc[1] + halfHeight;
-            PixelCoverage extent = new PixelCoverage(ul, ur, lr, ll);
-            /*
-             * PixelCoverage extent = new PixelCoverage(new
-             * Coordinate(loc[0]-halfWidth,loc[1]-halfHeight), new
-             * Coordinate(loc[0]+halfWidth,loc[1]-halfHeight), new
-             * Coordinate(loc[0]+halfWidth,loc[1]+halfHeight), new
-             * Coordinate(loc[0]-halfWidth,loc[1]+halfHeight));
-             */
-            try {
-                target.drawRaster(raster, extent, paintProps);
-            } catch (VizException ve) {
-                ve.printStackTrace();
+            PixelCoverage extent = new PixelCoverage(new Coordinate(loc[0],
+                    loc[1]), raster.getWidth() * scale, raster.getHeight()
+                    * scale);
+            images.add(new DrawableImage(raster, extent));
             }
+        
+        //Draw all images.
+        try {
+            target.drawRasters(paintProps, images.toArray(new DrawableImage[0]));
+        } catch (VizException e) {
+            e.printStackTrace();
         }
     }
 

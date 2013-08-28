@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
  * 05/13		#610		J. Wu		Implemented FZLVL range (TTR425) 
  * 06/13		#674/TTR426	J. Wu		Added color settings for surface FZLVLs.
+ * 05/13		?			J. Wu		Added setOtherTextLastUsed() 
  * 
  * </pre>
  * 
@@ -2124,5 +2125,20 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		
 		return rgb;
 	}
+	
+	/**
+	 * Set the "otherTextLastUsed" 
+	 * 
+	 * This used when the first time a smear/outlook is selected so the bottom panel
+	 * can be generated.
+	 * 
+	 * @param otherTextLastUsed
+	 */
+	public void setOtherTextLastUsed(String otherTextLastUsed) {
+		if ( otherTextLastUsed != null && otherTextLastUsed.contains("-") ) {
+			this.otherTextLastUsed = otherTextLastUsed;
+		}
+	}
+
 }
 
