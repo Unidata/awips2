@@ -31,7 +31,6 @@
               <brightness>${brightness}</brightness>
               <contrast>${contrast}</contrast> 
   
-             <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />

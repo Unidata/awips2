@@ -3,10 +3,11 @@
     <resourceDefnName>DwmStns</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-LpiFilename=dlwx.lpi
+sourceType=LPI_FILE
+sourceName=dlwx.lpi
 mapName=DWM Stations
     </resourceParameters>
-    <rscImplementation>LpiOverlay</rscImplementation>
+    <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
