@@ -232,7 +232,7 @@ public class VectorAttrDlg extends AttrDlg implements IVector{
 	 */
 	public double getSpeed() {
 		if ( chkBox[ChkBox.SPEED.ordinal()].getSelection() ){
-			return (double)spdSlider.getSelection();
+			return Double.valueOf(spdText.getText());
 		}
 		else {
 			return java.lang.Double.NaN;
@@ -644,7 +644,8 @@ public class VectorAttrDlg extends AttrDlg implements IVector{
 		spdSlider.setValues( 10, 0, 401, 1, 1, 1 );
 		spdSlider.addSelectionListener( new SelectionAdapter() {
 			public void widgetSelected( SelectionEvent e ) {
-				spdText.setText( "" + spdSlider.getSelection() );
+			    int thumb = spdSlider.getThumb();
+				spdText.setText( "" + (spdSlider.getSelection()/thumb)*thumb );
 			}
 		});
 

@@ -21,6 +21,7 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.viz.gempak.nativelib.LibraryLoader;
 //import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
@@ -69,6 +70,7 @@ import java.io.File;
  * 11/10		#345		J. Wu   	Added support for ContourCircle.
  * 10/11        #450        G. Hull     use localization names from NcPathConstants
  * 10/11		?			J. Wu   	Remove entry if the given table does not exist.
+ * 08/13		TTR778		J. Wu		Load libg2g when this dialog is created.
  * 
  * </pre>
  * 
@@ -126,6 +128,9 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
     	super ( parShell );   	       	   	
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE );
         
+        //Load the native library.
+        LibraryLoader.load("g2g");
+       
         if ( productMaps == null ) {
             productMaps = GraphToGrid.loadParameters( grphgdTblName );
             productNames = new ArrayList<String>( productMaps.keySet() );

@@ -26,6 +26,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
+import com.raytheon.viz.ui.input.EditableManager;
 
 /**
  * Simple action for loading the warngen layer
@@ -38,6 +39,7 @@ import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
  * May  4, 2010            mschenke     Initial creation
  * Oct 10, 2010  6990      Qinglu Lin   Used D. Friedman short solution,
  *                                      with minor changes.
+ * Aug 15, 2013  DR 16418  D. Friedman  Always show the dialog.
  * 
  * </pre>
  * 
@@ -65,16 +67,16 @@ public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
         for (IDisplayPane pane : getSelectedPanes()) {
             for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                 if (rp.getResource() instanceof WarngenLayer) {
+                    EditableManager.makeEditable(rp.getResource(), true);
                     ((WarngenLayer) rp.getResource())
-                            .showDialog(((WarngenLayer) rp.getResource())
-                                    .isEditable());
+                                .showDialog(true);
                     return (WarngenLayer) rp.getResource();
                 }
             }
         }
 
         WarngenLayer layer = super.getResource(loadProperties, descriptor);
-        layer.createDialog();
+        layer.showDialog(true);
         return layer;
     }
 }

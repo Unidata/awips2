@@ -3,7 +3,7 @@ package gov.noaa.nws.ncep.viz.ui.locator.resource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorDataSource.SourceType;
+import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorDataSource.LocatorType;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -317,10 +317,10 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
     			LocatorDataSource lds1 = availDataSources.get( l1 );
     			LocatorDataSource lds2 = availDataSources.get( l2 );
     			
-    			if( lds1.getSourceType() == SourceType.LATLON ) {
+    			if( lds1.getLocatorType() == LocatorType.LATLON ) {
     				return -1;
     			}
-    			else if( lds2.getSourceType() == SourceType.LATLON ) {
+    			else if( lds2.getLocatorType() == LocatorType.LATLON ) {
     				return 1;
     			}
     			else return lds1.getSourceName().compareToIgnoreCase(
@@ -365,21 +365,21 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
         	directionCombo.setEnabled( false );        	
     	}
     	else {
-    		if( seldDataSource.getSourceType() == SourceType.LATLON ) {    			
+    		if( seldDataSource.getLocatorType() == LocatorType.LATLON ) {    			
             	roundingCombo.setEnabled( false );
             	directionCombo.setEnabled( false );        	
             	
             	unitsCombo.setEnabled( true );
             	unitsCombo.setItems( LATLONUNIT_OPTIONS);
         	}
-    		else if( seldDataSource.getSourceType() == SourceType.POINT ) {
+    		else if( seldDataSource.getLocatorType() == LocatorType.POINT ) {
     			roundingCombo.setEnabled( true );
     			unitsCombo.setEnabled( true );
             	directionCombo.setEnabled( true );
             	
             	unitsCombo.setItems( DISTANCEUNIT_OPTIONS );
     		}
-    		else if( seldDataSource.getSourceType() == SourceType.BOUNDED_AREA ) {
+    		else if( seldDataSource.getLocatorType() == LocatorType.BOUNDED_AREA ) {
     			roundingCombo.setEnabled( false );
     			unitsCombo.setEnabled( false );
             	directionCombo.setEnabled( false );

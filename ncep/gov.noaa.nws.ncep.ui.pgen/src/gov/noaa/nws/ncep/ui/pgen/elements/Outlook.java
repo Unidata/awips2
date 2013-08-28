@@ -8,7 +8,6 @@
 
 package gov.noaa.nws.ncep.ui.pgen.elements;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
@@ -17,8 +16,6 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
-import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -45,6 +42,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/10			#215	J. Wu   	Added Contours' attributes
  * 02/11			?		B. Yin		Create text from lines without labels
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 08/13		TTR773		B. Yin		Moved the save method to outlook format dialog
  * </pre>
  * 
  * @author B. Yin
@@ -351,40 +349,6 @@ public class Outlook extends Contours {
         FileTools.write(filename, filePrds);
     }
 
-    /**
-     * Save this element to EDEX
-     * 
-     * @param filename
-     */
-    public String storeProduct(String label) {
-
-        String dataURI;
-
-        Layer defaultLayer = new Layer();
-        defaultLayer.addElement(this);
-        ArrayList<Layer> layerList = new ArrayList<Layer>();
-        layerList.add(defaultLayer);
-
-        ProductTime refTime = new ProductTime(getIssueTime());
-
-        Product defaultProduct = new Product("", "OUTLOOK", forecaster, null,
-                refTime, layerList);
-
-        // Product defaultProduct = new Product();
-        // defaultProduct.addLayer(defaultLayer);
-
-        defaultProduct.setOutputFile(label);
-        defaultProduct.setCenter(PgenUtil.getCurrentOffice());
-
-        try {
-            dataURI = StorageUtils.storeProduct(defaultProduct);
-        } catch (PgenStorageException e) {
-            StorageUtils.showError(e);
-            return null;
-        }
-
-        return dataURI;
-    }
 
     /**
      * Add the input line into a group so all the lines in the group will be

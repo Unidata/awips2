@@ -32,6 +32,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/09		#116			B. Yin   	Initial Creation.
  * 08/09		#135			B. Yin   	Added a parent field
  * 12/10		#366			B. Yin		Added getNearestDE  
+ * 08/13		?				B. Yin		Added getItemAt  
  *
  * </pre>
  * 
@@ -275,6 +276,16 @@ public class DECollection extends AbstractDrawableComponent {
 			return el.getPrimaryDE();
 		}
 	}
+	
+	/**
+	 * Returns the element at index.
+	 * @param index
+	 * @return
+	 */
+	public AbstractDrawableComponent getItemAt( int index ){
+		return compList.get(index);
+	}
+	
 	/**
 	 * Finds the nearest component(DE/DECollection) in the collection to the input point.
 	 * @param point
