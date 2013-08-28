@@ -12,7 +12,6 @@
       <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
       <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
       <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
-      <!-- requestStyle>METADATA</requestStyle> -->
       <metadataMap>
         <mapping key="pluginName">
           <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
