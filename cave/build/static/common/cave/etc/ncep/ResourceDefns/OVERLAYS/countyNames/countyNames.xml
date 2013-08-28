@@ -3,10 +3,11 @@
     <resourceDefnName>countyNames</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-LpiFilename=us_county.lpi
+sourceType=LPI_FILE
+sourceName=us_county.lpi
 mapName=County Names
     </resourceParameters>
-    <rscImplementation>LpiOverlay</rscImplementation>
+    <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

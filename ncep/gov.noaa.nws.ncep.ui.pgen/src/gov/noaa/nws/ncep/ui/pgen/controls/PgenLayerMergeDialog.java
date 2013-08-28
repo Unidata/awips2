@@ -9,6 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.controls;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.eclipse.swt.SWT;
@@ -33,7 +34,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
+import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 
 
@@ -46,6 +49,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 07/12        #593     	J. Wu  		Initial Creation
+ * 08/13		?			B. Yin		Merge outlook when layers are merged
  *
  * </pre>
  * 
@@ -501,6 +505,7 @@ public class PgenLayerMergeDialog extends Dialog {
 			if ( replace ) existingLayer.clear();
 			
 			existingLayer.add( newLayer.getDrawables() );
+			mergeOutlooks( existingLayer );
 			
 			if ( prd != null ) {
 				existingLayer.setName( findUniqueLayerName( prd, newLayer ) );
@@ -636,4 +641,53 @@ public class PgenLayerMergeDialog extends Dialog {
 
 	}
        
+	/**
+	 * Merges outlook in the specified layer.
+	 * Outlook of the same type needs to put into one outlook
+	 * in order to make the 'set continue' and format work.
+	 * @param layer
+	 */
+	private void mergeOutlooks( Layer layer ){
+		
+		ArrayList<ArrayList<Outlook>> otlkList = new ArrayList<ArrayList<Outlook>>();
+		
+		//loop through DEs in the layer and put outlooks in the list
+		//The outer list is a list of different types outlook list.
+		//The inner list is a list of same type of outlook.
+		for ( AbstractDrawableComponent adc : layer.getDrawables() ){
+			if ( adc instanceof Outlook ){
+				Outlook look = (Outlook) adc;
+				
+				boolean found = false;
+				for ( ArrayList<Outlook> aList : otlkList ){
+					if ( look.getOutlookType().equalsIgnoreCase( aList.get(0).getOutlookType())){
+						aList.add( look );
+						found =true;
+					}
+				}
+				
+				if ( !found ){
+					ArrayList<Outlook> oList = new ArrayList<Outlook>();
+					oList.add(look);
+					otlkList.add(oList);
+				}
+			}
+		}
+		
+		//Merge outlook. Keep the first outlook for one type and add components of other outlooks 
+		//of the same type into the first one. 
+		for ( ArrayList<Outlook> tList : otlkList  ){
+			if ( tList.size() > 1 ){
+				for ( int ii = 1; ii < tList.size(); ii++ ){
+					Iterator<AbstractDrawableComponent> it = tList.get(ii).getComponentIterator();
+					while ( it.hasNext() ){
+						tList.get(0).add( it.next() );
+					}
+					layer.remove( tList.get(ii) );
+				}
+			}
+		}
+		
+		
+	}
 }
