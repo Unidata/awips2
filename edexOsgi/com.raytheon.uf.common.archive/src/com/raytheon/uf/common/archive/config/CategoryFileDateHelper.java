@@ -41,6 +41,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Jun 21, 2013 1965       bgonzale    Initial creation
  * Aug 03, 2013 2224       rferrel     Changes for new configuration files.
+ * Aug 28, 2013 2299       rferrel     Changes in IFileDateHelper.
  * 
  * </pre>
  * 
@@ -137,10 +138,11 @@ public class CategoryFileDateHelper implements IFileDateHelper {
      * 
      * @see
      * com.raytheon.uf.common.archive.config.IFileDateHelper#getFileDate(java
-     * .lang.String)
+     * .io.File)
      */
     @Override
-    public Calendar getFileDate(String filenamePath) {
+    public Calendar getFileDate(File file) {
+        String filenamePath = file.getAbsolutePath();
         String pathForFilePatternCheck = filenamePath.substring(rootDir
                 .length());
         String pathForDirPatternCheck = FilenameUtils
@@ -165,7 +167,6 @@ public class CategoryFileDateHelper implements IFileDateHelper {
 
         if (timestamp == null) {
             // no matching pattern, use file last modified date
-            File file = new File(filenamePath);
             timestamp = file.lastModified();
         }
 
