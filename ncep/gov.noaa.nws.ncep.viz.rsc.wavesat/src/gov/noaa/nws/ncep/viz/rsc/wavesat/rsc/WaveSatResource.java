@@ -186,10 +186,10 @@ public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceDa
 
 	        				// Datacube didn't have proper plugin; going directly
 	        				// to the data store
-	        	pdc = PointDataRequest.requestPointDataAllLevels(
-	        						null, waveSatRscData.getPluginName(), 
-	        						params.toArray( new String[params.size()] ),
-	        						null, reqConstraints );
+                pdc = PointDataRequest.requestPointDataAllLevels(
+                        waveSatRscData.getPluginName(),
+                        params.toArray(new String[params.size()]), null,
+                        reqConstraints);
 
 	        } catch (VizException e1) {
 	        	System.out.println("Error querying for sgwh point data");
