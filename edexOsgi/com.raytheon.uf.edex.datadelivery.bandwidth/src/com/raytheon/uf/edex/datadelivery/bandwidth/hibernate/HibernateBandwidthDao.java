@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * Jun 24, 2013 2106       djohnson     Implement new methods.
  * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
+ * Aug 28, 2013 2290       mpduff       Check for no subscriptions.
  * 
  * </pre>
  * 
@@ -528,47 +529,52 @@ public class HibernateBandwidthDao implements IBandwidthDao {
 
         List<BandwidthSubscription> bandwidthSubList = this
                 .getBandwidthSubscription(sub);
-        Collections.sort(bandwidthSubList,
-                new Comparator<BandwidthSubscription>() {
-                    @Override
-                    public int compare(BandwidthSubscription o1,
-                            BandwidthSubscription o2) {
-                        Calendar date1 = o1.getBaseReferenceTime();
-                        Calendar date2 = o2.getBaseReferenceTime();
-                        if (date1.before(date2)) {
-                            return -1;
-                        } else if (date1.after(date2)) {
-                            return 1;
+
+        if (bandwidthSubList != null && !bandwidthSubList.isEmpty()) {
+            Collections.sort(bandwidthSubList,
+                    new Comparator<BandwidthSubscription>() {
+                        @Override
+                        public int compare(BandwidthSubscription o1,
+                                BandwidthSubscription o2) {
+                            Calendar date1 = o1.getBaseReferenceTime();
+                            Calendar date2 = o2.getBaseReferenceTime();
+                            if (date1.before(date2)) {
+                                return -1;
+                            } else if (date1.after(date2)) {
+                                return 1;
+                            }
+
+                            return 0;
+                        }
+                    });
+
+            List<SubscriptionRetrieval> subRetrievalList = this
+                    .querySubscriptionRetrievals(bandwidthSubList.get(0));
+            Collections.sort(subRetrievalList,
+                    new Comparator<SubscriptionRetrieval>() {
+                        @Override
+                        public int compare(SubscriptionRetrieval o1,
+                                SubscriptionRetrieval o2) {
+                            Calendar date1 = o1.getStartTime();
+                            Calendar date2 = o2.getStartTime();
+                            if (date1.before(date2)) {
+                                return -1;
+                            } else if (date1.after(date2)) {
+                                return 1;
+                            }
+
+                            return 0;
                         }
 
-                        return 0;
-                    }
-                });
+                    });
 
-        List<SubscriptionRetrieval> subRetrievalList = this
-                .querySubscriptionRetrievals(bandwidthSubList.get(0));
-        Collections.sort(subRetrievalList,
-                new Comparator<SubscriptionRetrieval>() {
-                    @Override
-                    public int compare(SubscriptionRetrieval o1,
-                            SubscriptionRetrieval o2) {
-                        Calendar date1 = o1.getStartTime();
-                        Calendar date2 = o2.getStartTime();
-                        if (date1.before(date2)) {
-                            return -1;
-                        } else if (date1.after(date2)) {
-                            return 1;
-                        }
+            summary.setStartTime(subRetrievalList.get(0).getStartTime()
+                    .getTimeInMillis());
+            summary.setEndTime(subRetrievalList
+                    .get(subRetrievalList.size() - 1).getEndTime()
+                    .getTimeInMillis());
+        }
 
-                        return 0;
-                    }
-
-                });
-
-        summary.setStartTime(subRetrievalList.get(0).getStartTime()
-                .getTimeInMillis());
-        summary.setEndTime(subRetrievalList.get(subRetrievalList.size() - 1)
-                .getEndTime().getTimeInMillis());
         summary.setDataSize(sub.getDataSetSize());
         summary.setLatency(sub.getLatencyInMinutes());
 
