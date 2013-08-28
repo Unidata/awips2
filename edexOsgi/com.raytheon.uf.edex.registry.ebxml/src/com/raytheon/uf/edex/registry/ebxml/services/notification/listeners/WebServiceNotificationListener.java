@@ -38,6 +38,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDes
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2013 1672       djohnson     Extracted from RegistryNotificationManager.
+ * 8/28/2013    1538       bphillip     Changed to catch a Throwable instead of just EbxmlRegistryException
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ public class WebServiceNotificationListener implements NotificationListener {
     public void onNotification(NotificationType notification) {
         try {
             sendNotificationViaSoap(notification, destination);
-        } catch (EbxmlRegistryException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(
                     "Error sending subscription notification.", e);
         }

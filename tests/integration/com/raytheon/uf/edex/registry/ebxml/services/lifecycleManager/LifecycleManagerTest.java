@@ -15,9 +15,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.junit.Before;
+import org.junit.Ignore;
 
 import com.raytheon.uf.edex.registry.ebxml.dao.AbstractRegistryTest;
 
+@Ignore
 public abstract class LifecycleManagerTest extends AbstractRegistryTest {
 
     protected static final String TEST_SLOT_NAME_1 = "Test Slot 1";
