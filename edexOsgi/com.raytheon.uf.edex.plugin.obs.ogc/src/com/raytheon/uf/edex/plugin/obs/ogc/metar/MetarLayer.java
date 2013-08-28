@@ -28,7 +28,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
+import com.raytheon.uf.edex.ogc.common.db.DefaultPointDataDimension;
+import com.raytheon.uf.edex.ogc.common.db.PointDataLayer;
 
 /**
  * 
@@ -48,11 +49,26 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MetarLayer extends SimpleLayer<MetarDimension> {
+public class MetarLayer extends PointDataLayer {
+
+    private static final long serialVersionUID = 7334386034469721056L;
+
+	/**
+	 * 
+	 */
+	public MetarLayer() {
+	}
+
+	/**
+	 * @param layer
+	 */
+	public MetarLayer(MetarLayer layer) {
+		super(layer);
+	}
 
 	@Override
-    public Set<MetarDimension> getDimensions() {
-        return new TreeSet<MetarDimension>();
+    public Set<DefaultPointDataDimension> getDimensions() {
+        return new TreeSet<DefaultPointDataDimension>();
 	}
 
 }

@@ -31,7 +31,6 @@
 package com.raytheon.uf.edex.wms.styling;
 
 import java.awt.image.BufferedImage;
-import java.util.Map;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -48,7 +47,7 @@ import com.raytheon.uf.edex.wms.reg.WmsImage;
  * @version 1.0
  */
 public class SldStyleProvider extends AbstractSldStyleProvider implements
-		CoverageStyleProvider {
+		ICoverageStyleProvider {
 	
 	/**
 	 * @param styleLibraryFileName
@@ -75,7 +74,7 @@ public class SldStyleProvider extends AbstractSldStyleProvider implements
 	 * org.geotools.geometry.jts.ReferencedEnvelope)
 	 */
 	@Override
-	public WmsImage styleData(WmsDataRetriever retriever, WmsStyleChoice style,
+	public WmsImage styleData(IWmsDataRetriever retriever, WmsStyleChoice style,
 			PluginDataObject record, ReferencedEnvelope envelope)
 			throws WmsException {
 		GridCoverage2D cov = retriever.getGridCoverage(record, envelope);
@@ -90,9 +89,8 @@ public class SldStyleProvider extends AbstractSldStyleProvider implements
 	 * lang.String, java.lang.String, java.util.Map, java.util.Map)
 	 */
 	@Override
-	public WmsStyleChoice getStyle(String layer, String style,
-			Map<String, String> dimensions, Map<String, String> levelUnits)
-			throws WmsException {
+    public WmsStyleChoice getStyle(String layer, PluginDataObject pdo,
+            String style) throws WmsException {
 		Style ns = getStyle(layer, style);
 		return new WmsStyleChoice(ns);
 	}
@@ -105,11 +103,10 @@ public class SldStyleProvider extends AbstractSldStyleProvider implements
 	 * .lang.String, java.lang.String, java.util.Map, java.util.Map, int, int)
 	 */
 	@Override
-	public BufferedImage getLegend(String layer, String style,
-			Map<String, String> dimensions, Map<String, String> levelUnits,
-			Integer width, Integer height) throws WmsException {
-		Style s = this.getStyle(layer, style);
-		return getLegend(s, width, height);
-	}
+    public BufferedImage getLegend(String layer, PluginDataObject pdo,
+            String style, Integer width, Integer height) throws WmsException {
+        Style s = this.getStyle(layer, style);
+        return getLegend(s, width, height);
+    }
 
 }
