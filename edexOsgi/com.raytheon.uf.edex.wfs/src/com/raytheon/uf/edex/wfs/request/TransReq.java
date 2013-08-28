@@ -64,8 +64,9 @@ public class TransReq extends WfsRequest {
 	 * @param obj
 	 * @return
 	 */
-	public static WfsRequest buildTransReq(TransactionType transaction) {
-		WfsRequest rval = null;
+    public static WfsRequest buildTransReq(
+            TransactionType transaction) {
+        WfsRequest rval = null;
 		for (Object obj : transaction.getInsertOrUpdateOrDelete()) {
 			if (obj instanceof Unique) {
 				TransReq ret = new TransReq(TransType.Native);
@@ -76,6 +77,7 @@ public class TransReq extends WfsRequest {
 				rval = ret;
 			}
 		}
+        rval.setRawrequest(transaction);
 		return rval;
 	}
 

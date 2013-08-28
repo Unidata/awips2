@@ -21,24 +21,29 @@
 package com.raytheon.uf.edex.wcs;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.opengis.ows.v_1_1_0.BoundingBoxType;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
+import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpHandler;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpRequest;
+import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
+import com.raytheon.uf.edex.ogc.common.output.ServletOgcResponse;
 import com.raytheon.uf.edex.wcs.WcsException.Code;
 import com.raytheon.uf.edex.wcs.provider.OgcWcsProvider.WcsOpType;
 import com.raytheon.uf.edex.wcs.reg.RangeField;
@@ -65,7 +70,7 @@ import com.raytheon.uf.edex.wcs.request.WcsRequest.Type;
  * @author
  * @version 1
  */
-public class WcsHttpHandler implements OgcHttpHandler {
+public class WcsHttpHandler extends OgcHttpHandler {
 
 	protected WcsProvider provider;
 
@@ -117,7 +122,7 @@ public class WcsHttpHandler implements OgcHttpHandler {
 
 	protected static final String GRID_OFFSETS = "gridoffsets";
 
-	private Log log = LogFactory.getLog(this.getClass());
+    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	public WcsHttpHandler(WcsProvider provider) {
 		this.provider = provider;
@@ -133,7 +138,8 @@ public class WcsHttpHandler implements OgcHttpHandler {
 	}
 
 	protected void handleInternal(OgcHttpRequest ogcRequest) throws Exception {
-		HttpServletResponse response = ogcRequest.getResponse();
+        IOgcHttpResponse response = new ServletOgcResponse(
+                ogcRequest.getResponse());
 		HttpServletRequest httpRequest = ogcRequest.getRequest();
 		Map<String, Object> headers = ogcRequest.getHeaders();
 		OgcResponse rval = null;
@@ -175,6 +181,11 @@ public class WcsHttpHandler implements OgcHttpHandler {
 		case ERROR:
 			rval = (OgcResponse) request.getRequest();
 			break;
+        default:
+            rval = provider.getError(new WcsException(
+                    Code.OperationNotSupported, request.getType()
+                            + " not supported"), null);
+            break;
 		}
 
 		sendResponse(response, rval);
@@ -185,9 +196,9 @@ public class WcsHttpHandler implements OgcHttpHandler {
 	 * @return
 	 */
 	private OgcResponse validateExceptionFormat(WcsRequest request) {
-		if (!request.getExceptionFormat().equalsIgnoreCase(
+        if (!request.getExceptionFormat().equalsIgnoreParams(
 				OgcResponse.TEXT_HTML_MIME)
-				&& !request.getExceptionFormat().equalsIgnoreCase(
+                && !request.getExceptionFormat().equalsIgnoreParams(
 						OgcResponse.TEXT_XML_MIME)) {
 			return provider.getError(
 					new WcsException(Code.InvalidParameterValue,
@@ -204,13 +215,13 @@ public class WcsHttpHandler implements OgcHttpHandler {
 		if (port != 80) {
 			base += ":" + port;
 		}
-		base += request.getPathInfo();
+		base += request.getPathInfo() + "?service=wcs";
 		OgcServiceInfo<WcsOpType> rval = new OgcServiceInfo<WcsOpType>(base);
-		rval.addOperationInfo(getOp(base + "?request=" + CAP_PARAM, base,
+		rval.addOperationInfo(getOp(base, base,
 				WcsOpType.GetCapabilities));
-		rval.addOperationInfo(getOp(base + "?request=describecoverage", base,
+		rval.addOperationInfo(getOp(base, base,
 				WcsOpType.DescribeCoverage));
-		rval.addOperationInfo(getOp(base + "?request=getcoverage", base,
+		rval.addOperationInfo(getOp(base, base,
 				WcsOpType.GetCoverage));
 
 		return rval;
@@ -226,70 +237,18 @@ public class WcsHttpHandler implements OgcHttpHandler {
 		rval.addAcceptVersions("1.1.2");
 		rval.addService("WCS");
 		rval.addFormat("text/xml");
+        rval.setPostEncoding("XML");
 		return rval;
 	}
 
-	protected String getString(Object obj) {
-		String rval = null;
-		if (obj != null) {
-			if (obj instanceof String) {
-				rval = (String) obj;
-			}
-		}
-		return rval;
-	}
-
-	protected String[] getStringArr(Object obj) {
-		String[] rval = null;
-		if (obj != null) {
-			if (obj instanceof String[]) {
-				rval = (String[]) obj;
-			} else if (obj instanceof String) {
-				rval = ((String) obj).split(",");
-			}
-		}
-		return rval;
-	}
-
-	protected Integer getInt(Object obj) {
-		Integer rval = null;
-		if (obj != null) {
-			if (obj instanceof Integer) {
-				rval = (Integer) obj;
-			} else if (obj instanceof String) {
-				try {
-					rval = Integer.parseInt((String) obj);
-				} catch (Exception e) {
-					// leave rval as null
-				}
-			}
-		}
-		return rval;
-	}
-
-	protected Boolean getBool(Object obj) {
-		Boolean rval = null;
-		if (obj != null) {
-			if (obj instanceof Boolean) {
-				rval = (Boolean) obj;
-			} else if (obj instanceof String) {
-				try {
-					rval = Boolean.parseBoolean((String) obj);
-				} catch (Exception e) {
-					// leave rval as null
-				}
-			}
-		}
-		return rval;
-	}
-
-	protected WcsRequest getRequestFromHeaders(Map<String, Object> headers) {
+	protected WcsRequest getRequestFromHeaders(Map<String, Object> headers)
+			throws OgcException {
 		WcsRequest rval = null;
 		Object obj = headers.get(REQUEST_HEADER);
-		String exceptionFormat = OgcResponse.TEXT_XML_MIME;
+        MimeType exceptionFormat = OgcResponse.TEXT_XML_MIME;
 		if (obj instanceof String) {
-			exceptionFormat = getString(headers.get(EXCEP_FORMAT_HEADER));
-			if (exceptionFormat == null || exceptionFormat.isEmpty()) {
+            exceptionFormat = getMimeType(headers, EXCEP_FORMAT_HEADER);
+            if (exceptionFormat == null) {
 				exceptionFormat = OgcResponse.TEXT_XML_MIME;
 			}
 			String req = (String) obj;
@@ -301,7 +260,7 @@ public class WcsHttpHandler implements OgcHttpHandler {
 				try {
 					rval = buildGetCoverageRequest(headers);
 				} catch (RangeParseException e) {
-					log.error(e);
+                    log.error(e.getLocalizedMessage(), e);
 					rval = new WcsRequest(Type.ERROR);
 					String msg = "Invalid range parameter";
 					WcsException ex = new WcsException(
@@ -364,7 +323,11 @@ public class WcsHttpHandler implements OgcHttpHandler {
 
 		String bbox = getHeader(BBOX_HEADER, headers);
 		if (bbox != null) {
-			rval.setBbox(parseBbox(bbox));
+            try {
+                rval.setBbox(parseBbox(bbox));
+            } catch (OgcException e) {
+                throw new RangeParseException(e.getMessage());
+            }
 		}
 
 		return rval;
@@ -392,21 +355,30 @@ public class WcsHttpHandler implements OgcHttpHandler {
 		return rval;
 	}
 
-	protected OgcBoundingBox parseBbox(String bbox) {
+    protected BoundingBoxType parseBbox(String bbox) throws RangeParseException {
 		String[] parts = bbox.split(",");
-		OgcBoundingBox rval = null;
-		if (parts.length == 5) {
-			rval = new OgcBoundingBox();
+		BoundingBoxType rval = null;
+		if (parts.length == 5 || parts.length == 7) {
+			rval = new BoundingBoxType();
 			try {
-				rval.setMinx(Double.parseDouble(parts[0]));
-				rval.setMiny(Double.parseDouble(parts[1]));
-				rval.setMaxx(Double.parseDouble(parts[2]));
-				rval.setMaxy(Double.parseDouble(parts[3]));
-				rval.setCrs(parts[4]);
+                final int pivot = parts.length / 2;
+                List<Double> mins = new ArrayList<Double>(pivot);
+                for (int i = 0; i < pivot; ++i) {
+                    mins.add(Double.parseDouble(parts[i]));
+                }
+                List<Double> maxs = new ArrayList<Double>(pivot);
+                for (int i = pivot; i < pivot * 2; ++i) {
+                    maxs.add(Double.parseDouble(parts[i]));
+                }
+                rval.setLowerCorner(mins);
+                rval.setUpperCorner(maxs);
+                rval.setCrs(parts[parts.length - 1]);
 			} catch (NumberFormatException e) {
-				// FIXME return error
+                throw new RangeParseException("Unable to parse bounding box");
 			}
-		}// else TODO handle non 2d WGS84
+		} else {
+            throw new RangeParseException("Invalid bounding box format");
+		}
 		return rval;
 	}
 
@@ -430,7 +402,7 @@ public class WcsHttpHandler implements OgcHttpHandler {
 		return rval;
 	}
 
-	protected void sendResponse(HttpServletResponse httpRes,
+    protected void sendResponse(IOgcHttpResponse httpRes,
 			OgcResponse response) throws Exception {
 		OgcResponseOutput.output(response, httpRes);
 	}
@@ -455,5 +427,17 @@ public class WcsHttpHandler implements OgcHttpHandler {
 		}
 
 		return layerValue;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.edex.ogc.common.http.OgcHttpHandler#handleError(com.raytheon
+	 * .uf.edex.ogc.common.OgcException, java.lang.String)
+	 */
+	@Override
+    protected OgcResponse handleError(OgcException e, MimeType exceptionFormat) {
+		return provider.getError(new WcsException(e), exceptionFormat);
 	}
 }

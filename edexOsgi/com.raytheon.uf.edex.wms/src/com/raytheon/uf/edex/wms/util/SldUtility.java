@@ -1,18 +1,28 @@
+/**
+ * Copyright 09/24/12 Raytheon Company.
+ *
+ * Unlimited Rights
+ * This software was developed pursuant to Contract Number 
+ * DTFAWA-10-D-00028 with the US Government. The US Government’s rights 
+ * in and to this copyrighted software are as specified in DFARS
+ * 252.227-7014 which was made part of the above contract. 
+ */
+
 package com.raytheon.uf.edex.wms.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geotools.styling.ColorMap;
 import org.geotools.styling.ColorMapEntry;
 import org.geotools.styling.RasterSymbolizer;
 
 import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 public class SldUtility {
-	protected Log log = LogFactory.getLog(this.getClass());
+    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	public static com.raytheon.uf.common.colormap.ColorMap getRaster(
 			RasterSymbolizer rasterSymbolizer) {

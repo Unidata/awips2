@@ -22,10 +22,10 @@ package com.raytheon.uf.edex.wcs;
 
 import java.io.InputStream;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
+import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.wcs.provider.OgcWcsProvider.WcsOpType;
 import com.raytheon.uf.edex.wcs.request.DescCoverageRequest;
 import com.raytheon.uf.edex.wcs.request.GetCapRequest;
@@ -57,10 +57,10 @@ public interface WcsProvider {
 			OgcServiceInfo<WcsOpType> serviceinfo, DescCoverageRequest request);
 
 	public void getCoverage(OgcServiceInfo<WcsOpType> serviceinfo,
-			GetCoverageRequest request, HttpServletResponse response);
+            GetCoverageRequest request, IOgcHttpResponse response);
 
 	public WcsRequest getRequest(InputStream in);
 
-	public OgcResponse getError(WcsException e, String exceptionFormat);
+    public OgcResponse getError(WcsException e, MimeType exceptionFormat);
 
 }
