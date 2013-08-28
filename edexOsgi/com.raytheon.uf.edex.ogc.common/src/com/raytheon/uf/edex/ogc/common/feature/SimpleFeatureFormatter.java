@@ -30,11 +30,13 @@
  */
 package com.raytheon.uf.edex.ogc.common.feature;
 
+import java.io.OutputStream;
 import java.util.List;
 
 import org.opengis.feature.simple.SimpleFeature;
 
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * 
@@ -46,7 +48,10 @@ public interface SimpleFeatureFormatter {
 	public OgcResponse format(List<List<SimpleFeature>> features)
 			throws Exception;
 
-	public String getMimeType();
+    public void format(List<List<SimpleFeature>> features, OutputStream out)
+            throws Exception;
 
-	public boolean matchesFormat(String format);
+    public MimeType getMimeType();
+
+	public boolean matchesFormat(MimeType format);
 }

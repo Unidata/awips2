@@ -45,8 +45,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
@@ -60,8 +58,11 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import sun.misc.IOUtils;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  *
@@ -70,39 +71,58 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
  */
 public class ShpFeatureFormatter implements SimpleFeatureFormatter {
 
-	public static final String mimeType = "application/zip";
+    public static final MimeType mimeType = new MimeType("application/zip");
 
-	protected Log log = LogFactory.getLog(this.getClass());
+    public static final MimeType zipType = new MimeType("shape-zip");
+
+	protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	protected byte[] buffer = new byte[1024 * 4];
 
-	/* (non-Javadoc)
-	 * @see com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter#format(java.util.List)
-	 */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter#format
+     * (java.util.List, java.io.OutputStream)
+     */
+    @Override
+    public void format(List<List<SimpleFeature>> features, OutputStream out)
+            throws Exception {
+        FeatureCollection<SimpleFeatureType, SimpleFeature> coll = convert(features);
+        if (coll == null) {
+            return;
+        }
+        File tmpDir = createTempDir();
+        try {
+            writeShape(tmpDir, coll);
+            File zip = createZip(tmpDir);
+            readFile(zip, out);
+        } finally {
+            if (tmpDir != null && tmpDir.exists()) {
+                deleteDir(tmpDir);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter#format
+     * (java.util.List)
+     */
 	@Override
 	public OgcResponse format(List<List<SimpleFeature>> features)
 			throws Exception {
-		List<FeatureCollection<SimpleFeatureType, SimpleFeature>> colls = new ArrayList<FeatureCollection<SimpleFeatureType, SimpleFeature>>(
-				features.size());
-		for (List<SimpleFeature> l : features) {
-			if (l != null && !l.isEmpty()) {
-				SimpleFeatureType t = l.get(0).getFeatureType();
-				MemoryFeatureCollection c = new MemoryFeatureCollection(t);
-				c.addAll(l);
-				colls.add(c);
-			}
-		}
-		// TODO handle multiple schemas
-		if (colls.size() > 1) {
-			log.error("Too many feature types sent to shapefile formatter");
-		}
-		if (colls.isEmpty()) {
-			return new OgcResponse(new byte[0], mimeType, TYPE.BYTE);
-		}
+        FeatureCollection<SimpleFeatureType, SimpleFeature> coll = convert(features);
+        if (coll == null) {
+            return new OgcResponse(new byte[0], mimeType, TYPE.BYTE);
+        }
 
 		File tmpDir = createTempDir();
 		try {
-			writeShape(tmpDir, colls.get(0));
+            writeShape(tmpDir, coll);
 			File zip = createZip(tmpDir);
 			byte[] bytes = readFile(zip);
 			return new OgcResponse(bytes, mimeType, TYPE.BYTE);
@@ -112,6 +132,28 @@ public class ShpFeatureFormatter implements SimpleFeatureFormatter {
 			}
 		}
 	}
+
+    protected FeatureCollection<SimpleFeatureType, SimpleFeature> convert(
+            List<List<SimpleFeature>> features) {
+        List<FeatureCollection<SimpleFeatureType, SimpleFeature>> colls = new ArrayList<FeatureCollection<SimpleFeatureType, SimpleFeature>>(
+                features.size());
+        for (List<SimpleFeature> l : features) {
+            if (l != null && !l.isEmpty()) {
+                SimpleFeatureType t = l.get(0).getFeatureType();
+                MemoryFeatureCollection c = new MemoryFeatureCollection(t);
+                c.addAll(l);
+                colls.add(c);
+            }
+        }
+        // TODO handle multiple schemas
+        if (colls.size() > 1) {
+            log.error("Too many feature types sent to shapefile formatter");
+        }
+        if (colls.isEmpty()) {
+            return null;
+        }
+        return colls.get(0);
+    }
 
 	protected File createZip(File dir) throws IOException {
 		File rval = new File(dir, "res.zip");
@@ -177,6 +219,15 @@ public class ShpFeatureFormatter implements SimpleFeatureFormatter {
 	protected byte[] readFile(File f) throws FileNotFoundException, IOException {
 		return IOUtils.readFully(new FileInputStream(f), -1, true);
 	}
+	
+    protected void readFile(File f, OutputStream out) throws IOException {
+        FileInputStream fin = new FileInputStream(f);
+        try {
+            copy(fin, out);
+        } finally {
+            fin.close();
+        }
+    }
 
 	protected void writeShape(File dir,
 			FeatureCollection<SimpleFeatureType, SimpleFeature> coll)
@@ -215,7 +266,7 @@ public class ShpFeatureFormatter implements SimpleFeatureFormatter {
 	 * @see com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter#getMimeType()
 	 */
 	@Override
-	public String getMimeType() {
+    public MimeType getMimeType() {
 		return mimeType;
 	}
 
@@ -227,11 +278,11 @@ public class ShpFeatureFormatter implements SimpleFeatureFormatter {
 	 * (java.lang.String)
 	 */
 	@Override
-	public boolean matchesFormat(String format) {
-		if (mimeType.equalsIgnoreCase(format)) {
+    public boolean matchesFormat(MimeType format) {
+        if (mimeType.equalsIgnoreParams(format)) {
 			return true;
 		}
-		if (format.equalsIgnoreCase("shape-zip")) {
+        if (format.equalsIgnoreParams(zipType)) {
 			return true;
 		}
 		return false;

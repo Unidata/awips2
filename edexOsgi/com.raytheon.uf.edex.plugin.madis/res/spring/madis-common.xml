@@ -9,6 +9,7 @@
 
 	<bean id="madisProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="madisPluginName" />
+		<property name="database" value="metadata"/>
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.madis" />
 		<property name="dao" value="com.raytheon.uf.edex.plugin.madis.MadisDao" />
 		<property name="record"

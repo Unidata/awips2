@@ -1,39 +1,51 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-      
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
-	<bean id="thriftWcsFormatter" class="com.raytheon.uf.edex.wcs.format.ThriftFormatter" />
+	<bean id="wcsCoverageStore" class="com.raytheon.uf.edex.ogc.common.BasicFileStore" >
+        <constructor-arg value="wcsCoverageStore" />
+    </bean>
 
-	<bean id="netcdfWcsFormatter" class="com.raytheon.uf.edex.wcs.format.NetCdfFormatter" />
-
-	<bean id="wcsHttpPool" class="com.raytheon.uf.edex.ogc.common.http.OgcHttpPool" destroy-method="drain">
-		<constructor-arg ref="wcsFactory" />
-	</bean>
-
-	<bean id="wcsFactory" class="com.raytheon.uf.edex.wcs.WcsHttpFactory">
-	</bean>
- 
-	<bean id="wcserv" class="com.raytheon.uf.edex.ogc.common.http.OgcHttpEndpoint">
-		<constructor-arg ref="wcsHttpPool" />
-	</bean>
+	<bean id="netcdfWcsFormatter" class="com.raytheon.uf.edex.wcs.format.NetCdfFormatter">
+        <constructor-arg ref="wcsCoverageStore" />
+    </bean>
+    
+    <bean id="wcsJaxbManager" class="com.raytheon.uf.edex.ogc.common.jaxb.OgcJaxbManager">
+        <constructor-arg>
+            <list>
+                <value>net.opengis.wcs.v_1_1_2.ObjectFactory</value>
+                <value>net.opengis.ows.v_1_1_0.ObjectFactory</value>
+                <value>net.opengis.gml.v_3_1_1.ObjectFactory</value>
+                <value>net.opengis.wms.v_1_3_0.ObjectFactory</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="wcsQueryStore" class="com.raytheon.uf.edex.wcs.querystore.WcsQueryStore">
+        <constructor-arg ref="wcsJaxbManager"/>
+    </bean>
+    
+    <bean id="wcsProvider" class="com.raytheon.uf.edex.wcs.provider.OgcWcsProvider">
+        <constructor-arg ref="wcsJaxbManager"/>
+        <!-- these need to be kept in sync with services -->
+        <property name="restPort" value="8085" />
+        <property name="covStorePath" value="coverage" />
+    </bean>
+    
+    <bean id="wcsStoreEndpoint" class="com.raytheon.uf.edex.wcs.CoverageStoreEndpoint">
+        <constructor-arg ref="wcsCoverageStore"/>
+    </bean>
 
 	<bean id="defactoEnabler" class="com.raytheon.uf.edex.wcs.request.DefactoEnabler"/>
 	
 	<camelContext id="wcs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-		<route id="WcsRest">
-			<from uri="jetty:http://0.0.0.0:8085/wcs" />
-			<bean ref="wcserv" />
-		</route>
-		
-		<route id="WcsRestDefacto">
-			<from uri="jetty:http://0.0.0.0:8085/dfo-wcs" />
-			<bean ref="defactoEnabler" />
-			<bean ref="wcserv" />
-		</route>
+        
+        <route id="WcsStoreRest">
+            <from uri="jetty:http://0.0.0.0:8085/coverage" />
+            <bean ref="wcsStoreEndpoint" />
+        </route>
 
 	</camelContext>
   
