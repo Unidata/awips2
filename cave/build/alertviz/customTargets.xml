@@ -96,10 +96,6 @@
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="ohd*/**"/>
                 </copy>
-        		<echo message="meteolib.*/**"/>
-        		<copy todir="${buildDirectory}/plugins">
-        			<fileset dir="${buildDirectory}/../../../" includes="meteolib.*/**"/>
-        		</copy>
         		<echo message="javax.*/**"/>
                 <copy todir="${buildDirectory}/plugins">
                         <fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>
