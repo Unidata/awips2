@@ -32,6 +32,13 @@ package com.raytheon.uf.edex.wfs.request;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+
+import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.wfs.v_2_0_0.QueryType;
+
+import com.raytheon.uf.edex.wfs.request.SortBy.Order;
 import com.raytheon.uf.edex.ogc.common.OgcTimeRange;
 
 /**
@@ -57,6 +64,43 @@ public class FeatureQuery {
 	protected List<String> propertyNames = new LinkedList<String>();
 	
 	protected OgcTimeRange timeRange;
+
+    /**
+     * 
+     */
+    public FeatureQuery() {
+    }
+
+    /**
+     * @param qt
+     */
+    public FeatureQuery(QueryType qt) {
+        if (qt.isSetAbstractSelectionClause()) {
+            JAXBElement<?> elem = qt.getAbstractSelectionClause();
+            FilterType filter = (FilterType) elem.getValue();
+            this.setFilter(filter, QFilterType.XMLOBJ);
+        }
+        if (qt.isSetAbstractSortingClause()) {
+            net.opengis.filter.v_2_0_0.SortByType sortBy = (net.opengis.filter.v_2_0_0.SortByType) qt
+                    .getAbstractSortingClause().getValue();
+            for (net.opengis.filter.v_2_0_0.SortPropertyType prop : sortBy
+                    .getSortProperty()) {
+                String name = prop.getValueReference();
+                Order o = (prop.getSortOrder() == net.opengis.filter.v_2_0_0.SortOrderType.DESC ? Order.Descending
+                        : Order.Ascending);
+                this.addSortBy(new SortBy(name, o));
+            }
+        }
+        String srsName = qt.getSrsName();
+        if (srsName != null) {
+            this.setSrsName(srsName);
+        }
+        if (qt.isSetTypeNames()) {
+            for (QName q : qt.getTypeNames()) {
+                this.addTypeName(new QualifiedName(q));
+            }
+        }
+    }
 
 	public void addPropertyName(String propertyName) {
 		this.propertyNames.add(propertyName);

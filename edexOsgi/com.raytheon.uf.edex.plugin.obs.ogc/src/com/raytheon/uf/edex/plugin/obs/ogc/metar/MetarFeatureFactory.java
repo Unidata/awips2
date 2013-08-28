@@ -54,7 +54,7 @@ import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.edex.ogc.common.feature.AbstractFeatureFactory;
+import com.raytheon.uf.edex.ogc.common.feature.FeatureFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -62,7 +62,7 @@ import com.vividsolutions.jts.geom.Point;
  * @author bclement
  * @version 1.0
  */
-public class MetarFeatureFactory extends AbstractFeatureFactory {
+public class MetarFeatureFactory implements FeatureFactory {
 
 	private static final String TEMP_KEY = MetarPointDataTransform.TEMPERATURE;
 
@@ -243,10 +243,5 @@ public class MetarFeatureFactory extends AbstractFeatureFactory {
 		}
 		return rval;
 	}
-
-    @Override
-    public String getName() {
-        return name;
-    }
 
 }
