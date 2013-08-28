@@ -23,7 +23,6 @@
            <arrowLength>${arrowLength}</arrowLength>
            <arrowLineWidth>${arrowLineWidth}</arrowLineWidth>
            <displayStationNumber>${displayStationNumber}</displayStationNumber>
-           <requestStyle>METADATA</requestStyle>  
            <metadataMap>
 				<mapping key="pluginName">
 					<constraint constraintValue="${pluginName}" constraintType="EQUALS" />

@@ -95,53 +95,84 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SHIP">
 <filters>Observed</filters>
 </ResourceDefinitionFilter>
+<!-- PGEN Display Resources -->
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CCFP">
-<filters></filters>
+<filters>CCFP</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="CCFP-ByZ">
+<filters>CCFP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="International_Sigmet">
-<filters></filters>
+<filters>Sigmet</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="G_AIRMET">
-<filters></filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="G_AIRMET">
+<filters>G_AIRMET</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="G_AIRMET-East">
+<filters>G_AIRMET</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="G_AIRMET-West">
+<filters>G_AIRMET</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="G_AIRMET-ByLabel">
+<filters>G_AIRMET</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="G_AIRMET-BySubType">
+<filters>G_AIRMET</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Extended_Range">
-<filters></filters>
+<filters>Extended_Range</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Surface_Analysis">
-<filters></filters>
+<filters>Surface,Analysis</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Sample">
-<filters></filters>
+<filters>Sample</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NONCONV_SIGMET">
-<filters></filters>
+<filters>NonConvective,Sigmet</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SIGWX_High">
-<filters></filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="SIGWX_High">
+<filters>SIGWX</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hazard_Outlook">
-<filters></filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SIGWX_High-North">
+<filters>SIGWX</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HPC_QPF">
-<filters></filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Volcano">
-<filters></filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HPC_Basic_WX">
-<filters></filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Convective_Outlook">
-<filters></filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Atlantic_Wind_Wave">
-<filters></filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SIGWX_High-BySubType">
+<filters>SIGWX</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SIGWX_Medium">
-<filters></filters>
+<filters>SIGWX</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SIGWX_Low">
+<filters>SIGWX</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hazard_Outlook">
+<filters>Hazard,Outlook</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HPC_QPF">
+<filters>HPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HPC_Basic_WX">
+<filters>HPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Convective_Outlook">
+<filters>Convective,Outlook</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Atlantic_Wind_Wave">
+<filters>Atlantic,Wind,Wave</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Atlantic_500mb">
+<filters>Atlantic,500mb</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Atlantic_Surface">
+<filters>Atlantic,Surface</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="VOLCANO">
+<filters>VOLCANO</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CONV_SIGMET">
-<filters></filters>
+<filters>Convective,Sigmet</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WCP">
 <filters>AWW</filters>
@@ -362,6 +393,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="countyNames">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FfgZones">
+<filters>AdministrativeBoundaries</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FireWxAOR">
 <filters></filters>
 </ResourceDefinitionFilter>
@@ -378,6 +412,9 @@
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="VORs">
+<filters></filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="VorNames">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="rfcBoundaries">
@@ -419,6 +456,36 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SfcStns">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SynopStations">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SynopStationIds">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="MetarStations">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="IcaoStations">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAOBs">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RaobNames">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Nexrad">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Buoys">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="BuoysFixed">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="CMAN">
+<filters>Stations</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="States">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
@@ -426,6 +493,15 @@
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Interstates">
+<filters>ManMadeFeatures</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Airports">
+<filters>ManMadeFeatures</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Railroads">
+<filters>ManMadeFeatures</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Cities">
 <filters>ManMadeFeatures</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HCN">
@@ -560,9 +636,6 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="BWUSLabel">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="CWAs">
-<filters>Stations</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="OPCOffshoreAtlZones">
 <filters></filters>
 </ResourceDefinitionFilter>
@@ -570,6 +643,9 @@
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Volcanos">
+<filters>NaturalFeatures</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="VolcanosAll">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="DwmStns">
@@ -581,11 +657,17 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="spcwatch">
 <filters></filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SpcWatchName">
+<filters></filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Hifiwo">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="PFZ">
 <filters>NaturalFeatures</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="CWAs">
+<filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GeoPolitical">
 <filters>AdministrativeBoundaries</filters>
@@ -1187,31 +1269,16 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_ENS">
 <filters>Forecast,Ensemble,Global</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES6">
-<filters>McIdas,GOES</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_ERS-QuickSCAT-Scatterometer">
-<filters>GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_NOAA17">
-<filters>NOAA,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_METEOSAT">
-<filters>METEOSAT,GINI</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_POES-NPOESS">
 <filters>GINI</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_NOAA18">
-<filters>NOAA,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="FYC">
-<filters>McIdas</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GOES7">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GOES14">
 <filters>GOES,GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_GOES12">
+<filters>GOES,GINI</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_GOES13">
 <filters>GOES,GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_Composite">
@@ -1220,65 +1287,29 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_GOES15">
 <filters>GOES,GINI</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GOES9">
-<filters>GOES,GINI</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MTS">
 <filters>Standard,McIdas</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES13">
-<filters>Standard,McIdas,GOES</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES12">
 <filters>McIdas,GOES</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT3">
-<filters>McIdas,METEOSAT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES13">
+<filters>Standard,McIdas,GOES</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT7">
-<filters>McIdas,METEOSAT</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT8">
-<filters>McIdas,METEOSAT</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GMS">
-<filters>Standard,McIdas,GMS</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_JERS">
-<filters>GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GOES8">
-<filters>GOES,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT5">
-<filters>McIdas,METEOSAT</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_GOES13">
-<filters>GOES,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="METEOSAT9">
-<filters>Standard,McIdas,METEOSAT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES14">
+<filters>Standard,McIdas,GOES</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES15">
 <filters>Standard,McIdas,GOES</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_NOAA16">
-<filters>NOAA,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_DMSP">
-<filters>GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GMS">
-<filters>GMS,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_NOAA19">
-<filters>NOAA,GINI</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES7">
-<filters>McIdas,GOES</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="VAAC">
 <filters>Standard,McIdas</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT8">
+<filters>McIdas,METEOSAT</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="METEOSAT9">
+<filters>Standard,McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT10">
 <filters>McIdas,METEOSAT</filters>
@@ -1295,26 +1326,11 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="DPD">
 <filters>Standard,McIdas</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES10">
-<filters>McIdas,GOES</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Global">
 <filters>Standard,McIdas</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES9">
-<filters>McIdas,GOES</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MTSAT2">
 <filters>McIdas</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES11">
-<filters>McIdas,GOES</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="GOES8">
-<filters>McIdas,GOES</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT6">
-<filters>McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_Miscellaneous">
 <filters>GINI</filters>

@@ -740,9 +740,17 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
 
         @Override
         public void createButtonsForButtonBar(Composite parent) {
+        	((GridLayout) parent.getLayout()).verticalSpacing = 0;
+        	((GridLayout) parent.getLayout()).marginHeight = 3;
+        	
             createButton(parent, IDialogConstants.OK_ID, "Save", true);
             createButton(parent, IDialogConstants.CANCEL_ID,
                     IDialogConstants.CANCEL_LABEL, false);
+            
+            getButton(IDialogConstants.OK_ID).setLayoutData(
+                    new GridData(ctrlBtnWidth, ctrlBtnHeight));
+            getButton(IDialogConstants.CANCEL_ID).setLayoutData(
+                    new GridData(ctrlBtnWidth, ctrlBtnHeight));
         }
 
         @Override
@@ -1109,7 +1117,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
         } else {// need to see if states and coastal are the same
 
             if (is2ListSame(states, coastal))
-                return list2String(states) + " AND CSLT WTRS";
+                return list2String(states) + " AND CSTL WTRS";
 
             states.addAll(lakes);
             return list2String(states) + " AND " + list2String(coastal)

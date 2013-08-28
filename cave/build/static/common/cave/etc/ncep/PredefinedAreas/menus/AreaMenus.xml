@@ -46,6 +46,10 @@
         <areaName>Caribbean</areaName>
     </AreaMenuItem>
 
+    <AreaMenuItem subMenuName="Atlantic" menuName="ICAO-B">
+        <source>PREDEFINED_AREA</source>
+        <areaName>ICAO-B</areaName>
+    </AreaMenuItem>
     <AreaMenuItem subMenuName="Atlantic" menuName="Western">
         <source>PREDEFINED_AREA</source>
         <areaName>Atlantic-Western</areaName>
@@ -92,9 +96,14 @@
         <source>PREDEFINED_AREA</source>
         <areaName>Africa</areaName>
     </AreaMenuItem>
-    <AreaMenuItem subMenuName="Other" menuName="">
+    <AreaMenuItem subMenuName="DownUnder" menuName="">
         <source>PREDEFINED_AREA</source>
         <areaName>South_America</areaName>
+    </AreaMenuItem>
+    <!-- created from geog.xml SOUTHERN_HEMISPHERE -->
+    <AreaMenuItem subMenuName="DownUnder" menuName="S_Hemisphere">
+        <source>PREDEFINED_AREA</source>
+        <areaName>S_Hemisphere</areaName>
     </AreaMenuItem>
     <AreaMenuItem subMenuName="World" menuName="">
         <source>PREDEFINED_AREA</source>
