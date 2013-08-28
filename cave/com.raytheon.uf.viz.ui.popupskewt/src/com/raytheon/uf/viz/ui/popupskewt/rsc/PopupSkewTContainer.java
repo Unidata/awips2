@@ -102,6 +102,8 @@ public class PopupSkewTContainer {
             this.soundingProvider = VerticalSoundingProviderFactory
                     .getVerticalSoundingProvider(soundingSource.getType(),
                             soundingSource.getConstraints());
+        } else {
+            this.soundingProvider = null;
         }
     }
 

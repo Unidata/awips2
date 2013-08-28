@@ -23,7 +23,6 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
@@ -34,7 +33,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
-import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -48,8 +46,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 8, 2012            mschenke     Initial creation
+ * Aug 8, 2012             mschenke    Initial creation
  * Apr 03, 2013 1824       bsteffen    Fix Tile Geometry creation.
+ * Aug 27, 2013 2190       mschenke    Remove unused transforms
  * 
  * </pre>
  * 
@@ -71,12 +70,6 @@ public class TileLevel {
     private MathTransform gridToCRS;
 
     private MathTransform tileCRSToTargetGrid;
-
-    /** Target grid to lat/lon for world wrap correcting */
-    private MathTransform targetGridToLatLon;
-
-    /** World wrap corrector, corrects Tile borders */
-    private WorldWrapCorrector corrector;
 
     /** Level of this TileLevel */
     private int tileLevel;
@@ -130,12 +123,6 @@ public class TileLevel {
                             targetGeometry.getCoordinateReferenceSystem()),
                     targetGeometry.getGridToCRS(PixelInCell.CELL_CORNER)
                             .inverse());
-            targetGridToLatLon = factory.createConcatenatedTransform(
-                    targetGeometry.getGridToCRS(PixelInCell.CELL_CORNER),
-                    CRSCache.getInstance().findMathTransform(
-                            targetGeometry.getCoordinateReferenceSystem(),
-                            DefaultGeographicCRS.WGS84));
-            corrector = new WorldWrapCorrector(targetGeometry);
 
             Envelope levelEnv = levelGeometry.getEnvelope();
             double[] in = new double[] {
@@ -158,14 +145,18 @@ public class TileLevel {
                         + targetGeometry.getGridRange().getSpan(1) * 0.75;
             }
 
-            double[] input = new double[] { mapPointX, mapPointY,
+            double[] targetGridPoints = new double[] { mapPointX, mapPointY,
                     mapPointX + 1, mapPointY + 1 };
-            double[] output = new double[input.length];
+            double[] tileCRSPoints = new double[targetGridPoints.length];
+            double[] tileGridPoints = new double[tileCRSPoints.length];
 
-            tileCRSToTargetGrid.inverse().transform(input, 0, output, 0, 2);
-            crsToGrid.transform(output, 0, input, 0, 2);
-            pixelDensity = 1.0 / Math.abs(new Coordinate(input[0], input[1],
-                    0.0).distance(new Coordinate(input[2], input[3], 0.0)));
+            tileCRSToTargetGrid.inverse().transform(targetGridPoints, 0,
+                    tileCRSPoints, 0, 2);
+            crsToGrid.transform(tileCRSPoints, 0, tileGridPoints, 0, 2);
+
+            pixelDensity = 1.0 / Math.abs(new Coordinate(tileGridPoints[0],
+                    tileGridPoints[1], 0.0).distance(new Coordinate(
+                    tileGridPoints[2], tileGridPoints[3], 0.0)));
         } catch (Exception e) {
             throw new RuntimeException(
                     "Cannot tranform tile CRS into target CRS", e);
@@ -285,9 +276,7 @@ public class TileLevel {
         int tileWidth = Math.min(endX - tileX, tileSize);
         int tileHeight = Math.min(endY - tileY, tileSize);
 
-        
-        range = new GridEnvelope2D(tileX, tileY, tileWidth,
-                tileHeight);
+        range = new GridEnvelope2D(tileX, tileY, tileWidth, tileHeight);
         Envelope envelope = null;
         // Convert grid range into crs envelope range
         try {
