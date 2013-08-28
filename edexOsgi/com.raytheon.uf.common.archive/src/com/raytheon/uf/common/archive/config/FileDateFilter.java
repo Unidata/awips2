@@ -40,6 +40,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2013 1965       bgonzale    Initial creation
+ * Aug 28, 2013 2299       rferrel     Reject hidden directories.
  * 
  * </pre>
  * 
@@ -79,7 +80,9 @@ public class FileDateFilter implements IOFileFilter {
         this.end = end;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File)
      */
     @Override
@@ -90,16 +93,16 @@ public class FileDateFilter implements IOFileFilter {
         return accept(new File(dirName), fileName);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File,
+     * java.lang.String)
      */
     @Override
     public boolean accept(File dir, String name) {
-        String dirPath = dir.getAbsolutePath();
-        boolean endsWithSeparator = dirPath.endsWith(File.separator);
-        dirPath = endsWithSeparator ? dirPath : dirPath + File.separator;
-        String fileFullPath = dirPath + name;
-        Calendar fileDate = helper.getFileDate(fileFullPath);
+        File file = new File(dir, name);
+        Calendar fileDate = helper.getFileDate(file);
         boolean isAfterEqualsStart = start == null || fileDate.after(start)
                 || fileDate.equals(start);
         boolean isBeforeEqualsEnd = end == null || fileDate.before(end)
@@ -112,9 +115,8 @@ public class FileDateFilter implements IOFileFilter {
      */
     private static final IFileDateHelper DEFAULT_FILE_DATE_HELPER = new IFileDateHelper() {
         @Override
-        public Calendar getFileDate(String filenamePath) {
+        public Calendar getFileDate(File file) {
             // use file last modified date
-            File file = new File(filenamePath);
             long lastModifiedMillis = file.lastModified();
             Calendar result = TimeUtil.newGmtCalendar();
             result.setTimeInMillis(lastModifiedMillis);
