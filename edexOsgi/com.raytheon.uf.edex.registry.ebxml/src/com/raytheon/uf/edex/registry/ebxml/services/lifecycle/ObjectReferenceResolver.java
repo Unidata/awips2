@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.bind.JAXBElement;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
@@ -57,7 +59,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/2312013    2191        bphillip    Initial implementation
+ * 8/5/2013    2191        bphillip    Initial implementation
  * </pre>
  * 
  * @author bphillip
@@ -127,9 +129,9 @@ public class ObjectReferenceResolver {
                     }
 
                     // Check for each reference type
-                    if (!isStaticReference(regObj, propertyValue)
-                            && !isDynamicReference(regObj, field, propertyValue)
-                            && !isRESTReference(regObj, propertyValue)) {
+                    if (!isStaticReference(propertyValue)
+                            && !isDynamicReference(propertyValue)
+                            && !isRESTReference(propertyValue)) {
                         continue;
                     }
                     returnMessage.append("Object [").append(regObj.getId())
@@ -171,9 +173,9 @@ public class ObjectReferenceResolver {
                     }
 
                     // Check for each reference type
-                    if (isStaticReference(regObj, propertyValue)
-                            || isDynamicReference(regObj, field, propertyValue)
-                            || isRESTReference(regObj, propertyValue)) {
+                    if (isStaticReference(propertyValue)
+                            || isDynamicReference(propertyValue)
+                            || isRESTReference(propertyValue)) {
                         continue;
                     }
                     returnMessage.append("Object [").append(regObj.getId())
@@ -192,15 +194,17 @@ public class ObjectReferenceResolver {
      * Checks if the object specified by ref on the object obj is a static
      * reference
      * 
-     * @param obj
-     *            The object being checked
      * @param ref
      *            The string to check if it is a static reference
      * @return true if the item is a static reference and the object exists.
      *         False if the object is not a static reference
      */
-    private boolean isStaticReference(RegistryObjectType obj, String ref) {
-        return registryObjectDao.getById(ref) != null;
+    private boolean isStaticReference(String ref) {
+        return getStaticReferencedObject(ref) != null;
+    }
+
+    public RegistryObjectType getStaticReferencedObject(String ref) {
+        return registryObjectDao.getById(ref);
     }
 
     /**
@@ -221,33 +225,33 @@ public class ObjectReferenceResolver {
      *             If too many results were returned by the dynamic reference
      *             query
      */
-    private boolean isDynamicReference(RegistryObjectType obj,
-            String propertyName, String ref) throws MsgRegistryException,
+    private boolean isDynamicReference(String ref) throws MsgRegistryException,
             EbxmlRegistryException {
+        return getDynamicReferencedObject(ref) != null;
+    }
+
+    public RegistryObjectType getDynamicReferencedObject(String ref)
+            throws EbxmlRegistryException, MsgRegistryException {
         DynamicObjectRefType dynamicRef = dynamicRefDao.getById(ref);
         if (dynamicRef != null) {
             QueryType refQuery = dynamicRef.getQuery();
             if (refQuery != null) {
                 QueryRequest queryRequest = new QueryRequest();
-                queryRequest
-                        .setId("Dynamic reference resolution query request");
-                queryRequest.setComment("Resolving property [" + propertyName
-                        + " -> " + ref + "] on object [" + obj.getId() + "]");
+                queryRequest.setId("Resolving reference [" + ref + "]");
                 queryRequest.setQuery(refQuery);
                 QueryResponse queryResponse = queryManager
                         .executeQuery(queryRequest);
-                return responseOk(queryResponse);
-
+                if (responseOk(queryResponse)) {
+                    return queryResponse.getRegistryObjects().get(0);
+                }
             }
         }
-        return false;
+        return null;
     }
 
     /**
      * Checks if this is a object reference which references a REST service
      * 
-     * @param obj
-     *            The object being checked
      * @param ref
      *            The value being checked
      * @return True if this is a REST reference and the object being referenced
@@ -256,24 +260,40 @@ public class ObjectReferenceResolver {
      *             If too many results were returned by the REST call or an
      *             unexpected type was returned by the REST call
      */
-    private boolean isRESTReference(RegistryObjectType obj, String ref)
+    private boolean isRESTReference(String ref) throws EbxmlRegistryException {
+        return getRESTReferencedObject(ref) != null;
+    }
+
+    public RegistryObjectType getRESTReferencedObject(String ref)
             throws EbxmlRegistryException {
+
+        RegistryObjectType retVal = null;
         if (urlValidator.isValid(ref)) {
             Object restResponse = RegistryRESTServices
                     .accessXMLRestService(ref);
             if (restResponse instanceof QueryResponse) {
-                return responseOk((QueryResponse) restResponse);
+                QueryResponse queryResponse = (QueryResponse) restResponse;
+                if (responseOk(queryResponse)) {
+                    retVal = queryResponse.getRegistryObjects().get(0);
+                }
             } else if (restResponse instanceof RegistryObjectType) {
-                return true;
-            } else {
+                retVal = (RegistryObjectType) restResponse;
+            } else if (restResponse instanceof JAXBElement<?>) {
+                return (RegistryObjectType) ((JAXBElement<?>) restResponse)
+                        .getValue();
+            }
+
+            else {
                 throw new EbxmlRegistryException("Unexpected response from "
                         + ref + ". Received response of type: "
                         + restResponse.getClass());
             }
-        } else {
-            return false;
         }
+        return retVal;
+    }
 
+    public boolean isValidURL(String url) {
+        return urlValidator.isValid(url);
     }
 
     /**
