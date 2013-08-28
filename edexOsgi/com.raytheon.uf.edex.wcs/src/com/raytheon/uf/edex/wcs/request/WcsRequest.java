@@ -21,6 +21,7 @@
 package com.raytheon.uf.edex.wcs.request;
 
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * TODO - Class comment here
@@ -48,7 +49,7 @@ public class WcsRequest {
 
 	protected Object request;
 
-	protected String exceptionFormat = OgcResponse.TEXT_XML_MIME;
+    protected MimeType exceptionFormat = OgcResponse.TEXT_XML_MIME;
 
 	public WcsRequest(Type type) {
 		this.type = type;
@@ -73,7 +74,7 @@ public class WcsRequest {
 	/**
 	 * @return the exceptionFormat
 	 */
-	public String getExceptionFormat() {
+    public MimeType getExceptionFormat() {
 		return exceptionFormat;
 	}
 
@@ -81,7 +82,7 @@ public class WcsRequest {
 	 * @param exceptionFormat
 	 *            the exceptionFormat to set
 	 */
-	public void setExceptionFormat(String exceptionFormat) {
+    public void setExceptionFormat(MimeType exceptionFormat) {
 		this.exceptionFormat = exceptionFormat;
 	}
 

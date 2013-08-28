@@ -24,5 +24,5 @@
   <parameter name="elevation" queryName="location.elevation" type="FLOAT" unit="m" />
   <parameter name="stationId" queryName="location.stationId" type="STRING" />
   <parameter name="stationName" queryName="location.stationId" type="STRING" />
-  <parameter name="dataURI" queryName="dataURI" type="STRING" />
+  <parameter name="reftime" queryName="dataTime.refTime" numDims="1" type="LONG" unit="ms" />
 </pointDataDbDescription>
