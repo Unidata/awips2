@@ -40,24 +40,34 @@ diff -crB a/qpid/java/broker/bin/qpid-server b/qpid/java/broker/bin/qpid-server
   
   # Set to help us get round the manifold problems of ps/pgrep on various
 ***************
-*** 34,41 ****
+*** 34,46 ****
   fi
-  
+
   # Set classpath to include the qpid-all manifest jar, and any jars supplied in lib/opt
 ! QPID_LIBS="$QPID_HOME/lib/qpid-all.jar:$QPID_HOME/lib/opt/*"
-  
+
   # Set other variables used by the qpid-run script before calling
 ! export JAVA=java \
          JAVA_VM=-server \
---- 33,40 ----
+         JAVA_MEM=-Xmx1024m \
+!        JAVA_GC="-XX:+UseConcMarkSweepGC -XX:+HeapDumpOnOutOfMemoryError" \
+         QPID_CLASSPATH=$QPID_LIBS \
+         QPID_RUN_LOG=2
+
+--- 33,45 ----
   fi
-  
+
   # Set classpath to include the qpid-all manifest jar, and any jars supplied in lib/opt
 ! QPID_LIBS="$QPID_HOME/lib/qpid-all.jar:$QPID_HOME/lib/opt/*:$QPID_HOME/lib/opt/qpid-deps/*"
-  
+
   # Set other variables used by the qpid-run script before calling
 ! export JAVA=/awips2/java/bin/java \
          JAVA_VM=-server \
+         JAVA_MEM=-Xmx1024m \
+!        JAVA_GC="-XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:NewSize=300m -XX:MaxNewSize=300m -XX:SurvivorRatio=6 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/fxa/qpid" \
+         QPID_CLASSPATH=$QPID_LIBS \
+         QPID_RUN_LOG=2
+
 diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
 *** a/qpid/java/build.deps	2013-01-23 13:54:15.000000000 -0600
 --- b/qpid/java/build.deps	2013-01-23 13:52:28.000000000 -0600

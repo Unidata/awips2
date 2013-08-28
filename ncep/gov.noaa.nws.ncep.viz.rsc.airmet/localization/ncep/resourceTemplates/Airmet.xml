@@ -58,7 +58,6 @@
              <flightLevelEnable>${flightLevelEnable}</flightLevelEnable>
              <seqIdEnable>${seqIdEnable}</seqIdEnable>
 
-             <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
                   <constraint constraintValue="${pluginName}" constraintType="EQUALS" />

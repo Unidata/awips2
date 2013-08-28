@@ -45,17 +45,74 @@
       <nc-resourceParameter
             ncResourceName="PGEN"
             paramClass="String"
-            paramName="pgenDirectory"
-            defaultValue="/home/awp2pgen/activities"
-            paramType="IMPLEMENTATION_PARAM">
+            paramName="dataTime"
+	        constraintName="dataTime"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
       </nc-resourceParameter>
 
       <nc-resourceParameter
             ncResourceName="PGEN"
             paramClass="String"
-            paramName="productName"
-            defaultValue="none"
-            paramType="IMPLEMENTATION_PARAM">
+            paramName="activityName"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="activityType"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="activitySubtype"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="activityLabel"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="site"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="desk"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="operatingMode"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="forecaster"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
       </nc-resourceParameter>
 
    </extension>
