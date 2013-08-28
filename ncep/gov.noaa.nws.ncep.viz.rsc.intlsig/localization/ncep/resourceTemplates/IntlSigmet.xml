@@ -96,7 +96,6 @@
                    <nameOrNumberEnable>${nameOrNumberEnable}</nameOrNumberEnable>
                    <motionEnable>${motionEnable}</motionEnable>
                    <flightLevelEnable>${flightLevelEnable}</flightLevelEnable>
-                   <requestStyle>METADATA</requestStyle>
              <metadataMap>
 				<mapping key="pluginName">
 					<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
