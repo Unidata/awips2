@@ -31,7 +31,6 @@
 
 from com.raytheon.uf.common.wxmath import PToZsa
 from com.raytheon.uf.common.wxmath import ZToPsa
-from jep import jarray, JFLOAT_ID
 import numpy
 
 #allows calling ztopsa with either a float, numpy.float32, or ndarray
@@ -57,33 +56,3 @@ def ptozsa(P):
             result[i] = ptozsa(P[i]);
         return result
     return P
-
-def numpy2java(a):
-    if (len(a.shape) == 1):
-        jA = jarray(a.shape[0], JFLOAT_ID, 0)
-        for i in range(a.shape[0]):
-            jA[i] = float(a[i])
-        return jA
-    elif(len(a.shape) == 2):
-        jA = jarray(a.shape[0]*a.shape[1], JFLOAT_ID, 0)
-        for i in range(a.shape[0]):
-            for j in range(a.shape[1]):
-                jA[i*a.shape[0]+j] = float(a[i][j])
-        return jA
-
-def java2numpy(a, shape):
-    if (len(shape) == 1):
-        nA = numpy.ndarray(shape, numpy.float32)
-        for i in range(shape[0]):
-            nA[i] = a[i]
-            if (nA[i] > 1e+36):
-                nA[i] = -9999
-        return nA
-    elif(len(shape) == 2):
-        nA = numpy.ndarray(shape, numpy.float32)
-        for i in range(shape[0]):
-            for j in range(shape[1]):
-                nA[i][j] = a[i*shape[0]+j] 
-                if (nA[i][j] > 1e+36):
-                    nA[i][j] = -9999
-        return nA
