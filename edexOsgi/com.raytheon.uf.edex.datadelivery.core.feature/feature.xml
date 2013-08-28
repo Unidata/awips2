@@ -22,6 +22,12 @@
          version="0.0.0"/>
 
    <plugin
+         id="ll.netcdf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="net.opengis"
          download-size="0"
          install-size="0"
@@ -75,7 +81,55 @@
          unpack="false"/>
 
    <plugin
+         id="org.w3.XMLSchema"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.nc4"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.unitconverter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.dataset.urn"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.raytheon.uf.edex.ogc.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="com.raytheon.uf.edex.plugin.grib.ogc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.obs.ogc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.madis.ogc"
          download-size="0"
          install-size="0"
          version="0.0.0"
