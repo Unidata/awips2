@@ -37,14 +37,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
+import com.raytheon.uf.edex.ogc.common.db.SingleLayerCollector;
 import com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.Metar;
 import com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.MetarObjectFactory;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
-import com.raytheon.uf.edex.wfs.reg.DefaultWfsSource;
+import com.raytheon.uf.edex.wfs.reg.IPdoGmlTranslator;
+import com.raytheon.uf.edex.wfs.reg.PluginWfsSource;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
 /**
@@ -63,111 +67,127 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
  * @version 1.0
  */
 
-public class MetarWfsSource extends DefaultWfsSource {
+public class MetarWfsSource extends PluginWfsSource {
 
-	private static final String schemaloc = "META-INF/schema/metar.xsd";
+    private static final String schemaloc = "META-INF/schema/metar.xsd";
 
-	private WfsFeatureType feature;
+    private WfsFeatureType feature;
 
-	private static String schemaXml = null;
+    private static String schemaXml = null;
 
-	private static final String spatialKey = "location.location";
+    private static final String spatialKey = "location.location";
 
-	private static final String KEY_NAME = "metar";
+    private static final String KEY_NAME = "metar";
 
-	private static final String METAR_NS = "http://metar.edex.uf.raytheon.com";
+    private static final String METAR_NS = "http://metar.edex.uf.raytheon.com";
 
-	private static final IUFStatusHandler statusHandler = UFStatus
-			.getHandler(MetarWfsSource.class);
-	
-	private static final Map<String,String> fieldMap = new HashMap<String, String>(1);
-	
-	static {
-		fieldMap.put("obsLocation.location", spatialKey);
-		fieldMap.put("obsLocation.stationId", "location.stationId");
-		fieldMap.put("obsLocation.elevation", "location.elevation");
-		Collections.unmodifiableMap(fieldMap);
-	}
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MetarWfsSource.class);
 
-	public MetarWfsSource(PluginProperties props) {
-		super(props, KEY_NAME, new MetarTranslator(), new MetarFeatureFactory());
-		feature = new WfsFeatureType(new QualifiedName(METAR_NS, key, key),
-				key, defaultCRS, fullBbox);
-	}
+    private static final Map<String, String> fieldMap = new HashMap<String, String>(
+            1);
 
-	@Override
-	public Map<String, String> getFieldMap() {
-		return fieldMap;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.raytheon.uf.edex.wfs.reg.WfsSource#listFeatureTypes()
-	 */
-	@Override
-	public List<WfsFeatureType> listFeatureTypes() {
-		return Arrays.asList(feature);
-	}
+    static {
+        fieldMap.put("obsLocation.location", spatialKey);
+        fieldMap.put("obsLocation.stationId", "location.stationId");
+        fieldMap.put("obsLocation.elevation", "location.elevation");
+        Collections.unmodifiableMap(fieldMap);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.wfs.reg.WfsSource#describeFeatureType(com.raytheon
-	 * .uf.edex.wfs.request.QualifiedName)
-	 */
-	@Override
-	public String describeFeatureType(QualifiedName feature) {
-		// we only advertise one feature
-		String rval;
-		try {
-			if (schemaXml == null) {
-				ClassLoader loader = MetarWfsSource.class.getClassLoader();
-				schemaXml = getResource(loader, schemaloc);
-			}
-			rval = schemaXml;
-		} catch (Exception e) {
-			statusHandler.error("Problem reading metar schema", e);
-			rval = "Internal Error"; // TODO better default
-		}
-		return rval;
-	}
+    public MetarWfsSource(PluginProperties props, IPdoGmlTranslator translator,
+            SingleLayerCollector<?, SimpleLayer<?>, PluginDataObject> collector) {
+        super(props, KEY_NAME, Arrays.asList(translator),
+                new MetarFeatureFactory(), collector);
+        feature = new WfsFeatureType(new QualifiedName(METAR_NS, key, key),
+                key, defaultCRS, fullBbox);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.wfs.reg.WfsSource#getFeatureSpatialField(com.raytheon
-	 * .uf.edex.wfs.request.QualifiedName)
-	 */
-	@Override
-	public String getFeatureSpatialField(QualifiedName feature) {
-		// we only advertise one feature
-		return spatialKey;
-	}
+    @Override
+    public Map<String, String> getFieldMap() {
+        return fieldMap;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.wfs.reg.WfsSource#getFeatureEntity(com.raytheon.
-	 * uf.edex.wfs.request.QualifiedName)
-	 */
-	@Override
-	public Class<?> getFeatureEntity(QualifiedName feature) {
-		// we only advertise one feature
-		return MetarRecord.class;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.WfsSource#listFeatureTypes()
+     */
+    @Override
+    public List<WfsFeatureType> getFeatureTypes() {
+        return Arrays.asList(feature);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.raytheon.uf.edex.wfs.reg.WfsSource#getJaxbClasses()
-	 */
-	@Override
-	public Class<?>[] getJaxbClasses() {
-		return new Class<?>[] { MetarObjectFactory.class, Metar.class };
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wfs.reg.WfsSource#describeFeatureType(com.raytheon
+     * .uf.edex.wfs.request.QualifiedName)
+     */
+    @Override
+    public String describeFeatureType(QualifiedName feature) {
+        // we only advertise one feature
+        String rval;
+        try {
+            if (schemaXml == null) {
+                ClassLoader loader = MetarWfsSource.class.getClassLoader();
+                schemaXml = getResource(loader, schemaloc);
+            }
+            rval = schemaXml;
+        } catch (Exception e) {
+            statusHandler.error("Problem reading metar schema", e);
+            rval = "Internal Error"; // TODO better default
+        }
+        return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wfs.reg.WfsSource#getFeatureSpatialField(com.raytheon
+     * .uf.edex.wfs.request.QualifiedName)
+     */
+    @Override
+    public String getFeatureSpatialField(QualifiedName feature) {
+        // we only advertise one feature
+        return spatialKey;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wfs.reg.WfsSource#getFeatureEntity(com.raytheon.
+     * uf.edex.wfs.request.QualifiedName)
+     */
+    @Override
+    public Class<?> getFeatureEntity(QualifiedName feature) {
+        // we only advertise one feature
+        return MetarRecord.class;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.WfsSource#getJaxbClasses()
+     */
+    @Override
+    public Class<?>[] getJaxbClasses() {
+        return new Class<?>[] { MetarObjectFactory.class, Metar.class };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wfs.reg.WfsSource#getFeatureVerticalField(com.raytheon
+     * .uf.edex.wfs.request.QualifiedName)
+     */
+    @Override
+    public String getFeatureVerticalField(QualifiedName feature) {
+        // surface obs don't have vertical fields
+        return null;
+    }
 
 }

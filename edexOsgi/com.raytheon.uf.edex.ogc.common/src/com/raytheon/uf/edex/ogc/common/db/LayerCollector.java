@@ -1,152 +1,139 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
+/*
+ * The following software products were developed by Raytheon:
+ *
+ * ADE (AWIPS Development Environment) software
+ * CAVE (Common AWIPS Visualization Environment) software
+ * EDEX (Environmental Data Exchange) software
+ * uFrame™ (Universal Framework) software
+ *
+ * Copyright (c) 2010 Raytheon Co.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/org/documents/epl-v10.php
+ *
+ *
+ * Contractor Name: Raytheon Company
+ * Contractor Address:
+ * 6825 Pine Street, Suite 340
+ * Mail Stop B8
+ * Omaha, NE 68106
+ * 402.291.0100
+ *
+ */
 package com.raytheon.uf.edex.ogc.common.db;
 
+import java.lang.reflect.Constructor;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
-import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
-import com.raytheon.uf.common.datadelivery.harvester.OGCAgent;
-import com.raytheon.uf.common.datadelivery.registry.Coverage;
-import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
-import com.raytheon.uf.common.datadelivery.registry.DataSet;
-import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
-import com.raytheon.uf.common.datadelivery.registry.DataSetName;
-import com.raytheon.uf.common.datadelivery.registry.DataType;
-import com.raytheon.uf.common.datadelivery.registry.Levels;
-import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.datadelivery.registry.Provider;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
-import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler;
-import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ogc.common.OgcException;
+import com.raytheon.uf.edex.ogc.common.OgcException.Code;
 
-/**
- * 
- * Layer Collector
- * 
- * <pre>
- * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 08/09/2012   754       dhladky      initial creation, based on B Clements original
- * 04/22/2013   1746      dhladky      Removed DB dependency from WFS code
- * </pre>
- * 
- * @author dhladky
- * @version 1.0
- */
+public abstract class LayerCollector<D extends SimpleDimension, L extends SimpleLayer<D>, R extends PluginDataObject>
+        implements ILayerCache<D, L> {
 
-public abstract class LayerCollector<DIMENSION extends SimpleDimension, L extends SimpleLayer<DIMENSION>> {
+    protected Class<R> recordClass;
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(LayerCollector.class);
+    protected Class<L> layerClass;
 
-    protected LayerTransformer<DIMENSION, L> transformer;
-    
-    protected HarvesterConfig config = null;
-    
-    protected OGCAgent agent = null;
+    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
-    protected Map<String, Parameter> parameters = null;
+    protected final ILayerStore store;
 
-    public LayerCollector(LayerTransformer<DIMENSION, L> transformer) {
-        setTransformer(transformer);
-        this.config = HarvesterConfigurationManager.getOGCConfiguration();
-        setAgent((OGCAgent)config.getAgent());
-        storeProvider(config.getProvider());
-    }
+    protected CollectorAddonFactory<D, L, R> addonFactory = new CollectorAddonFactory<D, L, R>() {
+        @Override
+        public ICollectorAddon<D, L, R> create() {
+            return new ICollectorAddon<D, L, R>() {
+                @Override
+                public void onCollect(L layer, R record) {
+                }
 
-    public HarvesterConfig getConfig() {
-        return config;
-    }
+                @Override
+                public void onFinish() {
+                }
 
-    public void setConfig(HarvesterConfig config) {
-        this.config = config;
-    }
+                @Override
+                public void onPurgeAll() {
+                }
 
-    public void update(L old, L shiny) {
-        updateDates(old, shiny);
-        updateDims(old, shiny);
-    }
+                @Override
+                public void onPurgeExpired(Set<Date> timesToKeep) {
+                }
 
-    public void updateDates(L old, L shiny) {
-        Set<Date> shinyTimes = shiny.getTimes();
-        Set<Date> oldTimes = old.getTimes();
-        if (shinyTimes != null && shinyTimes != null) {
-            for (Date time : shinyTimes) {
-                oldTimes.add(time);
-            }
+            };
         }
+    };
+
+    public LayerCollector(Class<L> layerClass, Class<R> recordClass,
+            ILayerStore store) {
+        this.recordClass = recordClass;
+        this.layerClass = layerClass;
+        this.store = store;
     }
 
-    public void updateDims(L old, L shiny) {
-        Set<DIMENSION> oldDims = old.getDimensions();
-        Set<DIMENSION> shinyDims = shiny.getDimensions();
-        if (oldDims != null) {
-            if (shinyDims != null) {
-                updateDimLists(oldDims, shinyDims);
-            }
-        }
+    /**
+     * Returns object for additional tasks at layer collection
+     * 
+     * @return
+     */
+    public ICollectorAddon<D, L, R> getAddon() {
+        return addonFactory.create();
     }
 
-    public Map<String, DIMENSION> getDimMap(Set<DIMENSION> dims) {
-        HashMap<String, DIMENSION> rval = new HashMap<String, DIMENSION>(
-                dims.size());
-        for (DIMENSION sd : dims) {
-            rval.put(sd.getName(), sd);
+    protected L copy(final L orig) throws OgcException {
+        L rval;
+        try {
+            Constructor<L> constructor = layerClass.getConstructor(layerClass);
+            rval = constructor.newInstance(orig);
+        } catch (Exception e) {
+            log.error("Unable to copy layer: " + layerClass, e);
+            throw new OgcException(Code.InternalServerError);
         }
         return rval;
     }
 
-    public void updateDimLists(Set<DIMENSION> oldDims, Set<DIMENSION> shinyDims) {
-        Map<String, DIMENSION> oldMap = getDimMap(oldDims);
-        Map<String, DIMENSION> shinyMap = getDimMap(shinyDims);
-        for (String name : shinyMap.keySet()) {
-            DIMENSION shinyDim = shinyMap.get(name);
-            DIMENSION oldDim = oldMap.get(name);
-            if (oldDim == null) {
-                oldDims.add(shinyDim);
-            } else {
-                updateDimValues(oldDim, shinyDim);
-            }
+    protected L newLayer() {
+        try {
+            return layerClass.newInstance();
+        } catch (Exception e) {
+            log.error("Unable to instantiate class: " + layerClass, e);
+            throw new RuntimeException(e);
         }
     }
 
-    public void updateDimValues(DIMENSION oldDim, DIMENSION shinyDim) {
-        Set<String> oldValues = oldDim.getValues();
-        Set<String> shinyValues = shinyDim.getValues();
-        if (oldValues != null && shinyValues != null) {
-            for (String val : shinyValues) {
-                oldValues.add(val);
+    public void clearLayers(Class<L> c) throws OgcException {
+        store.deleteAll(c);
+    }
+
+    public void replaceTimes(L layer) throws OgcException {
+        L old = store.get(layer.getIdentifier(), layerClass);
+        if (old == null) {
+            store.createOrUpdate(layer);
+        } else {
+            Set<Date> times = old.getTimes();
+            times.clear();
+            Set<Date> newTimes = layer.getTimes();
+            if (newTimes != null) {
+                times.addAll(newTimes);
             }
+            store.createOrUpdate(layer);
+        }
+    }
+
+    public void updateLayer(L layer) throws OgcException {
+        L old = store.get(layer.getIdentifier(), layerClass);
+        if (old == null) {
+            store.createOrUpdate(layer);
+        } else {
+            old.update(layer);
+            store.createOrUpdate(layer);
         }
     }
 
@@ -170,6 +157,15 @@ public abstract class LayerCollector<DIMENSION extends SimpleDimension, L extend
      */
     public static Date truncateToHour(Date d) {
         return DateUtils.truncate(d, Calendar.HOUR);
+    }
+
+    public static Date truncateToMinute(Date d) {
+        return DateUtils.truncate(d, Calendar.MINUTE);
+    }
+
+    public static Date roundUpToMinute(Date d) {
+        Date rval = DateUtils.add(d, Calendar.MINUTE, 1);
+        return truncateToMinute(rval);
     }
 
     /**
@@ -207,201 +203,23 @@ public abstract class LayerCollector<DIMENSION extends SimpleDimension, L extend
         tmp = roundToHour(tmp, cutoff);
         return tmp.getTime();
     }
-    
+
     /**
-     * Find the DPA config
+     * From a record build and return the layer name. Used to make sure a proper
+     * layer name can always be retrieved for any record object used by a layer
+     * collector.
+     * 
+     * @param rec
      * @return
      */
-    public HarvesterConfig getConfiguration() {
-        return config;
-    }
-   
-    /**
-     * Stroe Data objects
-     * @param metaDatas
-     * @param dataSet
-     */
-    public void storeMetaData(final DataSetMetaData metaData) {
-
-        IDataSetMetaDataHandler handler = DataDeliveryHandlers
-                .getDataSetMetaDataHandler();
-
-        final String description = metaData.getDataSetDescription();
-        statusHandler.info("Attempting store of DataSetMetaData["+description+"]");
-
-        try {
-            handler.update(metaData);
-            statusHandler.info("DataSetMetaData [" + description
-                    + "] successfully stored in Registry");
-        } catch (RegistryHandlerException e) {
-            statusHandler.info("DataSetMetaData [" + description
-                    + "] failed to store in Registry");
-
-
-        }
-    }
+    public abstract String getLayerName(R rec);
 
     /**
-     * 
-     * @param dataSetToStore
+     * @param addonFactory
+     *            the addonFactory to set
      */
-    protected void storeDataSetName(DataSet dataSetToStore) {
-
-        DataSetName dsn = new DataSetName();
-        // Set the RegistryObject Id keys for this Object
-        // using the values from the DataSetMetaData Object.
-        dsn.setProviderName(dataSetToStore.getProviderName());
-        dsn.setDataSetType(dataSetToStore.getDataSetType());
-        dsn.setDataSetName(dataSetToStore.getDataSetName());
-
-        // Now add the parameter Objects so we can associate
-        // the DataSetName with parameters..
-        dsn.setParameters(dataSetToStore.getParameters());
-
-        try {
-            DataDeliveryHandlers.getDataSetNameHandler().update(dsn);
-            statusHandler.info("DataSetName object store complete, dataset ["
-                    + dsn.getDataSetName() + "]");
-        } catch (RegistryHandlerException e) {
-            statusHandler.error("DataSetName object store failed:", e);
-        }
-    }
-
-    /**
-     * @param dataSet
-     */
-    protected void storeDataSet(final DataSet dataSet) {
-
-        DataSet dataSetToStore = getDataSetToStore(dataSet);
-        final String dataSetName = dataSetToStore.getDataSetName();
-        IDataSetHandler handler = DataDeliveryHandlers.getDataSetHandler();
-        
-        try {
-            handler.update(dataSetToStore);
-            statusHandler.info("Dataset [" + dataSetName
-                    + "] successfully stored in Registry");
-            storeDataSetName(dataSet);
-
-        } catch (RegistryHandlerException e) {
-            statusHandler.info("Dataset [" + dataSetName
-                    + "] failed to store in Registry");
-        }
-    }
-    
-    /**
-     * Make sure our provider is contained in the Registry
-     * @param provider
-     */
-    protected void storeProvider(final Provider provider) {
-        
-        try {
-            DataDeliveryHandlers.getProviderHandler().update(provider);
-        } catch (RegistryHandlerException e) {
-            statusHandler.info("Provider [" + provider.getName()
-                    + "] failed to store in Registry");
-        }
-    }
-
-    /**
-     * Checks for a {@link DataSet} already existing with the same name in the
-     * Registry. If so, then combine the objects.
-     * 
-     * @param dataSet
-     *            the dataSet
-     * @return the dataSet instance that should be stored to the registry
-     */
-    protected DataSet getDataSetToStore(DataSet dataSet) {
-        try {
-            DataSet result = DataDeliveryHandlers.getDataSetHandler()
-                    .getByNameAndProvider(dataSet.getDataSetName(),
-                            dataSet.getProviderName());
-            if (result != null) {
-                dataSet.combine(result);
-            }
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve dataset.", e);
-        }
-        return dataSet;
-    }
-
-    /**
-     * Store a parameter object to the registry. If necessary, also store the
-     * ParameterLevel Objects needed to successfully store the Parameter Object.
-     * 
-     * @param parameter
-     *            The Parameter Object to store.
-     */
-    protected void storeParameter(Parameter parameter) {
-
-        try {
-            DataDeliveryHandlers.getParameterHandler().update(parameter);
-        } catch (RegistryHandlerException e) {
-            statusHandler.info("Failed to store parameter ["
-                    + parameter.getName() + "]");
-        }
-    }
-
-    /**
-     * Get me my level types for this param
-     * 
-     * @param cp
-     * @return
-     */
-    public List<DataLevelType> getDataLevelTypes(Parameter cp) {
-        return cp.getLevelType();
-    }
-    
-    protected abstract L newLayer();
-    
-    protected abstract void setCoverage(L layer);
-    
-    protected abstract Coverage getCoverage();
-
-    public void setParameters(L layer) {
-        synchronized (layer) {
-            if (getParameters() == null || getParameters().isEmpty()) {
-                parameters = new HashMap<String, Parameter>();
-                for (Parameter parm : agent.getLayer(layer.getName())
-                        .getParameters()) {
-                    // place in map
-                    parameters.put(parm.getName(), parm);
-                    storeParameter(parm);
-                }
-            }
-        }
-    }
-    
-    public Map<String, Parameter> getParameters() {
-        return parameters;
-    }
-    
-    protected abstract void setDataSet(L layer);
-    
-    protected abstract DataSet getDataSet();
-    
-    protected abstract void setDataSetMetaData(L layer);
-    
-    protected abstract DataSetMetaData getDataSetMetaData();
-    
-    protected abstract DataType getDataType();
-    
-    public abstract Levels getLevels(DataLevelType type, String collectionName);
-  
-    public LayerTransformer<DIMENSION, L> getTransformer() {
-        return transformer;
-    }
-
-    public void setTransformer(LayerTransformer<DIMENSION, L> transformer) {
-        this.transformer = transformer;
-    }
-
-    public OGCAgent getAgent() {
-        return agent;
-    }
-
-    public void setAgent(OGCAgent agent) {
-        this.agent = agent;
+    public void setAddonFactory(CollectorAddonFactory<D, L, R> addonFactory) {
+        this.addonFactory = addonFactory;
     }
 
 }

@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean class="com.raytheon.uf.edex.ogc.common.util.AddonPropsPostProcessor">
+		<constructor-arg>
+			<map value-type="java.lang.Class">
+				<entry key="madisProperties">
+					<map>
+						<entry key="dao" value="com.raytheon.uf.edex.plugin.madis.ogc.MadisNotifyDao" />
+					</map>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+    <bean id="madisOgcCamelRegistered" factory-bean="contextManager"
+		factory-method="register" 
+		depends-on="persistCamelRegistered">
+		<constructor-arg ref="madis-ogc-camel"/>
+  	</bean>
+
+	<camelContext id="madis-ogc-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+		<route id="madisLayerRoute">
+			<from uri="quartz://madis/layers?cron=0+*+*+*+*+?" />
+			<bean ref="madisLayerCollector" method="updateDB" />
+		</route>
+		
+		<route id="madisPurgeExpired">
+			<from uri="jms-generic:topic:Purge.expired.obs?destinationResolver=#qpidDurableResolver" />
+			<bean ref="madisLayerCollector" method="purgeExpired"/>
+		</route>
+		
+		<route id="madisPurgeAll">
+			<from uri="jms-generic:topic:Purge.all.obs?destinationResolver=#qpidDurableResolver" />
+			<bean ref="madisLayerCollector" method="purgeAll"/>
+		</route>
+        
+	</camelContext>
+</beans>

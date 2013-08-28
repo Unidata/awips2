@@ -32,6 +32,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 31, 2013 2038       djohnson     Move to correct repo.
  * Jun 11, 2013 1763       dhladky      Made operational.
  * Jun 18, 2013 2120       dhladky      Added times and max feature processing
+ * Aug 07, 2013 2097       dhladky      Revamped WFS to use POST (still 1.1.0 WFS)
  * 
  * </pre>
  * 
@@ -46,44 +47,55 @@ public class WfsRequestBuilder extends RequestBuilder {
     
     protected static ServiceConfig wfsServiceConfig;
     
-    public static final String separator = getServiceConfig().getConstantValue("COMMA");
+    public static final String SEPERATOR = getServiceConfig().getConstantValue("COMMA");
     
-    public static final String slash = getServiceConfig().getConstantValue("FORWARD_SLASH");
+    public static final String SLASH = getServiceConfig().getConstantValue("FORWARD_SLASH");
     
-    public static final String bbox = getServiceConfig().getConstantValue("BBOX_HEADER");
+    public static final String BBOX = getServiceConfig().getConstantValue("BBOX_HEADER");
     
-    public static final String srs = getServiceConfig().getConstantValue("SRSNAME_HEADER");
+    public static final String SRS = getServiceConfig().getConstantValue("SRSNAME_HEADER");
     
-    public static final String crs = getServiceConfig().getConstantValue("DEFAULT_CRS");
+    public static final String CRS = getServiceConfig().getConstantValue("DEFAULT_CRS");
     
-    public static final String time = getServiceConfig().getConstantValue("TIME_HEADER");
+    public static final String TIME = getServiceConfig().getConstantValue("TIME_HEADER");
     
-    public static final String equals = getServiceConfig().getConstantValue("EQUALS");
+    public static final String EQUALS = getServiceConfig().getConstantValue("EQUALS");
     
-    public static final String blank = getServiceConfig().getConstantValue("BLANK");
+    public static final String BLANK = getServiceConfig().getConstantValue("BLANK");
     
-    public static final String max = getServiceConfig().getConstantValue("MAX");
+    public static final String MAX = getServiceConfig().getConstantValue("MAX");
     
-    public static final String ampersand = "&";
+    public static final String VERSION = getServiceConfig().getConstantValue("VERSION");
+    
+    public static final String AMPERSAND = "&";
     
     private final String wfsURL;
     
-    WfsRequestBuilder(WfsRetrievalAdapter adapter,
+    private String typeName = null;
+        
+    public WfsRequestBuilder(WfsRetrievalAdapter adapter,
             RetrievalAttribute attXML) {
         super(attXML);
-        // Create URL
-        // this works in this order
-        StringBuilder buffer = new StringBuilder();
-        // apply the base WFS service URL
-        buffer.append(adapter.getProviderRetrievalXMl().getConnection()
-                .getUrl());
-        // process the coverage bounding box
-        buffer.append(processCoverage());
-        // process the time range you are trying to retrieve
-        buffer.append(processTime(getRetrievalAttribute().getTime()));
-        // max feature limit
-        buffer.append(processMax());
+        // Create XML doc
+        this.typeName = attXML.getPlugin();
+        StringBuilder buffer = new StringBuilder(256);
+        buffer.append(createHeader());
+        buffer.append("<ogc:Filter>\n");
         
+        if (attXML.getCoverage() != null && attXML.getTime() != null) {
+            buffer.append("<ogc:And>\n");
+        }
+        
+        buffer.append(processTime(attXML.getTime()));
+        buffer.append(processCoverage());
+  
+        if (attXML.getCoverage() != null && attXML.getTime() != null) {
+            buffer.append("</ogc:And>\n");
+        }
+        
+        buffer.append("</ogc:Filter>\n");
+        buffer.append(createFooter());
+
         this.wfsURL = buffer.toString().trim();
     }
 
@@ -98,92 +110,115 @@ public class WfsRequestBuilder extends RequestBuilder {
             return sdf;
         }
     };
+    
+    /**
+     * Creates the WFS XML Query header
+     * @return
+     */
+    private String createHeader() {
 
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("<?xml version=\"1.0\" ?>\n");
+        sb.append("<wfs:GetFeature service=\"WFS\"\n");
+        sb.append("version=\"").append(VERSION).append("\"\n");
+        sb.append("outputFormat=\"application/gml+xml; version=3.1\"\n");
+        sb.append("xmlns:").append(typeName).append("=\"http://").append(typeName).append(".edex.uf.raytheon.com\"\n");
+        sb.append("xmlns:wfs=\"http://www.opengis.net/wfs\"\n");
+        sb.append("xmlns:gml=\"http://www.opengis.net/gml\"\n");
+        sb.append("xmlns:ogc=\"http://www.opengis.net/ogc\"\n");
+        sb.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
+        sb.append("xsi:schemaLocation=\"http://www.opengis.net/wfs../wfs/").append(VERSION).append("/WFS.xsd\">\n");
+        sb.append("<wfs:Query typeName=\"").append(typeName).append(":").append(typeName).append("\" maxFeatures=\"").append(MAX).append("\">\n");
+        
+        return sb.toString();
+    }
+    
+    /**
+     * Creates the WFS XML Query Footer
+     * @return
+     */
+    private String createFooter() {
+        String footer = "</wfs:Query>\n</wfs:GetFeature>\n";
+        return footer;
+    }
+  
     @Override
     public String processTime(Time inTime) {
 
         try {
-            if (inTime.getEndDate() != null && inTime.getStartDate() != null) {
+            if (inTime.getStartDate() != null) {
 
                 Date sDate = inTime.getStartDate();
                 Date eDate = inTime.getEndDate();
                 String endDateString = ogcDateFormat.get().format(eDate);
                 String startDateString = ogcDateFormat.get().format(sDate);
-                StringBuilder sb = new StringBuilder();
-                sb.append(ampersand);
-                sb.append(time);
-                sb.append(equals);
-                sb.append(startDateString);
-                sb.append(slash);
-
-                if (!endDateString.equals(startDateString)) {
-                    sb.append(endDateString);
+                
+                StringBuilder sb = new StringBuilder(256);
+                sb.append("<ogc:PropertyIsGreaterThan>\n");
+                sb.append("<ogc:PropertyName>").append(typeName).append(":timeObs</ogc:PropertyName>\n");
+                sb.append("<ogc:Literal>").append(startDateString).append("</ogc:Literal>\n");
+                sb.append("</ogc:PropertyIsGreaterThan>\n");
+                
+                if (endDateString != null) {
+                    sb.append("<ogc:PropertyIsLessThan>\n");
+                    sb.append("<ogc:PropertyName>").append(typeName).append(":timeObs</ogc:PropertyName>\n");
+                    sb.append("<ogc:Literal>").append(endDateString).append("</ogc:Literal>\n");
+                    sb.append("</ogc:PropertyIsLessThan>\n");
                 }
 
                 return sb.toString();
             }
         } catch (Exception e) {
-            statusHandler.error("Couldn't parse Time object." + e);
+            statusHandler.error("Couldn't parse Time object.", e);
         }
 
-        // no times, return blank
-        return blank;
-
+        return BLANK;
     }
 
     @Override
     public String processCoverage() {
 
-        StringBuilder sb = new StringBuilder();
         Coverage coverage = getRetrievalAttribute().getCoverage();
 
         if (coverage != null) {
+            try {
+                StringBuilder sb = new StringBuilder(256);
+                ReferencedEnvelope re = coverage.getRequestEnvelope();
+                Coordinate ll = EnvelopeUtils.getLowerLeftLatLon(re);
+                Coordinate ur = EnvelopeUtils.getUpperRightLatLon(re);
+                // manage the box
+                double lowerLon = ll.x;
+                double lowerLat = ll.y;
+                double upperLon = ur.x;
+                double upperLat = ur.y;
 
-            ReferencedEnvelope re = coverage.getRequestEnvelope();
-            Coordinate ll = EnvelopeUtils.getLowerLeftLatLon(re);
-            Coordinate ur = EnvelopeUtils.getUpperRightLatLon(re);
-            // manage the box
-            double lowerLon = ll.x;
-            double lowerLat = ll.y;
-            double upperLon = ur.x;
-            double upperLat = ur.y;
+                sb.append("<ogc:Within>\n");
+                sb.append("<ogc:PropertyName>location/location</ogc:PropertyName>\n");
+                sb.append("<gml:Envelope srsName=\"").append(CRS)
+                        .append("\">\n");
+                sb.append("<gml:lowerCorner>");
+                sb.append(lowerLon);
+                sb.append(" ");
+                sb.append(lowerLat);
+                sb.append("</gml:lowerCorner>\n");
+                sb.append("<gml:upperCorner>");
+                sb.append(upperLon);
+                sb.append(" ");
+                sb.append(upperLat);
+                sb.append("</gml:upperCorner>\n");
+                sb.append("</gml:Envelope>\n");
+                sb.append("</ogc:Within>\n");
 
-            sb.append(ampersand);
-            sb.append(srs);
-            sb.append(equals);
-            sb.append(crs);
-            //TODO Revisit this when we have a better idea of how to switch them
-            //sb.append(coverage.getEnvelope().getCoordinateReferenceSystem()
-            //        .getName());
-            sb.append(ampersand);
-            sb.append(bbox);
-            sb.append(equals);
-            sb.append(lowerLon);
-            sb.append(separator);
-            sb.append(lowerLat);
-            sb.append(separator);
-            sb.append(upperLon);
-            sb.append(separator);
-            sb.append(upperLat);
-            
-            return sb.toString();
+                return sb.toString();
+
+            } catch (Exception e) {
+                statusHandler.error("Couldn't parse Coverage object.", e);
+            }
         }
 
-        return blank;
+        return BLANK;
     }
     
-    /**
-     * constrain to max amount of features
-     * @return
-     */
-    public String processMax() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ampersand);
-        sb.append(max);
-        
-        return sb.toString();
-    }
-
     @Override
     public String getRequest() {
         return wfsURL;
@@ -207,5 +242,5 @@ public class WfsRequestBuilder extends RequestBuilder {
         
         return wfsServiceConfig;
     }
- 
+
 }
