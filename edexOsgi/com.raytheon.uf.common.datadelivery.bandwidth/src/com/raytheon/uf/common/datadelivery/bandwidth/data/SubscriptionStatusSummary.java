@@ -36,6 +36,7 @@ import com.raytheon.uf.common.util.StringUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2013  1653      mpduff      Initial creation
+ * Aug 28, 2013  2290      mpduff      Added default missing values.
  * 
  * </pre>
  * 
@@ -44,17 +45,22 @@ import com.raytheon.uf.common.util.StringUtil;
  */
 @DynamicSerialize
 public class SubscriptionStatusSummary {
-    @DynamicSerializeElement
-    private long dataSize;
+    /**
+     * Missing data value.
+     */
+    public static final long MISSING_VALUE = -9999;
 
     @DynamicSerializeElement
-    private long startTime;
+    private long dataSize = MISSING_VALUE;
 
     @DynamicSerializeElement
-    private long endTime;
+    private long startTime = MISSING_VALUE;
 
     @DynamicSerializeElement
-    private long latency;
+    private long endTime = MISSING_VALUE;
+
+    @DynamicSerializeElement
+    private long latency = MISSING_VALUE;
 
     /**
      * @return the dataSize
