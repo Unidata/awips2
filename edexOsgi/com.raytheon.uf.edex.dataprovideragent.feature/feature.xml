@@ -17,26 +17,9 @@
       [Enter License Description here.]
    </license>
 
-   <plugin
-         id="com.raytheon.uf.edex.plugin.grib.ogc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.plugin.obs.ogc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.plugin.madis.ogc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="com.raytheon.uf.edex.datadelivery.core.feature"
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.edex.ogc.registry"
