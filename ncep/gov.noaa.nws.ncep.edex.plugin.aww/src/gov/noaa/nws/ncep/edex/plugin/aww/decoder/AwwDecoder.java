@@ -28,6 +28,7 @@
  *											   drop the record by throwing an exception
  *											2. comment out the end check "if(record == null") 
  *											   because it is a dead code.                
+ * 08/08/13    1028            G. Hull      rm underscores from reportType and set mndTime in URI           
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -252,12 +253,22 @@ public class AwwDecoder extends AbstractDecoder {
          */
         if (record != null) {
         	//T976 - check if the record has a valid UGC. If not return an empty PluginDataObject array 
-        	if ( record.getAwwUGC() == null || record.getAwwUGC().size() == 0 )
+        	if ( record.getAwwUGC() == null || record.getAwwUGC().size() == 0 ) {
         		return new PluginDataObject[0];
+        	}
         	
-            record.setReportType(reportType.trim().replace(' ', '_'));
+            record.setReportType( reportType.trim() );
             record.setTraceId(traceId);
             record.setPluginName(pluginName);
+            // Set MND remark before the URI is constructed
+            if( mt.getMndTimeString() == null || 
+                mt.getMndTimeString().trim().isEmpty() ) {
+                record.setMndTime( "unknown" );            
+            }
+            else {
+                record.setMndTime( mt.getMndTimeString() );
+            }
+
             try {
                 record.constructDataURI();
             } catch (PluginException e) {
@@ -269,9 +280,6 @@ public class AwwDecoder extends AbstractDecoder {
 
         // Decode and set attention line
         record.setAttentionWFO(AwwParser.processATTN(theBulletin));
-
-        // Set MND remark
-        record.setMndTime(mt.getMndTimeString());
 
         // Replace special characters to a blank so that it may be readable.
         if (theBulletin.length() < 40000) {
@@ -307,11 +315,4 @@ public class AwwDecoder extends AbstractDecoder {
     		return false;
     	  	return ("WWUS30".equalsIgnoreCase(ar.getWmoHeader()));
     }
-    
-//    public static boolean isSevereWeatherStatus(AwwRecord awwReocrd) {
-//    	boolean isSevereWeatherStatus = false; 
-//    	if("WOUS20".equalsIgnoreCase(awwReocrd.getWmoHeader()))
-//    		isSevereWeatherStatus = true; 
-//    	return isSevereWeatherStatus; 
-//    }
 }

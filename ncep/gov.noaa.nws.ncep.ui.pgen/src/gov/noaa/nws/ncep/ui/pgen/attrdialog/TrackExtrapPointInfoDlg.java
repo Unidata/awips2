@@ -38,6 +38,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Track;
  * 05/09					M. Gao   	Initial Creation.
  * 10/11					J. Wu   	Adjusted text width
  * 02/12        TTR456      Q.Zhou      Modified setTrack() and added roundToXX() functions.
+ * 08/13		#1020		B. Yin		Changed the direction from 'towards' to 'from'.		
  * </pre>
  * 
  * @author	M. Gao
@@ -141,7 +142,7 @@ public class TrackExtrapPointInfoDlg extends AttrDlg {
 			speedText.setText("Spd: " + doubleValurFormater(speed, 2) + unit); 
 		
 		//dir
-		dir = this.track.getDirectionForExtraPoints();
+		dir = this.track.getFromdirection();
 		if (roundDirComboSelectedIndex ==1)
 			roundDir = (int)(dir + 0.5);	//if speed>=0.5, +1
 		else if (roundDirComboSelectedIndex ==2)

@@ -55,6 +55,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Maps;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 4, 2009            snaples     Initial creation
+ * Aug 12, 2013    16490  snaples     Fixed mapping of hrap grid to basins 
+ *                                    in get_basin_data
  * 
  * </pre>
  * 
@@ -75,7 +77,6 @@ public class GetBasinData {
         int ib, l, numpts, ip, x, y, ip2, ip3, ip4, i;
         int hrap_basin_flag = 1;
         double lat, lon;
-        int m;
         int mm;
         int num_points;
         File basin_f = new File(basin_file);
@@ -150,20 +151,14 @@ public class GetBasinData {
                 ib++;
             }
 
-            // mean_areal_precip_global[ib] = dc.new Maps();
-            // mean_areal_precip_global[ib].hb5 = "";
             maxib = ib;
             System.out.println("Size of map array is : " + maxib + " basins");
             s.close();
             in.close();
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block. Please revise as
-            // appropriate.
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return false;
         } catch (IOException e) {
-            // TODO Auto-generated catch block. Please revise as
-            // appropriate.
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return false;
         } catch (NumberFormatException e) {
@@ -192,7 +187,6 @@ public class GetBasinData {
             mean_areal_precip_global[ib].tmaps_done = new int[200];
             mean_areal_precip_global[ib].zmaps_done = new int[200];
 
-            // for (m = 0; m < 200; m++) {
             Arrays.fill(mean_areal_precip_global[ib].gz, -1);
             Arrays.fill(mean_areal_precip_global[ib].uz, -1);
             Arrays.fill(mean_areal_precip_global[ib].mz, -1);
@@ -209,30 +203,31 @@ public class GetBasinData {
             Arrays.fill(mean_areal_precip_global[ib].tmaps_done, -1);
             Arrays.fill(mean_areal_precip_global[ib].zmaps_done, -1);
 
-            // }
         }
         if (hrap_basin_flag == 1) {
             try {
-                System.out.println("Reading basin data from file.");
+                System.out.println("Reading hrap basin data from file.");
                 long basin_start = System.currentTimeMillis();
                 in = new BufferedReader(new FileReader(hrap_f));
-                char eb[] = new char[100];
+                Scanner s = new Scanner(in);
+                String eb = new String();
                 for (ib = 0; ib < maxib; ib++) {
-                    in.read(eb, 0, 80);
-                    int p = new String(eb).indexOf('\n');
+                    eb = in.readLine(); //(eb, 0, 80);
+                    int p = eb.length(); //new String(eb).indexOf('\n');
 
                     if (p != -1) {
                         p = 0;
                     }
 
-                    String t = new String(eb);
-                    Scanner s = new Scanner(t);
+                    eb = eb.trim();
+                    s = new Scanner(eb);
+                    Pattern pc = Pattern.compile("\\s*[A-Z]+$");  
 
                     numpts = s.nextInt();
                     mean_areal_precip_global[ib].hrap_points = numpts;
                     String bchar = "";
-                    bchar = s.findInLine("*$");
-                    mean_areal_precip_global[ib].bchar = bchar;
+                    bchar = s.findInLine(pc);
+                    mean_areal_precip_global[ib].bchar = bchar.trim();
                     mean_areal_precip_global[ib].hrap_data = new Hrap_Data[numpts];
 
                     for (mm = 0; mm < 4; mm++) {
@@ -240,35 +235,26 @@ public class GetBasinData {
                     }
 
                     for (l = 0; l < numpts; l++) {
-
+                    	Hrap_Data d = dc.new Hrap_Data();
+                        mean_areal_precip_global[ib].hrap_data[l] = d;
+                        
                         for (mm = 0; mm < 4; mm++) {
                             mean_areal_precip_global[ib].hrap_data[l].zone[mm] = -1;
                         }
 
-                        p = in.read(eb, 0, 100);
+                        eb = in.readLine(); //(eb, 0, 100);
+                        eb = eb.trim();
+                        p = eb.length();
 
                         if (p == 0) {
                             break;
                         }
 
-                        t = new String(eb);
-
-                        // ier = sscanf (ibuf, "%d %d %d %d %d %d\n", &x, &y,
-                        // &ip, &ip2, &ip3,&ip4);
-
+                        s = new Scanner(eb);
                         x = s.nextInt();
                         y = s.nextInt();
                         if (s.hasNextInt()) {
                             ip = s.nextInt();
-
-                            if (ip < 0 || ip > 4) {
-                                System.out
-                                        .println("HRAP error in read_basin_data routine.\n");
-                                return false;
-                            }
-                            ip2 = s.nextInt();
-                            ip3 = s.nextInt();
-                            ip4 = s.nextInt();
 
                             mean_areal_precip_global[ib].hrap_data[l].x = x;
                             mean_areal_precip_global[ib].hrap_data[l].y = y;
@@ -276,6 +262,7 @@ public class GetBasinData {
                             mean_areal_precip_global[ib].zones[0] = 1;
 
                             if (s.hasNextInt()) {
+                            	ip2 = s.nextInt();
                                 if (ip2 < 0 || ip2 > 4) {
                                     System.out
                                             .println("HRAP error in read_basin_data routine.\n");
@@ -288,7 +275,7 @@ public class GetBasinData {
                             }
 
                             if (s.hasNextInt()) {
-
+                            	ip3 = s.nextInt();
                                 if (ip3 < 0 || ip3 > 4) {
                                     System.out
                                             .println("HRAP error in read_basin_data routine.\n");
@@ -301,7 +288,7 @@ public class GetBasinData {
                             }
 
                             if (s.hasNextInt()) {
-
+                            	ip4 = s.nextInt();
                                 if (ip4 < 0 || ip4 > 4) {
                                     System.out
                                             .println("HRAP error in read_basin_data routine.\n");
@@ -315,22 +302,18 @@ public class GetBasinData {
 
                         }
                     }
-                    System.out
-                            .println("Finished reading basin data from file, elapsed time: "
-                                    + (System.currentTimeMillis() - basin_start)
-                                    + " ms");
-                    s.close();
-                    in.close();
                 }
+                System.out
+                .println("Finished reading basin data from file, elapsed time: "
+                        + (System.currentTimeMillis() - basin_start)
+                        + " ms");
+                s.close();
+                in.close();
             } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
                 return false;
             } catch (IOException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
                 return false;
