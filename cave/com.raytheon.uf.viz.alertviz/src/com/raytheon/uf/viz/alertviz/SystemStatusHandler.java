@@ -74,21 +74,20 @@ public class SystemStatusHandler extends AbstractStatusHandler {
         final IStatus status = statusAdapter.getStatus();
         StatusMessage sm = null;
 
-        String msg = null;
-        Throwable t = null;
         if (status instanceof VizStatusInternal) {
             VizStatusInternal vs = (VizStatusInternal) status;
-            msg = vs.getMessage();
-            t = vs.getException();
             sm = vs.toStatusMessage();
         } else {
             sm = from(status);
-            msg = sm.getDetails();
+
         }
+
         Priority p = sm.getPriority();
+        String msg = status.getMessage();
+        Throwable t = status.getException();
+        logStatus(p, msg, t);
 
         try {
-            logStatus(p, msg, t);
             AlertVizClient.sendMessage(sm);
         } catch (final AlertvizException e) {
             // not a good situation, since we can't communicate with the log
