@@ -64,6 +64,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * May 7, 2013  1965       bgonzale    Initial creation.
  *                                     Added additional test data for file newer than purge
  *                                     time but in directory that is older than purge time.
+ * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns number of files purged.
  * 
  * </pre>
  * 
@@ -91,11 +92,13 @@ public class ArchiveConfigManagerTest {
 
     private final DateFormat mmFormat = new SimpleDateFormat("mm");
 
-    private Collection<File> archiveFiles = new ArrayList<File>();
+    private final Collection<File> archiveFiles = new ArrayList<File>();
 
-    private Collection<File> purgeFiles = new ArrayList<File>();
+    private final Collection<File> purgeFiles = new ArrayList<File>();
 
-    private Collection<DisplayData> archiveSelectedDisplays = new HashSet<DisplayData>();
+    private final Collection<File> allFiles = new ArrayList<File>();
+
+    private final Collection<DisplayData> archiveSelectedDisplays = new HashSet<DisplayData>();
 
     private Calendar referenceCalendar;
 
@@ -115,24 +118,8 @@ public class ArchiveConfigManagerTest {
         if (referenceCalendar == null) {
             setupTimes();
         }
-        File testLocalization = TestUtil
-                .setupTestClassDir(PathManagerFactoryTest.class);
 
         PathManagerFactoryTest.initLocalization();
-
-        // after setting up test localization get the production config files
-        // and copy them to the the test localization directory.
-        // utility/common_static/base/archive
-        File prodConfigDir = new File(
-                "../edexOsgi/com.raytheon.uf.edex.archive/utility");
-        Collection<File> configs = FileUtils.listFiles(prodConfigDir,
-                FileFilterUtils.trueFileFilter(),
-                FileFilterUtils.trueFileFilter());
-        File destDir = new File(testLocalization,
-                "utility/common_static/base/archive");
-        for (File srcConfig : configs) {
-            FileUtils.copyFileToDirectory(srcConfig, destDir);
-        }
 
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
@@ -355,6 +342,7 @@ public class ArchiveConfigManagerTest {
 
         dir.mkdirs();
         resultFile.createNewFile();
+        allFiles.add(resultFile);
         return resultFile;
     }
 
@@ -414,9 +402,21 @@ public class ArchiveConfigManagerTest {
     public void testArchiveManagerPurge() throws IOException {
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         Collection<File> filesFoundInPurge = new ArrayList<File>();
+        int purgeCount = 0;
 
         for (ArchiveConfig a : manager.getArchives()) {
-            filesFoundInPurge.addAll(manager.purgeExpiredFromArchive(a));
+            purgeCount += manager.purgeExpiredFromArchive(a);
+        }
+
+        // assertEquals(
+        //
+        // "The expected number of purged files and number of purge files not the same",
+        // purgeCount, purgeFiles.size());
+
+        for (File file : allFiles) {
+            if (!file.exists()) {
+                filesFoundInPurge.add(file);
+            }
         }
 
         assertEquals(
