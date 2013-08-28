@@ -33,7 +33,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.edex.ogc.common.feature.AbstractFeatureFactory;
+import com.raytheon.uf.edex.ogc.common.feature.FeatureFactory;
 import com.raytheon.uf.edex.plugin.madis.MadisPointDataTransform;
 import com.vividsolutions.jts.geom.Point;
 
@@ -52,7 +52,7 @@ import com.vividsolutions.jts.geom.Point;
  * @version 1.0
  */
 
-public class MadisFeatureFactory extends AbstractFeatureFactory {
+public class MadisFeatureFactory implements FeatureFactory {
   
     private static final String LOCATION_KEY = "location";
    
@@ -207,7 +207,6 @@ public class MadisFeatureFactory extends AbstractFeatureFactory {
     }
      
 
-    @Override
     public String getName() {
         return name;
     }

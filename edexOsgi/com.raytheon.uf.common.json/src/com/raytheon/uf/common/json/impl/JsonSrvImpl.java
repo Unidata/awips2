@@ -33,14 +33,14 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 import com.raytheon.uf.common.json.JsonException;
 import com.raytheon.uf.common.json.JsonService;
 import com.raytheon.uf.common.json.jackson.JacksonPool;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * @author bclement
@@ -50,7 +50,7 @@ public class JsonSrvImpl implements JsonService {
 
 	private JacksonPool pool;
 
-	private Log log = LogFactory.getLog(this.getClass());
+    private IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	public JsonSrvImpl() {
 		pool = new JacksonPool();
