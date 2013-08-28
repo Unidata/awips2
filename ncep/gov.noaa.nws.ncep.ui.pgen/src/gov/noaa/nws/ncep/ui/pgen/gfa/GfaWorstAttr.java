@@ -197,7 +197,12 @@ public class GfaWorstAttr {
 		 	//Need to consider those CANceled snapshots for worst issue type.
 			ArrayList<Gfa> worstIssueSS = new ArrayList<Gfa>( qualifiedSS );			
 			if ( canceled != null && canceled.size() > 0 ) {
-				worstIssueSS.addAll( canceled );
+				for ( Gfa cgfa : canceled ) {
+//				    worstIssueSS.addAll( canceled );
+				    if ( !worstIssueSS.contains( cgfa ) ) {
+				    	worstIssueSS.add( cgfa );
+				    }
+				}				    
 			}
 			
 			String worstIssue = getGfaWorstIssueType( worstIssueSS );
@@ -435,7 +440,7 @@ public class GfaWorstAttr {
      * 
      * @param ssList
      */
-    private static String getGfaWorstIssueType ( ArrayList<Gfa> ssList ) {
+    public static String getGfaWorstIssueType ( ArrayList<Gfa> ssList ) {
     	    	                                                                            
         String worstIssue = "";       
                

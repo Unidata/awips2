@@ -40,6 +40,7 @@ import org.apache.commons.lang.Validate;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -84,6 +85,8 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Feb 07, 2013    #972    ghull       ResourceCategory class. Supported NcDisplayType
  * Apr 15, 2013    #864    ghull       add USE_CYCLE_TIME_FCST_HOURS and Event timeMatchMthd
  * 04/10/2013      #958    qzhou       Added autoupdate for solar in isAutoUpdateable
+ * 07/15/2013      #1011   ghull       add MATCH_ALL_DATA timeMatchMethod for PgenResource
+ * 
  * </pre>
  *  * 
  * @author ghull
@@ -143,12 +146,15 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	
 	protected AbstractVizResource<?, ?> ncRsc;
 
+	// 
 	public static enum TimeMatchMethod {
 		EXACT, 
 		BEFORE_OR_EQUAL, 
 		CLOSEST_BEFORE_OR_EQUAL, 
 		CLOSEST_AFTER_OR_EQUAL, 
 		CLOSEST_BEFORE_OR_AFTER,
+		// Used by PGEN resource but it actually chooses the latest data available
+		MATCH_ALL_DATA,
 		// This was created when the "Event" filter was removed. This now
 		// is an indication of 'Event'-based resources and requires that the
 		// TimelineGenMethod be set to MANUAL. Currently the behaviour of
@@ -275,6 +281,29 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	public void setDfltFrameTimes(String dfltFrameTimes) {
 		this.dfltFrameTimes = dfltFrameTimes;
 	}
+
+	// some rsc param values may change from EQUALS to a wildcard (ie %) so
+	// make sure that the correct constraint type is set.
+	@Override
+    public HashMap<String, RequestConstraint> getMetadataMap() {
+		HashMap<String, RequestConstraint> mm = 
+			 new HashMap<String, RequestConstraint>( metadataMap );
+
+		for( String rcName : metadataMap.keySet() ) { 
+			RequestConstraint rc = metadataMap.get( rcName );			
+			if( rc.getConstraintValue().trim().equals("%") &&
+				rc.getConstraintType() != ConstraintType.LIKE ) {
+				if( rcName.equals("dataTime") ) {
+					mm.remove( rcName );
+				}
+				else {
+					mm.put( rcName, RequestConstraint.WILDCARD );
+				}
+			}
+		}
+		
+        return mm;
+    }
 
 	public String getPluginName() {
 		if( getMetadataMap().containsKey("pluginName") ) {
