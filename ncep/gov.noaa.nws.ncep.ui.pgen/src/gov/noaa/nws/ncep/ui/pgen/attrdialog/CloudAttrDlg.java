@@ -14,6 +14,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.MidCloudText;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Cloud;
@@ -94,7 +95,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
     
     //Flip button
     private Button flipBtn;
-    private Button openCloseBtn;
+  //  private Button openCloseBtn;
 
     //Edit Label button
     private Button editLabelBtn;
@@ -197,7 +198,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 					delLineBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
 					flipBtn.setSelection(false);
-					openCloseBtn.setSelection(false);
+		//			openCloseBtn.setSelection(false);
 				}
 				else {
 //					cloudTool.setAddLineMode(false);
@@ -220,7 +221,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 						delLineBtn.setSelection(false);
 						delLabelBtn.setSelection(false);
 						flipBtn.setSelection(false);
-						openCloseBtn.setSelection(false);
+		//				openCloseBtn.setSelection(false);
 						try {
 							labelDlg = new LabelAttrDlg( CloudAttrDlg.this.getParentShell() );
 							//labelDlg = MidLevelCloudAttrDlg.getInstance( CloudAttrDlg.this.getParentShell());
@@ -263,7 +264,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 					if ( labelDlg != null ) labelDlg.close();
 					delLabelBtn.setSelection(false);
 					flipBtn.setSelection(false);
-					openCloseBtn.setSelection(false);
+		//			openCloseBtn.setSelection(false);
 				}
 				else {
 					cloudTool.resetMouseHandler();
@@ -286,7 +287,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 						if ( labelDlg != null ) labelDlg.close();
 						delLineBtn.setSelection(false);
 						flipBtn.setSelection(false);
-						openCloseBtn.setSelection(false);
+		//				openCloseBtn.setSelection(false);
 					}
 					else {
 						cloudTool.resetMouseHandler();
@@ -309,7 +310,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 						if ( labelDlg != null ) labelDlg.close();
 						delLineBtn.setSelection(false);
 						delLabelBtn.setSelection(false);
-						openCloseBtn.setSelection(false);
+		//				openCloseBtn.setSelection(false);
 					}
 					else {
 						cloudTool.resetMouseHandler();
@@ -333,7 +334,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 						delLabelBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						flipBtn.setSelection(false);
-						openCloseBtn.setSelection(false);
+		//				openCloseBtn.setSelection(false);
 						//labelDlg = MidLevelCloudAttrDlg.getInstance( CloudAttrDlg.this.getParentShell());
 						try {
 							labelDlg = new LabelAttrDlg( CloudAttrDlg.this.getParentShell() );
@@ -353,7 +354,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 			}
 		});
 		//'Open/close' button
-		openCloseBtn = new Button(pane1, SWT.TOGGLE);
+/*		openCloseBtn = new Button(pane1, SWT.TOGGLE);
 		openCloseBtn.setText("Open/Close");
 		openCloseBtn.setLayoutData(new GridData(120,30));
 		openCloseBtn.addSelectionListener(new SelectionAdapter(){
@@ -374,7 +375,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 					
 			}
 		});		
-		
+	*/	
         addSeparator(top);
  
 	}
@@ -442,13 +443,29 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 
 	@Override
 	public void setAttrForDlg(IAttribute ia) {
-		if ( cloudTool != null && cloudTool.getLabeledLine() != null ){
-			Line ln = (Line)cloudTool.getLabeledLine().getPrimaryDE();
+		Line ln = null;
+		
+		if ( ia !=  null ){
+			ln = (Line)ia;
+		}
+		else if ( cloudTool != null && cloudTool.getLabeledLine() != null ){
+			ln = (Line)cloudTool.getLabeledLine().getPrimaryDE();
+		}
+		
+		if ( ln != null ){
 			this.setColor(ln.getColors()[0]);
 			this.closedChkBox.setSelection(ln.isClosedLine());
+		}
 			
 		}
 	
+	/**
+	 * Set dialog attributes using values of adc
+	 */
+    public void setAttr( AbstractDrawableComponent adc ){
+    	if ( adc instanceof Cloud ){
+    		setAttrForDlg((IAttribute)((Cloud)adc).getLines().get(0));
+    	}
 	}
 	
 	/**
@@ -561,11 +578,13 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 				AbstractDrawableComponent adc = it.next();
 				if ( adc instanceof Line ){
 					((Line)adc).setColors(this.getColors());
+					((Line)adc).setClosed(this.isClosedLine());
 				}
 			}
 			
 			drawingLayer.replaceElement(ll, newll);
 			cloudTool.setLabeledLine(newll);
+			AttrSettings.getInstance().setSettings( newll );
 			
 			//reset handle bar
 			drawingLayer.removeSelected();

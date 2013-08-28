@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
  * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * Jun 25, 2013  DR 16013 Qinglu Lin   Called setUniqueFip() in handleMouseUp().
+ * Aug 15, 2013  DR 16418 D. Friedman  Only raise dialog if editable.  Don't call featureEdit if not editable.
  * 
  * </pre>
  * 
@@ -131,7 +132,9 @@ public class WarngenUIManager extends InputAdapter {
      */
     @Override
     public boolean handleMouseDown(int x, int y, int button) {
-        warngenLayer.showDialog(true);
+        if (warngenLayer.isEditable()) {
+            warngenLayer.showDialog(true);
+        }
         lastMouseX = x;
         lastMouseY = y;
         if (!handleInput || warngenLayer.isBoxEditable() == false) {
@@ -207,7 +210,7 @@ public class WarngenUIManager extends InputAdapter {
             return super.handleMouseUp(x, y, mouseButton);
         }
 
-        if (mouseButton == 3 && menuMove == false) {
+        if (mouseButton == 3 && menuMove == false && warngenLayer.isEditable()) {
             Coordinate c = container.translateClick(x, y);
             WarngenUIState state = warngenLayer.getWarngenState();
             boolean geomsEqual = true;
