@@ -24,12 +24,15 @@
  **********************************************************************/
 package com.raytheon.uf.edex.ogc.common;
 
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
+
 public class OgcResponse {
-	public static final String TEXT_XML_MIME = "text/xml";
+    public static final MimeType TEXT_XML_MIME = new MimeType("text/xml");
 
-	public static final String TEXT_HTML_MIME = "text/html";
+	public static final MimeType TEXT_HTML_MIME = new MimeType("text/html");
 
-	public static final String APP_VND_OGC_SE_XML = "application/vnd.ogc.se_xml";
+	public static final MimeType APP_VND_OGC_SE_XML = new MimeType(
+            "application/vnd.ogc.se_xml");
 
 	public enum TYPE {
 		TEXT, IMAGE, BYTE, MULTIPART
@@ -39,7 +42,7 @@ public class OgcResponse {
 		NONE, BAD_REQ, INT_ERR, NOT_IMPLEMENTED
 	};
 
-	protected String mimetype;
+    protected MimeType mimetype;
 
 	protected Object body;
 
@@ -49,19 +52,19 @@ public class OgcResponse {
 
 	protected ErrorType error = ErrorType.NONE;
 
-	private String exceptionFormat = OgcResponse.TEXT_XML_MIME;
+    private MimeType exceptionFormat = OgcResponse.TEXT_XML_MIME;
 
-	public OgcResponse(Object body, String mimetype, TYPE type) {
+    public OgcResponse(Object body, MimeType mimetype, TYPE type) {
 		this.body = body;
 		this.mimetype = mimetype;
 		this.type = type;
 	}
 
-	public String getMimetype() {
+    public MimeType getMimetype() {
 		return mimetype;
 	}
 
-	public void setMimetype(String mimetype) {
+    public void setMimetype(MimeType mimetype) {
 		this.mimetype = mimetype;
 	}
 
@@ -85,14 +88,14 @@ public class OgcResponse {
 	 * @param exceptionFormat
 	 *            the exceptionFormat to set
 	 */
-	public void setExceptionFormat(String exceptionFormat) {
+    public void setExceptionFormat(MimeType exceptionFormat) {
 		this.exceptionFormat = exceptionFormat;
 	}
 
 	/**
 	 * @return the exceptionFormat
 	 */
-	public String getExceptionFormat() {
+    public MimeType getExceptionFormat() {
 		return exceptionFormat;
 	}
 

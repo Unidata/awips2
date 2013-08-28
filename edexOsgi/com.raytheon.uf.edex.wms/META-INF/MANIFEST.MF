@@ -21,7 +21,9 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database,
  org.apache.commons.codec;bundle-version="1.4.0",
  org.apache.commons.collections;bundle-version="3.2.0",
- com.raytheon.uf.common.spatial;bundle-version="1.0.0"
+ com.raytheon.uf.common.spatial;bundle-version="1.0.0",
+ org.eclipse.jetty;bundle-version="7.6.9",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.time.util,
  com.raytheon.uf.edex.ogc.common,
@@ -29,8 +31,7 @@ Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.edex.ogc.common.db,
  com.raytheon.uf.edex.ogc.common.http,
  javax.servlet,
- javax.servlet.http,
- org.apache.commons.logging
+ javax.servlet.http
 Export-Package: com.raytheon.uf.edex.wms,
  com.raytheon.uf.edex.wms.format,
  com.raytheon.uf.edex.wms.provider,

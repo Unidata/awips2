@@ -55,6 +55,7 @@ public class WcsJaxbUtils {
 			LanguageStringType lst = new LanguageStringType();
 			lst.setLang(DEFAULT_LANGUAGE);
 			lst.setValue(str);
+            rval.add(lst);
 		}
 		return rval;
 	}
