@@ -30,15 +30,35 @@
  */
 package com.raytheon.uf.edex.wfs;
 
+import com.raytheon.uf.edex.ogc.common.OgcException;
+
 public class WfsException extends Exception {
 
 	public enum Code {
-		INVALID_REQUEST, INTERNAL_SERVER_ERROR, INVALID_PARAMETER_VALUE
+        INVALID_REQUEST, InvalidParameterValue, CannotLockAllFeatures, DuplicateStoredQueryIdValue, DuplicateStoredQueryParameterName, FeaturesNotLocked, InvalidLockId, InvalidValue, LockHasExpired, OperationParsingFailed, OperationProcessingFailed, ResponseCacheExpired, OperationNotSupported, OptionNotSupported, MissingParameterValue
 	}
 
 	private static final long serialVersionUID = 8797482743733419169L;
 
 	protected Code code;
+
+	public WfsException(OgcException e) {
+		super(e.getMessage());
+		switch (e.getCode()) {
+		case InternalServerError:
+            this.code = Code.OperationProcessingFailed;
+			break;
+		case InvalidRequest:
+			this.code = Code.INVALID_REQUEST;
+			break;
+		case InvalidParameterValue:
+			this.code = Code.InvalidParameterValue;
+			break;
+        default:
+            this.code = Code.OperationProcessingFailed;
+            break;
+		}
+	}
 
 	public WfsException(Code code) {
 		this.code = code;

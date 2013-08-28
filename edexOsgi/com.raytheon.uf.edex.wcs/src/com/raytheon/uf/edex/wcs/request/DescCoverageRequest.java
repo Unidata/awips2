@@ -30,6 +30,9 @@
  */
 package com.raytheon.uf.edex.wcs.request;
 
+import java.util.List;
+
+import net.opengis.wcs.v_1_1_2.DescribeCoverage;
 
 public class DescCoverageRequest extends WcsRequest{
 
@@ -40,6 +43,13 @@ public class DescCoverageRequest extends WcsRequest{
 	public DescCoverageRequest() {
 		super(Type.DescribeCoverage);
 	}
+
+    public DescCoverageRequest(DescribeCoverage req) {
+        super(Type.DescribeCoverage);
+        this.request = req;
+        List<String> ids = req.getIdentifier();
+        identifiers = ids.toArray(new String[ids.size()]);
+    }
 
 	public String getOutputformat() {
 		return outputformat;
