@@ -42,6 +42,7 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
  * 04/10			#165	G. Zhang	Added isInterpolableSigmet()
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 11/12		#?			J. Wu		Added GFA
+ * 07/13		#?			J. Wu		Interpolate GFA's top/bottom
  * </pre>
  * 
  * @author	S. Gilbert
@@ -132,6 +133,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		DrawableElement el1 = drawingLayer.getNearestElement( loc, interpFilter );
             		if ( selectionIsValid(el1) ) {
             			drawingLayer.setSelected( el1 );
+      				    interpDlg.enableStartTime();
             			if ( useGfaFcsthr( el1 ) ) {
             				 interpDlg.setStartTime( ((Gfa)el1).getGfaFcstHr() );
             			}
@@ -143,6 +145,9 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		 * register the verify symbol with this element to show it in "verify" mode
             		 */
             		drawingLayer.registerSelectedSymbol(selectedEls.get(0), verifySymbol);
+            		if ( selectedEls.get(0) instanceof Gfa ) {
+            			interpDlg.disableStartTime();
+            		}
             		status = SELECT_STATUS.VERIFIED_1;
             		break;
             	case VERIFIED_1:
@@ -155,6 +160,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		DrawableElement first = selectedEls.get(0).getPrimaryDE();
             		if ( comparisonIsValid(el2,first) ) {
             			drawingLayer.addSelected(el2);
+      				    interpDlg.enableEndTime();
             			if ( useGfaFcsthr(el2) ) {
            				    interpDlg.setEndTime( ((Gfa)el2).getGfaFcstHr() );
            			    }
@@ -166,6 +172,9 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		 * register the verify symbol with the second element to show it in "verify" mode
             		 */
             		drawingLayer.registerSelectedSymbol(selectedEls.get(1), verifySymbol);
+            		if ( selectedEls.get(1) instanceof Gfa ) {
+            			interpDlg.disableEndTime();
+            		}
             		status = SELECT_STATUS.VERIFIED_2;
             		armDialog();         // Enable Interpolation button
             		break;
@@ -200,6 +209,8 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		/*
             		 * Remove currently verified element from selected list
             		 */
+        			interpDlg.enableStartTime();
+        			interpDlg.enableEndTime();
             		drawingLayer.removeSelected();
             		status = SELECT_STATUS.START;
             		break;
@@ -215,6 +226,8 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		 * remove all elements from the selected list
             		 */
             		drawingLayer.removeSelected();
+        			interpDlg.enableStartTime();
+        			interpDlg.enableEndTime();
             		interpDlg.disarm();              //  Disable Interpolation button
             		status = SELECT_STATUS.START;
             		break;
