@@ -37,6 +37,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * Aug 29, 2013 2281       bsteffen    Rename ToolsUiUitil.
  * 
  * 
  * </pre>
@@ -45,7 +46,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @version 1.0
  */
 
-public class ToolsUiUitil {
+public class ToolsUiUtil {
 
     private static final GeometryFactory gf = new GeometryFactory();
 
