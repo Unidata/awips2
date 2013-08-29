@@ -1,4 +1,4 @@
-<configuration debug="false" scan="false">
+<configuration debug="false" scan="true">
    <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
       <encoder> 
          <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
