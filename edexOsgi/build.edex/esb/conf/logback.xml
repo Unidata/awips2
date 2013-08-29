@@ -18,7 +18,7 @@
       </rollingPolicy> 
 
       <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n %nopex</pattern> 
       </encoder> 
    </appender>
 
