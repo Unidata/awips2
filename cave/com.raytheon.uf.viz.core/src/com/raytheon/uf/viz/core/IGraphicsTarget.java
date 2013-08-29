@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *                                           track any needed updates to the Target extents.
  *                                           This functionality is primarily used by the
  *                                           Feature Following Zoom Tool at this time.
+ *     7/18/13      #2189        mschenke    Added ability to specify font type
  * 
  * </pre>
  * 
@@ -234,8 +235,10 @@ public interface IGraphicsTarget extends IImagingExtension {
             IFont.Style[] styles);
 
     /**
-     * Create a font object from a truetype font
+     * Create a font object from a truetype font file
      * 
+     * @deprecated {@link #initializeFont(File, com.raytheon.uf.viz.core.drawables.IFont.FontType, float, com.raytheon.uf.viz.core.drawables.IFont.Style[])}
+     *             should be used instead
      * 
      * @param fontFile
      *            the truetype font
@@ -245,8 +248,26 @@ public interface IGraphicsTarget extends IImagingExtension {
      *            the font styles
      * @return a prepared font reference
      */
+    @Deprecated
     public abstract IFont initializeFont(File fontFile, float size,
             IFont.Style[] styles);
+
+    /**
+     * Create a font object from font file
+     * 
+     * 
+     * @param fontFile
+     *            the font file
+     * @param type
+     *            the type of the font file
+     * @param size
+     *            the size in points
+     * @param styles
+     *            the font styles
+     * @return a prepared font reference
+     */
+    public abstract IFont initializeFont(File fontFile, IFont.FontType type,
+            float size, IFont.Style[] styles);
 
     /**
      * Draw a raster to a target, given an extent and an alpha (transparency)
