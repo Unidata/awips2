@@ -39,7 +39,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 01/11/2010               mnash
+ * Jan 11, 2010            mnash
+ * Aug 29, 2013 2281       bsteffen    Fix click distance calculations.
  * 
  * </pre>
  * 
@@ -102,11 +103,10 @@ public abstract class ShearAction extends AbstractGenericToolAction<ShearLayer> 
             lastMouseY = y;
 
             if (shearLayer.isEditable()) {
-                Coordinate c = editor.translateClick(x, y);
 
                 if (mouseButton == 1) {
                     lineToMove = -1;
-                    coordinateFound = shearLayer.isInsideEndpoint(c);
+                    coordinateFound = shearLayer.isInsideEndpoint(editor, x, y);
 
                     if (coordinateFound != null) {
                         this.mode = Mode.MOVE_POINT;
@@ -114,7 +114,7 @@ public abstract class ShearAction extends AbstractGenericToolAction<ShearLayer> 
                         return true;
                     }
 
-                    if ((lineToMove = shearLayer.isInsideLine(c)) != -1) {
+                    if ((lineToMove = shearLayer.isInsideLine(editor, x, y)) != -1) {
                         this.mode = Mode.MOVE_LINE;
                         return true;
                     }
@@ -201,15 +201,14 @@ public abstract class ShearAction extends AbstractGenericToolAction<ShearLayer> 
          */
         public boolean handleMouseMove(int x, int y) {
             if (shearLayer.isEditable()) {
-                Coordinate c = editor.translateClick(x, y);
 
-                if (shearLayer.isInsideEndpoint(c) != null) {
+                if (shearLayer.isInsideEndpoint(editor, x, y) != null) {
                     // Change the cursor to a hand.
                     this.setCursorHand();
                     return true;
                 }
 
-                if (shearLayer.isInsideLine(c) != -1) {
+                if (shearLayer.isInsideLine(editor, x, y) != -1) {
                     // Change the cursor to crosshairs.
                     this.setCursorCross();
                     return true;
