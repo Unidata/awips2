@@ -31,9 +31,7 @@ from shapely import wkt
 
 import jep
 import datetime
-from com.vividsolutions.jts.io import WKTReader
 from com.raytheon.uf.common.python import PyJavaUtil
-from org.apache.commons.lang import ArrayUtils
 
 #
 # Provides convenience methods for Java-Python bridging
@@ -141,6 +139,7 @@ def pyValToJavaObj(val):
     elif issubclass(valtype, JavaWrapperClass):
         retObj = val.toJavaObj()
     elif issubclass(valtype, BaseGeometry):
+        from com.vividsolutions.jts.io import WKTReader
         reader = WKTReader()
         retObj = reader.read(val.to_wkt())
     return retObj
