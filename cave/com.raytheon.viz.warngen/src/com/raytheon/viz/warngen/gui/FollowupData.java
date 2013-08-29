@@ -35,8 +35,10 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
+ * Jul 22, 2013 2176       jsanchez    Added EMER to the display string in the update list.
  * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
  * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute. Fixed for practice mode.
+ * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute.
  * </pre>
  * 
  * @author rferrel
@@ -94,6 +96,9 @@ public class FollowupData extends AbstractWarningRecord {
             rval.append(buildExpStr(status, record));
         }
 
+        if (record.getRawmessage().contains("EMERGENCY")) {
+            rval.append(" EMER");
+        }
         equvialentString = rval.substring(0,
                 record.getProductClass().equals("T") ? 20 : 18);
 
