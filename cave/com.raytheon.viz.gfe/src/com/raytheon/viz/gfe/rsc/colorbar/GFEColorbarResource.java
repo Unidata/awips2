@@ -707,6 +707,10 @@ public class GFEColorbarResource extends
      * continuous colorbar range.
      */
     protected void checkFitToData() {
+        if (currentParm == null) {
+            return;
+        }
+
         String parmName = currentParm.getParmID().getParmName();
         String fitToDataPref = parmName + "_fitToDataColorTable";
         if (GFEPreference.contains(fitToDataPref)) {
