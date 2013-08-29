@@ -17,9 +17,9 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="com.raytheon.uf.edex.registry.client.feature"
-         version="0.0.0"/>
+   <requires>
+         <import feature="com.raytheon.uf.edex.registry.client.feature" version="0.0.0"/>
+   </requires>
 
    <plugin
          id="ll.netcdf"
