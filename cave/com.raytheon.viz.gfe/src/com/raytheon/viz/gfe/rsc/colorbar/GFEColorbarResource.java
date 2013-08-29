@@ -691,7 +691,8 @@ public class GFEColorbarResource extends
             updateColorbar(parm);
         } else if (message instanceof GridDataChangedMsg) {
             GridDataChangedMsg msg = (GridDataChangedMsg) message;
-            if (msg.getParmID().equals(currentParm.getParmID())
+            if (currentParm != null
+                    && msg.getParmID().equals(currentParm.getParmID())
                     && msg.getTimeRange().contains(
                             currentParm.getDataManager()
                                     .getSpatialDisplayManager()
