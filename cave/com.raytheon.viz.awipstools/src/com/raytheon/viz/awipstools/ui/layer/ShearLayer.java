@@ -49,24 +49,23 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.viz.awipstools.common.ToolsUiUtil;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.operation.buffer.BufferOp;
 
 /**
- * TODO Add Description
+ * Interactive resource for rendering the Shear data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 15Mar2013	15693	mgamazaychikov	Added magnification capability.
- * 05/02/2013   DR 14587   D. Friedman Use base velocity.
+ * Mar 15, 2013 15693   mgamazaychikov  Added magnification capability.
+ * May 02, 2013 14587      D. Friedman Use base velocity.
+ * Aug 29, 2013 2281       bsteffen    Fix click distance calculations.
  * 
  * </pre>
  * 
@@ -218,24 +217,6 @@ public class ShearLayer extends
         }
     }
 
-    public LinearRing getCircle(Coordinate coor, double radius) {
-
-        Coordinate circleCoordinates[] = new Coordinate[361];
-        Coordinate firstCoor = null;
-
-        for (int i = 0; i < 360; i++) {
-            circleCoordinates[i] = getCoordinateOnCircle(coor, radius, i);
-            if (i == 0) {
-                // save the first coordinate, to add to end, so completes the
-                // ring.
-                firstCoor = circleCoordinates[0];
-            }
-        }
-        circleCoordinates[360] = firstCoor;
-
-        return gf.createLinearRing(circleCoordinates);
-    }
-
     public Coordinate getCoordinateOnCircle(Coordinate coor, double radius,
             int angle) {
 
@@ -254,7 +235,7 @@ public class ShearLayer extends
         return coorOnCircle;
 
     }
-
+    
     protected void drawBaselineLabel(IGraphicsTarget target,
             Coordinate latLong, String label) throws VizException {
 
@@ -298,18 +279,6 @@ public class ShearLayer extends
         return getCapability(EditableCapability.class).isEditable();
     }
 
-    /**
-     * Checks and returns the coordinate of the endpoint that clicked in.
-     * 
-     * @param c
-     *            Coordinate of the click.
-     * @return Coordinate of the endpoint, null if not found.
-     */
-    public Coordinate isInsideEndpoint(Coordinate c) {
-
-        return getEndpointClickedIn(c);
-    }
-
     public void moveBaseline(Coordinate delta, int index) {
 
         for (Coordinate point : baseline.getCoordinates()) {
@@ -340,54 +309,46 @@ public class ShearLayer extends
     }
 
     /**
-     * Returns the endpoint the user clicked in, or null if they didn't click in
-     * an endpoint.
+     * Get the closest endpoint to the provided screen location.
      * 
-     * @param coor
-     *            Coordinate of the click point.
-     * @return The coordinate of the endpoint they hit on.
+     * @param container
+     *            display container to use
+     * @param refX
+     *            x location in screen pixels
+     * @param refY
+     *            y location in screen pixels
+     * @return T Coordinate of the endpoint, null if not found.
      */
-    public Coordinate getEndpointClickedIn(Coordinate coor) {
-
-        Coordinate c1 = getBaseline().getCoordinates()[0];
-        Coordinate c2 = getBaseline().getCoordinates()[1];
-
-        if (gf.createPolygon(getCircle(c1, this.endCircleRadius), null)
-                .contains(gf.createPoint(coor))) {
-            return c1;
-        } else if (gf.createPolygon(getCircle(c2, this.endCircleRadius), null)
-                .contains(gf.createPoint(coor))) {
-            return c2;
+    public Coordinate isInsideEndpoint(IDisplayPaneContainer container, int x,
+            int y) {
+        Coordinate[] coords = getBaseline().getCoordinates();
+        int idx = ToolsUiUtil.closeToCoordinate(container, coords, x, y, 9);
+        if (idx < 0) {
+            return null;
+        } else {
+            return coords[idx];
         }
-
-        return null;
     }
 
     /**
      * Return the index of the linestring the user clicked in (for move for
      * instance).
      * 
-     * @param coor
+     * @param container
+     *            display container to use
+     * @param refX
+     *            x location of reference point in screen pixels
+     * @param refY
+     *            y location of reference point in screen pixels
      * @return int Index of line they matched on.
      */
-    public int isInsideLine(Coordinate coor) {
-
-        int index = -1;
-        for (int i = 0; i < getBuffer().length; i++) {
-            if (getBuffer()[i].contains(gf.createPoint(coor))) {
-                index = i;
-            }
+    public int isInsideLine(IDisplayPaneContainer container, int x, int y) {
+        Coordinate[] coords = getBaseline().getCoordinates();
+        if (ToolsUiUtil.closeToLine(container, coords, x, y, 15)) {
+            return 0;
+        } else {
+            return -1;
         }
-        return index;
-    }
-
-    public Geometry[] getBuffer() {
-
-        Geometry[] buffer = new Geometry[1];
-
-        buffer[0] = BufferOp.bufferOp(getBaseline(), 0.001);
-
-        return buffer;
     }
 
     /**
