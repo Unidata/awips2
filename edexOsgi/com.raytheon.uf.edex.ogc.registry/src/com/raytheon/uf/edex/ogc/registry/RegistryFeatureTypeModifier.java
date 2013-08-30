@@ -21,8 +21,10 @@ package com.raytheon.uf.edex.ogc.registry;
 
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.harvester.Agent;
 import com.raytheon.uf.common.datadelivery.harvester.ConfigLayer;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
 import com.raytheon.uf.common.datadelivery.harvester.OGCAgent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -90,12 +92,16 @@ public class RegistryFeatureTypeModifier implements IFeatureTypeModifier {
      * @return
      */
     public ConfigLayer getConfigLayer(String name) {
-        ConfigLayer layer = null;
-        if (config.getAgent() != null) {
-            if (config.getAgent() instanceof OGCAgent) {
-                layer = ((OGCAgent) config.getAgent()).getLayer(name);
+
+        if (layer == null) {
+            Agent agent = getHarvesterConfig().getAgent();
+            if (agent != null) {
+                if (agent instanceof OGCAgent) {
+                    layer = ((OGCAgent) agent).getLayer(name);
+                }
             }
         }
+
         return layer;
     }
 
@@ -145,6 +151,19 @@ public class RegistryFeatureTypeModifier implements IFeatureTypeModifier {
         }
 
         return crs;
+    }
+    
+    /**
+     * Get the Harvester Configuration
+     * @return
+     */
+    protected HarvesterConfig getHarvesterConfig() {
+        
+        if (config == null) {
+            config = HarvesterConfigurationManager.getOGCConfiguration();
+        }
+        
+        return config;
     }
 
 }
