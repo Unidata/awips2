@@ -63,10 +63,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 3, 2009            jkorman     Initial creation
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Mar 03, 2009            jkorman     Initial creation
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -79,15 +80,15 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MESOWestRecord extends PluginDataObject implements ISpatialEnabled,
-IDecoderGettable {
-    
+public class MESOWestRecord extends PluginDataObject implements
+        ISpatialEnabled, IDecoderGettable {
+
     private static final long serialVersionUID = 1L;
 
     public static final String OBS_TEXT = "text";
-    
+
     public static final Unit<Length> LENGTH_UNIT = SI.METER;
-    
+
     public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
 
     public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
@@ -109,10 +110,10 @@ IDecoderGettable {
         PARM_MAP.put("PMSL", PRES_SLP);
         PARM_MAP.put("NLAT", STA_LAT);
         PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("STA","STA");
-        PARM_MAP.put("stationid","STA");
-        PARM_MAP.put("message",OBS_TEXT);
-        PARM_MAP.put(OBS_TEXT,OBS_TEXT);
+        PARM_MAP.put("STA", "STA");
+        PARM_MAP.put("stationid", "STA");
+        PARM_MAP.put("message", OBS_TEXT);
+        PARM_MAP.put(OBS_TEXT, OBS_TEXT);
     }
 
     @DataURI(position = 1)
@@ -131,7 +132,7 @@ IDecoderGettable {
     @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
-    
+
     // Observation air temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
@@ -155,7 +156,7 @@ IDecoderGettable {
     @DynamicSerializeElement
     @XmlElement
     private Double minT24;
-    
+
     // Relative Humidity in percent.
     @Column
     @DynamicSerializeElement
@@ -197,7 +198,7 @@ IDecoderGettable {
     @DynamicSerializeElement
     @XmlElement
     private Double altimeter;
-    
+
     // Observation precip in mm.
     @Column
     @DynamicSerializeElement
@@ -209,7 +210,7 @@ IDecoderGettable {
     @DynamicSerializeElement
     @XmlElement
     private Double precip_01M;
-    
+
     // 5 minute precip in inches.
     @Column
     @DynamicSerializeElement
@@ -257,13 +258,13 @@ IDecoderGettable {
     @DynamicSerializeElement
     @XmlElement
     private Double precip_24H;
-    
+
     // Raw observation text
     @Column
     @DynamicSerializeElement
     @XmlElement
     private String obsText;
-    
+
     /**
      * 
      */
@@ -280,8 +281,7 @@ IDecoderGettable {
     public MESOWestRecord(String uri) {
         super(uri);
     }
-    
-    
+
     /**
      * Get this observation's geometry.
      * 
@@ -290,7 +290,7 @@ IDecoderGettable {
     public Geometry getGeometry() {
         return location.getGeometry();
     }
-    
+
     /**
      * Get the geometry latitude.
      * 
@@ -308,7 +308,7 @@ IDecoderGettable {
     public double getLongitude() {
         return location.getLongitude();
     }
-    
+
     /**
      * Get the station identifier for this observation.
      * 
@@ -326,7 +326,7 @@ IDecoderGettable {
     public Integer getElevation() {
         return location.getElevation();
     }
-    
+
     /**
      * @return the location
      */
@@ -335,7 +335,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param location the location to set
+     * @param location
+     *            the location to set
      */
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
@@ -343,7 +344,7 @@ IDecoderGettable {
 
     /**
      * 
-     * @return 
+     * @return
      */
     public String getNetworkType() {
         return networkType;
@@ -351,7 +352,7 @@ IDecoderGettable {
 
     /**
      * 
-     * @return 
+     * @return
      */
     public void setNetworkType(String type) {
         networkType = type;
@@ -373,7 +374,7 @@ IDecoderGettable {
     }
 
     // ******************************************
-    
+
     /**
      * @return the temp
      */
@@ -382,7 +383,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param temp the temp to set
+     * @param temp
+     *            the temp to set
      */
     public void setTemp(Double temp) {
         this.temp = temp;
@@ -396,12 +398,13 @@ IDecoderGettable {
     }
 
     /**
-     * @param dwpt the dwpt to set
+     * @param dwpt
+     *            the dwpt to set
      */
     public void setDwpt(Double dwpt) {
         this.dwpt = dwpt;
     }
-    
+
     /**
      * @return the maxT24
      */
@@ -410,7 +413,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param maxT24 the maxT24 to set
+     * @param maxT24
+     *            the maxT24 to set
      */
     public void setMaxT24(Double maxT24) {
         this.maxT24 = maxT24;
@@ -424,7 +428,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param minT24 the minT24 to set
+     * @param minT24
+     *            the minT24 to set
      */
     public void setMinT24(Double minT24) {
         this.minT24 = minT24;
@@ -438,7 +443,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param humidity the humidity to set
+     * @param humidity
+     *            the humidity to set
      */
     public void setHumidity(Double humidity) {
         this.humidity = humidity;
@@ -452,7 +458,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param windDirection the windDirection to set
+     * @param windDirection
+     *            the windDirection to set
      */
     public void setWindDirection(Double windDirection) {
         this.windDirection = windDirection;
@@ -466,7 +473,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param windSpeed the windSpeed to set
+     * @param windSpeed
+     *            the windSpeed to set
      */
     public void setWindSpeed(Double windSpeed) {
         this.windSpeed = windSpeed;
@@ -480,12 +488,13 @@ IDecoderGettable {
     }
 
     /**
-     * @param windGust the windGust to set
+     * @param windGust
+     *            the windGust to set
      */
     public void setWindGust(Double windGust) {
         this.windGust = windGust;
     }
-    
+
     /**
      * @return the pressure
      */
@@ -494,12 +503,13 @@ IDecoderGettable {
     }
 
     /**
-     * @param pressure the pressure to set
+     * @param pressure
+     *            the pressure to set
      */
     public void setPressure(Double pressure) {
         this.pressure = pressure;
     }
-    
+
     /**
      * @return the seaLevelPressure
      */
@@ -508,7 +518,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param seaLevelPressure the seaLevelPressure to set
+     * @param seaLevelPressure
+     *            the seaLevelPressure to set
      */
     public void setSeaLevelPressure(Double seaLevelPressure) {
         this.seaLevelPressure = seaLevelPressure;
@@ -522,12 +533,12 @@ IDecoderGettable {
     }
 
     /**
-     * @param altimeter the altimeter to set
+     * @param altimeter
+     *            the altimeter to set
      */
     public void setAltimeter(Double altimeter) {
         this.altimeter = altimeter;
     }
-    
 
     /**
      * @return the precip
@@ -537,7 +548,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip the precip to set
+     * @param precip
+     *            the precip to set
      */
     public void setPrecip(Double precip) {
         this.precip = precip;
@@ -551,7 +563,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_01M the precip_01M to set
+     * @param precip_01M
+     *            the precip_01M to set
      */
     public void setPrecip_01M(Double precip_01M) {
         this.precip_01M = precip_01M;
@@ -565,7 +578,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_05M the precip_05M to set
+     * @param precip_05M
+     *            the precip_05M to set
      */
     public void setPrecip_05M(Double precip_05M) {
         this.precip_05M = precip_05M;
@@ -579,7 +593,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_10M the precip_10M to set
+     * @param precip_10M
+     *            the precip_10M to set
      */
     public void setPrecip_10M(Double precip_10M) {
         this.precip_10M = precip_10M;
@@ -593,7 +608,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_15M the precip_15M to set
+     * @param precip_15M
+     *            the precip_15M to set
      */
     public void setPrecip_15M(Double precip_15M) {
         this.precip_15M = precip_15M;
@@ -607,7 +623,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_30M the precip_30M to set
+     * @param precip_30M
+     *            the precip_30M to set
      */
     public void setPrecip_30M(Double precip_30M) {
         this.precip_30M = precip_30M;
@@ -621,7 +638,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_01H the precip_01H to set
+     * @param precip_01H
+     *            the precip_01H to set
      */
     public void setPrecip_01H(Double precip_01H) {
         this.precip_01H = precip_01H;
@@ -635,7 +653,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_03H the precip_03H to set
+     * @param precip_03H
+     *            the precip_03H to set
      */
     public void setPrecip_03H(Double precip_03H) {
         this.precip_03H = precip_03H;
@@ -649,7 +668,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_06H the precip_06H to set
+     * @param precip_06H
+     *            the precip_06H to set
      */
     public void setPrecip_06H(Double precip_06H) {
         this.precip_06H = precip_06H;
@@ -663,7 +683,8 @@ IDecoderGettable {
     }
 
     /**
-     * @param precip_24H the precip_24H to set
+     * @param precip_24H
+     *            the precip_24H to set
      */
     public void setPrecip_24H(Double precip_24H) {
         this.precip_24H = precip_24H;
@@ -677,12 +698,13 @@ IDecoderGettable {
     }
 
     /**
-     * @param obsText the obsText to set
+     * @param obsText
+     *            the obsText to set
      */
     public void setObsText(String obsText) {
         this.obsText = obsText;
     }
-    
+
     // ******************************************
 
     /**
@@ -691,7 +713,7 @@ IDecoderGettable {
     public void setSpatialObject(SurfaceObsLocation loc) {
         location = loc;
     }
-    
+
     /**
      * 
      */
@@ -699,10 +721,10 @@ IDecoderGettable {
     public SurfaceObsLocation getSpatialObject() {
         return location;
     }
-    
+
     /**
-     * This class implements IDecoderGettable so return this
-     * instance.
+     * This class implements IDecoderGettable so return this instance.
+     * 
      * @return The reference to this instance.
      */
     @Override
@@ -722,7 +744,7 @@ IDecoderGettable {
         } else if (OBS_TEXT.equals(pName)) {
             retValue = getStationId();
         }
-        
+
         return retValue;
     }
 
@@ -730,7 +752,7 @@ IDecoderGettable {
     public String[] getStrings(String paramName) {
         return null;
     }
-    
+
     @Override
     public Amount getValue(String paramName) {
         Amount a = null;
@@ -755,10 +777,10 @@ IDecoderGettable {
         } else if (PRES_SLP.equals(pName)) {
             a = new Amount(seaLevelPressure, PRESSURE_UNIT);
         }
-        
+
         return a;
     }
-    
+
     /**
      * 
      */
@@ -766,11 +788,16 @@ IDecoderGettable {
     public Collection<Amount> getValues(String paramName) {
         return null;
     }
-    
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "mesowest";
     }
 }

@@ -77,6 +77,7 @@ import com.raytheon.uf.common.time.TimeRange;
  *                                      PluginDataObject.
  * May 13, 2013 1869        bsteffen    Remove DataURI column from GFE.
  * Jun 20, 2013 2127        rjpeter     Added OnDelete annotation.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -151,7 +152,6 @@ public class GFERecord extends PluginDataObject {
      *            The parm Info
      */
     public GFERecord(ParmID parmId, TimeRange timeRange) {
-        this.pluginName = "gfe";
         Calendar cal = (Calendar) Calendar.getInstance(
                 TimeZone.getTimeZone("GMT")).clone();
         cal.setTime(timeRange.getStart());
@@ -275,5 +275,10 @@ public class GFERecord extends PluginDataObject {
                 gridHistory.remove(i);
             }
         }
+    }
+
+    @Override
+    public String getPluginName() {
+        return "gfe";
     }
 }

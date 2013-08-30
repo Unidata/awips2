@@ -54,6 +54,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  *                                     from PluginDataObject
  * May 15, 2013 1869       bsteffen    Move uri map creation from RecordFactory.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -165,7 +166,7 @@ public class DataURIUtil {
             throws PluginException {
         List<String> tokens = tokenizeURI(dataURI);
         Map<String, Object> dataMap = new HashMap<String, Object>(
-                (int) (tokens.size() / 0.75f + 1), 0.75f);
+                (int) ((tokens.size() / 0.75f) + 1), 0.75f);
         String pluginName = tokens.get(0);
         tokens = tokens.subList(1, tokens.size());
         dataMap.put(PLUGIN_NAME_KEY, pluginName);
@@ -246,7 +247,6 @@ public class DataURIUtil {
      */
     public static void populatePluginDataObject(PluginDataObject pdo,
             Map<String, Object> dataMap) throws PluginException {
-        pdo.setPluginName(dataMap.get(PLUGIN_NAME_KEY).toString());
         populateObject(pdo, dataMap);
     }
 
@@ -275,7 +275,7 @@ public class DataURIUtil {
             throws PluginException {
         DataURIFieldAccess[] accessArray = getAccess(object.getClass());
         Map<String, Object> dataMap = new HashMap<String, Object>(
-                (int) (accessArray.length / 0.75f + 2), 0.75f);
+                (int) ((accessArray.length / 0.75f) + 2), 0.75f);
         if (object instanceof PluginDataObject) {
             dataMap.put(PLUGIN_NAME_KEY,
                     ((PluginDataObject) object).getPluginName());
@@ -316,7 +316,6 @@ public class DataURIUtil {
      */
     private static void populatePluginDataObject(PluginDataObject pdo,
             List<String> uriTokens) throws PluginException {
-        pdo.setPluginName(uriTokens.get(0));
         uriTokens = uriTokens.subList(1, uriTokens.size());
         DataURIFieldAccess[] access = getAccess(pdo.getClass());
         for (int i = 0; i < access.length; i += 1) {
@@ -471,7 +470,7 @@ public class DataURIUtil {
                 throws PluginException {
             Object source = pdo;
             try {
-                for (int i = 0; i < fieldNames.length - 1; i += 1) {
+                for (int i = 0; i < (fieldNames.length - 1); i += 1) {
                     Object obj = PropertyUtils.getProperty(source,
                             fieldNames[i]);
                     if (obj == null) {

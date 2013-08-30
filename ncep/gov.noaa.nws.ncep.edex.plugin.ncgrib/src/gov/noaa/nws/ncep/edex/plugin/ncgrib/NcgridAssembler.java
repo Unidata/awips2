@@ -63,8 +63,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/09/10      4638        bphillip    Initial Creation
+ * Apr 09, 2010 4638        bphillip    Initial Creation
  * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -152,7 +153,7 @@ public class NcgridAssembler {
                 + newRecords.keySet().size()];
         for (int i = 0; i < records.length; i++) {
             recs[i] = records[i];
-            if (i == records.length - 1) {
+            if (i == (records.length - 1)) {
                 for (NcgribRecord newRecord : newRecords.values()) {
                     i++;
                     recs[i] = newRecord;
@@ -220,7 +221,6 @@ public class NcgridAssembler {
             FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(
                     assembledRecord, 0)[0];
             assembledRecord.setMessageData(rec);
-            assembledRecord.setPluginName("ncgrib");
         }
 
         mergeData(record, assembledRecord, dao, thinned);
@@ -322,7 +322,6 @@ public class NcgridAssembler {
         newRecord.setMessageData(data);
         newRecord.setDataTime(record.getDataTime());
         newRecord.setDataURI(null);
-        newRecord.setPluginName("ncgrib");
         newRecord.setInsertTime(Calendar.getInstance());
 
         try {
@@ -338,7 +337,6 @@ public class NcgridAssembler {
             FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(newRecord,
                     0)[0];
             newRecord.setMessageData(rec);
-            newRecord.setPluginName("ncgrib");
         } catch (PluginException e) {
             throw new GribException("Error storing new ncrecord to HDF5", e);
         }
