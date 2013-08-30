@@ -61,9 +61,10 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009            dhladky     Initial creation
  * Feb 28, 2013 1731       bsteffen    Optimize construction of scan resource.
- * Apr 18, 2013    1926    njensen     Reuse URIs in construction of resource
- * Jul 24, 2013    2218    mpduff      Changed method signature.
- * Aug 15, 2013    2143    mpduff      Add missing data check.
+ * Apr 18, 2013 1926       njensen     Reuse URIs in construction of resource
+ * Jul 24, 2013 2218       mpduff      Changed method signature.
+ * Aug 15, 2013 2143       mpduff      Add missing data check.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -206,7 +207,6 @@ public class ScanResourceData extends AbstractRequestableResourceData {
     public void populateRecords(ScanRecord[] records) throws VizException {
         Map<File, Set<ScanRecord>> fileMap = new HashMap<File, Set<ScanRecord>>();
         for (ScanRecord record : records) {
-            record.setPluginName("scan");
             File loc = HDF5Util.findHDF5Location(record);
             Set<ScanRecord> recordSet = fileMap.get(loc);
             if (recordSet == null) {
@@ -263,12 +263,12 @@ public class ScanResourceData extends AbstractRequestableResourceData {
             List<DataTime> dataList = new ArrayList<DataTime>();
 
             long[] times = monitor.getDMDMaxAngleTimes(icao);
-            int index = times.length - 1 < 0 ? 0 : times.length - 1;
+            int index = (times.length - 1) < 0 ? 0 : times.length - 1;
             if ((times != null) && (times.length != 0)) {
-                for (int i = 0; i < allTimes.length; i++) {
-                    if (allTimes[i].getRefTime() != null) {
-                        if (allTimes[i].getRefTime().getTime() == times[index]) {
-                            dataList.add(allTimes[i]);
+                for (DataTime allTime : allTimes) {
+                    if (allTime.getRefTime() != null) {
+                        if (allTime.getRefTime().getTime() == times[index]) {
+                            dataList.add(allTime);
                             index--;
                             if (index == -1) {
                                 break;

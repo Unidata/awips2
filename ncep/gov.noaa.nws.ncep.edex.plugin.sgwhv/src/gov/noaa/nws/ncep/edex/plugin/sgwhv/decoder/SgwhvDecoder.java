@@ -7,9 +7,10 @@
  ** <pre>
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * -------		-------		--------	-----------
- * 08/23/11					Chin J Chen   Initial coding from BufrSgwhvDecoder
+ * Date         Ticket# Engineer    Description
+ * ------------ ------- ----------- ------------------------------------------
+ * 08/23/11             Chin J Chen Initial coding from BufrSgwhvDecoder
+ * Aug 30, 2013 2298    rjpeter     Make getPluginName abstract
  * </pre>
  *
  * @author Chin J. Chen
@@ -36,7 +37,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 public class SgwhvDecoder extends AbstractDecoder implements IBinaryDecoder {
     private static String pluginName;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     /**
      * Empty constructor required by DecoderFactory.
@@ -54,6 +55,7 @@ public class SgwhvDecoder extends AbstractDecoder implements IBinaryDecoder {
      * @throws DecoderException
      *             Thrown if no data is available.
      */
+    @Override
     public PluginDataObject[] decode(byte[] bufrData) throws DecoderException {
         SgwhvRecord sgwhvRec;
         SgwhvSeparator sep = new SgwhvSeparator();
@@ -83,7 +85,6 @@ public class SgwhvDecoder extends AbstractDecoder implements IBinaryDecoder {
             sgwhvRec = SgwhvParser.processSgwhv(sep, subsetNum);
             if (sgwhvRec != null) {
                 try {
-                    sgwhvRec.setPluginName(pluginName);
                     sgwhvRec.constructDataURI();
                     sgwhvRec.setReportType("SGWHV");
                 } catch (PluginException e) {

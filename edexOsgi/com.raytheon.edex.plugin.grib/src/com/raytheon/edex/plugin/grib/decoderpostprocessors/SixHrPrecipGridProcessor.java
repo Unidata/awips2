@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.parameter.Parameter;
@@ -48,6 +47,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 25, 2011            rgeorge     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -107,8 +107,7 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
         // previous grid
         else {
             for (GridRecord rec : precipInventory) {
-                if (rec.getDataTime().getFcstTime() == currentFcstTime
-                        - SECONDS_IN_6_HRS) {
+                if (rec.getDataTime().getFcstTime() == (currentFcstTime - SECONDS_IN_6_HRS)) {
                     tp6hrRecords.add(calculate6hrPrecip(rec, record));
                 }
             }
@@ -218,7 +217,6 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
         record.setDataTime(newDataTime);
         record.setDataURI(null);
         try {
-            record.setPluginName(GridConstants.GRID);
             record.constructDataURI();
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,
