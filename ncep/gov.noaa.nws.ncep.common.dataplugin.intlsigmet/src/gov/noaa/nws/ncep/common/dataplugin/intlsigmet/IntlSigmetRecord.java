@@ -58,183 +58,174 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "intlsigmet",
-		indexes = {
-				@Index(name = "intlsigmet_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "intlsigmet", indexes = { @Index(name = "intlsigmet_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
+public class IntlSigmetRecord extends PluginDataObject {
 
-
-public class IntlSigmetRecord extends PluginDataObject{
-
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// reportType is "international sigmet".
-	@Column(length=32)
-	@DataURI(position=1)
-	@DynamicSerializeElement
-	private String reportType;
-	
-	// hazardType is weather phenomena.
-	@Column(length=48)
-	@DataURI(position=2)
-	@DynamicSerializeElement
-	private String hazardType;
-	
-	// WMO header
-	@Column(length=32)
-	@DynamicSerializeElement
-	private String wmoHeader;
-
-	// The issue office where the report from
-	@Column(length=32)
-	@DynamicSerializeElement
-	private String issueOffice;
-	
-	// Issue time of the report
-	@Column
-	@DynamicSerializeElement
-	private Calendar issueTime;
-
-	// Start time of the report
-	@Column
-	@DynamicSerializeElement
-	private Calendar startTime;
-	
-	// End time of the report
-	@Column
-	@DynamicSerializeElement
-	private Calendar endTime;
-	
-	// The message ID
-	@Column(length=16)
-	@DataURI(position=3)
-	@DynamicSerializeElement
-	private String messageID;
-	
-	// The sequence number
-	@Column(length=8)
-	@DataURI(position=4)
-	@DynamicSerializeElement
-	private String sequenceNumber;
-	
-	// The air traffic services unit
-	@Column(length=16)
-	@DynamicSerializeElement
-	private String atsu;
-	
-	// The location indicator of the meteorological watch office originator
-	@Column(length=16)
-	@DynamicSerializeElement
-	private String omwo;
-	
-	// Flight level 1
-	@Column
-	@DynamicSerializeElement
-	private Integer flightlevel1;
-	
-	// Flight level 2
-	@Column
-	@DynamicSerializeElement
-	private Integer flightlevel2;
-	
-	// Distance
-	@Column
-	@DynamicSerializeElement
-	private Integer distance;
-	
-	// Direction
-	@Column(length=16)
-	@DynamicSerializeElement
-	private String direction;
-	
-	// Speed
-	@Column
-	@DynamicSerializeElement
-	private Integer speed;
-	
-	/*
-	 * the name of the storm, where applicable, or location of the 
-	 * volcano, where applicable, or the word, OTHER, for reports 
-	 * not from CONUS, Hawaii, Guam, Japan, UK, Tahiti, and Cuba
-
-	 */
-	@Column(length=48)
-	@DynamicSerializeElement
-	private String nameLocation;
-	
-	/*
-	 * remarks such as: correction, remarks, ...etc.
-	 */
-	@Column(length=32)
+    // reportType is "international sigmet".
+    @Column(length = 32)
+    @DataURI(position = 1)
     @DynamicSerializeElement
-	private String remarks;
-	
-	// The changes in intensity; using as "INTSF", "WKN", or "NC".
-	@Column(length=16)
-	@DynamicSerializeElement
-	private String intensity;
-	
-	// The polygon indicator as "WI", "WTN", "EITHER SIDE", or "E OF".
-	@Column(length=16)
-	@DynamicSerializeElement
-	private String polygonExtent;
-	
-	// The entire report
-	@Column(length=5000)
-	@DynamicSerializeElement
-	private String bullMessage;
+    private String reportType;
 
+    // hazardType is weather phenomena.
+    @Column(length = 48)
+    @DataURI(position = 2)
+    @DynamicSerializeElement
+    private String hazardType;
 
-	/** 
-	 * Intlsigmet location 
-	 */
-	@DynamicSerializeElement
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "parentID", nullable = false)
+    // WMO header
+    @Column(length = 32)
+    @DynamicSerializeElement
+    private String wmoHeader;
+
+    // The issue office where the report from
+    @Column(length = 32)
+    @DynamicSerializeElement
+    private String issueOffice;
+
+    // Issue time of the report
+    @Column
+    @DynamicSerializeElement
+    private Calendar issueTime;
+
+    // Start time of the report
+    @Column
+    @DynamicSerializeElement
+    private Calendar startTime;
+
+    // End time of the report
+    @Column
+    @DynamicSerializeElement
+    private Calendar endTime;
+
+    // The message ID
+    @Column(length = 16)
+    @DataURI(position = 3)
+    @DynamicSerializeElement
+    private String messageID;
+
+    // The sequence number
+    @Column(length = 8)
+    @DataURI(position = 4)
+    @DynamicSerializeElement
+    private String sequenceNumber;
+
+    // The air traffic services unit
+    @Column(length = 16)
+    @DynamicSerializeElement
+    private String atsu;
+
+    // The location indicator of the meteorological watch office originator
+    @Column(length = 16)
+    @DynamicSerializeElement
+    private String omwo;
+
+    // Flight level 1
+    @Column
+    @DynamicSerializeElement
+    private Integer flightlevel1;
+
+    // Flight level 2
+    @Column
+    @DynamicSerializeElement
+    private Integer flightlevel2;
+
+    // Distance
+    @Column
+    @DynamicSerializeElement
+    private Integer distance;
+
+    // Direction
+    @Column(length = 16)
+    @DynamicSerializeElement
+    private String direction;
+
+    // Speed
+    @Column
+    @DynamicSerializeElement
+    private Integer speed;
+
+    /*
+     * the name of the storm, where applicable, or location of the volcano,
+     * where applicable, or the word, OTHER, for reports not from CONUS, Hawaii,
+     * Guam, Japan, UK, Tahiti, and Cuba
+     */
+    @Column(length = 48)
+    @DynamicSerializeElement
+    private String nameLocation;
+
+    /*
+     * remarks such as: correction, remarks, ...etc.
+     */
+    @Column(length = 32)
+    @DynamicSerializeElement
+    private String remarks;
+
+    // The changes in intensity; using as "INTSF", "WKN", or "NC".
+    @Column(length = 16)
+    @DynamicSerializeElement
+    private String intensity;
+
+    // The polygon indicator as "WI", "WTN", "EITHER SIDE", or "E OF".
+    @Column(length = 16)
+    @DynamicSerializeElement
+    private String polygonExtent;
+
+    // The entire report
+    @Column(length = 5000)
+    @DynamicSerializeElement
+    private String bullMessage;
+
+    /**
+     * Intlsigmet location
+     */
+    @DynamicSerializeElement
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "parentID", nullable = false)
     @Index(name = "intlSigmetLocation_parentid_idex")
-	private Set<IntlSigmetLocation> intlSigmetLocation = new HashSet<IntlSigmetLocation>();
+    private Set<IntlSigmetLocation> intlSigmetLocation = new HashSet<IntlSigmetLocation>();
 
-
-	/**
+    /**
      * Default Convstructor
      */
     public IntlSigmetRecord() {
-    	this.issueOffice=null;
-    	this.wmoHeader=null;
-    	this.bullMessage=null;
-    	this.hazardType=null;
-    	this.messageID=null;
-    	this.reportType="INTLSIGMET";
-    	this.sequenceNumber=null;
-    	this.atsu=null;
-    	this.omwo=null;
-    	this.nameLocation=null;
-    	this.intensity=null;
-    	this.remarks=null;
-    	this.flightlevel1=IDecoderConstantsN.INTEGER_MISSING;
-    	this.flightlevel2=IDecoderConstantsN.INTEGER_MISSING;
-    	this.direction=null;
-    	this.distance=IDecoderConstantsN.INTEGER_MISSING;
-    	this.speed=IDecoderConstantsN.INTEGER_MISSING;
-    	this.polygonExtent=null;
+        this.issueOffice = null;
+        this.wmoHeader = null;
+        this.bullMessage = null;
+        this.hazardType = null;
+        this.messageID = null;
+        this.reportType = "INTLSIGMET";
+        this.sequenceNumber = null;
+        this.atsu = null;
+        this.omwo = null;
+        this.nameLocation = null;
+        this.intensity = null;
+        this.remarks = null;
+        this.flightlevel1 = IDecoderConstantsN.INTEGER_MISSING;
+        this.flightlevel2 = IDecoderConstantsN.INTEGER_MISSING;
+        this.direction = null;
+        this.distance = IDecoderConstantsN.INTEGER_MISSING;
+        this.speed = IDecoderConstantsN.INTEGER_MISSING;
+        this.polygonExtent = null;
     }
 
     /**
      * Convstructs a consigmet record from a dataURI
      * 
-     * @param uri The dataURI
+     * @param uri
+     *            The dataURI
      */
     public IntlSigmetRecord(String uri) {
         super(uri);
     }
 
-    
     @Override
     public IDecoderGettable getDecoderGettable() {
         // TODO Auto-generated method stub
@@ -242,343 +233,366 @@ public class IntlSigmetRecord extends PluginDataObject{
     }
 
     /**
-	 * @return the issueOffice
-	 */
-	public String getIssueOffice(){
-		return issueOffice;
-	}
+     * @return the issueOffice
+     */
+    public String getIssueOffice() {
+        return issueOffice;
+    }
 
-	/**
-	 * @param issueOffice to set
-	 */
-	public void setIssueOffice(String issueOffice){
-		this.issueOffice=issueOffice;
-	}
-	
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getWmoHeader(){
-		return wmoHeader;
-	}
+    /**
+     * @param issueOffice
+     *            to set
+     */
+    public void setIssueOffice(String issueOffice) {
+        this.issueOffice = issueOffice;
+    }
 
-	/**
-	 * @param wnoHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader){
-		this.wmoHeader=wmoHeader;
-	}
-	
-	/**
-	 * @return the issueTime
-	 */
-	public Calendar getIssueTime(){
-		return issueTime;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * @param issueTime to set
-	 */
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
-	}
-	
-	/**
-	 * @return the reportType
-	 */
-	public String getReportType() {
-		return reportType;
-	}
+    /**
+     * @param wnoHeader
+     *            to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	/**
-	 * @param reportType to set
-	 */
-	public void setReportType(String reportType) {
-		this.reportType = reportType;
-	}
+    /**
+     * @return the issueTime
+     */
+    public Calendar getIssueTime() {
+        return issueTime;
+    }
 
-	/**
-	 * @return the bullMessage
-	 */
-	public String getBullMessage() {
-		return bullMessage;
-	}
+    /**
+     * @param issueTime
+     *            to set
+     */
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
 
-	/**
-	 * @param bullMessage to set
-	 */
-	public void setBullMessage(String bullMessage) {
-		this.bullMessage = bullMessage;
-	}
+    /**
+     * @return the reportType
+     */
+    public String getReportType() {
+        return reportType;
+    }
 
-	/**
-	   * @return the set of hazard
-	   */  
-	public String getHazardType() {
-		return hazardType;
-	}
+    /**
+     * @param reportType
+     *            to set
+     */
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
 
-	/**
-	 * @param hazardType to set
-	 */
-	public void setHazardType(String hazardType) {
-		this.hazardType = hazardType;
-	}
+    /**
+     * @return the bullMessage
+     */
+    public String getBullMessage() {
+        return bullMessage;
+    }
 
-	/**
-	 * @return the startTime
-	 */
-	public Calendar getStartTime() {
-		return startTime;
-	}
+    /**
+     * @param bullMessage
+     *            to set
+     */
+    public void setBullMessage(String bullMessage) {
+        this.bullMessage = bullMessage;
+    }
 
-	/**
-	 * @param startTime to set
-	 */
-	public void setStartTime(Calendar startTime) {
-		this.startTime = startTime;
-	}
+    /**
+     * @return the set of hazard
+     */
+    public String getHazardType() {
+        return hazardType;
+    }
 
-	/**
-	 * @return the endTime
-	 */
-	public Calendar getEndTime() {
-		return endTime;
-	}
+    /**
+     * @param hazardType
+     *            to set
+     */
+    public void setHazardType(String hazardType) {
+        this.hazardType = hazardType;
+    }
 
-	/**
-	 * @param endTime to set
-	 */
-	public void setEndTime(Calendar endTime) {
-		this.endTime = endTime;
-	}
+    /**
+     * @return the startTime
+     */
+    public Calendar getStartTime() {
+        return startTime;
+    }
 
-	public String getMessageID() {
-		return messageID;
-	}
+    /**
+     * @param startTime
+     *            to set
+     */
+    public void setStartTime(Calendar startTime) {
+        this.startTime = startTime;
+    }
 
-	/**
-	 * @param messageID to set
-	 */
-	public void setMessageID(String messageID) {
-		this.messageID = messageID;
-	}
+    /**
+     * @return the endTime
+     */
+    public Calendar getEndTime() {
+        return endTime;
+    }
 
-	/**
-	 * @return the sequenceNumber
-	 */
-	public String getSequenceNumber() {
-		return sequenceNumber;
-	}
+    /**
+     * @param endTime
+     *            to set
+     */
+    public void setEndTime(Calendar endTime) {
+        this.endTime = endTime;
+    }
 
-	/**
-	 * @param sequenceNumber to set
-	 */
-	public void setSequenceNumber(String sequenceNumber) {
-		this.sequenceNumber = sequenceNumber;
-	}
+    public String getMessageID() {
+        return messageID;
+    }
 
-	/**
-	 * @return the atsu
-	 */
-	public String getAtsu() {
-		return atsu;
-	}
+    /**
+     * @param messageID
+     *            to set
+     */
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
+    }
 
-	/**
-	 * @param atsu to set
-	 */
-	public void setAtsu(String atsu) {
-		this.atsu = atsu;
-	}
+    /**
+     * @return the sequenceNumber
+     */
+    public String getSequenceNumber() {
+        return sequenceNumber;
+    }
 
-	/**
-	 * @return the omwo
-	 */
-	public String getOmwo() {
-		return omwo;
-	}
+    /**
+     * @param sequenceNumber
+     *            to set
+     */
+    public void setSequenceNumber(String sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
+    }
 
-	/**
-	 * @param omwo to set
-	 */
-	public void setOmwo(String omwo) {
-		this.omwo = omwo;
-	}
+    /**
+     * @return the atsu
+     */
+    public String getAtsu() {
+        return atsu;
+    }
 
-	/**
-	 * @return the flightLevel1
-	 */
-	public Integer getFlightlevel1() {
-		return flightlevel1;
-	}
+    /**
+     * @param atsu
+     *            to set
+     */
+    public void setAtsu(String atsu) {
+        this.atsu = atsu;
+    }
 
-	/**
-	 * @param flightLevel1 to set
-	 */
-	public void setFlightlevel1(Integer flightlevel1) {
-		this.flightlevel1 = flightlevel1;
-	}
+    /**
+     * @return the omwo
+     */
+    public String getOmwo() {
+        return omwo;
+    }
 
-	/**
-	 * @return flightLevel2
-	 */
-	public Integer getFlightlevel2() {
-		return flightlevel2;
-	}
+    /**
+     * @param omwo
+     *            to set
+     */
+    public void setOmwo(String omwo) {
+        this.omwo = omwo;
+    }
 
-	/**
-	 * @param flightLevel2 to set
-	 */
-	public void setFlightlevel2(Integer flightlevel2) {
-		this.flightlevel2 = flightlevel2;
-	}
-	
-	/**
-	 * @return distacne
-	 */
-	public Integer getDistance() {
-		return distance;
-	}
+    /**
+     * @return the flightLevel1
+     */
+    public Integer getFlightlevel1() {
+        return flightlevel1;
+    }
 
-	/**
-	 * @param distance to set
-	 */
-	public void setDistance(Integer distance) {
-		this.distance = distance;
-	}
+    /**
+     * @param flightLevel1
+     *            to set
+     */
+    public void setFlightlevel1(Integer flightlevel1) {
+        this.flightlevel1 = flightlevel1;
+    }
 
-	/**
-	 * @return direction
-	 */
-	public String getDirection() {
-		return direction;
-	}
+    /**
+     * @return flightLevel2
+     */
+    public Integer getFlightlevel2() {
+        return flightlevel2;
+    }
 
-	/**
-	 * @param direction to set
-	 */
-	public void setDirection(String direction) {
-		this.direction = direction;
-	}
+    /**
+     * @param flightLevel2
+     *            to set
+     */
+    public void setFlightlevel2(Integer flightlevel2) {
+        this.flightlevel2 = flightlevel2;
+    }
 
-	/**
-	 * @return the speed
-	 */
-	public Integer getSpeed() {
-		return speed;
-	}
+    /**
+     * @return distacne
+     */
+    public Integer getDistance() {
+        return distance;
+    }
 
-	/**
-	 * @param speed to set
-	 */
-	public void setSpeed(Integer speed) {
-		this.speed = speed;
-	}
+    /**
+     * @param distance
+     *            to set
+     */
+    public void setDistance(Integer distance) {
+        this.distance = distance;
+    }
 
-	/**
-	 * @return the nameLocation
-	 */
-	public String getNameLocation() {
-		return nameLocation;
-	}
+    /**
+     * @return direction
+     */
+    public String getDirection() {
+        return direction;
+    }
 
-	/**
-	 * @param nameLocation to set
-	 */
-	public void setNameLocation(String nameLocation) {
-		this.nameLocation = nameLocation;
-	}
+    /**
+     * @param direction
+     *            to set
+     */
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
 
-	/**
-	 * @return the remarks
-	 */
-	public String getRemarks() {
-		return remarks;
-	}
+    /**
+     * @return the speed
+     */
+    public Integer getSpeed() {
+        return speed;
+    }
 
-	/**
-	 * @param remarks to set
-	 */
-	public void setRemarks(String remarks) {
-		this.remarks = remarks;
-	}
+    /**
+     * @param speed
+     *            to set
+     */
+    public void setSpeed(Integer speed) {
+        this.speed = speed;
+    }
 
-	/**
-	 * @return the intensity
-	 */
-	public String getIntensity() {
-		return intensity;
-	}
-	
-	/**
-	 * @param intensity to set
-	 */
-	public void setIntensity(String intensity) {
-		this.intensity = intensity;
-	}
-	
-	/**
-	 * @return the polygonExtent
-	 */
-	public String getPolygonExtent() {
-		return polygonExtent;
-	}
-	
-	/**
-	 * @param polygonExtent to set
-	 */
-	public void setPolygonExtent(String polygonExtent) {
-		this.polygonExtent = polygonExtent;
-	}
+    /**
+     * @return the nameLocation
+     */
+    public String getNameLocation() {
+        return nameLocation;
+    }
 
-	/**
-	 * @return the intlSigmetLocation
-	 */
-	public Set<IntlSigmetLocation> getIntlSigmetLocation() {
-		return intlSigmetLocation;
-	}
+    /**
+     * @param nameLocation
+     *            to set
+     */
+    public void setNameLocation(String nameLocation) {
+        this.nameLocation = nameLocation;
+    }
 
-	/**
-	 * @param intlSigmetLocation to set
-	 */
-	public void setIntlSigmetLocation(Set<IntlSigmetLocation> intlSigmetLocation) {
-		this.intlSigmetLocation = intlSigmetLocation;
-	}
+    /**
+     * @return the remarks
+     */
+    public String getRemarks() {
+        return remarks;
+    }
 
-	/**
-	 * @return the serialVersionUID
-	 */
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
-	   
-	/**
-	 * @param add international sigmet Location to set
-	 */
-	 public void addIntlSigmetLocation(IntlSigmetLocation psection){
-         intlSigmetLocation.add(psection);
-        
-	 }
- 
-	 /**
-	  * Override existing set method to modify any
-	  * classes that use the dataURI as a foreign key
-	  */
-	 @Override
-	 public void setIdentifier(Object dataURI)
-	 {
+    /**
+     * @param remarks
+     *            to set
+     */
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
 
-	   this.identifier = dataURI;
-    
-	   
-    
-	 }
+    /**
+     * @return the intensity
+     */
+    public String getIntensity() {
+        return intensity;
+    }
+
+    /**
+     * @param intensity
+     *            to set
+     */
+    public void setIntensity(String intensity) {
+        this.intensity = intensity;
+    }
+
+    /**
+     * @return the polygonExtent
+     */
+    public String getPolygonExtent() {
+        return polygonExtent;
+    }
+
+    /**
+     * @param polygonExtent
+     *            to set
+     */
+    public void setPolygonExtent(String polygonExtent) {
+        this.polygonExtent = polygonExtent;
+    }
+
+    /**
+     * @return the intlSigmetLocation
+     */
+    public Set<IntlSigmetLocation> getIntlSigmetLocation() {
+        return intlSigmetLocation;
+    }
+
+    /**
+     * @param intlSigmetLocation
+     *            to set
+     */
+    public void setIntlSigmetLocation(Set<IntlSigmetLocation> intlSigmetLocation) {
+        this.intlSigmetLocation = intlSigmetLocation;
+    }
+
+    /**
+     * @return the serialVersionUID
+     */
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    /**
+     * @param add
+     *            international sigmet Location to set
+     */
+    public void addIntlSigmetLocation(IntlSigmetLocation psection) {
+        intlSigmetLocation.add(psection);
+
+    }
+
+    /**
+     * Override existing set method to modify any classes that use the dataURI
+     * as a foreign key
+     */
+    @Override
+    public void setIdentifier(Object dataURI) {
+        this.identifier = dataURI;
+    }
 
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "intlsigmet";
     }
 }
