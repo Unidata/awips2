@@ -28,9 +28,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
- * 03/27/2013   975        sgurung            Initial creation.
- * 05/26/2013              bhebbard           Added SequenceGenerator annotation. 
- * 06/26/2013   989        qzhou              Added lots of fields.
+ * Mar 27, 2013 975        sgurung            Initial creation.
+ * May 26, 2013            bhebbard           Added SequenceGenerator
+ *                                            annotation.
+ * Jun 26, 2013 989        qzhou              Added lots of fields.
+ * Jul 22, 2013 1977       rjpeter            Added getDataURI and annotations.
+ * Aug 30, 2013 2298       rjpeter            Make getPluginName abstract
  * </pre>
  * 
  * @author sgurung
@@ -756,5 +759,10 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     @Override
     public IHDFFilePathProvider getHDFPathProvider() {
         return GeoMagPathProvider.getInstance();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "geomag";
     }
 }
