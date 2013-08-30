@@ -41,7 +41,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009 1939       jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 public class SigWxDecoder extends AbstractBUFRDecoder {
 
-    private PointDataDescription pdd = null;
+    private final PointDataDescription pdd = null;
 
     private SigWxDataDao dao;
 
@@ -68,21 +69,23 @@ public class SigWxDecoder extends AbstractBUFRDecoder {
      * 
      */
     @Override
-    public List<PluginDataObject> decodeData(List<BUFRDataDocument> document, String traceId, WMOHeader wmoHeader) {
+    public List<PluginDataObject> decodeData(List<BUFRDataDocument> document,
+            String traceId, WMOHeader wmoHeader) {
 
-        List<PluginDataObject> decodedData = null;  
-        if(document != null) {
+        List<PluginDataObject> decodedData = null;
+        if (document != null) {
             decodedData = new ArrayList<PluginDataObject>();
-            SigWxDataAdapter adapter = SigWxDataAdapter.getAdapter(pdd, dao, traceId, wmoHeader);
+            SigWxDataAdapter adapter = SigWxDataAdapter.getAdapter(pdd, dao,
+                    traceId, wmoHeader);
             logger.debug(traceId + " - Document size = " + document.size());
             Iterator<BUFRDataDocument> iterator = document.iterator();
             while (iterator.hasNext()) {
                 logger.debug(traceId + " - Entering createDataList");
 
-                List<SigWxData> sigwx = adapter.createDataList(iterator, wmoHeader);
+                List<SigWxData> sigwx = adapter.createDataList(iterator,
+                        wmoHeader);
                 if (sigwx != null) {
-                    for(SigWxData d : sigwx) {
-                        d.setPluginName(getPluginName());
+                    for (SigWxData d : sigwx) {
                         d.setTraceId(traceId);
                         try {
                             d.constructDataURI();
@@ -99,23 +102,23 @@ public class SigWxDecoder extends AbstractBUFRDecoder {
         }
         return decodedData;
     }
-    
+
     /**
      * 
      * @param recreate
      */
     @Override
     protected void createDAO(boolean recreate) {
-        if(recreate) {
+        if (recreate) {
             dao = null;
         }
         try {
             dao = new SigWxDataDao(pluginName);
         } catch (Exception e) {
-            logger.error("SigWxDataDao creation failed",e);
+            logger.error("SigWxDataDao creation failed", e);
             logger.error("Plugin set to failSafe mode");
             setFailSafe(true);
         }
     }
-    
+
 }

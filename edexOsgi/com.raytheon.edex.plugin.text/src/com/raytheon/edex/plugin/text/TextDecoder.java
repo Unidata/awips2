@@ -66,18 +66,19 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 2008 Aug 11              jkorman
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 11, 2008             jkorman     Initial creation
  * Jul 10, 2009 2191        rjpeter     Finished implementation.
- * Apr 14, 2010 4734        mhuang      Corrected StdTextProduct import 
- *                                       dependency
+ * Apr 14, 2010 4734        mhuang      Corrected StdTextProduct import
+ *                                      dependency
  * May 28, 2010 2187        cjeanbap    Added StdTextProductFactory
- *                                       functionality.
+ *                                      functionality.
  * Aug 26, 2010 2187        cjeanbap    Renamed operationalMode for
- *                                       consistency.
+ *                                      consistency.
  * Dec 13, 2010 5805        cjeanbap    Parse Report to get AFOS Product Id
- * Jul 16, 2013 DR 16323    D. Friedman Use concurrent map
+ * Jul 16, 2013 16323       D. Friedman Use concurrent map
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author
@@ -99,7 +100,7 @@ public class TextDecoder extends AbstractDecoder {
             .getEnvProperties().getEnvValue("DEFAULTDATADIR")
             + "badTxt";
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private String pluginName;
 
@@ -107,11 +108,11 @@ public class TextDecoder extends AbstractDecoder {
 
     private String fileName;
 
-    private TextDB textdb = new TextDB();
+    private final TextDB textdb = new TextDB();
 
     // keeps track of the headers that have been logged as not mapped and the
     // time it was logged, so that each one is only logged once a day
-    private Map<String, Long> notMappedHeaders = new ConcurrentHashMap<String, Long>();
+    private final Map<String, Long> notMappedHeaders = new ConcurrentHashMap<String, Long>();
 
     private long msgHdrLogTime = 0;
 
@@ -158,7 +159,6 @@ public class TextDecoder extends AbstractDecoder {
 
         if (pdo != null) {
             pdo.setTraceId(traceId);
-            pdo.setPluginName(pluginName);
             try {
                 pdo.constructDataURI();
             } catch (PluginException e) {
@@ -209,7 +209,7 @@ public class TextDecoder extends AbstractDecoder {
 
                     TextRecord pdo = null;
 
-                    WMOReportData rptData = (WMOReportData) separator.next();
+                    WMOReportData rptData = separator.next();
                     boolean operationalMode = true;
 
                     if (rptData != null) {
@@ -227,8 +227,8 @@ public class TextDecoder extends AbstractDecoder {
                                 if (afosIdContainer != null) {
                                     List<AfosToAwips> afosIdList = afosIdContainer
                                             .getIdList();
-                                    if (afosIdList != null
-                                            && afosIdList.size() > 0) {
+                                    if ((afosIdList != null)
+                                            && (afosIdList.size() > 0)) {
                                         StringTokenizer st = new StringTokenizer(
                                                 rptData.getReportData(), "\n");
                                         String potentialId = st.nextToken();
@@ -266,20 +266,20 @@ public class TextDecoder extends AbstractDecoder {
                                         + rptHdr.getCccc();
                                 Long time = notMappedHeaders.get(key);
                                 long curTime = System.currentTimeMillis();
-                                if (time == null
-                                        || (curTime - time > NOT_FOUND_LOG_PERIOD)) {
+                                if ((time == null)
+                                        || ((curTime - time) > NOT_FOUND_LOG_PERIOD)) {
                                     StringBuilder msg = new StringBuilder(200);
                                     msg.append("Could not determine AFOS id for wmo header: [");
                                     msg.append(rptHdr.toString());
                                     msg.append("]");
 
-                                    if (msgHdr != null
+                                    if ((msgHdr != null)
                                             && !msgHdr.equals(rptHdr)) {
                                         msg.append(" incoming message header [");
                                         msg.append(msgHdr.toString());
                                         msg.append("]");
                                     }
-                                    if (curTime - msgHdrLogTime > MSG_HDR_LOG_PERIOD) {
+                                    if ((curTime - msgHdrLogTime) > MSG_HDR_LOG_PERIOD) {
                                         msg.append("\nMsg for a given header will only be logged once in a "
                                                 + (NOT_FOUND_LOG_PERIOD / MILLIS_PER_HOUR)
                                                 + " hour period");
@@ -319,7 +319,6 @@ public class TextDecoder extends AbstractDecoder {
 
                     if (pdo != null) {
                         pdo.setTraceId(traceId);
-                        pdo.setPluginName(pluginName);
                         try {
                             pdo.constructDataURI();
                         } catch (PluginException e) {
@@ -359,8 +358,8 @@ public class TextDecoder extends AbstractDecoder {
                                 key = header.getOriginalMessage();
                             }
                             Long time = notMappedHeaders.get(key);
-                            if (time == null
-                                    || (curTime - time > NOT_FOUND_LOG_PERIOD)) {
+                            if ((time == null)
+                                    || ((curTime - time) > NOT_FOUND_LOG_PERIOD)) {
                                 notMappedHeaders.put(key, curTime);
                             } else {
                                 iter.remove();
@@ -387,7 +386,7 @@ public class TextDecoder extends AbstractDecoder {
                                 }
                             }
 
-                            if (curTime - msgHdrLogTime > MSG_HDR_LOG_PERIOD) {
+                            if ((curTime - msgHdrLogTime) > MSG_HDR_LOG_PERIOD) {
                                 msg.append("\nMsg for a given header will only be logged once in a "
                                         + (NOT_FOUND_LOG_PERIOD / MILLIS_PER_HOUR)
                                         + " hour period");

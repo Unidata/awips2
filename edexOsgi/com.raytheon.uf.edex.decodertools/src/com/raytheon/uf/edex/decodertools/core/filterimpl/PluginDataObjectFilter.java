@@ -21,16 +21,13 @@ package com.raytheon.uf.edex.decodertools.core.filterimpl;
 
 import static com.raytheon.uf.common.localization.LocalizationContext.LocalizationType.EDEX_STATIC;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,8 +41,8 @@ import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -59,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2009            jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -73,10 +71,10 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
     private static final String ERROR_1_FMT = "Could not create {%s} context for file \"%s\"";
 
     private static final String ERROR_2_FMT = "File %s does not exist";
-    
+
     public static final String FILTERS_DIR = "plugin-filters";
-    
-    private Log logger = LogFactory.getLog(getClass());
+
+    private final Log logger = LogFactory.getLog(getClass());
 
     private String filterConfigFile = null;
 
@@ -87,11 +85,12 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         filterConfigFile = configFile;
         try {
             File filterDir = null;
-            
+
             IPathManager manager = PathManagerFactory.getPathManager();
-            if(manager != null) {
-                LocalizationContext context = manager.getContext(EDEX_STATIC, LocalizationLevel.valueOf(localContext));
-                if(context != null) {
+            if (manager != null) {
+                LocalizationContext context = manager.getContext(EDEX_STATIC,
+                        LocalizationLevel.valueOf(localContext));
+                if (context != null) {
                     filterDir = manager.getFile(context, FILTERS_DIR);
                     if (filterDir.exists()) {
                         File srcFile = new File(filterDir, filterConfigFile);
@@ -111,22 +110,24 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                         } catch (IOException e) {
                             logger.error("Unable to read filter config", e);
                         } catch (JAXBException e) {
-                            logger.error("Unable to unmarshall filter config", e);
+                            logger.error("Unable to unmarshall filter config",
+                                    e);
                         }
                     } else {
-                        logger.error(String.format(ERROR_2_FMT,filterDir.getPath()));
+                        logger.error(String.format(ERROR_2_FMT,
+                                filterDir.getPath()));
                         createDummyFilter();
                     }
                 } else {
-                    logger.error(String.format(ERROR_1_FMT, localContext,configFile));
+                    logger.error(String.format(ERROR_1_FMT, localContext,
+                            configFile));
                     createDummyFilter();
                 }
             } else {
                 // Could not create PathManager
             }
         } catch (Exception e) {
-            logger.error(
-                    "Error creating filter.", e);
+            logger.error("Error creating filter.", e);
             createDummyFilter();
         }
         logger.info("Filter name = " + getFilterName());
@@ -144,24 +145,27 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         int reportCount = 0;
         if (reports != null) {
 
-            
             for (int i = 0; i < reports.length; i++) {
                 PluginDataObject r = null;
                 boolean keep = true;
                 for (AbstractFilterElement element : filterElements) {
                     r = element.filter(reports[i]);
-                    
-                    // Only allow keep to be set to true. Once true it stays that way. 
-                    if(AbstractObsFilter.INCLUDE_TYPE.equals(element.getFilterType())) {
+
+                    // Only allow keep to be set to true. Once true it stays
+                    // that way.
+                    if (AbstractObsFilter.INCLUDE_TYPE.equals(element
+                            .getFilterType())) {
                         // Did the filter pass?
-                        if(r == null) {
-                            // If we fail an element, exit now.  
+                        if (r == null) {
+                            // If we fail an element, exit now.
                             keep = false;
                             break;
                         }
-                    } else if(AbstractObsFilter.EXCLUDE_TYPE.equals(element.getFilterType())) {
-                        if(r != null) {
-                            // There was a match, so we want to remove this item.
+                    } else if (AbstractObsFilter.EXCLUDE_TYPE.equals(element
+                            .getFilterType())) {
+                        if (r != null) {
+                            // There was a match, so we want to remove this
+                            // item.
                             keep = false;
                             // And there's no reason for further checks.
                             break;
@@ -220,30 +224,37 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         return fis;
     }
 
-    private static class TestObject extends PluginDataObject implements ISpatialEnabled {
+    private static class TestObject extends PluginDataObject implements
+            ISpatialEnabled {
 
         private static final long serialVersionUID = 1L;
 
         SurfaceObsLocation location;
-        
+
         @Override
         public IDecoderGettable getDecoderGettable() {
             return null;
         }
-        
+
         @Override
         public ISpatialObject getSpatialObject() {
             return location;
         }
-        
+
+        @Override
         public String toString() {
             return location.getStationId() + " Passed";
         }
+
+        @Override
+        public String getPluginName() {
+            return "test";
+        }
     }
-    
-    public static final void main(String [] args) {
-        
-        RadiusFilterElement element = new RadiusFilterElement(0,0,60);
+
+    public static final void main(String[] args) {
+
+        RadiusFilterElement element = new RadiusFilterElement(0, 0, 60);
         element.setFilterType("INCLUDE");
 
         TestObject p = new TestObject();
@@ -257,26 +268,26 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         p.location.assignLocation(.7, .7);
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? "failed" : p);
-        
+
         // Southeast corner of OAX WFO
-        element = new RadiusFilterElement(40,-94.90,100);
+        element = new RadiusFilterElement(40, -94.90, 100);
         element.setFilterType("INCLUDE");
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("2.1");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N  097 39W
+        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? p : "failed");
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("2.2");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N  096 41W
+        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
         p = (TestObject) element.filter(p);
         System.out.println((p != null) ? p : "failed");
-        
+
         // Test set 3
         PluginDataObjectFilter filter = new PluginDataObjectFilter();
-        element = new RadiusFilterElement(40,-94.90,100);
+        element = new RadiusFilterElement(40, -94.90, 100);
         element.setFilterType("INCLUDE");
         filter.addFilterElement(element);
 
@@ -288,55 +299,55 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         e.setLowerRightLon(-94.90);
         e.setFilterType("INCLUDE");
         filter.addFilterElement(e);
-    
-        PluginDataObject [] pp = new PluginDataObject [3];
+
+        PluginDataObject[] pp = new PluginDataObject[3];
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSLN");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N  097 39W
+        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
         pp[0] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KMHK");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N  096 41W
+        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
         pp[1] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSTJ");
         p.location.assignLocation(41, -96.00);
         pp[2] = p;
-        
+
         pp = filter.filter(pp);
-        
+
         System.out.println("----------------------------------");
         System.out.println("- Success = KSTJ");
         System.out.println("----------");
-        for(PluginDataObject o : pp) {
+        for (PluginDataObject o : pp) {
             System.out.println(o);
         }
-        
+
         // Test set 4
-        pp = new PluginDataObject [4];
+        pp = new PluginDataObject[4];
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KORD");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N  097 39W
+        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
         pp[0] = p;
-        
+
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSLN");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N  097 39W
+        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
         pp[1] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KMHK");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N  096 41W
+        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
         pp[2] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSTJ");
         p.location.assignLocation(41, -96.00);
         pp[3] = p;
-        
+
         filter = new PluginDataObjectFilter();
 
         StationIdFilterElement s = new StationIdFilterElement();
@@ -345,10 +356,10 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         s.setFilterType(INCLUDE_TYPE);
         filter.addFilterElement(s);
 
-//        s = new StationIdFilterElement();
-//        s.addPattern("KM[HIJ]K");
-//        s.setFilterType(EXCLUDE_TYPE);
-//        filter.addFilterElement(s);
+        // s = new StationIdFilterElement();
+        // s.addPattern("KM[HIJ]K");
+        // s.setFilterType(EXCLUDE_TYPE);
+        // filter.addFilterElement(s);
 
         e = new RectFilterElement();
         e.setUpperLeftLat(42.90);
@@ -359,36 +370,14 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         e.setFilterType("INCLUDE");
         filter.addFilterElement(e);
 
-        
-        
-        
-        
         pp = filter.filter(pp);
-        
+
         System.out.println("----------------------------------");
         System.out.println("- Success = KSLN, KSTJ");
         System.out.println("----------");
-        for(PluginDataObject o : pp) {
+        for (PluginDataObject o : pp) {
             System.out.println(o);
         }
         System.out.println("----------------------------------");
-        
-        
-//        try {
-//            JAXBContext ctx = JAXBContext.newInstance(PluginDataObjectFilter.class,StationIdFilterElement.class);
-//
-//            Marshaller msh = ctx.createMarshaller();
-//            
-//            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-//
-//            ByteArrayOutputStream istrm = new ByteArrayOutputStream();
-//            msh.marshal(filter, istrm);
-//            
-//            String ss = istrm.toString();
-//            
-//            System.out.println(ss);
-//        } catch(Exception ee) {
-//            ee.printStackTrace();
-//        }
     }
 }
