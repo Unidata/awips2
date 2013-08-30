@@ -41,13 +41,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 10/04/2011   10049       bgonzale    initial creation
- * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime
+ * Oct 04, 2011 10049       bgonzale    initial creation
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 02, 2013 1949        rjpeter     Removed ugcZones.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 13, 2013 2253        mnash       Fixed null data uri errors
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bgonzale
@@ -75,7 +77,6 @@ public class PracticeWarningRecord extends AbstractWarningRecord {
      */
     public PracticeWarningRecord() {
         super();
-        setPluginName("practicewarning");
     }
 
     /**
@@ -105,5 +106,10 @@ public class PracticeWarningRecord extends AbstractWarningRecord {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "practicewarning";
     }
 }

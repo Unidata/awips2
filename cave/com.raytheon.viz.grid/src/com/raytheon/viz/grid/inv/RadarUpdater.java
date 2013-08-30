@@ -38,7 +38,8 @@ import com.raytheon.viz.grid.util.RadarProductCodeMapping;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 20, 2012            bsteffen     Initial creation
+ * Sep 20, 2012            bsteffen    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -77,33 +78,39 @@ public class RadarUpdater implements IAlertObserver {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime
-                    * result
+            result = (prime * result)
                     + ((elevationAngle == null) ? 0 : elevationAngle.hashCode());
-            result = prime * result
+            result = (prime * result)
                     + ((productCode == null) ? 0 : productCode.hashCode());
             return result;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             CacheKey other = (CacheKey) obj;
             if (elevationAngle == null) {
-                if (other.elevationAngle != null)
+                if (other.elevationAngle != null) {
                     return false;
-            } else if (!elevationAngle.equals(other.elevationAngle))
+                }
+            } else if (!elevationAngle.equals(other.elevationAngle)) {
                 return false;
+            }
             if (productCode == null) {
-                if (other.productCode != null)
+                if (other.productCode != null) {
                     return false;
-            } else if (!productCode.equals(other.productCode))
+                }
+            } else if (!productCode.equals(other.productCode)) {
                 return false;
+            }
             return true;
         }
 
@@ -122,7 +129,7 @@ public class RadarUpdater implements IAlertObserver {
 
     }
 
-    private Map<CacheKey, CacheEntry> cache = new LinkedHashMap<CacheKey, CacheEntry>(
+    private final Map<CacheKey, CacheEntry> cache = new LinkedHashMap<CacheKey, CacheEntry>(
             100, .75f, true) {
 
         private static final long serialVersionUID = 2022670836957170184L;
@@ -152,14 +159,14 @@ public class RadarUpdater implements IAlertObserver {
         for (AlertMessage alertMessage : alertMessages) {
             String icao = alertMessage.decodedAlert
                     .get(RadarAdapter.ICAO_QUERY).toString();
-            if (icao == null
+            if ((icao == null)
                     || !icao.equalsIgnoreCase(configuredRadar.getRdaId())) {
                 continue;
             }
             globalTimes = null;
             Object obj = alertMessage.decodedAlert
                     .get(RadarAdapter.PRODUCT_CODE_QUERY);
-            if (obj == null || !(obj instanceof Integer)) {
+            if ((obj == null) || !(obj instanceof Integer)) {
                 continue;
             }
             Integer productCode = (Integer) obj;
@@ -169,12 +176,12 @@ public class RadarUpdater implements IAlertObserver {
                 continue;
             }
             obj = alertMessage.decodedAlert.get("dataTime");
-            if (obj == null || !(obj instanceof DataTime)) {
+            if ((obj == null) || !(obj instanceof DataTime)) {
                 continue;
             }
             DataTime time = (DataTime) obj;
             obj = alertMessage.decodedAlert.get(RadarAdapter.TILT_QUERY);
-            if (obj == null || !(obj instanceof Double)) {
+            if ((obj == null) || !(obj instanceof Double)) {
                 continue;
             }
             Double elevationAngle = (Double) obj;
@@ -188,7 +195,6 @@ public class RadarUpdater implements IAlertObserver {
                         e1.getLocalizedMessage(), e1);
             }
             GridRecord fakeRec = new GridRecord();
-            fakeRec.setPluginName(GridInventory.PLUGIN_NAME);
 
             fakeRec.setDataTime(time);
             fakeRec.setDatasetId(RadarAdapter.RADAR_SOURCE);
@@ -209,12 +215,12 @@ public class RadarUpdater implements IAlertObserver {
     private CacheKey getCacheKey(RadarRequestableLevelNode rNode) {
         Map<String, RequestConstraint> rcMap = rNode.getRequestConstraintMap();
         RequestConstraint rc = rcMap.get(RadarAdapter.PRODUCT_CODE_QUERY);
-        if (rc == null || rc.getConstraintType() != ConstraintType.EQUALS) {
+        if ((rc == null) || (rc.getConstraintType() != ConstraintType.EQUALS)) {
             return null;
         }
         Integer productCode = Integer.parseInt(rc.getConstraintValue());
         rc = rcMap.get(RadarAdapter.TILT_QUERY);
-        if (rc == null || rc.getConstraintType() != ConstraintType.EQUALS) {
+        if ((rc == null) || (rc.getConstraintType() != ConstraintType.EQUALS)) {
             return null;
         }
         Double elevationAngle = Double.parseDouble(rc.getConstraintValue());
@@ -232,7 +238,7 @@ public class RadarUpdater implements IAlertObserver {
         if (entry == null) {
             return null;
         }
-        if (entry.insertTime + CACHE_TIME < System.currentTimeMillis()) {
+        if ((entry.insertTime + CACHE_TIME) < System.currentTimeMillis()) {
             cache.remove(cacheKey);
             return null;
         }
@@ -248,7 +254,7 @@ public class RadarUpdater implements IAlertObserver {
         if (globalTimes == null) {
             return null;
         }
-        if (globalInsertTime + CACHE_TIME < System.currentTimeMillis()) {
+        if ((globalInsertTime + CACHE_TIME) < System.currentTimeMillis()) {
             globalTimes = null;
             return null;
         }
