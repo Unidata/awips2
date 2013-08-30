@@ -20,30 +20,6 @@
 
 package com.raytheon.edex.plugin.obs;
 
-/**
- * Decoder implementation for observation data types. This class provides a
- * wrapper in order to select the correct decoder based on the data type
- * 
- * <pre>
- *                     
- * SOFTWARE HISTORY
- * 
- * Date          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 4/27/07      199         bphillip    Initial creation
- * 07/31/2007          411  jkorman     Added addition logging
- * 08/10/2007          379  jkorman     Added disposal behavior.
- * 20071217            453  jkorman     Added code to check for duplicate obs.
- * 20080314            995  jkorman     Changed setDecoderStrategy to check for
- *                                      empty data.
- * 20080408           1039  jkorman     Added traceId for tracing data.  
- * Mar 19, 2013       1785  bgonzale    Added performance status handler and added
- *                                      status to decode.
- * </pre>
- * 
- * @author bphillip
- * @version 1
- */
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,23 +34,39 @@ import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
+/**
+ * Decoder implementation for observation data types. This class provides a
+ * wrapper in order to select the correct decoder based on the data type
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * -----------  ----------  ----------- --------------------------
+ * Apr 27, 2007 199         bphillip    Initial creation
+ * Jul 31, 2007 411         jkorman     Added addition logging
+ * Aug 10, 2007 379         jkorman     Added disposal behavior.
+ * Dec 17, 2007 453         jkorman     Added code to check for duplicate obs.
+ * Mar 14, 2008 995         jkorman     Changed setDecoderStrategy to check for
+ *                                      empty data.
+ * Apr 08, 2008 1039        jkorman     Added traceId for tracing data.  
+ * Mar 19, 2013 1785        bgonzale    Added performance status handler and added
+ *                                      status to decode.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
+ */
 public class ObsDecoder extends AbstractDecoder {
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
-
-    private final String PLUGIN_NAME;
+    private final Log logger = LogFactory.getLog(getClass());
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("Obs:");
 
     private String traceId = null;
-
-    /**
-     * Required empty constructor.
-     */
-    public ObsDecoder(String pluginName) {
-        PLUGIN_NAME = pluginName;
-    }
 
     /**
      * 
@@ -139,13 +131,13 @@ public class ObsDecoder extends AbstractDecoder {
             if ('S' == header.getT1()) {
                 switch (header.getT2()) {
                 case 'A': {
-                    decoder = new MetarDecoder(PLUGIN_NAME);
-                    ((MetarDecoder) decoder).setTraceId(traceId);
+                    decoder = new MetarDecoder();
+                    decoder.setTraceId(traceId);
                     break;
                 }
                 case 'P': {
-                    decoder = new MetarDecoder(PLUGIN_NAME);
-                    ((MetarDecoder) decoder).setTraceId(traceId);
+                    decoder = new MetarDecoder();
+                    decoder.setTraceId(traceId);
                     break;
                 }
                 }
