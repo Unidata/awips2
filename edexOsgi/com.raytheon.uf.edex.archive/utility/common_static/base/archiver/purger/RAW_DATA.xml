@@ -139,9 +139,42 @@
         <name>Local</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(manual)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+            <dirPattern>(manual)</dirPattern>
+            <filePattern>.*\.(\d{4})(\d{2})(\d{2})_(\d{2}).*</filePattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        </dataSet>
+        <dataSet>
+            <dirPattern>(manual)</dirPattern>
+            <filePattern>.*_(\d{4})(\d{2})(\d{2})(\d{2})\..*</filePattern>
+            <displayLabel>{1}</displayLabel>
+            <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        </dataSet>
+         <dataSet>
+            <dirPattern>(manual)</dirPattern>
+            <filePattern>.*-(\d{10})</filePattern>
+            <displayLabel>{1}</displayLabel>
+            <timeType>EpochSec</timeType>
+            <dateGroupIndices>2</dateGroupIndices>
+        </dataSet>
+         <dataSet>
+            <dirPattern>(manual)</dirPattern>
+            <filePattern>.*\.wan(\d{10})</filePattern>
+            <displayLabel>{1}</displayLabel>
+            <timeType>EpochSec</timeType>
+            <dateGroupIndices>2</dateGroupIndices>
+        </dataSet>
+         <dataSet>
+            <dirPattern>(manual)/mpe</dirPattern>
+            <filePattern>.*[^\d](\d{4})(\d{2})(\d{2})(\d{2})(z|\d{2}z).*</filePattern>
+            <displayLabel>{1}</displayLabel>
+            <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        </dataSet>
+         <dataSet>
+            <dirPattern>(manual)</dirPattern>
+            <filePattern>.*\.\d{8}\.\d{3}</filePattern>
+            <displayLabel>{1}</displayLabel>
+            <timeType>File</timeType>
         </dataSet>
     </category>
     <category>
