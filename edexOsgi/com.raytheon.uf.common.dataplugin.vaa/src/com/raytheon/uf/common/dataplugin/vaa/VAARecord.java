@@ -22,9 +22,9 @@ package com.raytheon.uf.common.dataplugin.vaa;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -58,11 +58,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 4, 2009            jkorman     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Nov 04, 2009            jkorman     Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
-
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 
  *                                     PluginDataObject.
  * 
  * </pre>
@@ -71,7 +73,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1.0
  */
 
-
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "vaaseq")
 @Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -79,20 +80,15 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "vaa",
-		indexes = {
-				@Index(name = "vaa_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "vaa", indexes = { @Index(name = "vaa_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class VAARecord extends PluginDataObject implements
-        ISpatialEnabled {
-    
+public class VAARecord extends PluginDataObject implements ISpatialEnabled {
+
     private static final long serialVersionUID = 1L;
-    
+
     @Embedded
     @DataURI(position = 1, embedded = true)
     @XmlElement
@@ -106,7 +102,7 @@ public class VAARecord extends PluginDataObject implements
     @DataURI(position = 2)
     @XmlElement
     @DynamicSerializeElement
-    private String recordType; 
+    private String recordType;
 
     /**
      * 
@@ -115,8 +111,8 @@ public class VAARecord extends PluginDataObject implements
     @DataURI(position = 3)
     @XmlElement
     @DynamicSerializeElement
-    private String advisoryNumber; 
-    
+    private String advisoryNumber;
+
     // Correction indicator from wmo header
     @DataURI(position = 4)
     @Column(length = 8)
@@ -135,7 +131,7 @@ public class VAARecord extends PluginDataObject implements
     @Column(length = 2048)
     @XmlElement
     @DynamicSerializeElement
-    private String message; 
+    private String message;
 
     /**
      * 
@@ -143,7 +139,7 @@ public class VAARecord extends PluginDataObject implements
     @Column(length = 512)
     @XmlElement
     @DynamicSerializeElement
-    private String anal00Hr; 
+    private String anal00Hr;
 
     /**
      * 
@@ -151,7 +147,7 @@ public class VAARecord extends PluginDataObject implements
     @Column(length = 512)
     @XmlElement
     @DynamicSerializeElement
-    private String fcst06Hr; 
+    private String fcst06Hr;
 
     /**
      * 
@@ -159,7 +155,7 @@ public class VAARecord extends PluginDataObject implements
     @Column(length = 512)
     @XmlElement
     @DynamicSerializeElement
-    private String fcst12Hr; 
+    private String fcst12Hr;
 
     /**
      * 
@@ -167,8 +163,8 @@ public class VAARecord extends PluginDataObject implements
     @Column(length = 512)
     @XmlElement
     @DynamicSerializeElement
-    private String fcst18Hr; 
-    
+    private String fcst18Hr;
+
     // Text of the WMO header
     @Column(length = 64)
     @XmlElement
@@ -180,21 +176,21 @@ public class VAARecord extends PluginDataObject implements
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentId", fetch = FetchType.EAGER)
     private Set<VAASubPart> subParts = new HashSet<VAASubPart>();
 
-
     /**
      * Empty default constructor
      */
     public VAARecord() {
     }
-    
+
     /**
      * Construct an instance of this class using the supplied datauri.
+     * 
      * @param dataUri
      */
     public VAARecord(String dataUri) {
         super(dataUri);
     }
-    
+
     /**
      * @return the corIndicator
      */
@@ -203,12 +199,13 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param corIndicator the corIndicator to set
+     * @param corIndicator
+     *            the corIndicator to set
      */
     public void setCorIndicator(String corIndicator) {
         this.corIndicator = corIndicator;
     }
-    
+
     /**
      * @return the centerId
      */
@@ -217,7 +214,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param centerId the centerId to set
+     * @param centerId
+     *            the centerId to set
      */
     public void setCenterId(String centerId) {
         this.centerId = centerId;
@@ -231,7 +229,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param wmoHeader the wmoHeader to set
+     * @param wmoHeader
+     *            the wmoHeader to set
      */
     public void setWmoHeader(String wmoHeader) {
         this.wmoHeader = wmoHeader;
@@ -241,7 +240,7 @@ public class VAARecord extends PluginDataObject implements
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
-    
+
     @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
@@ -254,7 +253,7 @@ public class VAARecord extends PluginDataObject implements
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
     }
-    
+
     /**
      * Get this observation's geometry.
      * 
@@ -308,9 +307,7 @@ public class VAARecord extends PluginDataObject implements
     public Boolean getLocationDefined() {
         return location.getLocationDefined();
     }
-    
-    
-    
+
     /**
      * @return the recordType
      */
@@ -319,7 +316,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param recordType the recordType to set
+     * @param recordType
+     *            the recordType to set
      */
     public void setRecordType(String recordType) {
         this.recordType = recordType;
@@ -333,7 +331,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param advisoryNumber the advisoryNumber to set
+     * @param advisoryNumber
+     *            the advisoryNumber to set
      */
     public void setAdvisoryNumber(String advisoryNumber) {
         this.advisoryNumber = advisoryNumber;
@@ -347,7 +346,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param message the message to set
+     * @param message
+     *            the message to set
      */
     public void setMessage(String message) {
         this.message = message;
@@ -361,7 +361,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param anal00Hr the anal00Hr to set
+     * @param anal00Hr
+     *            the anal00Hr to set
      */
     public void setAnal00Hr(String anal00Hr) {
         this.anal00Hr = anal00Hr;
@@ -375,7 +376,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param fcst06Hr the fcst06Hr to set
+     * @param fcst06Hr
+     *            the fcst06Hr to set
      */
     public void setFcst06Hr(String fcst06Hr) {
         this.fcst06Hr = fcst06Hr;
@@ -389,7 +391,8 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param fcst12Hr the fcst12Hr to set
+     * @param fcst12Hr
+     *            the fcst12Hr to set
      */
     public void setFcst12Hr(String fcst12Hr) {
         this.fcst12Hr = fcst12Hr;
@@ -403,21 +406,21 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param fcst18Hr the fcst18Hr to set
+     * @param fcst18Hr
+     *            the fcst18Hr to set
      */
     public void setFcst18Hr(String fcst18Hr) {
         this.fcst18Hr = fcst18Hr;
     }
 
     public void addSubPart(VAASubPart part) {
-        if(subParts == null) {
+        if (subParts == null) {
             subParts = new HashSet<VAASubPart>();
         }
         part.setParentId(this);
         subParts.add(part);
     }
-    
-    
+
     /**
      * @return the subParts
      */
@@ -426,15 +429,16 @@ public class VAARecord extends PluginDataObject implements
     }
 
     /**
-     * @param subParts the subParts to set
+     * @param subParts
+     *            the subParts to set
      */
     public void setSubParts(Set<VAASubPart> subParts) {
-        for(VAASubPart p : subParts) {
+        for (VAASubPart p : subParts) {
             p.setParentId(this);
         }
         this.subParts = subParts;
     }
-    
+
     /**
      * 
      */
@@ -448,41 +452,45 @@ public class VAARecord extends PluginDataObject implements
         sb.append(",");
         sb.append(getLongitude());
         sb.append("]");
-        
-        
+
         return sb.toString();
     }
-    
-//    "\r\r\nVA ADVISORY" +
-//    "\r\r\nDTG: 20091104/1708Z" +
-//    "\r\r\nVAAC: WASHINGTON" +
-//    "\r\r\nVOLCANO: SOUFRIERE HILLS 1600-05" +
-//    "\r\r\nPSN: N1642 W06210" +
-//    "\r\r\nAREA: W_INDIES" +
-//    "\r\r\nSUMMIT ELEV: 3002 FT (915 M)" +
-//    "\r\r\nADVISORY NR: 2009/146" +
-//    "\r\r\nINFO SOURCE: GOES-12. GFS WINDS." +
-//    "\r\r\nERUPTION DETAILS: CONTINUOUS EMISSIONS" +
-//    "\r\r\nOBS VA DTG: 04/1645Z" +
-//    "\r\r\nOBS VA CLD: SFC/FL100 42NM WID LINE BTN N1638" +
-//    "\r\r\nW06611 - N1643 W06214. MOV W 7KT" +
-//    "\r\r\nFCST VA CLD +6HR: 04/2300Z SFC/FL100 40NM WID" +
-//    "\r\r\nLINE BTN N1640 W06614 - N1644 W06214." +
-//    "\r\r\nFCST VA CLD +12HR: 05/0500Z SFC/FL100 40NM WID" +
-//    "\r\r\nLINE BTN N1638 W06614 - N1643 W06214. SFC/FL100" +
-//    "\r\r\n40NM WID LINE BTN N1641 W06616 - N1643 W06214." +
-//    "\r\r\nFCST VA CLD +18HR: 05/1100Z" +
-//    "\r\r\nRMK: A SPREADING 42 NMI WIDE ASH PLUME MOVING AT" +
-//    "\r\r\nA MEASURED 7 KTS EXTENDS AT LEAST 211 NMI TO THE" +
-//    "\r\r\nWEST OF THE VOLCANO, OR TO ABOUT 66W.  NO" +
-//    "\r\r\nSIGNIFICANT CHANGE IN DIRECTION OR SPEED IS" +
-//    "\r\r\nANTICIPATED DURING THE NEXT 12 HOURS. ...BALDWIN" +
-//    "\r\r\nNXT ADVISORY: WILL BE ISSUED BY 20091104/2315Z" +
+
+    // "\r\r\nVA ADVISORY" +
+    // "\r\r\nDTG: 20091104/1708Z" +
+    // "\r\r\nVAAC: WASHINGTON" +
+    // "\r\r\nVOLCANO: SOUFRIERE HILLS 1600-05" +
+    // "\r\r\nPSN: N1642 W06210" +
+    // "\r\r\nAREA: W_INDIES" +
+    // "\r\r\nSUMMIT ELEV: 3002 FT (915 M)" +
+    // "\r\r\nADVISORY NR: 2009/146" +
+    // "\r\r\nINFO SOURCE: GOES-12. GFS WINDS." +
+    // "\r\r\nERUPTION DETAILS: CONTINUOUS EMISSIONS" +
+    // "\r\r\nOBS VA DTG: 04/1645Z" +
+    // "\r\r\nOBS VA CLD: SFC/FL100 42NM WID LINE BTN N1638" +
+    // "\r\r\nW06611 - N1643 W06214. MOV W 7KT" +
+    // "\r\r\nFCST VA CLD +6HR: 04/2300Z SFC/FL100 40NM WID" +
+    // "\r\r\nLINE BTN N1640 W06614 - N1644 W06214." +
+    // "\r\r\nFCST VA CLD +12HR: 05/0500Z SFC/FL100 40NM WID" +
+    // "\r\r\nLINE BTN N1638 W06614 - N1643 W06214. SFC/FL100" +
+    // "\r\r\n40NM WID LINE BTN N1641 W06616 - N1643 W06214." +
+    // "\r\r\nFCST VA CLD +18HR: 05/1100Z" +
+    // "\r\r\nRMK: A SPREADING 42 NMI WIDE ASH PLUME MOVING AT" +
+    // "\r\r\nA MEASURED 7 KTS EXTENDS AT LEAST 211 NMI TO THE" +
+    // "\r\r\nWEST OF THE VOLCANO, OR TO ABOUT 66W.  NO" +
+    // "\r\r\nSIGNIFICANT CHANGE IN DIRECTION OR SPEED IS" +
+    // "\r\r\nANTICIPATED DURING THE NEXT 12 HOURS. ...BALDWIN" +
+    // "\r\r\nNXT ADVISORY: WILL BE ISSUED BY 20091104/2315Z" +
 
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "vaa";
     }
 }
