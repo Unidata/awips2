@@ -9,7 +9,6 @@
 	</bean>
 	
 	<bean id="geomagDecoder" class="gov.noaa.nws.ncep.edex.plugin.geomag.GeoMagDecoder" depends-on="geomagPluginName" >
-		<constructor-arg ref="geomagPluginName" />
 		<property name="dao" ref="geomagDao" />
 	</bean>
 	

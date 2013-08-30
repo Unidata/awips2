@@ -68,14 +68,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 03/17/10     2521     D. Hladky   Initial release
- * 02/01/13     1649      D. Hladky  better logging,
+ * Mar 17, 2010 2521        D. Hladky   Initial release
+ * Feb 01, 2013 1649        D. Hladky   better logging,
  * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -406,5 +408,10 @@ public class ScanRecord extends PersistablePluginDataObject {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "scan";
     }
 }
