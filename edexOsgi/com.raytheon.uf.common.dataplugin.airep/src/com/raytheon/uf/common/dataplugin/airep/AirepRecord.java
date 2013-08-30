@@ -69,16 +69,19 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080103            384 jkorman     Initial Coding.
- * 20080107            720 jkorman     remove default assignments from attributes.
- * 20120405            435 dgilling    Prevent NullPointerExceptions in
+ * Jan 03, 2008 384        jkorman     Initial Coding.
+ * Jan 07, 2008 720        jkorman     remove default assignments from
+ *                                     attributes.
+ * Apr 05, 2012 435        dgilling    Prevent NullPointerExceptions in
  *                                     buildMessageData().
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 20120911           1011 jkorman     Added ability to report turbulence from decoded
- *                                     TB group.
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Sep 11, 2012 1011       jkorman     Added ability to report turbulence from
+ *                                     decoded  TB group.
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -92,12 +95,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "airep",
-		indexes = {
-				@Index(name = "airep_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "airep", indexes = { @Index(name = "airep_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -330,7 +329,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
      */
     public String getReportData() {
         String s = null;
-        if (messageData != null && messageData instanceof String) {
+        if ((messageData != null) && (messageData instanceof String)) {
             s = (String) messageData;
         } else {
             s = buildMessageData();
@@ -593,7 +592,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             a = new Amount(this.getLatitude(), LOCATION_UNIT);
         } else if (STA_LON.equals(pName)) {
             a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
+        } else if (UA_FLTLVL.equals(pName) && (getFlightLevel() != null)) {
             a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
 
         }
@@ -627,7 +626,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         String[] retValue = null;
         String value = null;
 
-        if ("FLT_HZD".matches(paramName) && flightHazard != null) {
+        if ("FLT_HZD".matches(paramName) && (flightHazard != null)) {
             if (flightHazard != null) {
                 retValue = new String[] { flightHazard.toString() };
             }
@@ -720,7 +719,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         boolean validLocation = (location != null);
 
         StringBuilder messageData = new StringBuilder("ARP ");
-        if (validLocation && getStationId() != null) {
+        if (validLocation && (getStationId() != null)) {
             messageData.append(getStationId());
         }
         messageData.append(' ');
@@ -739,7 +738,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         }
         messageData.append(" F");
 
-        if (validLocation && getFlightLevel() != null) {
+        if (validLocation && (getFlightLevel() != null)) {
             int flightLevel = (int) ftToHft.convert(getFlightLevel());
             messageData.append(flightLevel);
         }
@@ -761,7 +760,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             messageData.append(windSpeed.intValue());
             messageData.append("KT");
         }
-        if(flightConditions != null) {
+        if (flightConditions != null) {
             int turb = flightConditions >> 4;
             if ((turb & 0x80) > 0) {
                 messageData.append(" TB");
@@ -831,7 +830,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
         return result;
     }
@@ -870,5 +869,10 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "airep";
     }
 }
