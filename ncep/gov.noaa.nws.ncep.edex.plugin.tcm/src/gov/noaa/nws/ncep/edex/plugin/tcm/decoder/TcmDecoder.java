@@ -1,24 +1,3 @@
-/*
- * 
- * TcmDecoder
- * 
- * This java class decodes TCM (Tropical Cyclone Message) data.
- *  
- * <pre> 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    	Engineer    Description
- * ----- 		------- 	--------	-----------
- * 06/2009		128			T. Lee		Creation
- * 07/2009		128			T. Lee		Migrated to TO11
- * 11/2009		128			T. Lee		Migrated to TO11D6
- * 06/2010		128			T. Lee		Migrated to TO11DR11
- * </pre>
- * 
- * @author T.Lee
- * @version 1.0       
- */
-
 package gov.noaa.nws.ncep.edex.plugin.tcm.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.tcm.TcmRecord;
@@ -37,6 +16,26 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
+/**
+ * TcmDecoder
+ * 
+ * This java class decodes TCM (Tropical Cyclone Message) data.
+ *  
+ * <pre> 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket# Engineer   Description
+ * ------------ ------- ---------- -----------
+ * 06/2009      128     T. Lee     Creation
+ * 07/2009      128     T. Lee     Migrated to TO11
+ * 11/2009      128     T. Lee     Migrated to TO11D6
+ * 06/2010      128     T. Lee     Migrated to TO11DR11
+ * Aug 30, 2013 2298    rjpeter    Make getPluginName abstract
+ * </pre>
+ * 
+ * @author T.Lee
+ * @version 1.0       
+ */
 public class TcmDecoder extends AbstractDecoder {
     private static String pluginName;
 
@@ -128,7 +127,6 @@ public class TcmDecoder extends AbstractDecoder {
                     traceId = (String) headers.get("traceId");
                 }
                 record.setTraceId(traceId);
-                record.setPluginName(pluginName);
                 record.constructDataURI();
 
             } catch (PluginException e) {

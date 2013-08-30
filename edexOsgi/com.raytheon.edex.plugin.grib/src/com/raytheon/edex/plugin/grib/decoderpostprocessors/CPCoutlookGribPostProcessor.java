@@ -24,7 +24,6 @@ import java.util.Calendar;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -51,7 +50,8 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 03/09/11     4243        porricel    Initial Creation
+ * Mar 09, 2011 4243        porricel    Initial Creation
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -84,7 +84,6 @@ public class CPCoutlookGribPostProcessor implements IDecoderPostProcessor {
         record.setDataURI(null);
 
         try {
-            record.setPluginName(GridConstants.GRID);
             record.constructDataURI();
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,

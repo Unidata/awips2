@@ -40,11 +40,11 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 26, 2009            jsanchez     Initial creation
- * Jun 28, 2012  #826      dgilling     Use wmoHeader headerDate to
- *                                      set refTime so times are set
- *                                      correctly when processing archive
- *                                      data.
+ * Oct 26, 2009            jsanchez    Initial creation
+ * Jun 28, 2012 826        dgilling    Use wmoHeader headerDate to  set refTime
+ *                                     so times are set  correctly when
+ *                                     processing archive  data.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -67,7 +67,7 @@ public class QLMData extends TCGDataAdapter {
         }
     }
 
-    private List<ForecastPosition> list = new ArrayList<ForecastPosition>();
+    private final List<ForecastPosition> list = new ArrayList<ForecastPosition>();
 
     private static final int MAX_FORECASTS = 22;
 
@@ -94,7 +94,7 @@ public class QLMData extends TCGDataAdapter {
                 } else if (InternalType.FORECAST_POSITION_INFO.equals(t)) {
                     parseForecastPositionInfo(s);
                 } else if (InternalType.STORM_DISSIPATED.equals(t)
-                        || list.size() == MAX_FORECASTS) {
+                        || (list.size() == MAX_FORECASTS)) {
                     boolean firstValue = true;
                     for (ForecastPosition fp : list) {
                         TropicalCycloneGuidance rpt = new TropicalCycloneGuidance();
@@ -105,7 +105,6 @@ public class QLMData extends TCGDataAdapter {
 
                         rpt.setWmoHeader(wmoHeader.getWmoHeader());
                         rpt.setTraceId(traceId);
-                        rpt.setPluginName(pluginName);
                         rpt.setStormName(stormName);
                         rpt.setType(stormType);
                         rpt.setProductType(productType);
