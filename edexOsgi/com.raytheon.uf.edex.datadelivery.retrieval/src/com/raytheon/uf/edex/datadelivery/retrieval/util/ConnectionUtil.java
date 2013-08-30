@@ -46,7 +46,7 @@ import dods.dap.DConnect;
  * Jun 28, 2012 819        djohnson     Initial creation
  * Apr 01, 2013 1786       mpduff       Pulled proxy settings out to util class.
  * May 12, 2013 753        dhladky      Expanded for use with other connection types
- * 
+ * Aug 30, 2013  2314      mpduff       Added null checks.
  * </pre>
  * 
  * @author djohnson
@@ -113,12 +113,17 @@ public class ConnectionUtil {
         ProxyConfiguration proxyInformation = instance.getProxyInformation();
 
         if (proxyInformation != null) {
-            System.setProperty(ProxyUtil.HTTP_PROXY_HOST,
-                    proxyInformation.getHost());
-            System.setProperty(ProxyUtil.HTTP_PROXY_PORT,
-                    proxyInformation.getPortString());
-            System.setProperty(ProxyUtil.HTTP_NON_PROXY_HOSTS,
-                    proxyInformation.getNonProxyHosts());
+            if (proxyInformation.getHost() != null
+                    && proxyInformation.getPortString() != null) {
+                System.setProperty(ProxyUtil.HTTP_PROXY_HOST,
+                        proxyInformation.getHost());
+                System.setProperty(ProxyUtil.HTTP_PROXY_PORT,
+                        proxyInformation.getPortString());
+            }
+            if (proxyInformation.getNonProxyHosts() != null) {
+                System.setProperty(ProxyUtil.HTTP_NON_PROXY_HOSTS,
+                        proxyInformation.getNonProxyHosts());
+            }
         }
         initialized = true;
     }
