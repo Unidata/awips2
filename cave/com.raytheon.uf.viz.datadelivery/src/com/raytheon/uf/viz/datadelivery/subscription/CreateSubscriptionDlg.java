@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.auth.UserController;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
@@ -103,7 +104,8 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Jun 12, 2013 2038       djohnson    No longer modal.
  * Jul 26, 2013   2232     mpduff      Refactored Data Delivery permissions.
  * Aug 21, 2013   1848     mpduff      Check subscription.create and shared.subscription.create.
- * Aug 30, 2013 2288       bgonzale    Added display of priority and latency rules.
+ * Aug 30, 2013   2288     bgonzale    Added display of priority and latency rules.
+ * Sep 04, 2013   2314     mpduff      Pass in the office to Shared Subscription Dialog.
  * 
  * </pre>
  * 
@@ -254,8 +256,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         }
 
         priorityComp = new PriorityComp(mainComp, latencyRule, latency,
-                priorityRule, priority,
-                isReadOnlyLatency);
+                priorityRule, priority, isReadOnlyLatency);
 
         if (this.subscription.getDataSetType() == DataType.GRID) {
             this.createCycleGroup();
@@ -400,7 +401,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         btn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
+                String currentSite = LocalizationManager.getInstance()
+                        .getCurrentSite();
+                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, currentSite,
                         sharedSites);
                 dlg.setCloseCallback(new ICloseCallback() {
                     @Override
