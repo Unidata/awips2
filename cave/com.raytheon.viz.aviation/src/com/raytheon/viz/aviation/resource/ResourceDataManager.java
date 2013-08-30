@@ -56,6 +56,9 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                      foreground color
  * 16 Aug 2013  #2256      lvenable     Fixed font array out of bounds issue that may
  *                                      occasionally occur.
+ * 30 Aug 2013  #2164      bkowal       Add default case statement for MSFT Windows
+ *                                      Java. Replaced platform-dependent code with
+ *                                      code that is not platform-dependent.
  * 
  * </pre>
  * 
@@ -324,8 +327,8 @@ public class ResourceDataManager {
          */
         if (stringArray == null || stringArray.length < 3) {
             FontData fd = display.getSystemFont().getFontData()[0];
-            defaultFont = new Font(display, new FontData(fd.name,
-                    (int) fd.height, fd.style));
+            defaultFont = new Font(display, new FontData(fd.getName(),
+                    fd.getHeight(), fd.getStyle()));
         } else {
             defaultFont = new Font(display, new FontData(stringArray[0],
                     Integer.valueOf(stringArray[1]),
@@ -838,9 +841,10 @@ public class ResourceDataManager {
 
         case EntryFont:
             return entryFont;
-        }
 
-        return null;
+        default:
+            return null;
+        }
     }
 
     public Color getAlertLevel0Color() {
