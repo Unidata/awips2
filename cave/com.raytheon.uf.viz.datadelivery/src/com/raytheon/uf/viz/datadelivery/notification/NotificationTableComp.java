@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Nov 29, 2012  1285      bgonzale     Added a refresh pause button to the Notification Center Dialog.
  * Jan 22, 2013  1520      mpduff       Update javadoc.
  * Apr 25, 2013  1820      mpduff       Get the column list every time.
+ * Aug 30, 2013  2314      mpduff       Sort the table data on load.
  * </pre>
  * 
  * @author lvenable
@@ -844,6 +845,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         }
 
         updateSortDirection(this.sortedColumn, filteredTableList, false);
+        filteredTableList.sortData();
     }
 
     /**

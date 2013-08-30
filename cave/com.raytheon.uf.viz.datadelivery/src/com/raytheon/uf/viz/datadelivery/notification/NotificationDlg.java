@@ -74,6 +74,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
 import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler.INotificationArrivedListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Notification Dialog.
@@ -99,6 +100,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 22, 2013  1520      mpduff     Change delete menus to hide.
  * Apr 25, 2013  1820      mpduff     Implemente delete config.
  * Jun 06, 2013  2030      mpduff     Refactored help.
+ * Aug 30, 2013  2314      mpduff     Change the reading of the xml. Make load config dlg non-blocking.
  * 
  * </pre>
  * 
@@ -182,6 +184,15 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
     private MenuItem tooltipMI;
 
     private final Collection<MenuItem> lockableMenuItems = new ArrayList<MenuItem>();
+    
+    /** Load config dialog */
+    private LoadSaveConfigDlg loadDlg;
+
+    /** Delete config dialog */
+    private LoadSaveConfigDlg deleteDlg;
+
+    /** SaveAs config dialog */
+    private LoadSaveConfigDlg saveAsDlg;
 
     /**
      * Constructor.
@@ -324,7 +335,6 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         lockableMenuItems.add(deleteConfigMI);
         deleteConfigMI.setText("Delete Configuration...");
         deleteConfigMI.addSelectionListener(new SelectionAdapter() {
-
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleDeleteConfig();
@@ -616,30 +626,43 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      * Load configuration action.
      */
     private void handleLoadConfig() throws JAXBException {
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            final NotificationConfigManager configMan = NotificationConfigManager
+                    .getInstance();
+            loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN,
+                    CONFIG_PATH, DEFAULT_CONFIG, true);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        try {
+                            NotificationConfigXML xml;
+                            LocalizationFile fileName = (LocalizationFile) returnValue;
+                            // Get the name of the selected file
+                            if (fileName != null && fileName.exists()) {
+                                File file = fileName.getFile();
 
-        NotificationConfigXML xml = new NotificationConfigXML();
-        NotificationConfigManager configMan;
-        configMan = NotificationConfigManager.getInstance();
+                                if (file != null) {
+                                    xml = (NotificationConfigXML) unmarshaller
+                                            .unmarshal(file);
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.OPEN, CONFIG_PATH, DEFAULT_CONFIG, true);
+                                    configMan.setConfigXml(xml);
 
-        // open the Load Configuration
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
+                                    tableComp.tableChangedAfterConfigLoad();
+                                }
+                            }
+                        } catch (JAXBException e) {
+                            statusHandler.error(e.getLocalizedMessage(), e);
+                        }
+                    }
+                    loadDlg = null;
+                }
+            });
 
-        // Get the name of the selected file
-        File file = null;
-        if (fileName != null) {
-            file = fileName.getFile();
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
         }
-
-        if (file != null) {
-            xml = (NotificationConfigXML) unmarshaller.unmarshal(file);
-        }
-
-        // set the configuration to the selected file
-        configMan.setConfigXml(xml);
-        tableComp.tableChangedAfterConfigLoad();
     }
 
     /**
@@ -682,30 +705,51 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      * Save as configuration action.
      */
     private void handleSaveAsConfig() {
-        NotificationConfigManager configMan = NotificationConfigManager
-                .getInstance();
+        if (saveAsDlg == null || saveAsDlg.isDisposed()) {
+            saveAsDlg = new LoadSaveConfigDlg(shell, DialogType.SAVE_AS,
+                    CONFIG_PATH, DEFAULT_CONFIG);
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        NotificationConfigManager configMan = NotificationConfigManager
+                                .getInstance();
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS, CONFIG_PATH, DEFAULT_CONFIG);
-
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
-
-        configMan.setConfigFile(fileName);
-        configMan.saveXml();
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        configMan.setConfigFile(fileName);
+                        configMan.saveXml();
+                    }
+                }
+            });
+            saveAsDlg.open();
+        } else {
+            saveAsDlg.bringToTop();
+        }
     }
 
     /**
      * Delete configuration action.
      */
     private void handleDeleteConfig() {
-        LoadSaveConfigDlg dlg = new LoadSaveConfigDlg(shell, DialogType.DELETE,
-                CONFIG_PATH, true);
-        LocalizationFile fileName = (LocalizationFile) dlg.open();
-
-        NotificationConfigManager configMan = NotificationConfigManager
-                .getInstance();
-        configMan.deleteXml(fileName);
-        tableComp.tableChangedAfterConfigLoad();
+        if (deleteDlg == null || deleteDlg.isDisposed()) {
+            deleteDlg = new LoadSaveConfigDlg(shell, DialogType.DELETE,
+                    CONFIG_PATH, true);
+            deleteDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        NotificationConfigManager configMan = NotificationConfigManager
+                                .getInstance();
+                        configMan.deleteXml(fileName);
+                        tableComp.tableChangedAfterConfigLoad();
+                    }
+                }
+            });
+            deleteDlg.open();
+        } else {
+            deleteDlg.bringToTop();
+        }
     }
 
     /**
