@@ -21,6 +21,9 @@ package com.raytheon.uf.common.comm;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +128,10 @@ public class HttpProxiedValidClientCredentialsTest {
            
             MockWfsRequestBuilder wrb = new MockWfsRequestBuilder(getRetrievalAttribute());
             String request = wrb.getRequest();
+            //String request = getRequest("/home/dhladky/Desktop/good.xml");
+            System.out.println(request);
             URI uri = new URI(conn.getUrl());
+            //URI uri = new URI("http://stormy.oma.us.ray.com:8085/wfs");
             HttpPost post = new HttpPost(uri);
             System.out.println("HTTPS URL: "+conn.getUrl());
                      
@@ -235,8 +241,8 @@ public class HttpProxiedValidClientCredentialsTest {
     
     private Time getTime() {
         
-        String startDateString = "2013-07-29T17:00:00.000";
-        String endDateString = "2013-07-29T18:00:00.000";
+        String startDateString = "2013-08-30T12:40:00.000";
+        String endDateString = "2013-08-30T14:15:00.000";
                 
         Time time = new Time();
         time.setFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
@@ -246,5 +252,40 @@ public class HttpProxiedValidClientCredentialsTest {
         time.setEnd(endDateString);
        
         return time;
+    }
+
+    /**
+     * Used in cases where you have XML you want to read in and test     
+     * @param path
+     * @return
+     */
+    private String getRequest(String path)  {
+
+        StringBuffer fileData = new StringBuffer(1000);
+        BufferedReader reader = null;
+        try {
+
+            reader = new BufferedReader(new FileReader(path));
+            char[] buf = new char[1024];
+            int numRead = 0;
+            while ((numRead = reader.read(buf)) != -1) {
+                String readData = String.valueOf(buf, 0, numRead);
+                fileData.append(readData);
+                buf = new char[1024];
+            }
+            reader.close();
+        } catch (Exception e) {
+            System.out.println("Didn't read file correctly!" + e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return fileData.toString();
     }
 }
