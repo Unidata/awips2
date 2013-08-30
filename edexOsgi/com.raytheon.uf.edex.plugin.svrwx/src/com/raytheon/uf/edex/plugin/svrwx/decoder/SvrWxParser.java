@@ -51,7 +51,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 04, 2010            jsanchez     Initial creation
+ * Jan 04, 2010            jsanchez    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -61,23 +62,23 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class SvrWxParser {
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private final PointDataDescription pointDataDescription;
 
     private final SvrWxRecordDao svrWxDao;
 
-    private Map<File, PointDataContainer> containerMap;
+    private final Map<File, PointDataContainer> containerMap;
 
     private WMOHeader wmoHeader;
 
-    private String pluginName;
+    private final String pluginName;
 
     private String traceId;
 
     int currentReport = -1;
 
-    private HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
+    private final HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
 
     private List<SvrWxRecord> reports;
 
@@ -260,13 +261,12 @@ public class SvrWxParser {
                     parseTimeRangeLine(rpt.getReportLine());
                     break;
                 case REPORT_TYPE:
-                    if (reportType != null && eventKey != null) {
+                    if ((reportType != null) && (eventKey != null)) {
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
                         location.setLongitude(longitude.doubleValue());
                         location.setLatitude(latitude.doubleValue());
                         svrWxRecord = new SvrWxRecord();
-                        svrWxRecord.setPluginName(pluginName);
                         svrWxRecord.setReportType(reportType);
                         svrWxRecord.setGreenTime(greenTime);
                         svrWxRecord.setLocation(location);
@@ -278,13 +278,12 @@ public class SvrWxParser {
                     clearData();
                     break;
                 case EVENT_LN:
-                    if (reportType != null && eventKey != null) {
+                    if ((reportType != null) && (eventKey != null)) {
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
                         location.setLongitude(longitude.doubleValue());
                         location.setLatitude(latitude.doubleValue());
                         svrWxRecord = new SvrWxRecord();
-                        svrWxRecord.setPluginName(pluginName);
                         svrWxRecord.setReportType(reportType);
                         svrWxRecord.setGreenTime(greenTime);
                         svrWxRecord.setLocation(location);
@@ -301,19 +300,18 @@ public class SvrWxParser {
                     break;
                 case EXTRA:
                     String s = rpt.getReportLine().trim();
-                    if (s.length() != 0 && remarks != null) {
+                    if ((s.length() != 0) && (remarks != null)) {
                         remarks += " " + s;
                     }
                     break;
                 case END:
-                    if (reportType != null && eventKey != null) {
+                    if ((reportType != null) && (eventKey != null)) {
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
                         location.setLongitude(longitude.doubleValue());
                         location.setLatitude(latitude.doubleValue());
                         svrWxRecord = new SvrWxRecord();
                         svrWxRecord.setReportType(reportType);
-                        svrWxRecord.setPluginName(pluginName);
                         svrWxRecord.setGreenTime(greenTime);
                         svrWxRecord.setLocation(location);
                         svrWxRecord.setDataTime(refTime);

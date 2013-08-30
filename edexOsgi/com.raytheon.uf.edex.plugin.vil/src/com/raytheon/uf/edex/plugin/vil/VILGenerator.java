@@ -49,8 +49,9 @@ import com.raytheon.uf.edex.plugin.vil.common.VILConfig;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/07/2009   2037       dhladky    Initial Creation.
- * 02/25/13     1660       D. Hladky   Fixed SCAN configuration bug.
+ * Feb 07, 2009 2037       dhladky     Initial Creation.
+ * Feb 25, 2013 1660       D. Hladky   Fixed SCAN configuration bug.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class VILGenerator extends CompositeProductGenerator implements
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
-    
+
     /** run configuration manager **/
     public SCANRunSiteConfigurationManager srcm = null;
 
@@ -119,7 +120,7 @@ public class VILGenerator extends CompositeProductGenerator implements
 
         if (!configValid) {
             statusHandler.handle(Priority.WARN,
-            "Configuration for vil(scan) is invalid!!!");
+                    "Configuration for vil(scan) is invalid!!!");
             return;
         }
 
@@ -157,7 +158,6 @@ public class VILGenerator extends CompositeProductGenerator implements
                         vilRec.setDy(ScanUtils.SCAN_GRID_DIM_RESOLUTION / 2);
                     }
 
-                    vilRec.setPluginName(this.getCompositeProductType());
                     vilRec.setIcao(vil_config.getIcao());
                     vilRec.setDataTime(this.getProductTime());
                     vilRec.setSpatialInfo(vil_config.getSpatialInfo());
@@ -190,7 +190,7 @@ public class VILGenerator extends CompositeProductGenerator implements
             resetFilters();
         }
     }
-    
+
     /**
      * run config manager
      * 

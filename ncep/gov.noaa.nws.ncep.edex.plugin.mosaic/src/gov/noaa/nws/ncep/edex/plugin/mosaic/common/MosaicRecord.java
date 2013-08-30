@@ -412,12 +412,12 @@ public class MosaicRecord extends PersistablePluginDataObject implements
 
     public void setRawDataValue(int radial, int bin, byte value) {
         if ((radial < nx) && (bin < ny)) {
-            rawData[radial * ny + bin] = value;
+            rawData[(radial * ny) + bin] = value;
         }
     }
 
     public byte getRawDataValue(int radial, int bin) {
-        return rawData[radial * ny + bin];
+        return rawData[(radial * ny) + bin];
     }
 
     public short getThreshold(int i) {
@@ -610,9 +610,9 @@ public class MosaicRecord extends PersistablePluginDataObject implements
         // **********************************
         if ("Raster".equals(this.getFormat())) {
 
-            int col = (int) (output[0] / this.getResolution() + (this.getNy() / 2));
+            int col = (int) ((output[0] / this.getResolution()) + (this.getNy() / 2));
 
-            int row = (int) (output[1] / this.getResolution() + (this.getNy() / 2));
+            int row = (int) ((output[1] / this.getResolution()) + (this.getNy() / 2));
 
             row = this.getNy() - row - 1;
 
@@ -776,5 +776,10 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "mosaic";
     }
 }
