@@ -65,15 +65,17 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
- * Apr 09, 2009        952 jsanchez    Updated getValue method.
- *                                      Added a getMessageData method.
- * Apr 21, 2009       2245 jsanchez    Returned temperature unit to kelvin.
- * May 21, 2009       2338 jsanchez    Updated the getMessageData.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Jan 21, 2009 1939       jkorman     Initial creation
+ * Apr 09, 2009 952        jsanchez    Updated getValue method.  Added a
+ *                                     getMessageData method.
+ * Apr 21, 2009 2245       jsanchez    Returned temperature unit to kelvin.
+ * May 21, 2009 2338       jsanchez    Updated the getMessageData.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -87,12 +89,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "acars",
-		indexes = {
-				@Index(name = "acars_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "acars", indexes = { @Index(name = "acars_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -698,9 +696,9 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
             a = new Amount(getLatitude(), LOCATION_UNIT);
         } else if (STA_LON.equals(pName)) {
             a = new Amount(getLongitude(), LOCATION_UNIT);
-        } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
+        } else if (UA_FLTLVL.equals(pName) && (getFlightLevel() != null)) {
             a = new Amount(getFlightLevel().intValue(), FLIGHT_LEVEL_UNIT);
-        } else if (SFC_DWPT.equals(pName) && getDwpt() != null) {
+        } else if (SFC_DWPT.equals(pName) && (getDwpt() != null)) {
             a = new Amount(getDwpt(), TEMPERATURE_UNIT);
         }
 
@@ -724,47 +722,53 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         return String.format(TEXT_FMT, getTailNumber(), getTimeObs());
     }
 
-
-    
-    
-    
-    
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((tailNumber == null) ? 0 : tailNumber.hashCode());
-        result = prime * result + ((timeObs == null) ? 0 : timeObs.hashCode());
+        result = (prime * result)
+                + ((timeObs == null) ? 0 : timeObs.hashCode());
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ACARSRecord other = (ACARSRecord) obj;
         if (tailNumber == null) {
-            if (other.tailNumber != null)
+            if (other.tailNumber != null) {
                 return false;
-        } else if (!tailNumber.equals(other.tailNumber))
+            }
+        } else if (!tailNumber.equals(other.tailNumber)) {
             return false;
+        }
         if (timeObs == null) {
-            if (other.timeObs != null)
+            if (other.timeObs != null) {
                 return false;
-        } else if (!timeObs.equals(other.timeObs))
+            }
+        } else if (!timeObs.equals(other.timeObs)) {
             return false;
+        }
         return true;
     }
 
@@ -782,7 +786,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         if (this == other) {
             result = EQUAL;
         } else {
-            if(getTailNumber().equals(getTailNumber())) {
+            if (getTailNumber().equals(getTailNumber())) {
                 result = timeObs.compareTo(other.timeObs);
             } else {
                 result = getTailNumber().compareTo(other.getTailNumber());
@@ -790,11 +794,16 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         }
         return result;
     }
-    
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "acars";
     }
 }

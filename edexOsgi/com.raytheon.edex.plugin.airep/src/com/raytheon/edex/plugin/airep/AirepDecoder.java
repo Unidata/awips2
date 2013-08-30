@@ -47,19 +47,18 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *   }
  * </code>
  * 
- *
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080103            384 jkorman     Initial Coding.
- * 20080408           1039 jkorman     Added traceId for tracing data.
- * 11/11/08           1684 chammack    Camel Refactor
- * ======================================
- * AWIPS2 DR Work
- * 20120911           1011 jkorman     Added decode of AIREP turbulence.
+ * Jan 03, 2008 384        jkorman     Initial Coding.
+ * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
+ * Nov 11, 2008 1684       chammack    Camel Refactor
+ * Sep 11, 2012 1011       jkorman     Added decode of AIREP turbulence.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author jkorman
@@ -103,19 +102,19 @@ public class AirepDecoder extends AbstractDecoder {
 
         try {
             WMOHeader wmoHeader = input.wmoHeader;
-            if(wmoHeader != null) {
+            if (wmoHeader != null) {
                 traceId = wmoHeader.getWmoHeader().replace(" ", "_");
                 logger.info(traceId + "- AirepDecoder.decode()");
 
                 Calendar refTime = TimeTools.findDataTime(
                         wmoHeader.getYYGGgg(), header);
-                if(refTime != null) {
-                    report = populateRecord(new AirepParser(input.report, refTime));
+                if (refTime != null) {
+                    report = populateRecord(new AirepParser(input.report,
+                            refTime));
                 }
             }
             if (report != null) {
                 report.setTraceId(traceId);
-                report.setPluginName(PLUGIN_NAME);
                 try {
                     report.constructDataURI();
                 } catch (PluginException e) {
@@ -182,17 +181,17 @@ public class AirepDecoder extends AbstractDecoder {
                 }
                 AirepParser.Turbulence turb = parser.getTurbulence();
                 int t = -1;
-                if(turb != null) {
+                if (turb != null) {
                     t = turb.getTurbulence() << 4;
                 }
-                if(flightConditions > -1) {
-                    if(t > -1) {
+                if (flightConditions > -1) {
+                    if (t > -1) {
                         record.setFlightConditions(flightConditions | t);
                     } else {
                         record.setFlightConditions(flightConditions);
                     }
                 } else {
-                    if(t > -1) {
+                    if (t > -1) {
                         record.setFlightConditions(t);
                     }
                 }

@@ -27,7 +27,6 @@ import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,9 +62,10 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  *                     
- * ate          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 9/30/09                   vkorolev    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Sep 30, 2009             vkorolev    Initial creation
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author vkorolev
@@ -73,9 +73,6 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
-
-    private final String PLUGIN_NAME;
-
     private String traceId = null;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
@@ -83,10 +80,6 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
     public File confile;
 
     public Properties configFile = new Properties();
-
-    public ManualDecoder(String pluginName) throws DecoderException {
-        PLUGIN_NAME = pluginName;
-    }
 
     public void setTraceId(String id) {
         traceId = id;
@@ -151,7 +144,6 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
                         ManualLdadRecord record = new ManualLdadRecord();
                         SurfaceObsLocation location = new SurfaceObsLocation();
                         record.setProviderId(dd.provider);
-                        record.setPluginName(PLUGIN_NAME);
                         // record.setReportType???(dd.type));
                         // record.set???(dd.reportTime);
                         // Loop through fields
@@ -241,14 +233,13 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
      * @throws ClassNotFoundException
      * @throws Throwable
      */
-
-    @SuppressWarnings("unchecked")
     public void setProperty(String name, Object obj, String value, String vunit) {
 
         String prop = Character.toUpperCase(name.charAt(0)) + name.substring(1);
         String mname = "set" + prop;
         Object val = null;
         try {
+            @SuppressWarnings("rawtypes")
             Class cls = obj.getClass();
             Field fld = cls.getDeclaredField(name);
             Class<?> clazz = fld.getType();
@@ -300,28 +291,5 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
             logger.error(traceId + " - ParseException:", e);
         }
         return;
-    }
-
-    // List of Fields in record
-    @SuppressWarnings("unchecked")
-    public static void main(String args[]) {
-        ManualLdadRecord record = new ManualLdadRecord();
-        try {
-            Class cls = record.getClass();
-
-            Field fieldlist[] = cls.getDeclaredFields();
-            for (int i = 0; i < fieldlist.length; i++) {
-                Field fld = fieldlist[i];
-                System.out.println("name = " + fld.getName());
-                // System.out.println("decl class = " +
-                // fld.getDeclaringClass());
-                System.out.println("type  = " + fld.getType());
-                int mod = fld.getModifiers();
-                System.out.println("modifiers = " + Modifier.toString(mod));
-                System.out.println("-----");
-            }
-        } catch (Throwable e) {
-            System.err.println(e);
-        }
     }
 }

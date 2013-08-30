@@ -41,7 +41,8 @@ import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 19, 2010            skorolev     Initial creation
+ * Nov 19, 2010            skorolev    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -108,8 +109,8 @@ public class FSSObsConfig {
             tableRow.setRelativeHumidity(RH);
         }
         float[] snowData = FSSObsUtils.getSnowData(tableRow);
-        if (tableRow.getTemperature() != FSSObsUtils.MISSING
-                && tableRow.getDewpoint() != FSSObsUtils.MISSING) {
+        if ((tableRow.getTemperature() != FSSObsUtils.MISSING)
+                && (tableRow.getDewpoint() != FSSObsUtils.MISSING)) {
             // TODO to check if this is correct. calcdpd() in Meteolib
             tableRow.setDewpointDepr(tableRow.getTemperature()
                     - tableRow.getDewpoint());
@@ -122,7 +123,6 @@ public class FSSObsConfig {
         tableRow.setWindChill(snowData[3]);
         tableRow.setFrostbiteTime(snowData[4]);
 
-        tableRow.setPluginName("fssobs");
         tableRow.setCwa(cwa);
         tableRow.setMonitorUse(monitorUse);
         tableRow.setPlatformId(tableRow.getLocation().getStationId());
