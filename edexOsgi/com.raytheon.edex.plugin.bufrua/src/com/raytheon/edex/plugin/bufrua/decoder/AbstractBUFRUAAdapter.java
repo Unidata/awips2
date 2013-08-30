@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     work without dataURI.
  * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
  *                                     bufrua.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -112,7 +113,6 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
 
             if ((obsData != null) && (wmoStaId != null)) {
                 // pickup the data.
-                obsData.setPluginName(getPluginName());
                 obsData.setWmoHeader(wmoHeader.getWmoHeader());
 
                 Calendar validTime = obsData.getDataTime()

@@ -54,8 +54,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080103            384 jkorman     Initial Coding.
- * 11/25/08          #1684 chammack    Camel Refactor
+ * Jan 03, 2008 384        jkorman     Initial Coding.
+ * Nov 25, 2008 1684       chammack    Camel Refactor
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author jkorman
@@ -115,7 +116,6 @@ public class RECCODecoder extends AbstractDecoder {
                     input.getWmoHeader());
             if (report != null) {
                 report.setTraceId(traceId);
-                report.setPluginName(PLUGIN_NAME);
                 try {
                     report.constructDataURI();
                 } catch (PluginException e) {
