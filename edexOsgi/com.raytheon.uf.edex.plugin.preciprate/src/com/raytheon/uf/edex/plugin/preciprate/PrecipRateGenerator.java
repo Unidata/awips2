@@ -48,8 +48,9 @@ import com.raytheon.uf.edex.plugin.preciprate.common.PrecipRateConfig;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 01/25/10      3796       D. Hladky   Initial release
- * 02/25/13     1660        D. Hladky   Fixed SCAN configuration bug.
+ * Jan 25, 2010 3796        D. Hladky   Initial release
+ * Feb 25, 2013 1660        D. Hladky   Fixed SCAN configuration bug.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -58,15 +59,15 @@ import com.raytheon.uf.edex.plugin.preciprate.common.PrecipRateConfig;
  */
 
 public class PrecipRateGenerator extends CompositeProductGenerator implements
-MonitorConfigListener{
-    
+        MonitorConfigListener {
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateGenerator.class);
 
     private static final String genName = "PrecipRate";
 
     private static final String productType = "preciprate";
-    
+
     /** run configuration manager **/
     public SCANRunSiteConfigurationManager srcm = null;
 
@@ -98,7 +99,7 @@ MonitorConfigListener{
 
         if (!configValid) {
             statusHandler.handle(Priority.WARN,
-            "Configuration for PrecipRate(scan) is invalid!!!");
+                    "Configuration for PrecipRate(scan) is invalid!!!");
             return;
         }
 
@@ -136,7 +137,6 @@ MonitorConfigListener{
 
                 PrecipRateRecord precipRateRec = new PrecipRateRecord();
                 this.setPluginDao(new PrecipRateDao(productType));
-                precipRateRec.setPluginName(this.getCompositeProductType());
                 precipRateRec.setDataTime(this.getProductTime());
                 precipRateRec.setIcao(preciprate_config.getIcao());
                 precipRateRec.setGateResolution(preciprate_config.getDHR()
@@ -165,8 +165,7 @@ MonitorConfigListener{
 
                 precipRateRec.setAcoefficent(pr.getDhrMap().get(
                         DHRValues.ZRMULTCOEFF));
-                precipRateRec.setBias(pr.getDhrMap().get(
-                        DHRValues.BIAS));
+                precipRateRec.setBias(pr.getDhrMap().get(DHRValues.BIAS));
                 precipRateRec.setHailcap(pr.getDhrMap().get(
                         DHRValues.MAXPRECIPRATEALLOW));
                 precipRateRec.setCoefficent(pr.getDhrMap().get(
@@ -192,12 +191,13 @@ MonitorConfigListener{
     @Override
     public void configChanged(MonitorConfigEvent fce) {
         if (fce.getSource() instanceof SCANRunSiteConfigurationManager) {
-            statusHandler.handle(Priority.INFO,
-                    "Re-configuring PrecipRate URI filters...Run Site Config change");
+            statusHandler
+                    .handle(Priority.INFO,
+                            "Re-configuring PrecipRate URI filters...Run Site Config change");
             resetFilters();
         }
     }
-    
+
     /**
      * run config manager
      * 
