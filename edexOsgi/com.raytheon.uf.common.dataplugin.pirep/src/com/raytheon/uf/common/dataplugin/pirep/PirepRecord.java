@@ -71,20 +71,21 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080103            384 jkorman     Initial Coding.
- * 20090408            952 jsanchez    Updated getValue and getStrings methods.
- *                                      Added getMessageData method.
- * 20090521          2338  jsanchez    Changed the unit of the alititude.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * ======================================
- * AWIPS2 DR Work
- * 08/09/2012         1011 jkorman     Added separate max icing level as well
- * as separated code to generate distinct max icing/turbulence levels. Removed
- * code that used "display" boolean to determine data access.
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Jan 03, 2008 384        jkorman     Initial Coding.
+ * Apr 08, 2009 952        jsanchez    Updated getValue and getStrings methods.
+ *                                     Added getMessageData method.
+ * May 21, 2009 2338       jsanchez    Changed the unit of the alititude.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Aug 09, 2012 1011       jkorman     Added separate max icing level as well
+ *                                     as separated code to generate distinct
+ *                                     max  icing/turbulence levels. Removed
+ *                                     code that  used "display" boolean to
+ *                                     determine data access.
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
- * 
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author jkorman
@@ -97,12 +98,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "pirep",
-		indexes = {
-				@Index(name = "pirep_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "pirep", indexes = { @Index(name = "pirep_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -635,14 +632,14 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
             a = new Amount(this.getLatitude(), LOCATION_UNIT);
         } else if (STA_LON.equals(pName)) {
             a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
+        } else if (UA_FLTLVL.equals(pName) && (getFlightLevel() != null)) {
             a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
-        } else if (UA_TOPHGT.equals(pName) && maxTurbcLayerData != null
-                && maxTurbcLayerData.getTopLayerHeight() != null) {
+        } else if (UA_TOPHGT.equals(pName) && (maxTurbcLayerData != null)
+                && (maxTurbcLayerData.getTopLayerHeight() != null)) {
             a = new Amount(maxTurbcLayerData.getTopLayerHeight().intValue(),
                     ALTITUDE_UNIT);
-        } else if (UA_BOTHGT.equals(pName) && maxTurbcLayerData != null
-                && maxTurbcLayerData.getBaseLayerHeight() != null) {
+        } else if (UA_BOTHGT.equals(pName) && (maxTurbcLayerData != null)
+                && (maxTurbcLayerData.getBaseLayerHeight() != null)) {
             a = new Amount(maxTurbcLayerData.getBaseLayerHeight().intValue(),
                     ALTITUDE_UNIT);
         }
@@ -675,7 +672,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
                     retData = new String[] { intensity };
                 }
             }
-        } else if ("ICT".matches(paramName) && maxIcingLayerData != null) {
+        } else if ("ICT".matches(paramName) && (maxIcingLayerData != null)) {
             if (maxIcingLayerData != null) {
                 String type = maxIcingLayerData.getDataType();
                 if (type != null) {
@@ -791,7 +788,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
         return result;
     }
@@ -805,25 +802,34 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         PirepRecord other = (PirepRecord) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+    @Override
+    public String getPluginName() {
+        return "pirep";
     }
 }

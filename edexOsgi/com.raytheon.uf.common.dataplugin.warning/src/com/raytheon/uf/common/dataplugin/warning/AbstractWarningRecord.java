@@ -52,7 +52,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * 03/12/2007   1003        bwoodle     initial creation
  * 04/12/2013   1857        bgonzale    Added SequenceGenerator annotation.
  * 05/02/2013   1949        rjpeter     Moved ugcZones to be a column inside table.
- * 08/08/2013   2243        jsanchez    Removed super method in copy constructor.
+ * Aug 08, 2013 2243        jsanchez    Removed super method in copy
+ *                                      constructor.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bwoodle
@@ -246,7 +248,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
         this.setMotspd(old.getMotspd());
         this.setPil(old.getPil());
         this.setPhensig(old.getPhensig());
-        this.setPluginName(old.getPluginName());
         this.setRawmessage(old.getRawmessage());
         this.setSeg(old.getSeg());
         this.setTraceId(old.getTraceId());

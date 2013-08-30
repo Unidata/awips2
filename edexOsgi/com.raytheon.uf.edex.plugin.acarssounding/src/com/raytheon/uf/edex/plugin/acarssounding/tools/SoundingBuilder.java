@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -64,11 +65,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class SoundingBuilder {
 
-    private Log logger = LogFactory.getLog(getClass());
-
-    private String pluginName = ACARSSoundingTools.ACARS_SNDG_PLUGIN_NAME;
-
-    private String acarsPluginName = ACARSSoundingTools.ACARS_PLUGIN_NAME;
+    private final Log logger = LogFactory.getLog(getClass());
 
     File dataDir = null;
 
@@ -237,7 +234,6 @@ public class SoundingBuilder {
                 loc.setElevation(airport.getElevation().intValue());
                 sounding.setLocation(loc);
                 sounding.setTailNumber(data.getTailNumber());
-                sounding.setPluginName(pluginName);
 
                 try {
                     sounding.constructDataURI();
@@ -288,8 +284,9 @@ public class SoundingBuilder {
                             // If we find an obs with the same time as one in
                             // the sounding, get rid of it.
                             if (layer.getTimeObs().equals(r.getTimeObs())) {
-                                if(logger.isDebugEnabled()) {
-                                    logger.debug("Deleting duplicate layer" + r.getDataURI());
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Deleting duplicate layer"
+                                            + r.getDataURI());
                                 }
                                 obs.remove(cRec);
                                 incNext = false;
@@ -298,8 +295,10 @@ public class SoundingBuilder {
                                     // Is the obs time between the current
                                     // layers? If so we want to find out if
                                     // it needs to be included.
-                                    if(ACARSSoundingTools.checkBetween(lastLayer,r,layer)) {
-                                        logger.info("Found candidate layer" + r.getDataURI());
+                                    if (ACARSSoundingTools.checkBetween(
+                                            lastLayer, r, layer)) {
+                                        logger.info("Found candidate layer"
+                                                + r.getDataURI());
                                         obs.remove(cRec);
                                         incNext = false;
                                     } else {
@@ -318,7 +317,6 @@ public class SoundingBuilder {
             }
         }
     }
-
 
     /**
      * Returns a sorted not-null list of layers that are contained in a set of
@@ -395,12 +393,10 @@ public class SoundingBuilder {
             currTime.add(lastRec);
             for (int i = 1; i < obsData.size(); i++) {
                 ACARSRecord r = obsData.get(i);
-                if(r != null) {
-                    r.setPluginName(acarsPluginName);
-
+                if (r != null) {
                     // Do the observations have the same time?
-                    if (ACARSSoundingTools.ACARS_TIME_COMPARATOR
-                            .compare(lastRec, r) != 0) {
+                    if (ACARSSoundingTools.ACARS_TIME_COMPARATOR.compare(
+                            lastRec, r) != 0) {
                         // Different times, so create a new list
                         currTime = new ArrayList<ACARSRecord>();
                         times.add(currTime);
@@ -516,10 +512,4 @@ public class SoundingBuilder {
         }
         return retValue;
     }
-
-
-    public static final void main(String[] args) {
-
-    }
-
 }

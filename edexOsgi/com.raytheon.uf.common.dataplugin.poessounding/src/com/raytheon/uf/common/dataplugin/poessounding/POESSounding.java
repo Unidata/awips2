@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -73,184 +74,174 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "poessounding",
-		indexes = {
-				@Index(name = "poessounding_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "poessounding", indexes = { @Index(name = "poessounding_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class POESSounding extends PersistablePluginDataObject implements
         ISpatialEnabled, IPointData {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// The profiler observation time.
-	// @Column
-	// @DynamicSerializeElement
-	// @XmlElement
-	// private Calendar timeObs;
+    // Text of the WMO header
+    @Column(length = 32)
+    @DynamicSerializeElement
+    private String wmoHeader;
 
-	// @XmlAttribute
-	// @DynamicSerializeElement
-	// private Long fcstSeconds;
+    @Transient
+    private Set<POESSoundingLevel> soundingLevels;
 
-	// Text of the WMO header
-	@Column(length = 32)
-	@DynamicSerializeElement
-	private String wmoHeader;
+    @Embedded
+    @DataURI(position = 1, embedded = true)
+    @DynamicSerializeElement
+    private SurfaceObsLocation location;
 
-	@Transient
-	private Set<POESSoundingLevel> soundingLevels;
+    @Embedded
+    @DynamicSerializeElement
+    private PointDataView pointDataView;
 
-	@Embedded
-	@DataURI(position = 1, embedded = true)
-	@DynamicSerializeElement
-	private SurfaceObsLocation location;
+    /**
+     * Create an empty ProfilerObs object.
+     */
+    public POESSounding() {
+    }
 
-	@Embedded
-	@DynamicSerializeElement
-	private PointDataView pointDataView;
+    /**
+     * Constructor for DataURI construction through base class. This is used by
+     * the notification service.
+     * 
+     * @param uri
+     *            A data uri applicable to this class.
+     * @param tableDef
+     *            The table definitions for this class.
+     */
+    public POESSounding(String uri) {
+        super(uri);
+    }
 
-	/**
-	 * Create an empty ProfilerObs object.
-	 */
-	public POESSounding() {
-	}
+    /**
+     * Get this observation's geometry.
+     * 
+     * @return The geometry for this observation.
+     */
+    public Geometry getGeometry() {
+        return location.getGeometry();
+    }
 
-	/**
-	 * Constructor for DataURI construction through base class. This is used by
-	 * the notification service.
-	 * 
-	 * @param uri
-	 *            A data uri applicable to this class.
-	 * @param tableDef
-	 *            The table definitions for this class.
-	 */
-	public POESSounding(String uri) {
-		super(uri);
-	}
+    /**
+     * Get the geometry latitude.
+     * 
+     * @return The geometry latitude.
+     */
+    public double getLatitude() {
+        return location.getLatitude();
+    }
 
-	/**
-	 * Get this observation's geometry.
-	 * 
-	 * @return The geometry for this observation.
-	 */
-	public Geometry getGeometry() {
-		return location.getGeometry();
-	}
+    /**
+     * Get the geometry longitude.
+     * 
+     * @return The geometry longitude.
+     */
+    public double getLongitude() {
+        return location.getLongitude();
+    }
 
-	/**
-	 * Get the geometry latitude.
-	 * 
-	 * @return The geometry latitude.
-	 */
-	public double getLatitude() {
-		return location.getLatitude();
-	}
+    /**
+     * Get the station identifier for this observation.
+     * 
+     * @return the stationId
+     */
+    public String getStationId() {
+        return location.getStationId();
+    }
 
-	/**
-	 * Get the geometry longitude.
-	 * 
-	 * @return The geometry longitude.
-	 */
-	public double getLongitude() {
-		return location.getLongitude();
-	}
+    /**
+     * Get the elevation, in meters, of the observing platform or location.
+     * 
+     * @return The observation elevation, in meters.
+     */
+    public Integer getElevation() {
+        return location.getElevation();
+    }
 
-	/**
-	 * Get the station identifier for this observation.
-	 * 
-	 * @return the stationId
-	 */
-	public String getStationId() {
-		return location.getStationId();
-	}
+    /**
+     * Was this location defined from the station catalog? False if not.
+     * 
+     * @return Was this location defined from the station catalog?
+     */
+    public Boolean getLocationDefined() {
+        return location.getLocationDefined();
+    }
 
-	/**
-	 * Get the elevation, in meters, of the observing platform or location.
-	 * 
-	 * @return The observation elevation, in meters.
-	 */
-	public Integer getElevation() {
-		return location.getElevation();
-	}
+    /**
+     * Set the WMOHeader of the file that contained this data.
+     * 
+     * @return The wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * Was this location defined from the station catalog? False if not.
-	 * 
-	 * @return Was this location defined from the station catalog?
-	 */
-	public Boolean getLocationDefined() {
-		return location.getLocationDefined();
-	}
+    /**
+     * Get the WMOHeader of the file that contained this data.
+     * 
+     * @param wmoHeader
+     *            The WMOHeader to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	/**
-	 * Set the WMOHeader of the file that contained this data.
-	 * 
-	 * @return The wmoHeader
-	 */
-	public String getWmoHeader() {
-		return wmoHeader;
-	}
+    /**
+     * @return the soundingLevels
+     */
+    public Set<POESSoundingLevel> getSoundingLevels() {
+        return soundingLevels;
+    }
 
-	/**
-	 * Get the WMOHeader of the file that contained this data.
-	 * 
-	 * @param wmoHeader
-	 *            The WMOHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader) {
-		this.wmoHeader = wmoHeader;
-	}
+    /**
+     * @param soundingLevels
+     *            the soundingLevels to set
+     */
+    public void setSoundingLevels(Set<POESSoundingLevel> soundingLevels) {
+        this.soundingLevels = soundingLevels;
+    }
 
-	/**
-	 * @return the soundingLevels
-	 */
-	public Set<POESSoundingLevel> getSoundingLevels() {
-		return soundingLevels;
-	}
+    /**
+     * @param soundingLevels
+     *            the soundingLevels to set
+     */
+    public void addSoundingLevel(POESSoundingLevel soundingLevel) {
+        if (soundingLevels == null) {
+            soundingLevels = new HashSet<POESSoundingLevel>();
+        }
+        soundingLevels.add(soundingLevel);
+    }
 
-	/**
-	 * @param soundingLevels
-	 *            the soundingLevels to set
-	 */
-	public void setSoundingLevels(Set<POESSoundingLevel> soundingLevels) {
-		this.soundingLevels = soundingLevels;
-	}
+    @Override
+    public SurfaceObsLocation getSpatialObject() {
+        return location;
+    }
 
-	/**
-	 * @param soundingLevels
-	 *            the soundingLevels to set
-	 */
-	public void addSoundingLevel(POESSoundingLevel soundingLevel) {
-		if (soundingLevels == null) {
-			soundingLevels = new HashSet<POESSoundingLevel>();
-		}
-		soundingLevels.add(soundingLevel);
-	}
+    public SurfaceObsLocation getLocation() {
+        return location;
+    }
 
-	@Override
-	public SurfaceObsLocation getSpatialObject() {
-		return location;
-	}
+    public void setLocation(SurfaceObsLocation location) {
+        this.location = location;
+    }
 
-	public SurfaceObsLocation getLocation() {
-		return location;
-	}
+    @Override
+    public PointDataView getPointDataView() {
+        return this.pointDataView;
+    }
 
-	public void setLocation(SurfaceObsLocation location) {
-		this.location = location;
-	}
+    @Override
+    public void setPointDataView(PointDataView pointDataView) {
+        this.pointDataView = pointDataView;
+    }
 
-	@Override
-	public PointDataView getPointDataView() {
-		return this.pointDataView;
-	}
-
-	@Override
-	public void setPointDataView(PointDataView pointDataView) {
-		this.pointDataView = pointDataView;
-	}
-
+    @Override
+    public String getPluginName() {
+        return "poessounding";
+    }
 }
