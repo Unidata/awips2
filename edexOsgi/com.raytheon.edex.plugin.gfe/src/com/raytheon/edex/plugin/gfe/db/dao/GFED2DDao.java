@@ -48,14 +48,17 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 03/20/13     #1774      randerso    Refactored out of GFEDao
- * 04/04/13     #1787      randerso    Fixed to support changes to D2D grid location
- *                                     Additional cleanup to move the D2D to GFE translation
- *                                     logic into D2DGridDatabase.
- * 05/03/13     #1974      randerso    Changed queryByParmId to look for parm with duration
- *                                     suffix first.
- * 05/22/13     #1974      randerso    Fix bug introduced by the previous fix where query for
- *                                     T (T%hr) returned TP6hr
+ * Mar 20, 2013 1774       randerso    Refactored out of GFEDao
+ * Apr 04, 2013 1787       randerso    Fixed to support changes to D2D grid
+ *                                     location  Additional cleanup to move the
+ *                                     D2D to GFE translation  logic into
+ *                                     D2DGridDatabase.
+ * May 03, 2013 1974       randerso    Changed queryByParmId to look for parm
+ *                                     with duration  suffix first.
+ * May 22, 2013 1974       randerso    Fix bug introduced by the previous fix
+ *                                     where query for  T (T%hr) returned TP6hr
+ * Jun 13, 2013 2044       randerso    Cleaned up JavaDoc
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -135,7 +138,6 @@ public class GFED2DDao extends GridDao {
 
             GridRecord retVal = (GridRecord) s.get(GridRecord.class,
                     rawTimes.get(forecastTime));
-            retVal.setPluginName(GridConstants.GRID);
             return retVal;
 
         } finally {

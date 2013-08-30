@@ -49,10 +49,11 @@ import com.raytheon.uf.edex.plugin.qpf.common.QPFConfig;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/07/2009   1981       dhladky    Initial Creation.
- * 04/27/2012   #562       dgilling   Accept getter and setter
- *                                    renames in QPFRecord.
- * 02/25/13     1660       D. Hladky Fixed configuration bug in scan.
+ * Feb 07, 2009 1981       dhladky     Initial Creation.
+ * Apr 27, 2012 562        dgilling    Accept getter and setter  renames in
+ *                                     QPFRecord.
+ * Feb 25, 2013 1660       D. Hladky Fixed configuration bug in scan.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -164,7 +165,6 @@ public class QPFGenerator extends CompositeProductGenerator implements
                                                 .getNumBins());
                     }
 
-                    qpfRec.setPluginName(this.getCompositeProductType());
                     qpfRec.setIcao(qpf_config.getIcao());
                     qpfRec.setDataTime(this.getProductTime());
                     qpfRec.setSpatialInfo(qpf_config.getSpatialInfo());
