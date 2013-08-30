@@ -87,12 +87,15 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 2/14/2007    139         Phillippe   Initial check-in. Refactor of initial implementation.
+ * Feb 14, 2007 139         Phillippe   Initial check-in. Refactor of initial
+ *                                      implementation.
  * Dec 17, 2007 600         bphillip    Added dao pool usage
- * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz() signature changed.
+ * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz()
+ *                                      signature changed.
  * Mar 19, 2013 1804        bsteffen    Optimize decoder performance.
- * Mar 19, 2013 1785        bgonzale    Added performance status handler and added status
- *                                      to decode.
+ * Mar 19, 2013 1785        bgonzale    Added performance status handler and
+ *                                      added status  to decode.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bphillip
@@ -130,7 +133,7 @@ public class RadarDecoder extends AbstractDecoder {
 
     private String traceId = "";
 
-    private RadarInfoDict infoDict;
+    private final RadarInfoDict infoDict;
 
     private RadarStationDao radarStationDao = new RadarStationDao();
 
@@ -541,7 +544,6 @@ public class RadarDecoder extends AbstractDecoder {
 
     private void finalizeRecord(RadarRecord record) throws PluginException {
         record.setTraceId(traceId);
-        record.setPluginName("radar");
         record.constructDataURI();
         record.setInsertTime(TimeTools.getSystemCalendar());
         // for GSM, we want all the messages as they have the possibility of
@@ -562,7 +564,7 @@ public class RadarDecoder extends AbstractDecoder {
         if (symbologyBlock == null) {
             return;
         }
-        
+
         int packetsKept = 0;
 
         List<Layer> packetsInLyrs = new ArrayList<Layer>();
@@ -587,9 +589,9 @@ public class RadarDecoder extends AbstractDecoder {
                         GenericDataPacket genericPacket = (GenericDataPacket) packet;
                         List<GenericDataComponent> components = genericPacket
                                 .getComponents();
-                        if (components != null
-                                && components.size() == 1
-                                && components.get(0).getComponentType() == ComponentType.RADIAL) {
+                        if ((components != null)
+                                && (components.size() == 1)
+                                && (components.get(0).getComponentType() == ComponentType.RADIAL)) {
                             processRadialComponent(record,
                                     (RadialComponent) components.get(0));
                         } else {
@@ -698,7 +700,7 @@ public class RadarDecoder extends AbstractDecoder {
         ClusterTask task = ClusterLockUtils.lookupLock(lockname,
                 record.getIcao());
         String formatStatus = RadarUtil.formatBits(messagePart, constants);
-        if (task == null || task.getExtraInfo() == null) {
+        if ((task == null) || (task.getExtraInfo() == null)) {
             ClusterLockUtils.lock(lockname, record.getIcao(), formatStatus, 30,
                     true);
             EDEXUtil.sendMessageAlertViz(Priority.INFO,
@@ -711,7 +713,7 @@ public class RadarDecoder extends AbstractDecoder {
         }
 
         if (task.getExtraInfo() != null) {
-            if (formatStatus != null
+            if ((formatStatus != null)
                     && !formatStatus.equals(task.getExtraInfo().trim())) {
                 String details = "";
                 String temp = "";
