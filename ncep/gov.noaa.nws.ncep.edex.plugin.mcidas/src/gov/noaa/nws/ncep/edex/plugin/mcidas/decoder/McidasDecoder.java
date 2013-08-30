@@ -1,27 +1,3 @@
-/**
- * This java class decodes McIDAS satellite plug-in image and creates area
- * names from area file number in the header.
- * 
- * <pre>
- * 
- * OFTWARE HISTORY
- *                   
- * ate          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 9/2009       144         T. Lee      Creation
- * 11/2009		144			T. Lee		Added geographic area names
- * 12/2009		144			T. Lee		Set calType, satelliteId,
- *										and imageTypeNumber
- * 12/2009		144			T. Lee		Renamed proj type for resource 
- *										rendering
- * 05/2010		144			L. Lin		Migration to TO11DR11.
- * 11/2011					T. Lee		Enhanced for ntbn
- * </pre>
- * 
- * @author tlee
- * @version 1
- * */
-
 package gov.noaa.nws.ncep.edex.plugin.mcidas.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
@@ -44,6 +20,30 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
+/**
+ * This java class decodes McIDAS satellite plug-in image and creates area names
+ * from area file number in the header.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ *                   
+ * Date         Ticket#     Engineer    Description
+ * -----------  ----------  ----------- --------------------------
+ * 9/2009       144         T. Lee      Creation
+ * 11/2009      144         T. Lee      Added geographic area names
+ * 12/2009      144         T. Lee      Set calType, satelliteId,
+ *                                      and imageTypeNumber
+ * 12/2009      144         T. Lee      Renamed proj type for resource 
+ *                                      rendering
+ * 05/2010      144         L. Lin      Migration to TO11DR11.
+ * 11/2011                  T. Lee      Enhanced for ntbn
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * </pre>
+ * 
+ * @author tlee
+ * @version 1
+ */
 public class McidasDecoder extends AbstractDecoder {
     final int RADIUS = 6371200;
 
@@ -57,13 +57,13 @@ public class McidasDecoder extends AbstractDecoder {
 
     final double DTR = PI / 180.;
 
-    private String traceId = "";
+    private final String traceId = "";
 
     private McidasDao dao;
 
     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private McidasRecord mr = new McidasRecord();
+    private final McidasRecord mr = new McidasRecord();
 
     public PluginDataObject[] decode(byte[] data, Headers headers)
             throws Exception {
@@ -199,8 +199,9 @@ public class McidasDecoder extends AbstractDecoder {
              */
             int imageTypeNumber = byteArrayToInt(area, 72, endian);
             record.setImageTypeNumber(imageTypeNumber);
-            if (imageTypeNumber <= 0)
+            if (imageTypeNumber <= 0) {
                 imageTypeNumber = -1;
+            }
             String imageType = dao
                     .getImageType(Integer.toString(sid),
                             Integer.toString(imageTypeNumber)).get(0)
@@ -239,7 +240,7 @@ public class McidasDecoder extends AbstractDecoder {
                  * Handle special cases for duplicate area file numbers (see
                  * Design document)
                  */
-                if (areaId == 281 || areaId == 280) {
+                if ((areaId == 281) || (areaId == 280)) {
                     if (satelliteName.equals("Global")) {
                         if (areaId == 281) {
                             areaName = "TPW_PCT";
@@ -377,7 +378,7 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Set data block.
              */
-            byte[] imageData = new byte[data.length - dataoff - 80 * icomment];
+            byte[] imageData = new byte[data.length - dataoff - (80 * icomment)];
             System.arraycopy(data, dataoff, imageData, 0, imageData.length);
             record.setMessageData(imageData);
 
@@ -418,9 +419,9 @@ public class McidasDecoder extends AbstractDecoder {
              */
             int n4 = byteArrayToInt(navigation, 12, endian);
             int angdd = n4 / 10000;
-            int angmm = n4 / 100 - angdd * 100;
-            int angss = n4 - angdd * 10000 - angmm * 100;
-            Float stdlat1 = (float) (angdd + angmm / 60. + angss / 3600.);
+            int angmm = (n4 / 100) - (angdd * 100);
+            int angss = n4 - (angdd * 10000) - (angmm * 100);
+            Float stdlat1 = (float) (angdd + (angmm / 60.) + (angss / 3600.));
             Float stdlat2 = stdlat1;
             double phi0r = stdlat1 * DTR;
             double sign = 1.;
@@ -433,9 +434,9 @@ public class McidasDecoder extends AbstractDecoder {
              */
             int n6 = byteArrayToInt(navigation, 20, endian);
             angdd = n6 / 10000;
-            angmm = n6 / 100 - angdd * 100;
-            angss = n6 - angdd * 10000 - angmm * 100;
-            Float clon = (float) (angdd + angmm / 60. + angss / 3600.);
+            angmm = (n6 / 100) - (angdd * 100);
+            angss = n6 - (angdd * 10000) - (angmm * 100);
+            Float clon = (float) (angdd + (angmm / 60.) + (angss / 3600.));
             if (byteArrayToInt(navigation, 36, endian) >= 0) {
                 clon = -clon;
             }
@@ -470,8 +471,8 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * location of pole point (rxp, ryp); (1,1) at lower-left corner.
              */
-            double rxp = ((double) (n3 - ulelem) / xres + 1.);
-            double ryp = (ny - (double) (n2 - ulline) / yres);
+            double rxp = (((double) (n3 - ulelem) / xres) + 1.);
+            double ryp = (ny - ((double) (n2 - ulline) / yres));
 
             /*
              * Polar steoreographic projection (PS)
@@ -489,8 +490,8 @@ public class McidasDecoder extends AbstractDecoder {
                 double dxp = (1. - rxp) * dx;
                 double dyp = (1. - ryp) * dy;
                 double alpha = 1. + Math.sin(Math.abs(phi0r));
-                double rm = Math.sqrt((dxp * dxp + dyp * dyp)) / alpha;
-                lllat = (float) (sign * ((HALFPI - 2. * Math.atan(rm / re))) * RTD);
+                double rm = Math.sqrt(((dxp * dxp) + (dyp * dyp))) / alpha;
+                lllat = (float) (sign * ((HALFPI - (2. * Math.atan(rm / re)))) * RTD);
                 double thta;
                 if (dyp != 0) {
                     dyp = (-dyp) * sign;
@@ -505,8 +506,8 @@ public class McidasDecoder extends AbstractDecoder {
                  */
                 dxp = (nx - rxp) * dx;
                 dyp = (ny - ryp) * dy;
-                rm = Math.sqrt((dxp * dxp + dyp * dyp)) / alpha;
-                urlat = (float) (sign * ((HALFPI - 2. * Math.atan(rm / re))) * RTD);
+                rm = Math.sqrt(((dxp * dxp) + (dyp * dyp))) / alpha;
+                urlat = (float) (sign * ((HALFPI - (2. * Math.atan(rm / re)))) * RTD);
 
                 if (dyp != 0) {
                     dyp = (-dyp) * sign;
@@ -532,8 +533,8 @@ public class McidasDecoder extends AbstractDecoder {
                 double rm = dx * dyp;
                 double rcos = re * Math.cos(phi0r);
                 double arg = Math.exp(rm / rcos);
-                lllat = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
-                lllon = prnlon((float) (clon + ((dx * dxp) / rcos) * RTD));
+                lllat = (float) (((2. * Math.atan(arg)) - HALFPI) * RTD);
+                lllon = prnlon((float) (clon + (((dx * dxp) / rcos) * RTD)));
 
                 /*
                  * compute lat/lon of the upper-right corner
@@ -542,8 +543,8 @@ public class McidasDecoder extends AbstractDecoder {
                 dyp = ny - ryp;
                 rm = dx * dyp;
                 arg = Math.exp(rm / rcos);
-                urlat = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
-                urlon = prnlon((float) (clon + ((dx * dxp) / rcos) * RTD));
+                urlat = (float) (((2. * Math.atan(arg)) - HALFPI) * RTD);
+                urlon = prnlon((float) (clon + (((dx * dxp) / rcos) * RTD)));
                 urlon = prnlon(urlon);
 
                 /*
@@ -569,18 +570,18 @@ public class McidasDecoder extends AbstractDecoder {
                      */
                     int n5 = byteArrayToInt(navigation, 16, endian);
                     angdd = n5 / 10000;
-                    angmm = n5 / 100 - angdd * 100;
-                    angss = n5 - angdd * 10000 - angmm * 100;
-                    stdlat2 = (float) (angdd + angmm / 60. + angss / 3600.);
+                    angmm = (n5 / 100) - (angdd * 100);
+                    angss = n5 - (angdd * 10000) - (angmm * 100);
+                    stdlat2 = (float) (angdd + (angmm / 60.) + (angss / 3600.));
 
                     /*
                      * Central longitude. If west positive, make west negative.
                      */
                     int n7 = byteArrayToInt(navigation, 24, endian);
                     angdd = n7 / 10000;
-                    angmm = n7 / 100 - angdd * 100;
-                    angss = n7 - angdd * 10000 - angmm * 100;
-                    clon = (float) (angdd + angmm / 60. + angss / 3600.);
+                    angmm = (n7 / 100) - (angdd * 100);
+                    angss = n7 - (angdd * 10000) - (angmm * 100);
+                    clon = (float) (angdd + (angmm / 60.) + (angss / 3600.));
 
                     if (byteArrayToInt(navigation, 36, endian) >= 0) {
                         clon = -clon;
@@ -599,10 +600,10 @@ public class McidasDecoder extends AbstractDecoder {
                      * block km per pixel scaled by 10000., convert to meters
                      */
                     re = RADIUS;
-                    dx = (n4 / 10000.f * xres) * 1000.f;
-                    dy = (n4 / 10000.f * yres) * 1000.f;
-                    rxp = ((double) (n3 / 10000. - ulelem) / xres + 1.);
-                    ryp = (ny - (double) (n2 / 10000. - ulline) / yres);
+                    dx = ((n4 / 10000.f) * xres) * 1000.f;
+                    dy = ((n4 / 10000.f) * yres) * 1000.f;
+                    rxp = ((((n3 / 10000.) - ulelem) / xres) + 1.);
+                    ryp = (ny - (((n2 / 10000.) - ulline) / yres));
 
                     /*
                      * Standard angles are in decimal degree for TANC only
@@ -622,8 +623,8 @@ public class McidasDecoder extends AbstractDecoder {
                 /*
                  * compute pixel/grid spacing and colatitude.
                  */
-                double psi1 = HALFPI - Math.abs(stdlat1) * DTR;
-                double psi2 = HALFPI - Math.abs(stdlat2) * DTR;
+                double psi1 = HALFPI - (Math.abs(stdlat1) * DTR);
+                double psi2 = HALFPI - (Math.abs(stdlat2) * DTR);
 
                 /*
                  * compute cone constant
@@ -644,16 +645,16 @@ public class McidasDecoder extends AbstractDecoder {
                  */
                 double dxp = 1. - rxp;
                 double dyp = 1. - ryp;
-                double rm = dx * Math.sqrt((dxp * dxp + dyp * dyp));
+                double rm = dx * Math.sqrt(((dxp * dxp) + (dyp * dyp)));
                 double tmp = ccone / (re * Math.sin(psi1));
                 double arg = Math.pow(rm * tmp, 1. / ccone)
                         * Math.tan(psi1 / 2.);
-                lllat = (float) (sign * (HALFPI - 2. * Math.atan(arg)) * RTD);
+                lllat = (float) (sign * (HALFPI - (2. * Math.atan(arg))) * RTD);
 
                 double thta;
                 if (dyp != 0) {
                     dyp = -dyp;
-                    thta = (Math.atan2(dxp, dyp)) * RTD / ccone;
+                    thta = ((Math.atan2(dxp, dyp)) * RTD) / ccone;
                     lllon = prnlon((float) (clon + thta));
                 } else {
                     lllon = (float) clon;
@@ -664,13 +665,13 @@ public class McidasDecoder extends AbstractDecoder {
                  */
                 dxp = nx - rxp;
                 dyp = ny - ryp;
-                rm = dx * Math.sqrt((dxp * dxp + dyp * dyp));
+                rm = dx * Math.sqrt(((dxp * dxp) + (dyp * dyp)));
                 arg = Math.pow(rm * tmp, 1. / ccone) * Math.tan(psi1 / 2.);
-                urlat = (float) (sign * ((HALFPI - 2. * Math.atan(arg))) * RTD);
+                urlat = (float) (sign * ((HALFPI - (2. * Math.atan(arg)))) * RTD);
 
                 if (dyp != 0) {
                     dyp = -dyp;
-                    thta = (Math.atan2(dxp, dyp)) * RTD / ccone;
+                    thta = ((Math.atan2(dxp, dyp)) * RTD) / ccone;
                     urlon = (float) (clon + thta);
                     urlon = prnlon(urlon);
                 } else {
@@ -680,8 +681,8 @@ public class McidasDecoder extends AbstractDecoder {
                 // native satellite projections ( not remapped )
                 proj = navtyp;
                 int ilonrad = byteArrayToInt(navigation, 20, endian);
-                clon = (float) ilonrad / 10000000.f;
-                clon = (float) Math.toDegrees((double) clon);
+                clon = ilonrad / 10000000.f;
+                clon = (float) Math.toDegrees(clon);
 
             }
             record.setProjection(proj);
@@ -695,7 +696,7 @@ public class McidasDecoder extends AbstractDecoder {
                     mapCoverage = McidasSpatialFactory.getInstance()
                             .getMapCoverage(iproj, nx, ny, dx, dy, clon,
                                     stdlat1, stdlat2, lllat, lllon, urlat,
-                                    urlon, (double) re);
+                                    urlon, re);
                 } else {
                     // non-remapped Navigations
                     mapCoverage = McidasSpatialFactory.getInstance()
@@ -733,7 +734,6 @@ public class McidasDecoder extends AbstractDecoder {
                 record.setTraceId(traceId);
                 record.setCoverage(mapCoverage);
                 record.setPersistenceTime(TimeTools.getSystemCalendar());
-                record.setPluginName("mcidas");
                 try {
                     record.constructDataURI();
                 } catch (PluginException e) {
@@ -767,13 +767,13 @@ public class McidasDecoder extends AbstractDecoder {
         }
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.set(Calendar.YEAR, julian / 1000);
-        cal.set(Calendar.DAY_OF_YEAR, julian - (julian / 1000) * 1000);
+        cal.set(Calendar.DAY_OF_YEAR, julian - ((julian / 1000) * 1000));
 
         int ihour = hhmmss / 10000;
         cal.set(Calendar.HOUR_OF_DAY, ihour);
-        int minute = (hhmmss - ihour * 10000) / 100;
+        int minute = (hhmmss - (ihour * 10000)) / 100;
         cal.set(Calendar.MINUTE, minute);
-        int second = hhmmss - ihour * 10000 - minute * 100;
+        int second = hhmmss - (ihour * 10000) - (minute * 100);
         cal.set(Calendar.SECOND, second);
         cal.set(Calendar.MILLISECOND, 0);
         return cal;
@@ -856,7 +856,7 @@ public class McidasDecoder extends AbstractDecoder {
      * @return
      */
     public float prnlon(float lon) {
-        float dlon = lon - (int) (lon / 360.f) * 360.f;
+        float dlon = lon - ((int) (lon / 360.f) * 360.f);
         if (lon < -180.) {
             dlon = lon + 360.f;
         } else if (lon > 180.) {
