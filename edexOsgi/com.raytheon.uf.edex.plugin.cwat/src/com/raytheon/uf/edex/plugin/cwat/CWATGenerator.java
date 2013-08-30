@@ -49,7 +49,8 @@ import com.raytheon.uf.edex.plugin.cwat.common.CWATConfig;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/25/13     1660       D. Hladky Fixed configuration bug in scan.
+ * Feb 25, 2013 1660       D. Hladky Fixed configuration bug in scan.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ public class CWATGenerator extends CompositeProductGenerator implements
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
-    
+
     /** run configuration manager **/
     public SCANRunSiteConfigurationManager srcm = null;
 
@@ -98,7 +99,7 @@ public class CWATGenerator extends CompositeProductGenerator implements
 
         if (!configValid) {
             statusHandler.handle(Priority.WARN,
-            "Configuration for CWAT(scan) is invalid!!!");
+                    "Configuration for CWAT(scan) is invalid!!!");
             return;
         }
 
@@ -133,7 +134,7 @@ public class CWATGenerator extends CompositeProductGenerator implements
                 cwa_config = new CWATConfig(genMessage, this);
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "CWAT Configuration parameters for run not met...",e);
+                        "CWAT Configuration parameters for run not met...", e);
                 return;
 
             }
@@ -156,8 +157,6 @@ public class CWATGenerator extends CompositeProductGenerator implements
                                 + cwa_config.getVil().getNumBins());
             }
 
-            cwaRec.setPluginName(cwa_config.getGenerator()
-                    .getCompositeProductType());
             cwaRec.setIcao(cwa_config.getIcao());
             cwaRec.setDataTime(new DataTime(cwa_config.getCZ().getDataTime()
                     .getRefTime()));
@@ -193,7 +192,7 @@ public class CWATGenerator extends CompositeProductGenerator implements
             resetFilters();
         }
     }
-    
+
     /**
      * run config manager
      * 

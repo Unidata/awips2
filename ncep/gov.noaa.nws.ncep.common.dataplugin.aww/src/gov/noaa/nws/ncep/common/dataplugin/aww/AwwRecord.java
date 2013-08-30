@@ -66,52 +66,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "aww",
-		indexes = {
-				@Index(name = "aww_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "aww", indexes = { @Index(name = "aww_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
+public class AwwRecord extends PluginDataObject {
 
-public class AwwRecord extends PluginDataObject{
-	
-	private static final long serialVersionUID = 1L;
-	
-	/*
-	 * There are many report types as follows:
-	 * 1. SEVERE THUNDERSTORM WARNING
-	 * 2. SEVERE THUNDERSTORM WATCH
-	 * 3. TORNADO WARNING
-	 * 4. TORNADO WATCH
-	 * 5. SEVERE THUNDERSTORM OUTLINE UPDATE
-	 * 6. TORNADO WATCH OUTLINE UPDATE
-	 * 7. FLASH FLOOD WARNING
-	 * 8. FLASH FLOOD WATCH
-	 * 9. FLOOD WARNING
-	 * 10. FLOOD WATCH
-	 * 11. FLOOD STATEMENT
-	 * 12. WINTER STORM WARNING
-	 * 13. WINTER STORM WATCH
-	 * 14. WATCH COUNTY NOTIFICATION 
-	 * 15. SEVERE WEATHER STATEMENT
-	 * 16. WIND ADVISORY 
-	 * 17. FOG ADVISORY
-	 * 18. HEAT ADVISORY
-	 * 19. FROST ADVISORY
-	 * 20. SMOKE ADVISORY
-	 * 21. WEATHER ADVISORY
-	 * 22. WINTER WEATHER ADVISORY
-	 * 23. SIGNIGICANT WEATHER ADVISORY
-	 * 24. SPECIAL WEATHER STATEMENT
-	 * 25. RED FLAG WARNING
-	 * 26. TORNADO REPORT
-	 * 27. HIGH WIND WARNING
-	 * 28. FREEZE WARNING
-	 * 29. ADVERTENCIA DE INUNDACIONES
-	 * 30. HYDROLOGIC STATEMENT
-	 * 31. URGENT WEATHER MESSAGE
-	 */
+    private static final long serialVersionUID = 1L;
+
+    /*
+     * There are many report types as follows: 1. SEVERE THUNDERSTORM WARNING 2.
+     * SEVERE THUNDERSTORM WATCH 3. TORNADO WARNING 4. TORNADO WATCH 5. SEVERE
+     * THUNDERSTORM OUTLINE UPDATE 6. TORNADO WATCH OUTLINE UPDATE 7. FLASH
+     * FLOOD WARNING 8. FLASH FLOOD WATCH 9. FLOOD WARNING 10. FLOOD WATCH 11.
+     * FLOOD STATEMENT 12. WINTER STORM WARNING 13. WINTER STORM WATCH 14. WATCH
+     * COUNTY NOTIFICATION 15. SEVERE WEATHER STATEMENT 16. WIND ADVISORY 17.
+     * FOG ADVISORY 18. HEAT ADVISORY 19. FROST ADVISORY 20. SMOKE ADVISORY 21.
+     * WEATHER ADVISORY 22. WINTER WEATHER ADVISORY 23. SIGNIGICANT WEATHER
+     * ADVISORY 24. SPECIAL WEATHER STATEMENT 25. RED FLAG WARNING 26. TORNADO
+     * REPORT 27. HIGH WIND WARNING 28. FREEZE WARNING 29. ADVERTENCIA DE
+     * INUNDACIONES 30. HYDROLOGIC STATEMENT 31. URGENT WEATHER MESSAGE
+     */
 	public static enum AwwReportType {
 		  SEVERE_THUNDERSTORM_WARNING,
 		  SEVERE_THUNDERSTORM_WATCH,
@@ -175,89 +149,87 @@ public class AwwRecord extends PluginDataObject{
 		  } 		  
 	}
 
-	@Column(length=40)
-	@DataURI(position=1)
-	@DynamicSerializeElement
-	private String reportType;
-	
-	// The issue office where the report from
-	@Column(length=32)
-	@DataURI(position=2)
-	@DynamicSerializeElement
-	private String issueOffice;
-	
-	// The collection of watch numbers in the report
-	@Column(length=160)
-	@DataURI(position=5)
-	@DynamicSerializeElement
-	private String watchNumber;
-	
-	// WMO header
-	@Column(length=32)
-	@DynamicSerializeElement
-	private String wmoHeader;
-	
-	// Issue time of the report
-	@Column
-	@DataURI(position=3)
-	@DynamicSerializeElement
-	private Calendar issueTime;
-	
-	// The designator
-	@Column(length=8)
-	@DataURI(position=4)
-	@DynamicSerializeElement
-	private String designatorBBB;
-	
-	// The designator
-	@Column(length=72)
-	@DataURI(position=6)
-	@DynamicSerializeElement
-	private String mndTime;
-	
-	// Attention WFO
-	@Column(length=72)
-	@DynamicSerializeElement
-	private String attentionWFO;
-	
-	// The entire report
-	@Column(length=40000)
-	@DynamicSerializeElement
-	private String bullMessage;
-	
+    @Column(length = 40)
+    @DataURI(position = 1)
+    @DynamicSerializeElement
+    private String reportType;
 
-	// AWW UGC Table
-	@DynamicSerializeElement
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "parentID", nullable = false)
+    // The issue office where the report from
+    @Column(length = 32)
+    @DataURI(position = 2)
+    @DynamicSerializeElement
+    private String issueOffice;
+
+    // The collection of watch numbers in the report
+    @Column(length = 160)
+    @DataURI(position = 5)
+    @DynamicSerializeElement
+    private String watchNumber;
+
+    // WMO header
+    @Column(length = 32)
+    @DynamicSerializeElement
+    private String wmoHeader;
+
+    // Issue time of the report
+    @Column
+    @DataURI(position = 3)
+    @DynamicSerializeElement
+    private Calendar issueTime;
+
+    // The designator
+    @Column(length = 8)
+    @DataURI(position = 4)
+    @DynamicSerializeElement
+    private String designatorBBB;
+
+    // The designator
+    @Column(length = 72)
+    @DataURI(position = 6)
+    @DynamicSerializeElement
+    private String mndTime;
+
+    // Attention WFO
+    @Column(length = 72)
+    @DynamicSerializeElement
+    private String attentionWFO;
+
+    // The entire report
+    @Column(length = 40000)
+    @DynamicSerializeElement
+    private String bullMessage;
+
+    // AWW UGC Table
+    @DynamicSerializeElement
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "parentID", nullable = false)
     @Index(name = "awwUGC_parentid_idex")
-	private Set<AwwUgc> awwUGC = new HashSet<AwwUgc>();
+    private Set<AwwUgc> awwUGC = new HashSet<AwwUgc>();
 
-	
-	/**
+    /**
      * Default Convstructor
      */
     public AwwRecord() {
-    	this.issueOffice=null;
-    	this.watchNumber="0000";
-    	this.issueTime=null;
-    	this.attentionWFO=null;
-    	this.wmoHeader=null;
-    	this.designatorBBB=null;
-    	this.bullMessage=null;
-    	this.mndTime=null;
+        this.issueOffice = null;
+        this.watchNumber = "0000";
+        this.issueTime = null;
+        this.attentionWFO = null;
+        this.wmoHeader = null;
+        this.designatorBBB = null;
+        this.bullMessage = null;
+        this.mndTime = null;
     }
 
     /**
      * Convstructs a consigmet record from a dataURI
      * 
-     * @param uri The dataURI
+     * @param uri
+     *            The dataURI
      */
     public AwwRecord(String uri) {
         super(uri);
     }
-    
-    
+
     @Override
     public IDecoderGettable getDecoderGettable() {
         // TODO Auto-generated method stub
@@ -265,170 +237,183 @@ public class AwwRecord extends PluginDataObject{
     }
 
     /**
-	 * @return the reportType
-	 */
+     * @return the reportType
+     */
     public String getReportType() {
-		return reportType;
-	}
+        return reportType;
+    }
 
     /**
-	 * @return the reportType
-	 */
-	public void setReportType(String reportType) {
-		this.reportType = reportType;
-	}
+     * @return the reportType
+     */
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
 
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getWmoHeader(){
-		return wmoHeader;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * @param wnoHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader){
-		this.wmoHeader=wmoHeader;
-	}
-	
-	/**
-	 * @return the issueTime
-	 */
-	public Calendar getIssueTime(){
-		return issueTime;
-	}
+    /**
+     * @param wnoHeader
+     *            to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	/**
-	 * @param issueTime to set
-	 */
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
-	}
+    /**
+     * @return the issueTime
+     */
+    public Calendar getIssueTime() {
+        return issueTime;
+    }
 
-	/**
-	 * @return the set of UGC
-	 */
-	   public Set<AwwUgc> getAwwUGC() {
-	           return awwUGC;
-	   }
+    /**
+     * @param issueTime
+     *            to set
+     */
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
 
-	   /**
-	    * @param awwUgc the ugc to set
-	    */
-	   public void setAwwUGC(Set<AwwUgc> awwUgc) {
-	           this.awwUGC = awwUgc;
-	   }
+    /**
+     * @return the set of UGC
+     */
+    public Set<AwwUgc> getAwwUGC() {
+        return awwUGC;
+    }
 
-	   /**
-	    * @param add AWW UGC to set
-	    */
-	   public void addAwwUGC(AwwUgc pugc){
-	           awwUGC.add(pugc);
-	           //pugc.setParentID(this);
-	   }
+    /**
+     * @param awwUgc
+     *            the ugc to set
+     */
+    public void setAwwUGC(Set<AwwUgc> awwUgc) {
+        this.awwUGC = awwUgc;
+    }
 
-	   /**
-	    * Override existing set method to modify any
-	    * classes that use the dataURI as a foreign key
-	    */
-	   public void setIdentifier(Object dataURI)
-	   {
+    /**
+     * @param add
+     *            AWW UGC to set
+     */
+    public void addAwwUGC(AwwUgc pugc) {
+        awwUGC.add(pugc);
+        // pugc.setParentID(this);
+    }
 
-		   this.identifier = dataURI;
-	      
-	      
-	      
-	   }
+    /**
+     * Override existing set method to modify any classes that use the dataURI
+     * as a foreign key
+     */
+    @Override
+    public void setIdentifier(Object dataURI) {
 
-	   /**
-		 * @return the designator
-		 */   
-	public String getDesignatorBBB() {
-		return designatorBBB;
-	}
+        this.identifier = dataURI;
 
-	/**
-	 * @param designatorBBB to set
-	 */
-	public void setDesignatorBBB(String designatorBBB) {
-		this.designatorBBB = designatorBBB;
-	}
+    }
 
-	/**
-	 * @return the attentionWFO
-	 */ 
-	public String getAttentionWFO() {
-		return attentionWFO;
-	}
+    /**
+     * @return the designator
+     */
+    public String getDesignatorBBB() {
+        return designatorBBB;
+    }
 
-	/**
-	 * @param attentionWFO to set
-	 */
-	public void setAttentionWFO(String attentionWFO) {
-		this.attentionWFO = attentionWFO;
-	}
+    /**
+     * @param designatorBBB
+     *            to set
+     */
+    public void setDesignatorBBB(String designatorBBB) {
+        this.designatorBBB = designatorBBB;
+    }
 
-	/**
-	 * @return the watchNumber
-	 */ 
-	public String getWatchNumber() {
-		return watchNumber;
-	}
+    /**
+     * @return the attentionWFO
+     */
+    public String getAttentionWFO() {
+        return attentionWFO;
+    }
 
-	/**
-	 * @param watchNumber to set
-	 */
-	public void setWatchNumber(String watchNumber) {
-		this.watchNumber = watchNumber;
-	}
+    /**
+     * @param attentionWFO
+     *            to set
+     */
+    public void setAttentionWFO(String attentionWFO) {
+        this.attentionWFO = attentionWFO;
+    }
 
-	/**
-	 * @return the bullMessage
-	 */ 
-	public String getBullMessage() {
-		return bullMessage;
-	}
+    /**
+     * @return the watchNumber
+     */
+    public String getWatchNumber() {
+        return watchNumber;
+    }
 
-	/**
-	 * @param bullMessage to set
-	 */
-	public void setBullMessage(String bullMessage) {
-		this.bullMessage = bullMessage;
-	}
+    /**
+     * @param watchNumber
+     *            to set
+     */
+    public void setWatchNumber(String watchNumber) {
+        this.watchNumber = watchNumber;
+    }
 
-	/**
-	 * @return the issueOffice
-	 */ 
-	public String getIssueOffice() {
-		return issueOffice;
-	}
+    /**
+     * @return the bullMessage
+     */
+    public String getBullMessage() {
+        return bullMessage;
+    }
 
-	/**
-	 * @param issueOffice to set
-	 */
-	public void setIssueOffice(String issueOffice) {
-		this.issueOffice = issueOffice;
-	}
+    /**
+     * @param bullMessage
+     *            to set
+     */
+    public void setBullMessage(String bullMessage) {
+        this.bullMessage = bullMessage;
+    }
 
-	/**
-	 * @return the mndTime
-	 */
-	public String getMndTime() {
-		return mndTime;
-	}
+    /**
+     * @return the issueOffice
+     */
+    public String getIssueOffice() {
+        return issueOffice;
+    }
 
-	/**
-	 * @param mndTime to set
-	 */
-	public void setMndTime(String mndTime) {
-		this.mndTime = mndTime;
-	}
+    /**
+     * @param issueOffice
+     *            to set
+     */
+    public void setIssueOffice(String issueOffice) {
+        this.issueOffice = issueOffice;
+    }
+
+    /**
+     * @return the mndTime
+     */
+    public String getMndTime() {
+        return mndTime;
+    }
+
+    /**
+     * @param mndTime
+     *            to set
+     */
+    public void setMndTime(String mndTime) {
+        this.mndTime = mndTime;
+    }
 
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "aww";
     }
 }
