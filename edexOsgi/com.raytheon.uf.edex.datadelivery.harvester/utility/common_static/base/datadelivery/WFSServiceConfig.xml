@@ -2,7 +2,7 @@
 <serviceConfig name="WFS">
     <!--  Date format used by WFS providers -->
 	<dateConfig>
-		<format>yyyy-MM-dd'T'HH:mm:ss.SSSZ</format>
+		<format>yyyy-MM-dd'T'HH:mm:ss.SSS</format>
 	</dateConfig>
 	
 	<constant name="BLANK" value=""/>
@@ -35,6 +35,6 @@
 	<constant name="OUTPUTFORMAT" value="text/xml"/>
 	<constant name="FORWARD_SLASH" value="/"/>
 	<constant name="DEFAULT_CRS" value="crs:84"/>
-	<constant name="MAX" value="maxfeatures=3000"/>
+	<constant name="MAX" value="5000"/>
 		
 </serviceConfig>
