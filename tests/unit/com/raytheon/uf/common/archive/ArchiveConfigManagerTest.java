@@ -140,6 +140,8 @@ public class ArchiveConfigManagerTest {
         // {6} file-dd
         // {7} file-kk
         // {8} file-mm
+        // {9} file-epochMS
+        // {10} file-epochSec
 
         // **** grib1 ****
         MessageFormat grib1Format_Raw = new MessageFormat(
@@ -191,8 +193,42 @@ public class ArchiveConfigManagerTest {
         createTestFiles(bufrsigwxFormat_Processed, archiveProcessed,
                 "Products", false, archiveStart, archiveEnd);
 
+        // *** manual ****
+        MessageFormat manualFormat_Raw1 = new MessageFormat(
+                "manual/mpe/ZETA98_BDHRMOSAIC{4}{5}{6}{7}{8}z_15180450.grib");
+        createTestFiles(manualFormat_Raw1, archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+        MessageFormat manualFormat_Raw2 = new MessageFormat(
+                "manual/mpe/ZETA98_{0}{1}{2}{3}z_16122536.grib");
+        createTestFiles(manualFormat_Raw2, archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+        MessageFormat manualFormat_RawE1 = new MessageFormat(
+                "manual/000-KOUNVFTOUN-NXUS98-KOUN-13{5}{6}{7}{8}-___-{10}");
+        createTestFiles(manualFormat_RawE1, archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+        MessageFormat manualFormat_RawE2 = new MessageFormat(
+                "manual/AQIOUN.wan{10}");
+        createTestFiles(manualFormat_RawE2, archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+        MessageFormat manualFormat_Raw3 = new MessageFormat(
+                "manual/wrf4nssl_{0}{1}{2}{3}.f00.OUN_subset.16122536");
+        createTestFiles(manualFormat_Raw3, archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+        MessageFormat manualFormat_Raw4 = new MessageFormat(
+                "manual/ZETA98.LAPS.{4}{5}{6}_{7}{8}");
+        createTestFiles(manualFormat_Raw4, archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+
+        // **** manual using file last modified time.
+        createModTestFiles("manual/FOUS74KTUA.16130407.100",
+                "manual/FOUS74KTUA.16130407.200",
+                "manual/FOUS74KTUA.16130407.300",
+                "manual/FOUS74KTUA.16130407.400", archiveRaw, "Local", false,
+                archiveStart, archiveEnd);
+
         // create test archive data dir
         archiveDir = new File(TEST_DIR, TEST_ARCHIVE_DIR);
+
     }
 
     private int getRetentionHours(ArchiveConfig archive, CategoryConfig category) {
@@ -209,12 +245,20 @@ public class ArchiveConfigManagerTest {
                 break;
             }
         }
+        if (category == null) {
+            // This is part of setup and asserts will not give stack trace.
+            System.err.println(String.format("category: %s not in archive: %s",
+                    categoryName, archive.getName()));
+            throw new IllegalArgumentException("bad category name: "
+                    + categoryName);
+        }
         return category;
     }
 
     private void createTestFiles(MessageFormat fileNameFormat,
             ArchiveConfig archive, String categoryName, boolean isSelected,
             Calendar start, Calendar end) throws IOException {
+
         CategoryConfig category = getCategory(archive, categoryName);
         int retentionHours = getRetentionHours(archive, category);
         String rootDir = archive.getRootDir();
@@ -291,6 +335,88 @@ public class ArchiveConfigManagerTest {
                                 .substring(rootDir.length()));
     }
 
+    private void createModTestFiles(String newFilename, String oldFilename,
+            String purgeFilename, String outsideFilename,
+            ArchiveConfig archive, String categoryName, boolean isSelected,
+            Calendar start, Calendar end) throws IOException {
+
+        CategoryConfig category = getCategory(archive, categoryName);
+        int retentionHours = getRetentionHours(archive, category);
+        String rootDir = archive.getRootDir();
+
+        // create data file newer than purge time, within archive time, and
+        // isSelected
+        File dataFile = create_ModFile(end, newFilename, rootDir);
+
+        if (isSelected) {
+            ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+
+            archiveFiles.add(dataFile);
+            archiveSelectedDisplays.addAll(manager.getDisplayData(
+                    archive.getName(), categoryName, true));
+        }
+        System.out
+                .println("{newer modTime than purge/within archive/}\n\tFor archive:"
+                        + archive.getName()
+                        + " category:"
+                        + categoryName
+                        + "\n\tcreated file: "
+                        + dataFile.getAbsolutePath()
+                                .substring(rootDir.length()));
+
+        // create data file newer than purge time, within archive time, but not
+        // in selected
+        Calendar moreThanOneDayOld = (Calendar) referenceCalendar.clone();
+        moreThanOneDayOld.add(Calendar.DAY_OF_MONTH, -1);
+        dataFile = create_ModFile(moreThanOneDayOld, oldFilename, rootDir);
+        System.out
+                .println("{newer modTime than purge/within archive/Not Selected}\nFor archive:"
+                        + archive.getName()
+                        + " category:"
+                        + categoryName
+                        + "\n\tcreated file: "
+                        + dataFile.getAbsolutePath()
+                                .substring(rootDir.length()));
+
+        // create data file older than purge time
+        Calendar lessThanExpiredCalendar = (Calendar) referenceCalendar.clone();
+        lessThanExpiredCalendar.add(Calendar.HOUR, (-1 * retentionHours - 1));
+        dataFile = create_ModFile(lessThanExpiredCalendar, purgeFilename,
+                rootDir);
+        purgeFiles.add(dataFile);
+        System.out.println("{older than purge}\nFor archive:"
+                + archive.getName() + " category:" + categoryName
+                + "\n\tcreated file: "
+                + dataFile.getAbsolutePath().substring(rootDir.length()));
+
+        // // create data file newer than purge time, but in a directory that is
+        // // older than purge time, and outside of archive time frame
+        Calendar newerThanArchiveEnd = (Calendar) end.clone();
+        // newerThanArchiveEnd.add(Calendar.HOUR, 3);
+        // dataFile = create_DataFile(lessThanExpiredCalendar,
+        // newerThanArchiveEnd, fileNameFormat, rootDir);
+        // System.out
+        // .println("{newer than purge/in directory older than purge/outside of archive}\nFor archive:"
+        // + archive.getName()
+        // + " category:"
+        // + categoryName
+        // + "\n created file: " + dataFile.getAbsolutePath());
+
+        // create data file newer than purge time and outside of archive time
+        // frame
+        newerThanArchiveEnd = (Calendar) end.clone();
+        newerThanArchiveEnd.add(Calendar.HOUR, 3);
+        dataFile = create_ModFile(newerThanArchiveEnd, outsideFilename, rootDir);
+        System.out
+                .println("{newer modTime than purge/outside of archive}\nFor archive:"
+                        + archive.getName()
+                        + " category:"
+                        + categoryName
+                        + "\n\tcreated file: "
+                        + dataFile.getAbsolutePath()
+                                .substring(rootDir.length()));
+    }
+
     private void setupTimes() {
         referenceCalendar = TimeUtil.newGmtCalendar();
         referenceCalendar.set(Calendar.MINUTE, 0);
@@ -330,8 +456,13 @@ public class ArchiveConfigManagerTest {
         String file_dd = ddFormat.format(fileReferenceTime);
         String file_kk = kkFormat.format(fileReferenceTime);
         String file_mm = mmFormat.format(fileReferenceTime);
+        String file_epochMS = String.format("%013d",
+                fileReferenceTime.getTime());
+        String file_epochSec = String.format("%010d",
+                fileReferenceTime.getTime() / TimeUtil.MILLIS_PER_SECOND);
         String[] formatArgs = new String[] { dir_yyyy, dir_MM, dir_dd, dir_kk,
-                file_yyyy, file_MM, file_dd, file_kk, file_mm };
+                file_yyyy, file_MM, file_dd, file_kk, file_mm, file_epochMS,
+                file_epochSec };
 
         String filename = fileFormat.format(formatArgs, new StringBuffer(),
                 new FieldPosition(0)).toString();
@@ -343,6 +474,22 @@ public class ArchiveConfigManagerTest {
         dir.mkdirs();
         resultFile.createNewFile();
         allFiles.add(resultFile);
+        return resultFile;
+    }
+
+    private File create_ModFile(Calendar fileReferenceCalendar,
+            String filename, String rootDir) throws IOException {
+        Date fileReferenceTime = fileReferenceCalendar.getTime();
+
+        File resultFile = new File(rootDir, filename);
+        String dirname = FilenameUtils
+                .getFullPath(resultFile.getAbsolutePath());
+        File dir = new File(dirname);
+
+        dir.mkdirs();
+        resultFile.createNewFile();
+        allFiles.add(resultFile);
+        resultFile.setLastModified(fileReferenceTime.getTime());
         return resultFile;
     }
 
@@ -416,6 +563,15 @@ public class ArchiveConfigManagerTest {
         for (File file : allFiles) {
             if (!file.exists()) {
                 filesFoundInPurge.add(file);
+            }
+        }
+        System.out.println("purgeCount: " + purgeCount + ", pureFiles.size:"
+                + purgeFiles.size() + ", filesFoundInPurge.size(): "
+                + filesFoundInPurge.size());
+
+        for (File file : purgeFiles) {
+            if (!filesFoundInPurge.contains(file)) {
+                System.out.println("not purged: " + file.getAbsolutePath());
             }
         }
 
