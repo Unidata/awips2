@@ -47,7 +47,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 17, 2011            bphillip     Initial creation
+ * Nov 17, 2011            bphillip    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -169,14 +170,14 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
             float[] newData = null;
             float[] tp6Data = null;
             if (tp12HrRecord.getMessageData() == null) {
-                newData = (float[]) ((FloatDataRecord) dao.getHDF5Data(
-                        tp12HrRecord, -1)[0]).getFloatData();
+                newData = ((FloatDataRecord) dao.getHDF5Data(tp12HrRecord, -1)[0])
+                        .getFloatData();
             } else {
                 newData = (float[]) tp12HrRecord.getMessageData();
             }
             if (tp6HrRecord.getMessageData() == null) {
-                tp6Data = (float[]) ((FloatDataRecord) dao.getHDF5Data(
-                        tp6HrRecord, -1)[0]).getFloatData();
+                tp6Data = ((FloatDataRecord) dao.getHDF5Data(tp6HrRecord, -1)[0])
+                        .getFloatData();
             } else {
                 tp6Data = (float[]) tp6HrRecord.getMessageData();
             }
@@ -197,7 +198,7 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
         Calendar refTime = tp12HrRecord.getDataTime().getRefTimeAsCalendar();
         Date start = new Date(tp12HrRecord.getDataTime().getValidPeriod()
                 .getEnd().getTime()
-                - SECONDS_IN_6_HRS * 1000);
+                - (SECONDS_IN_6_HRS * 1000));
 
         DataTime newDataTime = new DataTime(refTime, tp12HrRecord.getDataTime()
                 .getFcstTime(), new TimeRange(start, tp12HrRecord.getDataTime()
@@ -208,7 +209,6 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
         newRecord.getInfo().setId(null);
         newRecord.setDataURI(null);
         try {
-            newRecord.setPluginName(GridConstants.GRID);
             newRecord.constructDataURI();
         } catch (PluginException e) {
             throw new GribException("Error constructing dataURI!", e);
