@@ -4,15 +4,14 @@
  **/
 package gov.noaa.nws.ncep.common.dataplugin.ncscd.dao;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncscd.NcScdRecord;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncscd.NcScdRecord;
-import gov.noaa.nws.ncep.common.dataplugin.ncscd.dao.NcScdDao;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -30,9 +29,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/29/2011				F. J. Yen	Initial creation
- * 09/08/2011     294       G. Hull     Use SurfaceObsLocation to set lat/lon
- * 09/13/2011     457       S. Gurung   Renamed H5 to Nc and h5 to nc
+ * Jun 29, 2011            F. J. Yen   Initial creation
+ * Sep 08, 2011 294        G. Hull     Use SurfaceObsLocation to set lat/lon
+ * Sep 13, 2011 457        S. Gurung   Renamed H5 to Nc and h5 to nc
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -55,70 +55,69 @@ public class NcScdPointDataTransform {
     private static final String LATITUDE = "latitude";
 
     private static final String ELEVATION = "elevation";
-    
+
     private static final String ISSUE_TIME = "issueTime";
-    
+
     private static final String OBS_TIME = "obsTime";
 
     // STATION_ID, REPORT_TYPE, ISSUE_TIME, OBS_TIME
     // ------------------
-    
+
     private static final String CORRECTION_CODE = "correctionCode";
 
     private static final String DATAURI = "dataURI";
-    
+
     private static final String REPORT = "report";
 
     // CORRECTION_CODE, DATAURI, REPORT
     // ------------------
-    
+
     private static final String TDXC = "TDXC";
 
     private static final String TDNC = "TDNC";
-    
+
     private static final String P06I = "P06I";
-    
+
     private static final String P24I = "P24I";
 
     private static final String WTHR = "WTHR";
-    
+
     private static final String SNOW = "SNOW";
-    
+
     private static final String SNEW = "SNEW";
-    
+
     private static final String S24I = "S24I";
 
     private static final String WEQS = "WEQS";
-    
+
     private static final String MSUN = "MSUN";
-    
+
     private static final String CTYL = "CTYL";
 
     private static final String CTYM = "CTYM";
-    
+
     private static final String CTYH = "CTYH";
-    
+
     private static final String CFRT = "CFRT";
 
     private static final String CFRL = "CFRL";
-    
-    private static final String CBAS = "CBAS";
-    
-    private static final String SUSPECT_TIME_FLAG = "suspectTimeFlag";
-    
-    //  TDXC, TDNC, P06I, P24I, WTHR, SNOW, SNEW, S24I, WEQS, MSUN,
-    //  CTYL, CTYM, CTYH, CFRT, CFRL, CBAS, SUSPECT_TIME_FLAG
-    // ------------------
 
+    private static final String CBAS = "CBAS";
+
+    private static final String SUSPECT_TIME_FLAG = "suspectTimeFlag";
+
+    // TDXC, TDNC, P06I, P24I, WTHR, SNOW, SNEW, S24I, WEQS, MSUN,
+    // CTYL, CTYM, CTYH, CFRT, CFRL, CBAS, SUSPECT_TIME_FLAG
+    // ------------------
 
     /**
      * It is important to keep this up to date or risk breaking backwards
      * compatibility
      */
-    private static final String[] ALL_PARAMS = { STATION_ID, REPORT_TYPE, 
-    	    ISSUE_TIME, OBS_TIME, CORRECTION_CODE, REPORT, DATAURI, TDXC,
-            TDNC, P06I, P24I, WTHR, SNOW, SNEW, S24I, WEQS, MSUN, CTYL, 
-            CTYM, CTYH, CFRT, CFRL, CBAS, SUSPECT_TIME_FLAG,};
+    private static final String[] ALL_PARAMS = { STATION_ID, REPORT_TYPE,
+            ISSUE_TIME, OBS_TIME, CORRECTION_CODE, REPORT, DATAURI, TDXC, TDNC,
+            P06I, P24I, WTHR, SNOW, SNEW, S24I, WEQS, MSUN, CTYL, CTYM, CTYH,
+            CFRT, CFRL, CBAS, SUSPECT_TIME_FLAG, };
 
     public static final String ALL_PARAMS_LIST;
     static {
@@ -154,8 +153,9 @@ public class NcScdPointDataTransform {
         if (pdo.length > 0) {
             Map<File, PointDataContainer> pointMap = new HashMap<File, PointDataContainer>();
             for (PluginDataObject p : pdo) {
-                if (!(p instanceof NcScdRecord))
+                if (!(p instanceof NcScdRecord)) {
                     continue;
+                }
                 File f = this.dao.getFullFilePath(p);
                 PointDataContainer pdc = pointMap.get(f);
                 if (pdc == null) {
@@ -206,21 +206,19 @@ public class NcScdPointDataTransform {
         nar.setDataURI(pdv.getString(DATAURI));
         nar.setReport(pdv.getString(REPORT));
         nar.setReportType(pdv.getString(REPORT_TYPE));
-        
+
         SurfaceObsLocation loc = new SurfaceObsLocation(
                 pdv.getString(STATION_NAME));
         Double lat = pdv.getNumber(LATITUDE).doubleValue();
         Double lon = pdv.getNumber(LONGITUDE).doubleValue();
         loc.assignLocation(lat, lon);
         loc.setElevation(pdv.getNumber(ELEVATION).intValue());
-        
+
         long tmptime = pdv.getNumber(ISSUE_TIME).longValue();
         nar.setIssueTime(TimeTools.newCalendar(tmptime));
         tmptime = pdv.getNumber(OBS_TIME).longValue();
         nar.setObsTime(TimeTools.newCalendar(tmptime));
 
-        nar.setPluginName("ncscd");
-        
         nar.setTDXC(pdv.getNumber(TDXC).floatValue());
         nar.setTDNC(pdv.getNumber(TDNC).floatValue());
         nar.setP06I(pdv.getNumber(P06I).floatValue());
@@ -230,11 +228,11 @@ public class NcScdPointDataTransform {
         nar.setSNEW(pdv.getNumber(SNEW).floatValue());
         nar.setS24I(pdv.getNumber(S24I).floatValue());
         nar.setWEQS(pdv.getNumber(WEQS).floatValue());
-        
+
         nar.setMSUN(pdv.getInt(MSUN));
         nar.setCTYL(pdv.getInt(CTYL));
         nar.setCTYM(pdv.getInt(CTYM));
-        nar.setCTYH(pdv.getInt(CTYH));        
+        nar.setCTYH(pdv.getInt(CTYH));
         nar.setCFRT(pdv.getInt(CFRT));
         nar.setCFRL(pdv.getInt(CFRL));
         nar.setCBAS(pdv.getInt(CBAS));

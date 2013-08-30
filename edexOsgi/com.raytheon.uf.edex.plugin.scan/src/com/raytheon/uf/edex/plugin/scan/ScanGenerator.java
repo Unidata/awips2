@@ -55,7 +55,8 @@ import com.raytheon.uf.edex.dat.utils.ScanDataCache;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 02/25/13     1660        D. Hladky   Fixed SCAN configuration bug.
+ * Feb 25, 2013 1660        D. Hladky   Fixed SCAN configuration bug.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -101,13 +102,14 @@ public class ScanGenerator extends CompositeProductGenerator implements
         try {
             getRunConfig().readConfigXml();
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.ERROR, "Couldn't read scan configuration!!!", e);
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't read scan configuration!!!", e);
         }
         boolean configValid = getRunConfig().isPopulated();
 
         if (!configValid) {
             statusHandler.handle(Priority.WARN,
-            "Configuration for SCAN is invalid!!!");
+                    "Configuration for SCAN is invalid!!!");
             return;
         }
 
@@ -202,7 +204,6 @@ public class ScanGenerator extends CompositeProductGenerator implements
                     ScanRecord scanRec = new ScanRecord();
                     scanRec.setType(type);
                     scanRec.setTilt(sfilter.getTilt(table));
-                    scanRec.setPluginName(this.getCompositeProductType());
                     scanRec.setIcao(sfilter.getIcao());
                     scanRec.setLastElevationAngle(tables.get(table)
                             .getLastElevationAngle());

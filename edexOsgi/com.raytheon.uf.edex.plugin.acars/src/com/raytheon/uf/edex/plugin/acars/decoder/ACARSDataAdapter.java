@@ -52,7 +52,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 22, 2009       1939 jkorman     Initial creation
+ * Jan 22, 2009 1939       jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -72,13 +73,13 @@ public class ACARSDataAdapter {
 
     private static final int SECOND_OFFSET = 5;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     // Map detailed flight phase [0-08-009] to flight phase [0-08-004]
     private static final int[] DETAIL_PHASE_MAP = { 3, 4, 2, 3, 4, 5, 6, 5, 5,
             5, 5, 6, 6, 6, 6, 7, };
 
-    private String pluginName;
+    private final String pluginName;
 
     private String traceId = null;
 
@@ -115,7 +116,6 @@ public class ACARSDataAdapter {
                 ACARSRecord record = getDataRecord(parser.next());
                 if (record != null) {
                     record.setWmoHeader(parser.getWmoHeader().getWmoHeader());
-                    record.setPluginName(pluginName);
                     try {
                         record.constructDataURI();
 
@@ -333,14 +333,13 @@ public class ACARSDataAdapter {
                 }
             }
         }
-        if(rpt != null) {
-            if(rpt.getFlightLevel() == null) {
-                logger.error(traceId
-                        + " -No aircraft flight level was found");
+        if (rpt != null) {
+            if (rpt.getFlightLevel() == null) {
+                logger.error(traceId + " -No aircraft flight level was found");
                 rpt = null;
             }
         }
-        
+
         return rpt;
     }
 

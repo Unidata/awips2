@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.taf.common;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.Access;
@@ -61,13 +60,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 2/14/07      139         bphillip    Initial Creation
- * 6/21/07      180         bphillip    Updated to use new plugin pattern   
- * 20071129            472  jkorman     Added IDecoderGettable interface.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Feb 14, 2007 139         bphillip    Initial Creation
+ * Jun 21, 2007 180         bphillip    Updated to use new plugin pattern
+ * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -81,12 +82,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "taf",
-		indexes = {
-				@Index(name = "taf_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "taf", indexes = { @Index(name = "taf_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -347,10 +344,8 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
         this.identifier = dataURI;
 
-        if (this.changeGroups != null && this.changeGroups.size() > 0) {
-            for (Iterator<ChangeGroup> iter = this.changeGroups.iterator(); iter
-                    .hasNext();) {
-                ChangeGroup group = iter.next();
+        if ((this.changeGroups != null) && (this.changeGroups.size() > 0)) {
+            for (ChangeGroup group : this.changeGroups) {
                 group.setParentID(this);
             }
         }
@@ -391,7 +386,7 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
         return result;
     }
@@ -405,19 +400,23 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         TafRecord other = (TafRecord) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
 
@@ -426,5 +425,10 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "taf";
     }
 }
