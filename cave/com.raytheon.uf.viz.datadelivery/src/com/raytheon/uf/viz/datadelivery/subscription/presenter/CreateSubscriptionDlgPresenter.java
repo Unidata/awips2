@@ -120,6 +120,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Jun 04, 2013  223       mpduff       Add point data.
  * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary and the display dialog.
  * Jul 26, 2031 2232       mpduff       Refactored Data Delivery permissions.
+ * Aug 30, 2013 2288       bgonzale     Removed unneeded call to setPriority.
  * </pre>
  * 
  * @author mpduff
@@ -382,10 +383,6 @@ public class CreateSubscriptionDlgPresenter {
             view.setActiveTextFieldsEnabled(false);
             view.setActiveEndDateBtnEnabled(false);
             view.setActiveEndDateBtnEnabled(false);
-        }
-
-        if (!create) {
-            view.setPriority(subscription.getPriority());
         }
 
         if (this.dataSet.getDataSetType() == DataType.GRID) {
