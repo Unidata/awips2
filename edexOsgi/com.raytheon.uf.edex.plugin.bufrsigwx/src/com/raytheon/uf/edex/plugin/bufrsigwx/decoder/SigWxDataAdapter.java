@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrsigwx.decoder;
 
-
 import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
 import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.SubSetList;
 
@@ -52,8 +51,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
- * 20090706           2538 jsanchez    Added latitude,longitude to point data.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * Jul 06, 2009 2538       jsanchez    Added latitude,longitude to point data.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -64,30 +64,37 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
 
     private static Log logger = LogFactory.getLog(SigWxDataAdapter.class);
 
-    private static final int YEAR_POS   = 0;
-    private static final int MONTH_POS  = 1;
-    private static final int DAY_POS    = 2;
-    private static final int HOUR_POS   = 3;
+    private static final int YEAR_POS = 0;
+
+    private static final int MONTH_POS = 1;
+
+    private static final int DAY_POS = 2;
+
+    private static final int HOUR_POS = 3;
+
     private static final int MINUTE_POS = 4;
 
     private static final int TIME_SIG_FCST = 4;
-    
+
     private static final int BASE_HGT_POS = 13;
+
     private static final int TOP_HGT_POS = 14;
-    
+
     private static final int MID_LYR_BASE = 3050;
+
     private static final int HI_LYR_TOP = 19200;
-    
+
     static final int MISSING = PointDataDescription.FILL_VALUE_INT;
-    
+
     /**
      * 
      * @param pdd
      * @param dao
      * @param pluginName
      */
-    public SigWxDataAdapter(PointDataDescription pdd, PointDataPluginDao<SigWxData> dao, String pluginName) {
-        super(pdd,dao,pluginName);
+    public SigWxDataAdapter(PointDataDescription pdd,
+            PointDataPluginDao<SigWxData> dao, String pluginName) {
+        super(pdd, dao, pluginName);
     }
 
     /**
@@ -101,8 +108,8 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
      * @return A ProfilerObs instance, or null in the event of an error.
      */
     @Override
-    public SigWxData createData(
-            Iterator<BUFRDataDocument> iterator, WMOHeader wmoHeader) {
+    public SigWxData createData(Iterator<BUFRDataDocument> iterator,
+            WMOHeader wmoHeader) {
         return null;
     }
 
@@ -111,8 +118,9 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
      * @param iterator
      * @param wmoHeader
      */
-    public List<SigWxData> createDataList(
-            Iterator<BUFRDataDocument> iterator, WMOHeader wmoHeader) {
+    @Override
+    public List<SigWxData> createDataList(Iterator<BUFRDataDocument> iterator,
+            WMOHeader wmoHeader) {
 
         List<SigWxData> tropList = null;
 
@@ -125,9 +133,8 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
 
             // Extract the header data.
             sigWx = getHeaderData(dataList);
-            
+
             if (sigWx != null) {
-                sigWx.setPluginName(getPluginName());
                 sigWx.setWmoHeader(wmoHeader.getWmoHeader());
                 sigWx.setWxType(getType());
                 // Go collect the data specific to the data being decoded.
@@ -136,7 +143,7 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
         }
         return tropList;
     }
-    
+
     /**
      * 
      * @param dataList
@@ -149,7 +156,7 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
         if (TIME_SIG_FCST == timeSig) {
             Calendar baseTime = getTimeInfo(dataList, 2);
             Calendar fcstTime = getTimeInfo(dataList, 8);
-            if ((fcstTime != null)&&(baseTime != null)) {
+            if ((fcstTime != null) && (baseTime != null)) {
                 sigWx = new SigWxData();
 
                 int fcstSeconds = (int) (fcstTime.getTimeInMillis() - baseTime
@@ -179,25 +186,26 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
         }
         return sigWx;
     }
-    
+
     /**
      * 
      * @param dataList
      * @return
      */
     private Calendar getTimeInfo(List<IBUFRDataPacket> dataList, int basePos) {
-        
-        int year = getInt(dataList.get(basePos + YEAR_POS),MISSING);
-        int month = getInt(dataList.get(basePos + MONTH_POS),MISSING);
-        int day = getInt(dataList.get(basePos + DAY_POS),MISSING);
-        int hour = getInt(dataList.get(basePos + HOUR_POS),MISSING);
-        int minute = getInt(dataList.get(basePos + MINUTE_POS),MISSING);
-        
+
+        int year = getInt(dataList.get(basePos + YEAR_POS), MISSING);
+        int month = getInt(dataList.get(basePos + MONTH_POS), MISSING);
+        int day = getInt(dataList.get(basePos + DAY_POS), MISSING);
+        int hour = getInt(dataList.get(basePos + HOUR_POS), MISSING);
+        int minute = getInt(dataList.get(basePos + MINUTE_POS), MISSING);
+
         Calendar baseTime = null;
-        
+
         // Ensure that we have all of the time info and create the
         // date-time and datatime info.
-        if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)&& (minute >= 0)) {
+        if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)
+                && (minute >= 0)) {
             baseTime = TimeTools.getBaseCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
@@ -206,21 +214,21 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
         }
         return baseTime;
     }
-    
+
     /**
      * 
      * @param sigWx
      * @param index
      */
-    abstract List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList);
-    
+    abstract List<SigWxData> getSigWxData(SigWxData sigWx,
+            List<IBUFRDataPacket> dataList);
+
     /**
      * 
      * @return
      */
     abstract SigWxType getType();
 
-    
     abstract void setType(SigWxType type);
 
     /**
@@ -231,7 +239,7 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
     @SuppressWarnings("unchecked")
     static List<IBUFRDataPacket> getPacketSubList(IBUFRDataPacket packet) {
         List<IBUFRDataPacket> list = null;
-        if(packet instanceof BUFRSublistPacket) {
+        if (packet instanceof BUFRSublistPacket) {
             if (RepSubList.getPacketType().equals(packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
             } else if (SubSetList.getPacketType().equals(packet.getUnits())) {
@@ -302,23 +310,26 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
             adapter.setType(SigWxType.VTS);
         } else {
             adapter = new SigWxNullData(pdd, dao, pluginName);
-            logger.error("No decoder adapter for file " + wmoHeader.getWmoHeader());
+            logger.error("No decoder adapter for file "
+                    + wmoHeader.getWmoHeader());
         }
         return adapter;
     }
 
     private static PointDataDescription loadPDD(String pddFileName) {
-        
+
         PointDataDescription pdd = null;
 
         try {
-            pdd = PointDataDescription.fromStream(SigWxDataAdapter.class.getResourceAsStream(pddFileName));
+            pdd = PointDataDescription.fromStream(SigWxDataAdapter.class
+                    .getResourceAsStream(pddFileName));
             logger.info(pddFileName + "PointDataDescription loaded");
-        
-        } catch(Exception e) {
-            logger.error("PointDataDescription failed loading " + pddFileName,e);
+
+        } catch (Exception e) {
+            logger.error("PointDataDescription failed loading " + pddFileName,
+                    e);
         }
-        
+
         return pdd;
     }
 }

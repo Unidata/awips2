@@ -47,14 +47,14 @@ import com.raytheon.uf.common.time.DataTime;
 /**
  * <pre>
  * SOFTWARE HISTORY
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * June2006		3,14		Phillippe	Initial Creation.	
- * 20071129     472         jkorman     Added IDecoderGettable interface.
- * 19Mar2008    387         M. Duff     Modified to store SHEF data.
- * May 07, 2013	1869      	bsteffen   	Remove dataURI column from
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * June2006     314         Phillippe   Initial Creation.
+ * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
+ * Mar 19, 2008 387         M. Duff     Modified to store SHEF data.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * 
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bphillip
@@ -63,21 +63,19 @@ import com.raytheon.uf.common.time.DataTime;
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 public class ShefRecord extends PluginDataObject {
-    
+
     public static enum ShefType {
         A, B, E;
     }
-    
-    private static final long serialVersionUID = 2726928942130489733L;
 
-    private static final int MILLIS_PER_MINUTE = 1000 * 60;
+    private static final long serialVersionUID = 2726928942130489733L;
 
     /**
      * Collection of SHEF data values for this record
      */
     @Transient
     private List<ShefData> dataValues = null;
-    
+
     @Transient
     protected String rawMessage = null;
 
@@ -127,12 +125,12 @@ public class ShefRecord extends PluginDataObject {
 
     @Transient
     private SHEFDate obsDate = null;
-    
+
     @Transient
     private SHEFDate createDate = null;
 
     @Transient
-    private int durationValue = ParameterCode.Duration.DEFAULT.getValue();
+    private final int durationValue = ParameterCode.Duration.DEFAULT.getValue();
 
     /**
      * Empty constructor
@@ -161,12 +159,12 @@ public class ShefRecord extends PluginDataObject {
     }
 
     public void addDataValue(ShefData value) {
-        if(dataValues == null) {
+        if (dataValues == null) {
             dataValues = new ArrayList<ShefData>();
         }
         dataValues.add(value);
     }
-    
+
     /**
      * Get the record type.
      * 
@@ -246,19 +244,19 @@ public class ShefRecord extends PluginDataObject {
         this.recordDate = recordDate;
         if (recordDate.length() == 4) {
             int year = ShefUtil.getFullYear(recordDate);
-            synchronized(ShefConstants.YYYYMMDD_FORMAT){
+            synchronized (ShefConstants.YYYYMMDD_FORMAT) {
                 recordDateObj = ShefConstants.YYYYMMDD_FORMAT.parse(year
                         + recordDate);
             }
         } else if (recordDate.length() == 6) {
             int year = ShefUtil.getFullYear(recordDate);
             year = year / 100;
-            synchronized(ShefConstants.YYYYMMDD_FORMAT){
+            synchronized (ShefConstants.YYYYMMDD_FORMAT) {
                 recordDateObj = ShefConstants.YYYYMMDD_FORMAT.parse(year
                         + recordDate);
             }
         } else { // recordDate length must be 8
-            synchronized(ShefConstants.YYYYMMDD_FORMAT){
+            synchronized (ShefConstants.YYYYMMDD_FORMAT) {
                 recordDateObj = ShefConstants.YYYYMMDD_FORMAT.parse(recordDate);
             }
         }
@@ -287,7 +285,7 @@ public class ShefRecord extends PluginDataObject {
     public void setObsDate(SHEFDate date) {
         obsDate = date;
     }
-    
+
     /**
      * 
      * @return
@@ -295,7 +293,7 @@ public class ShefRecord extends PluginDataObject {
     public SHEFDate getObsDate() {
         return obsDate;
     }
-    
+
     /**
      * Get the time zone code
      * 
@@ -375,7 +373,7 @@ public class ShefRecord extends PluginDataObject {
      * @param date
      */
     public void setCreationDate(SHEFDate date) {
-        if(date != null) {
+        if (date != null) {
             createDate = date;
             creationDate = date.toLocal();
             creationDateObj = date.toCalendar().getTime();
@@ -385,7 +383,6 @@ public class ShefRecord extends PluginDataObject {
             creationDateObj = null;
         }
     }
-    
 
     /**
      * Get the creation date Date object
@@ -563,54 +560,15 @@ public class ShefRecord extends PluginDataObject {
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Record type = ");
         sb.append(shefType);
-        
-//        if(obsDate != null) {
-//            sb.append(obsDate.toOutString());
-//        } else {
-//            sb.append("   0  0  0  0  0  0");
-//        }
-//        sb.append(" ");
-//        if(createDate != null) {
-//            sb.append(createDate.toOutString());
-//        } else {
-//            sb.append("   0  0  0  0  0  0");
-//        }
-//        sb.append(" ");
-//        // PE
-//        sb.append("HG");
-//        sb.append(" ");
-//        sb.append(String.format("%4d",durationValue));
-//        sb.append(" ");
-//        // Type Code
-//        sb.append("R");
-//        sb.append(" ");
-//        // Source Code
-//        sb.append("G");
-//        sb.append(" ");
-//        // Extremnum
-//        sb.append("Z");
-//        sb.append(" ");
-//        // Probability Code
-//        sb.append(" ");
-//        sb.append(" ");
-//        // Data Value
-//        sb.append("00000.000");
-//        sb.append(" ");
-//        // Data Qualifier
-//        sb.append(" ");
-//        sb.append(" ");
-//        // Revision code
-//        sb.append((revisedRecord) ? "0" : "1");
-//        sb.append(ShefConstants.EOL);
-//        sb.append("----------------------------------------");
-        if(dataValues != null) {
-            for(ShefData d : dataValues) {
+
+        if (dataValues != null) {
+            for (ShefData d : dataValues) {
                 sb.append(ShefConstants.EOL);
                 d.toString(sb);
             }
@@ -618,11 +576,16 @@ public class ShefRecord extends PluginDataObject {
         sb.append(ShefConstants.EOL);
         return sb.toString();
     }
-    
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "shef";
     }
 }

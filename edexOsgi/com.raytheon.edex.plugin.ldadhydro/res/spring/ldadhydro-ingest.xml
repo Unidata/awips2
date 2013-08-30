@@ -4,9 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="hydroDecoder" class="com.raytheon.edex.plugin.ldadhydro.dao.HydroDecoder">
-		<constructor-arg ref="hydroPluginName" />
-	</bean>
+	<bean id="hydroDecoder" class="com.raytheon.edex.plugin.ldadhydro.dao.HydroDecoder"/>
 
 	<bean id="hydroDatabase" class="java.lang.String">
 		<constructor-arg type="java.lang.String" value="metadata" />
