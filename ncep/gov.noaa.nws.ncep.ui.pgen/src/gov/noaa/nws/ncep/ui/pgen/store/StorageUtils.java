@@ -48,7 +48,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 22, 2013            sgilbert     Initial creation
+ * Apr 22, 2013            sgilbert    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -134,8 +135,9 @@ public class StorageUtils {
 
         if (promptOnOverwrite) {
             boolean answer = promptIfActivityExists(info);
-            if (!answer)
+            if (!answer) {
                 return null;
+            }
         }
 
         try {
@@ -208,7 +210,6 @@ public class StorageUtils {
         record.setStatus(info.getStatus());
 
         record.setDataTime(new DataTime(info.getRefTime()));
-        record.setPluginName("pgen");
         try {
             record.constructDataURI();
         } catch (PluginException e1) {
@@ -226,8 +227,9 @@ public class StorageUtils {
         DbQueryResponse response;
         try {
             response = (DbQueryResponse) ThriftClient.sendRequest(request);
-            if (response.getResults().size() == 1)
+            if (response.getResults().size() == 1) {
                 exists = true;
+            }
             System.out.println("GOT RESPONSE BACK = "
                     + response.getResults().size());
         } catch (Exception e) {
@@ -384,8 +386,9 @@ public class StorageUtils {
 
         if (promptOnOverwrite) {
             boolean answer = promptIfProductExists(dataURI, name);
-            if (!answer)
+            if (!answer) {
                 return;
+            }
         }
 
         StoreDerivedProductRequest request = new StoreDerivedProductRequest(
@@ -452,8 +455,9 @@ public class StorageUtils {
                     "Cannot retrieve list of derived product names.", e);
         }
         for (String prod : products) {
-            if (prod.equals(name))
+            if (prod.equals(name)) {
                 return true;
+            }
         }
 
         return exists;

@@ -71,7 +71,6 @@ public class FogGenerator extends CompositeProductGenerator {
 
             FogRecord fogRec = new FogRecord();
             this.setPluginDao(new FogDao(productType));
-            fogRec.setPluginName(this.getCompositeProductType());
             fogRec.setDataTime(this.getProductTime());
             fogRec.setRefHour(TimeTools.roundToNearestHour(fogRec.getDataTime()
                     .getValidTime()));

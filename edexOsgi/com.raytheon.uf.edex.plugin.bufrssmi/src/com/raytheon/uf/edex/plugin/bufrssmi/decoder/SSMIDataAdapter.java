@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jul 06, 2009 2538       jsanchez    Added latitude,longitude to point data.
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -114,7 +115,6 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
 
             if (obsData != null) {
                 // Need to set plugin name before getting container!
-                obsData.setPluginName(getPluginName());
                 PointDataContainer container = getContainer(obsData);
                 if (container != null) {
                     PointDataView view = container.append();
@@ -138,6 +138,7 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
     /**
      * 
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List<SSMIScanData> createDataList(
             Iterator<BUFRDataDocument> iterator, WMOHeader wmoHeader) {
@@ -182,7 +183,6 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
                         // Make a copy for each data point.
                         SSMIScanData pointData = obsData.copyObs();
                         // Need to set plugin name before getting container!
-                        pointData.setPluginName(getPluginName());
                         pointData = getPointData(pointData, p, it.next());
                         if (pointData != null) {
                             obsList.add(pointData);

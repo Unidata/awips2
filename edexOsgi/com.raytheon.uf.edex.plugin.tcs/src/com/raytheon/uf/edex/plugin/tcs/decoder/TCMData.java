@@ -48,9 +48,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 20, 2010            jsanchez     Initial creation
- * Apr 19, 2012  #457      dgilling     Use TimeTools.findDataTime()
- *                                      to calculate times.
+ * Oct 20, 2010            jsanchez    Initial creation
+ * Apr 19, 2012 457        dgilling    Use TimeTools.findDataTime()  to
+ *                                     calculate times.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -144,7 +145,7 @@ public class TCMData extends TCSDataAdapter {
                 }
             }
 
-            if (name == null || name.length() == 0) {
+            if ((name == null) || (name.length() == 0)) {
                 m = stormNamePtrn.matcher(line);
                 if (m.find()) {
                     name = m.group(2);
@@ -175,11 +176,11 @@ public class TCMData extends TCSDataAdapter {
                 break;
             }
             // Searching for the press
-            if (pressure == 0 && line.contains(" PRESSURE ")) {
+            if ((pressure == 0) && line.contains(" PRESSURE ")) {
                 m = pressurePtrn.matcher(line);
                 if (m.find()) {
                     pressure = Integer.parseInt(m.group(2));
-                    if (pressure < 800 || pressure > 1050) {
+                    if ((pressure < 800) || (pressure > 1050)) {
                         pressure = 0;
                     }
                     continue;
@@ -192,7 +193,7 @@ public class TCMData extends TCSDataAdapter {
                 m = windPtrn.matcher(line.replace("-", ""));
                 if (m.find()) {
                     int wind = Integer.parseInt(m.group(2));
-                    storm.setWindSpeed(wind > 0 && wind < 250 ? wind : 0);
+                    storm.setWindSpeed((wind > 0) && (wind < 250) ? wind : 0);
                     continue;
                 }
             }
@@ -208,9 +209,9 @@ public class TCMData extends TCSDataAdapter {
             String mask = line;
             // Searching for the wind radius
             if (Util.isWindRadius(type, mask, radius)) {
-                if (radius.getKFUnit() != 'x' && radius.getKT_FT() != -1
-                        && radius.getNE() != -1 && radius.getSE() != -1
-                        && radius.getSW() != -1 && radius.getNW() != -1) {
+                if ((radius.getKFUnit() != 'x') && (radius.getKT_FT() != -1)
+                        && (radius.getNE() != -1) && (radius.getSE() != -1)
+                        && (radius.getSW() != -1) && (radius.getNW() != -1)) {
 
                     boolean exist = false;
                     ArrayList<Radius> radiusList = storm.getRadiusList();
@@ -234,12 +235,11 @@ public class TCMData extends TCSDataAdapter {
             }
 
             if (isLocation && !storm.getDisplayTime().equals("")
-                    && storm.getWindSpeed() != 0) {
+                    && (storm.getWindSpeed() != 0)) {
                 storm.setTropical(!isExtraTropical);
                 storm.setName(name);
                 storm.setPressure(pressure);
                 storm.setProductType(type.toString());
-                storm.setPluginName(pluginName);
                 stormList.add(storm);
 
                 // Reset values
@@ -272,7 +272,7 @@ public class TCMData extends TCSDataAdapter {
                     break;
                 }
             }
-            if (k < stormList.size() || storm.getDisplayTime().equals(time)) {
+            if ((k < stormList.size()) || storm.getDisplayTime().equals(time)) {
                 continue;
             }
 
