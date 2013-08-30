@@ -3,10 +3,6 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="registerDataDeliveryHandlers" class="java.lang.String">
-        <!-- required for depends-on -->
-    </bean>
-
     <bean id="madisDecoder" class="com.raytheon.uf.edex.plugin.madis.MadisDecoder">
         <constructor-arg ref="madisPluginName" />
     </bean>
@@ -40,12 +36,6 @@
     <bean id="madisCamelRegistered" factory-bean="contextManager"
         factory-method="register" depends-on="persistCamelRegistered">
         <constructor-arg ref="madis-camel" />
-    </bean>
-
-    <bean id="madisLayerCollector"
-        class="com.raytheon.uf.edex.plugin.madis.ogc.MadisLayerCollector"
-        depends-on="registerDataDeliveryHandlers, registerRequestRegistryRouter, registerMadisPlugin">
-        <constructor-arg ref="madisLayerTransformer" />
     </bean>
 
 	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator"
@@ -139,9 +129,10 @@
                     <bean ref="madisDecoder" method="decode" />
                     <bean ref="madisRegistryAddon" method="filter" />
                     <bean ref="madisPointData" method="toPointData" />
+                    <bean ref="persist" method="persist"/>
+            		<bean ref="index" method="index"/>
                     <bean ref="madisLayerCollector" method="add" />
-                    <!-- we don't need to alert on DPA, just save -->
-                    <to uri="direct-vm:persistIndex" />
+           			<bean ref="processUtil" method="log"/>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
