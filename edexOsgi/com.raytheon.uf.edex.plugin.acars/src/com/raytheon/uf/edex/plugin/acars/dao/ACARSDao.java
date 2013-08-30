@@ -41,9 +41,10 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009 1939       jkorman     Initial creation
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
  * Nov 02, 2012 1302       djohnson    Add Javadoc.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -201,7 +202,6 @@ public class ACARSDao extends DefaultPluginDao {
             retData = new ArrayList<ACARSRecord>();
             for (Object o : result) {
                 ACARSRecord r = (ACARSRecord) o;
-                r.setPluginName(pluginName);
                 retData.add(r);
             }
         }

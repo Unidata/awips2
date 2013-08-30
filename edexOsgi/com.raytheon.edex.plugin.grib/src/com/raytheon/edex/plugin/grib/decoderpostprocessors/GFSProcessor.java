@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 25, 2011            rgeorge     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
     public GridRecord[] process(GridRecord record) throws GribException {
         // Post process the data if this is a Total Precipitation grid
         if (record.getParameter().getAbbreviation().equals("TP12hr")
-                && record.getDataTime().getFcstTime() / 3600 > 180) {
+                && ((record.getDataTime().getFcstTime() / 3600) > 180)) {
             return super.process(record);
         }
         return new GridRecord[] { record };
@@ -86,6 +87,7 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
      * @return The generated 6-hr precipitation grids
      * @throws GribException
      */
+    @Override
     protected synchronized GridRecord[] generate6hrPrecipGrids(GridRecord record)
             throws GribException {
         List<GridRecord> generated6hrPrecips = new ArrayList<GridRecord>();
@@ -111,11 +113,11 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
 
         Collections.sort(precipInventory, comparator);
         // loop through set, find twelve hour gaps and create new 6hr records.
-        for (int i = 0; i < precipInventory.size() - 1; i++) {
+        for (int i = 0; i < (precipInventory.size() - 1); i++) {
             GridRecord sequence1Record = precipInventory.get(i);
             GridRecord sequence2Record = precipInventory.get(i + 1);
-            if (sequence1Record.getDataTime().getFcstTime() == sequence2Record
-                    .getDataTime().getFcstTime() - SECONDS_IN_12_HRS) {
+            if (sequence1Record.getDataTime().getFcstTime() == (sequence2Record
+                    .getDataTime().getFcstTime() - SECONDS_IN_12_HRS)) {
                 // we have a 12Hr gap
                 generated6hrPrecips.add(calculate6hrPrecip(sequence1Record,
                         sequence2Record));
@@ -226,7 +228,6 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
         record.setDataTime(newDataTime);
         record.setDataURI(null);
         try {
-            record.setPluginName(GridConstants.GRID);
             record.constructDataURI();
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,
