@@ -53,13 +53,13 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  * SOFTWARE HISTORY
  *                   
- * date          Ticket#     Engineer    Description
+ * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 7/15/11                      tk    	Initial Creation
- * - AWIPS2 Baseline Repository --------
- * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
- * 09/24/2012   1210        jkorman     Modified the decode method to create the
+ * Jul 15, 2011             tk          Initial Creation
+ * Jul 12, 2012 798         jkorman     Changed projection "magic" numbers
+ * Sep 24, 2012 1210        jkorman     Modified the decode method to create the
  *                                      IDataRecord required by the SatelliteDao
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author tk
@@ -69,9 +69,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 public class RegionalSatDecoder extends AbstractDecoder {
 
     private static final IUFStatusHandler handler = UFStatus
-    .getHandler(AbstractDecoder.class);
+            .getHandler(AbstractDecoder.class);
 
-    private String traceId = "";
+    private final String traceId = "";
 
     private String source;
 
@@ -91,7 +91,8 @@ public class RegionalSatDecoder extends AbstractDecoder {
      * alaskasat-ingest.xml and the dao and source members are set when the
      * RegionalSatDecoder instance is initialized:
      * 
-     * @param data The file byte array data to be decoded.
+     * @param data
+     *            The file byte array data to be decoded.
      * @return The decoded data record(s).
      */
     public PluginDataObject[] decode(byte[] data) throws Exception {
@@ -130,7 +131,7 @@ public class RegionalSatDecoder extends AbstractDecoder {
 
             if (entity != null) {
                 String parsed = getCreatingEntity(entity);
-                if (parsed != null && parsed.length() > 0) {
+                if ((parsed != null) && (parsed.length() > 0)) {
                     record.setCreatingEntity(parsed);
                 } else {
                     record.setCreatingEntity(entity);
@@ -247,7 +248,7 @@ public class RegionalSatDecoder extends AbstractDecoder {
                 ny = numRecords;
 
                 // read the image as byte data and store as byte array
-                record.setMessageData((byte[]) netCdfFile.readSection("image")
+                record.setMessageData(netCdfFile.readSection("image")
                         .get1DJavaArray(Class.forName("java.lang.Byte")));
 
                 // get the latitude of the first point, upper left corner
@@ -315,15 +316,16 @@ public class RegionalSatDecoder extends AbstractDecoder {
                 record.setCoverage(mapCoverage);
                 record.setPersistenceTime(TimeTools.getSystemCalendar()
                         .getTime());
-                record.setPluginName("satellite");
                 record.constructDataURI();
 
                 // Set the data into the IDataRecord
                 IDataRecord dataRec = SatelliteRecord.getDataRecord(record);
-                if(dataRec != null) {
+                if (dataRec != null) {
                     record.setMessageData(dataRec);
                 } else {
-                    handler.error(String.format("Could not create datarecord for %s"), traceId);
+                    handler.error(
+                            String.format("Could not create datarecord for %s"),
+                            traceId);
                     record = null;
                 }
 
@@ -391,5 +393,5 @@ public class RegionalSatDecoder extends AbstractDecoder {
     public void setFilename(String file) {
         this.filename = file;
     }
-    
+
 }
