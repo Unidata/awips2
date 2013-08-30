@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetFileManager;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Handler for launching the Subset Manager Dialog.
@@ -58,7 +59,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Aug 10, 2012 1022       djohnson     Store provider name in {@link SubsetXml}, use GriddedDataSet.
  * Aug 21, 2012 0743       djohnson     Change getMetaData to getDataSet.
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
- * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
+ * Jul 26, 2013   2232     mpduff       Refactored Data Delivery permissions.
+ * Sep 04, 2013   2314     mpduff       LoadSave dialog now non-blocking.
  * 
  * </pre>
  * 
@@ -94,32 +96,37 @@ public class SubsetAction extends AbstractHandler {
                     + permission;
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermissions(user, msg, permission).isAuthorized()) {
-                Shell shell = PlatformUI.getWorkbench()
+                final Shell shell = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getShell();
                 if (loadDlg == null || loadDlg.isDisposed()) {
                     loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN,
                             SUBSET_PATH, "", true);
+                    loadDlg.setCloseCallback(new ICloseCallback() {
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof LocalizationFile) {
+                                LocalizationFile locFile = (LocalizationFile) returnValue;
+                                SubsetXML<?> subset = SubsetFileManager
+                                        .getInstance().loadSubset(
+                                                locFile.getFile().getName());
+
+                                DataSet data = MetaDataManager.getInstance()
+                                        .getDataSet(subset.getDatasetName(),
+                                                subset.getProviderName());
+
+                                if (dlg == null || dlg.isDisposed()) {
+                                    dlg = SubsetManagerDlg.fromSubsetXML(shell,
+                                            data, true, subset);
+                                    dlg.open();
+                                } else {
+                                    dlg.bringToTop();
+                                }
+                            }
+                        }
+                    });
                     loadDlg.open();
                 } else {
                     loadDlg.bringToTop();
-                }
-                LocalizationFile locFile = (LocalizationFile) loadDlg
-                        .getReturnValue();
-                if (locFile == null) {
-                    return null;
-                }
-                SubsetXML<?> subset = SubsetFileManager.getInstance()
-                        .loadSubset(locFile.getFile().getName());
-
-                DataSet data = MetaDataManager.getInstance().getDataSet(
-                        subset.getDatasetName(), subset.getProviderName());
-
-                if (dlg == null || dlg.isDisposed()) {
-                    dlg = SubsetManagerDlg.fromSubsetXML(shell, data, true,
-                            subset);
-                    dlg.open();
-                } else {
-                    dlg.bringToTop();
                 }
             }
         } catch (AuthException e) {
