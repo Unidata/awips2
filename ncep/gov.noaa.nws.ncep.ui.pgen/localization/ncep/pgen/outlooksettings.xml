@@ -109,7 +109,7 @@
                                 <Point Lat="42.971591332752794" Lon="-149.38673141463"/>
                                 <Point Lat="45.42710154194547" Lon="-148.47736451338298"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="205" green="133" blue="0" alpha="255"/>
                                 <Point Lat="46.48442247166952" Lon="-146.24277670555577"/>
                                 <textLine>TSTM</textLine>
@@ -125,7 +125,7 @@
                                 <Point Lat="42.07196357312092" Lon="-148.37903137597863"/>
                                 <Point Lat="44.17401160682859" Lon="-147.24117084936609"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="45.31534055658725" Lon="-144.70494001802982"/>
                                 <textLine>SLGT</textLine>
@@ -141,7 +141,7 @@
                                 <Point Lat="41.16382584829688" Lon="-147.17378008928117"/>
                                 <Point Lat="43.27373785426608" Lon="-145.80991729118105"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="43.959937481550504" Lon="-143.53061211414908"/>
                                 <textLine>MDT</textLine>
@@ -157,7 +157,7 @@
                                 <Point Lat="40.10168481937237" Lon="-145.73268536866212"/>
                                 <Point Lat="42.130752493835445" Lon="-144.51987270764639"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="42.85616020004406" Lon="-142.14682423298206"/>
                                 <textLine>HIGH</textLine>
@@ -173,7 +173,7 @@
                                 <Point Lat="38.99174575784968" Lon="-144.64821639647565"/>
                                 <Point Lat="40.89516786776051" Lon="-143.42604560422512"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="205" blue="0" alpha="255"/>
                                 <Point Lat="41.64206927389472" Lon="-141.27741875925682"/>
                                 <textLine>2%</textLine>
@@ -189,7 +189,7 @@
                                 <Point Lat="37.990853945803" Lon="-143.32608551415754"/>
                                 <Point Lat="40.06067698053933" Lon="-142.39972640041822"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
                                 <Point Lat="40.54558466832617" Lon="-140.25715723916326"/>
                                 <textLine>5%</textLine>
@@ -205,7 +205,7 @@
                                 <Point Lat="37.03226052306673" Lon="-142.21882420943197"/>
                                 <Point Lat="39.01105157119125" Lon="-141.09836349998267"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="39.67227303040728" Lon="-139.30046569379587"/>
                                 <textLine>10%</textLine>
@@ -221,7 +221,7 @@
                                 <Point Lat="35.9796392864979" Lon="-141.16992069276827"/>
                                 <Point Lat="37.98535474621025" Lon="-140.1881665446609"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="215" blue="0" alpha="255"/>
                                 <Point Lat="38.39445779923075" Lon="-138.41015755463243"/>
                                 <textLine>15%</textLine>
@@ -237,7 +237,7 @@
                                 <Point Lat="34.98174345783888" Lon="-140.31568621372426"/>
                                 <Point Lat="36.85855165157601" Lon="-139.2274008844588"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="37.3582651243702" Lon="-137.68141318681205"/>
                                 <textLine>30%</textLine>
@@ -253,7 +253,7 @@
                                 <Point Lat="33.74412677786118" Lon="-139.64269630452966"/>
                                 <Point Lat="35.80087012530516" Lon="-138.19017382446114"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="36.256863256759644" Lon="-136.83736112390102"/>
                                 <textLine>40%</textLine>
@@ -269,7 +269,7 @@
                                 <Point Lat="32.72758065914289" Lon="-139.01392461317306"/>
                                 <Point Lat="34.720560322231734" Lon="-137.36187390067172"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="35.13878378615599" Lon="-135.9301446281999"/>
                                 <textLine>45%</textLine>
@@ -285,7 +285,7 @@
                                 <Point Lat="31.644515484463774" Lon="-137.93113136108582"/>
                                 <Point Lat="33.674697845171565" Lon="-136.7697416525857"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="255" alpha="255"/>
                                 <Point Lat="33.80501407458211" Lon="-135.07257521742554"/>
                                 <textLine>60%</textLine>
@@ -301,7 +301,7 @@
                                 <Point Lat="30.653104839919873" Lon="-136.72751001302512"/>
                                 <Point Lat="32.36588240492642" Lon="-135.66305684976098"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="32.4072123200017" Lon="-134.12929144216133"/>
                                 <textLine>70%</textLine>
@@ -318,7 +318,7 @@
                                 <Point Lat="29.355268272567713" Lon="-134.11932782093126"/>
                                 <Point Lat="27.922873364811068" Lon="-136.69009015377492"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="30.95217692779579" Lon="-132.96043760818597"/>
                                 <textLine>SIG</textLine>
@@ -336,7 +336,7 @@
                                 <Point Lat="34.57796868755575" Lon="-157.39502385194098"/>
                                 <Point Lat="38.18258052536575" Lon="-156.73752092215346"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="0" alpha="255"/>
                                 <Point Lat="39.48442247166952" Lon="-155.24277670555577"/>
                                 <textLine>1</textLine>
@@ -352,7 +352,7 @@
                                 <Point Lat="33.289460633318065" Lon="-155.9199723646556"/>
                                 <Point Lat="37.10059186552416" Lon="-154.88845763999288"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="0" blue="255" alpha="255"/>
                                 <Point Lat="38.95217692779579" Lon="-152.96043760818597"/>
                                 <textLine>2</textLine>
@@ -368,7 +368,7 @@
                                 <Point Lat="33.01689001351287" Lon="-152.795430904588"/>
                                 <Point Lat="36.047264179629714" Lon="-153.05578084732764"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Point Lat="37.48442247166952" Lon="-151.24277670555577"/>
                                 <textLine>3</textLine>
@@ -384,7 +384,7 @@
                                 <Point Lat="31.59729146627632" Lon="-151.55754921410448"/>
                                 <Point Lat="33.83457665045852" Lon="-150.91893510340205"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="255" alpha="255"/>
                                 <Point Lat="35.55217692779579" Lon="-148.96043760818597"/>
                                 <textLine>4</textLine>
@@ -400,7 +400,7 @@
                                 <Point Lat="30.74989103185022" Lon="-149.99315846172533"/>
                                 <Point Lat="33.072736426637064" Lon="-149.5721073646848"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="34.08442247166952" Lon="-147.24277670555577"/>
                                 <textLine>5</textLine>
@@ -416,7 +416,7 @@
                                 <Point Lat="29.318372308457256" Lon="-149.14901730479855"/>
                                 <Point Lat="31.605263039392547" Lon="-148.83653398170478"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="32.65217692779579" Lon="-146.26043760818598"/>
                                 <textLine>6</textLine>
@@ -432,7 +432,7 @@
                                 <Point Lat="27.81070499778083" Lon="-147.40845877281643"/>
                                 <Point Lat="30.183757804653357" Lon="-147.4149949201545"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
                                 <Point Lat="31.48442247166952" Lon="-145.24277670555577"/>
                                 <textLine>7</textLine>
@@ -448,7 +448,7 @@
                                 <Point Lat="26.358162458765957" Lon="-147.11329101528824"/>
                                 <Point Lat="29.292493541217183" Lon="-145.63998759065558"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="165" blue="79" alpha="255"/>
                                 <Point Lat="29.95217692779579" Lon="-143.96043760818597"/>
                                 <textLine>8</textLine>
@@ -464,7 +464,7 @@
                                 <Point Lat="25.586664023223666" Lon="-145.22069269860285"/>
                                 <Point Lat="28.052465283530537" Lon="-144.22058548942363"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="174" blue="185" alpha="255"/>
                                 <Point Lat="28.48442247166952" Lon="-142.24277670555577"/>
                                 <textLine>9</textLine>
@@ -480,7 +480,7 @@
                                 <Point Lat="24.062589784007557" Lon="-144.47647613224126"/>
                                 <Point Lat="26.23197980395732" Lon="-143.25612203469473"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="106" blue="106" alpha="255"/>
                                 <Point Lat="26.95217692779579" Lon="-140.96043760818597"/>
                                 <textLine>10</textLine>
@@ -498,7 +498,7 @@
                                 <Point Lat="48.814101296622546" Lon="-137.17242236916763"/>
                                 <Point Lat="51.2363268880267" Lon="-135.4779492946972"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
                                 <Point Lat="51.52923866434221" Lon="-133.44998535829382"/>
                                 <textLine>5%</textLine>
@@ -514,7 +514,7 @@
                                 <Point Lat="47.34347129842492" Lon="-135.95292941452973"/>
                                 <Point Lat="49.61296036183611" Lon="-134.51582555475488"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="50.3262021080903" Lon="-131.9863968665775"/>
                                 <textLine>10%</textLine>
@@ -530,7 +530,7 @@
                                 <Point Lat="45.919123363908646" Lon="-134.530434498524"/>
                                 <Point Lat="48.3837119152527" Lon="-133.04101866337106"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="238" green="238" blue="0" alpha="255"/>
                                 <Point Lat="48.80855062559502" Lon="-130.60811321002998"/>
                                 <textLine>15%</textLine>
@@ -546,7 +546,7 @@
                                 <Point Lat="44.27470867620669" Lon="-133.35098992679693"/>
                                 <Point Lat="46.933802996184106" Lon="-131.60432958397206"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="47.19659016732413" Lon="-129.38096299121588"/>
                                 <textLine>30%</textLine>
@@ -562,7 +562,7 @@
                                 <Point Lat="42.93510830000806" Lon="-131.88665990978416"/>
                                 <Point Lat="44.535091949879316" Lon="-130.41853023908737"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="45.52635873100513" Lon="-128.21125218037147"/>
                                 <textLine>45%</textLine>
@@ -578,7 +578,7 @@
                                 <Point Lat="41.26845597367732" Lon="-130.58234104748797"/>
                                 <Point Lat="43.2585249343654" Lon="-129.3185348433891"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="255" alpha="255"/>
                                 <Point Lat="43.91996948132177" Lon="-127.1718304774693"/>
                                 <textLine>60%</textLine>
@@ -594,7 +594,7 @@
                                 <Point Lat="39.40534753570164" Lon="-129.15782116485562"/>
                                 <Point Lat="41.71293897074979" Lon="-127.8315513259886"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="42.33653664011829" Lon="-125.93593263351727"/>
                                 <textLine>SIG</textLine>
@@ -612,7 +612,7 @@
                                 <Point Lat="53.287419815408654" Lon="-123.79486761971768"/>
                                 <Point Lat="55.47307629222088" Lon="-120.66859799259318"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="0" alpha="255"/>
                                 <Point Lat="55.5325418552919" Lon="-118.11848060692655"/>
                                 <textLine>2%</textLine>
@@ -628,7 +628,7 @@
                                 <Point Lat="51.417418134537805" Lon="-122.31720478956075"/>
                                 <Point Lat="53.73307266820909" Lon="-119.37125724053675"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="127" blue="0" alpha="255"/>
                                 <Point Lat="53.727433795929564" Lon="-117.1788317794139"/>
                                 <textLine>5%</textLine>
@@ -644,7 +644,7 @@
                                 <Point Lat="50.019421955110246" Lon="-121.78264368207554"/>
                                 <Point Lat="51.836955597027114" Lon="-118.70755631542907"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="52.13326824608389" Lon="-116.41146798586398"/>
                                 <textLine>10%</textLine>
@@ -660,7 +660,7 @@
                                 <Point Lat="48.13849981951534" Lon="-120.62160684269689"/>
                                 <Point Lat="50.35149828635835" Lon="-118.2778111558262"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Point Lat="50.40063899298618" Lon="-115.76763309509296"/>
                                 <textLine>15%</textLine>
@@ -676,7 +676,7 @@
                                 <Point Lat="46.48256190777742" Lon="-119.8636355126649"/>
                                 <Point Lat="48.60339217679831" Lon="-117.4559250635197"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="48.48526026434493" Lon="-115.11769255530918"/>
                                 <textLine>30%</textLine>
@@ -692,7 +692,7 @@
                                 <Point Lat="44.6951581597095" Lon="-119.20367890542082"/>
                                 <Point Lat="46.707455580786686" Lon="-116.84856876925728"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="46.82278612202857" Lon="-114.79787138085234"/>
                                 <textLine>45%</textLine>
@@ -708,7 +708,7 @@
                                 <Point Lat="43.02271656250668" Lon="-118.45235498132995"/>
                                 <Point Lat="45.0235728539272" Lon="-116.36090601862067"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="255" alpha="255"/>
                                 <Point Lat="44.8822383584816" Lon="-114.23034795784494"/>
                                 <textLine>60%</textLine>
@@ -724,7 +724,7 @@
                                 <Point Lat="41.07237058804253" Lon="-117.56918758035498"/>
                                 <Point Lat="43.17540401962751" Lon="-115.40002360199584"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="30" green="144" blue="255" alpha="255"/>
                                 <Point Lat="43.24330994333519" Lon="-113.6057050956379"/>
                                 <textLine>SIG</textLine>
@@ -742,7 +742,7 @@
                                 <Point Lat="55.60188259751492" Lon="-106.80294243943979"/>
                                 <Point Lat="56.79845722846213" Lon="-102.56214964751528"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="127" blue="0" alpha="255"/>
                                 <Point Lat="56.53695837939127" Lon="-99.79153752927466"/>
                                 <textLine>5%</textLine>
@@ -758,7 +758,7 @@
                                 <Point Lat="53.92046692625019" Lon="-106.85059551597055"/>
                                 <Point Lat="55.32260613437163" Lon="-102.95122663919601"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Point Lat="55.06819360749497" Lon="-100.01852898988069"/>
                                 <textLine>15%</textLine>
@@ -774,7 +774,7 @@
                                 <Point Lat="52.61221440478554" Lon="-106.59232009239246"/>
                                 <Point Lat="53.85762428155831" Lon="-103.07112669301873"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="53.607188215691124" Lon="-100.14624543716351"/>
                                 <textLine>30%</textLine>
@@ -790,7 +790,7 @@
                                 <Point Lat="51.18067544082821" Lon="-106.23104342701221"/>
                                 <Point Lat="52.197385736452716" Lon="-103.40454202680462"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="52.161389824279155" Lon="-100.37548736604539"/>
                                 <textLine>45%</textLine>
@@ -806,7 +806,7 @@
                                 <Point Lat="49.63157604929041" Lon="-105.67794823828656"/>
                                 <Point Lat="50.82749446731781" Lon="-102.741160100362"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="255" alpha="255"/>
                                 <Point Lat="50.59673399309849" Lon="-100.81020854790056"/>
                                 <textLine>60%</textLine>
@@ -822,7 +822,7 @@
                                 <Point Lat="47.93670190682035" Lon="-105.96060281998241"/>
                                 <Point Lat="49.062497912417705" Lon="-102.54731317878017"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="49.10069096003849" Lon="-100.69085356071817"/>
                                 <textLine>SIG</textLine>
@@ -840,7 +840,7 @@
                                 <Point Lat="54.65596333871628" Lon="-89.8070419297588"/>
                                 <Point Lat="55.005322660255494" Lon="-86.00008703733214"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="205" green="133" blue="0" alpha="255"/>
                                 <Point Lat="54.566044642663975" Lon="-83.31768010147799"/>
                                 <textLine>5%</textLine>
@@ -856,7 +856,7 @@
                                 <Point Lat="52.834809214012566" Lon="-90.04021552100626"/>
                                 <Point Lat="53.54499596114925" Lon="-86.38184351322425"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Point Lat="52.925045402345674" Lon="-83.92044414022762"/>
                                 <textLine>15%</textLine>
@@ -872,7 +872,7 @@
                                 <Point Lat="51.22531333790134" Lon="-90.62809627756775"/>
                                 <Point Lat="51.94388569401347" Lon="-87.49912073074572"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="51.31722049646068" Lon="-84.91882494457295"/>
                                 <textLine>30%</textLine>
@@ -888,7 +888,7 @@
                                 <Point Lat="50.067921380417275" Lon="-91.34614610899702"/>
                                 <Point Lat="50.46848310166474" Lon="-87.58406625676547"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="50.10393926195428" Lon="-85.64399550105193"/>
                                 <textLine>45%</textLine>
@@ -904,7 +904,7 @@
                                 <Point Lat="48.729238881172385" Lon="-91.65852544009559"/>
                                 <Point Lat="49.324707841708644" Lon="-88.28017775828233"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="255" alpha="255"/>
                                 <Point Lat="48.849135463435935" Lon="-86.45034885526327"/>
                                 <textLine>60%</textLine>
@@ -920,7 +920,7 @@
                                 <Point Lat="47.07405126864185" Lon="-92.04330263908034"/>
                                 <Point Lat="47.9399900156895" Lon="-88.71693397389602"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="47.59584640583201" Lon="-86.48347835307175"/>
                                 <textLine>SIG</textLine>
@@ -938,7 +938,7 @@
                                 <Point Lat="51.4332763478545" Lon="-76.17027411208127"/>
                                 <Point Lat="51.713661559007356" Lon="-72.40149238494354"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="50.05907903829857" Lon="-68.68277653682401"/>
                                 <textLine>CRITICAL</textLine>
@@ -954,7 +954,7 @@
                                 <Point Lat="50.21043174389057" Lon="-77.12903163568869"/>
                                 <Point Lat="50.437479003196714" Lon="-73.45192371245642"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="49.096745525222936" Lon="-70.41401190541589"/>
                                 <textLine>EXTREME</textLine>
@@ -970,7 +970,7 @@
                                 <Point Lat="48.69934718443825" Lon="-77.37909296791926"/>
                                 <Point Lat="48.73961678999636" Lon="-73.37607693249788"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="47.99936059012255" Lon="-71.48961550656405"/>
                                 <textLine>DRY TSTM</textLine>
@@ -986,7 +986,7 @@
                                 <Point Lat="47.89049293450137" Lon="-78.06314383859943"/>
                                 <Point Lat="47.828772707330394" Lon="-73.5802590274114"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="46.28877996022151" Lon="-70.55787922614087"/>
                                 <textLine>ISOLD DRY-T</textLine>
@@ -1002,10 +1002,42 @@
                                 <Point Lat="46.85796292350661" Lon="-78.23459864690018"/>
                                 <Point Lat="46.81494308192935" Lon="-74.08209430735005"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="45.60978318147557" Lon="-71.82430526206285"/>
                                 <textLine>SCT DRY-T</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection pgenCategory="MET" collectionName="OutlookLine">
+                        <DrawableElement>
+                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
+                                <Color red="0" green="178" blue="238" alpha="255"/>
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="22.685332119278797" Lon="-133.02129917701453"/>
+                                <Point Lat="22.212633696763756" Lon="-131.2233126969029"/>
+                                <Point Lat="23.70728809090373" Lon="-130.63908397753437"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="24.052934551881663" Lon="-129.10939348641836"/>
+                                <textLine>40%</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection  pgenCategory="MET" collectionName="OutlookLine">
+                        <DrawableElement>
+                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="22.685332119278797" Lon="-133.02129917701453"/>
+                                <Point Lat="22.212633696763756" Lon="-131.2233126969029"/>
+                                <Point Lat="23.70728809090373" Lon="-130.63908397753437"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="24.052934551881663" Lon="-129.10939348641836"/>
+                                <textLine>10%</textLine>
                             </Text>
                         </DrawableElement>
                     </DECollection>
@@ -1018,7 +1050,7 @@
                                 <Point Lat="52.82394959902151" Lon="-74.9755821133164"/>
                                 <Point Lat="52.72431308574308" Lon="-70.24914444166065"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="51.267748753069995" Lon="-66.80477132081892"/>
                                 <textLine>ELEVATED</textLine>
@@ -1036,7 +1068,7 @@
                                 <Point Lat="45.10023743471167" Lon="-61.09357394354602"/>
                                 <Point Lat="44.834423907012145" Lon="-58.00058251006838"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="0" alpha="255"/>
                                 <Point Lat="43.483756229191485" Lon="-56.54602831132845"/>
                                 <textLine>SLGT</textLine>
@@ -1052,7 +1084,7 @@
                                 <Point Lat="44.194792030118634" Lon="-62.5729473364513"/>
                                 <Point Lat="43.61196804449115" Lon="-59.903798061192774"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Point Lat="42.58257943936304" Lon="-58.06243942836683"/>
                                 <textLine>MDT</textLine>
@@ -1068,7 +1100,7 @@
                                 <Point Lat="42.94604769873046" Lon="-64.0043231119885"/>
                                 <Point Lat="42.657628409660376" Lon="-61.101967646489804"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="41.436886651885175" Lon="-59.32603182066222"/>
                                 <textLine>HIGH</textLine>
@@ -1087,7 +1119,7 @@
                                 <Point Lat="36.54571360365288" Lon="-50.63981808254069"/>
                                 <Point Lat="39.43641697168061" Lon="-53.62299572717612"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
                                 <Point Lat="34.65613717660022" Lon="-47.73548652411802"/>
                                 <textLine>CNVTV</textLine>
@@ -1104,7 +1136,7 @@
                                 <Point Lat="35.22793922044055" Lon="-52.904838392314666"/>
                                 <Point Lat="37.89823343267231" Lon="-55.831661235934384"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
                                 <Point Lat="33.25068687976185" Lon="-50.07529277985706"/>
                                 <textLine>SVRUK</textLine>
@@ -1121,7 +1153,7 @@
                                 <Point Lat="33.57621515234172" Lon="-55.415835169688656"/>
                                 <Point Lat="35.972159307870264" Lon="-58.21370722611851"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="31.451268041486962" Lon="-52.22134092832906"/>
                                 <textLine>SVRRED</textLine>
@@ -1138,7 +1170,7 @@
                                 <Point Lat="31.906823684816832" Lon="-57.70681537189087"/>
                                 <Point Lat="34.131372662684505" Lon="-60.46150833671171"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="29.787959639689124" Lon="-54.294851137953806"/>
                                 <textLine>SVRBLUE</textLine>
@@ -1155,7 +1187,7 @@
                                 <Point Lat="30.07400132753607" Lon="-59.6978537297477"/>
                                 <Point Lat="32.101822962501764" Lon="-62.32829208610517"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="0" alpha="255"/>
                                 <Point Lat="28.302187387196717" Lon="-56.63517963163056"/>
                                 <textLine>HVYRA</textLine>
@@ -1172,7 +1204,7 @@
                                 <Point Lat="28.209631666179163" Lon="-61.72746196439257"/>
                                 <Point Lat="30.119536517890946" Lon="-64.33643440535242"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="26.643412257046013" Lon="-58.793179467845626"/>
                                 <textLine>HVYSN</textLine>
@@ -1189,7 +1221,7 @@
                                 <Point Lat="26.608331214221927" Lon="-63.51040226910448"/>
                                 <Point Lat="28.27896863801547" Lon="-65.8937910924448"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="25.071919002754925" Lon="-60.60720776332167"/>
                                 <textLine>FZRA</textLine>
@@ -1207,10 +1239,26 @@
                                 <Point Lat="22.212633696763756" Lon="-131.2233126969029"/>
                                 <Point Lat="23.70728809090373" Lon="-130.63908397753437"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="205" green="133" blue="0" alpha="255"/>
                                 <Point Lat="24.052934551881663" Lon="-129.10939348641836"/>
                                 <textLine>5%</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="OutlookLine">
+                        <DrawableElement>
+                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="22.685332119278797" Lon="-133.02129917701453"/>
+                                <Point Lat="22.212633696763756" Lon="-131.2233126969029"/>
+                                <Point Lat="23.70728809090373" Lon="-130.63908397753437"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="24.052934551881663" Lon="-129.10939348641836"/>
+                                <textLine>10%</textLine>
                             </Text>
                         </DrawableElement>
                     </DECollection>
@@ -1223,7 +1271,7 @@
                                 <Point Lat="20.448043042115913" Lon="-130.35230755085033"/>
                                 <Point Lat="22.1398093422924" Lon="-129.76441281878402"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Point Lat="22.145299895454535" Lon="-128.05217770206755"/>
                                 <textLine>15%</textLine>
@@ -1239,10 +1287,26 @@
                                 <Point Lat="18.594352569482286" Lon="-129.17763112375567"/>
                                 <Point Lat="20.14525229688379" Lon="-128.64941025890536"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="20.21575806496979" Lon="-127.0453852594579"/>
                                 <textLine>30%</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="OutlookLine">
+                        <DrawableElement>
+                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
+                                <Color red="0" green="178" blue="238" alpha="255"/>
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="22.685332119278797" Lon="-133.02129917701453"/>
+                                <Point Lat="22.212633696763756" Lon="-131.2233126969029"/>
+                                <Point Lat="23.70728809090373" Lon="-130.63908397753437"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                <Color red="205" green="133" blue="0" alpha="255"/>
+                                <Point Lat="24.052934551881663" Lon="-129.10939348641836"/>
+                                <textLine>40%</textLine>
                             </Text>
                         </DrawableElement>
                     </DECollection>
@@ -1255,7 +1319,7 @@
                                 <Point Lat="16.880340323222487" Lon="-128.4246376195853"/>
                                 <Point Lat="18.2112973178409" Lon="-127.92135409421607"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="18.67421972815278" Lon="-126.0369114458142"/>
                                 <textLine>45%</textLine>
@@ -1271,7 +1335,7 @@
                                 <Point Lat="15.194818351438856" Lon="-127.71692851246812"/>
                                 <Point Lat="16.75208382815613" Lon="-127.10851788297923"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="255" alpha="255"/>
                                 <Point Lat="16.868551519831502" Lon="-125.24605498043255"/>
                                 <textLine>60%</textLine>
@@ -1287,7 +1351,7 @@
                                 <Point Lat="13.620591144464857" Lon="-126.98141061115226"/>
                                 <Point Lat="15.15678243195103" Lon="-126.3239870191669"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="15.483076174330382" Lon="-124.7189214051751"/>
                                 <textLine>SIG</textLine>
@@ -1305,7 +1369,7 @@
                                 <Point Lat="39.814874671281686" Lon="-67.79868216499733"/>
                                 <Point Lat="39.74089805716893" Lon="-65.32099854479618"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="38.406627502268044" Lon="-64.31087675490276"/>
                                 <textLine>D4</textLine>
@@ -1321,7 +1385,7 @@
                                 <Point Lat="38.333170301842294" Lon="-68.72910543947428"/>
                                 <Point Lat="38.192064777023454" Lon="-66.42499174554065"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="37.224242656599124" Lon="-65.58208657657462"/>
                                 <textLine>D5</textLine>
@@ -1337,7 +1401,7 @@
                                 <Point Lat="37.31931119903452" Lon="-69.77547116140839"/>
                                 <Point Lat="37.183759947069504" Lon="-67.7345208632624"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="36.15414072089406" Lon="-66.86624856502202"/>
                                 <textLine>D6</textLine>
@@ -1353,7 +1417,7 @@
                                 <Point Lat="36.1770080819979" Lon="-70.96135476615417"/>
                                 <Point Lat="35.99008588879577" Lon="-68.67449068719085"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="16" green="78" blue="139" alpha="255"/>
                                 <Point Lat="34.96802983269209" Lon="-67.91050371236793"/>
                                 <textLine>D7</textLine>
@@ -1369,7 +1433,7 @@
                                 <Point Lat="34.83052787749261" Lon="-71.97611647699009"/>
                                 <Point Lat="34.8617104158604" Lon="-69.9555865858692"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="33.829428511824936" Lon="-68.86287682549798"/>
                                 <textLine>D8</textLine>
@@ -1385,7 +1449,7 @@
                                 <Point Lat="33.02232560397745" Lon="-73.25377574051704"/>
                                 <Point Lat="33.33076778643303" Lon="-70.96330665403654"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="32.06716525689611" Lon="-69.91891203132181"/>
                                 <textLine>D4-5</textLine>
@@ -1401,7 +1465,7 @@
                                 <Point Lat="31.357672911387052" Lon="-74.586550337959"/>
                                 <Point Lat="31.745299486046733" Lon="-72.59501396639682"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="30.43487066082242" Lon="-71.37089670702993"/>
                                 <textLine>D4-6</textLine>
@@ -1417,7 +1481,7 @@
                                 <Point Lat="29.822484214252608" Lon="-75.68179299066641"/>
                                 <Point Lat="30.123938526091482" Lon="-73.52702636499252"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="28.860454824534738" Lon="-72.46291605889452"/>
                                 <textLine>D4-7</textLine>
@@ -1433,7 +1497,7 @@
                                 <Point Lat="28.446658885704732" Lon="-76.48149456743208"/>
                                 <Point Lat="28.779053985542117" Lon="-74.68026006582521"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="27.53840076163208" Lon="-73.33253952649429"/>
                                 <textLine>D4-8</textLine>
@@ -1449,7 +1513,7 @@
                                 <Point Lat="26.527900390369286" Lon="-77.53593668474063"/>
                                 <Point Lat="27.0590054769357" Lon="-75.91858726383884"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="25.96331541967566" Lon="-74.52725102461108"/>
                                 <textLine>D5-6</textLine>
@@ -1465,7 +1529,7 @@
                                 <Point Lat="25.24713878454679" Lon="-78.4038688816279"/>
                                 <Point Lat="25.44881616292554" Lon="-76.75100048716573"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="24.51564541188403" Lon="-75.64936851117324"/>
                                 <textLine>D5-7</textLine>
@@ -1481,7 +1545,7 @@
                                 <Point Lat="23.534844937446366" Lon="-79.31182853368581"/>
                                 <Point Lat="23.9517780625461" Lon="-77.61478108137236"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="23.16886102490093" Lon="-76.39880651237084"/>
                                 <textLine>D5-8</textLine>
@@ -1497,7 +1561,7 @@
                                 <Point Lat="21.899415921036077" Lon="-80.01381766086573"/>
                                 <Point Lat="22.5653509385835" Lon="-78.38286576641192"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="21.477975255661892" Lon="-77.3589059572793"/>
                                 <textLine>D6-7</textLine>
@@ -1513,7 +1577,7 @@
                                 <Point Lat="20.365917894315462" Lon="-80.87869265541055"/>
                                 <Point Lat="20.93202148528855" Lon="-79.17392618076626"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="20.0076892461923" Lon="-78.46366415796648"/>
                                 <textLine>D6-8</textLine>
@@ -1529,7 +1593,7 @@
                                 <Point Lat="18.935482078263906" Lon="-81.48671807598375"/>
                                 <Point Lat="19.293658979369052" Lon="-79.98951559088822"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="16" green="78" blue="139" alpha="255"/>
                                 <Point Lat="18.422955574186513" Lon="-79.21644630263204"/>
                                 <textLine>D7-8</textLine>
@@ -1547,7 +1611,7 @@
                                 <Point Lat="43.7648022062623" Lon="-80.61056322622612"/>
                                 <Point Lat="44.29642766260864" Lon="-78.01006589104675"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="43.09100926640559" Lon="-76.61769547465765"/>
                                 <textLine>D3</textLine>
@@ -1563,7 +1627,7 @@
                                 <Point Lat="42.13337103135277" Lon="-81.69436220642119"/>
                                 <Point Lat="42.59050215400936" Lon="-78.8868976791882"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="41.58643596029747" Lon="-77.60550618970586"/>
                                 <textLine>D4</textLine>
@@ -1579,7 +1643,7 @@
                                 <Point Lat="40.47909361967502" Lon="-82.35662124075469"/>
                                 <Point Lat="40.972743327297664" Lon="-79.92804184793914"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="40.165894412537696" Lon="-78.75234430450605"/>
                                 <textLine>D5</textLine>
@@ -1595,7 +1659,7 @@
                                 <Point Lat="38.84629276694231" Lon="-83.22452035223998"/>
                                 <Point Lat="39.43304885692988" Lon="-81.1204592359514"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="38.31915837213167" Lon="-79.97275394090124"/>
                                 <textLine>D6</textLine>
@@ -1611,7 +1675,7 @@
                                 <Point Lat="37.34278860060279" Lon="-83.98088028486909"/>
                                 <Point Lat="37.93094596402304" Lon="-82.13125970906947"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="16" green="78" blue="139" alpha="255"/>
                                 <Point Lat="36.92480167165946" Lon="-80.6244723801765"/>
                                 <textLine>D7</textLine>
@@ -1627,7 +1691,7 @@
                                 <Point Lat="35.65865620386385" Lon="-84.68857770716025"/>
                                 <Point Lat="36.220473269403875" Lon="-83.01211715621264"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="35.32640591186833" Lon="-81.58281872192964"/>
                                 <textLine>D8</textLine>
@@ -1643,7 +1707,7 @@
                                 <Point Lat="34.007989877858606" Lon="-85.6446236876492"/>
                                 <Point Lat="34.69317670579782" Lon="-83.52617475803682"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="33.538356237939475" Lon="-81.64831621434712"/>
                                 <textLine>D3-4</textLine>
@@ -1659,7 +1723,7 @@
                                 <Point Lat="32.21217553800661" Lon="-86.15569280105312"/>
                                 <Point Lat="32.94077040640129" Lon="-84.25687901071163"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="31.790546452022202" Lon="-82.51705171567917"/>
                                 <textLine>D3-5</textLine>
@@ -1675,7 +1739,7 @@
                                 <Point Lat="30.498947953858572" Lon="-86.61156181587903"/>
                                 <Point Lat="31.15440440550366" Lon="-84.95763034381304"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="30.185586987000082" Lon="-83.13257143635272"/>
                                 <textLine>D3-6</textLine>
@@ -1691,7 +1755,7 @@
                                 <Point Lat="29.014479107041065" Lon="-87.37769321403611"/>
                                 <Point Lat="29.535861676038575" Lon="-85.69589059376608"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="28.710633720827182" Lon="-83.87195285613873"/>
                                 <textLine>D3-7</textLine>
@@ -1707,7 +1771,7 @@
                                 <Point Lat="27.75719409103496" Lon="-87.77200204180448"/>
                                 <Point Lat="28.43280597003587" Lon="-85.81411812045674"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Point Lat="27.37394255831002" Lon="-84.38955576003444"/>
                                 <textLine>D3-8</textLine>
@@ -1723,7 +1787,7 @@
                                 <Point Lat="26.488715941938345" Lon="-88.28329682809056"/>
                                 <Point Lat="27.0264040813778" Lon="-86.49462225893286"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="26.279844001422237" Lon="-84.86264580289787"/>
                                 <textLine>D4-5</textLine>
@@ -1739,7 +1803,7 @@
                                 <Point Lat="25.179227283252107" Lon="-88.53530164897406"/>
                                 <Point Lat="25.641644727307042" Lon="-86.94583729110792"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="24.986624990488245" Lon="-85.38937731864965"/>
                                 <textLine>D4-6</textLine>
@@ -1755,7 +1819,7 @@
                                 <Point Lat="24.058196978262632" Lon="-89.03302816827718"/>
                                 <Point Lat="24.558909379718894" Lon="-87.1617316315386"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="23.77499651672168" Lon="-85.92963695292985"/>
                                 <textLine>D4-7</textLine>
@@ -1771,7 +1835,7 @@
                                 <Point Lat="22.90987293256693" Lon="-89.34085248647749"/>
                                 <Point Lat="23.47987149097146" Lon="-87.55397895983417"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="22.677483573656165" Lon="-86.41272134341453"/>
                                 <textLine>D4-8</textLine>
@@ -1787,7 +1851,7 @@
                                 <Point Lat="21.87775809743858" Lon="-89.60936081952522"/>
                                 <Point Lat="22.37417075288416" Lon="-88.00085291664286"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="21.602608274888173" Lon="-86.51882420087026"/>
                                 <textLine>D5-6</textLine>
@@ -1803,7 +1867,7 @@
                                 <Point Lat="21.044831381080584" Lon="-89.99307009818297"/>
                                 <Point Lat="21.394177158435895" Lon="-88.4557261934826"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="20.549415984060104" Lon="-86.84921461989092"/>
                                 <textLine>D5-7</textLine>
@@ -1819,7 +1883,7 @@
                                 <Point Lat="19.993623371989806" Lon="-90.30596038972485"/>
                                 <Point Lat="20.382888389269056" Lon="-88.50546054432475"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="145" green="44" blue="238" alpha="255"/>
                                 <Point Lat="19.740617960238588" Lon="-87.03987376042247"/>
                                 <textLine>D5-8</textLine>
@@ -1835,7 +1899,7 @@
                                 <Point Lat="18.87664781038911" Lon="-90.23936491507739"/>
                                 <Point Lat="19.372789369983472" Lon="-88.94823353623666"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="18.827447230818894" Lon="-87.2024387895123"/>
                                 <textLine>D6-7</textLine>
@@ -1851,7 +1915,7 @@
                                 <Point Lat="18.206740738640672" Lon="-90.50716012705911"/>
                                 <Point Lat="18.557531181694774" Lon="-89.05216763619295"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="139" blue="0" alpha="255"/>
                                 <Point Lat="17.92415578894645" Lon="-87.35964837801342"/>
                                 <textLine>D6-8</textLine>
@@ -1867,7 +1931,7 @@
                                 <Point Lat="17.457315184470406" Lon="-91.10889513747661"/>
                                 <Point Lat="17.688735993409267" Lon="-89.3314379504914"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="16" green="78" blue="139" alpha="255"/>
                                 <Point Lat="17.06162765760143" Lon="-87.82632496944606"/>
                                 <textLine>D7-8</textLine>
@@ -1885,7 +1949,7 @@
                                 <Point Lat="25.578090767010643" Lon="-121.34632545249214"/>
                                 <Point Lat="27.328875024010554" Lon="-120.54471112233678"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="27.179341380622013" Lon="-118.91441438381426"/>
                                 <textLine>10%</textLine>
@@ -1901,7 +1965,7 @@
                                 <Point Lat="23.887544920295394" Lon="-121.05033998546534"/>
                                 <Point Lat="25.420099153175688" Lon="-119.88463710283894"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="25.29642509641571" Lon="-118.3904342111765"/>
                                 <textLine>40%</textLine>
@@ -1917,7 +1981,7 @@
                                 <Point Lat="21.824783755012337" Lon="-120.63400674553506"/>
                                 <Point Lat="23.60772513214601" Lon="-119.6588611275732"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="23.256619620860604" Lon="-117.54589349747258"/>
                                 <textLine>70%</textLine>
@@ -1935,7 +1999,7 @@
                                 <Point Lat="27.73610719779293" Lon="-115.09137135696197"/>
                                 <Point Lat="29.27640538228356" Lon="-113.9318033965997"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="28.832350295262557" Lon="-112.71055266754263"/>
                                 <textLine>10%</textLine>
@@ -1951,7 +2015,7 @@
                                 <Point Lat="25.567660300942837" Lon="-114.5206385597661"/>
                                 <Point Lat="27.29324685422275" Lon="-113.37724771068764"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="26.73860311012246" Lon="-112.1875712898227"/>
                                 <textLine>40%</textLine>
@@ -1967,7 +2031,7 @@
                                 <Point Lat="23.161339335176145" Lon="-114.05420901403465"/>
                                 <Point Lat="24.779471482939805" Lon="-112.93855016610965"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="24.153875729887233" Lon="-111.9765066813735"/>
                                 <textLine>70%</textLine>
@@ -1985,7 +2049,7 @@
                                 <Point Lat="23.49199398269277" Lon="-108.84843138270622"/>
                                 <Point Lat="25.400934464969566" Lon="-107.54067336463798"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="24.477719988555677" Lon="-106.5623851225014"/>
                                 <textLine>70%</textLine>
@@ -2001,7 +2065,7 @@
                                 <Point Lat="25.876155790087893" Lon="-109.12354792387833"/>
                                 <Point Lat="27.42023557750665" Lon="-108.10417701563792"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="27.455526717767626" Lon="-106.77472426492416"/>
                                 <textLine>40%</textLine>
@@ -2017,7 +2081,7 @@
                                 <Point Lat="28.122471596441123" Lon="-109.14212631747709"/>
                                 <Point Lat="29.799681179671335" Lon="-107.55352579781831"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="29.35186500574514" Lon="-106.39293078671389"/>
                                 <textLine>10%</textLine>
@@ -2035,7 +2099,7 @@
                                 <Point Lat="28.583226242831532" Lon="-103.10378535569572"/>
                                 <Point Lat="30.277751642813246" Lon="-101.1656070667448"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="29.390929329319498" Lon="-100.47414889507051"/>
                                 <textLine>10%</textLine>
@@ -2051,7 +2115,7 @@
                                 <Point Lat="26.226116680454243" Lon="-102.91374309275992"/>
                                 <Point Lat="27.71609635080012" Lon="-101.44796948099986"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="26.84141961267292" Lon="-100.41075122043085"/>
                                 <textLine>40%</textLine>
@@ -2067,7 +2131,7 @@
                                 <Point Lat="23.60343934891221" Lon="-103.32916761550372"/>
                                 <Point Lat="25.22072808899033" Lon="-101.70351713067329"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="24.091439569893666" Lon="-100.4262149208366"/>
                                 <textLine>70%</textLine>
@@ -2085,7 +2149,7 @@
                                 <Point Lat="23.36964846145352" Lon="-97.00104239047734"/>
                                 <Point Lat="24.752093252739552" Lon="-95.2064373071778"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="23.708205678030982" Lon="-94.35076149268326"/>
                                 <textLine>70%</textLine>
@@ -2101,7 +2165,7 @@
                                 <Point Lat="25.567288535437886" Lon="-96.55768876124124"/>
                                 <Point Lat="26.883046487514065" Lon="-94.87548932512085"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="178" blue="238" alpha="255"/>
                                 <Point Lat="26.40208119978129" Lon="-93.823327638716"/>
                                 <textLine>40%</textLine>
@@ -2117,7 +2181,7 @@
                                 <Point Lat="28.311304463433675" Lon="-96.45965147739481"/>
                                 <Point Lat="29.386402948961873" Lon="-94.79207880929573"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="28.77565330397134" Lon="-92.91856730152695"/>
                                 <textLine>10%</textLine>
@@ -2185,7 +2249,7 @@
                                 <Point Lat="21.695531790853398" Lon="-140.72482385826302"/>
                                 <Point Lat="21.80857167542985" Lon="-138.92070662182977"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="205" green="133" blue="0" alpha="255"/>
                                 <Point Lat="23.56351584664785" Lon="-138.19421611819917"/>
                                 <textLine>Likely</textLine>
@@ -2201,7 +2265,7 @@
                                 <Point Lat="20.139522511368362" Lon="-139.64386497232883"/>
                                 <Point Lat="19.982810079515595" Lon="-137.72720171103433"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="238" green="238" blue="0" alpha="255"/>
                                 <Point Lat="21.53376208882236" Lon="-136.07065096495197"/>
                                 <textLine>Possible</textLine>
@@ -2217,7 +2281,7 @@
                                 <Point Lat="18.807321745814765" Lon="-137.19822037204642"/>
                                 <Point Lat="17.764683821028523" Lon="-137.7058941995249"/>
                             </Line>
-                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="127" green="255" blue="0" alpha="255"/>
                                 <Point Lat="19.91548916219293" Lon="-134.96258686851422"/>
                                 <textLine>Imminent</textLine>

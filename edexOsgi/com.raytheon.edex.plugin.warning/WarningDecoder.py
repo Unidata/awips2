@@ -34,6 +34,7 @@
 #  Feb 19, 2013 1636       rferrel     Use TimeTools to get file timestamp.
 #  May 07, 2013 1973       rferrel     Adjust Issue and Purge times to be relative to start time.
 #  Jun 24, 2013 DR 16317   D. Friedman If no storm line, parse storm motion from event text.
+#  Aug 21, 2013 DR16501 m.gamazaychikov    Adjusted calculation of Purge time in NoVTECWarningDecoder.
 # </pre>
 #
 # @author rferrel
@@ -986,7 +987,7 @@ class NoVTECWarningDecoder(StdWarningDecoder):
         if self._officeFromWMO:
             template['officeid'] = self._officeFromWMO
         
-        template['purgeTime'] = long(purgeTime * 1000)
+        template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime)*1000)
         template['issueTime'] = long(self._issueTime * 1000)
         template['state'] = "Decoded"
         template['xxxid'] = self._completeProductPil[3:]

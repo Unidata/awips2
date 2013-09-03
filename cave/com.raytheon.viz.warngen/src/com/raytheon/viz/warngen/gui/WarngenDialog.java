@@ -52,9 +52,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -69,6 +71,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -80,6 +84,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.warngen.Activator;
 import com.raytheon.viz.warngen.WarngenConstants;
 import com.raytheon.viz.warngen.comm.WarningSender;
@@ -142,6 +147,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 16, 2013 DR 16387    Qinglu Lin  Reset totalSegments for each followup product.
  *  Jul 29, 2013 DR 16352    D. Friedman Move 'result' to okPressed().
  *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
+ *  Aug 15, 2013 DR 16418    D. Friedman Make dialog visibility match editable state.
  * </pre>
  * 
  * @author chammack
@@ -192,11 +198,11 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     final DateFormat df = new SimpleDateFormat("HH:mm EEE d-MMM");
 
-    private java.util.List<String> mapsLoaded = new ArrayList<String>();
+    private final java.util.List<String> mapsLoaded = new ArrayList<String>();
 
     private Button okButton;
 
-    private BulletListManager bulletListManager;
+    private final BulletListManager bulletListManager;
 
     private List bulletList;
 
@@ -276,7 +282,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private boolean invalidFollowUpAction = false;
 
-    private IWarngenObserver wed = new WarningSender();
+    private final IWarngenObserver wed = new WarningSender();
 
     public WarngenDialog(Shell parentShell, WarngenLayer layer) {
         super(parentShell, SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE,
@@ -304,6 +310,14 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        shell.addListener(SWT.Close, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                event.doit = false;
+                closePressed();
+            }
+        });
+
         Composite mainComposite = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
@@ -391,8 +405,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         durationList.setLayoutData(gd);
         durationList.setEnabled(config.isEnableDuration());
 
-        startTime = Calendar.getInstance();
-        startTime.setTime(SimulatedTime.getSystemTime().getTime());
+        startTime = TimeUtil.newCalendar();
         endTime = DurationUtil.calcEndTime(this.startTime,
                 defaultDuration.minutes);
 
@@ -480,7 +493,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
         String defaultTemplate = warngenLayer.getDialogConfig()
                 .getDefaultTemplate();
-        if (defaultTemplate == null || defaultTemplate.equals("")) {
+        if ((defaultTemplate == null) || defaultTemplate.equals("")) {
             defaultTemplate = mainProducts.get(0).split("/")[1];
         }
 
@@ -819,7 +832,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             createTextButtonEnabled = false;
         } else if (warngenLayer.getStormTrackState().mode == Mode.NONE) {
             createTextButtonEnabled = false;
-        } else if (warngenLayer.getPolygon() == null
+        } else if ((warngenLayer.getPolygon() == null)
                 || warngenLayer.getPolygon().isEmpty()) {
             str += WarngenConstants.INSTRUCTION_NO_SHADED_AREA;
             createTextButtonEnabled = false;
@@ -888,9 +901,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                         newYes = true;
                     } else if (act == WarningAction.EXT) {
                         extYes = true;
-                    } else if (act == WarningAction.CON
-                            || act == WarningAction.CAN
-                            || act == WarningAction.EXP) {
+                    } else if ((act == WarningAction.CON)
+                            || (act == WarningAction.CAN)
+                            || (act == WarningAction.EXP)) {
                         follow = true;
                     } else if (act == WarningAction.COR) {
                         corYes = true;
@@ -935,6 +948,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Select the previously selected item.
         invalidFollowUpAction = false;
         if (currentSelection != null) {
+            // isValid checks if the current selection is still in the list
             boolean isValid = false;
             for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                 if (updateListCbo.getItem(i).startsWith(
@@ -945,7 +959,17 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
 
-            if (!isValid) {
+            WarningAction action = WarningAction.valueOf(currentSelection
+                    .getAct());
+            TimeRange timeRange = FollowUpUtil.getTimeRange(action,
+                    currentSelection);
+            // Checks if selection is invalid based on the time range. A follow
+            // up option could be removed due to an action such as a CAN or an
+            // EXP. If an action removes the follow up, then no warning message
+            // should be displayed.
+            if (!isValid
+                    && !timeRange.contains(SimulatedTime.getSystemTime()
+                            .getTime())) {
                 invalidFollowUpAction = true;
                 preventFollowUpAction(currentSelection);
             }
@@ -1033,13 +1057,13 @@ public class WarngenDialog extends CaveSWTDialog implements
             return;
         }
 
-        if (followupData != null
-                && WarningAction.valueOf(followupData.getAct()) == WarningAction.NEW) {
+        if ((followupData != null)
+                && (WarningAction.valueOf(followupData.getAct()) == WarningAction.NEW)) {
             redrawFromWarned();
         }
 
-        if ((followupData == null || (WarningAction.valueOf(followupData
-                .getAct()) == WarningAction.CON && warngenLayer
+        if (((followupData == null) || ((WarningAction.valueOf(followupData
+                .getAct()) == WarningAction.CON) && warngenLayer
                 .conWarnAreaChanged(followupData)))
                 && !polygonLocked) {
             redrawFromWarned();
@@ -1054,6 +1078,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         try {
             pmd.run(false, false, new IRunnableWithProgress() {
 
+                @Override
                 public void run(IProgressMonitor monitor)
                         throws InvocationTargetException, InterruptedException {
                     try {
@@ -1123,7 +1148,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private boolean checkDamSelection() {
         if (bulletListManager.isDamNameSeletcted()
-                && bulletListManager.isDamCauseSelected() == false) {
+                && (bulletListManager.isDamCauseSelected() == false)) {
             /*
              * On WES 'Instructions' became 'Warning' but didn't prevent a
              * created text
@@ -1144,9 +1169,9 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     private void updateWarngenUIState(String result) {
-        if (VtecUtil.parseMessage(result) != null
-                && WarningAction.valueOf(VtecUtil.parseMessage(result)
-                        .getAction()) != WarningAction.NEW) {
+        if ((VtecUtil.parseMessage(result) != null)
+                && (WarningAction.valueOf(VtecUtil.parseMessage(result)
+                        .getAction()) != WarningAction.NEW)) {
             // TODO Use warningsArrived method to set old
             // polygon and warning area
             warngenLayer.state.setOldWarningPolygon((Polygon) warngenLayer
@@ -1161,7 +1186,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // An error dialog is to appear if a user tries to press Create Text
         // again after a product was issued.AWIPS I does not auto update their
         // update list, this is their solution.
-        if (followupData != null && totalSegments > 1) {
+        if ((followupData != null) && (totalSegments > 1)) {
             multiSegmentMessage(followupData.getEquvialentString());
             return false;
         }
@@ -1229,8 +1254,8 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.getStormTrackState().mode = Mode.TRACK;
             warngenLayer.lastMode = Mode.DRAG_ME;
         }
-        if (warngenLayer.getConfiguration().isTrackEnabled() == false
-                || warngenLayer.getConfiguration().getPathcastConfig() == null) {
+        if ((warngenLayer.getConfiguration().isTrackEnabled() == false)
+                || (warngenLayer.getConfiguration().getPathcastConfig() == null)) {
             warngenLayer.getStormTrackState().setInitiallyMotionless(true);
         }
         warngenLayer.resetInitialFrame();
@@ -1243,15 +1268,16 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Action for Close button
      */
     private void closePressed() {
-        close();
+        EditableManager.makeEditable(warngenLayer, false);
+        hide();
     }
 
     /**
      * Action for when something is selected from the backup site combo
      */
     private void backupSiteSelected() {
-        if (backupSiteCbo.getSelectionIndex() >= 0
-                && backupSiteCbo.getItemCount() > 0) {
+        if ((backupSiteCbo.getSelectionIndex() >= 0)
+                && (backupSiteCbo.getItemCount() > 0)) {
             warngenLayer.setBackupSite(backupSiteCbo.getItems()[backupSiteCbo
                     .getSelectionIndex()]);
             // Refresh template
@@ -1359,8 +1385,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         DamInfoBullet damBullet = bulletListManager.getSelectedDamInfoBullet();
         if (damBullet != null) {
 
-            if (damBullet.getCoords() == null
-                    || damBullet.getCoords().length() == 0) {
+            if ((damBullet.getCoords() == null)
+                    || (damBullet.getCoords().length() == 0)) {
                 damBreakInstruct = "LAT...LON can not be found in 'coords' parameter";
             } else {
                 ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
@@ -1373,8 +1399,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                 if (m.find()) {
                     m = latLonPtrn.matcher(damBullet.getCoords());
                     while (m.find()) {
-                        coordinates.add(new Coordinate(-1
-                                * Double.parseDouble(m.group(2)) / 100, Double
+                        coordinates.add(new Coordinate((-1 * Double
+                                .parseDouble(m.group(2))) / 100, Double
                                 .parseDouble(m.group(1)) / 100));
                     }
 
@@ -1440,8 +1466,9 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void changeTemplate(String templateName) {
 
         // DR 14515
-        if (templateName.equals(warngenLayer.getTemplateName()))
+        if (templateName.equals(warngenLayer.getTemplateName())) {
             return;
+        }
 
         String lastAreaSource = warngenLayer.getConfiguration()
                 .getHatchedAreaSource().getAreaSource();
@@ -1495,9 +1522,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                         .getSelection() ? DisplayType.POLY : DisplayType.POINT;
             }
             warngenLayer.getStormTrackState().setInitiallyMotionless(
-                    warngenLayer.getConfiguration().isTrackEnabled() == false
-                            || warngenLayer.getConfiguration()
-                                    .getPathcastConfig() == null);
+                    (warngenLayer.getConfiguration().isTrackEnabled() == false)
+                            || (warngenLayer.getConfiguration()
+                                    .getPathcastConfig() == null));
             if (warngenLayer.getStormTrackState().isInitiallyMotionless()) {
                 warngenLayer.getStormTrackState().speed = 0;
                 warngenLayer.getStormTrackState().angle = 0;
@@ -1525,6 +1552,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         } catch (VizException e1) {
             statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
+        // Properly sets the "Create Text" button.
+        setInstructions();
     }
 
     protected void recreateDurations(Combo durList) {
@@ -1598,10 +1627,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                 // (AWIPS 1)
                 if (warngenLayer.state.followupData != null) {
                     if (data.equals(warngenLayer.state.followupData)) {
-                        if (WarningAction
+                        if ((WarningAction
                                 .valueOf(warngenLayer.state.followupData
-                                        .getAct()) == WarningAction.CON
-                                && totalSegments > 1) {
+                                        .getAct()) == WarningAction.CON)
+                                && (totalSegments > 1)) {
                             sameProductMessage(warngenLayer.state.followupData
                                     .getEquvialentString());
                         }
@@ -1668,7 +1697,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             if (warngenLayer.getConfiguration().getEnableDamBreakThreat()) {
                 for (BulletActionGroup bulletActionGroup : warngenLayer
                         .getConfiguration().getBulletActionGroups()) {
-                    if (bulletActionGroup.getAction() != null
+                    if ((bulletActionGroup.getAction() != null)
                             && bulletActionGroup.getAction().equals(
                                     data.getAct())) {
                         warngenLayer.getConfiguration().setDamInfoBullets(
@@ -1689,14 +1718,14 @@ public class WarngenDialog extends CaveSWTDialog implements
                 bulletListManager.recreateBulletsFromFollowup(
                         warngenLayer.getConfiguration(), action, oldWarning);
                 if (bulletListManager.isDamNameSeletcted()
-                        && action != WarningAction.NEW) {
+                        && (action != WarningAction.NEW)) {
                     setPolygonLocked(true);
                 }
             }
             refreshBulletList();
             recreateUpdates();
-            if (action == null || action == WarningAction.NEW
-                    || action == WarningAction.EXT) {
+            if ((action == null) || (action == WarningAction.NEW)
+                    || (action == WarningAction.EXT)) {
                 recreateDurations(durationList);
             }
         }
@@ -1731,7 +1760,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     private void changeSelected() {
-        if (validPeriodDlg == null || validPeriodDlg.isDisposed()) {
+        if ((validPeriodDlg == null) || validPeriodDlg.isDisposed()) {
             validPeriodDlg = new ValidPeriodDialog(shell, startTime, endTime);
             validPeriodDlg.setCloseCallback(new ICloseCallback() {
 
@@ -1836,6 +1865,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             public void run() {
 
                 getDisplay().syncExec(new Runnable() {
+                    @Override
                     public void run() {
                         try {
                             changeStartEndTimes();
@@ -1862,6 +1892,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             public void run() {
 
                 getDisplay().syncExec(new Runnable() {
+                    @Override
                     public void run() {
                         try {
                             recreateUpdates();
@@ -1877,7 +1908,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Update the follow up list every minute
         long currentTimeInSeconds = SimulatedTime.getSystemTime().getMillis() / 1000;
         long secondsToNextMinute = 0;
-        if (currentTimeInSeconds % 60 != 0) {
+        if ((currentTimeInSeconds % 60) != 0) {
             secondsToNextMinute = 60 - (currentTimeInSeconds % 60);
         }
         timer.schedule(recreateUpdatesTask, secondsToNextMinute * 1000,
@@ -1899,16 +1930,14 @@ public class WarngenDialog extends CaveSWTDialog implements
             FollowupData fd = (FollowupData) updateListCbo
                     .getData(updateListCbo.getItem(updateListCbo
                             .getSelectionIndex()));
-            if (fd == null
+            if ((fd == null)
                     || (WarningAction.valueOf(fd.getAct()) == WarningAction.NEW)) {
-                startTime = Calendar.getInstance();
-                startTime.setTime(SimulatedTime.getSystemTime().getTime());
+                startTime = TimeUtil.newCalendar();
                 endTime = DurationUtil.calcEndTime(this.startTime, duration);
                 start.setText(df.format(this.startTime.getTime()));
                 end.setText(df.format(this.endTime.getTime()));
             } else if (WarningAction.valueOf(fd.getAct()) == WarningAction.EXT) {
-                startTime = Calendar.getInstance();
-                startTime.setTime(SimulatedTime.getSystemTime().getTime());
+                startTime = TimeUtil.newCalendar();
                 endTime = DurationUtil.calcEndTime(extEndTime, duration);
                 end.setText(df.format(this.endTime.getTime()));
             }
@@ -2132,8 +2161,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getItem(durationList.getSelectionIndex()))).minutes;
         warngenLayer.getStormTrackState().duration = duration;
 
-        startTime = Calendar.getInstance();
-        startTime.setTime(SimulatedTime.getSystemTime().getTime());
+        startTime = TimeUtil.newCalendar();
         extEndTime = newWarn.getEndTime();
         endTime = DurationUtil.calcEndTime(extEndTime, duration);
         end.setText(df.format(this.endTime.getTime()));
@@ -2172,13 +2200,15 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Set the shell to visible and then move it on top of the CAVE dialog.
      */
     public void showDialog(boolean show) {
-        if (shell != null && shell.isDisposed() == false) {
+        if ((shell != null) && (shell.isDisposed() == false)) {
             if (show) {
                 if (shell.isVisible() == false) {
                     shell.setVisible(true);
                 }
                 // Move above parent shell if we are showing it
                 shell.moveAbove(getParent());
+            } else {
+                shell.setVisible(false);
             }
         }
     }
@@ -2259,8 +2289,9 @@ public class WarngenDialog extends CaveSWTDialog implements
         Polygon rval = gf.createPolygon(gf.createLinearRing(points
                 .toArray(new Coordinate[points.size()])), null);
 
-        if (adjusted)
+        if (adjusted) {
             oldWarning.setGeometry(rval);
+        }
 
         boolean invalidPolyFlag = false;
         if (rval.isValid() == false) {
@@ -2285,10 +2316,12 @@ public class WarngenDialog extends CaveSWTDialog implements
         int size = coords.length;
         java.util.List<Coordinate> coords2 = new ArrayList<Coordinate>();
         coords2.add(coords[0]);
-        for (int i = 1; i < size; i++)
-            if (Math.abs(coords[i].x - coords[i - 1].x) > MIN_LATLON_DIFF
-                    || Math.abs(coords[i].y - coords[i - 1].y) > MIN_LATLON_DIFF)
+        for (int i = 1; i < size; i++) {
+            if ((Math.abs(coords[i].x - coords[i - 1].x) > MIN_LATLON_DIFF)
+                    || (Math.abs(coords[i].y - coords[i - 1].y) > MIN_LATLON_DIFF)) {
                 coords2.add(coords[i]);
+            }
+        }
         size = coords2.size();
         Coordinate[] coords3 = coords2.toArray(new Coordinate[size]);
         return coords3;
@@ -2301,7 +2334,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         double diffx1, diffx2, diffy1, diffy2;
         double ratio1, ratio2;
         boolean adjusted = false;
-        for (int i = 2; i < coords.length - 2; i++) {
+        for (int i = 2; i < (coords.length - 2); i++) {
             diffx1 = coords[i - 1].x - coords[i].x;
             if (Math.abs(diffx1) > MIN_LATLON_DIFF) {
                 ratio1 = (coords[i - 1].y - coords[i].y) / diffx1;
@@ -2309,8 +2342,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                 if (Math.abs(diffx2) > MIN_LATLON_DIFF) {
                     ratio2 = (coords[i].y - coords[i + 1].y) / diffx2;
                     if (Math.abs(ratio1 - ratio2) < MIN_DIFF) {
-                        if (diffx1 > 0.0 && diffx2 > 0.0 || diffx1 < 0.0
-                                && diffx2 < 0.0) {
+                        if (((diffx1 > 0.0) && (diffx2 > 0.0))
+                                || ((diffx1 < 0.0) && (diffx2 < 0.0))) {
                             // three vertices on a straight line. Not overlaid.
                         } else {
                             // two segments overlaid
@@ -2328,8 +2361,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                 if (Math.abs(diffy2) > MIN_LATLON_DIFF) {
                     ratio2 = (coords[i].x - coords[i + 1].x) / diffy2;
                     if (Math.abs(ratio1 - ratio2) < MIN_DIFF) {
-                        if (diffy1 > 0.0 && diffy2 > 0.0 || diffy1 < 0.0
-                                && diffy2 < 0.0) {
+                        if (((diffy1 > 0.0) && (diffy2 > 0.0))
+                                || ((diffy1 < 0.0) && (diffy2 < 0.0))) {
                             // three vertices on a straight line. Not overlaid.
                         } else {
                             // two segments overlaid
@@ -2361,29 +2394,33 @@ public class WarngenDialog extends CaveSWTDialog implements
             if (Math.abs(diffx) > MIN_LATLON_DIFF) {
                 if (coords[i - 1].y > coords[i].y) {
                     factor = 1;
-                } else
+                } else {
                     factor = -1;
+                }
                 if (diffx < 0.0) {
                     coords[i + 1].x -= factor * adjustedValue;
                 } else {
                     coords[i - 1].x += factor * adjustedValue;
                 }
-                if (i == n - 3)
+                if (i == (n - 3)) {
                     coords[0].x = coords[i - 1].x;
+                }
             } else {
                 diffx = coords[i + 2].x - coords[i + 1].x;
                 if (Math.abs(diffx) > MIN_LATLON_DIFF) {
                     if (coords[i + 1].y > coords[i].y) {
                         factor = -1;
-                    } else
+                    } else {
                         factor = 1;
+                    }
                     if (diffx < 0.0) {
                         coords[i - 1].x -= factor * adjustedValue;
                     } else {
                         coords[i + 1].x += factor * adjustedValue;
                     }
-                    if (i == n - 3)
+                    if (i == (n - 3)) {
                         coords[0].x = coords[i - 1].x;
+                    }
                 }
             }
         } else {
@@ -2392,29 +2429,33 @@ public class WarngenDialog extends CaveSWTDialog implements
             if (Math.abs(diffy) > MIN_LATLON_DIFF) {
                 if (coords[i - 1].x > coords[i].x) {
                     factor = -1;
-                } else
+                } else {
                     factor = 1;
+                }
                 if (diffy > 0.0) {
                     coords[i + 1].y -= factor * adjustedValue;
                 } else {
                     coords[i - 1].y += factor * adjustedValue;
                 }
-                if (i == n - 3)
+                if (i == (n - 3)) {
                     coords[0].y = coords[i - 1].y;
+                }
             } else {
                 diffy = coords[i + 2].y - coords[i + 1].y;
                 if (Math.abs(diffy) > MIN_LATLON_DIFF) {
                     if (coords[i + 1].x > coords[i].x) {
                         factor = -1;
-                    } else
+                    } else {
                         factor = 1;
+                    }
                     if (diffy < 0.0) {
                         coords[i - 1].y -= factor * adjustedValue;
                     } else {
                         coords[i + 1].y += factor * adjustedValue;
                     }
-                    if (i == n - 3)
+                    if (i == (n - 3)) {
                         coords[0].y = coords[i - 1].y;
+                    }
                 }
             }
         }

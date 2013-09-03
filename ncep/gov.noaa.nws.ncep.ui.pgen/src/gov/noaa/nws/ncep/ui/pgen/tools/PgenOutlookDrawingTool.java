@@ -36,6 +36,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
  * 12/11        #582        Q.Zhou      changed hard coded line type in mouse down/move for TROPICAL
  * 03/2012      #599        Q.Zhou      Added FLOOD
  * 05/12        #710		B. Yin		Set the outlook type to layer name
+ * 08/13		TTR784		B. Yin		Remove code that sets the line attributes to the last used
+ * 										in order to set the attributes to the default.
  * </pre>
  * 
  * @author	B. Yin
@@ -78,12 +80,14 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
     			if ( !setName ){ 
     				((OutlookAttrDlg) attrDlg).setOtlkType( otlk.getOutlookType());
     			}
-    			AbstractDrawableComponent adc =  attrDlg.getDrawableElement();
+    			//set line attributes to the last used. 
+    		/*	AbstractDrawableComponent adc =  attrDlg.getDrawableElement();
     			if ( adc != null && adc instanceof Line && 
     					( adc.getParent() instanceof Outlook || adc.getParent().getParent() instanceof Outlook)){
     				
     				attrDlg.setAttrForDlg((IAttribute)adc);
     			}
+    			*/
     		}
     	}
        

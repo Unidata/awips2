@@ -109,13 +109,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.ffa"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.viz.rsc.ffg"
          download-size="0"
          install-size="0"
@@ -207,35 +200,7 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.svrl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.warn"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.wcn"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.viz.rsc.wcp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.wstm"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -263,7 +228,7 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.wou"
+         id="gov.noaa.nws.ncep.viz.rsc.aww"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -285,13 +250,6 @@
 
    <plugin
          id="gov.noaa.nws.ncep.viz.rsc.wavesat"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.viz.rsc.wtch"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -352,6 +310,13 @@
 
    <plugin
          id="gov.noaa.nws.ncep.viz.rsc.ntrans"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.timeseries"
          download-size="0"
          install-size="0"
          version="0.0.0"
