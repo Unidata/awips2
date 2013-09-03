@@ -232,7 +232,11 @@ public class CycleDlg extends AttrDlg {
 			shellLocation = centerOfParent();
 		}
 
-		return super.open();
+		int op = super.open();
+		super.enableButtons();
+
+//		return super.open();
+		return op;
 	}
 
 	public Point centerOfParent() {

@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.core;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +42,8 @@ import com.raytheon.uf.viz.core.data.resp.NumericImageData;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.FontType;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -62,6 +65,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2012            bsteffen     Initial creation
+ * Jul 18, 2013       2189 mschenke    Added ability to specify font type
  * 
  * </pre>
  * 
@@ -80,6 +84,11 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
 
     public AbstractGraphicsTarget() {
         extensionManager = new GraphicsExtensionManager(this);
+    }
+
+    @Override
+    public IFont initializeFont(File fontFile, float size, Style[] styles) {
+        return initializeFont(fontFile, FontType.TRUETYPE, size, styles);
     }
 
     @Override
