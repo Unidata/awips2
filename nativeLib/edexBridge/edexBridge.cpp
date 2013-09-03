@@ -97,7 +97,7 @@ public:
 				uint64_t current = (((long long) tv.tv_sec) * 1000000
 						+ ((long long) tv.tv_usec)) / 1000;
                                 message.setDurable(true);
-				message.setSubject(fileHeader);
+                                message.setSubject(fileHeader);
 				message.setContent(fileLocation);
 				message.setProperty("enqueueTime", current);
                                
@@ -109,7 +109,6 @@ public:
 			}
 		} catch (const std::exception& error) {
 			// Error occurred during communication.  Clean up the connection and return the number of messages processed.
-                        uerror(error.what());
 			cleanup();
 
 		}
@@ -118,87 +117,94 @@ public:
 
 private:
 
-	void cleanup() {
-                unotice ("Cleaning up");
+	void cleanup()
+	{
+		unotice ("Cleaning up");
 
 		// Destroy resources.
-                if (this->sender != 0)
-                {
-                        try
-                        {
-                                this->sender.close();
-                                this->sender = 0;
-                        }
-                        catch (const std::exception& error)
-                        {
-                                uwarn(error.what());
-                        }
-                }
+		if (this->sender != 0)
+		{
+			try
+			{
+				this->sender.close();
+				this->sender = 0;
+			}
+			catch (const std::exception& error)
+			{
+				uwarn(error.what());
+			}
+		}
 
-                if (this->session != 0)
-                {
-                        try
-                        {
-                                this->session.close();
-                                this->session = 0;
-                        }
-                        catch (const std::exception& error)
-                        {
-                                uwarn(error.what());
-                        }
-                }
+		if (this->session != 0)
+		{
+			try
+			{
+				this->session.close();
+				this->session = 0;
+			}
+			catch (const std::exception& error)
+			{
+				uwarn(error.what());
+			}
+		}
 
-                if (this->connection != 0)
-                {
-                        try
-                        {
-                                this->connection.close();
-                                this->connection = 0;
-                        }
-                        catch (const std::exception& error)
-                        {
-                                uwarn(error.what());
-                        }
+		if (this->connection != 0)
+		{
+			try
+			{
+				this->connection.close();
+				this->connection = 0;
+			}
+			catch (const std::exception& error)
+			{
+				uwarn(error.what());
+			}
                 }
 		this->isConnected = false;
 	}
 
-	bool connect() {
-		if (this->isConnected) {
+	bool connect()
+	{
+		if (this->isConnected)
+		{
 			return this->isConnected;
 		}
-		try {
+		try
+		{
+			// initialize
 			this->connection = 0;
 			this->session = 0;
 			this->sender = 0;
 
-                        std::stringstream qpidURLBuilder;
-                        qpidURLBuilder << "amqp:tcp:";
-                        qpidURLBuilder << this->brokerURI;
-                        qpidURLBuilder << ":";
-                        qpidURLBuilder << this->portNumber;
-                        std::string qpidURL = qpidURLBuilder.str();
+            std::stringstream qpidURLBuilder;
+            qpidURLBuilder << "amqp:tcp:";
+            qpidURLBuilder << this->brokerURI;
+            qpidURLBuilder << ":";
+            qpidURLBuilder << this->portNumber;
+            std::string qpidURL = qpidURLBuilder.str();
 
-                        std::stringstream connectionOptionsBuilder;
-                        connectionOptionsBuilder << "{sasl-mechanism:PLAIN,username:";
-                        connectionOptionsBuilder << this->username;
-                        connectionOptionsBuilder << ",password:";
-                        connectionOptionsBuilder << this->password;
-                        connectionOptionsBuilder << "}";
-                        std::string connectionOptions = connectionOptionsBuilder.str();
+            std::stringstream connectionOptionsBuilder;
+            connectionOptionsBuilder << "{sasl-mechanism:PLAIN,username:";
+            connectionOptionsBuilder << this->username;
+            connectionOptionsBuilder << ",password:";
+            connectionOptionsBuilder << this->password;
+            connectionOptionsBuilder << "}";
+            std::string connectionOptions = connectionOptionsBuilder.str();
 
-                        this->connection = Connection(qpidURL, connectionOptions);
+            this->connection = Connection(qpidURL, connectionOptions);
 			this->connection.open();
 
-                        std::string address = "external.dropbox; {node:{type:queue,durable:true,x-bindings:"
-                           "[{exchange:amq.direct,queue:external.dropbox,key:external.dropbox}]}}";
+            std::string address = "external.dropbox; {node:{type:queue,durable:true,x-bindings:"
+            		"[{exchange:amq.direct,queue:external.dropbox,key:external.dropbox}]}}";
 
-                        this->session = this->connection.createSession();
-                        this->sender = this->session.createSender(address);
+            this->session = this->connection.createSession();
+            this->sender = this->session.createSender(address);
                         
 			this->isConnected = true;
-		} catch (const std::exception& error) {
-                        uerror(error.what());
+		}
+		catch (const std::exception& error)
+		{
+            uerror(error.what());
 			this->isConnected = false;
 		}
 		return this->isConnected;

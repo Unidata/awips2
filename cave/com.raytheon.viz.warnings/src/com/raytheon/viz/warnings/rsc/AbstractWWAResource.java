@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Apr 18, 2013   1877   jsanchez       Had the child classes set the comparator. Fixed a null pointer.
  *                                      Remove frameAltered condition in matchesFrame. It prevented entries from being displayed.
  *                                      Check if geometry is null when inspecting.
+ * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
  * </pre>
  * 
  * @author jsanchez
@@ -358,14 +359,23 @@ public abstract class AbstractWWAResource extends
                 }
 
                 if (entry != null && entry.wireframeShape != null) {
-                    LineStyle lineStyle = (record.getProductClass() != null && record
-                            .getProductClass().equals("T")) ? LineStyle.DASHED
-                            : LineStyle.SOLID;
+                    LineStyle lineStyle = LineStyle.SOLID;
+                    if (record.getProductClass() != null
+                            && record.getProductClass().equals("T")) {
+                        lineStyle = LineStyle.DASHED;
+                    }
+
+                    int outlineWidth = getCapability(OutlineCapability.class)
+                            .getOutlineWidth();
+                    // Make wire frame outline thicker for EMERGENCY warnings
+                    if (record.getRawmessage().contains("EMERGENCY")) {
+                        outlineWidth *= 2;
+                    }
+
                     target.drawWireframeShape(
                             entry.wireframeShape,
                             getCapability(ColorableCapability.class).getColor(),
-                            getCapability(OutlineCapability.class)
-                                    .getOutlineWidth(), lineStyle);
+                            outlineWidth, lineStyle);
                 } else if (entry != null && entry.shadedShape != null) {
                     target.drawShadedShape(entry.shadedShape, 1);
                 }
@@ -409,6 +419,14 @@ public abstract class AbstractWWAResource extends
                     params.magnification = getCapability(
                             MagnificationCapability.class).getMagnification();
                     target.drawStrings(params);
+
+                    // Draws the string again to have it appear bolder
+                    if (textToPrintReversed[2].endsWith("EMER")) {
+                        params.setText(new String[] { "", "", "EMER", "" },
+                                color);
+                        target.drawStrings(params);
+                    }
+
                 }
             }
         }
@@ -581,7 +599,11 @@ public abstract class AbstractWWAResource extends
         }
         textToPrint[0] += "." + record.getEtn();
 
-        textToPrint[1] = record.getPil();
+        if (record.getRawmessage().contains("EMERGENCY")) {
+            textToPrint[1] = record.getPil() + " EMER";
+        } else {
+            textToPrint[1] = record.getPil();
+        }
 
         SimpleDateFormat startFormat = DEFAULT_FORMAT;
         SimpleDateFormat endFormat = DEFAULT_FORMAT;

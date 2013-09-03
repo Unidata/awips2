@@ -715,7 +715,7 @@ public class FFMPMonitor extends ResourceMonitor {
         FFMPRecord record = siteDataMap.get(siteKey).getSourceData(sourceName)
                 .getRecord();
 
-        if ((record != null) && (record.getBasinData().getBasins().size() > 0)) {
+        if ((record != null) && (record.getBasinData().hasAnyBasins())) {
 
             SourceXML sourceXML = getSourceConfig().getSource(sourceName);
 

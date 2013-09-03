@@ -37,15 +37,12 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -709,18 +706,9 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
 
     protected void setupTransforms() throws Exception {
         GeneralGridGeometry gridGeometry = getGridGeometry();
-        MathTransform worldToCRS = getWorldToCRSTransform(gridGeometry);
-        if (worldToCRS != null) {
-            MathTransform crsToPixel = gridGeometry.getGridToCRS(
-                    PixelInCell.CELL_CENTER).inverse();
-            worldToPixel = new DefaultMathTransformFactory()
-                    .createConcatenatedTransform(worldToCRS, crsToPixel);
-            pixelToWorld = worldToPixel.inverse();
-
-        } else {
-            pixelToWorld = null;
-            worldToPixel = null;
-        }
+        worldToPixel = TransformFactory.worldToGrid(gridGeometry,
+                PixelInCell.CELL_CENTER);
+        pixelToWorld = (worldToPixel != null ? worldToPixel.inverse() : null);
     }
 
     /*
@@ -860,28 +848,4 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                         false), envelope);
     }
 
-    /**
-     * Get the world to CRS transform used for {@link #worldToPixel(double[])}
-     * and {@link #pixelToWorld(double[])}
-     * 
-     * @param gridGeometry
-     * @return The world to gridGeometry CRS transform or null if there is none
-     */
-    public static MathTransform getWorldToCRSTransform(
-            GeneralGridGeometry gridGeometry) {
-        CoordinateReferenceSystem crs = gridGeometry.getEnvelope()
-                .getCoordinateReferenceSystem();
-        if (crs instanceof GeneralDerivedCRS) {
-            GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
-            CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
-            try {
-                return CRS.findMathTransform(worldCRS, crs);
-            } catch (FactoryException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error setting up Math Transforms,"
-                                + " this descriptor may not work properly", e);
-            }
-        }
-        return null;
-    }
 }
