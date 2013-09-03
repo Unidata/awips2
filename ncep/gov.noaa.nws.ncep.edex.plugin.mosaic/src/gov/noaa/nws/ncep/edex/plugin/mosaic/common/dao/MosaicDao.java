@@ -1,21 +1,8 @@
 package gov.noaa.nws.ncep.edex.plugin.mosaic.common.dao;
 
-/**
- * Data Access Object implementation for accessing mosaic data
- * 
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 09/2009      143				L. Lin     	Initial coding
- * </pre>
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * @author L. Lin
- * @version 1.0
- */
-
 import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
-import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyBlock;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants;
+import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyBlock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,12 +17,30 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
+/**
+ * Data Access Object implementation for accessing mosaic data
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 09/2009      143             L. Lin      Initial coding
+ * Aug 30, 2013 2298            rjpeter     Make getPluginName abstract
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
+ * @author L. Lin
+ * @version 1.0
+ */
 public class MosaicDao extends PluginDao {
 
     /**
@@ -56,24 +61,25 @@ public class MosaicDao extends PluginDao {
 
         MosaicRecord mosaicRec = (MosaicRecord) obj;
         if (mosaicRec.getHeaderBlock() != null) {
-        	//System.out.println("In decoderDao populateDataStore - store HeaderBlock");
-            IDataRecord rec = new ByteDataRecord("Header", mosaicRec.getDataURI(),
-                    mosaicRec.getHeaderBlock(), 1, new long[] { 120 });
-            rec.setCorrelationObject(mosaicRec);
-            dataStore.addDataRecord(rec);
-        }
-        
-        if (mosaicRec.getRawData() != null) {
-            IDataRecord rec = new ByteDataRecord("Data", mosaicRec.getDataURI(),
-                    mosaicRec.getRawData(), 2, new long[] {
-                            mosaicRec.getNx(), mosaicRec.getNy() });
+            IDataRecord rec = new ByteDataRecord("Header",
+                    mosaicRec.getDataURI(), mosaicRec.getHeaderBlock(), 1,
+                    new long[] { 120 });
             rec.setCorrelationObject(mosaicRec);
             dataStore.addDataRecord(rec);
         }
 
-        if (mosaicRec.getThresholds() != null && mosaicRec.getProductCode() != 2) {
-            IDataRecord rec = new ShortDataRecord("Thresholds", mosaicRec
-                    .getDataURI(), mosaicRec.getThresholds(), 1,
+        if (mosaicRec.getRawData() != null) {
+            IDataRecord rec = new ByteDataRecord("Data",
+                    mosaicRec.getDataURI(), mosaicRec.getRawData(), 2,
+                    new long[] { mosaicRec.getNx(), mosaicRec.getNy() });
+            rec.setCorrelationObject(mosaicRec);
+            dataStore.addDataRecord(rec);
+        }
+
+        if ((mosaicRec.getThresholds() != null)
+                && (mosaicRec.getProductCode() != 2)) {
+            IDataRecord rec = new ShortDataRecord("Thresholds",
+                    mosaicRec.getDataURI(), mosaicRec.getThresholds(), 1,
                     new long[] { 16 });
             rec.setCorrelationObject(mosaicRec);
             dataStore.addDataRecord(rec);
@@ -83,14 +89,15 @@ public class MosaicDao extends PluginDao {
             byte[] data = DynamicSerializationManager.getManager(
                     SerializationType.Thrift).serialize(
                     mosaicRec.getSymbologyBlock());
-            ByteDataRecord bdr = new ByteDataRecord("Symbology", mosaicRec
-                    .getDataURI(), data);
+            ByteDataRecord bdr = new ByteDataRecord("Symbology",
+                    mosaicRec.getDataURI(), data);
             dataStore.addDataRecord(bdr);
         }
 
         if (mosaicRec.getProductDependentValues() != null) {
-            IDataRecord rec = new ShortDataRecord("DependentValues", mosaicRec
-                    .getDataURI(), mosaicRec.getProductDependentValues(), 1,
+            IDataRecord rec = new ShortDataRecord("DependentValues",
+                    mosaicRec.getDataURI(),
+                    mosaicRec.getProductDependentValues(), 1,
                     new long[] { mosaicRec.getProductDependentValues().length });
             rec.setCorrelationObject(mosaicRec);
             dataStore.addDataRecord(rec);
@@ -100,8 +107,8 @@ public class MosaicDao extends PluginDao {
             byte[] data = DynamicSerializationManager.getManager(
                     SerializationType.Thrift).serialize(
                     mosaicRec.getRecordVals());
-            ByteDataRecord bdr = new ByteDataRecord("RecordVals", mosaicRec
-                    .getDataURI(), data);
+            ByteDataRecord bdr = new ByteDataRecord("RecordVals",
+                    mosaicRec.getDataURI(), data);
             dataStore.addDataRecord(bdr);
         }
 
@@ -139,16 +146,14 @@ public class MosaicDao extends PluginDao {
 
         for (PluginDataObject obj : queryResults) {
             MosaicRecord record = (MosaicRecord) obj;
-            record.setPluginName(pluginName);
             IDataRecord[] hdf5Data = getHDF5Data(record, tile);
             record.setMessageData(hdf5Data[0].getDataObject());
             record.setThresholds((short[]) hdf5Data[2].getDataObject());
             record.setProductDependentValues((short[]) hdf5Data[6]
                     .getDataObject());
 
-            record
-                    .setProductVals((HashMap<MosaicConstants.MapValues, Map<String, Map<MosaicConstants.MapValues, String>>>) hdf5Data[5]
-                            .getDataObject());
+            record.setProductVals((HashMap<MosaicConstants.MapValues, Map<String, Map<MosaicConstants.MapValues, String>>>) hdf5Data[5]
+                    .getDataObject());
             try {
                 record.setSymbologyBlock((SymbologyBlock) SerializationUtil
                         .transformFromThrift((byte[]) hdf5Data[3]

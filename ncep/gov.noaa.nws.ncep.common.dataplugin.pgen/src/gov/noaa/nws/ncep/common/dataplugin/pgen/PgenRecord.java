@@ -30,9 +30,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 22, 2013            sgilbert     Initial creation
- * Jun 26, 2013            bhebbard     Added SequenceGenerator annotation
- * Jul 22, 2013 1977       rjpeter      Added getDataURI and annotations.
+ * Apr 22, 2013            sgilbert    Initial creation
+ * Jun 26, 2013            bhebbard    Added SequenceGenerator annotation
+ * Jul 22, 2013 1977       rjpeter     Added getDataURI and annotations.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author sgilbert
@@ -269,5 +270,10 @@ public class PgenRecord extends PersistablePluginDataObject {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "pgen";
     }
 }

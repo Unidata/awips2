@@ -44,15 +44,17 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Decoder implementation for Madis data type. 
+ * Decoder implementation for Madis data type.
+ * 
  * <pre>
- *                     
+ * 
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 3/27/13      1746         dhladky    Initial creation
- * 6/17/13       2113        dhladky    QPID memory usage alleviation
+ * Mar 27, 2013 1746        dhladky     Initial creation
+ * Jun 17, 2013 2113        dhladky     QPID memory usage alleviation
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author dhladky
@@ -62,26 +64,36 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class MadisDecoder extends AbstractDecoder {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
-    .getHandler(MadisDecoder.class);
-    
-    public static final String[] typeDHeader = new String[] {"STAID","OBDATE","OBTIME","PVDR","SUBPVDR","DS","RES","TD","D","RH","QCD","ALTSE","D","T","QCD","DD","D","FF","QCD","ELEV","D","LAT","QCD","LON","D","PCPRATE","D","FFGUST","D","PWV","D", "P", "D"};
-    
-    public static final String[] typeFHeader = new String[] {"STAID","OBDATE","OBTIME","PVDR","SUBPVDR","DS","RES","TD","D","QCA","QCR","RH","D","QCA","QCR","ALTSE","D","QCA","QCR","T","D","QCA","QCR","DD","D","QCA","QCR","FF","D","QCA","QCR","ELEV","D","QCA","QCR","LAT","D","QCA","QCR","LON","QCA","QCR","D","PCPRATE","D","QCA","QCR","FFGUST","D","QCA","QCR","PWV","D","QCA","QCR","P","D","QCA","QCR"};
-    
+            .getHandler(MadisDecoder.class);
+
+    public static final String[] typeDHeader = new String[] { "STAID",
+            "OBDATE", "OBTIME", "PVDR", "SUBPVDR", "DS", "RES", "TD", "D",
+            "RH", "QCD", "ALTSE", "D", "T", "QCD", "DD", "D", "FF", "QCD",
+            "ELEV", "D", "LAT", "QCD", "LON", "D", "PCPRATE", "D", "FFGUST",
+            "D", "PWV", "D", "P", "D" };
+
+    public static final String[] typeFHeader = new String[] { "STAID",
+            "OBDATE", "OBTIME", "PVDR", "SUBPVDR", "DS", "RES", "TD", "D",
+            "QCA", "QCR", "RH", "D", "QCA", "QCR", "ALTSE", "D", "QCA", "QCR",
+            "T", "D", "QCA", "QCR", "DD", "D", "QCA", "QCR", "FF", "D", "QCA",
+            "QCR", "ELEV", "D", "QCA", "QCR", "LAT", "D", "QCA", "QCR", "LON",
+            "QCA", "QCR", "D", "PCPRATE", "D", "QCA", "QCR", "FFGUST", "D",
+            "QCA", "QCR", "PWV", "D", "QCA", "QCR", "P", "D", "QCA", "QCR" };
+
     private static final Pattern regex = Pattern.compile(",");
-    
+
     private static final String BLANK = "";
-    
+
     private static final float MISSING_FLOAT = -99999;
-    
+
     private static final String STRING_NULL = "null";
-    
+
     private static final int MISSING_INT = -99999;
-    
+
     private static final Pattern QUOTES_PATTERN = Pattern.compile("\"");
 
     private final String PLUGIN_NAME;
-    
+
     private static ThreadLocal<SimpleDateFormat> madisDateFormat = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
@@ -92,9 +104,9 @@ public class MadisDecoder extends AbstractDecoder {
         }
 
     };
-    
+
     private static final String MADIS_DATE_FORMAT = "MM/dd/yyyy HH:mm";
-    
+
     /**
      * Required constructor.
      */
@@ -102,7 +114,6 @@ public class MadisDecoder extends AbstractDecoder {
         PLUGIN_NAME = pluginName;
     }
 
-    
     /**
      * Decoder for MADIS
      * 
@@ -110,8 +121,7 @@ public class MadisDecoder extends AbstractDecoder {
      * @return
      * @throws DecoderException
      */
-    public PluginDataObject[] decode(String path)
-            throws DecoderException {
+    public PluginDataObject[] decode(String path) throws DecoderException {
 
         // de-serialize the object from the path
         long time = System.currentTimeMillis();
@@ -120,8 +130,8 @@ public class MadisDecoder extends AbstractDecoder {
 
         if (mio != null) {
 
-            statusHandler.handle(Priority.INFO,
-                    "Starting MADIS record decode.");
+            statusHandler
+                    .handle(Priority.INFO, "Starting MADIS record decode.");
             List<PluginDataObject> retList = new ArrayList<PluginDataObject>();
             String[] headerType = mio.getHeader();
             int i = 0;
@@ -152,7 +162,7 @@ public class MadisDecoder extends AbstractDecoder {
                 File file = new File(path);
                 if (file.exists()) {
                     file.delete();
-                } 
+                }
             }
 
             if (!retList.isEmpty()) {
@@ -160,7 +170,7 @@ public class MadisDecoder extends AbstractDecoder {
                 retVal = retList.toArray(new PluginDataObject[size]);
             }
         }
-        
+
         if (retVal.length == 0) {
             statusHandler.handle(Priority.WARN,
                     "No MADIS data decoded!!!!  Bad file format!");
@@ -184,7 +194,7 @@ public class MadisDecoder extends AbstractDecoder {
 
         MadisRecord rec = null;
 
-        if (!line.isEmpty() && headerType != null) {
+        if (!line.isEmpty() && (headerType != null)) {
 
             if (headerType.length == typeDHeader.length) {
                 rec = processTypeD(line, headerType);
@@ -204,7 +214,8 @@ public class MadisDecoder extends AbstractDecoder {
      * Creates a MadisRecord from a type D file
      * 
      * @param line
-     * @param String[]
+     * @param String
+     *            []
      * @return
      */
     private MadisRecord processTypeD(String line, String[] headerType) {
@@ -221,7 +232,7 @@ public class MadisDecoder extends AbstractDecoder {
         QCD td_qcd = QCD.MISSING; // 8
         float rh = MISSING_FLOAT; // 9
         QCD rh_qcd = QCD.MISSING; // 10
-        float altimeter = MISSING_FLOAT; //11
+        float altimeter = MISSING_FLOAT; // 11
         QCD altimeter_qcd = QCD.MISSING; // 12
         float temperature = MISSING_FLOAT; // 13
         QCD temperature_qcd = QCD.MISSING; // 14
@@ -243,9 +254,9 @@ public class MadisDecoder extends AbstractDecoder {
         QCD precipitalWater_qcd = QCD.MISSING;// 30
         float pressure = MISSING_FLOAT;// 31
         QCD pressure_qcd = QCD.MISSING;// 32
-        
+
         String[] commaSepList = null;
-        
+
         try {
 
             commaSepList = regex.split(line);
@@ -253,7 +264,6 @@ public class MadisDecoder extends AbstractDecoder {
             if (commaSepList.length == typeDHeader.length) {
 
                 rec = new MadisRecord();
-                rec.setPluginName(PLUGIN_NAME);
                 int i = 0;
                 // get STAID
                 stationId = trimQuotes(commaSepList[i++]).trim();
@@ -269,28 +279,32 @@ public class MadisDecoder extends AbstractDecoder {
                 // get PVDR
                 provider = trimQuotes(commaSepList[i++]).trim();
                 rec.setProvider(provider);
-                
+
                 // get SUBPVDR
                 sub_provider = trimQuotes(commaSepList[i++]).trim();
-                if(sub_provider.equals(BLANK)) {
+                if (sub_provider.equals(BLANK)) {
                     rec.setSubProvider(STRING_NULL);
                 } else {
                     rec.setSubProvider(sub_provider);
                 }
                 // the Dataset value
-                dataset = new Integer(trimQuotes(commaSepList[i++]).trim()).intValue();
+                dataset = new Integer(trimQuotes(commaSepList[i++]).trim())
+                        .intValue();
                 rec.setDataset(dataset);
                 // the Restriction value
-                restriction = new Integer(trimQuotes(commaSepList[i++]).trim()).intValue();
+                restriction = new Integer(trimQuotes(commaSepList[i++]).trim())
+                        .intValue();
                 rec.setRestriction(restriction);
                 // get TD
-                td = new Float(trimQuotes(commaSepList[i++]).trim()).floatValue();
+                td = new Float(trimQuotes(commaSepList[i++]).trim())
+                        .floatValue();
                 rec.setDewpoint(td);
                 // get TD QCD
                 td_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
                 rec.setDewpoint_qcd(td_qcd);
                 // get RH
-                rh = new Float(trimQuotes(commaSepList[i++]).trim()).floatValue();
+                rh = new Float(trimQuotes(commaSepList[i++]).trim())
+                        .floatValue();
                 rec.setRh(rh);
                 // get RH QCD
                 rh_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
@@ -300,7 +314,8 @@ public class MadisDecoder extends AbstractDecoder {
                         .floatValue();
                 rec.setAltimeter(altimeter);
                 // get Altimeter QCD
-                altimeter_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                altimeter_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setAltimeter_qcd(altimeter_qcd);
                 // get Temperature
                 temperature = new Float(trimQuotes(commaSepList[i++]).trim())
@@ -315,33 +330,37 @@ public class MadisDecoder extends AbstractDecoder {
                         .intValue();
                 rec.setWindDirection(windDirection);
                 // get Wind Direction QCD
-                windDirection_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
-                        .trim());
+                windDirection_qcd = QCD
+                        .fromString(trimQuotes(commaSepList[i++]).trim());
                 rec.setWindDirection_qcd(windDirection_qcd);
                 // wind speed
                 windSpeed = new Float(trimQuotes(commaSepList[i++]).trim())
                         .intValue();
                 rec.setWindSpeed(windSpeed);
                 // get Wind Speed QCD
-                windSpeed_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                windSpeed_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setWindSpeed_qcd(windSpeed_qcd);
                 // get Elevation
                 elevation = new Float(trimQuotes(commaSepList[i++]).trim())
                         .intValue();
                 // get Elevation QCD
-                elevation_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                elevation_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setElevation_qcd(elevation_qcd);
                 // get Latitude
                 latitude = new Float(trimQuotes(commaSepList[i++]).trim())
                         .floatValue();
                 // get Latitude QCD
-                latitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                latitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setLatitude_qcd(latitude_qcd);
                 // get Longitude
                 longitude = new Float(trimQuotes(commaSepList[i++]).trim())
                         .floatValue();
                 // get Longitude QCD
-                longitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                longitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setLongitude_qcd(longitude_qcd);
                 // get precipRate
                 precipRate = new Float(trimQuotes(commaSepList[i++]).trim())
@@ -356,22 +375,24 @@ public class MadisDecoder extends AbstractDecoder {
                         .floatValue();
                 rec.setWindGust(windGust);
                 // get Wind Gust QCD
-                windGust_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                windGust_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setWindGust_qcd(windGust_qcd);
                 // get precipitalWater
-                precipitalWater = new Float(trimQuotes(commaSepList[i++]).trim())
-                        .floatValue();
+                precipitalWater = new Float(trimQuotes(commaSepList[i++])
+                        .trim()).floatValue();
                 rec.setPrecipitalWater(precipitalWater);
                 // get precipitalWater QCD
-                precipitalWater_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
-                        .trim());
+                precipitalWater_qcd = QCD.fromString(trimQuotes(
+                        commaSepList[i++]).trim());
                 rec.setPrecipitalWater_qcd(precipitalWater_qcd);
                 // get pressure
                 pressure = new Float(trimQuotes(commaSepList[i++]).trim())
                         .floatValue();
                 rec.setPressure(pressure);
                 // get pressure QCD
-                pressure_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                pressure_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setPressure_qcd(pressure_qcd);
 
                 // Take care of creating the station
@@ -457,7 +478,7 @@ public class MadisDecoder extends AbstractDecoder {
         QCD pressure_qcd = QCD.MISSING;// 56
         int pressure_qca = MISSING_INT; // 57
         int pressure_qcr = MISSING_INT; // 58
-        
+
         String[] commaSepList = null;
 
         try {
@@ -467,7 +488,6 @@ public class MadisDecoder extends AbstractDecoder {
             if (commaSepList.length == typeFHeader.length) {
 
                 rec = new MadisRecord();
-                rec.setPluginName(PLUGIN_NAME);
                 int i = 0;
                 // get STAID
                 stationId = trimQuotes(commaSepList[i++]).trim();
@@ -483,23 +503,26 @@ public class MadisDecoder extends AbstractDecoder {
                 // get PVDR
                 provider = trimQuotes(commaSepList[i++]).trim();
                 rec.setProvider(provider);
-                
+
                 // get SUBPVDR
                 sub_provider = trimQuotes(commaSepList[i++]).trim();
-                if(sub_provider.equals(BLANK)) {
+                if (sub_provider.equals(BLANK)) {
                     rec.setSubProvider(STRING_NULL);
                 } else {
                     rec.setSubProvider(sub_provider);
                 }
-                
+
                 // the Dataset value
-                dataset = new Integer(trimQuotes(commaSepList[i++]).trim()).intValue();
+                dataset = new Integer(trimQuotes(commaSepList[i++]).trim())
+                        .intValue();
                 rec.setDataset(dataset);
                 // the Restriction value
-                restriction = new Integer(trimQuotes(commaSepList[i++]).trim()).intValue();
+                restriction = new Integer(trimQuotes(commaSepList[i++]).trim())
+                        .intValue();
                 rec.setRestriction(restriction);
                 // get TD
-                td = new Float(trimQuotes(commaSepList[i++]).trim()).floatValue();
+                td = new Float(trimQuotes(commaSepList[i++]).trim())
+                        .floatValue();
                 rec.setDewpoint(td);
                 // get TD QCD
                 td_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
@@ -513,7 +536,8 @@ public class MadisDecoder extends AbstractDecoder {
                         .intValue();
                 rec.setDewpoint_qcr(td_qcr);
                 // get RH
-                rh = new Float(trimQuotes(commaSepList[i++]).trim()).floatValue();
+                rh = new Float(trimQuotes(commaSepList[i++]).trim())
+                        .floatValue();
                 rec.setRh(rh);
                 // get RH QCD
                 rh_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
@@ -531,15 +555,16 @@ public class MadisDecoder extends AbstractDecoder {
                         .floatValue();
                 rec.setAltimeter(altimeter);
                 // get Altimeter QCD
-                altimeter_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                altimeter_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setAltimeter_qcd(altimeter_qcd);
                 // get Altimeter QCA
-                altimeter_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                altimeter_qca = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setAltimeter_qca(altimeter_qca);
                 // get Altimeter QCR
-                altimeter_qcr = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                altimeter_qcr = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setAltimeter_qcr(altimeter_qcr);
                 // get Temperature
                 temperature = new Float(trimQuotes(commaSepList[i++]).trim())
@@ -562,8 +587,8 @@ public class MadisDecoder extends AbstractDecoder {
                         .intValue();
                 rec.setWindDirection(windDirection);
                 // get Wind Direction QCD
-                windDirection_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
-                        .trim());
+                windDirection_qcd = QCD
+                        .fromString(trimQuotes(commaSepList[i++]).trim());
                 rec.setWindDirection_qcd(windDirection_qcd);
                 // get WindDirection QCA
                 windDirection_qca = new Integer(trimQuotes(commaSepList[i++])
@@ -578,35 +603,38 @@ public class MadisDecoder extends AbstractDecoder {
                         .intValue();
                 rec.setWindSpeed(windSpeed);
                 // get Wind Speed QCD
-                windSpeed_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                windSpeed_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setWindSpeed_qcd(windSpeed_qcd);
                 // get WindSpeed QCA
-                windSpeed_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                windSpeed_qca = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setWindSpeed_qca(windSpeed_qca);
                 // get WindSpeed QCR
-                windSpeed_qcr = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                windSpeed_qcr = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setWindSpeed_qcr(windSpeed_qcr);
                 // get Elevation
                 elevation = new Float(trimQuotes(commaSepList[i++]).trim())
                         .intValue();
                 // get Elevation QCD
-                elevation_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                elevation_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setElevation_qcd(elevation_qcd);
                 // get Elevation QCA
-                elevation_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                elevation_qca = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setElevation_qca(elevation_qca);
                 // get Elevation QCR
-                elevation_qcr = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                elevation_qcr = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setElevation_qcr(elevation_qcr);
                 // get Latitude
                 latitude = new Float(trimQuotes(commaSepList[i++]).trim())
                         .floatValue();
                 // get Latitude QCD
-                latitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                latitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setLatitude_qcd(latitude_qcd);
                 // get latitude QCA
                 latitude_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
@@ -620,15 +648,16 @@ public class MadisDecoder extends AbstractDecoder {
                 longitude = new Float(trimQuotes(commaSepList[i++]).trim())
                         .floatValue();
                 // get Longitude QCD
-                longitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                longitude_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setLongitude_qcd(longitude_qcd);
                 // get longitude QCA
-                longitude_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                longitude_qca = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setLongitude_qca(longitude_qca);
                 // get longitude QCR
-                longitude_qcr = new Integer(trimQuotes(commaSepList[i++]).trim())
-                        .intValue();
+                longitude_qcr = new Integer(trimQuotes(commaSepList[i++])
+                        .trim()).intValue();
                 rec.setLongitude_qcr(longitude_qcr);
                 // get precipRate
                 precipRate = new Float(trimQuotes(commaSepList[i++]).trim())
@@ -651,7 +680,8 @@ public class MadisDecoder extends AbstractDecoder {
                         .floatValue();
                 rec.setWindGust(windGust);
                 // get Wind Gust QCD
-                windGust_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                windGust_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setWindGust_qcd(windGust_qcd);
                 // get Wind Gust QCA
                 windGust_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
@@ -662,12 +692,12 @@ public class MadisDecoder extends AbstractDecoder {
                         .intValue();
                 rec.setPrecipRate_qcr(windGust_qcr);
                 // get precipitalWater
-                precipitalWater = new Float(trimQuotes(commaSepList[i++]).trim())
-                        .floatValue();
+                precipitalWater = new Float(trimQuotes(commaSepList[i++])
+                        .trim()).floatValue();
                 rec.setPrecipitalWater(precipitalWater);
                 // get precipitalWater QCD
-                precipitalWater_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
-                        .trim());
+                precipitalWater_qcd = QCD.fromString(trimQuotes(
+                        commaSepList[i++]).trim());
                 rec.setPrecipitalWater_qcd(precipitalWater_qcd);
                 // get precipitalWater QCA
                 precipitalWater_qca = new Integer(trimQuotes(commaSepList[i++])
@@ -682,7 +712,8 @@ public class MadisDecoder extends AbstractDecoder {
                         .floatValue();
                 rec.setPressure(pressure);
                 // get pressure QCD
-                pressure_qcd = QCD.fromString(trimQuotes(commaSepList[i++]).trim());
+                pressure_qcd = QCD.fromString(trimQuotes(commaSepList[i++])
+                        .trim());
                 rec.setPressure_qcd(pressure_qcd);
                 // get pressure QCA
                 pressure_qca = new Integer(trimQuotes(commaSepList[i++]).trim())
@@ -717,7 +748,7 @@ public class MadisDecoder extends AbstractDecoder {
 
         return QUOTES_PATTERN.matcher(val).replaceAll(BLANK);
     }
-    
+
     /**
      * Look for station info
      * 
@@ -738,39 +769,43 @@ public class MadisDecoder extends AbstractDecoder {
 
         return station;
     }
-    
+
     /**
      * Sets the time if applicable
+     * 
      * @param obsDate
      * @param obsTime
      * @param rec
      * @return
      */
-    private MadisRecord setTimeObs(String obsDate, String obsTime, MadisRecord rec, String[] headerType) {
-        
-        if (obsDate != null && obsTime != null)  {
+    private MadisRecord setTimeObs(String obsDate, String obsTime,
+            MadisRecord rec, String[] headerType) {
+
+        if ((obsDate != null) && (obsTime != null)) {
 
             StringBuilder sb = new StringBuilder();
             sb.append(obsDate);
             sb.append(" ");
             sb.append(obsTime);
-            sb.append(":01"); 
-            
+            sb.append(":01");
+
             try {
 
                 Date time = getDateFormatter().get().parse(sb.toString());
                 rec.setTimeObs(time);
-                
+
             } catch (ParseException e) {
-                statusHandler.handle(Priority.PROBLEM, "Can't parse Madis date format!", e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Can't parse Madis date format!", e);
             }
         }
-        
+
         return rec;
     }
-    
+
     /**
      * Sets the station location info
+     * 
      * @param stationId
      * @param latitude
      * @param longitude
@@ -778,8 +813,9 @@ public class MadisDecoder extends AbstractDecoder {
      * @param rec
      * @return
      */
-    private MadisRecord setObsLocation(String stationId, float latitude, float longitude, int elevation, MadisRecord rec) {
-        
+    private MadisRecord setObsLocation(String stationId, float latitude,
+            float longitude, int elevation, MadisRecord rec) {
+
         ObStation station = getStationInfo(stationId);
         SurfaceObsLocation loc = new SurfaceObsLocation(stationId);
 
@@ -800,8 +836,9 @@ public class MadisDecoder extends AbstractDecoder {
                         loc.assignLatitude(latitude);
                     }
                     if (elevation != MISSING_INT) {
-                        if (loc.getElevation() != elevation)
+                        if (loc.getElevation() != elevation) {
                             loc.setElevation(elevation);
+                        }
                     }
                 } else {
                     loc.assignLongitude(longitude);
@@ -820,18 +857,20 @@ public class MadisDecoder extends AbstractDecoder {
         return rec;
 
     }
-    
+
     /**
      * Get the date formatter
+     * 
      * @return
      */
     private ThreadLocal<SimpleDateFormat> getDateFormatter() {
-      
+
         return madisDateFormat;
     }
-    
+
     /**
      * Sets the time and basically finishes the record decode
+     * 
      * @param rec
      * @return
      */
@@ -840,10 +879,10 @@ public class MadisDecoder extends AbstractDecoder {
             rec.setDataTime(new DataTime(rec.getTimeObs()));
             return rec;
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Can't set Madis Record URI! " + rec.getStationId(), e);
+            statusHandler.handle(Priority.ERROR, "Can't set Madis Record URI! "
+                    + rec.getStationId(), e);
         }
-        
+
         return null;
     }
 

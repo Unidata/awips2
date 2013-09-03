@@ -72,13 +72,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 06/03/09      2037       D. Hladky   Initial release
- * Apr 04, 2013  1846       bkowal      Added an index on refTime and forecastTime
- * 04/08/13      1293       bkowal      Removed references to hdffileid.
- * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013  1869       bsteffen    Remove dataURI column from
+ * Jun 03, 2009 2037        D. Hladky   Initial release
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * Aug 06, 2013  2228       njensen     Use deserialize(byte[])
+ * Aug 06, 2013 2228        njensen     Use deserialize(byte[])
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -448,9 +450,9 @@ public class CWATRecord extends PersistablePluginDataObject implements
 
         try {
             IDataRecord[] dataRec = dataStore.retrieve(getDataURI());
-            for (int i = 0; i < dataRec.length; i++) {
-                if (dataRec[i] instanceof ShortDataRecord) {
-                    setDataArray(((ShortDataRecord) dataRec[i]).getShortData());
+            for (IDataRecord element : dataRec) {
+                if (element instanceof ShortDataRecord) {
+                    setDataArray(((ShortDataRecord) element).getShortData());
                 }
             }
             retrieveMapFromDataStore(dataStore);
@@ -568,5 +570,10 @@ public class CWATRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "cwat";
     }
 }

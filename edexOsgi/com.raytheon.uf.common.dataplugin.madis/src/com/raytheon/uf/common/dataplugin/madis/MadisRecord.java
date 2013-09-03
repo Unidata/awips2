@@ -66,13 +66,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * MAR 27, 2013 1746       dhladky     MADIS data record creation
+ * Mar 27, 2013 1746       dhladky     MADIS data record creation
  * May 15, 2013 1658       djohnson    Add sequence.
  * May 16, 2013 753        dhladky     Restored dataUri as unique key
- * June 03, 2013 1763      dhladky     Added ValMap lookups for QCD
- * July 08, 2013  2171     dhladky     Removed dataURI
- * July 12, 2013  2096     mpduff      Changed temperature unit to F.
- * July 14, 2013  2180     dhladky     GUI update for mouse over display
+ * Jun 03, 2013 1763       dhladky     Added ValMap lookups for QCD
+ * Jul 08, 2013 2171       dhladky     Removed dataURI
+ * Jul 12, 2013 2096       mpduff      Changed temperature unit to F.
+ * Jul 14, 2013 2180       dhladky     GUI update for mouse over display
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author dhladky
@@ -564,7 +565,8 @@ public class MadisRecord extends PersistablePluginDataObject implements
      * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
-     * Mar 16, 2013            dhladky      Initial creation
+     * Mar 16, 2013            dhladky     Initial creation
+     * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
      * </pre>
      * 
      * @author dhladky
@@ -572,21 +574,22 @@ public class MadisRecord extends PersistablePluginDataObject implements
      */
     @XmlEnum
     public enum QCD {
-        //C - Coarse pass, passed level 1
-        //S - Screened, passed levels 1 and 2
-        //V - Verified, passed levels 1, 2, and 3
-        //X - Rejected/erroneous, failed level 1
-        //Q - Questioned, passed level 1, failed 2 or 3
-        //G - Subjective good
-        //B - Subjective bad
-        @XmlEnumValue(QCD.V) VERIFIED("V"), 
-        @XmlEnumValue(QCD.S) SCREENED("S"),
-        @XmlEnumValue(QCD.Q) QUESTIONED("Q"),
-        @XmlEnumValue(QCD.B) BAD("B"), 
-        @XmlEnumValue(QCD.C) COARSEPASS("C"), 
-        @XmlEnumValue(QCD.G) GOOD("G"), 
-        @XmlEnumValue(QCD.Z) MISSING("Z"),
-        @XmlEnumValue(QCD.X) REJECTED("X");
+        // C - Coarse pass, passed level 1
+        // S - Screened, passed levels 1 and 2
+        // V - Verified, passed levels 1, 2, and 3
+        // X - Rejected/erroneous, failed level 1
+        // Q - Questioned, passed level 1, failed 2 or 3
+        // G - Subjective good
+        // B - Subjective bad
+        @XmlEnumValue(QCD.V)
+        VERIFIED("V"), @XmlEnumValue(QCD.S)
+        SCREENED("S"), @XmlEnumValue(QCD.Q)
+        QUESTIONED("Q"), @XmlEnumValue(QCD.B)
+        BAD("B"), @XmlEnumValue(QCD.C)
+        COARSEPASS("C"), @XmlEnumValue(QCD.G)
+        GOOD("G"), @XmlEnumValue(QCD.Z)
+        MISSING("Z"), @XmlEnumValue(QCD.X)
+        REJECTED("X");
 
         private static final String V = "V";
 
@@ -1138,7 +1141,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
         return result;
     }
@@ -1163,5 +1166,10 @@ public class MadisRecord extends PersistablePluginDataObject implements
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String getPluginName() {
+        return PLUGIN_NAME;
     }
 }
