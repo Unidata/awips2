@@ -58,7 +58,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 10/15/10     6644        bphillip    Initial Creation
+ * Oct 15, 2010 6644        bphillip    Initial Creation
+ * Jul 18, 2013 2194        bsteffen    Fix site override.
  * 
  * </pre>
  * 
@@ -191,9 +192,8 @@ public class GribLargeFileChecker implements Processor {
         File siteModelFile = new File(sitePath);
         if (siteModelFile.exists()) {
             sitePatterns = loadPatterns(siteModelFile);
-        } else {
-            basePatterns = loadPatterns(modelFile);
         }
+        basePatterns = loadPatterns(modelFile);
 
     }
 

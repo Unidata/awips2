@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
  * 06 Oct 2010  307        Greg Hull   override getAvailableTimes() 
  * 09 Aug 2011  450        Greg Hull   move productLocation and productName to metadata 
  * 14 Dec 2012  861        Greg Hull   add color Matrix Selector for the 
+ * 14 Jul 2013  1011       Greg Hull   request from pgen db.
  * 
  * </pre>
  * 
@@ -54,9 +55,6 @@ public class PgenDisplayResourceData extends AbstractNatlCntrsRequestableResourc
                         implements IMiscResourceData, INatlCntrsResourceData { 
 
     @XmlElement
-    protected String legendString;
-    
-    @XmlElement
     protected boolean monoColorEnable;
     @XmlElement
     @XmlJavaTypeAdapter(RGBColorAdapter.class)
@@ -65,56 +63,8 @@ public class PgenDisplayResourceData extends AbstractNatlCntrsRequestableResourc
     @XmlElement
     protected boolean fillModeEnable;
     
-    //  -----------------------------------------------------------
-    
     public PgenDisplayResourceData() throws VizException {
         super();
-        this.nameGenerator = new AbstractNameGenerator() {
-            @Override
-            public String getName(AbstractVizResource<?, ?> resource) {
-                if( legendString != null ) {
-                    return legendString;
-                }
-                else 
-                	return "PGEN: "+getProductName();
-            }
-        };
-    }
-
-    // PGEN has no times and since the query is currently throwing an error
-    // override this to return an null list.
-    @Override
-	public ArrayList<DataTime> getAvailableDataTimes( ) {
-    	return new ArrayList<DataTime>(0);
-    }
-
-    public String getLegendString() {
-        return legendString;
-    }
-
-    public void setLegendString(String leg) {
-		this.legendString = leg;
-	}
-
-    public String getPgenDirectory() {
-		return (metadataMap.containsKey("productLocation") ?
-				metadataMap.get("productLocation").getConstraintValue() : "." );
-	}
-
-	public void setPgenDirectory(String pgenDirectory) {
-		metadataMap.put("productLocation",
-				new RequestConstraint( pgenDirectory, ConstraintType.EQUALS ) );
-	}
-
-
-	public String getProductName() {
-		return (metadataMap.containsKey("productName") ?
-				metadataMap.get("productName").getConstraintValue() : "." );
-	}
-
-	public void setProductName(String fileName) {
-		metadataMap.put("productName",
-				new RequestConstraint( fileName, ConstraintType.EQUALS ) );
 	}
 
 	public boolean getMonoColorEnable() {

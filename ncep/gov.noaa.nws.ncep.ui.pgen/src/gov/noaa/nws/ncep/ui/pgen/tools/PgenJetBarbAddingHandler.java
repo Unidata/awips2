@@ -89,7 +89,7 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
     	if ( button == 1 ) {
 
     		Jet newJet = jet.copy();
-    		newJet.addBarb(createWindInfo(loc, newJet));
+    		newJet.addBarb(createWindInfo(loc, newJet, true));
 
     		drawingLayer.replaceElement(jet, newJet);
     		jet = newJet;
@@ -144,7 +144,7 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
     	Jet jet = prevTool.getJet();
     	if ( jet == null ) return false;
     	
-        drawingLayer.setGhostLine( createWindInfo(loc, jet) );      
+        drawingLayer.setGhostLine( createWindInfo(loc, jet, false) );      
       	mapEditor.refresh();
    	
     	return true;
@@ -162,7 +162,7 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
      * @param loc
      * @return
      */
-    private DECollection createWindInfo(Coordinate loc, Jet aJet){
+    private DECollection createWindInfo(Coordinate loc, Jet aJet, boolean updateTemplate){
 		
 		DECollection wind = new DECollection("WindInfo");
 		wind.setParent(aJet);
@@ -176,6 +176,10 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
 		
 		if ( barbAttr != null ){
 			barb.update(barbAttr);
+		}
+		
+		if ( updateTemplate ) {
+			jetDlg.updateBarbTemplate( barb );
 		}
 		
 		barb.setSpeed(jetDlg.getBarbSpeed() );
@@ -197,7 +201,7 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
 				TextJustification.CENTER, new Coordinate(0,0),
 				0, TextRotation.SCREEN_RELATIVE, flInfo,
 				FontStyle.REGULAR, new Color(0, 255,0), 0, 0,
-				false, DisplayType.NORMAL, "Text", "General Text" );
+				true, DisplayType.NORMAL, "Text", "General Text" );
 		
 	    wind.add(txt);
   
@@ -205,6 +209,10 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
 		
 		if ( flAttr != null ){
 			txt.update(flAttr);
+		}
+		
+		if ( updateTemplate ) {
+			jetDlg.updateFlTemplate( txt );
 		}
 		
 		txt.setText(flInfo);
