@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.geospatial;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.opengis.referencing.FactoryException;
@@ -167,6 +168,27 @@ public class TransformFactory {
     }
 
     /**
+     * Constructs a transform from the "world" CRS of the crs passed in. null
+     * will be returned if no "world" crs exists.
+     * 
+     * @param crs
+     * @return
+     * @throws FactoryException
+     */
+    public static MathTransform worldToCRS(CoordinateReferenceSystem crs)
+            throws FactoryException {
+        CoordinateReferenceSystem worldCRS = crs;
+        while (worldCRS instanceof GeneralDerivedCRS) {
+            GeneralDerivedCRS derivedCRS = (GeneralDerivedCRS) worldCRS;
+            worldCRS = derivedCRS.getBaseCRS();
+        }
+        if (worldCRS != crs) {
+            return CRS.findMathTransform(worldCRS, crs);
+        }
+        return null;
+    }
+
+    /**
      * Constructs a transform from the "world" CRS of the target geometry to the
      * grid of the targetGeometry. Will return crsToGrid if no "world" CRS
      * exists.
@@ -178,23 +200,19 @@ public class TransformFactory {
      */
     public static MathTransform worldToGrid(GeneralGridGeometry targetGeometry,
             PixelInCell cellType) throws FactoryException {
-        CoordinateReferenceSystem crs = targetGeometry.getEnvelope()
-                .getCoordinateReferenceSystem();
         try {
-            if (crs instanceof GeneralDerivedCRS) {
-                GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
-                CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
-                MathTransform worldToCRS = CRSCache.getInstance()
-                        .findMathTransform(worldCRS, crs);
-
-                MathTransform crsToPixel = targetGeometry
-                        .getGridToCRS(cellType).inverse();
-                return factory.createConcatenatedTransform(worldToCRS,
-                        crsToPixel);
-            } else {
-                // No associated "world" CRS, go straight crs to grid
-                return targetGeometry.getGridToCRS(cellType).inverse();
+            CoordinateReferenceSystem crs = targetGeometry.getEnvelope()
+                    .getCoordinateReferenceSystem();
+            MathTransform worldToCRS = worldToCRS(crs);
+            MathTransform worldToGrid = targetGeometry.getGridToCRS(cellType)
+                    .inverse();
+            if (worldToCRS != null) {
+                worldToGrid = factory.createConcatenatedTransform(worldToCRS,
+                        worldToGrid);
             }
+            return worldToGrid;
+        } catch (FactoryException e) {
+            throw e;
         } catch (Exception e) {
             throw new FactoryException(e);
         }

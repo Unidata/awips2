@@ -1,19 +1,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-
-	<!-- bean id="jms-geomag" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIngestGeoMagConfig" />
-		<property name="taskExecutor" ref="geomagThreadPool" />		
-	</bean>
-	<bean id="jmsIngestGeoMagConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
-	<bean id="geomagThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean-->
 
 	<bean id="geomagDao" class="gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagDao">
 		<constructor-arg ref="geomagPluginName" />
@@ -34,6 +23,8 @@
 		<constructor-arg ref="geomag-camel"/>
   	</bean>
   	
+  	<bean id="trig1minCalc" class="gov.noaa.nws.ncep.edex.plugin.geomag.TrigKCalculation" />	
+	
     <camelContext id="geomag-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
@@ -50,7 +41,6 @@
 			<to uri="jms-generic:queue:Ingest.GeoMag" />
 		</route>
 		
-
 		<!-- Begin GeoMag routes -->
 		<route id="geomagIngestRoute">
 			<from uri="jms-generic:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
@@ -61,7 +51,7 @@
 				<pipeline>
 					<bean ref="stringToFile" />
 					<bean ref="geomagDecoder" method="decode" />
-					<to uri="direct-vm:persistIndexAlert" />
+					<to uri="direct-vm:indexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
@@ -69,12 +59,49 @@
 				</doCatch>
 			</doTry>
 		</route>
-
-		<!--route id="satNotification">
-			<from uri="vm:satNotify" />
-			<bean ref="satNotifyTransform" method="transformToMessages" />
-			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:queue:satNotification" />
-		</route-->
-	</camelContext>
+		
+		<route id="geomagCalcRoute">
+	        <from uri="jms-generic:topic:edex.alerts"/>
+	        <doTry>
+		          <pipeline>
+		          	<bean ref="serializationUtil" method="transformFromThrift" />
+		            <bean ref="trig1minCalc" method="trig1min"/>
+		          </pipeline>
+		          <doCatch>
+		             <exception>java.lang.Throwable</exception>
+		             <to uri="log:geomag?level=ERROR"/>
+		          </doCatch>
+	        </doTry>
+	    </route> 
+	</camelContext>	 
+	
+	
+	<!-- <camelContext id="calc1minContext" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
+		
+		<endpoint id="trig1minCalcCron" uri="clusteredquartz://purge/trig1minCalcScheduled/?cron=25 * * ? * *"/>  
+	    //   <endpoint id="calcLogsCron" uri="quartz://purge/purgeLogScheduled/?cron=${purge.logs.cron}"/>        
+		
+		<route id="purgeByRequest">
+			<from uri="jms-generic:queue:purgeRequest" /> 
+			<doTry>
+				<bean ref="purge" method="purge" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+		
+		
+		<route id="trig1minCalcScheduled">
+			<from ref="trig1minCalcCron" />
+			<bean ref="trig1minCalc" method="trig1min" />
+		</route>
+	</camelContext> 
+	<bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="calc1minContext" />
+  	</bean> -->	
 </beans>

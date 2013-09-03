@@ -28,7 +28,6 @@
          <displayValues>${displayValues}</displayValues>
          <symbolName>${symbolName}</symbolName>
          ${colorBar}
-         <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />

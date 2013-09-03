@@ -21,12 +21,16 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener.DisplayChangeType;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
@@ -65,7 +69,14 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		extends AbstractVizResource<AbstractNatlCntrsRequestableResourceData, IDescriptor>
 		implements INatlCntrsResource {	
 	
-	// 
+ 	// NOT USED now but may make sense to have a displayChange listener for all resources?
+ 	private class displayChangeListener implements IRenderableDisplayChangedListener {
+
+		@Override
+		public void renderableDisplayChanged(IDisplayPane pane,
+				IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+		}		
+	}
 	public static interface IRscDataObject {
 		abstract DataTime getDataTime();
 	}
@@ -156,6 +167,11 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 				endTime   = new DataTime( frameTime.getValidTime() );
 				break;
 			}
+			// This could be implemented by setting the frame span to infinite.
+			case MATCH_ALL_DATA : {
+				startTime = new DataTime( new Date(0) );
+		        endTime   = new DataTime( new Date(Long.MAX_VALUE) );
+			}
 			}
 			
 			startTimeMillis = startTime.getValidTime().getTimeInMillis();
@@ -176,6 +192,8 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			
 			switch( resourceData.getTimeMatchMethod() ) {
 
+			case MATCH_ALL_DATA : // everything is a perfect match. (for PGEN Resource)
+				return 0;
 			case EXACT : case EVENT : {
 				long frameTimeMillis = frameTime.getValidTime().getTimeInMillis();
 				

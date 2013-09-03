@@ -79,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     constructor to avoid duplicate data
  *                                     requests.
  * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
+ * Aug 27, 2013 2287       randerso    Removed 180 degree adjustment required by error
+ *                                     in Maputil.rotation
  * 
  * </pre>
  * 
@@ -174,7 +176,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                             crs2ll.transform(dp, dp);
                             Coordinate ll = new Coordinate(dp.x, dp.y);
                             float rot = (float) MapUtil.rotation(ll, geom);
-                            dir = (dir + rot + 180) % 360;
+                            dir = (dir + rot) % 360;
                             data.getScalarData().put(index, dir);
                         }
                     }
