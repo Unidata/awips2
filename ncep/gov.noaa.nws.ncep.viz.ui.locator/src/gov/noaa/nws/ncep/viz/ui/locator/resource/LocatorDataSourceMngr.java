@@ -2,7 +2,7 @@ package gov.noaa.nws.ncep.viz.ui.locator.resource;
 
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorDataSource.SourceType;
+import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorDataSource.LocatorType;
 
 import java.io.File;
 import java.io.FileNotFoundException;

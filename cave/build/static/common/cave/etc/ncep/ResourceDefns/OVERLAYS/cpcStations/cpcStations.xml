@@ -3,10 +3,11 @@
     <resourceDefnName>cpcStations</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-LpiFilename=cpcstns.lpi
+sourceType=LPI_FILE
+sourceName=cpcstns.lpi
 mapName=CPC Stations
     </resourceParameters>
-    <rscImplementation>LpiOverlay</rscImplementation>
+    <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

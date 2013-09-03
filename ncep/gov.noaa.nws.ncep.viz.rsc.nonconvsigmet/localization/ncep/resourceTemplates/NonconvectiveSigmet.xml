@@ -49,7 +49,6 @@
              <whiskeyEnable>${whiskeyEnable}</whiskeyEnable>
              <xrayEnable>${xrayEnable}</xrayEnable>
              <yankeeEnable>${yankeeEnable}</yankeeEnable>
-             <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />

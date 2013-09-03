@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.FontType;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -1224,15 +1225,10 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         return new GLImage(imageCallback, GLDefaultImagingExtension.class);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#initializeFont(java.io.File,
-     * float, com.raytheon.viz.core.drawables.IFont.Style[])
-     */
     @Override
-    public IFont initializeFont(File fontFile, float size, Style[] styles) {
-        return new GLFont(fontFile, size, styles);
+    public IFont initializeFont(File fontFile, FontType type, float size,
+            Style[] styles) {
+        return new GLFont(fontFile, type, size, styles);
     }
 
     /*
