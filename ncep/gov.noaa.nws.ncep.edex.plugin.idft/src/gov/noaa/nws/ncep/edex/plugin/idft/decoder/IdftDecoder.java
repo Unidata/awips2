@@ -1,31 +1,3 @@
-/**
- * 
- * IdftDecoder
- * 
- * Decoder Plug-In for IDFT (Ice Drift text files).
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 1 June 2009	   100		F. J. Yen	Initial creation
- * 5 Oct  2009	   100		F. J. Yen	Synchronized decode
- * 9 Dec  2009	   100		F. J. Yen	Modified from to11d3 to to11d6
- * 27 May 2010	   100		F. J. Yen	Migrated from to11dr3 to to11dr11
- * 27 Oct 2010	   100		F. J. Yen   For migration from to11dr11 to R1G1-4,
- *										added forecast time.
- * 
- * </pre>
- * 
- * @author Fee Jing Yen, SIB
- * @version 1
- * 
- *  * This code has been developed by the SIB for use in the AWIPS II system.
- * 
- */
-
 package gov.noaa.nws.ncep.edex.plugin.idft.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.idft.IdftRecord;
@@ -48,6 +20,32 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
+/**
+ * 
+ * IdftDecoder
+ * 
+ * Decoder Plug-In for IDFT (Ice Drift text files).
+ * 
+ * This code has been developed by the SIB for use in the AWIPS II system.
+ *
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ -------- ----------- --------------------------
+ * 1 June 2009  100      F. J. Yen   Initial creation
+ * 5 Oct  2009  100      F. J. Yen   Synchronized decode
+ * 9 Dec  2009  100      F. J. Yen   Modified from to11d3 to to11d6
+ * 27 May 2010  100      F. J. Yen   Migrated from to11dr3 to to11dr11
+ * 27 Oct 2010  100      F. J. Yen   For migration from to11dr11 to R1G1-4,
+ *                                   added forecast time.
+ * Aug 30, 2013 2298     rjpeter     Make getPluginName abstract
+ * </pre>
+ * 
+ * @author Fee Jing Yen, SIB
+ * @version 1
+ */
 public class IdftDecoder extends AbstractDecoder {
     // Name of the plugin controlling this decoder.
     public static String pluginName;
@@ -173,7 +171,6 @@ public class IdftDecoder extends AbstractDecoder {
         if (record != null) {
             try {
                 record.setTraceId(traceId);
-                record.setPluginName(pluginName);
                 record.constructDataURI();
             } catch (PluginException e) {
                 throw new DecoderException("Unable to construct dataURI", e);
@@ -184,7 +181,8 @@ public class IdftDecoder extends AbstractDecoder {
          */
         if (record == null) {
             return new PluginDataObject[0];
-        } else
+        } else {
             return new PluginDataObject[] { record };
+        }
     }
 }
