@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  *                                             drop the record by throwing an exception
  *                                          2. comment out the end check "if(record == null") 
  *                                             because it is a dead code.                
+ * Aug 08, 2013 1028            G. Hull     rm underscores from reportType and set mndTime in URI           
  * Aug 30, 2013 2298            rjpeter     Make getPluginName abstract
  * </pre>
  * 
@@ -277,8 +278,16 @@ public class AwwDecoder extends AbstractDecoder {
                 return new PluginDataObject[0];
             }
 
-            record.setReportType(reportType.trim().replace(' ', '_'));
+            record.setReportType(reportType.trim());
             record.setTraceId(traceId);
+            // Set MND remark before the URI is constructed
+            if ((mt.getMndTimeString() == null)
+                    || mt.getMndTimeString().trim().isEmpty()) {
+                record.setMndTime("unknown");
+            } else {
+                record.setMndTime(mt.getMndTimeString());
+            }
+
             try {
                 record.constructDataURI();
             } catch (PluginException e) {
@@ -290,9 +299,6 @@ public class AwwDecoder extends AbstractDecoder {
 
         // Decode and set attention line
         record.setAttentionWFO(AwwParser.processATTN(theBulletin));
-
-        // Set MND remark
-        record.setMndTime(mt.getMndTimeString());
 
         // Replace special characters to a blank so that it may be readable.
         if (theBulletin.length() < 40000) {
@@ -329,11 +335,4 @@ public class AwwDecoder extends AbstractDecoder {
         }
         return ("WWUS30".equalsIgnoreCase(ar.getWmoHeader()));
     }
-
-    // public static boolean isSevereWeatherStatus(AwwRecord awwReocrd) {
-    // boolean isSevereWeatherStatus = false;
-    // if("WOUS20".equalsIgnoreCase(awwReocrd.getWmoHeader()))
-    // isSevereWeatherStatus = true;
-    // return isSevereWeatherStatus;
-    // }
 }

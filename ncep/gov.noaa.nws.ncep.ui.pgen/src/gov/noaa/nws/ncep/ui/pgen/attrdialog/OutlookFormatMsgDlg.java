@@ -11,13 +11,19 @@ package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.elements.ProductTime;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
 import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
 
+import org.dom4j.Node;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -47,7 +53,8 @@ import org.eclipse.swt.widgets.Text;
  * 02/10			?		B. Yin   	Initial Creation. 
  * 03/12		#703		B. Yin		Generate product text from style sheet
  * 06/12		#786		B. Yin		Close all dialogs after text is saved.
- * 04/29        #977        S. Gilbert  PGEN Database support
+ * 04/29/13     #977        S. Gilbert  PGEN Database support
+ * 08/13		TTR 770		B. Yin		Handle no outlook, fixed the file name. 
  * 
  * </pre>
  * 
@@ -180,7 +187,7 @@ public class OutlookFormatMsgDlg extends Dialog {
             if (!fileName.isEmpty()) {
                 ofd.issueOutlook(otlk);
 
-                String dataURI = otlk.storeProduct(getFileName(otlk) + ".xml");
+                String dataURI = storeProduct(getFileName(otlk) + ".xml");
                 if (dataURI == null)
                     return;
 
@@ -208,23 +215,47 @@ public class OutlookFormatMsgDlg extends Dialog {
      * @return
      */
     private String getFileName(Outlook ol) {
-        String type = ol.getOutlookType();
+    	String type = "";
+        if ( ol != null ) {
+        	type = ol.getOutlookType();
+        }
+        else {
+        	//Should be the outlook type for the layer, but there is no outlook type in layer currently. 
+        	type = layer.getName();
+        	//type = ofd.getOtlkDlg().getOutlookType();
+        }
+        
         String name = "";
         if (type != null) {
             type = type.toUpperCase();
             String xpath = OutlookAttrDlg.OTLK_XPATH + "[@name='" + type + "']";
-            String prefix = OutlookAttrDlg.readOutlookTbl()
-                    .selectSingleNode(xpath).valueOf("@prefix");
+            String prefix = "";
+            Node nd = OutlookAttrDlg.readOutlookTbl()
+                    .selectSingleNode(xpath);
+            
+            if ( nd != null ) {
+            	prefix = nd.valueOf("@prefix");
+            }
+            
             if (prefix.isEmpty()) {
                 name += "outlook";
             } else {
-                name += prefix;
+                name += prefix + "outlook";
             }
         }
 
+      //  name += "_"
+      //          + ofd.getDays().toUpperCase().replace("-", "").replace(" ", "")
+      //                  .replace("FIRE", "");
+
+        String days = ofd.getDays();
+        
+        if ( days.contains("Enh")){
+        	days = "Day1";
+        }
+        
         name += "_"
-                + ofd.getDays().toUpperCase().replace("-", "").replace(" ", "")
-                        .replace("FIRE", "");
+                 + days.toUpperCase().replace("-", "").replace(" ", "");
         name += "_" + String.format("%1$td%1$tH%1$tM", ofd.getInitTime()) + "Z";
         return name;
 
@@ -234,9 +265,11 @@ public class OutlookFormatMsgDlg extends Dialog {
      * Re-order the outlook lines and re-generate the message
      */
     private void updatePressed() {
+    	if ( otlk != null ){
         // ofd.reorderOtlkLines();
         otlk.reorderLines();
         messageBox.setText(ofd.formatOtlk(otlk, layer));
+    }
     }
 
     /*
@@ -327,4 +360,49 @@ public class OutlookFormatMsgDlg extends Dialog {
     public Layer getLayer() {
         return layer;
     }
+    
+    /**
+     * Save this element to EDEX
+     * 
+     * @param filename
+     */
+    private String storeProduct(String label) {
+
+        String dataURI;
+
+        Layer defaultLayer = new Layer();
+        if ( otlk != null ) defaultLayer.addElement(otlk);
+        ArrayList<Layer> layerList = new ArrayList<Layer>();
+        layerList.add(defaultLayer);
+        
+        ProductTime refTime = null; 
+        String forecaster = "";
+        if ( otlk != null ){
+        	refTime = new ProductTime(otlk.getIssueTime());
+        	forecaster = otlk.getForecaster();
+        }
+        else {
+        	refTime = new ProductTime(Calendar.getInstance( TimeZone.getTimeZone("GMT") ));
+        	forecaster = ofd.getForecaster();
+        }
+
+        Product defaultProduct = new Product("", "OUTLOOK", forecaster, null,
+                refTime, layerList);
+
+        // Product defaultProduct = new Product();
+        // defaultProduct.addLayer(defaultLayer);
+
+        defaultProduct.setOutputFile(label);
+        defaultProduct.setCenter(PgenUtil.getCurrentOffice());
+
+        try {
+            dataURI = StorageUtils.storeProduct(defaultProduct);
+        } catch (PgenStorageException e) {
+            StorageUtils.showError(e);
+            return null;
+        }
+
+        return dataURI;
+    }
+
 }

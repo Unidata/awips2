@@ -8,10 +8,25 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
-import java.awt.Color;
+import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.clipper.ClipProduct;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
+import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
+
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,24 +38,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
 
-import gov.noaa.nws.ncep.edex.common.stationTables.Station;
-import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.clipper.ClipProduct;
-import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
-import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
-import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
-import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
-import gov.noaa.nws.ncep.ui.pgen.elements.Product;
-import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
-import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
-import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
@@ -48,12 +45,15 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
@@ -85,6 +85,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 07/12		#789		B. Yin		Change all time to UTC.
  * 11/12		?			B. Yin		Fixed the otlkAll exception.
  * 01/13		#966		B. Yin		Added clipping functions.
+ * 08/13		TTR783,773	B. Yin		Order outlook lines when formatting
+ * 										Added forecaster drop-down
  *
  * </pre>
  * 
@@ -98,6 +100,12 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	
 	private static HashMap<String,Polygon> bounds;
 	
+	//Order of labels in the outlook text message
+	private String[] orderedLabels = {"HIGH", "MDT", "SLGT", "TSTM", "NONE", "2%", "5%", "10%", "15%",
+			"25%", "30%", "35%", "40%", "45%", "50%", "60%", "70%", "75%", "HATCHED", "AREA",
+			"ISODRYT", "SCTDRYT", "DRY-TSTM", "ELEVATED", "CRITICAL", "EXTREME", "D3", "D4", "D5",
+			"D6", "D7", "D8", "D3-4", "D3-5", "D3-6", "D3-7", "D3-8", "D4-5", "D4-6", "D4-7", "D4-8",
+			"D5-6", "D5-7", "D5-8", "D6-6", "D6-8", "D7-8"};
 	//instance of the outlook attribute dialog
 	private OutlookAttrDlg otlkDlg;
 	
@@ -124,7 +132,8 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	private Text expTime;
 	
 	//forecaster name
-	private Text forecaster;
+	private Combo   forecasterCombo;
+	private static String lastForecaster = "";
 
 	/**
 	 * Protected constructor
@@ -224,14 +233,31 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		//forecaster
 		Label fcstLbl = new Label( top, SWT.NONE);
 		fcstLbl.setText("Forecaster:");
-		forecaster = new Text(top, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
+		forecasterCombo = new Combo(top, SWT.DROP_DOWN );
+		WatchCoordDlg.readForecasterTbl();
+		for ( String str : WatchCoordDlg.getForecasters() ){ //forecaster table should be put in a common place
+        	forecasterCombo.add(str);
+        }
+		
+		if ( !lastForecaster.isEmpty() ){
+			forecasterCombo.setText(lastForecaster);
+		}
+		
+		forecasterCombo.addModifyListener( new ModifyListener(){
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				lastForecaster = ((Combo)e.widget).getText();
+			}
+		});
+			
 		
 		//outlook type
 		Label typeLbl = new Label(top, SWT.None);
 		typeLbl.setText("Outlook Type:");
 		
 		Text typeTxt = new Text(top, SWT.SINGLE | SWT.RIGHT  );
-		typeTxt.setText(otlk.getOutlookType());
+		typeTxt.setText(getOutlookType());
 		typeTxt.setEditable(false);
 		
 		return top;
@@ -312,9 +338,9 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	 * Get the working Outlook element
 	 * @return - outlook element
 	 */
-	public Outlook getOutlook(){
-		return otlk;
-	}
+//	public Outlook getOutlook(){
+//		return otlk;
+//	}
 	
 	/**
 	 * Get expiration time
@@ -397,18 +423,34 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		for ( Product pd : otlkDlg.drawingLayer.getProducts()){
 			for ( Layer layer : pd.getLayers() ){
 				Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
+				Outlook lk = null;
+				boolean hailFound = false;
+
 				while ( it.hasNext() ){
 					AbstractDrawableComponent adc = it.next();
 					if ( adc.getName().equalsIgnoreCase("Outlook") &&
 							!adc.getPgenType().equalsIgnoreCase("hail") ){
 						
+						lk = (Outlook)adc;
+						break;
+					}
+					else if (adc.getName().equalsIgnoreCase("Outlook") &&
+						 adc.getPgenType().equalsIgnoreCase("hail") ){
+						hailFound = true;
+						
+					}
+				} // end while loop
+				
+				//skip hail since it's always done first. 
+				if ( hailFound ) continue;
+				
 						if ( msgDlg != null ){
 							msgDlg.close();
 						}
 							msgDlg = new OutlookFormatMsgDlg(OutlookFormatDlg.this.getParentShell(),
-									OutlookFormatDlg.this, (Outlook)adc, layer);
+						OutlookFormatDlg.this, lk, layer);
 							msgDlg.setBlockOnOpen(true);
-							msgDlg.setMessage(formatOtlk((Outlook)adc, layer));
+				msgDlg.setMessage(formatOtlk(lk, layer));
 
 							int rt = msgDlg.open();
 							
@@ -420,12 +462,8 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 						}
 						*/
 						
-						
-						break;
-					}
-				}
-			}
-		}
+			}  // end layer loop
+		} // end product loop
 		
 		cleanup();
 
@@ -447,24 +485,20 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	 */
 	private String generateOutlookMsg( Outlook ol, Layer layer){
 		String msg ="";
-	/*	
-		if ( !ol.getOutlookType().equalsIgnoreCase("EXCE_RAIN")) {
+
+		if ( ol == null ) {
 
 			//days
 			msg += formatDays().toUpperCase() + "\n";
 
 			//forecaster
-			msg += forecaster.getText().toUpperCase() + "\n";
+			msg += getForecaster().toUpperCase() + "\n";
 
 			//initial time - expiration time
 			msg += String.format("%1$td%1$tH%1$tMZ", getInitTime()) +" - " +
 			String.format("%1$td%1$tH%1$tMZ", getExpTime()) +"\n";
 		}
-		
-		//get line info for all outlooks
-		//msg += generateLineInfo( ol, "\n");
-		msg += ol.generateLineInfo("\n");
-	*/
+		else {
 		Layer defaultLayer = otlkDlg.drawingLayer.getActiveLayer().copy();
 		defaultLayer.clear();
 
@@ -532,7 +566,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 				}
 			}
 		}
-		
+		}
 		return msg;
 	}
 	
@@ -565,7 +599,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	 * @return
 	 */
 	public String formatOtlk(Outlook ol, Layer layer){
-		otlkDlg.showContLines(ol);
+		if ( ol != null ) otlkDlg.showContLines(ol);
 		return generateOutlookMsg(ol, layer);
 	}
 	
@@ -574,7 +608,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	 * @return
 	 */
 	public String getForecaster(){
-		return forecaster.getText();
+		return forecasterCombo.getText();
 	}
 	
 	/**
@@ -723,11 +757,14 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	 * @param ol
 	 */
 	public Outlook issueOutlook( Outlook ol ){
+		if ( ol != null ) {
+			reorder(ol);
 		ol.setForecaster(getForecaster().toUpperCase());
 		ol.setDays(getDays().toUpperCase());
 		ol.setIssueTime(getInitTime());
 		ol.setExpirationTime(getExpTime());
 		ol.setLineInfo(generateLineInfo(ol, "new_line"));
+		}
 		return ol;
 	}
 
@@ -762,7 +799,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		int ret =0;
 		try {
 			String hm = txt.getText();
-			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ), hm.length()-1);
+			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ));
 		}
 		catch (Exception e ){
 			
@@ -1042,4 +1079,66 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 
 	}
 
+	/**
+	 * Order outlook lines by label
+	 * @param otlk
+	 */
+	private void reorder( Outlook otlk ){
+		List<AbstractDrawableComponent> ordered = new ArrayList<AbstractDrawableComponent>();
+
+		for ( String str : orderedLabels ){
+			int ii = 0;
+			Iterator<AbstractDrawableComponent>  it = otlk.getComponentIterator();
+			while ( it.hasNext() ){
+				boolean found = false;
+				AbstractDrawableComponent adc = it.next();
+				Iterator<AbstractDrawableComponent>  it1 = null;
+				if (adc.getName().equalsIgnoreCase(
+						Outlook.OUTLOOK_LABELED_LINE)) {
+					it1 = ((DECollection)adc).getComponentIterator();
+				}
+				else if (adc.getName().equalsIgnoreCase(
+						Outlook.OUTLOOK_LINE_GROUP)) {
+					if ( ((DECollection)adc).getItemAt(0).getName().equalsIgnoreCase(
+							Outlook.OUTLOOK_LABELED_LINE)) {
+						it1 = ((DECollection)((DECollection)adc).getItemAt(0)).getComponentIterator(); 
+					}
+				}
+				
+				if ( it1 == null ) continue;
+				
+				while ( it1.hasNext() ){ 
+					AbstractDrawableComponent adcInside = it1.next();
+
+					if ( adcInside instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) { 
+						if ( ((gov.noaa.nws.ncep.ui.pgen.elements.Text)adcInside).getText()[0].equalsIgnoreCase(str)){
+							found = true;
+							break;
+						}
+					}
+				}
+
+				if ( found ){
+					ordered.add(adc);
+					it.remove();
+					ii++;
+				}
+
+			}
+		}
+
+		if ( !ordered.isEmpty() ){
+			otlk.add( ordered );
+		}
+	}
+	
+	private String getOutlookType(){
+		if ( otlk != null ){
+			return otlk.getOutlookType(); 
+		}
+		else {
+			return otlkDlg.getOutlookType();
+		}
+		
+	}
 }

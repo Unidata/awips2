@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 03/12		#703		B. Yin		Generate product text from style sheet
  * 05/12		#769, 776	B. Yin		Added UTC time. Carry over info to WatchFormat dialog.
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 08/13		TTR 795		B. Yin		Remember forecaster name, set issue time.
  * </pre>
  * 
  * @author B. Yin
@@ -268,6 +269,9 @@ public class WatchCoordDlg extends CaveJFACEDialog {
         for (String str : FORECASTERS) {
             forecasterCombo.add(str);
         }
+    	if ( wbDlg.getWatchBox().getForecaster() != null ){
+			forecasterCombo.setText(wbDlg.getWatchBox().getForecaster());
+    	}
 
         // Create replace watch number text
         Label replaceLbl = new Label(panel1, SWT.LEFT);
@@ -410,6 +414,7 @@ public class WatchCoordDlg extends CaveJFACEDialog {
             // if anything wrong, don't set the watch replace number
         }
         wb.setExpTime(this.getExpirationTime());
+		wb.setIssueTime(Calendar.getInstance( TimeZone.getTimeZone("GMT") ));
     }
 
     /**
