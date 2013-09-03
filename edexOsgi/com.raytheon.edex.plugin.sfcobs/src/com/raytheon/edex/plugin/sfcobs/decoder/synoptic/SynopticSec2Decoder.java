@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
  * 20071109            391 jkorman     Added guard for short data.
+ * 2013/8			757	   	T. Lee		Checked missing wave height from ship report 
  * 
  * </pre>
  * 
@@ -254,7 +255,7 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
                     wavePeriod = null;
                 }
             }
-            if(waveHeight != null) {
+            if((waveHeight != null) && (waveHeight >=0) ) {
                 receiver.setWaveHeight(waveHeight.doubleValue() * 0.5);
             }
             if(windWavePeriod != null) {
@@ -265,7 +266,7 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
                     windWavePeriod = null;
                 }
             }
-            if(windWaveHeight != null) {
+            if((windWaveHeight != null) && (windWaveHeight >=0) ) {
                 receiver.setWindWaveHeight(windWaveHeight.doubleValue() * 0.5);
             }
             if ((wavePeriod != null) && (waveHeight != null)) {

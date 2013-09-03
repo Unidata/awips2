@@ -20,8 +20,9 @@
 package com.raytheon.viz.texteditor.command;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -46,6 +47,7 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013            rferrel     Initial creation
+ * Aug 23, 2013 DR 16514   D. Friedman Fix accum/cancel logic.
  * 
  * </pre>
  * 
@@ -60,81 +62,52 @@ public class ProductQueryJob extends Job {
     private final IProductQueryCallback callback;
 
     /**
-     * flag to indicate request accumulate.
-     */
-    private boolean accumulate;
-
-    /**
      * List queries to perform.
      */
     private final List<Request> requests;
+
+    /**
+     * Set of queries main thread is waiting for.
+     */
+    private final Set<Request> expected;
 
     /**
      * Transport to use for the queries.
      */
     private final IQueryTransport queryTransport;
 
-    /**
-     * Flag to indicate cancel is being performed.
-     */
-    private final AtomicBoolean canceled;
-
     public ProductQueryJob(IProductQueryCallback callback) {
         super("Product Query");
         setSystem(true);
         this.callback = callback;
-        accumulate = false;
         requests = new ArrayList<Request>();
+        expected = new HashSet<Request>();
         queryTransport = TextEditorUtil.getTextDbsrvTransport();
-        canceled = new AtomicBoolean(false);
     }
 
     /**
-     * Add request to queue and determine what needs to be done to schedule the
-     * request.
+     * Add request to queue.  If not an incremental update, cancel
+     * existing requests.
      * 
      * @param command
      * @param isObsUpdated
-     */
-    public synchronized void addRequest(ICommand command, boolean isObsUpdated) {
-        Request request = new Request(command, isObsUpdated);
-        if (accumulate) {
-            requests.add(request);
-            if (getState() == Job.NONE) {
-                schedule();
-            }
-        } else {
-            requests.clear();
-            requests.add(request);
-            if (getState() == Job.NONE) {
-                schedule();
-            } else {
-                cancel();
-            }
-        }
-    }
-
-    public boolean isAccumulate() {
-        return accumulate;
-    }
-
-    /**
-     * When set to true requests will accumulate and be processed in the order
-     * received; otherwise the queue is purged and any current request is
-     * canceled if a new request is received.
-     * 
      * @param accumulate
      */
-    public void setAccumulate(boolean accumulate) {
-        if (this.accumulate != accumulate) {
-            synchronized (this) {
-                requests.clear();
-                if (getState() != Job.NONE) {
-                    cancel();
-                }
-                this.accumulate = accumulate;
-            }
+    public synchronized void addRequest(ICommand command, boolean isObsUpdated,
+            boolean accumulate) {
+        Request request = new Request(command, isObsUpdated);
+        if (! accumulate && ! isObsUpdated) {
+            // Cancel existing requests.
+            expected.clear();
+            requests.clear();
         }
+        requests.add(request);
+        expected.add(request);
+        schedule();
+    }
+
+    public boolean isExpectingRequests() {
+        return ! expected.isEmpty();
     }
 
     /*
@@ -149,63 +122,42 @@ public class ProductQueryJob extends Job {
             return Status.OK_STATUS;
         }
 
-        Request request = null;
-        try {
-            while (true) {
-                synchronized (this) {
-                    if (requests.size() > 0) {
-                        request = requests.remove(0);
-                    } else {
-                        break;
-                    }
+        while (true) {
+            final Request request;
+            synchronized (this) {
+                if (requests.size() > 0) {
+                    request = requests.remove(0);
+                } else {
+                    break;
                 }
+            }
 
+            List<StdTextProduct> prodList = null;
+            try {
                 try {
-                    final ICommand command = request.getCommand();
-                    final boolean isObsUpdated = request.isObsUpdated();
-                    final List<StdTextProduct> prodList = command
-                            .executeCommand(queryTransport);
-                    // User may have canceled during long query.
-                    if (!canceled.get()) {
-                        VizApp.runAsync(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                callback.requestDone(command, prodList,
-                                        isObsUpdated);
-                            }
-                        });
-                    } else {
-                        break;
-                    }
+                    prodList = request.getCommand().
+                            executeCommand(queryTransport);
                 } catch (CommandFailedException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
-                    if (!canceled.get()) {
-                        VizApp.runAsync(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                callback.requestDone(null, null, false);
-                            }
-                        });
-                    }
                 }
+            } finally {
+                final List<StdTextProduct> resultProdList = prodList;
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (expected.remove(request) && resultProdList != null) {
+                            callback.requestDone(request.getCommand(), resultProdList,
+                                    request.isObsUpdated());
+                        } else {
+                            callback.requestDone(null, null, false);
+                        }
+                    }
+                });
             }
-        } finally {
-            canceled.set(false);
         }
         return Status.OK_STATUS;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.runtime.jobs.Job#canceling()
-     */
-    @Override
-    protected void canceling() {
-        canceled.set(true);
     }
 
     /*
