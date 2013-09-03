@@ -637,7 +637,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		fmtBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if ( de != null ){
+			/*	if ( de != null ){
 					if(fmtDlg == null || ( fmtDlg != null && fmtDlg.getShell() == null ) ) {
 						Outlook otlk = null;
 						if ( de.getParent().getParent() instanceof Outlook ){
@@ -648,11 +648,11 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 							otlk = (Outlook)de.getParent().getParent().getParent();
 						}
 						if ( otlk != null ) {
-							fmtDlg = new OutlookFormatDlg(OutlookAttrDlg.this.getParentShell(), OutlookAttrDlg.this, otlk);
+				*/			fmtDlg = new OutlookFormatDlg(OutlookAttrDlg.this.getParentShell(), OutlookAttrDlg.this, findOtlk());
 							fmtDlg.open();
-						}
-					}
-				}
+			//			}
+			//		}
+			//	}
 			}
 		});
 		
@@ -1480,7 +1480,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	 */
 	public void setOtlkType( String type ){
 		int idx = outlookCombo.indexOf(type.toUpperCase());
-		if ( idx > 0 ){
+		if ( idx >= 0 ){
 			outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
 			setDefaultLabels( this.getOutlookType());
 			setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
@@ -1894,5 +1894,44 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		return needFromLine;
 	}
 	
+	/**
+	 * Find the outlook to format.
+	 * 1. check if an outlook is selected
+	 * 2. get the first outlook in the layer
+	 * 3. null
+	 * @return
+	 */
+	private Outlook findOtlk(){
+		Outlook otlk = null;
+		
+		//check selected DE
+		//Comment out because the selected outlook may not be the same type of the active layer
+	/*	AbstractDrawableComponent selected =  drawingLayer.getSelectedComp();
+		if ( selected != null ){
+			if ( selected.getParent().getParent() instanceof Outlook ){
+				otlk = (Outlook)selected.getParent().getParent();
+			}
+			else if ( selected.getParent().getParent().getParent() != null && 
+					selected.getParent().getParent().getParent()instanceof Outlook){
+				otlk = (Outlook)selected.getParent().getParent().getParent();
+			}
+
+
+
+		}
+		//loop through the layer
+		else {
+		*/	Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
+			while ( it.hasNext() ){
+				AbstractDrawableComponent adc = it.next();
+				if (adc  instanceof Outlook && ((Outlook)adc).getOutlookType().equalsIgnoreCase(getOutlookType())){
+					otlk = (Outlook) adc;
+					break;
+				}
+			}
+	//	}
+		
+		return otlk;
+	}
 
 }

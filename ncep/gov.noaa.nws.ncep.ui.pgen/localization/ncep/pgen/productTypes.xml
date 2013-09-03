@@ -503,6 +503,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
@@ -575,6 +583,14 @@
                 <ns3:Name>JET</ns3:Name>
                 <ns3:Name>Cloud</ns3:Name>
                 <ns3:Name>Turbulence</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
@@ -651,6 +667,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
@@ -723,6 +747,14 @@
                 <ns3:Name>JET</ns3:Name>
                 <ns3:Name>Cloud</ns3:Name>
                 <ns3:Name>Turbulence</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
@@ -799,6 +831,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
@@ -873,6 +913,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_High.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Exeter SIGWX High" Subtype="North">
@@ -933,6 +981,14 @@
                 <ns3:Name>JET</ns3:Name>
                 <ns3:Name>Cloud</ns3:Name>
                 <ns3:Name>Turbulence</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_High.North.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -997,6 +1053,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_High.South.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Exeter SIGWX High" Subtype="Final">
@@ -1059,6 +1123,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_High.Final.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Exeter SIGWX High" Subtype="Ukmet Final">
@@ -1119,6 +1191,14 @@
                 <ns3:Name>JET</ns3:Name>
                 <ns3:Name>Cloud</ns3:Name>
                 <ns3:Name>Turbulence</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_High.Ukmet_Final.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1184,6 +1264,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenSave outputFile="SIGWX_Medium.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="SIGWX Medium" Subtype="Working">
@@ -1245,6 +1333,14 @@
                 <ns3:Name>JET</ns3:Name>
                 <ns3:Name>Cloud</ns3:Name>
                 <ns3:Name>Turbulence</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="SIGWX_Medium.Working.14092011.10.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1310,6 +1406,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenSave outputFile="SIGWX_Medium.Ukmet_Working.14092011.10.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Exeter SIGWX Medium" Subtype="None">
@@ -1373,6 +1477,14 @@
                 <ns3:Name>Turbulence</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_Medium.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Exeter SIGWX Medium" Subtype="Working">
@@ -1434,6 +1546,14 @@
                 <ns3:Name>JET</ns3:Name>
                 <ns3:Name>Cloud</ns3:Name>
                 <ns3:Name>Turbulence</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="Exeter_SIGWX_Medium.Working.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1544,6 +1664,15 @@
                 <ns3:Name>LINE_DASHED_3</ns3:Name>
                 <ns3:Name>LINE_DASHED_6</ns3:Name>
                 <ns3:Name>SCALLOPED</ns3:Name>
+                <ns3:Name>ZIGZAG</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
@@ -1609,6 +1738,15 @@
                 <ns3:Name>LINE_DASHED_3</ns3:Name>
                 <ns3:Name>LINE_DASHED_6</ns3:Name>
                 <ns3:Name>SCALLOPED</ns3:Name>
+                <ns3:Name>ZIGZAG</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
@@ -1674,6 +1812,15 @@
                 <ns3:Name>LINE_DASHED_3</ns3:Name>
                 <ns3:Name>LINE_DASHED_6</ns3:Name>
                 <ns3:Name>SCALLOPED</ns3:Name>
+                <ns3:Name>ZIGZAG</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
@@ -1739,6 +1886,15 @@
                 <ns3:Name>LINE_DASHED_3</ns3:Name>
                 <ns3:Name>LINE_DASHED_6</ns3:Name>
                 <ns3:Name>SCALLOPED</ns3:Name>
+                <ns3:Name>ZIGZAG</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
@@ -1804,6 +1960,15 @@
                 <ns3:Name>LINE_DASHED_3</ns3:Name>
                 <ns3:Name>LINE_DASHED_6</ns3:Name>
                 <ns3:Name>SCALLOPED</ns3:Name>
+                <ns3:Name>ZIGZAG</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
+        <ns3:PgenClass Name="Vector">
+            <ns3:PgenObjects>
+                <ns3:Name>Arrow</ns3:Name>
+                <ns3:Name>Barb</ns3:Name>
+                <ns3:Name>Directional</ns3:Name>
+                <ns3:Name>Hash</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
@@ -9849,449 +10014,6 @@
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="SAB_Precip.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns3:ProductType>
-    <ns3:ProductType Name="" Type="temp" Subtype="None">
-        <ns3:PgenControls>
-            <ns3:Name>Open</ns3:Name>
-            <ns3:Name>Save</ns3:Name>
-            <ns3:Name>Save As</ns3:Name>
-            <ns3:Name>Exit</ns3:Name>
-            <ns3:Name>Restore</ns3:Name>
-            <ns3:Name>Refresh</ns3:Name>
-            <ns3:Name>Start Layer</ns3:Name>
-            <ns3:Name>Save All</ns3:Name>
-            <ns3:Name>ProdCtrl</ns3:Name>
-        </ns3:PgenControls>
-        <ns3:PgenActions>
-            <ns3:Name>Select</ns3:Name>
-            <ns3:Name>Modify</ns3:Name>
-            <ns3:Name>Connect</ns3:Name>
-            <ns3:Name>MultiSelect</ns3:Name>
-            <ns3:Name>Move</ns3:Name>
-            <ns3:Name>Delete</ns3:Name>
-            <ns3:Name>Copy</ns3:Name>
-            <ns3:Name>Rotate</ns3:Name>
-            <ns3:Name>Flip</ns3:Name>
-            <ns3:Name>Delete Point</ns3:Name>
-            <ns3:Name>Delete Part</ns3:Name>
-            <ns3:Name>Delete Obj</ns3:Name>
-            <ns3:Name>Delete All</ns3:Name>
-            <ns3:Name>Undo</ns3:Name>
-            <ns3:Name>Redo</ns3:Name>
-            <ns3:Name>Extrap</ns3:Name>
-            <ns3:Name>Interp</ns3:Name>
-            <ns3:Name>Filter</ns3:Name>
-            <ns3:Name>From</ns3:Name>
-            <ns3:Name>PROD_AIRMET</ns3:Name>
-            <ns3:Name>Cycle</ns3:Name>
-            <ns3:Name>Add Point</ns3:Name>
-            <ns3:Name>Add Point Alt</ns3:Name>
-            <ns3:Name>Distance</ns3:Name>
-            <ns3:Name>IncDec</ns3:Name>
-        </ns3:PgenActions>
-        <ns3:PgenClass Name="Front">
-            <ns3:PgenObjects>
-                <ns3:Name>COLD_FRONT</ns3:Name>
-                <ns3:Name>COLD_FRONT_FORM</ns3:Name>
-                <ns3:Name>COLD_FRONT_DISS</ns3:Name>
-                <ns3:Name>WARM_FRONT</ns3:Name>
-                <ns3:Name>WARM_FRONT_FORM</ns3:Name>
-                <ns3:Name>WARM_FRONT_DISS</ns3:Name>
-                <ns3:Name>STATIONARY_FRONT</ns3:Name>
-                <ns3:Name>STATIONARY_FRONT_FORM</ns3:Name>
-                <ns3:Name>STATIONARY_FRONT_DISS</ns3:Name>
-                <ns3:Name>OCCLUDED_FRONT</ns3:Name>
-                <ns3:Name>OCCLUDED_FRONT_FORM</ns3:Name>
-                <ns3:Name>OCCLUDED_FRONT_DISS</ns3:Name>
-                <ns3:Name>TROF</ns3:Name>
-                <ns3:Name>TROPICAL_TROF</ns3:Name>
-                <ns3:Name>DRY_LINE</ns3:Name>
-                <ns3:Name>INSTABILITY</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Combo">
-            <ns3:PgenObjects>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_051</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_063</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_080</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_095</ns3:Name>
-                <ns3:Name>PRESENT_WX_063|PRESENT_WX_065</ns3:Name>
-                <ns3:Name>PRESENT_WX_063|PRESENT_WX_080</ns3:Name>
-                <ns3:Name>PRESENT_WX_063|PRESENT_WX_095</ns3:Name>
-                <ns3:Name>PRESENT_WX_065|PRESENT_WX_080</ns3:Name>
-                <ns3:Name>PRESENT_WX_065|PRESENT_WX_095</ns3:Name>
-                <ns3:Name>PRESENT_WX_051|PRESENT_WX_056</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_056</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_066</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_071</ns3:Name>
-                <ns3:Name>PRESENT_WX_071|PRESENT_WX_073</ns3:Name>
-                <ns3:Name>PRESENT_WX_073|PRESENT_WX_075</ns3:Name>
-                <ns3:Name>PRESENT_WX_071|PRESENT_WX_085</ns3:Name>
-                <ns3:Name>PRESENT_WX_073|PRESENT_WX_085</ns3:Name>
-                <ns3:Name>PRESENT_WX_075|PRESENT_WX_085</ns3:Name>
-                <ns3:Name>PRESENT_WX_071|PRESENT_WX_105</ns3:Name>
-                <ns3:Name>PRESENT_WX_073|PRESENT_WX_105</ns3:Name>
-                <ns3:Name>PRESENT_WX_075|PRESENT_WX_105</ns3:Name>
-                <ns3:Name>PRESENT_WX_080|PRESENT_WX_095</ns3:Name>
-                <ns3:Name>PRESENT_WX_080|PRESENT_WX_085</ns3:Name>
-                <ns3:Name>PRESENT_WX_061|PRESENT_WX_079</ns3:Name>
-                <ns3:Name>PRESENT_WX_079|PRESENT_WX_066</ns3:Name>
-                <ns3:Name>PRESENT_WX_071|PRESENT_WX_079</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Symbol">
-            <ns3:PgenObjects>
-                <ns3:Name>FILLED_HIGH_PRESSURE_H</ns3:Name>
-                <ns3:Name>FILLED_LOW_PRESSURE_L</ns3:Name>
-                <ns3:Name>HIGH_PRESSURE_H</ns3:Name>
-                <ns3:Name>LOW_PRESSURE_L</ns3:Name>
-                <ns3:Name>SQUARE</ns3:Name>
-                <ns3:Name>FILLED_SQUARE</ns3:Name>
-                <ns3:Name>CIRCLE</ns3:Name>
-                <ns3:Name>FILLED_CIRCLE</ns3:Name>
-                <ns3:Name>TRIANGLE_SPCL</ns3:Name>
-                <ns3:Name>FILLED_TRIANGLE_SPCL</ns3:Name>
-                <ns3:Name>DIAMOND_SPCL</ns3:Name>
-                <ns3:Name>FILLED_DIAMOND_SPCL</ns3:Name>
-                <ns3:Name>STAR_SPCL</ns3:Name>
-                <ns3:Name>FILLED_STAR_SPCL</ns3:Name>
-                <ns3:Name>SINGLE_BRACKET</ns3:Name>
-                <ns3:Name>BOTTOM_HALF_OF_BRACKET</ns3:Name>
-                <ns3:Name>TOP_HALF_OF_BRACKET</ns3:Name>
-                <ns3:Name>LEFT_ADJUSTED_VERTICAL_BAR</ns3:Name>
-                <ns3:Name>RIGHT_ADJUSTED_VERTICAL_BAR</ns3:Name>
-                <ns3:Name>BRACKET_WITH_ONE_CIRCLE</ns3:Name>
-                <ns3:Name>BRACKET_WITH_TWO_CIRCLES</ns3:Name>
-                <ns3:Name>BRACKET_WITH_ONE_ASTERISK</ns3:Name>
-                <ns3:Name>BRACKET_WITH_TWO_ASTERISKS</ns3:Name>
-                <ns3:Name>BRACKET_WITH_ONE_TRIANGLE</ns3:Name>
-                <ns3:Name>BRACKET_WITH_TWO_TRIANGLES</ns3:Name>
-                <ns3:Name>TROPICAL_STORM_NH</ns3:Name>
-                <ns3:Name>HURRICANE_NH</ns3:Name>
-                <ns3:Name>TROPICAL_STORM_SH</ns3:Name>
-                <ns3:Name>HURRICANE_SH</ns3:Name>
-                <ns3:Name>TRIANGLE_WITH_ANTENNA</ns3:Name>
-                <ns3:Name>SIDEWAYS_S</ns3:Name>
-                <ns3:Name>SLASH</ns3:Name>
-                <ns3:Name>STORM_CENTER</ns3:Name>
-                <ns3:Name>TROPICAL_DEPRESSION</ns3:Name>
-                <ns3:Name>TROPICAL_CYCLONE</ns3:Name>
-                <ns3:Name>FLAME</ns3:Name>
-                <ns3:Name>X_CROSS</ns3:Name>
-                <ns3:Name>LOW_X_OUTLINE</ns3:Name>
-                <ns3:Name>LOW_X_FILLED</ns3:Name>
-                <ns3:Name>TROPICAL_STORM_NH_WPAC</ns3:Name>
-                <ns3:Name>TROPICAL_STORM_SH_WPAC</ns3:Name>
-                <ns3:Name>NUCLEAR_FALLOUT</ns3:Name>
-                <ns3:Name>LETTER_A</ns3:Name>
-                <ns3:Name>LETTER_A_FILLED</ns3:Name>
-                <ns3:Name>LETTER_C</ns3:Name>
-                <ns3:Name>LETTER_C_FILLED</ns3:Name>
-                <ns3:Name>LETTER_X</ns3:Name>
-                <ns3:Name>LETTER_X_FILLED</ns3:Name>
-                <ns3:Name>LETTER_N</ns3:Name>
-                <ns3:Name>LETTER_N_FILLED</ns3:Name>
-                <ns3:Name>30_KT_BARB</ns3:Name>
-                <ns3:Name>MT_WAVE</ns3:Name>
-                <ns3:Name>MT_OBSC</ns3:Name>
-                <ns3:Name>SFC_WND_20K</ns3:Name>
-                <ns3:Name>SFC_WND_30K</ns3:Name>
-                <ns3:Name>LETTER_B</ns3:Name>
-                <ns3:Name>LETTER_B_FILLED</ns3:Name>
-                <ns3:Name>UP_ARROW_SPCL</ns3:Name>
-                <ns3:Name>DOWN_ARROW_SPCL</ns3:Name>
-                <ns3:Name>PRESENT_WX_000</ns3:Name>
-                <ns3:Name>PRESENT_WX_001</ns3:Name>
-                <ns3:Name>PRESENT_WX_002</ns3:Name>
-                <ns3:Name>PRESENT_WX_003</ns3:Name>
-                <ns3:Name>PRESENT_WX_004</ns3:Name>
-                <ns3:Name>PRESENT_WX_005</ns3:Name>
-                <ns3:Name>PRESENT_WX_006</ns3:Name>
-                <ns3:Name>PRESENT_WX_007</ns3:Name>
-                <ns3:Name>PRESENT_WX_008</ns3:Name>
-                <ns3:Name>PRESENT_WX_009</ns3:Name>
-                <ns3:Name>PRESENT_WX_010</ns3:Name>
-                <ns3:Name>PRESENT_WX_011</ns3:Name>
-                <ns3:Name>PRESENT_WX_012</ns3:Name>
-                <ns3:Name>PRESENT_WX_013</ns3:Name>
-                <ns3:Name>PRESENT_WX_014</ns3:Name>
-                <ns3:Name>PRESENT_WX_015</ns3:Name>
-                <ns3:Name>PRESENT_WX_016</ns3:Name>
-                <ns3:Name>PRESENT_WX_017</ns3:Name>
-                <ns3:Name>PRESENT_WX_018</ns3:Name>
-                <ns3:Name>PRESENT_WX_019</ns3:Name>
-                <ns3:Name>PRESENT_WX_020</ns3:Name>
-                <ns3:Name>PRESENT_WX_021</ns3:Name>
-                <ns3:Name>PRESENT_WX_022</ns3:Name>
-                <ns3:Name>PRESENT_WX_023</ns3:Name>
-                <ns3:Name>PRESENT_WX_024</ns3:Name>
-                <ns3:Name>PRESENT_WX_025</ns3:Name>
-                <ns3:Name>PRESENT_WX_026</ns3:Name>
-                <ns3:Name>PRESENT_WX_027</ns3:Name>
-                <ns3:Name>PRESENT_WX_028</ns3:Name>
-                <ns3:Name>PRESENT_WX_029</ns3:Name>
-                <ns3:Name>PRESENT_WX_030</ns3:Name>
-                <ns3:Name>PRESENT_WX_031</ns3:Name>
-                <ns3:Name>PRESENT_WX_032</ns3:Name>
-                <ns3:Name>PRESENT_WX_033</ns3:Name>
-                <ns3:Name>PRESENT_WX_034</ns3:Name>
-                <ns3:Name>PRESENT_WX_035</ns3:Name>
-                <ns3:Name>PRESENT_WX_036</ns3:Name>
-                <ns3:Name>PRESENT_WX_037</ns3:Name>
-                <ns3:Name>PRESENT_WX_038</ns3:Name>
-                <ns3:Name>PRESENT_WX_039</ns3:Name>
-                <ns3:Name>PRESENT_WX_040</ns3:Name>
-                <ns3:Name>PRESENT_WX_041</ns3:Name>
-                <ns3:Name>PRESENT_WX_042</ns3:Name>
-                <ns3:Name>PRESENT_WX_043</ns3:Name>
-                <ns3:Name>PRESENT_WX_044</ns3:Name>
-                <ns3:Name>PRESENT_WX_045</ns3:Name>
-                <ns3:Name>PRESENT_WX_046</ns3:Name>
-                <ns3:Name>PRESENT_WX_047</ns3:Name>
-                <ns3:Name>PRESENT_WX_048</ns3:Name>
-                <ns3:Name>PRESENT_WX_049</ns3:Name>
-                <ns3:Name>PRESENT_WX_050</ns3:Name>
-                <ns3:Name>PRESENT_WX_051</ns3:Name>
-                <ns3:Name>PRESENT_WX_052</ns3:Name>
-                <ns3:Name>PRESENT_WX_053</ns3:Name>
-                <ns3:Name>PRESENT_WX_054</ns3:Name>
-                <ns3:Name>PRESENT_WX_055</ns3:Name>
-                <ns3:Name>PRESENT_WX_056</ns3:Name>
-                <ns3:Name>PRESENT_WX_057</ns3:Name>
-                <ns3:Name>PRESENT_WX_058</ns3:Name>
-                <ns3:Name>PRESENT_WX_059</ns3:Name>
-                <ns3:Name>PRESENT_WX_060</ns3:Name>
-                <ns3:Name>PRESENT_WX_061</ns3:Name>
-                <ns3:Name>PRESENT_WX_062</ns3:Name>
-                <ns3:Name>PRESENT_WX_063</ns3:Name>
-                <ns3:Name>PRESENT_WX_064</ns3:Name>
-                <ns3:Name>PRESENT_WX_065</ns3:Name>
-                <ns3:Name>PRESENT_WX_066</ns3:Name>
-                <ns3:Name>PRESENT_WX_067</ns3:Name>
-                <ns3:Name>PRESENT_WX_068</ns3:Name>
-                <ns3:Name>PRESENT_WX_069</ns3:Name>
-                <ns3:Name>PRESENT_WX_070</ns3:Name>
-                <ns3:Name>PRESENT_WX_071</ns3:Name>
-                <ns3:Name>PRESENT_WX_072</ns3:Name>
-                <ns3:Name>PRESENT_WX_073</ns3:Name>
-                <ns3:Name>PRESENT_WX_074</ns3:Name>
-                <ns3:Name>PRESENT_WX_075</ns3:Name>
-                <ns3:Name>PRESENT_WX_076</ns3:Name>
-                <ns3:Name>PRESENT_WX_077</ns3:Name>
-                <ns3:Name>PRESENT_WX_078</ns3:Name>
-                <ns3:Name>PRESENT_WX_079</ns3:Name>
-                <ns3:Name>PRESENT_WX_080</ns3:Name>
-                <ns3:Name>PRESENT_WX_081</ns3:Name>
-                <ns3:Name>PRESENT_WX_082</ns3:Name>
-                <ns3:Name>PRESENT_WX_083</ns3:Name>
-                <ns3:Name>PRESENT_WX_084</ns3:Name>
-                <ns3:Name>PRESENT_WX_085</ns3:Name>
-                <ns3:Name>PRESENT_WX_086</ns3:Name>
-                <ns3:Name>PRESENT_WX_087</ns3:Name>
-                <ns3:Name>PRESENT_WX_088</ns3:Name>
-                <ns3:Name>PRESENT_WX_089</ns3:Name>
-                <ns3:Name>PRESENT_WX_090</ns3:Name>
-                <ns3:Name>PRESENT_WX_091</ns3:Name>
-                <ns3:Name>PRESENT_WX_092</ns3:Name>
-                <ns3:Name>PRESENT_WX_093</ns3:Name>
-                <ns3:Name>PRESENT_WX_094</ns3:Name>
-                <ns3:Name>PRESENT_WX_095</ns3:Name>
-                <ns3:Name>PRESENT_WX_096</ns3:Name>
-                <ns3:Name>PRESENT_WX_097</ns3:Name>
-                <ns3:Name>PRESENT_WX_098</ns3:Name>
-                <ns3:Name>PRESENT_WX_099</ns3:Name>
-                <ns3:Name>PRESENT_WX_103</ns3:Name>
-                <ns3:Name>PRESENT_WX_104</ns3:Name>
-                <ns3:Name>PRESENT_WX_105</ns3:Name>
-                <ns3:Name>PRESENT_WX_107</ns3:Name>
-                <ns3:Name>PRESENT_WX_201</ns3:Name>
-                <ns3:Name>PRESENT_WX_202</ns3:Name>
-                <ns3:Name>PRESENT_WX_203</ns3:Name>
-                <ns3:Name>ICING_00</ns3:Name>
-                <ns3:Name>ICING_01</ns3:Name>
-                <ns3:Name>ICING_02</ns3:Name>
-                <ns3:Name>ICING_03</ns3:Name>
-                <ns3:Name>ICING_04</ns3:Name>
-                <ns3:Name>ICING_05</ns3:Name>
-                <ns3:Name>ICING_06</ns3:Name>
-                <ns3:Name>ICING_07</ns3:Name>
-                <ns3:Name>ICING_08</ns3:Name>
-                <ns3:Name>ICING_09</ns3:Name>
-                <ns3:Name>ICING_10</ns3:Name>
-                <ns3:Name>PAST_WX_03</ns3:Name>
-                <ns3:Name>PAST_WX_04</ns3:Name>
-                <ns3:Name>PAST_WX_05</ns3:Name>
-                <ns3:Name>PAST_WX_06</ns3:Name>
-                <ns3:Name>PAST_WX_07</ns3:Name>
-                <ns3:Name>PAST_WX_08</ns3:Name>
-                <ns3:Name>PAST_WX_09</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_01</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_02</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_03</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_04</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_05</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_06</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_07</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_08</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_09</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_11</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_12</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_13</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_14</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_15</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_16</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_17</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_18</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_19</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_21</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_22</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_23</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_24</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_25</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_26</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_27</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_28</ns3:Name>
-                <ns3:Name>CLOUD_TYPE_29</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_00</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_01</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_02</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_03</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_04</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_05</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_06</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_07</ns3:Name>
-                <ns3:Name>PRESSURE_TENDENCY_08</ns3:Name>
-                <ns3:Name>SKY_COVER_00</ns3:Name>
-                <ns3:Name>SKY_COVER_01</ns3:Name>
-                <ns3:Name>SKY_COVER_02</ns3:Name>
-                <ns3:Name>SKY_COVER_03</ns3:Name>
-                <ns3:Name>SKY_COVER_04</ns3:Name>
-                <ns3:Name>SKY_COVER_05</ns3:Name>
-                <ns3:Name>SKY_COVER_06</ns3:Name>
-                <ns3:Name>SKY_COVER_07</ns3:Name>
-                <ns3:Name>SKY_COVER_08</ns3:Name>
-                <ns3:Name>SKY_COVER_09</ns3:Name>
-                <ns3:Name>SKY_COVER_10</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Any">
-            <ns3:PgenObjects/>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Track">
-            <ns3:PgenObjects>
-                <ns3:Name>STORM_TRACK</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Text">
-            <ns3:PgenObjects>
-                <ns3:Name>General Text</ns3:Name>
-                <ns3:Name>AVIATION_TEXT</ns3:Name>
-                <ns3:Name>MID_LEVEL_CLOUD</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="SIGMET">
-            <ns3:PgenObjects>
-                <ns3:Name>INTL_SIGMET</ns3:Name>
-                <ns3:Name>CONV_SIGMET</ns3:Name>
-                <ns3:Name>AIRM_SIGMET</ns3:Name>
-                <ns3:Name>NCON_SIGMET</ns3:Name>
-                <ns3:Name>OUTL_SIGMET</ns3:Name>
-                <ns3:Name>CCFP_SIGMET</ns3:Name>
-                <ns3:Name>VOLC_SIGMET</ns3:Name>
-                <ns3:Name>VACL_SIGMET</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Lines">
-            <ns3:PgenObjects>
-                <ns3:Name>LINE_SOLID</ns3:Name>
-                <ns3:Name>POINTED_ARROW</ns3:Name>
-                <ns3:Name>FILLED_ARROW</ns3:Name>
-                <ns3:Name>LINE_DASHED_2</ns3:Name>
-                <ns3:Name>LINE_DASHED_3</ns3:Name>
-                <ns3:Name>LINE_DASHED_4</ns3:Name>
-                <ns3:Name>LINE_DASHED_5</ns3:Name>
-                <ns3:Name>LINE_DASHED_6</ns3:Name>
-                <ns3:Name>LINE_DASHED_7</ns3:Name>
-                <ns3:Name>LINE_DASHED_8</ns3:Name>
-                <ns3:Name>LINE_DASHED_9</ns3:Name>
-                <ns3:Name>LINE_DASHED_10</ns3:Name>
-                <ns3:Name>DASHED_ARROW</ns3:Name>
-                <ns3:Name>DASHED_ARROW_FILLED</ns3:Name>
-                <ns3:Name>BALL_CHAIN</ns3:Name>
-                <ns3:Name>ZIGZAG</ns3:Name>
-                <ns3:Name>SCALLOPED</ns3:Name>
-                <ns3:Name>ANGLED_TICKS_ALT</ns3:Name>
-                <ns3:Name>FILLED_CIRCLES</ns3:Name>
-                <ns3:Name>LINE_WITH_CARETS</ns3:Name>
-                <ns3:Name>LINE_CARET_LINE</ns3:Name>
-                <ns3:Name>SINE_CURVE</ns3:Name>
-                <ns3:Name>BOX_CIRCLE</ns3:Name>
-                <ns3:Name>FILL_OPEN_BOX</ns3:Name>
-                <ns3:Name>LINE_X_LINE</ns3:Name>
-                <ns3:Name>LINE_XX_LINE</ns3:Name>
-                <ns3:Name>FILL_CIRCLE_X</ns3:Name>
-                <ns3:Name>BOX_X</ns3:Name>
-                <ns3:Name>LINE_CIRCLE_ARROW</ns3:Name>
-                <ns3:Name>DOUBLE_LINE</ns3:Name>
-                <ns3:Name>ZZZ_LINE</ns3:Name>
-                <ns3:Name>TICK_MARKS</ns3:Name>
-                <ns3:Name>STREAM_LINE</ns3:Name>
-                <ns3:Name>LINE_FILLED_CIRCLE_ARROW</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Vector">
-            <ns3:PgenObjects>
-                <ns3:Name>Arrow</ns3:Name>
-                <ns3:Name>Barb</ns3:Name>
-                <ns3:Name>Directional</ns3:Name>
-                <ns3:Name>Hash</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Arc">
-            <ns3:PgenObjects>
-                <ns3:Name>Circle</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="Marker">
-            <ns3:PgenObjects>
-                <ns3:Name>PLUS_SIGN</ns3:Name>
-                <ns3:Name>OCTAGON</ns3:Name>
-                <ns3:Name>TRIANGLE</ns3:Name>
-                <ns3:Name>BOX</ns3:Name>
-                <ns3:Name>SMALL_X</ns3:Name>
-                <ns3:Name>Z_WITH_BAR</ns3:Name>
-                <ns3:Name>X_WITH_TOP_BAR</ns3:Name>
-                <ns3:Name>DIAMOND</ns3:Name>
-                <ns3:Name>UP_ARROW</ns3:Name>
-                <ns3:Name>Y</ns3:Name>
-                <ns3:Name>BOX_WITH_DIAGONALS</ns3:Name>
-                <ns3:Name>ASTERISK</ns3:Name>
-                <ns3:Name>HOURGLASS_X</ns3:Name>
-                <ns3:Name>STAR</ns3:Name>
-                <ns3:Name>DOT</ns3:Name>
-                <ns3:Name>LARGE_X</ns3:Name>
-                <ns3:Name>FILLED_OCTAGON</ns3:Name>
-                <ns3:Name>FILLED_TRIANGLE</ns3:Name>
-                <ns3:Name>FILLED_BOX</ns3:Name>
-                <ns3:Name>FILLED_DIAMOND</ns3:Name>
-                <ns3:Name>FILLED_STAR</ns3:Name>
-                <ns3:Name>MINUS_SIGN</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenClass Name="MET">
-            <ns3:PgenObjects>
-                <ns3:Name>JET</ns3:Name>
-                <ns3:Name>TCA</ns3:Name>
-                <ns3:Name>GFA</ns3:Name>
-                <ns3:Name>Contours</ns3:Name>
-                <ns3:Name>Outlook</ns3:Name>
-                <ns3:Name>WatchBox</ns3:Name>
-                <ns3:Name>Cloud</ns3:Name>
-                <ns3:Name>Turbulence</ns3:Name>
-                <ns3:Name>TCM</ns3:Name>
-            </ns3:PgenObjects>
-        </ns3:PgenClass>
-        <ns3:PgenSave outputFile="temp.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
-    </ns3:ProductType>
     <ns3:ProductType Name="" Type="Convective Outlook" Subtype="None">
         <ns3:PgenControls>
             <ns3:Name>Open</ns3:Name>
@@ -10459,6 +10181,11 @@
                 <ns3:Name>LINE_FILLED_CIRCLE_ARROW</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
+        <ns3:PgenClass Name="MET">
+            <ns3:PgenObjects>
+                <ns3:Name>Outlook</ns3:Name>
+            </ns3:PgenObjects>
+        </ns3:PgenClass>
         <ns3:PgenLayer Name="fire" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
@@ -10520,7 +10247,7 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="FIRE" OnOff="true" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="FIRE" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day1.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10573,7 +10300,7 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="FIRE" OnOff="true" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="FIRE" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day2.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10626,10 +10353,10 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="FIRE D1" OnOff="true" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="FIRE D1" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="FIRE D2" OnOff="true" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="FIRE D2" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day1-2.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10682,25 +10409,25 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="D3" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="D3" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="255" red="255" green="0" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D4" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="D4" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="0" red="255" green="0" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D5" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="D5" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="238" red="145" green="44" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D6" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="D6" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="0" red="0" green="139" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D7" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="D7" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="139" red="16" green="78" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D8" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="D8" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="38" red="139" green="71" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="CAT" OnOff="false" MonoColor="true" Filled="true">
+        <ns3:PgenLayer Name="CAT" OnOff="false" MonoColor="true" Filled="false">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day3-8.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>

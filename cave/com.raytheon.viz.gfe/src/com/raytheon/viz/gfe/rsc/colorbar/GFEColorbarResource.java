@@ -62,9 +62,11 @@ import com.raytheon.viz.gfe.actions.SetDiscretePickupAction;
 import com.raytheon.viz.gfe.actions.SetDiscreteWxPickupAction;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
+import com.raytheon.viz.gfe.core.msgs.GridDataChangedMsg;
 import com.raytheon.viz.gfe.core.msgs.IDisplayModeChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IPickupValueChangedListener;
+import com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.ShowQuickViewDataMsg;
@@ -100,6 +102,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  *                                     Changes for non-blocking SetValueDialog.
  * 01/23/2013   #1524      randerso    Fix error when clicking on discrete color bar when 
  *                                     no grid exists
+ * 08/27/2013   #2287      randerso    Fixed fitToDataColorTable for Single Grids
  * 
  * </pre>
  * 
@@ -110,7 +113,7 @@ public class GFEColorbarResource extends
         AbstractVizResource<GFEResourceData, IMapDescriptor> implements
         IContextMenuProvider, IPickupValueChangedListener,
         IDisplayModeChangedListener, IMessageClient,
-        IDisplayedParmListChangedListener {
+        IDisplayedParmListChangedListener, ISpatialEditorTimeChangedListener {
 
     public static final double HEIGHT = 25.0;
 
@@ -317,6 +320,8 @@ public class GFEColorbarResource extends
         dManager.getParmManager().removeDisplayedParmListChangedListener(this);
         dManager.getSpatialDisplayManager().removeDisplayModeChangedListener(
                 this);
+        dManager.getSpatialDisplayManager()
+                .removeSpatialEditorTimeChangedListener(this);
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -324,6 +329,7 @@ public class GFEColorbarResource extends
         }
 
         Message.unregisterInterest(this, ShowQuickViewDataMsg.class);
+        Message.unregisterInterest(this, GridDataChangedMsg.class);
 
         if (colorbarScaleFont != null) {
             colorbarScaleFont.dispose();
@@ -358,9 +364,12 @@ public class GFEColorbarResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         dManager.getSpatialDisplayManager().addDisplayModeChangedListener(this);
+        dManager.getSpatialDisplayManager()
+                .addSpatialEditorTimeChangedListener(this);
         dManager.getParmManager().addDisplayedParmListChangedListener(this);
 
         Message.registerInterest(this, ShowQuickViewDataMsg.class);
+        Message.registerInterest(this, GridDataChangedMsg.class);
 
         colorbarScaleFont = GFEFonts.makeGFEIFont(target, "ColorBarScale_font",
                 1);
@@ -680,6 +689,16 @@ public class GFEColorbarResource extends
                 parm = gridId.getParm();
             }
             updateColorbar(parm);
+        } else if (message instanceof GridDataChangedMsg) {
+            GridDataChangedMsg msg = (GridDataChangedMsg) message;
+            if (currentParm != null
+                    && msg.getParmID().equals(currentParm.getParmID())
+                    && msg.getTimeRange().contains(
+                            currentParm.getDataManager()
+                                    .getSpatialDisplayManager()
+                                    .getSpatialEditorTime())) {
+                checkFitToData();
+            }
         }
     }
 
@@ -689,6 +708,10 @@ public class GFEColorbarResource extends
      * continuous colorbar range.
      */
     protected void checkFitToData() {
+        if (currentParm == null) {
+            return;
+        }
+
         String parmName = currentParm.getParmID().getParmName();
         String fitToDataPref = parmName + "_fitToDataColorTable";
         if (GFEPreference.contains(fitToDataPref)) {
@@ -835,5 +858,10 @@ public class GFEColorbarResource extends
             normalParm = null;
             updateColorbar(normalParm);
         }
+    }
+
+    @Override
+    public void spatialEditorTimeChanged(Date date) {
+        checkFitToData();
     }
 }
