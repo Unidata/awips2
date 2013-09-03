@@ -99,9 +99,14 @@ import com.raytheon.viz.ui.editor.EditorInput;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.panes.PaneManager;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateList;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.linearref.LinearLocation;
+import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
 /**
  * Utilities for PGEN
@@ -141,6 +146,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03/13         #972       G. Hull       add isNatlCntrsEditor()
  * 03/13		 #927		B. Yin		  Moved isUnmovable from the PgenSelectTool class.
  * 06/13		 #1000		J. Wu		  Added utility function writePgenFile().
+ * 07/26		 TTR		J. Wu		  Extract "DEL_PART" in DeletePartCommand into deleteLinePart().
  * 
  * </pre>
  * 
@@ -2106,4 +2112,112 @@ public class PgenUtil {
         FileTools.write( aa, filePrds1 ); 		
 	}
 
+	/**
+	 * Delete part of a line.
+     * @param List<Coordinate>: line to be partially deleted.
+     * @param boolean: 			flag to indicate if a line is closed or open.
+     * @param Coordinate: 		first clicked point on line.
+     * @param Coordinate: 		second clicked point on line.
+     * @return List<ArrayList<Coordinate>>	a list of new lines.
+	 */
+	public static List<ArrayList<Coordinate>> deleteLinePart( List<Coordinate> linePoints, boolean closed, 
+														 Coordinate point1, Coordinate point2 ) {
+		
+		ArrayList<ArrayList<Coordinate>> listOfNewLines = new ArrayList<ArrayList<Coordinate>>();
+		
+		Coordinate firstPt;
+		Coordinate secondPt;
+		LocationIndexedLine lil;
+		LinearLocation firstLoc, secondLoc;
+		
+ 		GeometryFactory gf = new GeometryFactory();
+
+ 		/*
+ 		 * For each given point, find the location of its closest point on the line.
+ 		 * Save order of points along line.
+ 		 */
+		Coordinate lps[] = new Coordinate[ linePoints.size() ];
+		linePoints.toArray( lps );
+ 		CoordinateList clist = new CoordinateList( lps );
+ 		if ( closed ) clist.closeRing();
+ 		LineString ls = gf.createLineString( clist.toCoordinateArray() );
+ 		lil = new LocationIndexedLine(ls);
+ 		LinearLocation loc1 = lil.project(point1);
+ 		LinearLocation loc2 = lil.project(point2);
+ 		if ( loc1.compareTo(loc2) <= 0 ) {
+ 			firstLoc = loc1;
+ 			secondLoc = loc2;
+ 			firstPt = point1;
+ 			secondPt = point2;
+ 		}
+ 		else {
+ 			firstLoc = loc2;
+ 			secondLoc = loc1;
+ 			firstPt = point2;
+ 			secondPt = point1;
+ 		}
+ 		
+ 		/*
+ 		 * Delete open/closed line differently.
+ 		 */
+ 		if ( !closed ) {
+ 			if ( lil.getStartIndex().compareTo( firstLoc ) == 0 &&
+ 					lil.getEndIndex().getSegmentIndex() == secondLoc.getSegmentIndex() ){				
+ 				//Both points selected were endpoints, remove whole element, no new lines.				
+ 			}
+ 			else if ( lil.getStartIndex().compareTo( firstLoc ) == 0 ||
+ 					lil.getEndIndex().getSegmentIndex() == secondLoc.getSegmentIndex() ) {
+
+ 				//One point selected was an endpoint, remove part from one end to get a new line.
+ 				ArrayList<Coordinate> newLine = new  ArrayList<Coordinate>();				
+ 				if ( lil.getStartIndex().compareTo( firstLoc ) == 0 ){
+ 					newLine.add(secondPt);
+ 					newLine.addAll( linePoints.subList( secondLoc.getSegmentIndex()+1, linePoints.size() ));
+ 				}
+ 				else if ( lil.getEndIndex().getSegmentIndex() == secondLoc.getSegmentIndex() ){
+ 					newLine.addAll( linePoints.subList( 0, firstLoc.getSegmentIndex()+1 ));
+ 					newLine.add(firstPt);
+ 				}
+
+ 				if ( newLine.size() >= 2 ) listOfNewLines.add( newLine );
+ 			}
+ 			else {				
+ 				//remove part in the middle of line, create two new lines.				
+ 				ArrayList<Coordinate> newLine1 = new ArrayList<Coordinate>( linePoints.subList(0, firstLoc.getSegmentIndex()+1 ));
+ 				newLine1.add( firstPt );
+
+ 				ArrayList<Coordinate> newLine2 = new ArrayList<Coordinate>();
+ 				newLine2.add( secondPt );
+ 				newLine2.addAll( linePoints.subList( secondLoc.getSegmentIndex()+1, linePoints.size() ) );
+ 	 	
+ 				if ( newLine1.size() >= 2 ) listOfNewLines.add( newLine1 ); 			
+ 				if ( newLine2.size() >= 2 ) listOfNewLines.add( newLine2 );
+ 			}
+ 		}
+ 		else {  //closed line
+		    
+ 			ArrayList<Coordinate> newLine = new  ArrayList<Coordinate>();				
+ 			
+ 			int pointsBetween = secondLoc.getSegmentIndex() - firstLoc.getSegmentIndex();
+ 			
+ 			if ( pointsBetween >  (linePoints.size() - pointsBetween) ) {				
+ 				//if there are more points between pt1 and pt2, remove the other part.
+ 				newLine.add( firstPt );
+ 				newLine.addAll( linePoints.subList( firstLoc.getSegmentIndex()+1, 
+ 						                            secondLoc.getSegmentIndex()+1 ));
+ 				newLine.add( secondPt );				 				
+ 			}
+ 			else { 				
+ 				newLine.add( secondPt );
+ 				newLine.addAll(linePoints.subList( secondLoc.getSegmentIndex()+1, linePoints.size() ));
+ 				newLine.addAll(linePoints.subList(0, firstLoc.getSegmentIndex()+1 ));
+ 				newLine.add( firstPt ); 			
+ 			}
+ 			
+ 			listOfNewLines.add( newLine ); 			
+ 		}
+	    
+		return listOfNewLines;
+	}
+	
 }
