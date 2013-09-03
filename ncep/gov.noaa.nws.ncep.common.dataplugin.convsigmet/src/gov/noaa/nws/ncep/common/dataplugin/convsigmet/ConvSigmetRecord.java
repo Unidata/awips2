@@ -56,97 +56,91 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "convsigmet",
-		indexes = {
-				@Index(name = "convsigmet_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "convsigmet", indexes = { @Index(name = "convsigmet_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
-public class ConvSigmetRecord extends PluginDataObject{
+public class ConvSigmetRecord extends PluginDataObject {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// reportType is "convective sigmet".
-	@Column(length=32)
-	@DataURI(position=1)
-	@DynamicSerializeElement
-	private String reportType;
-	
-	// WMO header
-	@Column(length=32)
-	@DataURI(position=2)
-	@DynamicSerializeElement
-	private String wmoHeader;
-
-	// forecastRegion as: SIGW, SIGC, or SIGE
-	@Column(length=8)
-	@DataURI(position=3)
-	@DynamicSerializeElement
-	private String forecastRegion;
-
-	// The issue office where the report from
-	@Column(length=32)
-	@DynamicSerializeElement
-	private String issueOffice;
-	
-	// Issue time of the report
-	@Column
-	@DynamicSerializeElement
-	private Calendar issueTime;
-
-	// The designator
-	@Column(length=8)
-	@DynamicSerializeElement
-	private String designatorBBB;
-	
-	// CorrectionFlag is a flag indicating a cancellation (0 or 1)
-	@Column
+    // reportType is "convective sigmet".
+    @Column(length = 32)
+    @DataURI(position = 1)
     @DynamicSerializeElement
-	private Integer correctionFlag;
-	
-	// The entire report
-	@Column(length=15000)
-	@DynamicSerializeElement
-	private String bullMessage;
+    private String reportType;
 
+    // WMO header
+    @Column(length = 32)
+    @DataURI(position = 2)
+    @DynamicSerializeElement
+    private String wmoHeader;
 
-	/** 
-	 * Convsigmet section  
-	 */
-	@DynamicSerializeElement
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "parentID", nullable = false)
+    // forecastRegion as: SIGW, SIGC, or SIGE
+    @Column(length = 8)
+    @DataURI(position = 3)
+    @DynamicSerializeElement
+    private String forecastRegion;
+
+    // The issue office where the report from
+    @Column(length = 32)
+    @DynamicSerializeElement
+    private String issueOffice;
+
+    // Issue time of the report
+    @Column
+    @DynamicSerializeElement
+    private Calendar issueTime;
+
+    // The designator
+    @Column(length = 8)
+    @DynamicSerializeElement
+    private String designatorBBB;
+
+    // CorrectionFlag is a flag indicating a cancellation (0 or 1)
+    @Column
+    @DynamicSerializeElement
+    private Integer correctionFlag;
+
+    // The entire report
+    @Column(length = 15000)
+    @DynamicSerializeElement
+    private String bullMessage;
+
+    /**
+     * Convsigmet section
+     */
+    @DynamicSerializeElement
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "parentID", nullable = false)
     @Index(name = "convSigmetSection_parentid_idex")
-	private Set<ConvSigmetSection> convSigmetSection = new HashSet<ConvSigmetSection>();
+    private Set<ConvSigmetSection> convSigmetSection = new HashSet<ConvSigmetSection>();
 
-
-	/**
+    /**
      * Default Convstructor
      */
     public ConvSigmetRecord() {
-    	this.issueOffice="";
-    	this.wmoHeader="";
-    	this.bullMessage="";
-    	this.designatorBBB="";
-    	this.forecastRegion="";
-    	this.reportType="";
-    	this.correctionFlag=IDecoderConstantsN.INTEGER_MISSING;
+        this.issueOffice = "";
+        this.wmoHeader = "";
+        this.bullMessage = "";
+        this.designatorBBB = "";
+        this.forecastRegion = "";
+        this.reportType = "";
+        this.correctionFlag = IDecoderConstantsN.INTEGER_MISSING;
     }
 
     /**
      * Convstructs a consigmet record from a dataURI
      * 
-     * @param uri The dataURI
+     * @param uri
+     *            The dataURI
      */
     public ConvSigmetRecord(String uri) {
         super(uri);
     }
 
-    
     @Override
     public IDecoderGettable getDecoderGettable() {
         // TODO Auto-generated method stub
@@ -154,156 +148,169 @@ public class ConvSigmetRecord extends PluginDataObject{
     }
 
     /**
-	 * @return the issueOffice
-	 */
-	public String getIssueOffice(){
-		return issueOffice;
-	}
+     * @return the issueOffice
+     */
+    public String getIssueOffice() {
+        return issueOffice;
+    }
 
-	/**
-	 * @param issueOffice to set
-	 */
-	public void setIssueOffice(String issueOffice){
-		this.issueOffice=issueOffice;
-	}
-	
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getWmoHeader(){
-		return wmoHeader;
-	}
+    /**
+     * @param issueOffice
+     *            to set
+     */
+    public void setIssueOffice(String issueOffice) {
+        this.issueOffice = issueOffice;
+    }
 
-	/**
-	 * @param wnoHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader){
-		this.wmoHeader=wmoHeader;
-	}
-	
-	/**
-	 * @return the issueTime
-	 */
-	public Calendar getIssueTime(){
-		return issueTime;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * @param issueTime to set
-	 */
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
-	}
-	
-	/**
-	 * @return the reportType
-	 */
-	public String getReportType() {
-		return reportType;
-	}
+    /**
+     * @param wnoHeader
+     *            to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	/**
-	 * @param reportType to set
-	 */
-	public void setReportType(String reportType) {
-		this.reportType = reportType;
-	}
+    /**
+     * @return the issueTime
+     */
+    public Calendar getIssueTime() {
+        return issueTime;
+    }
 
-	/**
-	 * @return the designatorBBB
-	 */
-	public String getDesignatorBBB() {
-		return designatorBBB;
-	}
+    /**
+     * @param issueTime
+     *            to set
+     */
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
 
-	/**
-	 * @param designatorBBB to set
-	 */
-	public void setDesignatorBBB(String designatorBBB) {
-		this.designatorBBB = designatorBBB;
-	}
+    /**
+     * @return the reportType
+     */
+    public String getReportType() {
+        return reportType;
+    }
 
-	/**
-	 * @return the correctionFlag
-	 */
-	public Integer getCorrectionFlag() {
-		return correctionFlag;
-	}
+    /**
+     * @param reportType
+     *            to set
+     */
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
 
-	/**
-	 * @param correctionFlag to set
-	 */
-	public void setCorrectionFlag(Integer correctionFlag) {
-		this.correctionFlag = correctionFlag;
-	}
+    /**
+     * @return the designatorBBB
+     */
+    public String getDesignatorBBB() {
+        return designatorBBB;
+    }
 
-	/**
-	 * @return the forecastRegion
-	 */
-	public String getForecastRegion() {
-		return forecastRegion;
-	}
+    /**
+     * @param designatorBBB
+     *            to set
+     */
+    public void setDesignatorBBB(String designatorBBB) {
+        this.designatorBBB = designatorBBB;
+    }
 
-	/**
-	 * @param forecastRegion to set
-	 */
-	public void setForecastRegion(String forecastRegion) {
-		this.forecastRegion = forecastRegion;
-	}
-	
-	/**
-	 * @return the bullMessage
-	 */
-	public String getBullMessage() {
-		return bullMessage;
-	}
+    /**
+     * @return the correctionFlag
+     */
+    public Integer getCorrectionFlag() {
+        return correctionFlag;
+    }
 
-	/**
-	 * @param bullMessage to set
-	 */
-	public void setBullMessage(String bullMessage) {
-		this.bullMessage = bullMessage;
-	}
-	   
-	
-	/**
-	 * @return the set of convective Sigmet section
-	 */
-	   public Set<ConvSigmetSection> getConvSigmetSection() {
-	           return convSigmetSection;
-	   }
+    /**
+     * @param correctionFlag
+     *            to set
+     */
+    public void setCorrectionFlag(Integer correctionFlag) {
+        this.correctionFlag = correctionFlag;
+    }
 
-	   /**
-	    * @param convsigmet the section to set
-	    */
-	   public void setConvSigmetSection(Set<ConvSigmetSection> convSection) {
-	           this.convSigmetSection = convSection;
-	   }
+    /**
+     * @return the forecastRegion
+     */
+    public String getForecastRegion() {
+        return forecastRegion;
+    }
 
-	   /**
-	    * @param add convective Sigmet Section to set
-	    */
-	   public void addConvSigmetSection(ConvSigmetSection psection){
-	           convSigmetSection.add(psection);
-	          
-	   }
-	   
-	   /**
-	    * Override existing set method to modify any
-	    * classes that use the dataURI as a foreign key
-	    */
-	   @Override
-	   public void setIdentifier(Object dataURI)
-	   {
+    /**
+     * @param forecastRegion
+     *            to set
+     */
+    public void setForecastRegion(String forecastRegion) {
+        this.forecastRegion = forecastRegion;
+    }
 
-		   this.identifier = dataURI;
-	      
-	   }
+    /**
+     * @return the bullMessage
+     */
+    public String getBullMessage() {
+        return bullMessage;
+    }
+
+    /**
+     * @param bullMessage
+     *            to set
+     */
+    public void setBullMessage(String bullMessage) {
+        this.bullMessage = bullMessage;
+    }
+
+    /**
+     * @return the set of convective Sigmet section
+     */
+    public Set<ConvSigmetSection> getConvSigmetSection() {
+        return convSigmetSection;
+    }
+
+    /**
+     * @param convsigmet
+     *            the section to set
+     */
+    public void setConvSigmetSection(Set<ConvSigmetSection> convSection) {
+        this.convSigmetSection = convSection;
+    }
+
+    /**
+     * @param add
+     *            convective Sigmet Section to set
+     */
+    public void addConvSigmetSection(ConvSigmetSection psection) {
+        convSigmetSection.add(psection);
+
+    }
+
+    /**
+     * Override existing set method to modify any classes that use the dataURI
+     * as a foreign key
+     */
+    @Override
+    public void setIdentifier(Object dataURI) {
+
+        this.identifier = dataURI;
+
+    }
 
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "convsigmet";
     }
 }

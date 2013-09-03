@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Apr 14, 2008 1077       jkorman     Initial implementation.
  * Nov 25, 2008 1684       chammack    Camel Refactor
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
     public static final String PLUGIN_NAME = "goessounding";
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private PointDataDescription pdd;
 
@@ -131,7 +132,7 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
 
         PluginDataObject[] decodedData = null;
 
-        if (input != null && input.getDocumentData().length > 0) {
+        if ((input != null) && (input.getDocumentData().length > 0)) {
 
             WMOHeader wmoHeader = input.getWmoHeader();
 
@@ -153,7 +154,6 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
                                         container, this.pdd, dao);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
-                            soundingData.setPluginName(PLUGIN_NAME);
                             PointDataView pdv = soundingData.getPointDataView();
                             pdv.setString("wmoHeader",
                                     soundingData.getWmoHeader());
