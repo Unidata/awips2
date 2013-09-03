@@ -97,9 +97,9 @@ public:
 				uint64_t current = (((long long) tv.tv_sec) * 1000000
 						+ ((long long) tv.tv_usec)) / 1000;
                                 message.setDurable(true);
+				message.setSubject(fileHeader);
 				message.setContent(fileLocation);
-				message.getProperties()["header"] = fileHeader;
-				message.getProperties()["enqueueTime"] = current;
+				message.setProperty("enqueueTime", current);
                                
                                 this->sender.send(message);
 
@@ -122,12 +122,44 @@ private:
                 unotice ("Cleaning up");
 
 		// Destroy resources.
-		try {
-                        session.close();
-			connection.close();
-		} catch (const std::exception& error) {
-			this->isConnected = false;
-		}
+                if (this->sender != 0)
+                {
+                        try
+                        {
+                                this->sender.close();
+                                this->sender = 0;
+                        }
+                        catch (const std::exception& error)
+                        {
+                                uwarn(error.what());
+                        }
+                }
+
+                if (this->session != 0)
+                {
+                        try
+                        {
+                                this->session.close();
+                                this->session = 0;
+                        }
+                        catch (const std::exception& error)
+                        {
+                                uwarn(error.what());
+                        }
+                }
+
+                if (this->connection != 0)
+                {
+                        try
+                        {
+                                this->connection.close();
+                                this->connection = 0;
+                        }
+                        catch (const std::exception& error)
+                        {
+                                uwarn(error.what());
+                        }
+                }
 		this->isConnected = false;
 	}
 
@@ -136,6 +168,10 @@ private:
 			return this->isConnected;
 		}
 		try {
+			this->connection = 0;
+			this->session = 0;
+			this->sender = 0;
+
                         std::stringstream qpidURLBuilder;
                         qpidURLBuilder << "amqp:tcp:";
                         qpidURLBuilder << this->brokerURI;
