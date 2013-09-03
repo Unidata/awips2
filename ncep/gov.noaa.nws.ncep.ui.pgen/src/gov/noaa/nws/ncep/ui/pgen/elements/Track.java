@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/12        TTR456      Q.Zhou      Added speed knot, mph. Added combos and roundTo indices for speed & dir .
  *                                       Modified setSpeed
  * 06/12        #777        Q.Zhou      Modified DEFAULT_EXTRA_POINT_NUMBER.                                      
+ * 08/13		#1020		B. Yin		Added a method to get direction 'FROM'.                                
  * </pre>
  * 
  * @author	M. Gao
@@ -1008,6 +1009,21 @@ public class Track extends Line implements ITrack {
 		return directionForExtraPoints;
 	}
 
+	public double getFromdirection(){
+		
+		Coordinate initPointBeforeLastInitPointCoordinate = initTrackPoints[initTrackPoints.length - 2].getLocation(); 
+		Coordinate lastInitPointCoordinate = initTrackPoints[initTrackPoints.length  - 1].getLocation(); 
+		
+		GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+		gc.setStartingGeographicPoint(lastInitPointCoordinate.x, 
+				lastInitPointCoordinate.y); 
+		gc.setDestinationGeographicPoint(initPointBeforeLastInitPointCoordinate.x, 
+				initPointBeforeLastInitPointCoordinate.y); 
+		double dir = gc.getAzimuth();
+		if ( dir < 0 ) dir += 360;
+		return dir;
+	}
+	
 	public void setDirectionForExtraPoints(double directionForExtraPoints) {
 		this.directionForExtraPoints = directionForExtraPoints;
 	}

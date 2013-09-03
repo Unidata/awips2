@@ -21,7 +21,6 @@
          <enableNegativeStrikes>${enableNegativeStrikes}</enableNegativeStrikes>
          <positiveSymbolSize>${positiveSymbolSize}</positiveSymbolSize>
          <negativeSymbolSize>${negativeSymbolSize}</negativeSymbolSize>
-         <requestStyle>METADATA</requestStyle>
          ${colorBar}
          <metadataMap>
             <mapping key="pluginName">

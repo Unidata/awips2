@@ -66,6 +66,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/19/13     #1637      randerso    Fixed remapping of byte grids
  * 07/09/13     #2044      randerso    Made SoftReferences to interp and rotation since 
  *                                     they can be quite large and may not be needed frequently
+ * 08/27/13     #2287      randerso    Removed 180 degree adjustment required by error
+ *                                     in Maputil.rotation
  * 07/17/13     #2185      bsteffen    Cache computed grid reprojections.
  * 08/13/13     #1571      randerso    Passed fill values into interpolator.
  * 
@@ -642,8 +644,8 @@ public class RemapGrid {
                     for (int y1 = 0; y1 < rotation.getYdim(); y1++) {
                         Coordinate llc = destinationGloc
                                 .latLonCenter(new Coordinate(x1, y1));
-                        rotation.set(x1, y1, (float) (180 - MapUtil.rotation(
-                                llc, sourceGloc)));
+                        rotation.set(x1, y1,
+                            (float) (-MapUtil.rotation(llc, sourceGloc)));
                     }
                 }
                 rotationRef = new SoftReference<Grid2DFloat>(rotation);
