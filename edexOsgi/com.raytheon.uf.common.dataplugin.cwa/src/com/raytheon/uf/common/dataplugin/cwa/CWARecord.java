@@ -56,11 +56,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 1, 2010            jsanchez     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Feb 01, 2010            jsanchez    Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -74,132 +76,134 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "cwa",
-		indexes = {
-				@Index(name = "cwa_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "cwa", indexes = { @Index(name = "cwa_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class CWARecord extends PersistablePluginDataObject implements
-		IPointData, IPersistable {
+        IPointData, IPersistable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Embedded
-	@DynamicSerializeElement
-	private PointDataView pointDataView;
+    @Embedded
+    @DynamicSerializeElement
+    private PointDataView pointDataView;
 
-	// Text of the WMO header
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String wmoHeader = "";
+    // Text of the WMO header
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String wmoHeader = "";
 
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private CWADimension dimension;
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private CWADimension dimension;
 
-	@DataURI(position = 1, embedded = true)
-	@XmlElement
-	@DynamicSerializeElement
-	private String eventId;
+    @DataURI(position = 1, embedded = true)
+    @XmlElement
+    @DynamicSerializeElement
+    private String eventId;
 
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private Coordinate[] coordinates;
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Coordinate[] coordinates;
 
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String text;
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String text;
 
-	public CWADimension getDimension() {
-		return dimension;
-	}
+    public CWADimension getDimension() {
+        return dimension;
+    }
 
-	public void setDimension(CWADimension dimension) {
-		this.dimension = dimension;
-	}
+    public void setDimension(CWADimension dimension) {
+        this.dimension = dimension;
+    }
 
-	public String getWmoHeader() {
-		return wmoHeader;
-	}
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	public void setWmoHeader(String wmoHeader) {
-		this.wmoHeader = wmoHeader;
-	}
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	public Coordinate[] getCoordinates() {
-		return coordinates;
-	}
+    public Coordinate[] getCoordinates() {
+        return coordinates;
+    }
 
-	public void setCoordinates(Coordinate[] coordinates) {
-		this.coordinates = coordinates;
-	}
+    public void setCoordinates(Coordinate[] coordinates) {
+        this.coordinates = coordinates;
+    }
 
-	public String getEventId() {
-		return eventId;
-	}
+    public String getEventId() {
+        return eventId;
+    }
 
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
-	}
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
 
-	/**
-	 * Set the data uri for this observation.
-	 * 
-	 * @param dataURI
-	 */
-	@Override
-	public void setDataURI(String dataURI) {
-		super.setDataURI(dataURI);
-		identifier = dataURI;
-	}
+    /**
+     * Set the data uri for this observation.
+     * 
+     * @param dataURI
+     */
+    @Override
+    public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
+        identifier = dataURI;
+    }
 
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
-	}
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        return null;
+    }
 
-	public String getText() {
-		return text;
-	}
+    public String getText() {
+        return text;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public void setText(String text) {
+        this.text = text;
+    }
 
-	@Override
-	public PointDataView getPointDataView() {
-		return pointDataView;
-	}
+    @Override
+    public PointDataView getPointDataView() {
+        return pointDataView;
+    }
 
-	@Override
-	public void setPointDataView(PointDataView pointDataView) {
-		this.pointDataView = pointDataView;
-	}
+    @Override
+    public void setPointDataView(PointDataView pointDataView) {
+        this.pointDataView = pointDataView;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Calendar c = getDataTime().getRefTimeAsCalendar();
-		if (c != null) {
-			sb.append(String.format("CWA:%1$tY%1$tm%1$td%1$tH%1$tM",
-					getDataTime().getRefTimeAsCalendar()));
-		} else {
-			sb.append("CWA:YYYYMMDDHHmm");
-		}
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Calendar c = getDataTime().getRefTimeAsCalendar();
+        if (c != null) {
+            sb.append(String.format("CWA:%1$tY%1$tm%1$td%1$tH%1$tM",
+                    getDataTime().getRefTimeAsCalendar()));
+        } else {
+            sb.append("CWA:YYYYMMDDHHmm");
+        }
+        return sb.toString();
+    }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "cwa";
     }
 }

@@ -27,7 +27,6 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -57,7 +56,8 @@ import com.raytheon.viz.grid.util.SliceUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 18, 2010 #4473      rjpeter      Initial creation
+ * Mar 18, 2010 4473       rjpeter     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -69,9 +69,9 @@ public class RadarRequestableData extends GridRequestableData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarRequestableData.class);
 
-    private RadarRecord radarSource;
+    private final RadarRecord radarSource;
 
-    private RadarMapper tiler;
+    private final RadarMapper tiler;
 
     private WeakReference<FloatDataRecord> cache = null;
 
@@ -107,7 +107,6 @@ public class RadarRequestableData extends GridRequestableData {
             Parameter parameter = new Parameter(parameterAbbrev,
                     this.parameterName, unit);
             record.setParameter(parameter);
-            record.setPluginName(GridConstants.GRID);
             record.setDataTime(source.getDataTime());
             record.constructDataURI();
             setGridSource(record);
