@@ -74,13 +74,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 01/25/10      3796       D. Hladky   Initial release
- * Apr 04, 2013  1846       bkowal      Added an index on refTime and forecastTime
- * 04/08/13      1293       bkowal      Removed references to hdffileid.
- * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013  1869       bsteffen    Remove dataURI column from
+ * Jan 25, 2010 3796        D. Hladky   Initial release
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * Aug 06, 2013  2228       njensen     Use deserialize(byte[])
+ * Aug 06, 2013 2228        njensen     Use deserialize(byte[])
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -330,14 +332,14 @@ public class PrecipRateRecord extends PersistablePluginDataObject implements
 
         }
         if (dataRec != null) {
-            for (int i = 0; i < dataRec.length; i++) {
-                if (dataRec[i].getName().equals("Data")) {
-                    setRawData(((ByteDataRecord) dataRec[i]).getByteData());
-                } else if (dataRec[i].getName().equals("Angles")) {
-                    setAngleData(((FloatDataRecord) dataRec[i]).getFloatData());
-                } else if (dataRec[i].getName().equals("DHRMap")) {
+            for (IDataRecord element : dataRec) {
+                if (element.getName().equals("Data")) {
+                    setRawData(((ByteDataRecord) element).getByteData());
+                } else if (element.getName().equals("Angles")) {
+                    setAngleData(((FloatDataRecord) element).getFloatData());
+                } else if (element.getName().equals("DHRMap")) {
                     try {
-                        ByteDataRecord byteData = (ByteDataRecord) dataRec[i];
+                        ByteDataRecord byteData = (ByteDataRecord) element;
                         Object o = DynamicSerializationManager.getManager(
                                 SerializationType.Thrift).deserialize(
                                 byteData.getByteData());
@@ -610,5 +612,10 @@ public class PrecipRateRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "preciprate";
     }
 }

@@ -5,9 +5,7 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
        
 	
-	<bean id="ncuairDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncuair.decoder.NcUairDecoder">
-		<constructor-arg ref="ncuairPluginName"/>
-	</bean>
+	<bean id="ncuairDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncuair.decoder.NcUairDecoder"/>
 
     <bean id="ncuairToPointData" class="gov.noaa.nws.ncep.common.dataplugin.ncuair.dao.NcUairToPointData" />
 		
