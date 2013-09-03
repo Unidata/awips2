@@ -55,7 +55,9 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      table.
  * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
  *                                      spatial
- * 08/08/2013   2243        jsanchez    Removed super method in copy constructor.
+ * Aug 08, 2013 2243        jsanchez    Removed super method in copy
+ *                                      constructor.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bwoodle
@@ -249,7 +251,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
         this.setMotspd(old.getMotspd());
         this.setPil(old.getPil());
         this.setPhensig(old.getPhensig());
-        this.setPluginName(old.getPluginName());
         this.setRawmessage(old.getRawmessage());
         this.setSeg(old.getSeg());
         this.setTraceId(old.getTraceId());

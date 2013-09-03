@@ -68,6 +68,7 @@ import com.raytheon.uf.common.time.DataTime;
  * -----------  ----------  ----------- --------------------------
  * Sep 04, 2009             vkorolev    Initial creation
  * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author vkorolev
@@ -84,7 +85,7 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
     private String traceId = null;
 
     private String currentFile = null;
-    
+
     public SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
 
     public File confile;
@@ -190,7 +191,6 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                         MesonetLdadRecord record = new MesonetLdadRecord();
                         SurfaceObsLocation location = new SurfaceObsLocation();
                         record.setDataProvider(dd.provider);
-                        record.setPluginName(PLUGIN_NAME);
                         record.setStationType(dd.type);
                         record.setReportTime(dd.reportTime);
                         record.setReportType(dd.storageType);
@@ -241,9 +241,9 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                             }
                         } // for
                           // DataTime = Observation time
-                        
+
                         Calendar ot = record.getObservationTime();
-                        if(ot != null) {
+                        if (ot != null) {
                             DataTime dt = new DataTime(ot);
                             record.setDataTime(dt);
                             record.setLocation(location);
@@ -306,21 +306,22 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                     cal.setTimeZone(TimeZone.getTimeZone("GMT"));
                     cal.setTime(ot);
                     val = cal;
-                } catch(Exception e) {
+                } catch (Exception e) {
                     abort = true;
-                    logger.error("Could not parse date field [" + name + ":"  + value + "] for file " + currentFile);
+                    logger.error("Could not parse date field [" + name + ":"
+                            + value + "] for file " + currentFile);
                 }
                 // only numbers
             } else {
-                
+
                 // Get rid of some troublesome data
                 // TODO: find out what should be done with these values
                 abort = "B".equals(value);
                 abort |= "R".equals(value);
                 abort |= "V".equals(value);
                 abort |= "NAN0".equals(value);
-                
-                if(!abort) {
+
+                if (!abort) {
                     Double tval = null;
                     try {
                         tval = Double.parseDouble(value);
@@ -333,20 +334,21 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                     }
                     if (configFile.containsKey(vunit)) {
                         Unit<?> inUnit = null;
-                        
+
                         Unit<?> outUnit = null;
-                        
+
                         try {
-                            inUnit = (Unit<?>) UnitFormat
-                                    .getUCUMInstance().parseObject(
-                                            configFile.getProperty(vunit));
-                            outUnit = (Unit<?>) UnitFormat
-                                    .getUCUMInstance().parseObject(
-                                            configFile.getProperty(name));
+                            inUnit = (Unit<?>) UnitFormat.getUCUMInstance()
+                                    .parseObject(configFile.getProperty(vunit));
+                            outUnit = (Unit<?>) UnitFormat.getUCUMInstance()
+                                    .parseObject(configFile.getProperty(name));
                             tval = inUnit.getConverterTo(outUnit).convert(
                                     (tval).doubleValue());
                         } catch (ConversionException ce) {
-                            logger.error("Property[" + fld.getName() + "]Input unit " + inUnit.getStandardUnit() + " not compatable with Output unit " + outUnit.getStandardUnit());
+                            logger.error("Property[" + fld.getName()
+                                    + "]Input unit " + inUnit.getStandardUnit()
+                                    + " not compatable with Output unit "
+                                    + outUnit.getStandardUnit());
                             return;
                         }
                     }
@@ -361,7 +363,7 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                     }
                 }
             }
-            if(!abort) {
+            if (!abort) {
                 Class<?> types = clazz;
                 Method method = obj.getClass().getMethod(mname, types);
                 method.invoke(obj, val);
@@ -432,8 +434,7 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
             Class<?> cls = record.getClass();
 
             Field fieldlist[] = cls.getDeclaredFields();
-            for (int i = 0; i < fieldlist.length; i++) {
-                Field fld = fieldlist[i];
+            for (Field fld : fieldlist) {
                 System.out.println("name = " + fld.getName());
                 System.out.println("decl class = "
                         + fld.getDeclaringClass().getSimpleName());
