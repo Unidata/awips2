@@ -51,13 +51,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 03/03/2007   908         bwoodle     initial creation
- * 09/15/2009   3027       njensen      Use dates for times
- * 09/21/2009   3072        bsteffen    Removed times because they are stored in DataTime
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Mar 03, 2007 908         bwoodle     initial creation
+ * Sep 15, 2009 3027        njensen     Use dates for times
+ * Sep 21, 2009 3072        bsteffen    Removed times because they are stored in
+ *                                      DataTime
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * 
  * </pre>
@@ -72,12 +75,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "ccfp",
-		indexes = {
-				@Index(name = "ccfp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "ccfp", indexes = { @Index(name = "ccfp_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -298,5 +297,10 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "ccfp";
     }
 }
