@@ -4,9 +4,7 @@ import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -21,6 +19,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ----------- --------------------------
  * 03/29/2013   975        sgurung     Initial Creation 
+ * 07/17/2013   975        qzhou       Changed source type for reading source attributes
  * </pre>
  * 
  * @author sgurung
@@ -48,8 +47,7 @@ public class GeoMagStation {
 	 * Data sources for the station
 	 */
 	@XmlElement
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String[] source;
+    protected ArrayList<GeoMagSource> source;
     
 	/**
 	 * Indicates whether the station should be included
@@ -64,6 +62,13 @@ public class GeoMagStation {
 	 */
     @XmlElement
     protected Boolean kpStation;   
+
+	/**
+	 * Indicates whether the station has a header.
+	 * Same station data may have or have no header.
+	 */
+    @XmlElement
+    protected String hasHeader;   
 
 	/**
 	 * Data order (e.g. HDZF or XYZF)
@@ -84,8 +89,10 @@ public class GeoMagStation {
 	@XmlElement
 	protected RawDataFormat rawDataFormat;
 		
-	public GeoMagStation() {
 		
+	
+	public GeoMagStation() {
+		source = new ArrayList<GeoMagSource>();
 	}
 	
 	/**
@@ -124,7 +131,7 @@ public class GeoMagStation {
 	 * Gets the stationCode of this station
 	 * @return the stationCode
 	 */
-	public String[] getSource() {
+	public ArrayList<GeoMagSource> getSource() {
 		return source;
 	}
 
@@ -132,7 +139,7 @@ public class GeoMagStation {
 	 * Sets the source of this station
 	 * @param source the source to set
 	 */
-	public void setSource(String[] source) {
+	public void setSource(ArrayList<GeoMagSource> source) {
 		this.source = source;
 	}
 
@@ -170,6 +177,22 @@ public class GeoMagStation {
 		this.kpStation = kpStation;
 	}
 
+	/**
+	 * Gets the header true or false
+	 * @return the hasHeader
+	 */
+	public String getHasHeader() {
+		return hasHeader;
+	}
+
+	/**
+	 * Sets the hasHeader value of this station
+	 * @param hasHeader the hasHeader to set
+	 */
+	public void setHasHeader(String hasHeader) {
+		this.hasHeader = hasHeader;
+	}
+	
 	/**
 	 * Gets the dataOrder of this station
 	 * @return the dataOrder
@@ -217,4 +240,5 @@ public class GeoMagStation {
 	public void setRawDataFormat(RawDataFormat rawDataFormat) {
 		this.rawDataFormat = rawDataFormat;
 	}
+
 }
