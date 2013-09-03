@@ -68,6 +68,8 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 11/12		#911		J. Wu   	TTR 652 - Validate GFA before smearing, warn the user and
  *                                                exclude invalid GFAs from FROM. Also, prevent
  *                                                LLWS from generating Outlook.
+ * 07/13		TTR			J. Wu		Add AIRMETS to canceled snapshots.
+ * 08/13		TTR714/715	J. Wu		Fixed issue type and times.
  * 
  * </pre>
  * 
@@ -204,7 +206,6 @@ public class GfaFormat {
 	 * @return 
 	 */
 	protected void createSmears( List<AbstractDrawableComponent> list ) {
-//		System.out.println("Create Smear.....call GfaClip.getInstance().validateGfaBounds");
 //		GfaClip.getInstance().validateGfaBounds();
 		
 		/*
@@ -365,6 +366,9 @@ public class GfaFormat {
 				smear.setGfaIssueType( "AMD" );
 			}
             
+		    String worstIssueType = GfaWorstAttr.getGfaWorstIssueType( pair.all );
+		    smear.setGfaIssueType( worstIssueType );
+            
 			//Clip against FA Regions (for open FZLVLs, clip against FA areas).
 			ArrayList<Gfa> clippedWithRegions = GfaClip.getInstance().clipFARegions( smear, pair.original );
 			
@@ -420,7 +424,9 @@ public class GfaFormat {
 				g.addAttribute( "PAIR", pair );
 			}
 			
-			
+			/*
+			 * Needs add airmet/outlook to its associated snapshots.
+			 */
 			for( Gfa g: pair.original ) {
 				if ( smear.isOutlook() ) {
 					g.addAttribute( "OUTLOOKS", clippedWithRegions );// pass to GfaRules
@@ -430,6 +436,17 @@ public class GfaFormat {
 				}
 			}
 			
+			if ( pair.canceled != null ) {
+				for ( Gfa g : pair.canceled ) {
+					if ( smear.isOutlook() ) {
+						g.addAttribute( "OUTLOOKS", clippedWithRegions );// pass to GfaRules
+					} 
+					else {
+						g.addAttribute( "AIRMETS", clippedWithRegions );// pass to GfaRules
+					}
+				}
+			}
+
 			
 			// Temp save, then apply rules after all the smears and outlooks are created 
 			listOfLists.add( clippedWithRegions );
@@ -489,13 +506,16 @@ public class GfaFormat {
 		ArrayList<Gfa> list;
 		ArrayList<Gfa> original;  //exlcuding "canceled"
 		ArrayList<Gfa> canceled;
+		ArrayList<Gfa> all;  //including all snapshot with same type, tag, and desk.
 
-		public FcstHrListPair(String fcstHr, ArrayList<Gfa> list, ArrayList<Gfa> canceled ) {
+		public FcstHrListPair(String fcstHr, ArrayList<Gfa> list, ArrayList<Gfa> canceled,
+							  ArrayList<Gfa> allss ) {
 			this.fcstHr = fcstHr;
 			this.list = list;
 			this.original = new ArrayList<Gfa>();
 			this.original.addAll( list );
 			this.canceled = new ArrayList<Gfa>();
+			this.all = allss;
 			
 			if ( canceled != null ) {
 			    this.canceled.addAll( canceled );
@@ -542,6 +562,7 @@ public class GfaFormat {
 		TreeSet<FcstHrListPair> pairs = new TreeSet<FcstHrListPair>();
 		ArrayList<Gfa> list1 = new ArrayList<Gfa>(); // 0-6 smear
 		ArrayList<Gfa> list2 = new ArrayList<Gfa>(); // 6-12 outlook
+		ArrayList<Gfa> list3 = new ArrayList<Gfa>(); // all snapshots
 
 		/*  
 		 * First splits a tree set of GFA snapshots into two lists.
@@ -558,6 +579,8 @@ public class GfaFormat {
 			} else {
 				list2.add(gfa);
 			}
+			
+			list3.add( gfa );
 		}
 
 		// Now split list1 and list2 by hazard type, tag, and desk
@@ -565,6 +588,10 @@ public class GfaFormat {
 		splitByHazardTag(list1, map);
 		splitByHazardTag(list2, map);
 
+		// split list3 by hazard type, tag, and desk
+		HashMap<String, ArrayList<Gfa>> mapall = new HashMap<String, ArrayList<Gfa>>();
+		splitByHazardTag(list3, mapall);
+				
 		/*
 		 *  Create FcstHrListPair for each list of snapshots (key is the forecast hour
 		 *  of the group plus hazard type, tag number, and desk.
@@ -583,7 +610,8 @@ public class GfaFormat {
 				} 
 				else {
 					ArrayList<Gfa> canceledSS = findCancelled( l );
-					FcstHrListPair pair = new FcstHrListPair( fcst, l, canceledSS );
+					ArrayList<Gfa> allss = findFullList( l.get(0), mapall );
+					FcstHrListPair pair = new FcstHrListPair( fcst, l, canceledSS, allss );
 
 					pairs.add( pair );
 				}
@@ -611,7 +639,8 @@ public class GfaFormat {
 			}
 			
 			if ( !found ) {
-				pairs.add( new FcstHrListPair("6-6", l66, null ) );
+				ArrayList<Gfa> all = findFullList( l66.get(0), mapall );
+				pairs.add( new FcstHrListPair("6-6", l66, null, all ) );
 				
 				for ( String key: map.keySet() ){
 					if ( key.endsWith( gfa.getGfaHazard() + gfa.getGfaTag() + gfa.getGfaDesk() )
@@ -1177,5 +1206,25 @@ public class GfaFormat {
     		confirmDlg.open();
     	}
     }
+    
+    /*
+     * Find a list of all Gfa snapshots with same type/tag/desk as the given one.
+     */   
+    private ArrayList<Gfa> findFullList( Gfa gfa, HashMap<String, ArrayList<Gfa>> mapAll ) {
+    	ArrayList<Gfa> fullList = new ArrayList<Gfa>();
+    	if ( mapAll != null && mapAll.size() > 0 ) {
+    		String ttd = gfa.getGfaHazard() + gfa.getGfaTag() + gfa.getGfaDesk();
+    		for ( String key : mapAll.keySet() ) {
+    			if ( key.contains( ttd ) ) {
+    				fullList.addAll( mapAll.get(key) );
+    				break;
+    			}
+    		}    		
+    	}
+    	
+    	return fullList;   	
+    	
+    }
+    
 }
 

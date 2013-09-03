@@ -3,10 +3,11 @@
     <resourceDefnName>spcwatch</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-LpiFilename=spcwatch.lpi
+sourceType=LPI_FILE
+sourceName=spcwatch.lpi
 mapName=SPC Watch Anchor Points
     </resourceParameters>
-    <rscImplementation>LpiOverlay</rscImplementation>
+    <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

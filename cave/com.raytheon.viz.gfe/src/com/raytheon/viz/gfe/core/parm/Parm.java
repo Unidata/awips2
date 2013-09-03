@@ -84,6 +84,7 @@ import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
+import com.raytheon.viz.gfe.core.parm.ParmSaveJob.ParmSaveStatus;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.gfe.core.wxvalue.DiscreteWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.ScalarWxValue;
@@ -182,6 +183,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 13, 2013 1792       bsteffen    Improve performance of gfe parm average
  *                                     ant time weighted average.
  * Apr 02, 2013 #1774      randerso    Fixed a possible deadlock issue.
+ * Aug 27, 2013 #2302      randerso    Fix simultaneous save issue
+ * 
  * </pre>
  * 
  * @author chammack
@@ -228,6 +231,8 @@ public abstract class Parm implements Comparable<Parm> {
     protected String officeType;
 
     protected boolean disposed;
+
+    private ParmSaveJob saveJob;
 
     /**
      * The create from scratch mode
@@ -360,6 +365,7 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         this.disposed = false;
+        this.saveJob = new ParmSaveJob(this);
     }
 
     public void dispose() {
@@ -708,7 +714,7 @@ public abstract class Parm implements Comparable<Parm> {
      * Save a parameter
      * 
      * @param all
-     * @return
+     * @return true if save successful
      */
     public boolean saveParameter(boolean all) {
         if (inParmEdit) {
@@ -729,14 +735,16 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Save a parameter
      * 
-     * @param tr
-     * @return
+     * @param times
+     *            TimeRanges to be saved
+     * @return true if save successful
      */
-    public boolean saveParameter(List<TimeRange> tr) {
+    public boolean saveParameter(List<TimeRange> times) {
         if (inParmEdit) {
             return false;
         } else {
-            return saveParameterSubClass(tr);
+            ParmSaveStatus status = this.saveJob.requestSave(times);
+            return status.isSuccessful();
         }
     }
 
@@ -744,7 +752,7 @@ public abstract class Parm implements Comparable<Parm> {
      * Save a parameter
      * 
      * @param tr
-     * @return
+     * @return true if save successful
      */
     public boolean saveParameter(TimeRange tr) {
         ArrayList<TimeRange> trs = new ArrayList<TimeRange>();
@@ -756,7 +764,8 @@ public abstract class Parm implements Comparable<Parm> {
      * Subclass specific save implementation
      * 
      * @param tr
-     * @return
+     *            TimeRanges to be saved
+     * @return true if save successful
      */
     protected abstract boolean saveParameterSubClass(List<TimeRange> tr);
 
