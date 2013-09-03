@@ -32,15 +32,16 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 26, 2011            bsteffen     Initial creation
- *
+ * Jul 26, 2011            bsteffen    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
@@ -79,4 +80,8 @@ public class D2DNSharpDataObject extends PluginDataObject {
         this.layers = layers;
     }
 
+    @Override
+    public String getPluginName() {
+        return "d2dnsharpdataobject";
+    }
 }
