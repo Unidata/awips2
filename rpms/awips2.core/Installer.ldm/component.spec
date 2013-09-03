@@ -20,8 +20,9 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-Requires: qpid-cpp-client-devel
+Requires: awips2-qpid-lib
 Requires: zlib-devel
+requires: awips2-python
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -76,7 +77,7 @@ fi
 _ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
-_NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' 'org.apache.qpid' )
+_NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' )
 _RPM_directory=%{_baseline_workspace}/rpms
 _Installer_ldm=${_RPM_directory}/awips2.core/Installer.ldm
 
@@ -271,27 +272,9 @@ if [ ${_myHost} != "cpsbn1" -a ${_myHost} != "cpsbn2" -a ${_myHost} != "dx1" -a 
 fi
 popd > /dev/null 2>&1
 
-# extract qpid libraries; build decrypt_file & edexBridge
+# build decrypt_file & edexBridge
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
-
-# determine which lib directory to use
-_arch=`uname -i`
-_qpid_lib_dir="lib"
-if [ "${_arch}" = "x86_64" ]; then
-   _qpid_lib_dir="lib64"
-fi
-
-/bin/tar -xvf org.apache.qpid.tar org.apache.qpid/${_qpid_lib_dir}/*
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to extract the qpid libraries!"
-   exit 1
-fi
-cp -Pf org.apache.qpid/${_qpid_lib_dir}/* ${_ldm_root_dir}/lib
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to copy the qpid libraries to the ldm lib directory."
-   exit 1
-fi
 
 /bin/tar -xf decrypt_file.tar
 if [ $? -ne 0 ]; then
@@ -337,10 +320,10 @@ export _current_dir=`pwd`
 su ldm -lc "cd ${_current_dir}; g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
    -I${_ldm_root_dir}/include \
    -I${_ldm_root_dir}/src \
-   -I/usr/include/qpid \
+   -I/awips2/qpid/include \
    -L${_ldm_root_dir}/lib \
-   -L%{_libdir} \
-   -l ldm -l xml2 -l qpidclient -l qpidcommon -o edexBridge" > \
+   -L/awips2/qpid/lib \
+   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge" > \
    edexBridge.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to build edexBridge!"

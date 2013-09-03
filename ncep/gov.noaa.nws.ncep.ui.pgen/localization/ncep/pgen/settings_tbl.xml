@@ -4,11 +4,33 @@
         <Layer name="Default" onOff="true" monoColor="false" filled="false">
             <Color red="255" green="255" blue="0" alpha="255"/>
             <DrawableElement>
+               <DECollection collectionName="Cloud" pgenCategory="MET" pgenType="Cloud">
+               		<DrawableElement>
+                  		<Line closed="false" fillPattern="SOLID" filled="false" flipSide="false" lineWidth="2.0" pgenCategory="Lines" pgenType="SCALLOPED" sizeScale="1.0" smoothFactor="2">
+                     		<Color alpha="255" blue="238" green="178" red="0"/>
+                     		<Color alpha="255" blue="238" green="178" red="0"/>
+                     		<Point Lat="22.105372033361803" Lon="-105.01068039836395"/>
+                     		<Point Lat="21.383087768462506" Lon="-100.37535814399247"/>
+                     		<Point Lat="19.29171049769482" Lon="-98.85613340063044"/>
+                  		</Line>
+               		</DrawableElement>
+            	</DECollection>
+            	<DECollection collectionName="Turbulence" pgenCategory="MET" pgenType="Turbulence">
+               		<DrawableElement>
+                  		<Line closed="true" fillPattern="SOLID" filled="false" flipSide="false" lineWidth="2.0" pgenCategory="Lines" pgenType="LINE_DASHED_4" sizeScale="1.0" smoothFactor="2">
+                     		<Color alpha="255" blue="0" green="238" red="238"/>
+                     		<Color alpha="255" blue="0" green="238" red="238"/>
+                     		<Point Lat="39.92729807975359" Lon="-116.5741398907522"/>
+                     		<Point Lat="31.499733060468223" Lon="-124.9920859842998"/>
+                     		<Point Lat="29.40063435035951" Lon="-108.59618286166197"/>
+                  		</Line>
+               		</DrawableElement>
+            	</DECollection>
                 <DECollection pgenCategory="MET" pgenType="JET" collectionName="Jet">
                     <DrawableElement>
                         <DECollection collectionName="WindInfo">
                             <DrawableElement>
-                                <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="289.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="289.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                     <Color red="255" green="0" blue="0" alpha="255"/>
                                     <Point Lat="24.370719825166535" Lon="-122.20535221347572"/>
                                     <textLine>FL300</textLine>

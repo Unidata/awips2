@@ -1991,9 +1991,18 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
         @Override
         public void createButtonsForButtonBar(Composite parent) {
+        	
+        	((GridLayout) parent.getLayout()).verticalSpacing = 0;
+        	((GridLayout) parent.getLayout()).marginHeight = 3;
+              
             createButton(parent, IDialogConstants.OK_ID, "Save", true);
             createButton(parent, IDialogConstants.CANCEL_ID,
                     IDialogConstants.CANCEL_LABEL, false);
+            
+            getButton(IDialogConstants.OK_ID).setLayoutData(
+                    new GridData(ctrlBtnWidth, ctrlBtnHeight));
+            getButton(IDialogConstants.CANCEL_ID).setLayoutData(
+                    new GridData(ctrlBtnWidth, ctrlBtnHeight));
         }
 
         @Override
@@ -2195,7 +2204,12 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                     // sb.append(" ").append(sig.getLinePoints()[0].y);
                     // sb.append(" ").append(sig.getLinePoints()[0].x);
                 } else {
-                    // TODO: legacy code phenlat/phenlon source ???
+                	if ( SigmetAttrDlg.this.getEditableAttrPhenomLat() != null 
+                			&& SigmetAttrDlg.this.getEditableAttrPhenomLon() != null ) {
+                		sb.append(" ").append("NEAR");
+                		sb.append(" ").append(SigmetAttrDlg.this.getEditableAttrPhenomLat());
+                		sb.append(SigmetAttrDlg.this.getEditableAttrPhenomLon());
+                	}
                 }
 
                 sb.append(" ").append("AT ");
@@ -2288,7 +2302,7 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                     sb.append("FL");
                 }
                 String text2 = SigmetAttrDlg.this.getEditableAttrLevelText2();
-                sb.append(text2 == null ? "" : text2).append(" ");
+                sb.append(text2 == null ? "" : text2);
             }
 
             // ---------------- FCST level info nmap_pgsigw.c@3989
@@ -2320,7 +2334,7 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                     sb.append(" ").append("NM CENTER.");
                 } else {
                     sb.append(" ").append("WI ");
-                    sb.append(SigmetAttrDlg.this.getWidth());
+                    sb.append((int)SigmetAttrDlg.this.getWidth());
                     sb.append(" ").append("NM OF ");
                     for (int i = 0; i < lineArray.length - 1; i++)
                         sb.append(" ").append(lineArray[i]);
@@ -2344,7 +2358,7 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
             } else {// line with LINE_SEPERATER
                 sb.append(" ").append("WI ");
-                sb.append(SigmetAttrDlg.this.getWidth());
+                sb.append((int)SigmetAttrDlg.this.getWidth());
                 sb.append(" ").append("NM ");
                 sb.append(getLineTypeForSOL(lineType));// [lineArray.length-2]);//watch
                                                        // out for index
@@ -2380,7 +2394,7 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                     }
                     String text2 = SigmetAttrDlg.this
                             .getEditableAttrLevelText2();
-                    sb.append(text2 == null ? "" : text2).append(" . ");
+                    sb.append(text2 == null ? "" : text2).append(". ");
                 }
 
                 // ------ movement
@@ -2841,11 +2855,12 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
             Coordinate coor = coors[i];
 
             result.append(coor.y >= 0 ? "N" : "S");
-            int y = (int) Math.abs(coor.y * 100);
+            long y = ((int) Math.abs(coor.y)*100) + Math.round( Math.abs(coor.y-(int)(coor.y))*60);
             result.append(new DecimalFormat(FOUR_ZERO).format(y));
 
             result.append(coor.x >= 0 ? " E" : " W");
-            int x = (int) Math.abs(coor.x * 100);
+            long x = ((int) Math.abs(coor.x))*100 + Math.round(Math.abs(coor.x-(int)(coor.x))*60);
+
             result.append(new DecimalFormat(FIVE_ZERO).format(x));
 
             if (i < (coors.length - 1))
