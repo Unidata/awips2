@@ -12,10 +12,12 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.AvnText;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Turbulence;
 import gov.noaa.nws.ncep.ui.pgen.tools.ILabeledLine;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 
@@ -82,7 +84,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
     
     //Closed line check box
     protected Button closedChkBox;
-    private Button openCloseBtn;
+ //   private Button openCloseBtn;
     
     //Add-Line button
     private Button addLineBtn;
@@ -210,8 +212,9 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
         createClosedAttr(pane1);
         
 		//'Open/close' button
-		openCloseBtn = new Button(pane1, SWT.TOGGLE);
-		openCloseBtn.setText("Open/Close");
+		Button openCloseBtn = new Button(pane1, SWT.TOGGLE);
+		openCloseBtn.setVisible( false);
+/*		openCloseBtn.setText("Open/Close");
 		openCloseBtn.setLayoutData(new GridData(120,30));
 		openCloseBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
@@ -231,7 +234,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 					
 			}
 		});		
-                
+  */              
 		//'Add Line' button
 		addLineBtn = new Button(pane1, SWT.TOGGLE);
 		addLineBtn.setText("Add Line");
@@ -246,7 +249,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 					addLabelBtn.setSelection(false);
 					delLineBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
-					openCloseBtn.setSelection(false);
+			//		openCloseBtn.setSelection(false);
 				}
 				else {
 //					turbTool.setAddLineMode(false);
@@ -268,7 +271,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 						addLineBtn.setSelection(false);
 						delLineBtn.setSelection(false);
 						delLabelBtn.setSelection(false);
-						openCloseBtn.setSelection(false);
+			//			openCloseBtn.setSelection(false);
 					}
 					else {
 						e.doit = false;
@@ -298,7 +301,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 					addLineBtn.setSelection(false);
 					addLabelBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
-					openCloseBtn.setSelection(false);
+		//			openCloseBtn.setSelection(false);
 				}
 				else {
 					turbTool.resetMouseHandler();
@@ -319,7 +322,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 						addLineBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						delLineBtn.setSelection(false);
-						openCloseBtn.setSelection(false);
+		//				openCloseBtn.setSelection(false);
 					}
 					else {
 						turbTool.resetMouseHandler();
@@ -560,7 +563,31 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 			this.closedChkBox.setSelection(ln.isClosedLine());
 
 		}
+	}
 	
+	/**
+	 * Set dialog attributes using values of adc
+	 */
+	@Override
+    public void setAttr( AbstractDrawableComponent adc ){
+    	if ( adc instanceof Turbulence ){
+    		LabeledLine ll = (LabeledLine)adc;
+			Iterator<DrawableElement> it = ll.createDEIterator();
+			while( it.hasNext() ){
+				DrawableElement de = it.next();
+				if ( de instanceof AvnText ){
+					this.setColor( de.getColors()[0] );
+					this.topValue.setText(((AvnText)de).getTopValue());
+					this.bottomValue.setText( ((AvnText)de).getBottomValue());
+					break;
+				}
+				else if ( de instanceof Line ){
+					this.setColor(de.getColors()[0]);
+				}
+			}
+			Line ln = (Line)ll.getPrimaryDE();
+			this.closedChkBox.setSelection(ln.isClosedLine());
+    	}
 	}
 	
 	@Override
@@ -660,11 +687,13 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 				}
 				else if ( de instanceof Line ){
 					de.setColors(this.getColors());
+					((Line) de).setClosed(this.isClosedLine());
 				}
 			}
 			
 			drawingLayer.replaceElement(ll, newll);
 			turbTool.setLabeledLine(newll);
+			AttrSettings.getInstance().setSettings( newll );
 			
 			//reset handle bar
 			drawingLayer.removeSelected();

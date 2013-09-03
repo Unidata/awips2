@@ -96,6 +96,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     initialized by constructor.
  * 04/24/2013    1936      dgilling    Move initialization of TextProductMgr
  *                                     to GFE startup.
+ * 08/27/2013    2302      randerso    Code cleanup for AutoSaveJob
  * 
  * </pre>
  * 
@@ -271,18 +272,10 @@ public class DataManager {
     }
 
     /**
-     * Start auto save jobs
+     * @return the autoSaveJob
      */
-    public void enableAutoSave() {
-        autoSaveJob.cancel();
-        autoSaveJob.reSchedule();
-    }
-
-    /**
-     * Stop auto save jobs
-     */
-    public void disableAutoSave() {
-        autoSaveJob.cancel();
+    public AutoSaveJob getAutoSaveJob() {
+        return autoSaveJob;
     }
 
     /**

@@ -367,17 +367,8 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		if( seldRscDefn.applyAttrSetGroups() ) {
 			groupsLbl.setVisible( true );
 			addToGroupLViewer.getList().setVisible( true );
-			if( seldRscDefn.isPgenResource() ) {
-//				addToGroupLViewer.getList().add( "All PGEN Resources");
 				
 				availGroupsList.clear();
-				availGroupsList.add( new RscAndGroupName( "PGEN", "PGEN" ) );
-				addToGroupLViewer.setInput( availGroupsList );
-				addToGroupLViewer.refresh();				
-		    	addToGroupLViewer.getList().select(0);
-			}
-			else {
-		    	availGroupsList.clear();
 		    	String rscImpl = seldRscDefn.getRscImplementation();
 		    	
 		    	for( String rscType : rscDefnMngr.getRscTypesForRscImplementation( rscImpl ) ) {
@@ -391,7 +382,6 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		    	// be first in the list.
 		    	addToGroupLViewer.getList().select(0);
 			}
-		}
 		else {
 	    	groupsLbl.setVisible( false );
 	    	addToGroupLViewer.getList().setVisible( false );
