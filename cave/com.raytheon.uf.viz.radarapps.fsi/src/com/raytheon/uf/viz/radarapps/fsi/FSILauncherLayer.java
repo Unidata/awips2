@@ -84,11 +84,11 @@ public class FSILauncherLayer extends
 
     private MouseHandler mouseHandler;
 
-    private MenuManager quickMenuManager;
+    private final MenuManager quickMenuManager;
 
-    private MenuManager fullMenuManager;
+    private final MenuManager fullMenuManager;
 
-    private Shell shell;
+    private final Shell shell;
 
     public FSILauncherLayer(FSILauncherResourceData fsiLauncherResourceData,
             LoadProperties loadProperties) {
@@ -201,14 +201,16 @@ public class FSILauncherLayer extends
                 } else {
                     try {
                         for (Object o : (ArrayList<?>) ((ResponseMessageGeneric) response)
-                                .getContents())
+                                .getContents()) {
                             result.add((String) o);
+                        }
                     } catch (RuntimeException e) {
                         throw new VizException("Unexpected server response", e);
                     }
                 }
-            } else
+            } else {
                 throw new VizException("Could not load getFsiRadars.py");
+            }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Could not retrieve FSI radar list", e);
@@ -229,15 +231,16 @@ public class FSILauncherLayer extends
             geoClickedPoint = getResourceContainer().translateClick(x, y);
             if (isEditable()) {
                 // panelClickPoint = new Point(x, y);
-                if (mouseButton == MOUSE_BUTTON_TO_USE)
+                if (mouseButton == MOUSE_BUTTON_TO_USE) {
                     clicked = true;
+                }
             }
             return false;
         }
 
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
-            if (clicked && mouseButton == MOUSE_BUTTON_TO_USE) {
+            if (clicked && (mouseButton == MOUSE_BUTTON_TO_USE)) {
                 clicked = false;
 
                 /*
@@ -295,8 +298,9 @@ public class FSILauncherLayer extends
                         throw new VizException("Unexpected server response", e);
                     }
                 }
-            } else
+            } else {
                 throw new VizException("Could not retrieve FSI environment");
+            }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Could not retrieve FSI radar list", e);
@@ -307,7 +311,7 @@ public class FSILauncherLayer extends
 
     public class LaunchFSIAction extends Action {
 
-        private String radarName;
+        private final String radarName;
 
         private class StormVector {
             public boolean useSTI = true;
@@ -393,7 +397,8 @@ public class FSILauncherLayer extends
                 RadarRecord radarRecord = null;
                 try {
                     List<Object[]> obs = query.performQuery();
-                    if (obs != null && !obs.isEmpty() && obs.get(0).length > 0) {
+                    if ((obs != null) && !obs.isEmpty()
+                            && (obs.get(0).length > 0)) {
                         radarRecord = (RadarRecord) obs.get(0)[0];
                     } else {
                         // default to 0.5 for non-terminal radars, test if
@@ -409,7 +414,6 @@ public class FSILauncherLayer extends
                 } catch (RuntimeException e) {
                     throw new VizException("Unexpected response format", e);
                 }
-                radarRecord.setPluginName("radar"); // TODO: huh?
                 File loc = HDF5Util.findHDF5Location(radarRecord);
                 IDataStore dataStore = DataStoreFactory.getDataStore(loc);
                 try {
@@ -439,8 +443,9 @@ public class FSILauncherLayer extends
 
         private String createControlMessage() {
             FSIEnvironment env = getFSIEnvironment();
-            if (env == null)
+            if (env == null) {
                 return null;
+            }
 
             // According to FSI_GUI, this must have the format ##.##
             String subTypeStr = String.format("%04.2f",
@@ -540,13 +545,14 @@ public class FSILauncherLayer extends
         @Override
         public void run() {
             String controlMessage = createControlMessage();
-            if (controlMessage == null)
+            if (controlMessage == null) {
                 return;
+            }
 
             File f = PathManagerFactory.getPathManager().getStaticFile(
                     "fsi" + File.separator + FSI_START_SCRIPT_NAME);
 
-            if (f == null || !f.exists()) {
+            if ((f == null) || !f.exists()) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Could not find the FSI start script.");
                 return;
@@ -604,12 +610,14 @@ public class FSILauncherLayer extends
                             int nLines = 0;
                             while (true) {
                                 String s = br.readLine();
-                                if (s == null)
+                                if (s == null) {
                                     break;
+                                }
                                 sb.append(s);
                                 sb.append('\n');
-                                if (++nLines >= MAX_LINES)
+                                if (++nLines >= MAX_LINES) {
                                     break;
+                                }
                             }
                         } catch (IOException e) {
                             e.printStackTrace(System.err);
@@ -628,7 +636,7 @@ public class FSILauncherLayer extends
                                 statusHandler
                                         .handle(Priority.PROBLEM,
                                                 "FSI failed to start: "
-														+ sb.toString());
+                                                        + sb.toString());
                                 return;
                             }
                         } catch (InterruptedException e) {

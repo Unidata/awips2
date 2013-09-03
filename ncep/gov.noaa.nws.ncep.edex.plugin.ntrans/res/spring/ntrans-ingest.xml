@@ -7,9 +7,7 @@
 	<constructor-arg ref="ntransPluginName"/> 
 	</bean>
 
-	<bean id="ntransDecoder" class="gov.noaa.nws.ncep.edex.plugin.ntrans.decoder.NtransDecoder">
-	<constructor-arg ref="ntransPluginName"/> 
-	</bean>
+	<bean id="ntransDecoder" class="gov.noaa.nws.ncep.edex.plugin.ntrans.decoder.NtransDecoder"/>
 
 	
 	<bean id="ntransDistRegistry" factory-bean="distributionSrv"
