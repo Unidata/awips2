@@ -35,7 +35,6 @@
              <motionEnable>${motionEnable}</motionEnable>
              <flightLevelEnable>${flightLevelEnable}</flightLevelEnable>
              <intensityEnable>${intensityEnable}</intensityEnable>
-             <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />

@@ -14,7 +14,9 @@
  */
 package gov.noaa.nws.ncep.ui.nctextui.rsc;
 
-import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.*;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -23,26 +25,39 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
-
 public class NctextuiResourceData extends AbstractResourceData {
 
 	private RGB 			color = new RGB(255, 0, 0);
+
 	private MarkerState 	markerState = MarkerState.MARKER_PLUS_TEXT;
+
 	private MarkerType  	markerType = MarkerType.DIAMOND;
+
 	private RGB 			pkStncolor = new RGB(0, 255, 0);
+
 	private MarkerState 	pkStnmarkerState = MarkerState.MARKER_PLUS_TEXT;
+
 	private MarkerType  	pkStnmarkerType = MarkerType.PLUS_SIGN;
+
 	private Float       	markerSize = 1.5f;
+
 	private Integer     	markerWidth = 2;
+
 	private MarkerTextSize 	markerTextSize = MarkerTextSize.MEDIUM;
+
 	private String 			mapName = "NCTEXTUI";
 
 	public NctextuiResourceData() {
 		super();
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon.uf.viz.core.comm.LoadProperties, com.raytheon.uf.viz.core.drawables.IDescriptor)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
+     * .uf.viz.core.comm.LoadProperties,
+     * com.raytheon.uf.viz.core.drawables.IDescriptor)
 	 */
 	@Override
 	public NctextuiResource construct(LoadProperties loadProperties,
@@ -51,8 +66,12 @@ public class NctextuiResourceData extends AbstractResourceData {
 		return new NctextuiResource(this, loadProperties);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
+     * )
 	 */
 	@Override
 	public void update(Object updateData) {
@@ -62,7 +81,20 @@ public class NctextuiResourceData extends AbstractResourceData {
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
+        if (obj == null || !(obj instanceof NctextuiResourceData))
+            return false;
+        NctextuiResourceData rdata = (NctextuiResourceData) obj;
+        if (this.markerState.equals(rdata.getMarkerState())
+                && this.markerType.equals(rdata.getMarkerType())
+                && this.markerSize.equals(rdata.getMarkerSize())
+                && this.markerWidth.equals(rdata.getMarkerWidth())
+                && this.markerTextSize.equals(rdata.getMarkerTextSize())
+                && this.markerWidth.equals(rdata.getMarkerWidth())
+                && this.pkStnmarkerState.equals(rdata.getPkStnmarkerState())
+                && this.pkStnmarkerType.equals(rdata.getPkStnmarkerType())
+                && this.pkStncolor.equals(rdata.getPkStncolor())
+                && this.color.equals(rdata.getColor()))
+            return true;
 		return false;
 	}
 	
