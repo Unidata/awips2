@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 
 import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
-import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.MarkerTextSize;
 import gov.noaa.nws.ncep.viz.overlays.IScaleOverlayResourceData.ScaleIntervalMode;
 import gov.noaa.nws.ncep.viz.overlays.IScaleOverlayResourceData.ScaleLatMode;
 import gov.noaa.nws.ncep.viz.overlays.IScaleOverlayResourceData.ScalePosition;

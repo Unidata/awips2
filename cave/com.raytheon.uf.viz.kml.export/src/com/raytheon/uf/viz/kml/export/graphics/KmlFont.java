@@ -23,9 +23,8 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+import com.raytheon.uf.viz.core.drawables.AbstractAWTFont;
 import com.raytheon.uf.viz.core.drawables.IFont;
 
 /**
@@ -39,25 +38,20 @@ import com.raytheon.uf.viz.core.drawables.IFont;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Jun 1, 2012             bsteffen    Initial creation
+ * Jul 24, 2013       2189 mschenke    Refactored to share common awt font code
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class KmlFont implements IFont {
-
-    private Font font;
+public class KmlFont extends AbstractAWTFont implements IFont {
 
     private float magnification;
 
-    private boolean scaleFont;
-
-    private boolean smoothing;
-
     public KmlFont(Font font) {
-        this.font = font;
+        super(font);
         this.magnification = 1.0f;
     }
 
@@ -67,7 +61,6 @@ public class KmlFont implements IFont {
 
     public KmlFont(String fontName) {
         this(new Font(fontName, Font.PLAIN, 10));
-
     }
 
     public KmlFont(String fontName, float fontSize) {
@@ -78,25 +71,15 @@ public class KmlFont implements IFont {
         this(new Font(fontName, toAwtStyle(styles), (int) fontSize));
     }
 
-    public KmlFont(File fontFile, float fontSize, Style[] styles)
-            throws FontFormatException, IOException {
-        this(Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(fontSize)
-                .deriveFont(toAwtStyle(styles)));
-    }
-
-    @Override
-    public String getFontName() {
-        return this.font.getFontName();
+    public KmlFont(File fontFile, FontType fontType, float fontSize,
+            Style[] styles) throws FontFormatException, IOException {
+        this(Font.createFont(toAwtFontType(fontType), fontFile)
+                .deriveFont(fontSize).deriveFont(toAwtStyle(styles)));
     }
 
     @Override
     public float getFontSize() {
         return this.font.getSize2D();
-    }
-
-    @Override
-    public Style[] getStyle() {
-        return toVizStyles(font.getStyle());
     }
 
     @Override
@@ -128,58 +111,12 @@ public class KmlFont implements IFont {
         return magnification;
     }
 
-    @Override
-    public void setSmoothing(boolean smooth) {
-        this.smoothing = smooth;
-    }
-
-    @Override
-    public boolean getSmoothing() {
-        return smoothing;
-    }
-
-    @Override
-    public boolean isScaleFont() {
-        return scaleFont;
-    }
-
-    @Override
-    public void setScaleFont(boolean scaleFont) {
-        this.scaleFont = scaleFont;
-    }
-
     public Font getFont() {
         return font;
     }
 
     public void setFont(Font font) {
         this.font = font;
-    }
-
-    private static int toAwtStyle(Style[] styles) {
-        int styleInt = Font.PLAIN;
-        if (styles == null || styles.length == 0) {
-            return styleInt;
-        }
-        for (Style style : styles) {
-            if (style == Style.BOLD) {
-                styleInt |= Font.BOLD;
-            } else if (style == Style.ITALIC) {
-                styleInt |= Font.ITALIC;
-            }
-        }
-        return styleInt;
-    }
-
-    private static Style[] toVizStyles(int style) {
-        List<Style> styles = new ArrayList<Style>();
-        if ((style & Font.BOLD) != 0) {
-            styles.add(Style.BOLD);
-        }
-        if ((style & Font.ITALIC) != 0) {
-            styles.add(Style.ITALIC);
-        }
-        return styles.toArray(new Style[0]);
     }
 
 }
