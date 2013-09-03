@@ -107,9 +107,11 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	
 	protected Label latitudeLabel; 
 	protected Text latitudeText = null;
+	protected String lastLat = "";
 	
 	protected Label longitudeLabel; 
 	protected Text longitudeText = null;
+	protected String lastLong = "";
 	
 	protected Button placeBtn = null;
 	protected Button undoBtn = null;
@@ -202,7 +204,8 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 */
 	public void setLatitude( double lat ){
 		
-		latitudeText.setText( new DecimalFormat("###.000").format( lat ));
+		latitudeText.setText( new DecimalFormat("###.00").format( lat ));
+		lastLat = latitudeText.getText();
 	  		
 	}
 	
@@ -212,7 +215,8 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 */	
 	public void setLongitude( double lon ){
 		
-		longitudeText.setText(new DecimalFormat("####.000").format(lon));
+		longitudeText.setText(new DecimalFormat("####.00").format(lon));
+		lastLong = longitudeText.getText();
 		
 	}
 	
@@ -783,6 +787,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 				| SWT.BORDER );
 		latitudeText.setTextLimit(8);
 		latitudeText.setLayoutData(new RowData(new Point(60,15)));
+		latitudeText.setText(lastLat);
 
 		placeBtn = new Button(latGroup, SWT.PUSH);
 		placeBtn.setText( PLACE_SYMBOL );
@@ -833,6 +838,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 		longitudeText = new Text(lonGroup, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
 		longitudeText.setTextLimit(8);
 		longitudeText.setLayoutData(new RowData(new Point(59,15)));
+		longitudeText.setText(lastLong);
 
 		latitudeText.addKeyListener( new LatLonKeyListener() );
 		latitudeText.addModifyListener(new LatModifyListener());

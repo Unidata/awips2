@@ -33,6 +33,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/10		#215		J. Wu   	Create a new Contours from
  * 										 a set of lines.
  * 11/10		#345		J. Wu		Added support for Contours Circle
+ * 07/13		TTR765		J. Wu   	DEL_PART between vertexes.
  * 
  * </pre>
  * 
@@ -198,7 +199,9 @@ public class Contours extends DECollection implements IContours {
 	}	
 	
 	/**
-	 *  Split a contour line in a Contours.
+	 *  Split a contour line in a Contours. - using index
+	 *  
+	 *  Older version - use only the points on the original (un-smoothed) line
 	 */
 	public Contours split( ContourLine cline, int start, int end ) {		
 		
@@ -391,6 +394,41 @@ public class Contours extends DECollection implements IContours {
 		return gridContours;
 		
 	}
+			
+	/**
+	 *  Split a contour line in a Contours - using coordinate
+	 */
+	public Contours split( ContourLine cline, Coordinate start, Coordinate end ) {		
+		
+		Contours newContours = new Contours();
+		
+        Iterator<AbstractDrawableComponent> iterator = this.getComponentIterator();
+        
+        while ( iterator.hasNext() ) {    				        					        					        	
+        	
+        	AbstractDrawableComponent oldAdc = iterator.next();
+        	AbstractDrawableComponent newAdc = oldAdc.copy();
+        	
+        	if ( oldAdc.equals( cline ) ) {
+        	    ArrayList<ContourLine> newLines = ((ContourLine)newAdc).split( start, end );
+                for ( ContourLine cln : newLines ) {   	    
+        	        cln.setParent( newContours );
+        	        newContours.add( cln );
+                }
+        	}
+        	else {
+        	    newAdc.setParent( newContours );
+        	    newContours.add( newAdc );       		
+        	}
+        	
+        }
+				
+		newContours.update( this );
+		        
+        return newContours;
+		
+	}
+	
 			
 }
 

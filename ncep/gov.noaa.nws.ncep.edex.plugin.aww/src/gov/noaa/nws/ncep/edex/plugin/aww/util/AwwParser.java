@@ -18,6 +18,7 @@
  *                                          The change is made in the method processWMO(...)  
  * 01/26/2011   N/A				M. Gao 		Refactor: 
  * 											change the WMO regular expression more flexible. 
+ * 08/01/2013   1028            G. Hull     sanity check on AwwReportType.
  *                                    
  * </pre>
  * 
@@ -33,6 +34,7 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwHVtec;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwLatlons;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
+import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord.AwwReportType;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
 import gov.noaa.nws.ncep.edex.util.UtilN;
@@ -1124,6 +1126,10 @@ if(wtchLatLonMatcher.find()){
 	    	reportType = getOtherType(bull);
 	    }
 			
+		if( AwwReportType.getReportType( reportType ) == AwwReportType.UNKNOWN_AWW_REPORT_TYPE ) {
+			logger.warn( "Warning: decoded aww report type, "+reportType+ ", not recogized." );
+		}
+
 		return reportType;
 			
 	}

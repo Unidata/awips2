@@ -997,7 +997,7 @@ public class PgenFileManageDialog extends CaveJFACEDialog {
    
     
     /** 
-     * Sets the jet snap tool in order to zoom tghe jet correctly.
+     * Sets the jet snap tool in order to zoom the jet correctly.
      * @param prods
      */
     private void setJetTool(java.util.List<gov.noaa.nws.ncep.ui.pgen.elements.Product> prods){
