@@ -39,8 +39,8 @@
                             
 		    	    <!-- Tag number -->
 		            <xsl:variable name="airTag"><xsl:value-of select="airmetTag"/></xsl:variable>
-		            <xsl:if test="string-length($airTag) > 1"><xsl:text> </xsl:text><xsl:value-of select="normalize-space($airTag)"/>.</xsl:if>
-            
+<!--		            <xsl:if test="string-length($airTag) > 1"><xsl:text> </xsl:text><xsl:value-of select="normalize-space($airTag)"/>.</xsl:if>
+-->            
                         </xsl:element>
 
                     </xsl:when>

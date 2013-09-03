@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.contours;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
@@ -34,6 +35,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 10/09		#167		J. Wu   	Initial Creation.
+ * 07/13		TTR765		J. Wu   	DEL_PART between vertexes.
  * 
  * </pre>
  * 
@@ -311,7 +313,7 @@ public class ContourLine extends DECollection {
 	}
 	
 	/**
-	 *  Remove a part from the contour line.
+	 *  Remove a part from the contour line - older version, using only points on line.
 	 */
 	public ArrayList<ContourLine> split( int start, int end ) {		
 		
@@ -329,6 +331,30 @@ public class ContourLine extends DECollection {
         return newContourlines;
 		
 	}
+
+	/**
+	 *  Remove a part from the contour line - using coordinates
+	 */
+	public ArrayList<ContourLine> split( Coordinate start, Coordinate end ) {		
+		
+		ArrayList<ContourLine> newContourlines = new ArrayList<ContourLine>();
+        
+		Line ln = getLine();
+		ArrayList<Coordinate> pts = ln.getPoints();
+		boolean closed = ln.isClosedLine();
+		List<ArrayList<Coordinate>> newLines = PgenUtil.deleteLinePart( pts, closed, start, end );
+
+		for ( ArrayList<Coordinate> newLn : newLines ) {
+			ContourLine ncline = this.copy();
+			ncline.getLine().setClosed( false );
+			ncline.getLine().setLinePoints( newLn );
+			newContourlines.add( ncline );
+		}
+		        
+        return newContourlines;
+		
+	}
+
 
 	/**
 	 * Removes a part from a line.  
