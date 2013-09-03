@@ -5,10 +5,10 @@
 -->
 <root>
 	<otlktype name="OUTLOOK" prefix="" >
-		<label name="TSTM"	value="0"/>
-		<label name="SLGT"	value="20"/>
-		<label name="MDT"	value="40"/>
-		<label name="HIGH"	value="60"/>
+		<label name="TSTM"	text="GENERAL THUNDERSTORM" value="0"/>
+		<label name="SLGT"	text = "SLIGHT RISK" value="20"/>
+		<label name="MDT"	text = "MODERATE RISK" value="40"/>
+		<label name="HIGH"	text ="HIGH RISK" value="60"/>
 		<label name="2%"/>
 		<label name="5%"/>
 		<label name="10%"/>
@@ -95,13 +95,15 @@
 		<label name="SIG"		value="100"/>	
 	</otlktype>
 	
-	<otlktype name="FIREOUTL" prefix="fireoutlook">
+	<otlktype name="FIREOUTL" prefix="fire">
 		<label name="ELEVATED"		value="40"/>
 		<label name="CRITICAL"	text="CRITICAL AREA FIRE WEATHER"			value="60"/>
 		<label name="EXTREME"	text="EXTREMELY CRITICAL AREA FIRE WEATHER"	value="80"/>
 		<label name="DRY TSTM"	text="DRY TSTM AREA FIRE WEATHER"			value="100"/>
 		<label name="ISOLD DRY-T" text="DRY TSTM AREA FIRE WEATHER"		value="100"/>
 		<label name="SCT DRY-T"	  text="DRY TSTM AREA FIRE WEATHER"		value="100"/>
+		<label name="10%"/>
+		<label name="40%"/>
 	</otlktype>
 	
 	<otlktype name="CATG_SVR" prefix="category_severe">
@@ -122,8 +124,10 @@
 	
 	<otlktype name="TSTMOLK" prefix="">
 		<label name="5%"/>
+		<label name="10%"/>
 		<label name="15%"/>
 		<label name="30%"/>
+		<label name="40%"/>
 		<label name="45%"/>
 		<label name="60%"/>
 		<label name="SIG"		value="100"/>		
@@ -147,7 +151,7 @@
 		<label name="D7-8"		value="78"/>			
 	</otlktype>
 	
-	<otlktype name="EXT_FIRE" prefix="fireoutlook">
+	<otlktype name="EXT_FIRE" prefix="fire">
 		<label name="D3"		value="30"/>
 		<label name="D4"		value="40"/>
 		<label name="D5"		value="50"/>

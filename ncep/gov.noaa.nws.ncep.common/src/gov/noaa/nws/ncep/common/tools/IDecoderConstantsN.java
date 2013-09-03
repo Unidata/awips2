@@ -21,6 +21,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 7/2011					T. Lee		Added STORM_BULLSEPARATOR
  * 9/2011					B. Hebbard	Added CALENDAR_MISSING
  * 11/2011					S. Gurung	Added NEGATIVE_FLOAT_MISSING and NEGATIVE_INTEGER_MISSING
+ * 08/2013					T. Lee		Simplied stormtrack reg expression
  *
  * </pre>
  *
@@ -57,7 +58,9 @@ public interface IDecoderConstantsN extends IDecoderConstants {
     		"(([0-9]{1}|/)(.*)(\\r\\r\\n))*";
     
     /** Regular expression for STORM_TRACK report */
+//    public static final String STORM_BULLSEPARATOR  = 
+//    		"(WP|IO|SH|CP|EP|AL|ML), +(\\d{1,2}|\\w{1,4}), +\\d{10}, +\\d{1,2}, +\\w{1,4}, +"
+//    		+"(-|\\d)\\d{0,2}, +\\d{1,3}(N|S| ), +\\d{1,4}(E|W|\\W), +.*\\x0a";
     public static final String STORM_BULLSEPARATOR  = 
-    		"(WP|IO|SH|CP|EP|AL|ML), +(\\d{1,2}|\\w{1,4}), +\\d{10}, +\\d{1,2}, +\\w{1,4}, +"
-    		+"(-|\\d)\\d{0,2}, +\\d{1,3}(N|S| ), +\\d{1,4}(E|W|\\W), +.*\\x0a";
+    		"(WP|IO|SH|CP|EP|AL|ML), +(\\d{1,2}|\\w{1,4}), +\\d{10}, +.*\\x0a";
 }
