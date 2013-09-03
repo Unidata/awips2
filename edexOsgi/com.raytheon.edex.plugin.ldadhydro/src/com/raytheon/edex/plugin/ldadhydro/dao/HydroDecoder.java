@@ -64,9 +64,10 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  *                     
- * ate          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 9/30/09                   vkorolev    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Sep 30, 2009             vkorolev    Initial creation
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author vkorolev
@@ -75,8 +76,6 @@ import com.raytheon.uf.common.time.DataTime;
 
 public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
 
-    private final String PLUGIN_NAME;
-
     private String traceId = null;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
@@ -84,10 +83,6 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
     public File confile;
 
     public Properties configFile = new Properties();
-
-    public HydroDecoder(String pluginName) throws DecoderException {
-        PLUGIN_NAME = pluginName;
-    }
 
     public void setTraceId(String id) {
         traceId = id;
@@ -152,7 +147,6 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                         HydroLdadRecord record = new HydroLdadRecord();
                         SurfaceObsLocation location = new SurfaceObsLocation();
                         record.setDataProvider(dd.provider);
-                        record.setPluginName(PLUGIN_NAME);
                         record.setStationType(dd.type);
                         record.setReportTime(dd.reportTime);
                         // Loop through fields
@@ -311,8 +305,7 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
             Class cls = record.getClass();
 
             Field fieldlist[] = cls.getDeclaredFields();
-            for (int i = 0; i < fieldlist.length; i++) {
-                Field fld = fieldlist[i];
+            for (Field fld : fieldlist) {
                 System.out.println("name = " + fld.getName());
                 // System.out.println("decl class = " +
                 // fld.getDeclaringClass());

@@ -37,27 +37,28 @@ import com.raytheon.uf.edex.plugin.mesowest.decoder.MESOWestParser;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 3, 2009            jkorman     Initial creation
- *
+ * Mar 03, 2009            jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class MESOWestDecoder {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private String pluginName = "mesowest";
 
-    private Map<String,MESOWestParser> parserMap = new HashMap<String,MESOWestParser>();
-    
+    private final Map<String, MESOWestParser> parserMap = new HashMap<String, MESOWestParser>();
+
     /**
      * 
      * @param name
@@ -77,27 +78,28 @@ public class MESOWestDecoder {
 
         PluginDataObject[] decodedData = null;
         String traceId = null;
-        
+
         logger.debug("MESOWestDecoder.decode()");
-        
-        if(input != null) {
-            traceId = (String) input.getProperty(MESOWestConstants.TRACEID);
+
+        if (input != null) {
+            traceId = input.getProperty(MESOWestConstants.TRACEID);
 
             MESOWestRecord record = null;
-            
+
             String type = input.getProperty(MESOWestConstants.K_DATATYPE);
-            if(MESOWestConstants.T_PARMHEADER.equals(type)) {
-                parserMap.put(input.getProperty("uuid"),new MESOWestParser(input.getReport()));
+            if (MESOWestConstants.T_PARMHEADER.equals(type)) {
+                parserMap.put(input.getProperty("uuid"), new MESOWestParser(
+                        input.getReport()));
                 logger.debug("Created parser ");
             } else if (MESOWestConstants.T_LASTITEM.equals(type)) {
                 parserMap.remove(input.getProperty("uuid"));
                 logger.debug("Destroyed parser ");
             } else {
-                MESOWestParser parser = parserMap.get(input.getProperty("uuid"));
-                if(parser != null) {
-                    if(input.getReport().length() > 10) {
-                        if((record = parser.decode(input.getReport())) != null) {
-                            record.setPluginName(pluginName);
+                MESOWestParser parser = parserMap
+                        .get(input.getProperty("uuid"));
+                if (parser != null) {
+                    if (input.getReport().length() > 10) {
+                        if ((record = parser.decode(input.getReport())) != null) {
                             record.setTraceId(traceId);
                             record.setObsText(input.getReport() + "\n");
                         }
@@ -106,15 +108,16 @@ public class MESOWestDecoder {
                     logger.error("Unexpected data in data stream");
                 }
             }
-            
+
             try {
                 if (record != null) {
                     logger.info("Decoded obs " + record.getStationId());
-                    
+
                     try {
                         record.constructDataURI();
                     } catch (PluginException e) {
-                        throw new DecoderException("Unable to construct dataURI", e);
+                        throw new DecoderException(
+                                "Unable to construct dataURI", e);
                     }
 
                     decodedData = new PluginDataObject[] { record };
@@ -124,7 +127,7 @@ public class MESOWestDecoder {
             } catch (Exception e) {
                 logger.error("Error in MESOWestDecoder", e);
             } finally {
-                if(decodedData == null) {
+                if (decodedData == null) {
                     decodedData = new PluginDataObject[0];
                 }
             }
@@ -134,7 +137,7 @@ public class MESOWestDecoder {
 
         return decodedData;
     }
-    
+
     /**
      * @return the pluginName
      */

@@ -5,9 +5,7 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
   
-     <bean id="awwDecoder" class="gov.noaa.nws.ncep.edex.plugin.aww.decoder.AwwDecoder">
-        <constructor-arg ref="awwPluginName"/>
-   </bean>
+   <bean id="awwDecoder" class="gov.noaa.nws.ncep.edex.plugin.aww.decoder.AwwDecoder"/>
    <bean id="awwSeparator" class="gov.noaa.nws.ncep.edex.plugin.aww.decoder.AwwSeparator"/>
 
    <!-- bean id="awwRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter"
