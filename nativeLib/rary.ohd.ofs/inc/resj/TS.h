@@ -100,8 +100,9 @@
 #ifndef TS_INCLUDED
 #define TS_INCLUDED
 
-#include <iostream.h>			// Need for I/O
-#include <fstream.h>
+#include <iostream>			// Need for I/O
+#include <fstream>
+#include <ostream>
 
 #include "TSData.h"			// The time series data point class
 #include "resj/TSDate.h"			// The time series date class
@@ -109,6 +110,8 @@
 #include "TSLimits.h"			// The time series data limits class
 
 #define	INSTANTANEOUS 1
+
+using namespace std;
 
 class TS
 {
