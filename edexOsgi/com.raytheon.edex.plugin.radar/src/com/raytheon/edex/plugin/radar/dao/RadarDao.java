@@ -27,8 +27,9 @@ package com.raytheon.edex.plugin.radar.dao;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/06/09     1990       bphillip    Initial creation
+ * Feb 06, 2009 1990       bphillip    Initial creation
  * Mar 18, 2013 1804       bsteffen    Reduce useless data stored in radar hdf5
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -120,7 +121,8 @@ public class RadarDao extends PluginDao {
             dataStore.addDataRecord(rec, sp);
         }
 
-        if (radarRec.getThresholds() != null && radarRec.getProductCode() != 2) {
+        if ((radarRec.getThresholds() != null)
+                && (radarRec.getProductCode() != 2)) {
             IDataRecord rec = new ShortDataRecord(
                     RadarStoredData.THRESHOLDS_ID, radarRec.getDataURI(),
                     radarRec.getThresholds(), 1, new long[] { 16 });
@@ -139,7 +141,7 @@ public class RadarDao extends PluginDao {
         }
 
         Map<RadarDataKey, RadarDataPoint> symData = radarRec.getSymbologyData();
-        if (symData != null && !symData.isEmpty()) {
+        if ((symData != null) && !symData.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
                     SerializationType.Thrift).serialize(symData);
             ByteDataRecord bdr = new ByteDataRecord(
@@ -161,7 +163,7 @@ public class RadarDao extends PluginDao {
 
         Map<MapValues, Map<String, Map<MapValues, String>>> mapProdVals = radarRec
                 .getMapProductVals();
-        if (mapProdVals != null && !mapProdVals.isEmpty()) {
+        if ((mapProdVals != null) && !mapProdVals.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
                     SerializationType.Thrift).serialize(mapProdVals);
             ByteDataRecord bdr = new ByteDataRecord(
@@ -192,7 +194,7 @@ public class RadarDao extends PluginDao {
 
         Map<MapValues, Map<MapValues, String>> mapRecVals = radarRec
                 .getMapRecordVals();
-        if (mapRecVals != null && !mapRecVals.isEmpty()) {
+        if ((mapRecVals != null) && !mapRecVals.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
                     SerializationType.Thrift).serialize(mapRecVals);
             ByteDataRecord bdr = new ByteDataRecord(
@@ -202,7 +204,7 @@ public class RadarDao extends PluginDao {
         }
 
         Map<String, RadarDataKey> stormIds = radarRec.getStormIDs();
-        if (stormIds != null && !stormIds.isEmpty()) {
+        if ((stormIds != null) && !stormIds.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
                     SerializationType.Thrift).serialize(stormIds);
             ByteDataRecord bdr = new ByteDataRecord(
@@ -274,7 +276,6 @@ public class RadarDao extends PluginDao {
         PluginDataObject[] queryResults = getMetadata(query);
         for (PluginDataObject obj : queryResults) {
             RadarRecord record = (RadarRecord) obj;
-            record.setPluginName(pluginName);
             IDataRecord[] hdf5Data = getHDF5Data(record, tile);
             record.setMessageData(hdf5Data[0].getDataObject());
             record.setAngleData((float[]) hdf5Data[1].getDataObject());

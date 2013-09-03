@@ -24,7 +24,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 22, 2013            sgilbert     Initial creation
+ * Apr 22, 2013            sgilbert    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -33,9 +34,6 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  */
 public class StoreActivityHandler implements
         IRequestHandler<StoreActivityRequest> {
-
-    // private static final transient IUFStatusHandler statusHandler = UFStatus
-    // .getHandler(StoreActivityHandler.class);
 
     private static Logger logger = Logger.getLogger(StoreActivityHandler.class
             .toString());
@@ -69,7 +67,6 @@ public class StoreActivityHandler implements
         record.setActivityXML(request.getActivityXML());
 
         record.setOverwriteAllowed(true);
-        record.setPluginName(PGEN);
         record.constructDataURI();
         response.setDataURI(record.getDataURI());
 
