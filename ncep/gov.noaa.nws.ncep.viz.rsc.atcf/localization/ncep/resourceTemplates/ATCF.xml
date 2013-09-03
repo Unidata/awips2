@@ -144,7 +144,6 @@
                    <nameEnable>${nameEnable}</nameEnable>
                    <speedEnable>${speedEnable}</speedEnable>
                    <markerEnable>${markerEnable}</markerEnable>
-                   <requestStyle>METADATA</requestStyle> 
               <metadataMap>
                <mapping key="pluginName">
                 	<constraint constraintValue="${pluginName}" constraintType="EQUALS" />

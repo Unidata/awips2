@@ -28,7 +28,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField.StationField;
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAvnText.AviationTextType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
@@ -72,6 +74,7 @@ import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaRules;
@@ -1525,6 +1528,10 @@ public class ProductConverter {
 					}
 					
 					if (de.getText() != null ){
+						//Set text to (0,0) in order to reset the flight level location during snapping. 
+						//(User may save the jet in one projection and open in a different one.
+						de.getText().get(0).getPoint().setLat((double) 0 );
+						de.getText().get(0).getPoint().setLon((double) 0 );
 		    		    wind.add(convertJetFL(de.getText().get(0), jet));
 					}
 					
@@ -1532,6 +1539,14 @@ public class ProductConverter {
 						
 				}
 			}
+		}
+		
+		//Snap jet
+		if ( PgenSession.getInstance() != null ){
+			PgenSnapJet st = new PgenSnapJet(PgenSession.getInstance().getPgenResource().getDescriptor(), 
+					PgenUtil.getActiveEditor(), null);
+			jet.setSnapTool( st );
+			st.snapJet( jet );
 		}
 		
 		return jet;
@@ -1667,7 +1682,7 @@ public class ProductConverter {
 				DisplayType.valueOf( fText.getDisplayType() ), 
 				fText.getPgenCategory(), fText.getPgenType() );
 		
-		text.setLatLonFlag(true);
+		text.setLatLonFlag(false);
 		
 		return text;
 	}
