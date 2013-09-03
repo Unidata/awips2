@@ -64,11 +64,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20090403           1939 jkorman     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Apr 03, 2009 1939       jkorman     Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -82,12 +84,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "acarssounding",
-		indexes = {
-				@Index(name = "acarssounding_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "acarssounding", indexes = { @Index(name = "acarssounding_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -122,12 +120,12 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     @XmlElement
     private String tailNumber;
 
-    // Flight phase (A[scending]  D[escending])
+    // Flight phase (A[scending] D[escending])
     @Column(length = 1)
     @DynamicSerializeElement
     @XmlElement
     private String phase = null;
-    
+
     // oldest observation time in this sounding
     @Column
     @DynamicSerializeElement
@@ -139,7 +137,7 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private Long newestTime = Long.MIN_VALUE;
-    
+
     // The level data for this observation.
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", fetch = FetchType.EAGER)
     @XmlElement
@@ -261,7 +259,7 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     public void setTailNumber(String tailNumber) {
         this.tailNumber = tailNumber;
     }
-    
+
     /**
      * @return the phase
      */
@@ -270,7 +268,8 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     }
 
     /**
-     * @param phase the phase to set
+     * @param phase
+     *            the phase to set
      */
     public void setPhase(String phase) {
         this.phase = phase;
@@ -284,7 +283,8 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     }
 
     /**
-     * @param oldestTime the oldestTime to set
+     * @param oldestTime
+     *            the oldestTime to set
      */
     public void setOldestTime(Long oldestTime) {
         this.oldestTime = oldestTime;
@@ -298,7 +298,8 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     }
 
     /**
-     * @param newestTime the newestTime to set
+     * @param newestTime
+     *            the newestTime to set
      */
     public void setNewestTime(Long newestTime) {
         this.newestTime = newestTime;
@@ -328,17 +329,17 @@ public class ACARSSoundingRecord extends PluginDataObject implements
      * @param cloud
      */
     public void addLevel(ACARSSoundingLayer level) {
-        if(level != null) {
+        if (level != null) {
             level.setParent(this);
             if (levels == null) {
                 levels = new HashSet<ACARSSoundingLayer>();
             }
             levels.add(level);
             long cTime = level.getTimeObs().getTimeInMillis();
-            if(cTime < oldestTime) {
+            if (cTime < oldestTime) {
                 oldestTime = cTime;
             }
-            if(cTime > newestTime) {
+            if (cTime > newestTime) {
                 newestTime = cTime;
             }
         }
@@ -385,5 +386,10 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "acarssounding";
     }
 }

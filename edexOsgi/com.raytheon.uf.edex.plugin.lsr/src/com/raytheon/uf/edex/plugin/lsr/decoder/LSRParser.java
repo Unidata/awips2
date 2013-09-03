@@ -52,7 +52,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009 1939       jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -137,18 +138,18 @@ public class LSRParser {
     }
 
     // private Pattern rptStartPtrn = Pattern.compile(TIME_PTRN);
-    private Pattern latlanPtrn = Pattern.compile(LATLON_PTRN);
+    private final Pattern latlanPtrn = Pattern.compile(LATLON_PTRN);
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private final PointDataDescription pointDataDescription;
 
     private final LocalStormReportDao lsrDao;
 
-    private Map<File, PointDataContainer> containerMap;
+    private final Map<File, PointDataContainer> containerMap;
 
-    private String pluginName;
+    private final String pluginName;
 
     private WMOHeader wmoHeader;
 
@@ -166,7 +167,7 @@ public class LSRParser {
 
     int currentReport = -1;
 
-    private HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
+    private final HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
 
     private List<LocalStormReport> reports;
 
@@ -361,7 +362,6 @@ public class LSRParser {
                                                 .getWmoHeader());
                                         rpt.setOfficeid(officeid);
                                         rpt.setTraceId(traceId);
-                                        rpt.setPluginName(pluginName);
 
                                         reports.add(rpt);
                                     }
