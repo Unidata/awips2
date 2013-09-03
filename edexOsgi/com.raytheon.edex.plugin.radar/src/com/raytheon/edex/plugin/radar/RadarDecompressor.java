@@ -19,10 +19,14 @@
  **/
 package com.raytheon.edex.plugin.radar;
 
+import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
+
+import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -42,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jul 16, 2012 DR 14723   D.Friedman  Decompress files atomically
  * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
  *                                     memory.
+ * Aug 20, 2013 16157      wkwock      Add bunzip2 cabability. 
  * 
  * </pre>
  * 
@@ -104,13 +109,27 @@ public class RadarDecompressor {
                             wmoHeaderSize, radarData.length);
                     radarData = radarDataWithHeader;
                 }
-            } else if (!keepHeader && wmoHeaderSize > 0) {
-                // strip the header.
-                radarData = new byte[messageData.length - wmoHeaderSize];
-                System.arraycopy(messageData, wmoHeaderSize, radarData, 0,
-                        radarData.length);
             } else {
-                radarData = messageData;
+                radarData = decompressBzip2 (messageData, wmoHeaderSize, headers);
+                if (radarData !=null) {
+                    if (keepHeader) {
+                        // put the header back on.
+                        byte[] radarDataWithHeader = new byte[radarData.length
+                            + wmoHeaderSize];
+                        System.arraycopy(messageData, 0, radarDataWithHeader, 0,
+                            wmoHeaderSize);
+                        System.arraycopy(radarData, 0, radarDataWithHeader,
+                            wmoHeaderSize, radarData.length);
+                        radarData = radarDataWithHeader;
+                    }
+                } else if (!keepHeader && wmoHeaderSize > 0) {
+                    // strip the header.
+                    radarData = new byte[messageData.length - wmoHeaderSize];
+                    System.arraycopy(messageData, wmoHeaderSize, radarData, 0,
+                        radarData.length);
+                } else {
+                    radarData = messageData;
+                }
             }
         } catch (Exception e) {
             theHandler.handle(Priority.ERROR, "Failed decompression on "
@@ -149,6 +168,33 @@ public class RadarDecompressor {
                 }
             }
         }
+        return false;
+    }
+
+    /**
+     * Checks to see if inBuf has bzip2 compressed block. 
+     * 0-inOff in inBuf is WMO header. 
+     * (inOff+1) - (inOff+120) is nexrad_header(18 bytes) +  
+     *                            s_product_description_block (102 bytes)
+     * And inBuf[inOff+121 to inOff+123] is 'BZh' then it most likely is bzip2
+     * compressed.
+     * Also see AWIPS I RadarDecompress.c for more info.
+     * 
+     * @param inBuf
+     *            the data buffer
+     * @param inOff
+     *            the offset into the buffer
+     * @return true if data is bzip2 compressed
+     */
+    private boolean isBzip2Compressed(byte[] inBuf, int inOff) {
+        if ((inBuf==null) || (inOff < 0) || ((inOff +120) >= inBuf.length)) {
+            return false;
+        }
+        
+        if (inBuf[inOff+120]== 'B' && inBuf[inOff+121]== 'Z' && inBuf[inOff+122]== 'h') {
+        	return true;
+        }
+        
         return false;
     }
 
@@ -220,6 +266,42 @@ public class RadarDecompressor {
             decompressor.end();
         }
 
+        return outBuf;
+    }
+    
+    /**
+     * Method to handle bzip2 compressed radar data. If data is not compressed it is
+     * just copied to the output buffer.
+     * 
+     * @return The decompressed byte array for the radar data 
+     *         or null if not decompressed 
+     */
+    private byte[] decompressBzip2(byte[] inBuf, int offset, Headers headers) {
+        byte[] outBuf = null;
+
+        if (isBzip2Compressed(inBuf, offset)) {
+        	byte[] tmpBuf= new byte[inBuf.length-offset-120];
+            System.arraycopy(inBuf, offset+120, tmpBuf, 0, tmpBuf.length);
+           	ByteArrayInputStream is = new ByteArrayInputStream(tmpBuf);
+            BZip2InputStream bis= new BZip2InputStream(is,false);
+            try {
+            	//use 10x85716 should be safe
+            	byte[] tmpBuf2= new byte[860000];
+               	int actualByte=bis.read(tmpBuf2);
+               	bis.close();
+               	outBuf = new byte[actualByte+120];
+               	//the 120 bytes:description block and symbology block
+        		System.arraycopy(inBuf, offset, outBuf, 0, 8);
+        		byte[] lengthMsg2=ByteBuffer.allocate(4).putInt(outBuf.length).array();
+        		System.arraycopy(lengthMsg2, 0, outBuf, 8, 4);
+        		System.arraycopy(inBuf, offset+8+4, outBuf, 12, 108);
+
+               	System.arraycopy(tmpBuf2, 0, outBuf, 120, actualByte);
+            } catch (Exception e) {
+            	theHandler.handle(Priority.ERROR,
+                      "Failed to decompress " + headers.get("ingestfilename"));
+            }
+        }
         return outBuf;
     }
 }

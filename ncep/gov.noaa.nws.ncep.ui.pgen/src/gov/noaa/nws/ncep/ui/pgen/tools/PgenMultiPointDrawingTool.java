@@ -63,6 +63,7 @@ import gov.noaa.nws.ncep.viz.common.LocatorUtil;
  * 02/12        TTR456      Q.Zhou      Added parameters to setTrack()
  * 02/12        #597        S. Gurung   Removed snapping for NCON_SIGMET. 
  * 05/12		#708		J. Wu		Use data frame time for Track element
+ * 08/13		#1025		J. Wu		Populate VOR data for "Isolated" CONV_SIGMET.
  *                                       
  * </pre>
  * 
@@ -299,6 +300,10 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
         		
                 elem = def.create( getDrawableType(pgenType), (IAttribute)attrDlg,
                     		pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
+                
+        		attrDlg.setDrawableElement((DrawableElement)elem);
+        		AttrSettings.getInstance().setSettings((DrawableElement)elem);
+
                 drawingLayer.addElement( elem );
                 drawingLayer.removeGhostLine();
                 points.clear();

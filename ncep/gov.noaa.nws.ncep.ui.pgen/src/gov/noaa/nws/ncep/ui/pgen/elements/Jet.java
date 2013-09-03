@@ -96,6 +96,7 @@ public class Jet extends DECollection {
 					// when elements are loaded from XML files, the locations 
 					// of fl texts are lat/lon pairs,
 					// so they need to be converted to relative locations to the barbs.
+					// Note: Does not go through here anymore since the lat/lon are reset in product converter.
 					((JetText)de).setLocation(((JetText)de).getLoc()); 
 					((JetText)de).setLatLonFlag(false);
 				}
