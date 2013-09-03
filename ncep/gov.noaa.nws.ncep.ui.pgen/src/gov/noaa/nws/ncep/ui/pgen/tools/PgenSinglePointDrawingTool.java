@@ -251,8 +251,9 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
         	    
             	AbstractDrawableComponent ghost = null;
             	
-        		    ((SymbolAttrDlg)attrDlg).setLatitude(loc.y );
-        	        ((SymbolAttrDlg)attrDlg).setLongitude(loc.x );       
+            	//don't update location (AWC requirement)
+        		//    ((SymbolAttrDlg)attrDlg).setLatitude(loc.y );
+        	    //    ((SymbolAttrDlg)attrDlg).setLongitude(loc.x );       
         	
           	        ghost = def.create( getDrawableType(), (IAttribute)attrDlg,
        			                    pgenCategory, pgenType, loc, 

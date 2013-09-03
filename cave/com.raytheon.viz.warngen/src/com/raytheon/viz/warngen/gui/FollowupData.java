@@ -20,7 +20,7 @@
 package com.raytheon.viz.warngen.gui;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
-import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -37,20 +37,21 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
  * Jul 22, 2013 2176       jsanchez    Added EMER to the display string in the update list.
  * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
+ * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute. Fixed for practice mode.
  * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute.
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class FollowupData extends WarningRecord {
+public class FollowupData extends AbstractWarningRecord {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * String displayed in the drop down update list.
      */
-    private String displayString;
+    private final String displayString;
 
     /**
      * String used to test if this object is equivalent to one of the updated
@@ -61,10 +62,10 @@ public class FollowupData extends WarningRecord {
     /**
      * Information string used when the follow up is no longer valid or allowed.
      */
-    private String expirationString;
+    private final String expirationString;
 
     public FollowupData(WarningAction action, AbstractWarningRecord record) {
-        super((WarningRecord) record);
+        super(record);
         setAct(action.toString());
 
         displayString = createDisplayString(action, record);
@@ -191,4 +192,13 @@ public class FollowupData extends WarningRecord {
         return expirationString;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.dataplugin.PluginDataObject#getPluginName()
+     */
+    @Override
+    public String getPluginName() {
+        return "followupwarning";
+    }
 }
