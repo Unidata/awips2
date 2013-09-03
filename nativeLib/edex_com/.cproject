@@ -201,9 +201,12 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="edex_com.cdt.managedbuild.target.gnu.so.206598592" name="Shared Library" projectType="cdt.managedbuild.target.gnu.so"/>
 	</storageModule>
+<<<<<<< HEAD
 	<storageModule moduleId="refreshScope" versionNumber="1">
 		<resource resourceType="PROJECT" workspacePath="/edex_com"/>
 	</storageModule>
+=======
+>>>>>>> 7f3b822... Issue #2163 - RHEL6 nativeLib changes required for compiler compatibility
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile"/>
 		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -951,4 +954,8 @@
 			</profile>
 		</scannerConfigBuildInfo>
 	</storageModule>
+<<<<<<< HEAD
+=======
+	<storageModule moduleId="refreshScope"/>
+>>>>>>> 7f3b822... Issue #2163 - RHEL6 nativeLib changes required for compiler compatibility
 </cproject>
