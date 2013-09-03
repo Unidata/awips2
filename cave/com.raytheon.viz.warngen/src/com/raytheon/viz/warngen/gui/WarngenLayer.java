@@ -49,6 +49,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -57,7 +60,6 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GridSpacing;
@@ -185,6 +187,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/26/2013  DR 16376    Qinglu Lin  Moved adjustVertex() and computeSlope() to PolygonUtil; removed calculateDistance();
  *                                     updated AreaHatcher's run().
  * 07/26/2013  DR 16450    D. Friedman Fix logic errors when frame count is one.
+ * 08/19/2013   2177       jsanchez    Set a GeneralGridGeometry object in the GeospatialDataList.
  * </pre>
  * 
  * @author mschenke
@@ -212,24 +215,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
         IExtent localExtent;
 
         int nx, ny;
+
+        GeneralGridGeometry localGridGeometry;
     }
 
     private static class GeospatialDataAccessor {
         GeospatialDataList geoData;
+
         AreaSourceConfiguration areaConfig;
 
         public GeospatialDataAccessor(GeospatialDataList geoData,
                 AreaSourceConfiguration areaConfig) {
             if (geoData == null || areaConfig == null) {
-                throw new IllegalArgumentException("GeospatialDataAccessor must not be null");
+                throw new IllegalArgumentException(
+                        "GeospatialDataAccessor must not be null");
             }
             this.geoData = geoData;
             this.areaConfig = areaConfig;
         }
 
         /**
-         * Build the geometry area that intersects the cwa filter for the polygon in
-         * local projection space
+         * Build the geometry area that intersects the cwa filter for the
+         * polygon in local projection space
          * 
          * @param polygon
          *            polygon to intersect with in lat/lon space
@@ -243,8 +250,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     PreparedGeometry prepGeom = (PreparedGeometry) r.attributes
                             .get(GeospatialDataList.LOCAL_PREP_GEOM);
                     try {
-                        Geometry intersection = GeometryUtil.intersection(polygon,
-                                prepGeom);
+                        Geometry intersection = GeometryUtil.intersection(
+                                polygon, prepGeom);
                         if (intersection.isEmpty()) {
                             continue;
                         }
@@ -407,7 +414,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
 
                 try {
-                    warningPolygon = PolygonUtil.removeDuplicateCoordinate(warningPolygon);
+                    warningPolygon = PolygonUtil
+                            .removeDuplicateCoordinate(warningPolygon);
                     Polygon hatched = polygonUtil.hatchWarningArea(
                             warningPolygon,
                             removeCounties(warningArea,
@@ -425,27 +433,37 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         LinearRing lr = gf.createLinearRing(coords);
                         hatchedArea = gf.createPolygon(lr, null);
                         int adjustPolygon_counter = 0;
-                        while (!hatchedArea.isValid() && adjustPolygon_counter < 1) {
-                            System.out.println("Calling adjustPolygon #" + adjustPolygon_counter);
+                        while (!hatchedArea.isValid()
+                                && adjustPolygon_counter < 1) {
+                            System.out.println("Calling adjustPolygon #"
+                                    + adjustPolygon_counter);
                             PolygonUtil.adjustPolygon(coords);
                             PolygonUtil.round(coords, 2);
-                            coords = PolygonUtil.removeDuplicateCoordinate(coords);
-                            coords = PolygonUtil.removeOverlaidLinesegments(coords);
+                            coords = PolygonUtil
+                                    .removeDuplicateCoordinate(coords);
+                            coords = PolygonUtil
+                                    .removeOverlaidLinesegments(coords);
                             lr = gf.createLinearRing(coords);
                             hatchedArea = gf.createPolygon(lr, null);
                             adjustPolygon_counter += 1;
                         }
                         int counter = 0;
                         if (!hatchedArea.isValid() && counter < 2) {
-                            System.out.println("calling adjustVertex & alterVertexes: loop #" + counter);
+                            System.out
+                                    .println("calling adjustVertex & alterVertexes: loop #"
+                                            + counter);
                             int adjustVertex_counter = 0;
                             lr = gf.createLinearRing(coords);
                             hatchedArea = gf.createPolygon(lr, null);
-                            while (!hatchedArea.isValid() && adjustVertex_counter < 5) {
-                                System.out.println("    Calling adjustVertex #" + adjustVertex_counter);
+                            while (!hatchedArea.isValid()
+                                    && adjustVertex_counter < 5) {
+                                System.out.println("    Calling adjustVertex #"
+                                        + adjustVertex_counter);
                                 coords = PolygonUtil.adjustVertex(coords);
-                                coords = PolygonUtil.removeDuplicateCoordinate(coords);
-                                coords = PolygonUtil.removeOverlaidLinesegments(coords);
+                                coords = PolygonUtil
+                                        .removeDuplicateCoordinate(coords);
+                                coords = PolygonUtil
+                                        .removeOverlaidLinesegments(coords);
                                 lr = gf.createLinearRing(coords);
                                 hatchedArea = gf.createPolygon(lr, null);
                                 adjustVertex_counter += 1;
@@ -453,10 +471,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             int inner_counter = 0;
                             System.out.println("");
                             while (!hatchedArea.isValid() && inner_counter < 5) {
-                                System.out.println("    Calling alterVertexes #" + inner_counter);
+                                System.out
+                                        .println("    Calling alterVertexes #"
+                                                + inner_counter);
                                 coords = PolygonUtil.alterVertexes(coords);
-                                coords = PolygonUtil.removeDuplicateCoordinate(coords);
-                                coords = PolygonUtil.removeOverlaidLinesegments(coords);
+                                coords = PolygonUtil
+                                        .removeDuplicateCoordinate(coords);
+                                coords = PolygonUtil
+                                        .removeOverlaidLinesegments(coords);
                                 lr = gf.createLinearRing(coords);
                                 hatchedArea = gf.createPolygon(lr, null);
                                 inner_counter += 1;
@@ -674,8 +696,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     displayState.angle = 0;
                     displayState.speed = 0;
                 } else if (checkStormTrackData(data = ToolsDataManager
-                        .getInstance()
-                        .getStormTrackData())) {
+                        .getInstance().getStormTrackData())) {
                     displayState.angle = adjustAngle(data.getMotionDirection());
                     displayState.speed = knotToMeterPerSec.convert(data
                             .getMotionSpeed());
@@ -995,8 +1016,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         if (config != null) {
             init(config);
-            displayState.setInitiallyMotionless(
-                    this.configuration.isTrackEnabled() == false
+            displayState.setInitiallyMotionless(this.configuration
+                    .isTrackEnabled() == false
                     || this.configuration.getPathcastConfig() == null);
         }
     }
@@ -1044,9 +1065,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 + (System.currentTimeMillis() - t0) + "ms");
     }
 
-    /** Adds geospatial data to siteMap and timezoneMap for the given
-     * template configuration.  This must not have any site effects on the
-     * currently loaded template or the current product being edited.
+    /**
+     * Adds geospatial data to siteMap and timezoneMap for the given template
+     * configuration. This must not have any site effects on the currently
+     * loaded template or the current product being edited.
+     * 
      * @param config
      */
     private void loadGeodataForConfiguration(WarngenConfiguration config) {
@@ -1083,7 +1106,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         Coordinate c = new GeometryFactory()
                                 .buildGeometry(geoms).getCentroid()
                                 .getCoordinate();
-
                         gData.latLonToLocal = MapUtil
                                 .getTransformFromLatLon(MapUtil
                                         .constructStereographic(
@@ -1146,6 +1168,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         gData.nx = nx;
                         gData.ny = ny;
 
+                        GeneralGridEnvelope range = new GeneralGridEnvelope(
+                                new int[] { 0, 0 }, new int[] { gData.nx,
+                                        gData.ny }, false);
+                        GeneralEnvelope ge = new GeneralEnvelope(new double[] {
+                                gData.localExtent.getMinX(),
+                                gData.localExtent.getMaxY() }, new double[] {
+                                gData.localExtent.getMaxX(),
+                                gData.localExtent.getMinY() });
+
+                        gData.localGridGeometry = new GeneralGridGeometry(
+                                range, ge);
+
                         System.out.println("Time to lookup geospatial data "
                                 + (System.currentTimeMillis() - tq0));
                         siteMap.put(currKey, gData);
@@ -1186,6 +1220,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     geoDataList.features.length);
         }
         return new GeospatialData[0];
+    }
+
+    public GeneralGridGeometry getLocalGridGeometry() {
+        return geoData.localGridGeometry;
+    }
+
+    public MathTransform getlocalToLatLon() {
+        return geoData.localToLatLon;
     }
 
     private GeospatialDataList getGeodataList(String areaSource,
@@ -1303,7 +1345,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * Returns a set of UGCs for each area in the CWA that intersects the given
      * polygon.
      */
-    public Set<String> getUgcsForCountyWatches(Polygon polygon) throws Exception {
+    public Set<String> getUgcsForCountyWatches(Polygon polygon)
+            throws Exception {
         GeospatialDataAccessor gda = getCountyGeospatialDataAcessor();
         Set<String> ugcs = new HashSet<String>();
         for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
@@ -1321,17 +1364,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return ugcs;
     }
 
-    private GeospatialDataAccessor getCountyGeospatialDataAcessor() throws Exception {
+    private GeospatialDataAccessor getCountyGeospatialDataAcessor()
+            throws Exception {
         GeospatialDataList gdl = searchCountyGeospatialDataAccessor();
         if (gdl == null) {
             // Cause county geospatial data to be loaded
             // TODO: Should not be referencing tornadoWarning.
-            WarngenConfiguration torConfig = WarngenConfiguration.loadConfig("tornadoWarning", getLocalizedSite());
+            WarngenConfiguration torConfig = WarngenConfiguration.loadConfig(
+                    "tornadoWarning", getLocalizedSite());
             loadGeodataForConfiguration(torConfig);
             gdl = searchCountyGeospatialDataAccessor();
         }
 
-        // TODO: There should be some way to get the "county" configuration by name
+        // TODO: There should be some way to get the "county" configuration by
+        // name
         // independent of a template
         AreaSourceConfiguration areaConfig = new AreaSourceConfiguration();
         areaConfig.setFipsField("FIPS");
@@ -1341,7 +1387,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private GeospatialDataList searchCountyGeospatialDataAccessor() {
         synchronized (siteMap) {
-            for (Map.Entry<String, GeospatialDataList> entry : siteMap.entrySet()) {
+            for (Map.Entry<String, GeospatialDataList> entry : siteMap
+                    .entrySet()) {
                 String[] keyParts = entry.getKey().split("\\.");
                 if (keyParts.length == 2
                         && "county".equalsIgnoreCase(keyParts[0])
@@ -1938,8 +1985,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return;
         }
         if (warningAction == null || warningAction == WarningAction.NEW) {
-            if ((configuration.isTrackEnabled() == false ||
-                    configuration.getPathcastConfig() == null)
+            if ((configuration.isTrackEnabled() == false || configuration
+                    .getPathcastConfig() == null)
                     && !this.displayState.isNonstationary()
                     && this.displayState.displayType != DisplayType.POLY) {
                 createSquare();
@@ -2271,8 +2318,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         Point point = displayState.dragMePoint;
-        if (motdir != null && motspd != null &&
-                (motspd != 0 || configuration.isTrackEnabled())) {
+        if (motdir != null && motspd != null
+                && (motspd != 0 || configuration.isTrackEnabled())) {
             displayState.setInitiallyMotionless(false);
             displayState.angle = adjustAngle(motdir);
             displayState.speed = knotToMeterPerSec.convert(motspd);
@@ -2325,10 +2372,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (m.find()) {
             int hour = Integer.parseInt(m.group(1));
             int minute = Integer.parseInt(m.group(2));
-            frameTime = TimeUtil.timeOfDayToAbsoluteTime(
-                    hour * TimeUtil.SECONDS_PER_HOUR +
-                    minute * TimeUtil.SECONDS_PER_MINUTE,
-                    warnRecord.getIssueTime());
+            frameTime = TimeUtil.timeOfDayToAbsoluteTime(hour
+                    * TimeUtil.SECONDS_PER_HOUR + minute
+                    * TimeUtil.SECONDS_PER_MINUTE, warnRecord.getIssueTime());
         } else {
             frameTime = warnRecord.getIssueTime();
         }
@@ -2376,8 +2422,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         FramesInfo info = descriptor.getFramesInfo();
         int currentFrame = trackUtil.getCurrentFrame(info);
         int frameCount = trackUtil.getFrameCount(info);
-        if (currentFrame == frameCount - 1
-                || ! displayState.isNonstationary()) {
+        if (currentFrame == frameCount - 1 || !displayState.isNonstationary()) {
             return coordinate;
         }
         DataTime[] datatimes = trackUtil.getDataTimes(info);
@@ -2686,7 +2731,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 getFips(f));
                         if (tmp.isEmpty()) {
                             String fip = getFips(f);
-                            if (fip != null && uniqueFip != null && fip.equals(uniqueFip)) {
+                            if (fip != null && uniqueFip != null
+                                    && fip.equals(uniqueFip)) {
                                 updateWarnedAreas(true);
                             }
                             break;
@@ -2769,8 +2815,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (areaHatcher != null) {
             Polygon polygon = state.getWarningPolygon();
             polygon = tryToIntersectWithOriginalPolygon(polygon);
-            areaHatcher.hatchArea(polygon,
-                    state.getWarningArea(),
+            areaHatcher.hatchArea(polygon, state.getWarningArea(),
                     state.getOldWarningPolygon());
         }
     }

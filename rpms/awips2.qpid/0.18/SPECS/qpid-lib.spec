@@ -69,7 +69,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-./configure --prefix=%{_qpid_build_loc}/awips2/qpid
+./configure --prefix=%{_qpid_build_loc}/awips2/qpid --without-sasl
 if [ $? -ne 0 ]; then
    exit 1
 fi

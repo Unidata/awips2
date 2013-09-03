@@ -61,6 +61,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Feb 27, 2013 1638        mschenke   Cleaned up localization code to fix null pointer
  *                                     when no distribution files present
  * Mar 19, 2013 1794       djohnson    PatternWrapper is immutable, add toString() to it for debugging.
+ * Aug 19, 2013 2257       bkowal      edexBridge to qpid 0.18 upgrade
  * Aug 30, 2013 2163       bkowal      edexBridge to qpid 0.18 RHEL6 upgrade
  * 
  * </pre>
