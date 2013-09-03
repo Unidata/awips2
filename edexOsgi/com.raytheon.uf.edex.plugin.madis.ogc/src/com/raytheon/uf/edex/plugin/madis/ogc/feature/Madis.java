@@ -45,14 +45,16 @@ import com.raytheon.uf.edex.ogc.common.feature.ObsLocation;
 
 /**
  * Madis Feature Type
+ * 
  * <pre>
- *                     
+ * 
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 3/27/13      1746         dhladky    Initial creation
- * Jun 03, 2013 1763         dhladky    Altered QCD values map
+ * Mar 27, 2013 1746        dhladky     Initial creation
+ * Jun 03, 2013 1763        dhladky     Altered QCD values map
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author dhladky
@@ -60,118 +62,119 @@ import com.raytheon.uf.edex.ogc.common.feature.ObsLocation;
  */
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "madis", propOrder = { "provider", "sub_provider", "dataset", "restriction", "obsLocation", "timeObs",
-        "dewpoint", "dewpoint_qcd", "dewpoint_qca", "dewpoint_qcr", "rh",
-        "rh_qcd", "rh_qca", "rh_qcr", "altimeter", "altimeter_qcd", "altimeter_qca", 
-        "altimeter_qcr", "temperature", "temperature_qcd", "temperature_qca", "temperature_qcr", 
-        "windDirection", "windDirection_qcd", "windDirection_qca", "windDirection_qcr", 
-        "precipRate", "precipRate_qcd", "precipRate_qca", "precipRate_qcr", "windSpeed", "windSpeed_qcd",
-        "windSpeed_qca", "windSpeed_qcr", "windGust", "windGust_qcd", "windGust_qca", "windGust_qcr", "precipitalWater", 
-        "precipitalWater_qcd", "precipitalWater_qca", "precipitalWater_qcr", "pressure", 
-        "pressure_qcd", "pressure_qca", "pressure_qcr"})
-        
+@XmlType(name = "madis", propOrder = { "provider", "sub_provider", "dataset",
+        "restriction", "obsLocation", "timeObs", "dewpoint", "dewpoint_qcd",
+        "dewpoint_qca", "dewpoint_qcr", "rh", "rh_qcd", "rh_qca", "rh_qcr",
+        "altimeter", "altimeter_qcd", "altimeter_qca", "altimeter_qcr",
+        "temperature", "temperature_qcd", "temperature_qca", "temperature_qcr",
+        "windDirection", "windDirection_qcd", "windDirection_qca",
+        "windDirection_qcr", "precipRate", "precipRate_qcd", "precipRate_qca",
+        "precipRate_qcr", "windSpeed", "windSpeed_qcd", "windSpeed_qca",
+        "windSpeed_qcr", "windGust", "windGust_qcd", "windGust_qca",
+        "windGust_qcr", "precipitalWater", "precipitalWater_qcd",
+        "precipitalWater_qca", "precipitalWater_qcr", "pressure",
+        "pressure_qcd", "pressure_qca", "pressure_qcr" })
 public class Madis extends AbstractFeatureType {
-    
+
     private static final int intNullVal = -9999;
 
     private static final float floatNullVal = -9999;
-    
+
     protected String provider = "";
-    
+
     protected String sub_provider = "";
-    
+
     protected int restriction = intNullVal;
-    
+
     protected int dataset = intNullVal;
-    
+
     protected ObsLocation obsLocation;
 
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar timeObs;
-    
+
     protected float dewpoint = floatNullVal;
-    
+
     protected String dewpoint_qcd = QCD.MISSING.name();
-    
+
     protected int dewpoint_qca = intNullVal;
-    
+
     protected int dewpoint_qcr = intNullVal;
-    
+
     protected float rh = floatNullVal;
-    
+
     protected String rh_qcd = QCD.MISSING.name();
-   
+
     protected int rh_qca = intNullVal;
-    
+
     protected int rh_qcr = intNullVal;
-    
+
     protected float altimeter = floatNullVal;
-   
+
     protected String altimeter_qcd = QCD.MISSING.name();
-    
+
     protected int altimeter_qca = intNullVal;
-    
+
     protected int altimeter_qcr = intNullVal;
-    
+
     protected float temperature = floatNullVal;
-    
+
     protected String temperature_qcd = QCD.MISSING.name();
-   
+
     protected int temperature_qca = intNullVal;
-   
+
     protected int temperature_qcr = intNullVal;
-   
+
     protected int windDirection = intNullVal;
-   
+
     protected String windDirection_qcd = QCD.MISSING.name();
-    
+
     protected int windDirection_qca = intNullVal;
-   
+
     protected int windDirection_qcr = intNullVal;
-    
+
     protected float precipRate = floatNullVal;
-    
+
     protected String precipRate_qcd = QCD.MISSING.name();
-   
+
     protected int precipRate_qca = intNullVal;
-    
+
     protected int precipRate_qcr = intNullVal;
 
     protected float windSpeed = floatNullVal;
-    
-    protected String windSpeed_qcd = QCD.MISSING.name();
-    
-    protected int windSpeed_qca = intNullVal;
-    
-    protected int windSpeed_qcr = intNullVal;
-   
-    protected float windGust = floatNullVal;
-   
-    protected String windGust_qcd = QCD.MISSING.name();
-    
-    protected int windGust_qca = intNullVal;
-    
-    protected int windGust_qcr = intNullVal;
-   
-    protected float precipitalWater = floatNullVal;
-    
-    protected String precipitalWater_qcd = QCD.MISSING.name();
-    
-    protected int precipitalWater_qca = intNullVal;
-   
-    protected int precipitalWater_qcr = intNullVal;
-    
-    protected float pressure = floatNullVal;
-    
-    protected String pressure_qcd = QCD.MISSING.name();
-    
-    protected int pressure_qca = intNullVal;
-   
-    protected int pressure_qcr = intNullVal;
-        
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-    .getHandler(Madis.class);
 
+    protected String windSpeed_qcd = QCD.MISSING.name();
+
+    protected int windSpeed_qca = intNullVal;
+
+    protected int windSpeed_qcr = intNullVal;
+
+    protected float windGust = floatNullVal;
+
+    protected String windGust_qcd = QCD.MISSING.name();
+
+    protected int windGust_qca = intNullVal;
+
+    protected int windGust_qcr = intNullVal;
+
+    protected float precipitalWater = floatNullVal;
+
+    protected String precipitalWater_qcd = QCD.MISSING.name();
+
+    protected int precipitalWater_qca = intNullVal;
+
+    protected int precipitalWater_qcr = intNullVal;
+
+    protected float pressure = floatNullVal;
+
+    protected String pressure_qcd = QCD.MISSING.name();
+
+    protected int pressure_qca = intNullVal;
+
+    protected int pressure_qcr = intNullVal;
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Madis.class);
 
     /**
      * Converts a MADIS record to a MADIS feature
@@ -179,7 +182,7 @@ public class Madis extends AbstractFeatureType {
      * @param record
      */
     public Madis(MadisRecord record) {
-    
+
         this.setProvider(record.getProvider());
         this.setSub_provider(record.getSubProvider());
         this.setDataset(getInt(record.getDataset(), intNullVal));
@@ -205,8 +208,10 @@ public class Madis extends AbstractFeatureType {
         this.setTemperature_qcr(getInt(record.getTemperature_qcr(), intNullVal));
         this.setWindDirection(getInt(record.getWindDirection(), intNullVal));
         this.setWindDirection_qcd(record.getWindDirection_qcd().name());
-        this.setWindDirection_qca(getInt(record.getWindDirection_qca(), intNullVal));
-        this.setWindDirection_qcr(getInt(record.getWindDirection_qcr(), intNullVal));
+        this.setWindDirection_qca(getInt(record.getWindDirection_qca(),
+                intNullVal));
+        this.setWindDirection_qcr(getInt(record.getWindDirection_qcr(),
+                intNullVal));
         this.setPrecipRate(getFloat(record.getPrecipRate(), floatNullVal));
         this.setPrecipRate_qcd(record.getPrecipRate_qcd().name());
         this.setPrecipRate_qca(getInt(record.getPrecipRate_qca(), intNullVal));
@@ -219,29 +224,33 @@ public class Madis extends AbstractFeatureType {
         this.setWindGust_qcd(record.getWindGust_qcd().name());
         this.setWindGust_qca(getInt(record.getWindGust_qca(), intNullVal));
         this.setWindGust_qcr(getInt(record.getWindGust_qcr(), intNullVal));
-        this.setPrecipitalWater(getFloat(record.getPrecipitalWater(), floatNullVal));
+        this.setPrecipitalWater(getFloat(record.getPrecipitalWater(),
+                floatNullVal));
         this.setPrecipitalWater_qcd(record.getPrecipitalWater_qcd().name());
-        this.setPrecipitalWater_qca(getInt(record.getPrecipitalWater_qca(), intNullVal));
-        this.setPrecipitalWater_qcr(getInt(record.getPrecipitalWater_qcr(), intNullVal));
+        this.setPrecipitalWater_qca(getInt(record.getPrecipitalWater_qca(),
+                intNullVal));
+        this.setPrecipitalWater_qcr(getInt(record.getPrecipitalWater_qcr(),
+                intNullVal));
         this.setPressure(getFloat(record.getPressure(), floatNullVal));
         this.setPressure_qcd(record.getPressure_qcd().name());
         this.setPressure_qca(getInt(record.getPressure_qca(), intNullVal));
         this.setPressure_qcr(getInt(record.getPressure_qcr(), intNullVal));
     }
-    
+
     /**
      * Converts a MADIS feature to a MADIS record
+     * 
      * @return
      */
-    public MadisRecord getRecord()  {
-        
+    public MadisRecord getRecord() {
+
         MadisRecord record = new MadisRecord();
-        record.setPluginName(MadisRecord.PLUGIN_NAME);
         record.setProvider(this.getProvider());
         record.setSubProvider(this.getSub_provider());
         record.setDataset(this.getDataset());
         record.setRestriction(this.getRestriction());
-        Date date = new Date(this.getTimeObs().toGregorianCalendar().getTimeInMillis());
+        Date date = new Date(this.getTimeObs().toGregorianCalendar()
+                .getTimeInMillis());
         record.setDataTime(new DataTime(date));
         record.setTimeObs(date);
         record.setLocation(getSfcObsLocation(this.getObsLocation()));
@@ -290,7 +299,7 @@ public class Madis extends AbstractFeatureType {
     }
 
     public Madis() {
-        
+
     }
 
     /*
@@ -302,7 +311,7 @@ public class Madis extends AbstractFeatureType {
     public Madis createNewInstance() {
         return new Madis();
     }
-    
+
     public String getProvider() {
         return provider;
     }
@@ -462,7 +471,7 @@ public class Madis extends AbstractFeatureType {
     public void setPrecipitalWater_qcd(String precipitalWater_qcd) {
         this.precipitalWater_qcd = precipitalWater_qcd;
     }
-    
+
     public float getPressure() {
         return pressure;
     }
@@ -622,7 +631,7 @@ public class Madis extends AbstractFeatureType {
     public void setPrecipitalWater_qcr(int precipitalWater_qcr) {
         this.precipitalWater_qcr = precipitalWater_qcr;
     }
-    
+
     public int getPressure_qca() {
         return precipitalWater_qca;
     }
@@ -638,7 +647,7 @@ public class Madis extends AbstractFeatureType {
     public void setPressure_qcr(int pressure_qcr) {
         this.pressure_qcr = pressure_qcr;
     }
-   
+
     /**
      * Gets the value of the timeObs property.
      * 
@@ -659,7 +668,7 @@ public class Madis extends AbstractFeatureType {
     public void setTimeObs(XMLGregorianCalendar value) {
         this.timeObs = value;
     }
-    
+
     protected XMLGregorianCalendar getCalendar(Calendar cal) {
         if (cal == null) {
             return null;
@@ -674,7 +683,7 @@ public class Madis extends AbstractFeatureType {
             return null;
         }
     }
-    
+
     private Integer getInt(int i, int nullVal) {
         if (i == nullVal) {
             return null;
@@ -712,28 +721,32 @@ public class Madis extends AbstractFeatureType {
     public void setObsLocation(ObsLocation obsLocation) {
         this.obsLocation = obsLocation;
     }
-    
-    /**.
+
+    /**
+     * .
+     * 
      * @param obsLocation
      * @return
      */
     private ObsLocation getObsLocation(SurfaceObsLocation from) {
         return new ObsLocation(from);
     }
-    
+
     /**
      * transform to SfcObsLocation
+     * 
      * @param obsLocation
      * @return
      */
     private SurfaceObsLocation getSfcObsLocation(ObsLocation obsLocation) {
-        SurfaceObsLocation sol = new SurfaceObsLocation(obsLocation.getStationId());
+        SurfaceObsLocation sol = new SurfaceObsLocation(
+                obsLocation.getStationId());
         sol.setElevation(obsLocation.getElevation());
         List<Double> points = obsLocation.getLocation().getPos().getValue();
         sol.setLongitude(points.get(0));
         sol.setLatitude(points.get(1));
-       
+
         return sol;
     }
-   
+
 }

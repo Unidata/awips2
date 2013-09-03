@@ -7,7 +7,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.edex.plugin.obs.mesowest,
- com.raytheon.edex.plugin.obs.mesowest.util,
  com.raytheon.edex.plugin.obs.metar,
  com.raytheon.edex.plugin.obs.metar.util,
  com.raytheon.edex.uengine.tasks.obs

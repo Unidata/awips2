@@ -59,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 02, 2013 1970       bgonzale    Removed Table annotation, changed from
  *                                     Entity  annotation to MappedSuperClass.
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -75,123 +76,126 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public abstract class BufrMosData extends PersistablePluginDataObject implements
         IPersistable, IPointData {
 
-	public static enum MOSType {
-		ETA, GFS, AVN, LAMP, HPC, MRF, NGM
-	};
+    public static enum MOSType {
+        ETA, GFS, AVN, LAMP, HPC, MRF, NGM
+    };
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static final String MOS_DATA = "Data";
+    public static final String MOS_DATA = "Data";
 
-	// Text of the WMO header
-	@Transient
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String wmoHeader;
+    // Text of the WMO header
+    @Transient
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String wmoHeader;
 
-	@Embedded
-	@DynamicSerializeElement
-	private PointDataView pointDataView = null;
+    @Embedded
+    @DynamicSerializeElement
+    private PointDataView pointDataView = null;
 
-	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@PrimaryKeyJoinColumn
-	@DataURI(position = 1, embedded = true)
-	@XmlElement
-	@DynamicSerializeElement
-	private BufrMosDataLocation location;
+    @ManyToOne(cascade = { CascadeType.REFRESH })
+    @PrimaryKeyJoinColumn
+    @DataURI(position = 1, embedded = true)
+    @XmlElement
+    @DynamicSerializeElement
+    private BufrMosDataLocation location;
 
-	/**
-	 * Create an empty MOSData object.
-	 */
-	public BufrMosData() {
-		this.pluginName = "bufrmos" + getType();
-	}
+    /**
+     * Create an empty MOSData object.
+     */
+    public BufrMosData() {
+    }
 
-	/**
-	 * Constructor for DataURI construction through base class. This is used by
-	 * the notification service.
-	 * 
-	 * @param uri
-	 *            A data uri applicable to this class.
-	 * @param tableDef
-	 *            The table definitions for this class.
-	 */
-	public BufrMosData(String uri) {
-		super(uri);
-	}
+    /**
+     * Constructor for DataURI construction through base class. This is used by
+     * the notification service.
+     * 
+     * @param uri
+     *            A data uri applicable to this class.
+     * @param tableDef
+     *            The table definitions for this class.
+     */
+    public BufrMosData(String uri) {
+        super(uri);
+    }
 
-	/**
-	 * Get the geometry latitude.
-	 * 
-	 * @return The geometry latitude.
-	 */
-	public double getLatitude() {
-		return location.getLatitude();
-	}
+    /**
+     * Get the geometry latitude.
+     * 
+     * @return The geometry latitude.
+     */
+    public double getLatitude() {
+        return location.getLatitude();
+    }
 
-	/**
-	 * Get the geometry longitude.
-	 * 
-	 * @return The geometry longitude.
-	 */
-	public double getLongitude() {
-		return location.getLongitude();
-	}
+    /**
+     * Get the geometry longitude.
+     * 
+     * @return The geometry longitude.
+     */
+    public double getLongitude() {
+        return location.getLongitude();
+    }
 
-	/**
-	 * Get the station identifier for this observation.
-	 * 
-	 * @return the stationId
-	 */
-	public String getStationId() {
-		return location.getStationId();
-	}
+    /**
+     * Get the station identifier for this observation.
+     * 
+     * @return the stationId
+     */
+    public String getStationId() {
+        return location.getStationId();
+    }
 
-	/**
-	 * @return the type
-	 */
-	public abstract MOSType getType();
+    /**
+     * @return the type
+     */
+    public abstract MOSType getType();
 
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getWmoHeader() {
-		return wmoHeader;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * @param wmoHeader
-	 *            the wmoHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader) {
-		this.wmoHeader = wmoHeader;
-	}
+    /**
+     * @param wmoHeader
+     *            the wmoHeader to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	/**
-	 * 
-	 * @param dataURI
-	 */
-	@Override
-	public void setDataURI(String dataURI) {
-		identifier = dataURI;
-	}
+    /**
+     * 
+     * @param dataURI
+     */
+    @Override
+    public void setDataURI(String dataURI) {
+        identifier = dataURI;
+    }
 
-	public BufrMosDataLocation getLocation() {
-		return location;
-	}
+    public BufrMosDataLocation getLocation() {
+        return location;
+    }
 
-	public void setLocation(BufrMosDataLocation mosLocation) {
-		this.location = mosLocation;
-	}
+    public void setLocation(BufrMosDataLocation mosLocation) {
+        this.location = mosLocation;
+    }
 
-	@Override
-	public PointDataView getPointDataView() {
-		return this.pointDataView;
-	}
+    @Override
+    public PointDataView getPointDataView() {
+        return this.pointDataView;
+    }
 
-	@Override
-	public void setPointDataView(PointDataView pointDataView) {
-		this.pointDataView = pointDataView;
+    @Override
+    public void setPointDataView(PointDataView pointDataView) {
+        this.pointDataView = pointDataView;
+    }
 
-	}
+    @Override
+    public String getPluginName() {
+        return "bufrmos" + getType();
+    }
 }
