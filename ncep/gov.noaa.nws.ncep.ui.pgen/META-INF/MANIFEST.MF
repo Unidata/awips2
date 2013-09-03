@@ -36,6 +36,7 @@ Export-Package: gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.ui.pgen.gfa,
  gov.noaa.nws.ncep.ui.pgen.rsc,
  gov.noaa.nws.ncep.ui.pgen.sigmet,
+ gov.noaa.nws.ncep.ui.pgen.store,
  gov.noaa.nws.ncep.ui.pgen.tca,
  gov.noaa.nws.ncep.ui.pgen.tools
 Import-Package: com.raytheon.viz.core.contours.util,

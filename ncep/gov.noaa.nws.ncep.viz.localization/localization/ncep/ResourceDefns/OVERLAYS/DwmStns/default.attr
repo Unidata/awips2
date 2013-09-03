@@ -4,4 +4,6 @@ markerType=DOT
 markerSize=2
 markerWidth=1
 markerTextSize=SMALL
-markerTextAppearanceZoomLevel=3
+! the distance in km of the screen width when the symbols/labels will be displayed.
+maxSymbolDisplayWidth=10000
+maxLabelDisplayWidth=4000

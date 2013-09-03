@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------	----------	-----------	--------------------------
  * 04/13		#927		B. Yin   	Moved from the PgenSelectingTool class
  * 05/13		#994		J. Wu 		Removed "DEL" - make it same as "Ctrl+X"
+ * 07/13		?			J. Wu 		Set the "otherTextLastUsed for GFA.
  * 
  * </pre>
  * 
@@ -403,6 +404,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
             		((OutlookAttrDlg)attrDlg).setAttrForDlg( ((Outlook)adc) );
 
             	} else if(attrDlg instanceof GfaAttrDlg){
+           		    ((GfaAttrDlg)attrDlg).setOtherTextLastUsed( elSelected.getForecastHours() );
             		((GfaAttrDlg)attrDlg).redrawHazardSpecificPanel();
             		attrDlg.setAttrForDlg( elSelected );
             		((GfaAttrDlg)attrDlg).enableMoveTextBtn(true);
@@ -550,12 +552,13 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
         			((SinglePointElement)tmpEl).setLocationOnly(loc);
     			}
     			
-    			if ( attrDlg instanceof SymbolAttrDlg ){
+            	//don't update location (AWC requirement)
+    	//		if ( attrDlg instanceof SymbolAttrDlg ){
 
-    				((SymbolAttrDlg)attrDlg).setLatitude(loc.y);
-    				((SymbolAttrDlg)attrDlg).setLongitude(loc.x);
+    	//			((SymbolAttrDlg)attrDlg).setLatitude(loc.y);
+    	//			((SymbolAttrDlg)attrDlg).setLongitude(loc.x);
 
-    			}
+    	//		}
 		    	
   			    pgenrsc.resetElement(tmpEl);   // reset display of this element       			
 			           			
@@ -730,6 +733,13 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
 							((SinglePointElement) el).setLocationOnly(oldLoc);
 							
 							oldLoc = null;
+
+							if ( attrDlg instanceof SymbolAttrDlg ){
+
+								((SymbolAttrDlg)attrDlg).setLatitude(((SinglePointElement)newEl).getLocation().y);
+								((SymbolAttrDlg)attrDlg).setLongitude(((SinglePointElement)newEl).getLocation().x);
+
+							}
 						}
 						
 						Coordinate loc = mapEditor.translateClick(x, y);

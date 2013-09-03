@@ -1,5 +1,8 @@
 package gov.noaa.nws.ncep.viz.resources.attributes;
 
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
@@ -337,12 +340,11 @@ public class ResourceExtPointMngr {
 		} else if( clzName.equalsIgnoreCase( "LineStyle" )) {
 			return LineStyle.class.getName();
 		} else if( clzName.equalsIgnoreCase( "MarkerState" )) {
-			//className = MarkerState.class.getName();
-			return "gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData$MarkerState";
+			return MarkerState.class.getName();
 		} else if( clzName.equalsIgnoreCase( "MarkerType" )) {
-			return "gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData$MarkerType";
+			return MarkerType.class.getName();
 		} else if( clzName.equalsIgnoreCase( "MarkerTextSize" )) {
-			return "gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData$MarkerTextSize";
+			return MarkerTextSize.class.getName();
 		} else if( clzName.equalsIgnoreCase("PlotModel") ) {
 			return "gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel";
 		} else if( clzName.equalsIgnoreCase("ColorBar") ) {

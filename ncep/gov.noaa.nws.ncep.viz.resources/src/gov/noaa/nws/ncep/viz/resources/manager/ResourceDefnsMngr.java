@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 /**
@@ -162,7 +164,6 @@ public class ResourceDefnsMngr {
 
 	public static synchronized ResourceDefnsMngr getInstance(String user) throws VizException {
 		ResourceDefnsMngr instance = instanceMap.get(user);
-//		instance = null;
 		
         if( instance == null ) {
         	try {
@@ -343,6 +344,8 @@ public class ResourceDefnsMngr {
 			return;
 		}
 		
+		Collection<String> supportedPlugins = RecordFactory.getInstance().getSupportedPlugins();
+		
 		// This would read the inventoryDefns from localizations (ie what edex uses)
 		// to initialize but instead we will query edex to see what's there and 
 		// only create inventories that don't exist.	    
@@ -376,6 +379,7 @@ public class ResourceDefnsMngr {
 			try {				
 				readResourceDefn( lFile );
 				
+				
     			// TODO : add localization observer to update the Map when a localization file has
     		    // changed on another cave.
     			lFile.addFileUpdatedObserver( new ILocalizationFileObserver() {						
@@ -395,8 +399,6 @@ public class ResourceDefnsMngr {
 //		                });
 					}
 				});
-    			
-
 			}
 			catch ( VizException e ) {
 				out.println("Error creating ResourceDefn from file: "+lFile.getName() );
@@ -444,12 +446,6 @@ public class ResourceDefnsMngr {
 	    	NcInventoryDefinition invDefn = null;
 	    	try {
 	    		invDefn = rd.createNcInventoryDefinition();
-	    	}
-	    	catch ( VizException e ) {
-				out.println("Error creating ResourceDefn from file: "+rd.getLocalizationFile().getName() );
-				out.println(" --->"+e.getMessage() );
-				badRscDefnsList.add( e );				
-	    	}
 	    	
 			if( invDefnsMap.containsKey( invDefn ) ) {
 				rd.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
@@ -460,6 +456,12 @@ public class ResourceDefnsMngr {
 	    	   !rd.isInventoryInitialized() ) {
 	    		
 	    		createInvDefns.add( rd.createNcInventoryDefinition() );
+	    	}
+	    }
+	    	catch ( VizException e ) {
+				out.println("Error creating ResourceDefn from file: "+rd.getLocalizationFile().getName() );
+				out.println(" --->"+e.getMessage() );
+				badRscDefnsList.add( e );				
 	    	}
 	    }
 
@@ -480,13 +482,15 @@ public class ResourceDefnsMngr {
 	    	errList = Arrays.asList( invLoader.getUninitializedInventoryDefns() );	    	
 	    }
 
+	    List<String> errRdsList = new ArrayList<String>();
+	    
 	    // for the rscDefns that just had an inventory created for them
 		// enable or disable based on whether there was an error.
 		//
 	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
 	    	
 	    	if( rd.usesInventory() ) {
-	    		
+	    		try {
 	    		NcInventoryDefinition invDefn = rd.createNcInventoryDefinition();
 
 	    		// if created successfully set the inventoryName/Alias
@@ -506,6 +510,21 @@ public class ResourceDefnsMngr {
 	    			rd.disableInventoryUse(); // add the ProductAlertObserver and query types/subTypes
 	    		}
 	    	}
+		    	catch ( VizException e ) {
+//		    		rd.setInventoryEnabled(false);
+//		    		setResourceEnable( rd.getResourceDefnName(), false );
+		    		errRdsList.add( rd.getResourceDefnName() );
+		    		
+					out.println("Error creating ResourceDefn : "+rd.getResourceDefnName() );
+					out.println(" --->"+e.getMessage() );
+					badRscDefnsList.add(
+							new VizException( "Error creating ResourceDefn : "+rd.getResourceDefnName()+ " : " + e.getMessage() ));				
+		    	}
+	    	}
+	    }	 
+	    
+	    for( String rmRd : errRdsList ) {
+	    	resourceDefnsMap.remove( rmRd );
 	    }	    
 	}
 
@@ -537,6 +556,22 @@ public class ResourceDefnsMngr {
 	    			throw new VizException("Failed to create Rsc Defn '"+rscDefn.getResourceDefnName()+
 	    					"' from file: "+rscDefnFile.getAbsolutePath()+ " because there is another Rsc Defn with this name.");
 	    		}
+	    		
+	    		if( rscDefn.isRequestable() ) {
+	    			if( rscDefn.getPluginName() == null ) {
+	    				throw new VizException( "Failed to create Rsc Defn "+rscDefn.getResourceDefnName()+
+	    				": Requestable Resource is missing required pluginName parameter");
+	    			}
+
+	    			if( !RecordFactory.getInstance().
+	    					getSupportedPlugins().contains( rscDefn.getPluginName() ) ) {
+	    				rscDefnsWarningsList.add( 
+	    						new VizException( "Disabling "+ rscDefn.getResourceDefnName()+
+	    								" because plugin, "+ rscDefn.getPluginName()+
+	    						" is not activated." ) );
+	    			}
+	    		}
+	    		
     			resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
     			
     			if( rscImpl.equals( "Locator" ) ) {
@@ -563,6 +598,9 @@ public class ResourceDefnsMngr {
 		catch (SerializationException e) {
 			throw new VizException("Error parsing "+rscDefnFile.getAbsolutePath() +" - " + e.getMessage() );
 		} 		
+		catch (Exception e ) {
+			throw new VizException( "Error parsing "+rscDefnFile.getAbsolutePath() +" - " + e.getMessage() );
+		}
 	}
 
 	private void readRefParamFiles( ) {
@@ -1354,14 +1392,6 @@ public class ResourceDefnsMngr {
 			}
 		}
 		
-		// just one more hack since we can't have PGEN save a .prm file for some reason.
-		if( rscDefn.isPgenResource() ) {
-			if( !rscName.getRscGroup().isEmpty() ) {
-				paramsMap.put("productName", rscName.getRscGroup() );
-				paramsMap.put("legendString", "PGEN : "+ rscName.getRscGroup() );
-			}
-		}
-				
 		return paramsMap;		
 	}
 					
@@ -1647,8 +1677,7 @@ public class ResourceDefnsMngr {
     		return null;
     	}
      	return getAttrSetGroupForResource( 
-    			new RscAndGroupName( rscDefn.getResourceDefnName(), 
-    					(rscName.isPgenResource() ? "PGEN" : rscName.getRscGroup() ) ) );
+    			new RscAndGroupName( rscDefn.getResourceDefnName(), rscName.getRscGroup() ) );
     }
     	
     // lookup usging the rscType and the asg name
@@ -1670,12 +1699,6 @@ public class ResourceDefnsMngr {
     	if( rscDefn== null ) {
     		return attrSetGroupsList;
     	}
-    	else if( rscDefn.isPgenResource() ) {
-    		AttrSetGroup asg = getAttrSetGroupForResource( new RscAndGroupName( rscType, "PGEN" ) );
-    		if( asg != null ) {
-    			attrSetGroupsList.add( asg );    			
-    		}
-		}    	
     	else {
     		for( AttrSetGroup asg : attrSetGroupsMap.values() ) {
 
@@ -1733,18 +1756,11 @@ public class ResourceDefnsMngr {
 
 		// if AttrSetGroups apply for this resource do a sanity check
 		// 
-		if( rscDefn.applyAttrSetGroups() && !rscDefn.isPgenResource() &&
+		if( rscDefn.applyAttrSetGroups() && 
 			asgName != null && !asgName.isEmpty() ) {
 			
-//			String asgMapKey = rscDefn.getResourceDefnName()+File.separator+asgName;
 			RscAndGroupName rscGrpName = new RscAndGroupName( rscDefn.getResourceDefnName(), asgName );
 			
-//			if( !attrSetGroupsMap.containsKey( asgMapKey ) ) {
-//				out.println("Error: cant find AttrSetGroup name, "+asgName+", for "+ 
-//						rscDefn.getResourceDefnName() );
-//				return null;
-//			}
-//			
 			// Should we check that the asName is actually in the asGroup?
 			//
 			AttrSetGroup asg = getAttrSetGroupForResource( rscGrpName ); //attrSetGroupsMap.get( asgMapKey );
@@ -2490,29 +2506,6 @@ public class ResourceDefnsMngr {
 		} 
 
     	return true;
-    }
-    
-    
-    public ArrayList<String> getAvailPgenTypes( ) {
-    	ArrayList<String> pgenTypes = new ArrayList<String>();
-    	for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-    		if( rscDefn.isPgenResource() ) {
-    			pgenTypes.add( rscDefn.getResourceDefnName() );
-    		}
-    	}
-    	return pgenTypes;
-    }
-    
-    public Map<String, ResourceDefinition> getPgenResourceDefinitions() {
-    	Map<String, ResourceDefinition> pgenRscDefnsMap = new LinkedHashMap<String, ResourceDefinition>();
-
-    	for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-    		if( rscDefn.isPgenResource() ) {
-    			pgenRscDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
-    		}
-    	}
-    	
-    	return pgenRscDefnsMap;
     }
     
     public ResourceDefinition getLocatorResourceDefinition() {
