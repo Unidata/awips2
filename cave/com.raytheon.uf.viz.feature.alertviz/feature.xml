@@ -43,24 +43,6 @@
    </requires>
 
    <plugin
-         id="ch.qos.logback"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.slf4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.springframework"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.apache.activemq"
          download-size="0"
          install-size="0"
@@ -98,6 +80,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.collections"
@@ -179,6 +167,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.springframework"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.colormap"
@@ -482,7 +476,13 @@
          id="com.raytheon.uf.common.velocity"
          download-size="0"
          install-size="0"
+         version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.quartz"
+         download-size="0"
+         install-size="0"
          version="0.0.0"/>
 
 </feature>
