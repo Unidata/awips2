@@ -5,9 +5,7 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
        
 	
-	<bean id="stormTrackDecoder" class="gov.noaa.nws.ncep.edex.plugin.stormtrack.decoder.StormTrackDecoder">
-		<constructor-arg ref="stormTrackPluginName"/>
-	</bean>
+	<bean id="stormTrackDecoder" class="gov.noaa.nws.ncep.edex.plugin.stormtrack.decoder.StormTrackDecoder"/>
 		
 	<bean id="stormTrackSeparator" class="gov.noaa.nws.ncep.edex.plugin.stormtrack.decoder.StormTrackSeparator" />
 

@@ -43,10 +43,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 15, 2013            mschenke     Initial creation
+ * Jan 15, 2013            mschenke    Initial creation
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -88,7 +89,6 @@ public class NucapsRecord extends NPPSoundingRecord {
     public static final String PDV_QUALITY_FLAG = "Quality_Flag";
 
     public NucapsRecord() {
-        setPluginName(PLUGIN_NAME);
     }
 
     @Override
@@ -98,4 +98,8 @@ public class NucapsRecord extends NPPSoundingRecord {
         return super.getDataURI();
     }
 
+    @Override
+    public String getPluginName() {
+        return PLUGIN_NAME;
+    }
 }

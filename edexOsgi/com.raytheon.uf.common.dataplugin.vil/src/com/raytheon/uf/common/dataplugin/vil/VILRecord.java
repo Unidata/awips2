@@ -63,12 +63,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 1/14/09      2027        D. Hladky   Initial release
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 04/08/13     #1293       bkowal      Removed references to hdffileid.
+ * Jan 14, 2009 2027        D. Hladky   Initial release
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -82,17 +84,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "vil",
-		indexes = {
-				@Index(name = "vil_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "vil", indexes = { @Index(name = "vil_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class VILRecord extends PersistablePluginDataObject
-        implements ISpatialEnabled {
+public class VILRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled {
 
     private static final long serialVersionUID = 767763365671L;
 
@@ -416,9 +414,9 @@ public class VILRecord extends PersistablePluginDataObject
 
         try {
             IDataRecord[] dataRec = dataStore.retrieve(getDataURI());
-            for (int i = 0; i < dataRec.length; i++) {
-                if (dataRec[i] instanceof FloatDataRecord) {
-                    setDataArray(((FloatDataRecord) dataRec[i]).getFloatData());
+            for (IDataRecord element : dataRec) {
+                if (element instanceof FloatDataRecord) {
+                    setDataArray(((FloatDataRecord) element).getFloatData());
                 }
             }
         } catch (Exception se) {
@@ -492,5 +490,10 @@ public class VILRecord extends PersistablePluginDataObject
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "vil";
     }
 }

@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * Jul 17, 2013 2112       bsteffen    Split poes data so it gets stored in
  *                                     correct file.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -77,7 +78,7 @@ public class POESSoundingDecoder extends AbstractDecoder implements
     public static final String PLUGIN_NAME = "poessounding";
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private PointDataDescription pdd;
 
@@ -125,7 +126,7 @@ public class POESSoundingDecoder extends AbstractDecoder implements
 
         PluginDataObject[] decodedData = null;
 
-        if (data != null && data.length > 0) {
+        if ((data != null) && (data.length > 0)) {
 
             WMOHeader wmoHeader = new WMOHeader(data, headers);
 
@@ -153,7 +154,6 @@ public class POESSoundingDecoder extends AbstractDecoder implements
                                         container, pdd, dao);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
-                            soundingData.setPluginName(PLUGIN_NAME);
                             pdoList.add(soundingData);
                         }
                     }
