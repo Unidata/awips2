@@ -124,11 +124,18 @@ fi
 
 if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-common-base"
+   buildEDEX
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-hydroapps-shared"
+   buildRPM "awips2-notification"
    buildJava
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-nose"
    buildRPM "awips2-python-pil"
+   buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-werkzeug"
@@ -185,12 +192,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
    buildOpenfire
-   buildEDEX
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-notification"
 
    exit 0
 fi
