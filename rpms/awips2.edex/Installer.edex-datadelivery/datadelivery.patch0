@@ -1,13 +1,8 @@
 diff -crB a/component.spec b/component.spec
-*** a/component.spec	2013-08-07 10:24:32.038932868 -0500
---- b/component.spec	2013-08-07 10:24:18.422990138 -0500
+*** a/component.spec	2013-09-03 10:51:59.952913214 -0500
+--- b/component.spec	2013-09-03 11:10:40.703226553 -0500
 ***************
-*** 1,13 ****
-  #
-! # AWIPS II Edex "component" spec file
-  #
-  %define __prelink_undo_cmd %{nil}
-  # Turn off the brp-python-bytecompile script
+*** 6,13 ****
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
   
@@ -16,12 +11,7 @@ diff -crB a/component.spec b/component.spec
   Version: %{_component_version}
   Release: %{_component_release}
   Group: AWIPSII
---- 1,13 ----
-  #
-! # AWIPS II Edex Data Delivery spec file
-  #
-  %define __prelink_undo_cmd %{nil}
-  # Turn off the brp-python-bytecompile script
+--- 6,13 ----
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
   
@@ -65,7 +55,7 @@ diff -crB a/component.spec b/component.spec
   %postun
   
   %clean
---- 47,100 ----
+--- 47,104 ----
   if [ $? -ne 0 ]; then
      exit 1
   fi
@@ -120,14 +110,16 @@ diff -crB a/component.spec b/component.spec
 +       exit 1
 +    fi
 + fi
++ 
   %postun
   
   %clean
 ***************
 *** 67,69 ****
---- 105,109 ----
+--- 109,113 ----
   %dir /awips2
   %dir /awips2/edex
   /awips2/edex/*
 + 
 + %attr(744,root,root) /etc/init.d/*
+\ No newline at end of file
