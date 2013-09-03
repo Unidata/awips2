@@ -24,11 +24,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.PreferenceConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.ui.HazardUIUtils;
 
 /**
  * Job implementing the auto save functionality. Uses user preferences to
@@ -38,7 +41,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Jun 25, 2008					Eric Babin Initial Creation
+ * Jun 25, 2008            Eric Babin  Initial Creation
+ * Aug 27, 2013     #2302  randerso    Fixed to behave more like A1, code cleanup
  * 
  * </pre>
  * 
@@ -47,38 +51,34 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  */
 
 public class AutoSaveJob extends Job {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AutoSaveJob.class);
 
-    private static final int MILLISECONDS_PER_MINUTE = 60 * 1000;
-
+    /**
+     * Max auto save interval in minutes
+     */
     public static final int MAX_INTERVAL = 60;
 
+    /**
+     * Min auto save interval in minutes
+     */
     public static final int MIN_INTERVAL = 1;
 
     /**
-     * auto save interval in minutes, 0 = disabled
+     * auto save interval in milliseconds, 0 = disabled
      */
-    private static int interval;
-    static {
-        int i = 0;
-        if (GFEPreference.storeAvailable()) {
-            i = GFEPreference
-                    .getIntPreference(PreferenceConstants.GFE_AUTO_SAVE_INTERVAL);
-        }
-
-        interval = i;
-    }
+    private long interval;
 
     /**
      * Set the auto save interval
      * 
-     * @param i
+     * @param interval
      *            desired interval in minutes
      */
-    public static void setInterval(int i) {
-        interval = i;
-
-        GFEPreference.setPreference(PreferenceConstants.GFE_AUTO_SAVE_INTERVAL,
-                Integer.toString(i));
+    public void setInterval(int interval) {
+        this.interval = interval * TimeUtil.MILLIS_PER_MINUTE;
+        this.cancel();
+        this.reSchedule(this.interval);
     }
 
     /**
@@ -86,8 +86,8 @@ public class AutoSaveJob extends Job {
      * 
      * @return interval in minutes
      */
-    public static int getInterval() {
-        return interval;
+    public int getInterval() {
+        return (int) (interval / TimeUtil.MILLIS_PER_MINUTE);
     }
 
     private DataManager dataManager;
@@ -104,17 +104,28 @@ public class AutoSaveJob extends Job {
         this.dataManager = dataManager;
         this.disposed = false;
         this.setSystem(true);
+        int pref = GFEPreference
+                .getIntPreference(PreferenceConstants.GFE_AUTO_SAVE_INTERVAL);
+        if (pref > MAX_INTERVAL) {
+            pref = MAX_INTERVAL;
+        } else if (pref < 0) {
+            pref = 0;
+        }
 
-        reSchedule();
+        this.interval = pref * TimeUtil.MILLIS_PER_MINUTE;
+        reSchedule(this.interval);
     }
 
     /**
-     * Schedule this job to run after the desired interval
+     * Schedule this job to run after the desired
+     * 
+     * @param delay
+     *            interval in milliseconds
      */
-    public void reSchedule() {
+    public void reSchedule(long delay) {
         if (!disposed) {
-            if (interval > 0) {
-                this.schedule(interval * MILLISECONDS_PER_MINUTE);
+            if (delay > 0) {
+                this.schedule(delay);
             }
         } else {
             dataManager = null;
@@ -138,53 +149,51 @@ public class AutoSaveJob extends Job {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        IStatus status = Status.OK_STATUS;
-        try {
-            Parm[] parms = this.dataManager.getParmManager().getModifiedParms();
-            if (parms != null && parms.length != 0) {
-                String autoSaveResult = "GFE Auto Save called.  Save of Parms[";
-                for (int i = 0; i < parms.length; i++) {
-                    String name = parms[i].getParmID().getParmName();
-                    if (name.indexOf("Hazards") == -1) {
-                        autoSaveResult += saveParm(parms[i]);
-                    } else {
-                        if (!tempHazardsExist()) {
-                            saveParm(parms[i]);
-                            autoSaveResult += saveParm(parms[i]);
-                        }
-                    }
-                }
-                autoSaveResult += "]";
+        long delay = this.interval;
+        if (delay > 0) {
+            String msg = "GFE Auto Save called.  ";
+            boolean success = false;
+            try {
+                Parm modifiedParm = getModifiedParm();
+                if (modifiedParm != null) {
+                    msg += "Save of Parm "
+                            + modifiedParm.getParmID().getParmName() + " = ";
 
-                Activator.getDefault().getLog().log(
-                        new Status(IStatus.INFO, Activator.PLUGIN_ID,
-                                autoSaveResult));
+                    // save the data
+                    success = modifiedParm.saveParameter(false);
+                    msg += (success ? "success" : "failure");
+                    delay = 1500;
+                } else {
+                    msg += "Nothing to save.";
+                }
+                statusHandler.info(msg);
+            } catch (Exception e) {
+                msg += "failure";
+                statusHandler.error(msg, e);
             }
-        } catch (Exception e) {
-            status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-                    "GFE auto save failed.", e);
+            reSchedule(delay);
         }
-        reSchedule();
-        return status;
+        return Status.OK_STATUS;
     }
 
     /**
-     * If tempHazards exist, then autosave kicked off in the middle of merge
-     * hazard. (which creates a "temp" hazard with "haz" in the name.
+     * Find the first available modified parm. Skip Hazards if temp hazards
+     * exist
      * 
-     * So we will ignore the "Hazard" WE parm save...
-     * 
-     * @return if temp haz exists.
+     * @return the first available modified parm or null if none
      */
-    private boolean tempHazardsExist() {
-        Parm[] parms = this.dataManager.getParmManager().getDisplayedParms();
-        for (int i = 0; i < parms.length; i++) {
-            if (parms[i].getParmID().getParmName().indexOf("haz") != -1) {
-                return true;
+    private Parm getModifiedParm() {
+        boolean tempHazDisplayed = HazardUIUtils
+                .tempHazardsExist(this.dataManager);
+        for (Parm p : this.dataManager.getParmManager().getModifiedParms()) {
+            if (p.getParmID().getParmName().contains("Hazards")
+                    && tempHazDisplayed) {
+                continue;
+            } else {
+                return p;
             }
         }
-
-        return false;
+        return null;
     }
 
     /**

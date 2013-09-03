@@ -50,7 +50,7 @@
 			</setHeader>
 			<bean ref="stringToFile" />
 			<split streaming="true">
-				<method bean="stormTrackSeparator" method="separate" />
+				<method bean="stormTrackSeparator" method="batchSeparate" />
 				<doTry>
 					<pipeline>
 						<bean ref="stormTrackDecoder" method="decode" />

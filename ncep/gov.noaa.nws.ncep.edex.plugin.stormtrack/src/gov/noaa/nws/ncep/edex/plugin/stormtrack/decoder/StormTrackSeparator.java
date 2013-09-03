@@ -38,6 +38,7 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * Date       	Ticket#		Engineer	Description
  * --------		-------		--------	----------------
  * 06/23/10		283		  	F. J. Yen	Initial creation
+ * 07/2013					T. Lee		Batch processing
  * 
  * </pre>
  * 
@@ -63,12 +64,21 @@ public class StormTrackSeparator extends AbstractRecordSeparator {
 
     private Iterator<String> iterator = null;
 
+    /** Number of records in batch processing */
+    private static int MAX_RECORD = 100;
+
     public static StormTrackSeparator separate(byte[] data, Headers headers) {
         StormTrackSeparator stormTrackSeparator = new StormTrackSeparator();
         stormTrackSeparator.setData(data, headers);
         return stormTrackSeparator;
     }
 
+    public static StormTrackSeparator batchSeparate(byte[] data, Headers headers) {
+        StormTrackSeparator stormTrackSeparator = new StormTrackSeparator();
+        stormTrackSeparator.setBatchData(data, headers);
+        return stormTrackSeparator;
+    }
+    
     /**
      * StormTrackSeparator() Constructor.
      * 
@@ -85,6 +95,11 @@ public class StormTrackSeparator extends AbstractRecordSeparator {
     @Override
     public void setData(byte[] data, Headers headers) {
         doSeparate(new String(data));
+        iterator = records.iterator();
+    }
+
+    public void setBatchData(byte[] data, Headers headers) {
+        doBatchSeparate(data);
         iterator = records.iterator();
     }
 
@@ -132,19 +147,37 @@ public class StormTrackSeparator extends AbstractRecordSeparator {
                     records.add(matcher.group());
                 }
             }
-            /*
-             * Append the raw data files to the records
-             */
-            for (int i = 0; i < records.size(); i++) {
-                if (i < records.size() - 1) {
-                    records.set(i, message.substring(
-                            message.indexOf(records.get(i)),
-                            message.indexOf(records.get(i + 1))));
-                } else {
-                    records.set(i,
-                            message.substring(message.indexOf(records.get(i))));
+        } catch (Exception e) {
+            e.printStackTrace();
+            theLogger.warn("====in separate: No valid StormTrack records found.");
                 }
+        return;
             }
+    
+    private void doBatchSeparate(byte[] message) {
+    	try {
+    		pattern = Pattern.compile(BULLETINSEPARATOR);
+    		matcher = pattern.matcher(new String(message));
+    		Integer counter;
+    		String dataStream;
+    		counter = 0;
+    		dataStream = "";
+    		Integer nfile = 0;
+    		while (matcher.find()) {
+    			if ( counter <= MAX_RECORD ) {
+    				dataStream += matcher.group();
+    				counter++;
+    			}
+    			else {
+    				dataStream += matcher.group();
+    				records.add(dataStream);
+    				counter = 0;
+    				dataStream = "";
+    				nfile++;
+    			}
+    		}
+    		records.add(dataStream);
+
         } catch (Exception e) {
             e.printStackTrace();
             theLogger.warn("====in separate: No valid StormTrack records found.");
