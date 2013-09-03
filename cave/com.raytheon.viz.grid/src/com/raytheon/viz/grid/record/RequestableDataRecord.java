@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -40,17 +39,18 @@ import com.raytheon.viz.grid.util.TiltRequest;
 /**
  * A PDO that extends GridRecord and wraps a AbstractRequestableData to allow
  * derived parameters to be used anywhere GridRecords can be used.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 18, 2010            bsteffen     Initial creation
+ * Mar 18, 2010            bsteffen    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
- *
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
@@ -67,9 +67,10 @@ public class RequestableDataRecord extends GridRecord {
         GridCoverage coverage = null;
         if (requester.getSpace() instanceof GridCoverage) {
             coverage = (GridCoverage) requester.getSpace();
-        if (requester instanceof GridRequestableData) {
-            setSecondaryId(((GridRequestableData) requester).getGridSource().getSecondaryId());
-        }
+            if (requester instanceof GridRequestableData) {
+                setSecondaryId(((GridRequestableData) requester)
+                        .getGridSource().getSecondaryId());
+            }
         }
         setDatasetId(requester.getSource());
         setLocation(coverage);
@@ -78,7 +79,6 @@ public class RequestableDataRecord extends GridRecord {
                 requester.getParameterName(), requester.getUnit());
 
         setParameter(parameter);
-        setPluginName(GridConstants.GRID);
         setDataTime(requester.getDataTime());
         try {
             constructDataURI();
@@ -142,7 +142,7 @@ public class RequestableDataRecord extends GridRecord {
                 }
             }
             float[] data = new float[nx * ny];
-            for (int i = 0; i < nx * ny; i++) {
+            for (int i = 0; i < (nx * ny); i++) {
                 data[i] = ((Number) obj).floatValue();
             }
             FloatDataRecord rec = new FloatDataRecord(this.getParameter()

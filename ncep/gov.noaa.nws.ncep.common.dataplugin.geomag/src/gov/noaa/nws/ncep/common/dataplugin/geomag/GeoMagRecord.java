@@ -31,9 +31,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
- * 03/27/2013   975        sgurung            Initial creation.
- * 05/26/2013              bhebbard           Added SequenceGenerator annotation.
- * 07/22/2013   1977       rjpeter            Added getDataURI and annotations.
+ * Mar 27, 2013 975        sgurung            Initial creation.
+ * May 26, 2013            bhebbard           Added SequenceGenerator
+ *                                            annotation.
+ * Jul 22, 2013 1977       rjpeter            Added getDataURI and annotations.
+ * Aug 30, 2013 2298       rjpeter            Make getPluginName abstract
  * </pre>
  * 
  * @author sgurung
@@ -302,5 +304,10 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "geomag";
     }
 }

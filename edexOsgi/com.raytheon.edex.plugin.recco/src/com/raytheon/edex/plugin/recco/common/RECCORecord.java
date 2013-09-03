@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -86,12 +87,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "recco",
-		indexes = {
-				@Index(name = "recco_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "recco", indexes = { @Index(name = "recco_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -140,7 +137,7 @@ public class RECCORecord extends PluginDataObject implements ISpatialEnabled,
     @XmlAttribute
     private Calendar refHour;
 
-    // 
+    //
     @Column
     @DataURI(position = 1)
     @DynamicSerializeElement
@@ -687,6 +684,7 @@ public class RECCORecord extends PluginDataObject implements ISpatialEnabled,
         return a;
     }
 
+    @Override
     public String[] getStrings(String paramName) {
         return null;
     }
@@ -722,5 +720,10 @@ public class RECCORecord extends PluginDataObject implements ISpatialEnabled,
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "recco";
     }
 }
