@@ -26,7 +26,7 @@
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.208885184" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.release.option.debugging.level.1161967936" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1128011603" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/usr/local/ldm/src/pqact"/>
+									<listOptionValue builtIn="false" value="/awips2/qpid/include"/>
 									<listOptionValue builtIn="false" value="/usr/local/ldm/include"/>
 									<listOptionValue builtIn="false" value="/usr/local/ldm/src"/>
 									<listOptionValue builtIn="false" value="/awips2/qpid/include"/>
@@ -76,10 +76,10 @@
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 		</cconfiguration>
-		<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.375046330.1165044174">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.375046330.1165044174" moduleId="org.eclipse.cdt.core.settings" name="Build x86_64">
-				<externalSettings/>
-				<extensions>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="edexBridge.cdt.managedbuild.target.gnu.exe.32670172" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
+	</storageModule>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -236,8 +236,8 @@
 				<parser enabled="true"/>
 			</scannerInfoProvider>
 		</profile>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.375046330;cdt.managedbuild.config.gnu.exe.release.375046330.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1192057398;cdt.managedbuild.tool.gnu.cpp.compiler.input.1743926560">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.375046330;cdt.managedbuild.config.gnu.exe.release.375046330.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1809941717;cdt.managedbuild.tool.gnu.c.compiler.input.329001407">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
@@ -319,8 +319,8 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.375046330;cdt.managedbuild.config.gnu.exe.release.375046330.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1809941717;cdt.managedbuild.tool.gnu.c.compiler.input.329001407">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.375046330;cdt.managedbuild.config.gnu.exe.release.375046330.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1192057398;cdt.managedbuild.tool.gnu.cpp.compiler.input.1743926560">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>

@@ -151,10 +151,24 @@ public class PgenInterpolator {
 					props, mapDescriptor );
 			
 			int len = Math.min(newElems.size(), txtLoc.size());
+			int[] tbs = getGfaTopBottoms((Gfa)from, (Gfa)to );
+			boolean dotb = (tbs[0] >= 0) && (tbs[1] >= 0) && (tbs[2]>= 0) && (tbs[3]) >= 0;
 			for ( int ii =start+interval, jj = 0; ii < end && jj<len; ii+=interval, jj++ ) {
-				((Gfa)newElems.get( jj )).setGfaTextCoordinate( txtLoc.get(jj) );
-				((Gfa)newElems.get( jj )).setGfaFcstHr( "" + Math.abs(ii) );
+				Gfa elem = (Gfa)newElems.get( jj );
+				elem.setGfaTextCoordinate( txtLoc.get(jj) );
+				elem.setGfaFcstHr( "" + Math.abs(ii) );
+
+				// Interpolate the top/bottoms.
+				double fraction = Math.abs( (double)( ii - start )  / (double)(end - start) ) ;
+			    if ( dotb ) {
+					int top = interpolate(tbs[0], tbs[2], fraction );
+					int bot = interpolate(tbs[1], tbs[3], fraction );
+			    	elem.setGfaValue( Gfa.TOP, "" + top );
+					elem.setGfaValue( Gfa.BOTTOM, "" + bot );			    	
+			    	elem.setGfaValue( Gfa.TOP_BOTTOM, "" + top + "/" + bot );
 			}
+		}
+		
 		}
 		
 		return newElems;
@@ -338,6 +352,50 @@ public class PgenInterpolator {
 		}
 		
 		return latlons;
+	}
+	
+    
+	/*
+	 * Interpolate between two integers. 
+	 */
+	private static int interpolate( int start, int end, double fraction ) {	    
+	    return 	(int) (start - fraction * ( start - end ) );
+	}
+	
+	/*
+	 * Parse two GFA's top/bottoms. 
+	 */
+	private static int[] getGfaTopBottoms( Gfa from, Gfa to ) {
+	    int[] tb = new int[] { -1, -1, -1, -1 };
+	    tb[0] = parseGfaTopBottom( from.getGfaTop() );           
+	    tb[1] = parseGfaTopBottom( from.getGfaBottom() );           
+	    tb[2] = parseGfaTopBottom( to.getGfaTop() );           
+	    tb[3] = parseGfaTopBottom( to.getGfaBottom() );           
+       	    	    
+	    return tb;
+	}
+	
+	/*
+	 * Parse a top/bottom string into integer, return -1 if failed.
+	 */
+	private static int parseGfaTopBottom( String topBot ) {
+	    int tb = -1;
+	    
+	    if ( topBot != null ) {	    
+	    	if ( topBot.equalsIgnoreCase( "SFC") )  {
+	    		tb = 0;
+	    	}
+	    	else {
+	    		try {
+	    			tb = Integer.parseInt( topBot );
+	    		}
+	    		catch ( NumberFormatException ee )  {
+	    			tb = -1;
+	    		}
+	    	}
+	    }
+        
+	    return tb;
 	}
 	
 }

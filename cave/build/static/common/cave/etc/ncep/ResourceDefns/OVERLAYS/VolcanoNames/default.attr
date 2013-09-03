@@ -4,4 +4,6 @@ markerType=TRIANGLE
 markerSize=1.0
 markerWidth=1
 markerTextSize=MEDIUM
-markerTextAppearanceZoomLevel=8
+! the distance in km of the screen width when the symbols/labels will be displayed.
+maxSymbolDisplayWidth=40100
+maxLabelDisplayWidth=5000

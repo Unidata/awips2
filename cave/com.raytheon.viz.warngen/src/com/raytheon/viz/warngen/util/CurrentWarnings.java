@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -72,6 +73,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 10, 2013 1951       rjpeter      Updated ugcZones references
  * May 31, 2013 DR 16264   D. Friedman  Fix query in prepare method.
  * Jun 05, 2013 DR 16279   D. Friedman  Fix updating of issuance time for followups.
+ * Jul 22, 2013 2176       jsanchez     Set the raw message for an EXT.
+ * Aug 14, 2013 DR 16483   Qinglu Lin   Fixed no option issue in WarnGen dropdown menu after
+ *                                      issuance of an CANCON and restart of CAVE.
  * </pre>
  * 
  * @author mschenke
@@ -256,9 +260,8 @@ public class CurrentWarnings {
     public List<AbstractWarningRecord> getCorrectableWarnings(
             AbstractWarningRecord warnRec) {
         List<AbstractWarningRecord> rval = new ArrayList<AbstractWarningRecord>();
-        Calendar current = Calendar.getInstance();
+        Calendar current = TimeUtil.newCalendar();
         Calendar end = Calendar.getInstance();
-        current.setTime(SimulatedTime.getSystemTime().getTime());
 
         synchronized (officeId) {
             List<AbstractWarningRecord> records = warningMap.get(toKey(
@@ -312,6 +315,7 @@ public class CurrentWarnings {
                         if (rval != null) {
                             rval.setEndTime(warning.getEndTime());
                             rval.setIssueTime(warning.getIssueTime());
+                            rval.setRawmessage(warning.getRawmessage());
                         }
                     }
                 }
@@ -342,7 +346,7 @@ public class CurrentWarnings {
                             || (action == WarningAction.EXP)) {
                         if ((rval != null)
                                 && (warning.getCountyheader().equals(
-                                        rval.getCountyheader()) || !warning
+                                        rval.getCountyheader()) || warning
                                         .getUgcZones().containsAll(
                                                 rval.getUgcZones()))) {
                             rval = null;
@@ -371,8 +375,7 @@ public class CurrentWarnings {
             List<AbstractWarningRecord> warnings = warningMap.get(toKey(
                     phensig, etn));
             if (warnings != null) {
-                Calendar c = Calendar.getInstance();
-                c.setTime(SimulatedTime.getSystemTime().getTime());
+                Calendar c = TimeUtil.newCalendar();
                 c.add(Calendar.MINUTE, -10);
                 TimeRange t = new TimeRange(c.getTime(), SimulatedTime
                         .getSystemTime().getTime());
@@ -411,8 +414,7 @@ public class CurrentWarnings {
                 AbstractWarningRecord newProd = null;
                 boolean conMatchesCan = false;
                 ArrayList<AbstractWarningRecord> conProds = new ArrayList<AbstractWarningRecord>();
-                Calendar c = Calendar.getInstance();
-                c.setTime(SimulatedTime.getSystemTime().getTime());
+                Calendar c = TimeUtil.newCalendar();
                 c.add(Calendar.MINUTE, -10);
                 TimeRange t = new TimeRange(c.getTime(), SimulatedTime
                         .getSystemTime().getTime());

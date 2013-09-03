@@ -268,8 +268,6 @@
                 -->
                 <xsl:element name="line">
                     <xsl:value-of select="$newline"/>.</xsl:element>
-                <xsl:text>
-                </xsl:text>
 
                 <!--  Hazard statement, state list, and update flag    -->
                 <xsl:element name="line">
@@ -290,9 +288,14 @@
                 <xsl:if test="not( contains( $status, 'CAN' ))">
                     <xsl:if test="string-length($freqSevStatement) > 1">
                         <xsl:element name="line">
-                            <xsl:value-of select="$newline"/><xsl:value-of select="normalize-space($freqSevStatement)"/><xsl:if test="string-length($airTag) > 1"><xsl:text> </xsl:text><xsl:value-of select="normalize-space($airTag)"/>.</xsl:if></xsl:element>
+                            <xsl:value-of select="$newline"/><xsl:value-of select="normalize-space($freqSevStatement)"/>
+<!--                        <xsl:if test="string-length($airTag) > 1"><xsl:text> </xsl:text><xsl:value-of select="normalize-space($airTag)"/>.</xsl:if>
+-->                       
+                        </xsl:element>
                     </xsl:if>
                 </xsl:if>
+
+<!--                 <xsl:value-of select="$newline"/> -->
 
                 <!--  Add the attention line(s) -->
                 <xsl:call-template name="GetAttentionLine">

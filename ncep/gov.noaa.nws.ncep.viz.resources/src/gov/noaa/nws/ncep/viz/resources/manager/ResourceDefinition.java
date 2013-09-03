@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.resources.manager;
 import static java.lang.System.out;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
 import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
+import gov.noaa.nws.ncep.common.dataplugin.pgen.PgenRecord;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
 import gov.noaa.nws.ncep.viz.common.StringListAdapter;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
@@ -178,6 +179,8 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     
     private boolean resourceParametersModified;
 
+    private Boolean isRequestable = null; // based on class of the implementations
+    
     // Default to disnabled so it must be explicitly enabled. 
     @XmlElement
     private Boolean inventoryEnabled = false;
@@ -417,10 +420,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         this.resourceParametersModified = rscTypeParamsModified;
     }
 
-    public void setResourceImpl(String ri) { // Class<?> rscCls ) {
-        rscImplementation = ri;
-    }
-
     // isEnabled used to be stored here so instead of changing the code that called this method, 
     // just implement it here. 
     public boolean isEnabled() {
@@ -565,7 +564,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	if( attrSetOrg == AttrSetsOrganization.DETERMINE_BY_RSC_CATEGORY ) {
     		return  resourceCategory == ResourceCategory.GridRscCategory ||
 	        		resourceCategory == ResourceCategory.RadarRscCategory ||
-	        		resourceCategory == ResourceCategory.PGENRscCategory ||
+//	        		resourceCategory == ResourceCategory.PGENRscCategory ||
 	                resourceCategory == ResourceCategory.EnsembleRscCategory ||
 	                resourceCategory == ResourceCategory.SpaceRscCategory;
     	}
@@ -575,61 +574,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	else {
     		return false;
     	}
-    }
-
-    //
-    public ArrayList<String> getPgenProducts() {
-		// TODO :  need to decide what to do with PGEN Resources....
-		if( !isPgenResource() ) {
-			return null;
-		}
-		
-		ArrayList<String> pgenProductsList = new ArrayList<String>();
-
-		// PGEN generates the SubTypes from the .xml files in the products directory.
-		if( !getResourceParameters(false).containsKey( "pgenDirectory" ) ) {
-			out.println("Error generating PGEN products: "+
-			"the pgenDirectory parameter is not specified.");
-			return pgenProductsList;
-		}
-
-		String prodDirName = getResourceParameters(false).get( "pgenDirectory" );
-
-		if( !prodDirName.trim().startsWith( File.separator ) ) {
-			// TODO: should call PgenUtil.getWorkingDirectory() if not 
-			// for cyclical dependency. This still needs work so leaving 
-			// this as current working directory for now. If user were to change the
-			// pgen working directory, this would break.
-			prodDirName = 
-				NmapCommon.getPgenWorkingDirectory() + File.separator +
-				prodDirName + File.separator;
-		}
-
-		File productsDir = new File( prodDirName );
-
-		if( productsDir == null || !productsDir.exists() ||
-				!productsDir.isDirectory() ) {
-			out.println("Error generating PGEN products: the pgenDirectory for, "+
-					getResourceParameters(false).get("pgenDirectory") + ", doesn't exist" );
-			return pgenProductsList;
-		}
-
-		String[] prmFileNames = productsDir.list( new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith( ".xml" );
-			}       			
-		});
-
-		for( String prmFileName : prmFileNames ) {
-			String productName = prmFileName.substring(0,prmFileName.length()-4);
-			// for PGEN there aren't any 'attrSetKeys' (these are used by Satellite and Radar
-			// to determine which attrSets
-			if( !pgenProductsList.contains( productName ) ) {	
-				pgenProductsList.add( productName );
-			}
-		}			
-		return pgenProductsList;
     }
 
     // the plugin must be given as a resource parameter
@@ -754,18 +698,33 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		}
 	}
 
-	// TODO. We could have a more explicit way of indicating this. Perhaps
-    // getting the implementation's resourceData class and determine if it
-    // derives from Requestable or non-Requestable abstract class.
+	// based of the base class of the resource implementation
     //
     public boolean isRequestable() {
-    	return !(getResourceCategory() == ResourceCategory.OverlayRscCategory ||
-    			 isPgenResource() );  
+    	if( isRequestable == null && rscImplementation != null ) {
+        	isRequestable = false;
+        	
+    		Class<?> implClass = ResourceExtPointMngr.getInstance().getResourceDataClass( rscImplementation );
+        	
+        	try {
+    			Object rscData = implClass.newInstance();
+    			isRequestable = (rscData instanceof AbstractNatlCntrsRequestableResourceData);
+    				
+    		} catch (InstantiationException e) {
+    			System.out.println("Error instantiating class ("+implClass.getName()+") for resource: "+ rscImplementation );
+    		} catch (IllegalAccessException e) {
+    			System.out.println("Error instantiating class ("+implClass.getName()+") for resource: "+ rscImplementation );
+    		}    		
+    	}
+    	return (isRequestable == null ? false : isRequestable);
+    	//!(getResourceCategory() == ResourceCategory.OverlayRscCategory 
+    			///*|| isPgenResource()*/ );  
     }
     
     public boolean usesInventory() {
     	// TODO : other 'gempak' plugins??? 
     	return isRequestable() &&
+    		   !isPgenResource() && 
     		   !getPluginName().equals( GempakGrid.gempakPluginName );
     }
     
@@ -1136,9 +1095,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		// Grids, Satellite, Radar, etc all are dynamically updated when new alert updates 
 		// are received (when new data is ingested). PGEN doesn't have alert updates and so
 		// we need to always check for new products.   
-
+    	// 
     	if( isPgenResource() ) {
-    		return getPgenProducts();
+    		queryGeneratedTypes();
+    		return generatedSubTypesList;
     	}
 
     	// note that if the inventory is at first enabled and then disabled, generatedSubTypesList
@@ -1627,11 +1587,8 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     			Object[] pdoList;
     			pdoList = Connector.getInstance().connect( script, null, 60000 );
 
-//    			HashMap<String,ArrayList<String>> subTypesMap = new HashMap<String,ArrayList<String>>();
-
     			for (Object pdo : pdoList) {
     				String subType=null;
-    				String attrSetKey=null;
 
     				if( //getResourceCategory() == ResourceCategory.NtransRscCategory 
     					  getResourceCategory().getCategoryName().equals("NTRANS")) {
@@ -1639,14 +1596,12 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     						NtransRecord ntransRec = (NtransRecord) pdo;
     						subType = ntransRec.getMetafileName() + "_" + 
     						ntransRec.getProductName();
-    						//attrSetKey = ntransRec.getSomeThing();  //TODO??
     					}
     				}
     				else if( getResourceCategory() == ResourceCategory.SatelliteRscCategory ) {
     					if( getRscImplementation().equals("GiniSatellite") ) {
     						SatelliteRecord satRec = (SatelliteRecord) pdo;
     						subType = satRec.getSectorID();
-    						attrSetKey = satRec.getPhysicalElement();
     					}
     					else if( getRscImplementation().equals("McidasSatellite") ) {
     						McidasRecord satRec = (McidasRecord) pdo;
@@ -1656,21 +1611,52 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     							subType = satRec.getAreaName() + "_" + 
     							satRec.getResolution().toString() + "km";
     						}
-    						attrSetKey = satRec.getImageType();
     					}
     				}
+    				// ??? OBE, this shouldn't get called?
     				else if( getResourceCategory() == ResourceCategory.RadarRscCategory ) {
     					// if Mosaic there is no subType so just use 'mosaic'
     					MosaicRecord rdrRec = (MosaicRecord) pdo;
     					subType = "mosaic";
-    					attrSetKey = rdrRec.getProdName();
+//    					attrSetKey = rdrRec.getProdName();
     					// if Radar then use the name of the radar as the subType
+    				}
+    				else if( getResourceCategory() == ResourceCategory.PGENRscCategory ) {
+    					PgenRecord pgenRec = (PgenRecord) pdo;
+    					if( subTypeGenerator.indexOf("dataTime") > -1 ) {
+        					subType = pgenRec.getDataTime().toString();
+    					}
+    					else if( subTypeGenerator.indexOf("activitySubtype") > -1 ) {
+    						subType = pgenRec.getActivitySubtype();
+    					}
+    					else if( subTypeGenerator.indexOf("activityLabel") > -1 ) {
+    						subType = pgenRec.getActivityLabel();
+    					}
+    					else if( subTypeGenerator.indexOf("activityName") > -1 ) {
+    						subType = pgenRec.getActivityName();
+    					}
+    					else if( subTypeGenerator.indexOf("activityType") > -1 ) {
+    						subType = pgenRec.getActivityType();
+    					}
+    					else if( subTypeGenerator.indexOf("site") > -1 ) {
+    						subType = pgenRec.getSite();
+    					}
+    					else if( subTypeGenerator.indexOf("desk") > -1 ) {
+    						subType = pgenRec.getDesk();
+    					}
+    					else if( subTypeGenerator.indexOf("forecaster") > -1 ) {
+    						subType = pgenRec.getForecaster();
+    					}
+    					else {
+    						System.out.println("Unrecognized PGEN rsc generating subType"+
+    								subTypeGenerator );
+    					}
     				}
 
 // doing this will cause the dataTime query to fail because the subType is taken as a constraint
 // when doing the time querys. 
 //	subType = subType.replaceAll(" ", "_");
-    				if( subType != null ) {
+    				if( subType != null && !subType.trim().isEmpty() ) {
     					if( !generatedSubTypesList.contains( subType ) ) {
     						generatedSubTypesList.add( subType );
     					}
@@ -1684,7 +1670,16 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     			}
     		}
 		} catch (VizException e) {
+			// if this is a stack trace we don't need to display the whole stack
+			if( e.getMessage().length() > 200 ) {
+				System.out.println( e.getMessage() );
+				e = new VizException( e.getClass().getName() + " exception in queryGeneratedTypes " );
+			}
+			
 			throw e;
+		}
+		catch (Exception e ) {
+			throw new VizException( e );				
 		}
     }
     
