@@ -28,6 +28,10 @@
 		<mkdir dir="${gfesuite.directory}/products/ISC" />
 		<mkdir dir="${gfesuite.directory}/products/ATBL" />
 		
+		<!-- Create directories used by Service Backup export_grids script -->
+		<mkdir dir="${gfesuite.directory}/exportgrids/primary" />
+		<mkdir dir="${gfesuite.directory}/exportgrids/backup" />
+		
 		<!-- Adjust GFESuite permissions -->
 		<chmod perm="ugo+rx">
 			<fileset dir="${gfesuite.directory}/bin">

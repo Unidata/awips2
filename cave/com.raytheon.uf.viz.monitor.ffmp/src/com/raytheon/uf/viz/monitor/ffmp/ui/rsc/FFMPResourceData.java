@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -94,6 +95,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
     /** Performance log entry prefix */
     private static final String prefix = "FFMP ResourceData:";
+
+    /** Number of hours back from the most recent time to load data for **/
+    private static final int HOURS_BACK = 24;
+
+    /** Number of hours a background data job should request data for **/
+    private static final int LOAD_INCREMENT = 1;
 
     /** Performance logger */
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -227,14 +234,52 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 initialJob.addJobChangeListener(new JobChangeAdapter() {
                     @Override
                     public void done(IJobChangeEvent event) {
-                        Date backgroundStartTime = new Date(mostRecentTime
-                                .getTime() - (24 * TimeUtil.MILLIS_PER_HOUR));
-                        BackgroundLoadJob backgroundJob = new BackgroundLoadJob(
-                                "Background FFMP Load", FFMPResourceData.this,
-                                backgroundStartTime, timeBack, onlyAllHuc);
-                        backgroundJob.setPreloadAvailableUris(true);
-                        backgroundJob.schedule();
+                        // step back in time in increments and
+                        // load the data in chunks all the way
+                        // back to 24 hours
+                        // before the current time
+                        Date farthestBack = new Date(mostRecentTime.getTime()
+                                - (HOURS_BACK * TimeUtil.MILLIS_PER_HOUR));
+                        int hourBack = (int) configTimeFrame;
+                        Date loadedUpTo = new Date(timeBack.getTime());
+                        BackgroundLoadJob firstJob = null;
+                        Job previousJob = null;
+                        while (loadedUpTo.after(farthestBack)) {
+                            Date startTime = new Date(
+                                    loadedUpTo.getTime()
+                                            - (LOAD_INCREMENT * TimeUtil.MILLIS_PER_HOUR));
+                            hourBack += LOAD_INCREMENT;
+                            if (startTime.before(farthestBack)) {
+                                startTime = farthestBack;
+                                hourBack = HOURS_BACK;
+                            }
 
+                            String jobName = "FFMP loading to hr " + hourBack;
+                            if (previousJob == null) {
+                                firstJob = new BackgroundLoadJob(jobName,
+                                        FFMPResourceData.this, startTime,
+                                        loadedUpTo, onlyAllHuc);
+                                firstJob.setPreloadAvailableUris(true);
+                                previousJob = firstJob;
+                            } else {
+                                final BackgroundLoadJob nextJob = new BackgroundLoadJob(
+                                        jobName, FFMPResourceData.this,
+                                        startTime, loadedUpTo, onlyAllHuc);
+                                nextJob.setPreloadAvailableUris(true);
+                                previousJob
+                                        .addJobChangeListener(new JobChangeAdapter() {
+                                            @Override
+                                            public void done(
+                                                    IJobChangeEvent event) {
+                                                nextJob.schedule();
+                                            }
+                                        });
+                                previousJob = nextJob;
+                            }
+
+                            loadedUpTo = startTime;
+                        }
+                        firstJob.schedule();
                     }
                 });
                 initialJob.schedule();

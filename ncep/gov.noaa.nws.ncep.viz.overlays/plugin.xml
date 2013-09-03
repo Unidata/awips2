@@ -14,15 +14,6 @@
          </fileType>
       </resource>
       <resource
-            class="gov.noaa.nws.ncep.viz.overlays.resources.LPIResource"
-            name="LpiOverlay"
-            renderingOrderId="MAP_OUTLINE">
-         <fileType
-               fileExtension="lpi"
-               name="LPI File">
-         </fileType>
-      </resource>
-      <resource
             class="gov.noaa.nws.ncep.viz.overlays.resources.PgenStaticOverlayResource"
             name="PgenStaticOverlay"
             renderingOrderId="MAP_OUTLINE">
@@ -31,11 +22,6 @@
                name="XML File">
          </fileType>
       </resource>
-      <!--resource
-            class="com.raytheon.viz.core.topo.TopoResource"
-            name="NC-TopoResource"
-            renderingOrderId="MAP_IMAGE">
-      </resource-->
       <resource
             class="gov.noaa.nws.ncep.viz.overlays.resources.LatLonOverlayResource"
             name="LatlonOverlay"
@@ -50,15 +36,6 @@
             class="gov.noaa.nws.ncep.viz.overlays.resources.DbOverlayResource"
             name="DbOverlay"
             renderingOrderId="MAP_OUTLINE">
-      </resource>
-      <resource
-            class="gov.noaa.nws.ncep.viz.overlays.resources.SPIResource"
-            name="SpiOverlay"
-            renderingOrderId="MAP_OUTLINE">
-         <fileType
-               fileExtension="spi"
-               name="SPI File">
-         </fileType>
       </resource>
    </extension>
    <extension
@@ -89,14 +66,9 @@
             name="PgenStaticOverlay">
       </nc-resource>
       <nc-resource
-            class="gov.noaa.nws.ncep.viz.overlays.resources.LPIResourceData"
-            editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.ChangeMarkerAttributesDialog"
-            name="LpiOverlay">
-      </nc-resource>
-      <nc-resource
-            class="gov.noaa.nws.ncep.viz.overlays.resources.SPIResourceData"
-            editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.ChangeMarkerAttributesDialog"
-            name="SpiOverlay">
+            class="gov.noaa.nws.ncep.viz.overlays.resources.PointOverlayResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.PointOverlayAttributesDialog"
+            name="PointOverlay">
       </nc-resource>
    </extension>
    <extension
@@ -141,6 +113,13 @@
             ncResourceName="DbOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="displayLabelField"
+            defaultValue="false"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="DbOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
             paramClass="String"
             paramName="mapName"
             paramType="IMPLEMENTATION_PARAM"
@@ -162,15 +141,6 @@
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="PgenStaticOverlay">
       </nc-resourceParameter>
-   <!--   </nc-resourceParameter>
-            <nc-resourceParameter
-            paramClass="Boolean"
-            paramName="fillModeEnable"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-            ncResourceName="PgenStaticOverlay">
-      </nc-resourceParameter>
--->
       <nc-resourceParameter
             ncResourceName="PgenStaticOverlay"
             paramClass="String"
@@ -185,7 +155,6 @@
             ncResourceName="PgenStaticOverlay">
       </nc-resourceParameter>
          
-      
       <nc-resourceParameter
             paramClass="RGB"
             paramName="color"
@@ -333,116 +302,81 @@
             paramName="color"
             defaultValue="RGB {255, 255, 255}"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="MarkerState"
             paramName="markerState"
             defaultValue="MARKER_PLUS_TEXT"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="MarkerType"
             paramName="markerType"
             defaultValue="ASTERISK"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="MarkerTextSize"
             paramName="markerTextSize"
             defaultValue="MEDIUM"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="Float"
             paramName="markerSize"
             defaultValue="1"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="Integer"
             paramName="markerWidth"
             defaultValue="1"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
-            paramClass="Float"
-            paramName="markerTextAppearanceZoomLevel"
-            defaultValue="1"
+            paramClass="Integer"
+            paramName="maxSymbolDisplayWidth"
+            defaultValue="100000"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="LpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>            
       <nc-resourceParameter
-            paramClass="String"
-            paramName="LpiFilename"
-            paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="LpiOverlay">
-      </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="String"
-            paramName="mapName"
-            paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="LpiOverlay">
-      </nc-resourceParameter>      
-      
-      <nc-resourceParameter
-            paramClass="RGB"
-            paramName="color"
-            defaultValue="RGB {255, 255, 255}"
-            paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="SpiOverlay">
-      </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="MarkerState"
-            paramName="markerState"
-            defaultValue="MARKER_PLUS_TEXT"
-            paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="SpiOverlay">
-      </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="MarkerType"
-            paramName="markerType"
-            defaultValue="ASTERISK"
-            paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="SpiOverlay">
-      </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="MarkerTextSize"
-            paramName="markerTextSize"
-            defaultValue="MEDIUM"
-            paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="SpiOverlay">
-      </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="Float"
-            paramName="markerSize"
-            defaultValue="1"
-            paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="SpiOverlay">
-      </nc-resourceParameter>
-      <nc-resourceParameter
             paramClass="Integer"
-            paramName="markerWidth"
-            defaultValue="1"
+            paramName="maxLabelDisplayWidth"
+            defaultValue="100000"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="SpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="String"
-            paramName="SpiFilename"
+            paramName="sourceType"
             paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="SpiOverlay">
+            ncResourceName="PointOverlay">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="sourceName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="PointOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="sourceParams"
+            defaultValue="not_used"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="String"
             paramName="mapName"
             paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="SpiOverlay">
+            ncResourceName="PointOverlay">
       </nc-resourceParameter>      
    </extension>
        
