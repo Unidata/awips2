@@ -10,6 +10,9 @@
 #    04/29/13        #1761         dgilling       Remove use of NATIONAL_CENTER,
 #                                                 script caller will determine
 #                                                 which sites to export.
+#    05/16/13        #2009         dgilling       New backup structure: 
+#                                                 PRIMARY_SITES go to exportgrids/primary/
+#                                                 and all other go to exportgrids/backup/.
 ##############################################################################
 
 if [ ${#AWIPS_HOME} = 0 ]
@@ -114,9 +117,30 @@ else
 fi
 $LOGGER ${DB_NAME}
 
+# use PRIMARY_SITES setting to determine NETCDF_PATH
+IFS=',' read -ra PRI_SITES <<< "${PRIMARY_SITES}"
+if [ ${#PRI_SITES[@]} -eq 0 ] 
+then
+   declare -a PRI_SITES=( "${AW_SITE_IDENTIFIER}" )
+fi
+EXPORT_FOR_PRIMARY=0
+for primary_site in "${PRI_SITES[@]}"
+do
+   primary_site=`echo $primary_site | tr [a-z] [A-Z]`
+   if [ "$primary_site" = "${CAPS_SITE}" ]
+   then
+      EXPORT_FOR_PRIMARY=1
+      break
+   fi
+done
 
-NETCDF_PATH=${GFESUITE_HOME}/exportgrids
-export NETCDF_TMP_PATH=${NETCDF_PATH}/tmp
+NETCDF_PATH=${GFESUITE_HOME}/exportgrids/primary
+export NETCDF_TMP_PATH=/tmp/exportgrids
+if [ $EXPORT_FOR_PRIMARY = 0 ]
+then
+   NETCDF_PATH=${GFESUITE_HOME}/exportgrids/backup
+fi
+
 if [ ! -d ${NETCDF_TMP_PATH} ]; then
    mkdir ${NETCDF_TMP_PATH}
    chmod 777 ${NETCDF_TMP_PATH}

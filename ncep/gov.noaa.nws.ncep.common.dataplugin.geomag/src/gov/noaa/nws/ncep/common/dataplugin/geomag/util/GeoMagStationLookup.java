@@ -27,7 +27,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/2013      975        sgurung     Initial creation
- * 
+ * 07/2013      975        qzhou       Change Map<String, GeoMagStation> stnsByCode to
  * </pre>
  * 
  * @author sgurung
@@ -43,11 +43,10 @@ public class GeoMagStationLookup {
     private static GeoMagStationLookup instance;
 
     /** A map of the stations. The key is the station code of the station */
-    private Map<String, GeoMagStation> stnsByCode;
+    private Map<String, ArrayList<GeoMagStation>> stnsByCode;
 
     public static synchronized GeoMagStationLookup getInstance() {
         if (instance == null) {
-            // System.out.println("in reloading geoMagStations.xml ....");
             instance = new GeoMagStationLookup();
         }
         return instance;
@@ -64,7 +63,7 @@ public class GeoMagStationLookup {
     }
 
     private GeoMagStationLookup() {
-        stnsByCode = new HashMap<String, GeoMagStation>();
+        stnsByCode = new HashMap<String, ArrayList<GeoMagStation>>();
         try {
             initStationList();
         } catch (GeoMagException e) {
@@ -72,11 +71,26 @@ public class GeoMagStationLookup {
         }
     }
 
-    public GeoMagStation getStationByCode(String stnCode) {
-        return stnsByCode.get(stnCode);
+    public GeoMagStation getStationByCode(String stnCode, boolean hasHeader) {
+    	ArrayList<GeoMagStation> stationList = null;
+    	
+		stationList = stnsByCode.get(stnCode);
+		
+    	int i = 0;
+    	for (i = 0; i <stationList.size(); i++) {
+    		
+    		if (hasHeader == true && stationList.get(i).getRawDataFormat().getHeaderFormat() != null) 
+    			break;	  		
+    		else if (hasHeader == false && stationList.get(i).getRawDataFormat().getHeaderFormat() == null)
+    			break;
+    		else if (hasHeader == true && stationList.get(i).getRawDataFormat().getHeaderFormat() == null)
+    			break;
     }
 
-    public Map<String, GeoMagStation> getStationsByCodeMap() {
+        return stationList.get(i);
+    }
+
+    public Map<String, ArrayList<GeoMagStation>> getStationsByCodeMap() {
         return stnsByCode;
     }
 
@@ -110,15 +124,28 @@ public class GeoMagStationLookup {
             if (stnsFile.exists()) {
             	geoMagStationsTbl = new GeoMagStationTableReader(stnsFile.getPath());
             } 
+            
             // if site version exists, use it instead
             /*if (siteStnsFile.exists()) {
             	geoMagStationsTbl = new GeoMagStationTableReader(stnsFile.getPath());
             }*/
             
             List<GeoMagStation> list = (geoMagStationsTbl!=null)?geoMagStationsTbl.getStationList():new ArrayList<GeoMagStation>();
-            
+            //System.out.println("**list "+list.size());
             for(GeoMagStation station : list){	
-            	stnsByCode.put(station.getStationCode(), station);
+            	ArrayList<GeoMagStation>  stationList = null;
+            	if (stnsByCode.containsKey(station.getStationCode())) {
+            		stationList = stnsByCode.get(station.getStationCode());
+            		if(stationList==null)
+            			stationList=new ArrayList<GeoMagStation>();
+
+            		stationList.add(station);  
+
+        	    }else{
+        	    	stationList=new ArrayList<GeoMagStation>();
+        	    	stationList.add(station);                           	    
+            	}
+            	stnsByCode.put(station.getStationCode(), stationList);//station);
             } 		        
         } catch (Exception e) {
             throw new GeoMagException("Unable to unmarshal ncep geomag stations file");
