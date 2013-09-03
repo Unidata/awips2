@@ -92,7 +92,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * Apr 05, 2013 1841       djohnson    Add support for shared subscriptions.
  * Jun 06, 2013 2030       mpduff      Refactored help.
- * Jul 26, 2031 2232       mpduff      Refactored Data Delivery permissions.
+ * Jul 26, 2013 2232       mpduff      Refactored Data Delivery permissions.
+ * Sep 03, 2013 2315       mpduff      Add subscription name to denied approval message.
  * 
  * </pre>
  * 
@@ -482,7 +483,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
                             subscriptionNotificationService
                                     .sendDeniedPendingSubscriptionNotification(
-                                            sub, username, denyMessage);
+                                            sub, username, sub.getName()
+                                                    + ":  " + denyMessage);
                         } catch (RegistryHandlerException e) {
                             statusHandler
                                     .handle(Priority.PROBLEM,
