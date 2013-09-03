@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Mar 09, 2011            bsteffen    Initial creation
  * Jul 17, 2013 2185       bsteffen    Cache computed grid reprojections.
+ * Aug 27, 2013 2287       randerso    Removed 180 degree adjustment required by error
+ *                                     in Maputil.rotation
  * 
  * </pre>
  * 
@@ -250,8 +252,8 @@ public class GeneralGridData {
                         Coordinate ll = new Coordinate(dp.x, dp.y);
                         double rot = MapUtil.rotation(ll, newGeom);
                         double rot2 = MapUtil.rotation(ll, gridGeometry);
-                        double cos = Math.cos(Math.toRadians(180 + rot - rot2));
-                        double sin = Math.sin(Math.toRadians(180 + rot - rot2));
+                        double cos = Math.cos(Math.toRadians(rot - rot2));
+                        double sin = Math.sin(Math.toRadians(rot - rot2));
                         double u = udata[index];
                         double v = vdata[index];
                         udata[index] = (float) (cos * u - sin * v);

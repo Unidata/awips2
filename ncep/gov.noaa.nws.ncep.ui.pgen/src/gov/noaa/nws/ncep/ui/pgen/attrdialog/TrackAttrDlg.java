@@ -60,6 +60,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  * 06/12        #777        Q.Zhou      Modified DEFAULT_NUMBER_OF_TIMES. 
  * 										Added isNewTrack flag to make the FirstTime(/SecondTime) current time when create a Track
  * 03/13		#928		B. Yin 		Added a separator above the button bar.
+ * 08/13		#1020		B. Yin		Fixed the 'Other' interval problem.
  * </pre>
  * 
  * @author	M. Gao
@@ -498,16 +499,14 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
         intervalText = new Text(intervalRowGroup, SWT.SINGLE | SWT.BORDER);                        
         intervalCombo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				String lastItemString = intervalCombo.getItem(intervalCombo.getItemCount()-1); 
-				if(intervalCombo.getText().equals(lastItemString)) {
+				if(intervalCombo.getText().equalsIgnoreCase("Other")) {
 					intervalText.setEditable(true); 
 					intervalText.setText(getPreviousIntervalTimeValue());
-					setIntervalTimeString(getPreviousIntervalTimeValue()); 
 				} else {
 					intervalText.setEditable(false);
 					intervalText.setText(""); 
 					setPreviousIntervalTimeValue(intervalCombo.getText()); 
-					setIntervalTimeString(intervalCombo.getText()); 
+			//		setIntervalTimeString(intervalCombo.getText()); 
 				}
 			}
         }); 
@@ -515,7 +514,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
         intervalText.addModifyListener(new ModifyListener() {
         	public void modifyText(ModifyEvent e) {
         		if ( !((Text)e.widget).getText().isEmpty())
-        			setIntervalTimeString(intervalText.getText()); 
+       ;// 			setIntervalTimeString(intervalText.getText()); 
         	}
         }); 
         
@@ -1195,7 +1194,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 			return intervalCombo.getText(); 
 	}
 
-	public void setIntervalTimeString(String intervalTimeString) {
+	private void setIntervalTimeString(String intervalTimeString) {
 		for ( int ii = 0; ii < intervalCombo.getItemCount(); ii++ ){
 			if (intervalTimeString.equalsIgnoreCase( intervalCombo.getItem(ii) )){
 				intervalCombo.select(ii);

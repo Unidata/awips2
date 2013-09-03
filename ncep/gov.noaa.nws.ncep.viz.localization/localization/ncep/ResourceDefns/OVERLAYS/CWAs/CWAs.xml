@@ -6,6 +6,8 @@
 dbName=maps
 tableName=mapdata.cwa
 labelField=wfo
+! set this to true to display the wfo names
+displayLabelField=false
 mapName=County Warning Areas
     </resourceParameters>
     <rscImplementation>DbOverlay</rscImplementation>

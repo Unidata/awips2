@@ -696,7 +696,7 @@ public class McidasDecoder extends AbstractDecoder {
                     mapCoverage = McidasSpatialFactory.getInstance()
                             .getMapCoverage(iproj, nx, ny, dx, dy, clon,
                                     stdlat1, stdlat2, lllat, lllon, urlat,
-                                    urlon);
+                                    urlon, re);
                 } else {
                     // non-remapped Navigations
                     mapCoverage = McidasSpatialFactory.getInstance()
