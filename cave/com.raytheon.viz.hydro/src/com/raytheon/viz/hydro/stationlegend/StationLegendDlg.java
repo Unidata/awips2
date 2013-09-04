@@ -23,6 +23,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -36,6 +38,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
@@ -55,8 +58,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 12, 2009            mpduff     Initial creation
+ * Jan 12, 2009            mpduff      Initial creation
  * Mar 15, 2013 1790       rferrel     Changes for non-blocking dialog.
+ * 04 Sep 2013  #2324      lvenable    Fixed image memory leaks
  * 
  * </pre>
  * 
@@ -69,7 +73,7 @@ public class StationLegendDlg extends CaveSWTDialog {
     /** Header for station icon column. */
     private final String STATION_ICON_TEXT = "Station Icons";
 
-    /* Header for column to display river/reservoir colors. */
+    /** Header for column to display river/reservoir colors. */
     private final String STATION_COLOR_TEXT = "River/Reservoir Station Colors";
 
     /** Title for river point icon. */
@@ -128,6 +132,9 @@ public class StationLegendDlg extends CaveSWTDialog {
     /** The canvas use for the display of icons/titles. */
     private Canvas canvas;
 
+    /** Map holding images displayed on the legend. */
+    private Map<String, Image> imageMap = new HashMap<String, Image>();
+
     /**
      * Constructor.
      * 
@@ -174,6 +181,15 @@ public class StationLegendDlg extends CaveSWTDialog {
         createCloseButton();
 
         canvas.redraw();
+    }
+
+    @Override
+    protected void disposed() {
+        for (Image img : imageMap.values()) {
+            img.dispose();
+        }
+
+        imageMap.clear();
     }
 
     /**
@@ -223,54 +239,77 @@ public class StationLegendDlg extends CaveSWTDialog {
 
         /* Set the data to create the icons for column 1 */
         GageData gd = new GageData();
-        gd.setDispClass("R"); // River point
-        gd.setThreatIndex(ThreatIndex.THREAT_NONE); // Creates the light green
-        // color
-        BufferedImage icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
 
-        /* Convert the icon to SWT */
-        ImageData imageData = convertToSWT(icon);
-        Image swtIcon = new Image(evt.display, imageData);
+        /*
+         * River Data Point
+         */
+        if (imageMap.containsKey(RIVER_POINT_TEXT) == false) {
+            gd.setDispClass("R"); // River point
+            gd.setThreatIndex(ThreatIndex.THREAT_NONE);
+            createImage(evt.display, gd, RIVER_POINT_TEXT);
+        }
 
-        evt.gc.drawImage(swtIcon, columns[0], rows[rowCount]);
+        evt.gc.drawImage(imageMap.get(RIVER_POINT_TEXT), columns[0],
+                rows[rowCount]);
         evt.gc.drawString(RIVER_POINT_TEXT, columns[1], rows[rowCount] + yShift);
 
-        gd.setDispClass("RF"); // River forecast point
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[0], rows[++rowCount]);
+        /*
+         * River Forecast Point
+         */
+        if (imageMap.containsKey(FORECAST_POINT_TEXT) == false) {
+            gd.setDispClass("RF"); // River forecast point
+            createImage(evt.display, gd, FORECAST_POINT_TEXT);
+        }
+
+        evt.gc.drawImage(imageMap.get(FORECAST_POINT_TEXT), columns[0],
+                rows[++rowCount]);
         evt.gc.drawString(FORECAST_POINT_TEXT, columns[1], rows[rowCount]
                 + yShift);
 
-        gd.setDispClass("RD"); // Reservoir point
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[0], rows[++rowCount]);
+        /*
+         * Reservoir Data Point
+         */
+        if (imageMap.containsKey(RESERVOIR_DATA_POINT_TEXT) == false) {
+            gd.setDispClass("RD"); // Reservoir point
+            createImage(evt.display, gd, RESERVOIR_DATA_POINT_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(RESERVOIR_DATA_POINT_TEXT), columns[0],
+                rows[++rowCount]);
         evt.gc.drawString(RESERVOIR_DATA_POINT_TEXT, columns[1], rows[rowCount]
                 + yShift);
 
-        gd.setDispClass("RFD"); // Reservoir forecast point
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[0], rows[++rowCount]);
+        /*
+         * Reservoir Forecast Point
+         */
+        if (imageMap.containsKey(RESERVOIR_FORECAST_POINT_TEXT) == false) {
+            gd.setDispClass("RFD");
+            createImage(evt.display, gd, RESERVOIR_FORECAST_POINT_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(RESERVOIR_FORECAST_POINT_TEXT),
+                columns[0], rows[++rowCount]);
         evt.gc.drawString(RESERVOIR_FORECAST_POINT_TEXT, columns[1],
                 rows[rowCount] + yShift);
 
-        gd.setDispClass("O"); // Meteoroligical station
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[0], rows[++rowCount]);
+        /*
+         * Meteorological Station
+         */
+        if (imageMap.containsKey(MET_STATION_TEXT) == false) {
+            gd.setDispClass("O");
+            createImage(evt.display, gd, MET_STATION_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(MET_STATION_TEXT), columns[0],
+                rows[++rowCount]);
         evt.gc.drawString(MET_STATION_TEXT, columns[1], rows[rowCount] + yShift);
 
-        gd.setDispClass("RFO"); // Meteoroligical station
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[0], rows[++rowCount]);
+        /*
+         * River Forecast Point with Meteorological Station
+         */
+        if (imageMap.containsKey(RIVER_FORECAST_MET_POINT_TEXT) == false) {
+            gd.setDispClass("RFO");
+            createImage(evt.display, gd, RIVER_FORECAST_MET_POINT_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(RIVER_FORECAST_MET_POINT_TEXT),
+                columns[0], rows[++rowCount]);
         evt.gc.drawString(RIVER_FORECAST_MET_POINT_TEXT, columns[1],
                 rows[rowCount] + yShift);
 
@@ -280,60 +319,85 @@ public class StationLegendDlg extends CaveSWTDialog {
         evt.gc.drawString(STATION_COLOR_TEXT, columns[3], rows[rowCount]);
 
         /* Set the data to create the icons for column 2 */
-        gd.setDispClass("RF");
-        gd.setThreatIndex(ThreatIndex.THREAT_MISSING_DATA);
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
+
+        /*
+         * River Forecast Point with missing data
+         */
+        if (imageMap.containsKey(MISSING_DATA_TEXT) == false) {
+            gd.setDispClass("RF");
+            gd.setThreatIndex(ThreatIndex.THREAT_MISSING_DATA);
+            createImage(evt.display, gd, MISSING_DATA_TEXT);
+        }
+
+        evt.gc.drawImage(imageMap.get(MISSING_DATA_TEXT), columns[2],
+                rows[++rowCount]);
         evt.gc.drawString(MISSING_DATA_TEXT, columns[3], rows[rowCount]
                 + yShift);
 
-        gd.setThreatIndex(ThreatIndex.THREAT_FLOOD);
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
+        /*
+         * River Forecast Point above flood stage
+         */
+        if (imageMap.containsKey(FLOOD_STAGE_TEXT) == false) {
+            gd.setThreatIndex(ThreatIndex.THREAT_FLOOD);
+            createImage(evt.display, gd, FLOOD_STAGE_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(FLOOD_STAGE_TEXT), columns[2],
+                rows[++rowCount]);
         evt.gc.drawString(FLOOD_STAGE_TEXT, columns[3], rows[rowCount] + yShift);
 
-        gd.setThreatIndex(ThreatIndex.THREAT_ACTION);
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
+        /*
+         * River Forecast Point above action stage
+         */
+        if (imageMap.containsKey(ACTION_STAGE_TEXT) == false) {
+            gd.setThreatIndex(ThreatIndex.THREAT_ACTION);
+            createImage(evt.display, gd, ACTION_STAGE_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(ACTION_STAGE_TEXT), columns[2],
+                rows[++rowCount]);
         evt.gc.drawString(ACTION_STAGE_TEXT, columns[3], rows[rowCount]
                 + yShift);
 
-        gd.setThreatIndex(ThreatIndex.THREAT_NONE);
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
+        /*
+         * River Forecast Point below action stage
+         */
+        if (imageMap.containsKey(BELOW_ACTION_STAGE_TEXT) == false) {
+            gd.setThreatIndex(ThreatIndex.THREAT_NONE);
+            createImage(evt.display, gd, BELOW_ACTION_STAGE_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(BELOW_ACTION_STAGE_TEXT), columns[2],
+                rows[++rowCount]);
         evt.gc.drawString(BELOW_ACTION_STAGE_TEXT, columns[3], rows[rowCount]
                 + yShift);
 
-        gd.setThreatIndex(ThreatIndex.THREAT_MISSING_STAGE);
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
+        /*
+         * River Forecast Point missing action/flood stage values
+         */
+        if (imageMap.containsKey(MISSING_STAGE_TEXT) == false) {
+            gd.setThreatIndex(ThreatIndex.THREAT_MISSING_STAGE);
+            createImage(evt.display, gd, MISSING_STAGE_TEXT);
+        }
+        evt.gc.drawImage(imageMap.get(MISSING_STAGE_TEXT), columns[2],
+                rows[++rowCount]);
         evt.gc.drawString(MISSING_STAGE_TEXT, columns[3], rows[rowCount]
                 + yShift);
 
         /* Draw the station Data and center the String */
         int pixelWidth = STATION_DATA_TEXT.length() * fontAveWidth;
         int startX = centerPt - (pixelWidth / 2);
-        evt.gc.drawString(STATION_DATA_TEXT, startX, rows[rowCount += 2]); // Skip
-        // a
-        // row
+        evt.gc.drawString(STATION_DATA_TEXT, startX, rows[rowCount += 2]);
 
-        gd.setThreatIndex(ThreatIndex.THREAT_NONE);
-        gd.setDispClass("RF");
-        icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-        imageData = convertToSWT(icon);
-        swtIcon = new Image(evt.display, imageData);
-        startX = centerPt - (swtIcon.getImageData().width / 2);
-        evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
+        /*
+         * Icon for Station Data
+         */
+        if (imageMap.containsKey(STATION_DATA_TEXT) == false) {
+            gd.setThreatIndex(ThreatIndex.THREAT_NONE);
+            gd.setDispClass("RF");
+            createImage(evt.display, gd, STATION_DATA_TEXT);
+        }
+        startX = centerPt
+                - (imageMap.get(STATION_DATA_TEXT).getImageData().width / 2);
+        evt.gc.drawImage(imageMap.get(STATION_DATA_TEXT), columns[2],
+                rows[++rowCount]);
 
         String label = "[Fld Stg/Flow]";
         startX = centerPt - (label.length() * fontAveWidth) - 10;
@@ -362,13 +426,32 @@ public class StationLegendDlg extends CaveSWTDialog {
     }
 
     /**
+     * Create an image and put it in the image map.
+     * 
+     * @param display
+     *            Display object.
+     * @param gageData
+     *            Gage data.
+     * @param textId
+     *            Text ID that will be the key into the map.
+     */
+    private void createImage(Display display, GageData gageData, String textId) {
+        BufferedImage icon = HydroImageMaker
+                .getImage(gageData, ImageSize.SMALL);
+        ImageData imageData = convertToSWT(icon);
+        Image swtIcon = new Image(display, imageData);
+
+        imageMap.put(textId, swtIcon);
+    }
+
+    /**
      * Convert an AWT BufferedImage to a SWT image.
      * 
      * @param bufferedImage
      *            The image to convert
      * @return An ImageData object
      */
-    private static ImageData convertToSWT(BufferedImage bufferedImage) {
+    private ImageData convertToSWT(BufferedImage bufferedImage) {
         if (bufferedImage.getColorModel() instanceof DirectColorModel) {
             DirectColorModel colorModel = (DirectColorModel) bufferedImage
                     .getColorModel();
