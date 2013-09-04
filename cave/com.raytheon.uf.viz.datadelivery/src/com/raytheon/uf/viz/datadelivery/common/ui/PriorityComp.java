@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
  * Jan 04, 2013    1420    mpduff      Add latency.
  * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
  * Jun 04, 2013     223    mpduff      Changes for Point Data.
+ * Aug 30, 2013    2288    bgonzale    Added display of priority and latency rules.
  * 
  * </pre>
  * 
@@ -59,6 +60,15 @@ public class PriorityComp extends Composite {
 
     /** Latency Text field */
     private Text latencyText;
+
+    /** Should the rules for priority and latency be displayed. **/
+    private final boolean hasRules;
+
+    /** The latency Rule */
+    private final int latencyRule;
+
+    /** The priority Rule */
+    private final SubscriptionPriority priorityRule;
 
     /** The latency value */
     private final int latency;
@@ -77,11 +87,43 @@ public class PriorityComp extends Composite {
      *            Parent composite.
      * @param latency
      * @param priority
+     * @param readOnlyLatency
+     *            is latency editable.
      */
     public PriorityComp(Composite parent, int latency,
             SubscriptionPriority priority, boolean readOnlyLatency) {
         super(parent, SWT.NONE);
+        this.hasRules = false;
+        this.latencyRule = 0;
         this.latency = latency;
+        this.priorityRule = null;
+        this.priority = priority;
+        this.readOnlyLatency = readOnlyLatency;
+        init();
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     *            Parent composite.
+     * @param latencyRule
+     *            configured rule setting to display for latency
+     * @param latency
+     * @param priorityRule
+     *            configured rule setting to display for latency
+     * @param priority
+     * @param readOnlyLatency
+     *            is latency editable.
+     */
+    public PriorityComp(Composite parent, int latencyRule, int latency,
+            SubscriptionPriority priorityRule, SubscriptionPriority priority,
+            boolean readOnlyLatency) {
+        super(parent, SWT.NONE);
+        this.hasRules = true;
+        this.latencyRule = latencyRule;
+        this.latency = latency;
+        this.priorityRule = priorityRule;
         this.priority = priority;
         this.readOnlyLatency = readOnlyLatency;
         init();
@@ -126,7 +168,14 @@ public class PriorityComp extends Composite {
         priorityComp.setLayout(gl);
 
         Label priorityLbl = new Label(priorityComp, SWT.NONE);
-        priorityLbl.setText(" Priority: ");
+        StringBuilder sb = new StringBuilder(" Priority");
+        if (hasRules) {
+            sb.append(" (Rule: ");
+            sb.append(priorityRule.getPriorityName());
+            sb.append(")");
+        }
+        sb.append(":");
+        priorityLbl.setText(sb.toString());
 
         SubscriptionPriority[] prioritiesArr = SubscriptionPriority.values();
         String[] priorities = new String[prioritiesArr.length];
@@ -155,7 +204,14 @@ public class PriorityComp extends Composite {
         latencyComp.setLayoutData(gd);
 
         Label latencyLbl = new Label(latencyComp, SWT.NONE);
-        latencyLbl.setText("Latency (Minutes):");
+        sb = new StringBuilder("Latency in Minutes");
+        if (hasRules) {
+            sb.append(" (Rule: ");
+            sb.append(latencyRule);
+            sb.append(")");
+        }
+        sb.append(":");
+        latencyLbl.setText(sb.toString());
 
         if (readOnlyLatency) {
             latencyLabel = new Label(latencyComp, SWT.BORDER);
@@ -172,6 +228,7 @@ public class PriorityComp extends Composite {
                     .setToolTipText("Time in minutes allotted for a subscription to download");
             latencyText.setText(String.valueOf(this.latency));
         }
+
     }
 
     /**
