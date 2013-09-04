@@ -26,7 +26,6 @@ import java.util.Date;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ogc.common.db.LayerCollector;
 import com.raytheon.uf.edex.ogc.common.util.PluginIngestFilter;
 import com.raytheon.uf.edex.ogc.registry.WfsRegistryCollectorAddon;
 import com.raytheon.uf.edex.plugin.madis.ogc.MadisDimension;
@@ -44,6 +43,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2013            bclement     Initial creation
  * Aug 18, 2013 #2097      dhladky      Restored original functionality before renaming of this class
+ * Aug 30, 2013 #2098      dhladky      Incorrect time returned
+ * Sept 2, 2013 #2098      dhladky      Improved time management.
  *
  * </pre>
  *
@@ -73,7 +74,7 @@ public class MadisRegistryCollectorAddon extends
 	@Override
 	protected Date getTime(MadisRecord record) {
 		Date time = record.getTimeObs();
-		return LayerCollector.roundToHour(time, roundCutoff);
+		return time;
 	}
 
 	/*
