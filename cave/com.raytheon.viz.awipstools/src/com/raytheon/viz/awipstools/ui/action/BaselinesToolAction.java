@@ -19,43 +19,33 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
-import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
+import com.raytheon.viz.awipstools.ui.layer.BaselinesToolLayer;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
- * Handles the Baseline Tools Action.
+ * Loads a {@link BaselinesToolLayer} from the bundles/tools/Baselines.xml
+ * localization file.
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Sep192007    #447        ebabin      Initial Creation.
- *  20Dec2007    #645        ebabin      Updated to fix sampling.  
- *  12May2008    #1031       ebabin      Fix for baselines editing.
- *  14Oct2009    #683        bsteffen    Fix for grabbing points.
- *  10-21-09     #1711       bsteffen    Refactor to common MovableTool model
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/Baselines.xml".
  */
-public class BaselinesToolAction extends
-        AbstractGenericToolAction<InteractiveBaselinesLayer> {
+@Deprecated
+public class BaselinesToolAction extends LoadBundleHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<InteractiveBaselinesLayer> getResourceData() {
-        return new GenericToolsResourceData<InteractiveBaselinesLayer>(
-                "Interactive Baselines", InteractiveBaselinesLayer.class);
-
+    public BaselinesToolAction() {
+        super("bundles/tools/Baselines.xml");
     }
+
 }
