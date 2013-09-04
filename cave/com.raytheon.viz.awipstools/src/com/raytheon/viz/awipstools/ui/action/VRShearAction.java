@@ -19,38 +19,33 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
 import com.raytheon.viz.awipstools.ui.layer.VRShearLayer;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
- * Handles the VR Shear Action.
+ * Loads a {@link VRShearLayer} from the bundles/tools/VRShear.xml localization
+ * file.
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Oct172007    #492        ebabin      Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/VRShear.xml".
  */
-public class VRShearAction extends ShearAction {
+@Deprecated
+public class VRShearAction extends LoadBundleHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<ShearLayer> getResourceData() {
-        return new GenericToolsResourceData<ShearLayer>(
-                VRShearLayer.VRSHEAR_LOCATION, VRShearLayer.class);
+    public VRShearAction() {
+        super("bundles/tools/VRShear.xml");
     }
 
 }

@@ -29,6 +29,7 @@ import java.util.TimeZone;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -58,11 +59,7 @@ import com.raytheon.uf.viz.core.procedures.BundleUtil.BundleDataItem;
 import com.raytheon.uf.viz.core.rsc.URICatalog;
 import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
 import com.raytheon.uf.viz.ui.menus.xml.BundleMenuContribution;
-import com.raytheon.viz.ui.BundleLoader;
-import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
-import com.raytheon.viz.ui.BundleProductLoader;
-import com.raytheon.viz.ui.UiUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
  * Provides an Eclipse menu contribution that loads a bundle, and is decorated
@@ -83,10 +80,13 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 12, 2009            chammack     Initial creation
- * Jan 14, 2013 1442       rferrel      Add Simulated Time Change Listener.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 12, 2009           chammack    Initial creation
+ * Jan 14, 2013  1442     rferrel     Add Simulated Time Change Listener.
+ * Aug 30, 2013  2310     bsteffen    Move loading of bundle to
+ *                                    LoadBundleHandler.
+ * 
  * 
  * </pre>
  * 
@@ -397,20 +397,13 @@ public class BundleContributionItem extends ContributionItem {
 
     private void loadBundle(Event event) {
         try {
-            Bundle bundle = BundleLoader.getBundle(
-                    this.menuContribution.xml.bundleFile, substitutions,
-                    BundleInfoType.FILE_LOCATION);
-            AbstractEditor editor = UiUtil.createOrOpenEditor(
-                    this.menuContribution.xml.editorType, bundle.getDisplays());
-            BundleLoader loader;
-            if (this.menuContribution.xml.fullBundleLoad == null
-                    || this.menuContribution.xml.fullBundleLoad == false) {
-                loader = new BundleProductLoader(editor, bundle);
-            } else {
-                loader = new BundleLoader(editor, bundle);
+            boolean fullBundleLoad = false;
+            if (this.menuContribution.xml.fullBundleLoad != null) {
+                fullBundleLoad = this.menuContribution.xml.fullBundleLoad;
             }
-            loader.schedule();
-
+            new LoadBundleHandler(this.menuContribution.xml.bundleFile,
+                    substitutions, this.menuContribution.xml.editorType,
+                    fullBundleLoad).execute(null);
             if (this.menuContribution.xml.command != null) {
                 ICommandService service = (ICommandService) PlatformUI
                         .getWorkbench().getService(ICommandService.class);
@@ -430,7 +423,7 @@ public class BundleContributionItem extends ContributionItem {
                 }
             }
 
-        } catch (VizException e) {
+        } catch (ExecutionException e) {
             statusHandler.handle(Priority.PROBLEM, "Error loading bundle : "
                     + this.menuContribution.xml.bundleFile, e);
         }
