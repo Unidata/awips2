@@ -30,8 +30,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -65,21 +63,18 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
-import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
+import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
-import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
-import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -90,14 +85,16 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 07Dec2007    #576        Eric Babin Initial Creation.
- * 23Jul2010    #5948      bkowal      Added the ability to move
- *                                     a point to the location of a
- *                                     &quot;mesocyclone&quot;.
- * 31Jul2012    #875       rferrel     Let preopen initialize components.
- * 05Nov2012    #1304      rferrel     Added Point Change Listener.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 07, 2007  576      Eric Babin  Initial Creation.
+ * Jul 23, 2010  5948     bkowal      Added the ability to move a point to the
+ *                                    location of a &quot;mesocyclone&quot;.
+ * Jul 31, 2012  875      rferrel     Let preopen initialize components.
+ * Nov 05, 2012  1304     rferrel     Added Point Change Listener.
+ * Sep 03, 2013  2310     bsteffen    Use IPointChangedListener and
+ *                                    IToolChangedListener instead of
+ *                                    IResourceDataChanged.
  * 
  * </pre>
  * 
@@ -116,19 +113,11 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
 
     private Button pointsRdo, baselinesRdo, homeRdo;
 
-    private HomeToolLayer homeToolLayer;
-
-    private PointsToolLayer pointsToolLayer;
-
-    private InteractiveBaselinesLayer baselinesToolLayer;
-
-    private final List<IResourceDataChanged> changeListeners = new ArrayList<IResourceDataChanged>();
-
+    private final List<ChooseByIdKeyListener> changeListeners = new ArrayList<ChooseByIdKeyListener>();
+    
     private final List<Text> pointStationIdTextFields;
 
     private final List<Text> baselineStationIdTextFields;
-
-    private IDescriptor descriptor;
 
     private final PointsDataManager pointsDataManager = PointsDataManager
             .getInstance();
@@ -190,7 +179,7 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
     }
 
     private class ChooseByIdKeyListener implements KeyListener,
-            IResourceDataChanged {
+            IPointChangedListener, IToolChangedListener {
 
         private final String idName;
 
@@ -273,8 +262,7 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
                     if (obStation != null) {
                         c = obStation.getGeometry().getCoordinate();
                     } else {
-                        c = this.getDmdInformation(stationID,
-                                descriptor.getNumberOfFrames());
+                        c = this.getDmdInformation(stationID);
                     }
 
                     if (c == null) {
@@ -326,39 +314,32 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             if (isPoint()) {
                 pointsDataManager.setCoordinate(idName,
                         stationCoordinates.get(0));
-                refreshToolLayer(pointsToolLayer);
-
+                pointsDataManager.addPointsChangedListener(this);
             } else if (isBaseline()) {
                 toolsDataManager.setBaseline(idName, (new GeometryFactory())
                         .createLineString(stationCoordinates
                                 .toArray(new Coordinate[] {})));
-                refreshToolLayer(baselinesToolLayer);
-
+                toolsDataManager.addBaselinesChangedListener(this);
             } else if (isHome()) {
                 pointsDataManager.setHome(stationCoordinates.get(0));
-                refreshToolLayer(homeToolLayer);
+                pointsDataManager.addHomeChangedListener(this);
             }
-        }
-
-        /**
-         * @param toolLayer
-         */
-        private void refreshToolLayer(AbstractVizResource<?, ?> toolLayer) {
-            if (toolLayer != null) {
-                toolLayer.getResourceData().fireChangeListeners(
-                        ChangeType.DATA_UPDATE, null);
-                toolLayer.getResourceData().addChangeListener(this);
-                changeListeners.add(this);
-            }
+            changeListeners.add(this);
         }
 
         /**
          * 
          * @param mesoId
-         * @param frameCount
          * @return
          */
-        private Coordinate getDmdInformation(String mesoId, int frameCount) {
+        private Coordinate getDmdInformation(String mesoId) {
+            int frameCount = 64;
+            Object framesObj = VizGlobalsManager.getCurrentInstance()
+                    .getPropery(VizConstants.FRAMES_ID);
+            if (framesObj instanceof Integer) {
+                frameCount = (Integer) framesObj;
+            }
+
             Coordinate c = null;
             RadarRecord rr = null;
 
@@ -507,17 +488,23 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             this.isBaseline = isBaseline;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged
-         * (com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-         * java.lang.Object)
-         */
         @Override
-        public void resourceChanged(ChangeType type, Object object) {
+        public void pointChanged() {
+            toolChanged();
+        }
 
+        @Override
+        public void toolChanged() {
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    handleChange();
+                }
+            });
+        }
+
+        public void handleChange() {
             boolean stationLocationHasChanged = false;
 
             if (stationCoordinates == null || stationCoordinates.size() == 0) {
@@ -569,7 +556,7 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
     }
 
     public ChooseByIdDialog(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText(DIALOG_TITLE);
 
         pointStationIdTextFields = new ArrayList<Text>();
@@ -595,15 +582,6 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             }
         });
 
-        // remove registered listeners when closing the dialog
-        shell.addDisposeListener(new DisposeListener() {
-
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                unregisterListeners();
-            }
-        });
-
         shell.pack();
         shell.setMinimumSize(new Point(340, 570));
     }
@@ -612,13 +590,10 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
      * 
      */
     private void unregisterListeners() {
-        for (IResourceDataChanged changeListener : changeListeners) {
-            homeToolLayer.getResourceData()
-                    .removeChangeListener(changeListener);
-            pointsToolLayer.getResourceData().removeChangeListener(
-                    changeListener);
-            baselinesToolLayer.getResourceData().removeChangeListener(
-                    changeListener);
+        for (ChooseByIdKeyListener changeListener : changeListeners) {
+            pointsDataManager.removePointsChangedListener(changeListener);
+            pointsDataManager.removeHomeChangedListener(changeListener);
+            toolsDataManager.removeBaselinesChangedListener(changeListener);
         }
     }
 
@@ -839,34 +814,10 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
                 baselineStationIdTextFields));
     }
 
-    /**
-     * @param containsResource
-     */
-    public void setHomeResource(AbstractVizResource<?, ?> containsResource) {
-        this.homeToolLayer = (HomeToolLayer) containsResource;
-    }
-
-    /**
-     * @param containsResource
-     */
-    public void setPointsResource(AbstractVizResource<?, ?> containsResource) {
-        this.pointsToolLayer = (PointsToolLayer) containsResource;
-    }
-
-    /**
-     * @param containsResource
-     */
-    public void setBaslinesResource(AbstractVizResource<?, ?> containsResource) {
-        this.baselinesToolLayer = (InteractiveBaselinesLayer) containsResource;
-    }
-
-    public void setDescriptor(IDescriptor descriptor) {
-        this.descriptor = descriptor;
-    }
-
     @Override
     protected void disposed() {
         pointsDataManager.removePointsChangedListener(this);
+        unregisterListeners();
     }
 
     @Override
