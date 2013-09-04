@@ -19,9 +19,7 @@
  ******************************************************************************************/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
-import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
  * Action for feature follow zoom
@@ -29,28 +27,23 @@ import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
  * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author mschenke
- * @version 1.0
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/FeatureFollowingZoom.xml".
  */
+@Deprecated
+public class FeatureFollowingZoomAction extends LoadBundleHandler {
 
-public class FeatureFollowingZoomAction extends
-        AbstractGenericToolAction<FeatureFollowingZoomLayer> {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<FeatureFollowingZoomLayer> getResourceData() {
-        return new GenericToolsResourceData<FeatureFollowingZoomLayer>(
-                "Feature Following Zoom", FeatureFollowingZoomLayer.class);
+    public FeatureFollowingZoomAction() {
+        super("bundles/tools/FeatureFollowingZoom.xml");
     }
+
 }

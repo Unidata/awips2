@@ -212,7 +212,7 @@
        <menuContribution
             locationURI="toolbar:d2d-2?after=tools.toolbar">
             <command
-                  commandId="com.raytheon.viz.awipstools.points"
+                  commandId="com.raytheon.uf.viz.ui.loadbundle"
                   icon="icons/points.gif"
                   label="Points">
 				<visibleWhen>
@@ -220,9 +220,13 @@
                          definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                    </reference>
                 </visibleWhen>
+			    <parameter
+			          name="bundleFile"
+			          value="bundles/tools/Points.xml">
+			    </parameter>
             </command>
             <command
-                  commandId="com.raytheon.viz.awipstools.baselines"
+                  commandId="com.raytheon.uf.viz.ui.loadbundle"
                   icon="icons/Baseline.gif"
                   label="Baselines">
 				<visibleWhen>
@@ -230,6 +234,9 @@
                          definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                    </reference>
                 </visibleWhen>
+			    <parameter
+			          name="bundleFile"
+			          value="bundles/tools/Baselines.xml" />
             </command>
        </menuContribution>
    </extension>
