@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 11, 2013 2064       mpduff       Don't output Parameter header if none exist.
  * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
  * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
+ * Aug 30, 2013 2288       bgonzale     Added latency to details display.
  * </pre>
  * 
  * @author mpduff
@@ -638,6 +639,8 @@ public class DataDeliveryUtils {
         fmtStr.append("Priority: ")
                 .append(sub.getPriority().getPriorityValue()).append(newline);
         fmtStr.append("Network: ").append(sub.getRoute()).append(newline);
+        fmtStr.append("Latency Minutes: ").append(sub.getLatencyInMinutes())
+                .append(newline);
 
         fmtStr.append("Coverage: ").append(newline);
         final Coverage coverage = sub.getCoverage();
