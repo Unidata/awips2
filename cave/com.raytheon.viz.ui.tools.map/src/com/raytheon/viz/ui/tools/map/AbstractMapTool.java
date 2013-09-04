@@ -20,10 +20,6 @@
 
 package com.raytheon.viz.ui.tools.map;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.viz.ui.tools.AbstractTool;
 
 /**
@@ -31,15 +27,18 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------	----------- --------------------------
- * Oct 10, 2006              chammack    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 10, 2006           chammack    Initial Creation.
+ * Sep 03, 2013  2310     bsteffen    Remove unused function, mark deprecated.
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1
+ * @deprected Extend {@link AbstractTool} instead.
  */
+@Deprecated
 public abstract class AbstractMapTool extends AbstractTool {
 
     /**
@@ -48,45 +47,6 @@ public abstract class AbstractMapTool extends AbstractTool {
      */
     public AbstractMapTool() {
         super();
-    }
-
-    /**
-     * Gets the given resource class, loads the resource class if it hasn't been
-     * loaded yet
-     * 
-     * @param resourceClass
-     *            the resource to get
-     * @param resourceAction
-     *            to use to load the resource in the case it hasn't already been
-     *            loaded
-     * @return the resource matching the given class
-     * @throws ExecutionException
-     */
-    protected AbstractVizResource<?, ?> getResource(
-            Class<? extends AbstractVizResource<?, ?>> resourceClass,
-            Class<? extends AbstractTool> resourceAction)
-            throws ExecutionException {
-
-        AbstractVizResource<?, ?> resourceLayer = containsResource(resourceClass);
-
-        // attempt to load the resource through it's action
-        if (resourceLayer == null) {
-            try {
-                resourceAction.newInstance().execute(new ExecutionEvent());
-            } catch (Exception e) {
-                throw new ExecutionException("Unable to load "
-                        + resourceAction.getCanonicalName());
-            }
-        }
-
-        resourceLayer = containsResource(resourceClass);
-
-        if (resourceLayer == null) {
-            throw new ExecutionException("Unable to load "
-                    + resourceClass.getCanonicalName());
-        }
-
-        return resourceLayer;
     }
 
 }
