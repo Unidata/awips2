@@ -357,6 +357,27 @@
             id="com.raytheon.viz.ui.actions.printScreenReverseAction"
             name="Print Screen Reverse">
       </command>
+      <command
+            defaultHandler="com.raytheon.viz.ui.actions.LoadBundleHandler"
+            description="Load a bundle from a file"
+            id="com.raytheon.uf.viz.ui.loadbundle"
+            name="Load Bundle">
+         <commandParameter
+               id="bundleFile"
+               name="Bundle File Location"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="editorType"
+               name="Editer Type"
+               optional="true">
+         </commandParameter>
+         <commandParameter
+               id="fullBundleLoad"
+               name="Full Bundle Load"
+               optional="true">
+         </commandParameter>
+      </command>
 
 </extension>
 <extension
