@@ -26,49 +26,40 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.awipstools.ui.dialog.PutHomeCursorDialog;
 import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
-import com.raytheon.viz.ui.tools.map.AbstractMapTool;
 
 /**
- * TODO Add Description
+ * Opens the {@link PutHomeCursorDialog} and loads the {@link HomeToolLayer}
+ * bundles/tools/Home.xml localization file.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *  10-21-09    #1049      bsteffen   Synchronize with new Home Tool Layer
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2013  2310     bsteffen    Rewritten to extend HomeToolAction.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
+ * @author bsteffen
+ * @version 2.0
  */
-
-public class PutHomeCursorAction extends AbstractMapTool {
+public class PutHomeCursorAction extends HomeToolAction {
 
     private PutHomeCursorDialog putHomeCursorDialog;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.tools.AbstractTool#runTool()
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        super.execute(arg0);
-
-        HomeToolLayer homeToolLayer = (HomeToolLayer) getResource(
-                HomeToolLayer.class, HomeToolAction.class);
-
         if (putHomeCursorDialog == null
                 || putHomeCursorDialog.getShell() == null) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            putHomeCursorDialog = new PutHomeCursorDialog(shell, homeToolLayer
-                    .getResourceData());
+            putHomeCursorDialog = new PutHomeCursorDialog(shell);
+            putHomeCursorDialog.setBlockOnOpen(false);
             putHomeCursorDialog.open();
         }
 
-        return null;
+        return super.execute(arg0);
     }
 
 }
