@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XMLSchema
-Bundle-SymbolicName: org.w3.XMLSchema
+Bundle-SymbolicName: org.w3.xmlschema
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: org.w3.XMLSchema.jar
 Export-Package: org.w3.xmlschema
+
