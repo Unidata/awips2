@@ -31,6 +31,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionManagerFilter;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg;
@@ -49,6 +50,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerFilters;
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
  * May 28, 2013 1650       djohnson     Allow using filters for the Subscription Manager Dialog.
  * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
+ * Sep 04, 2013 2330       bgonzale     execute now filters subscriptions by current site id.
+ * 
  * 
  * </pre>
  * 
@@ -77,7 +80,8 @@ public class SubscriptionManagerAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) {
-        return loadSubscriptionManager(SubscriptionManagerFilters.getAll());
+        return loadSubscriptionManager(SubscriptionManagerFilters
+                .getBySiteId(LocalizationManager.getInstance().getCurrentSite()));
     }
 
     /**
