@@ -20,37 +20,31 @@
 
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
-import com.raytheon.viz.awipstools.common.DistanceTool;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
  * Action for opening the distance tool
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date          Ticket#     Engineer    Description
- *    ------------  ----------  ----------- --------------------------
- *    1/10/08       562         bphillip    Initial Creation.
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author bphillip
- * 
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/DistanceScale.xml".
  */
-public class DistanceToolAction extends AbstractGenericToolAction<DistanceTool> {
+@Deprecated
+public class DistanceToolAction extends LoadBundleHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<DistanceTool> getResourceData() {
-        return new GenericToolsResourceData<DistanceTool>("Distance Scale",
-                DistanceTool.class);
+    public DistanceToolAction() {
+        super("bundles/tools/DistanceScale.xml");
     }
+
 }

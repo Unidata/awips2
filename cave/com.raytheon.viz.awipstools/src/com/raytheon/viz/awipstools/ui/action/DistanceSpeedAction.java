@@ -19,25 +19,33 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IEditorPart;
+
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.DistanceSpeedLayer;
+import com.raytheon.viz.ui.EditorUtil;
 
 /**
- * Handles Distance Speed tool creation.
+ * Loads a {@link DistanceSpeedLayer} to a {@link VizMapEditor}.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct172007    #495        ebabin      Initial Creation.
- * Feb152011    #7975       bkowal      Restore the DistanceSpeedLayer
- *                                      associated with the Display Pane.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 17, 2007  495      ebabin      Initial Creation.
+ * Feb 15, 2011  7975     bkowal      Restore the DistanceSpeedLayer
+ *                                    associated with the Display Pane.
+ * Aug 30, 2013  2310     bsteffen    Ensure tool is used on a map editor.
  * 
  * </pre>
  * 
@@ -47,6 +55,17 @@ import com.raytheon.viz.awipstools.ui.layer.DistanceSpeedLayer;
 
 public class DistanceSpeedAction extends
         AbstractGenericToolAction<DistanceSpeedLayer> {
+
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        IEditorPart editorPart = EditorUtil.findEditor(VizMapEditor.EDITOR_ID);
+        if (editorPart == null) {
+            new NewMapEditor().execute(arg0);
+        } else {
+            editorPart.getSite().getPage().bringToTop(editorPart);
+        }
+        return super.execute(arg0);
+    }
 
     /*
      * (non-Javadoc)

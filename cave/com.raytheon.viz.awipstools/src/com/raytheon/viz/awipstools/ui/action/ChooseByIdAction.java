@@ -22,139 +22,53 @@ package com.raytheon.viz.awipstools.ui.action;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.core.DescriptorMap;
-import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
-import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
-import com.raytheon.uf.viz.points.ui.action.PointsToolAction;
-import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.awipstools.ui.dialog.ChooseByIdDialog;
-import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
-import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.UiUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.tools.map.AbstractMapTool;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
- * TODO Add Description
+ * Opens the {@link ChooseByIdDialog} and loads several other tools from the
+ * bundles/tools/ChooseById.xml localization file.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 06Dec2007    #576        Eric Babin Initial Creation
- * 31Jul2012    #875       rferrel     Added checks for disposed dialgos.
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
+ * @author bsteffen
+ * @version 2.0
  */
-
-public class ChooseByIdAction extends AbstractMapTool {
+public class ChooseByIdAction extends LoadBundleHandler {
 
     private ChooseByIdDialog chooseByIdDialog;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.tools.AbstractTool#runTool()
-     */
+    public ChooseByIdAction() {
+        super("bundles/tools/ChooseById.xml");
+    }
+
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        super.execute(arg0);
-
-        if (editor.getActiveDisplayPane().getDescriptor() instanceof MapDescriptor) {
-            if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
-                chooseByIdDialog = new ChooseByIdDialog(PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow().getShell());
-
-                chooseByIdDialog.setHomeResource(getResource(
-                        HomeToolLayer.class, HomeToolAction.class));
-                chooseByIdDialog.setPointsResource(getResource(
-                        PointsToolLayer.class, PointsToolAction.class));
-                chooseByIdDialog.setBaslinesResource(getResource(
-                        InteractiveBaselinesLayer.class,
-                        BaselinesToolAction.class));
-                chooseByIdDialog.setDescriptor(editor.getActiveDisplayPane()
-                        .getDescriptor());
-
-                chooseByIdDialog.open();
-                chooseByIdDialog = null;
-            } else {
-                chooseByIdDialog.setDescriptor(editor.getActiveDisplayPane()
-                        .getDescriptor());
-
-                // find and activate the dialog
-                for (Shell s : chooseByIdDialog.getParent().getShells()) {
-                    if (s.getText().equals(ChooseByIdDialog.DIALOG_TITLE)) {
-                        s.setVisible(true);
-                        s.setActive();
-                    }
-                }
-            }
+        if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
+            chooseByIdDialog = new ChooseByIdDialog(PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getShell());
+            chooseByIdDialog.open();
         } else {
-            // If a map editor is open, activate and use. Otherwise, create one.
-            AbstractRenderableDisplay display = null;
-            String editorId = DescriptorMap.getEditorId(MapDescriptor.class
-                    .getName());
 
-            IEditorPart editorPart = EditorUtil.findEditor(editorId);
-            if (editorPart == null) {
-                try {
-                    new NewMapEditor().execute(null);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-                editorPart = EditorUtil.findEditor(editorId);
-            }
-            AbstractEditor editor = (AbstractEditor) editorPart;
-            display = (AbstractRenderableDisplay) editor.getActiveDisplayPane()
-                    .getRenderableDisplay().createNewDisplay();
-            try {
-                display.setDescriptor(new MapDescriptor());
-            } catch (VizException e) {
-                throw new RuntimeException(e);
-            }
-
-            AbstractEditor mapEditor = UiUtil.createOrOpenEditor(
-                    VizMapEditor.EDITOR_ID, display);
-
-            if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
-                chooseByIdDialog = new ChooseByIdDialog(PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow().getShell());
-                chooseByIdDialog.setHomeResource(getResource(
-                        HomeToolLayer.class, HomeToolAction.class));
-                chooseByIdDialog.setPointsResource(getResource(
-                        PointsToolLayer.class, PointsToolAction.class));
-                chooseByIdDialog.setBaslinesResource(getResource(
-                        InteractiveBaselinesLayer.class,
-                        BaselinesToolAction.class));
-                chooseByIdDialog.setDescriptor(mapEditor.getActiveDisplayPane()
-                        .getDescriptor());
-
-                chooseByIdDialog.open();
-                chooseByIdDialog = null;
-            } else {
-                chooseByIdDialog.setDescriptor(mapEditor.getActiveDisplayPane()
-                        .getDescriptor());
-
-                // find and activate the dialog
-                for (Shell s : chooseByIdDialog.getParent().getShells()) {
-                    if (s.getText().equals(ChooseByIdDialog.DIALOG_TITLE)) {
-                        s.setVisible(true);
-                        s.setActive();
-                    }
+            // find and activate the dialog
+            for (Shell s : chooseByIdDialog.getParent().getShells()) {
+                if (s.getText().equals(ChooseByIdDialog.DIALOG_TITLE)) {
+                    s.setVisible(true);
+                    s.setActive();
                 }
             }
         }
-        return null;
+        return super.execute(arg0);
     }
 
 }
