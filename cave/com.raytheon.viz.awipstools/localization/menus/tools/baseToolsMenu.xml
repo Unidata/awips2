@@ -19,37 +19,32 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.azran"	
-		menuText="Az/Ran Overlay" />
-		
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.baselines"	
-		menuText="Baselines" />
+
+	<contribute xsi:type="bundleItem" file="bundles/tools/AzRan.xml"
+			menuText="Az/Ran Overlay" id="AzRanTool" timeQuery="false" />
+	
+	<contribute xsi:type="bundleItem" file="bundles/tools/Baselines.xml"
+		menuText="Baselines" id="baselinesTool" timeQuery="false" />
 		
 	<contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.choosebyid"
 		menuText="Choose By ID..." />
 		
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.distancebearing"
-		menuText="Distance Bearing" />
+	<contribute xsi:type="bundleItem" file="bundles/tools/DistanceBearing.xml"
+		menuText="Distance Bearing" id="distanceBearingTool" timeQuery="false" />
 		
 	<contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.distancespeed"
 		menuText="Distance Speed" />
 		
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.distancetool"
-		menuText="Distance Scale" />
-		
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.ffz"
-		menuText="Feature Following Zoom" />
-		
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.estimatedactualvelocity"
-		menuText="Estimated Actual Velocity" />
+	<contribute xsi:type="bundleItem" file="bundles/tools/DistanceScale.xml"
+		menuText="Distance Scale" id="distanceScaleTool" timeQuery="false" />
+	
+	<contribute xsi:type="bundleItem" file="bundles/tools/FeatureFollowingZoom.xml"
+		menuText="Feature Following Zoom" id="featureFollowingZoomTool" timeQuery="false" />
+
+    <contribute xsi:type="bundleItem" file="bundles/tools/EstimatedActualVelocity.xml"
+		menuText="Estimated Actual Velocity" id="estimatedActualVelocityTool" timeQuery="false" />
 		
 	<contribute xsi:type="command"
 		commandId="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI"
@@ -59,17 +54,15 @@
 		commandId="com.raytheon.viz.awipstools.timeofarrival"
 		menuText="Time Of Arrival / Lead Time" />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.home"
-		menuText="Home" />
+    <contribute xsi:type="bundleItem" file="bundles/tools/Home.xml"
+		menuText="Home" id="homeTool" timeQuery="false" />
     
     <contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.lapstools"
 		menuText="LAPS tools..." />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.points"
-		menuText="Points" />
+    <contribute xsi:type="bundleItem" file="bundles/tools/Points.xml"
+		menuText="Points" id="pointsTool" timeQuery="false" />
     
     <contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.puthomecursor"
@@ -79,9 +72,8 @@
 		commandId="com.raytheon.viz.radar.ui.RadarDisplayControls"
 		menuText="Radar Display Controls..." />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.rangerings"
-		menuText="Range Rings" />
+    <contribute xsi:type="bundleItem" file="bundles/tools/RangeRings.xml"
+		menuText="Range Rings" id="rangeRingsTool" timeQuery="false" />
     
     <contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.sunrise"
@@ -95,9 +87,8 @@
 		commandId="com.raytheon.viz.awipstools.unitscalculator"
 		menuText="Units Calculator..." />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.vrshear"
-		menuText="VR - Shear" />
+    <contribute xsi:type="bundleItem" file="bundles/tools/VRShear.xml"
+		menuText="VR - Shear" id="vrShearTool" timeQuery="false" />
 	
 	<!-- example arbitrary command below, commandAction parameter is required, 
 	the others default to false if undefined.  If captureOutput is true then after 

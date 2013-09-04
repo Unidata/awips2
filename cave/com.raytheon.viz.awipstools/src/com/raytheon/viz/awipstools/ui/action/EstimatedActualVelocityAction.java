@@ -19,39 +19,33 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ui.layer.EstimatedActualVelocityLayer;
-import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
- * TODO Add Description
+ * Loads a {@link EstimatedActualVelocityLayer} from the
+ * bundles/tools/EstimatedActualVelocity.xml localization file.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
  * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author mnash
- * @version 1.0
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/EstimatedActualVelocity.xml".
  */
+@Deprecated
+public class EstimatedActualVelocityAction extends LoadBundleHandler {
 
-public class EstimatedActualVelocityAction extends ShearAction {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<ShearLayer> getResourceData() {
-        return new GenericToolsResourceData<ShearLayer>(
-                EstimatedActualVelocityLayer.EST_ACT_VEL_LOCATION,
-                EstimatedActualVelocityLayer.class);
+    public EstimatedActualVelocityAction() {
+        super("bundles/tools/EstimatedActualVelocity.xml");
     }
 
 }
