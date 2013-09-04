@@ -19,43 +19,34 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
-import com.raytheon.viz.awipstools.ui.layer.AzimuthToolLayer;
+import java.util.HashMap;
+
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
  * Show 'Az/Ran' Overlay.
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Sep142007    #444        ebabin      Initial Creation.
- *  May282010    #5361       bkowal      We now pass the mouseButton
- *                                       identifier to the Azimuth Tool Layer
- *                                       handle mouse button function.
- *  Jun142010    #6360       bkowal      Ensured that the legend will no longer
- *                                       change when the user changes the position
- *                                       of the tool with the right-mouse button.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
+ * 
  * </pre>
  * 
- * @author ebabin
- * @version 1
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/AzRan.xml".
  */
-public class AzimuthToolAction extends AbstractGenericToolAction<AzimuthToolLayer> {
+@Deprecated
+public class AzimuthToolAction extends LoadBundleHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<AzimuthToolLayer> getResourceData() {
-        return new GenericToolsResourceData<AzimuthToolLayer>(
-                AzimuthToolLayer.AZIMUTH_LOCATION, AzimuthToolLayer.class);
+    public AzimuthToolAction() {
+        super("bundles/tools/AzRan.xml");
+        HashMap<String, String> map = null;
     }
 
 }
