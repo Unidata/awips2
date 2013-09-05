@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+     	* SOFTWARE HISTORY
+ 		* Date         Ticket#     Engineer    Description
+ 		* __________   _______     __________  __________________________
+ 		* 05/23/2011				F. J. Yen	Initial creation.        
+ 		* 08/23/2011   286          qzhou       Added 13 fields. Changed maxLayer to 3.
+ 		
+    -->
+<pointDataDescription>
+  <dimension name="maxLayer" length="5"/>
+  
+  <parameter name="timeObs" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="obsId" numDims="1" type="INT" />
+  <parameter name="reportType" numDims="1" type="STRING" size="16" />
+  <parameter name="wmoHeader" numDims="1" type="STRING" size="8" />
+  <parameter name="stationId" numDims="1" type="STRING" size="16" />
+  <parameter name="flightLevel" numDims="1" type="INT" unit="ft" />
+  <parameter name="latitude" numDims="1" type="FLOAT" unit="degree" />
+  <parameter name="longitude" numDims="1" type="FLOAT" unit="degree" />
+  <!-- correctionCode is corIndicator in  PirepRecord -->
+  <parameter name="correctionCode" numDims="1" type="STRING" size="8" />
+  <parameter name="dataURI" numDims="1" type="STRING" size="128" />
+  <parameter name="aircraftType" numDims="1" type="STRING" size="16" /> 
+  <!--  temperature is temp and unit="Kelvin" in PirepRecord -->
+  <parameter name="temperature" numDims="1" type="FLOAT" unit="Celsius" />
+  <!--   windDir is windDirection in PirepRecord -->
+  <parameter name="windDir" numDims="1" type="FLOAT" unit="degree" />
+  <!--   windSpeed is meters per sec in declaration in PirepRecord -->
+  <parameter name="windSpeed" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="horzVisibility" numDims="1" type="INT" unit="mi" />
+  <parameter name="obsText" numDims="1" type="STRING" />
+  <parameter name="weatherGroup" numDims="1" type="STRING" size="16" />
+  <parameter name="numLayer" numDims="1" type="INT" />
+  <!-- change to bellow
+  <parameter name="dataType" numDims="2" type="STRING" size="8" dimension="maxLayer"/>  
+  <parameter name="firstValue" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="secondValue" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="baseLayerHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+  <parameter name="topLayerHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+   -->
+  <parameter name="suspectTimeFlag" numDims="1" type="STRING" size="8"/>
+  <parameter name="ncPirepLayerData" numDims="2" type="STRING" size="16" dimension="maxLayer"/>  
+  <parameter name="hazardType" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="turbInten" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="turbFreq" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="turbType" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="iceInten" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="iceType" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="skyCover1" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="skyCover2" numDims="2" type="STRING" size="8" dimension="maxLayer"/>
+  <parameter name="turbBaseHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+  <parameter name="turbTopHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+  <parameter name="iceBaseHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+  <parameter name="iceTopHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+  <parameter name="skyBaseHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+  <parameter name="skyTopHeight" numDims="2" type="INT" unit="ft" dimension="maxLayer"/>
+</pointDataDescription>
