@@ -3,7 +3,7 @@
     <resourceDefnName>PIREP</resourceDefnName>
     <resourceCategory>UPPER_AIR</resourceCategory>
     <resourceParameters>
-pluginName=ncpirep
+pluginName=pirep
 reportType=PIREP
 legendString=Pilot Reports
 spiFile=MTR.spi
