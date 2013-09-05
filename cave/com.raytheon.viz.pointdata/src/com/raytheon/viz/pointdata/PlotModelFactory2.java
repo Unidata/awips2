@@ -89,6 +89,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * Jun 29, 2009  2538     jsanchez    Implemented pointdata.
  * Aug 09, 2012  1085     jkorman     Corrected data construction.
  * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
+ * Sep 05, 2013  2307     dgilling    Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -460,11 +461,13 @@ public class PlotModelFactory2 {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node child = childNodes.item(i);
-                if (Node.TEXT_NODE == child.getNodeType())
+                if (Node.TEXT_NODE == child.getNodeType()) {
                     sb.append(((Text) child).getData());
+                }
             }
-            if (sb.length() > 0)
+            if (sb.length() > 0) {
                 scriptInfo.scriptText = sb.toString();
+            }
 
             sampleScriptInfo = new ScriptInfo();
             sampleScriptInfo.plotDelegateName = scriptInfo.plotDelegateName;
@@ -599,8 +602,9 @@ public class PlotModelFactory2 {
                     Object result = script.executePlotDelegateMethod("isValid",
                             "rec", stationData);
                     if (result instanceof Boolean
-                            && !((Boolean) result).booleanValue())
+                            && !((Boolean) result).booleanValue()) {
                         return null;
+                    }
                 } catch (JepException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
@@ -1272,9 +1276,9 @@ public class PlotModelFactory2 {
 
         public PlotPythonScript getScript() throws JepException {
             if (script != null) {
-                if (Thread.currentThread() == scriptThread)
+                if (Thread.currentThread() == scriptThread) {
                     return script;
-                else {
+                } else {
                     statusHandler.handle(Priority.ERROR,
                             "Plot model scripting was not properly disposed.");
                     script = null;
@@ -1290,8 +1294,9 @@ public class PlotModelFactory2 {
         public void disposeScript() throws JepException {
             if (script != null) {
                 try {
-                    if (Thread.currentThread() == scriptThread)
+                    if (Thread.currentThread() == scriptThread) {
                         script.dispose();
+                    }
                 } finally {
                     script = null;
                     scriptThread = null;
@@ -1312,8 +1317,9 @@ public class PlotModelFactory2 {
             StringBuilder includePath = new StringBuilder();
             for (LocalizationLevel ll : keys) {
                 LocalizationFile lf = map.get(ll);
-                if (includePath.length() > 0)
+                if (includePath.length() > 0) {
                     includePath.append(File.pathSeparator);
+                }
                 includePath.append(lf.getFile().getAbsolutePath());
             }
 
@@ -1322,8 +1328,9 @@ public class PlotModelFactory2 {
                             + "PlotModelInterface.py");
             script = new PlotPythonScript(baseFile.getAbsolutePath(),
                     includePath.toString(), plotDelegateName);
-            if (scriptText != null)
+            if (scriptText != null) {
                 script.evaluate(scriptText);
+            }
             script.executePlotDelegateMethod("init", "plotModelFactory",
                     PlotModelFactory2.this);
             return script;
@@ -1338,7 +1345,8 @@ public class PlotModelFactory2 {
 
         public PlotPythonScript(String filePath, String anIncludePath,
                 String plotDelegateName) throws JepException {
-            super(filePath, anIncludePath);
+            super(filePath, anIncludePath, PlotPythonScript.class
+                    .getClassLoader());
             jep.eval("def "
                     + CHEAT_RUN
                     + "(text):\n return eval(compile(text,'string','exec'),globals(),globals())");
@@ -1359,8 +1367,9 @@ public class PlotModelFactory2 {
                     map.put(argName, argValue);
                 }
                 return execute(methodName, plotDelegateName, map);
-            } else
+            } else {
                 return null;
+            }
         }
     }
 
