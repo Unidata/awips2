@@ -95,7 +95,6 @@
 		<exclude>ncep-util-on-edex-ingestGrib</exclude>
 		<exclude>ncscd-ingest.xml</exclude>
 		<exclude>ncpafm-ingest.xml</exclude>
-		<exclude>ncpirep-ingest.xml</exclude>
 		<exclude>nctaf-ingest.xml</exclude>
 		<exclude>nctext-ingest.xml</exclude>
 		<exclude>ncuair-ingest.xml</exclude>
