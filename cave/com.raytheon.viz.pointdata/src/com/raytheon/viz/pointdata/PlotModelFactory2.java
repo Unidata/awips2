@@ -82,14 +82,13 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/20/2006              brockwoo    Initial creation.
- * 03/16/2009              jsanchez    Added processAvailDirective.
- * 06/29/2009       2538   jsanchez    Implemented pointdata.
- * ======================================
- * AWIPS2 DR Work
- * 08/09/2012         1085 jkorman     Corrected data construction.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 20, 2006           brockwoo    Initial creation.
+ * Mar 16, 2009           jsanchez    Added processAvailDirective.
+ * Jun 29, 2009  2538     jsanchez    Implemented pointdata.
+ * Aug 09, 2012  1085     jkorman     Corrected data construction.
+ * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
  * 
  * </pre>
  * 
@@ -1015,7 +1014,7 @@ public class PlotModelFactory2 {
                 sb.append(" ");
                 sb.append(fields[i]);
             }
-            display = sb.toString();
+            display = sb.toString().trim();
         }
 
         if (element.lookup != null) {
