@@ -98,13 +98,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.gfe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.python"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.airep"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.airep"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.message"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.pirep"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.pirep"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ffg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ffg"/>
