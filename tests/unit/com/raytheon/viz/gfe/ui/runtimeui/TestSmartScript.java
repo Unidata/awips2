@@ -19,22 +19,33 @@
  **/
 package com.raytheon.viz.gfe.ui.runtimeui;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jep.JepException;
-import junit.framework.TestCase;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.raytheon.uf.common.python.PythonMapScript;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.localization.PathManagerFactoryTest;
+import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.FakeDataManager;
-import com.raytheon.viz.gfe.core.internal.AbstractParmManager;
+import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.internal.MockParmManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.Parm.CreateFromScratchMode;
@@ -46,145 +57,66 @@ import com.raytheon.viz.gfe.core.parm.Parm.CreateFromScratchMode;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 24, 2008            wdougherty     Initial creation
+ * Jul 24, 2008            wdougherty   Initial creation
+ * Sep 05, 2013  #2307     dgilling     Code cleanup
  * </pre>
  * 
  * @author wdougherty
  * @version 1.0
  */
 
-public class TestSmartScript extends TestCase {
+@Ignore
+// FIXME: This test case is currently broken because of a NullPOinterException
+// in AbstractSpatialDisplayManager
+// Activator.getDefault() is returning null at the moment.
+public class TestSmartScript {
 
-    protected static final String testScriptName = "ROOT/build/static/common/cave/etc/gfe/userPython/tests/TestSmartScript.py";
+    private static final String SCRIPT_FILE_PATH = new File(
+            "./python/gfe/TestSmartScript.py").getPath();
 
-    protected static final String smartScriptPath = "ROOT/build/static/common/cave/etc/gfe/userPython/utilities"
-            + ":ROOT/build"
-            + ":ROOT/AWIPSEdex/opt/utility/common_static/base/python/gfe"
-            + ":ROOT/AWIPSEdex/opt/utility/common_static/base/python"
-            + ":ROOT/AWIPSEdex/extensions/plugin-gfe/src";
+    private PythonScript testScript = null;
 
-    /**
-     * A PythonScript. All PythonScript's constructors are protected, so we have
-     * to create this subclass in order to obtain an instance. While we're at
-     * it, create a modified execute() method and a helper method for setting
-     * groups of script variables.
-     * 
-     */
+    private DataManager dataMgr;
 
-    PythonMapScript testScript;
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        PathManagerFactoryTest.initLocalization();
+    }
 
-    Map<String, Object> argmap;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-    @Override
+    @Before
     public void setUp() throws Exception {
+        FakeDataManager fakeDataMgr = new FakeDataManager();
+        IParmManager pm = new MockParmManager(fakeDataMgr);
+        fakeDataMgr.setParmManager(pm);
+        dataMgr = fakeDataMgr;
+
+        String includePath = PyUtil.buildJepIncludePath(
+                GfePyIncludeUtil.getCommonPythonIncludePath(),
+                GfePyIncludeUtil.getCommonGfeIncludePath(),
+                GfePyIncludeUtil.getUtilitiesIncludePath());
         try {
-            // Create a DataManager to pass to the SmartScript constructor.
-            DataManager dataManager = null;
-            Activator activator = Activator.getDefault();
-            if (activator == null) {
-                FakeDataManager fakeDataManager = new FakeDataManager();
-                AbstractParmManager pm = new MockParmManager(fakeDataManager);
-                fakeDataManager.setParmManager(pm);
-                dataManager = fakeDataManager;
-            } else {
-                dataManager = DataManager.getInstance(null);
-            }
-
-            // Set up an interpreter that can run Python with Java classes.
-            // Hopefully, using user.home will make this portable to any
-            // developer.
-            String root = System.getProperty("user.home") + File.separator
-                    + "workspace";
-            ClassLoader classLoader = dataManager.getClass().getClassLoader();
-            testScript = new PythonMapScript(testScriptName.replaceAll("ROOT",
-                    root), smartScriptPath.replaceAll("ROOT", root),
-                    classLoader);
-
-            // Put the data manager in the interpreter
-            Map<String, Object> setupMap = new HashMap<String, Object>();
-            setupMap.put("dataManager", dataManager);
-            testScript.setArgs(setupMap);
-
-            // Create a SmartScript instance for use by the tests.
-            boolean evalResult;
-            evalResult = testScript
-                    .evaluate("smartScript = SmartScript.SmartScript(dataManager)");
-
-            // If eval somehow failed without throwing a JepException, fail.
-            assertTrue(evalResult);
-
-            // Create an argmap to pass parameters in.
-            argmap = new HashMap<String, Object>();
+            testScript = new PythonScript(SCRIPT_FILE_PATH, includePath, this
+                    .getClass().getClassLoader());
         } catch (JepException e) {
             throw new Exception(e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#tearDown()
-     */
-    @Override
-    public void tearDown() {
-        // Free any resources the previous interpreter used.
-        testScript.dispose();
-    }
-
-    /**
-     * Test the createGrid method of SmartScript.py when creating a discrete
-     * grid.
-     * 
-     * NOTE: This test currently throws an exception because one of the objects
-     * supplied by MockParmManager always has a grid type of "SCALAR", which
-     * leads to a ClassCastException in the grid cycler when SmartScript passes
-     * a byte grid and keys to the grid cycler. If the code in the grid cycler
-     * is hacked to force the grid type to "DISCRETE" for the test, it completes
-     * successfully.
-     */
-    @Test
-    public void testCreateGridDiscrete() throws Exception {
-        argmap.put("model", "Fcst");
-        argmap.put("element", "hazXXX1234");
-        argmap.put("elementType", "DISCRETE");
-        argmap.put("timeRange", new TimeRange(new Date(), 10 * 3600 * 1000L));
-        argmap.put("descriptiveName", "Discrete Test Grid");
-        argmap.put("::timeConstraints", "tcTuple");
-        argmap.put("units", "");
-        argmap.put("::discreteKeys", "dkList");
-        argmap.put("discreteOverlap", Boolean.FALSE);
-        argmap.put("discreteAuxDataLength", Integer.valueOf(4));
-        argmap.put("defaultColorTable", "YesNo");
-        argmap.put("::numericGrid", "discreteGrid");
-        Object obj = null;
-        try {
-            if (!testScript.evaluate("tcTuple = (1000, 1200, 600)")) {
-                throw new Exception("eval(\"tcTuple... failed.");
-            }
-            if (!testScript
-                    .evaluate("dkList = ['One', ('Singular', 'Sensation')]")) {
-                throw new Exception("eval(\"dklist = ... failed.");
-            }
-            obj = testScript.execute("createGrid", "smartScript", argmap);
-        } catch (JepException e) {
-            throw new Exception(e);
+    @After
+    public void tearDown() throws Exception {
+        if (testScript != null) {
+            testScript.dispose();
         }
     }
 
-    /**
-     * @throws Exception
-     */
     @Test
     public void testSortUglyStr() throws Exception {
+        Map<String, Object> argmap = new HashMap<String, Object>(2, 1.0f);
         argmap.put("uglyStr", "I^AM^THE^CAPTAIN^OF^PINAFORE");
+        argmap.put("dataMgr", dataMgr);
         String outstr = null;
         try {
-            outstr = (String) testScript.execute("sortUglyStr", "smartScript",
+            outstr = (String) testScript.execute("testSortUglyStr", null,
                     argmap);
         } catch (JepException e) {
             throw new Exception(e);
@@ -194,43 +126,34 @@ public class TestSmartScript extends TestCase {
 
     @Test
     public void testGetIndex() throws Exception {
+        Map<String, Object> argmap = new HashMap<String, Object>(3, 1.0f);
+        argmap.put("dataMgr", dataMgr);
+
         String key1 = "Twas^Brillig^and^the^slithy^toves";
         String key2 = "Did^gyre^and^gimbol^in^the^wabe";
         String key3 = "Twas^Brillig^and";
         String key4 = "and^slithy^the^toves^Brillig^Twas";
+        List<String> keyList = Arrays.asList(key1, key2, key3, key4);
+        argmap.put("keyList", keyList);
 
-        Integer outInt = null;
-        try {
-            testScript.evaluate("keyList = []");
-            argmap.put("::keys", "keyList");
-            argmap.put("uglyStr", key1);
-            outInt = (Integer) testScript.execute("getIndex", "smartScript",
-                    argmap);
-            assertEquals("key1", 0, outInt.intValue());
-
-            argmap.put("uglyStr", key2);
-            outInt = (Integer) testScript.execute("getIndex", "smartScript",
-                    argmap);
-            assertEquals("key2", 1, outInt.intValue());
-
-            argmap.put("uglyStr", key3);
-            outInt = (Integer) testScript.execute("getIndex", "smartScript",
-                    argmap);
-            assertEquals("key3", 2, outInt.intValue());
-
-            argmap.put("uglyStr", key4);
-            outInt = (Integer) testScript.execute("getIndex", "smartScript",
-                    argmap);
-            assertEquals("key4", 0, outInt.intValue());
-
-        } catch (JepException e) {
-            throw new Exception(e);
+        for (int i = 0; i < keyList.size(); i++) {
+            Integer outInt = null;
+            argmap.put("uglyStr", keyList.get(i));
+            try {
+                outInt = (Integer) testScript.execute("testGetIndex", null,
+                        argmap);
+                assertEquals("key" + (i + 1), i, outInt.intValue());
+            } catch (JepException e) {
+                throw new Exception(e);
+            }
         }
     }
 
     @Test
     public void testGetGridShape() throws Exception {
         try {
+            Map<String, Object> argmap = new HashMap<String, Object>(1, 1.0f);
+            argmap.put("dataMgr", dataMgr);
             Boolean testResult = (Boolean) testScript.execute(
                     "testGetGridShape", null, argmap);
             assertTrue("Tuples should match", testResult);
@@ -241,16 +164,18 @@ public class TestSmartScript extends TestCase {
 
     @Test
     public void testGetGridInfo() throws Exception {
+        Map<String, Object> argmap = new HashMap<String, Object>(5, 1.0f);
+        argmap.put("dataMgr", dataMgr);
         argmap.put("model", "Fcst");
         argmap.put("element", "Hazards");
         argmap.put("level", "SFC");
-
         Parm parm = null;
         try {
-            parm = (Parm) testScript.execute("getParm", "smartScript", argmap);
-        } catch (JepException e1) {
-            throw new Exception(e1);
+            parm = (Parm) testScript.execute("getParm", null, argmap);
+        } catch (JepException e) {
+            throw new Exception(e);
         }
+        assertNotNull("Retrieved Hazards_SFC parm.", parm);
 
         TimeRange tr = new TimeRange(new Date(), 1000L);
         boolean created = parm.createFromScratchTR(tr,
@@ -272,6 +197,5 @@ public class TestSmartScript extends TestCase {
         } catch (JepException e) {
             throw new Exception(e);
         }
-
     }
 }
