@@ -151,7 +151,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * These use the original PlotResource, whoever can convert these gets
          * to delete thousands of lines of code, it will be amazing.
          */
-        pluginProps.put("airep", new PluginPlotProperties(false, false));
         pluginProps.put("acars", new PluginPlotProperties(false, false));
 
         /*
@@ -194,6 +193,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrssmi", new PluginPlotProperties());
         pluginProps.put("madis", new PluginPlotProperties());
         pluginProps.put("pirep", new PluginPlotProperties());
+        pluginProps.put("airep", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
