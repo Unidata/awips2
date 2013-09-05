@@ -57,6 +57,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ----------  ----------- --------------------------
  * 07/06/09      1995       bphillip    Initial port
  * 09/22/09      3058       rjpeter     Converted to IRequestHandler
+ * 09/05/13      2307       dgilling    Use better PythonScript constructor.
  * </pre>
  * 
  * @author bphillip
@@ -96,7 +97,7 @@ public class IscRequestQueryHandler implements
         } else if (ancf.isEmpty()) {
             irtUnavailable = true;
         }
-        
+
         if (irtUnavailable) {
             if (bncf == null) {
                 irtUnavailable = true;
@@ -140,7 +141,8 @@ public class IscRequestQueryHandler implements
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath(),
                     GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
-            script = new PythonScript(scriptFile, includePath);
+            script = new PythonScript(scriptFile, includePath, this.getClass()
+                    .getClassLoader());
             Map<String, Object> args = new HashMap<String, Object>();
             args.put("ancfURL", ancf);
             args.put("bncfURL", bncf);
@@ -168,7 +170,8 @@ public class IscRequestQueryHandler implements
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath(),
                     GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
-            script = new PythonScript(scriptFile, includePath);
+            script = new PythonScript(scriptFile, includePath, this.getClass()
+                    .getClassLoader());
             Map<String, Object> args = new HashMap<String, Object>();
             args.put("xml", xml);
             domainDict = script.execute("createDomainDict", args);
