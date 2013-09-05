@@ -23,12 +23,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
@@ -43,20 +44,22 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.headers.Header;
-import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.comm.ProxyUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * 
@@ -71,6 +74,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 4/9/2013     1802        bphillip    Initial implementation
  * Apr 24, 2013 1910        djohnson    RegistryResponseStatus is now an enum.
  * 8/28/2013    1538        bphillip    Removed caches, add http client preferences
+ * 9/5/2013     1538        bphillip    Add HTTP header information
  * 
  * </pre>
  * 
@@ -110,7 +114,7 @@ public class RegistrySOAPServices {
     static {
         proxyConfig = getProxyConfiguration();
         httpClientPolicy = new HTTPClientPolicy();
-        httpClientPolicy.setReceiveTimeout(TimeUtil.MILLIS_PER_MINUTE * 2);
+        httpClientPolicy.setReceiveTimeout(15000);
         httpClientPolicy.setConnectionTimeout(10000);
         httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
         httpClientPolicy.setMaxRetransmits(5);
@@ -120,6 +124,51 @@ public class RegistrySOAPServices {
             httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
         }
     }
+
+    /** Cache of known notification services */
+    private static LoadingCache<String, NotificationListener> notificationManagerServices = CacheBuilder
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, NotificationListener>() {
+                public NotificationListener load(String key) {
+                    return getPort(key, NotificationListener.class);
+                }
+            });
+
+    /** Cache of known lifecycle manager services */
+    private static LoadingCache<String, LifecycleManager> lifecycleManagerServices = CacheBuilder
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, LifecycleManager>() {
+                public LifecycleManager load(String key) {
+                    return getPort(key, LifecycleManager.class);
+                }
+            });
+
+    /** Cache of known cataloger services */
+    private static LoadingCache<String, Cataloger> catalogerServices = CacheBuilder
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, Cataloger>() {
+                public Cataloger load(String key) {
+                    return getPort(key, Cataloger.class);
+                }
+            });
+
+    /** Cache of known query services */
+    private static LoadingCache<String, QueryManager> queryServices = CacheBuilder
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, QueryManager>() {
+                public QueryManager load(String key) {
+                    return getPort(key, QueryManager.class);
+                }
+            });
+
+    /** Cache of known validator services */
+    private static LoadingCache<String, Validator> validatorServices = CacheBuilder
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, Validator>() {
+                public Validator load(String key) {
+                    return getPort(key, Validator.class);
+                }
+            });
 
     /**
      * Gets the notification listener service URL for the given host
@@ -162,7 +211,12 @@ public class RegistrySOAPServices {
      */
     public static NotificationListener getNotificationListenerServiceForUrl(
             final String url) throws RegistryServiceException {
-        return getPort(url, NotificationListener.class);
+        try {
+            return notificationManagerServices.get(url);
+        } catch (ExecutionException e) {
+            throw new RegistryServiceException(
+                    "Error getting notification service!", e);
+        }
     }
 
     /**
@@ -191,7 +245,12 @@ public class RegistrySOAPServices {
      */
     public static LifecycleManager getLifecycleManagerServiceForUrl(
             final String url) throws RegistryServiceException {
-        return getPort(url, LifecycleManager.class);
+        try {
+            return lifecycleManagerServices.get(url);
+        } catch (ExecutionException e) {
+            throw new RegistryServiceException(
+                    "Error getting lifecycleManager service", e);
+        }
     }
 
     /**
@@ -220,7 +279,12 @@ public class RegistrySOAPServices {
      */
     public static Cataloger getCatalogerServiceForUrl(final String url)
             throws RegistryServiceException {
-        return getPort(url, Cataloger.class);
+        try {
+            return catalogerServices.get(url);
+        } catch (ExecutionException e) {
+            throw new RegistryServiceException(
+                    "Error getting cataloger service!", e);
+        }
     }
 
     /**
@@ -248,7 +312,12 @@ public class RegistrySOAPServices {
      */
     public static QueryManager getQueryServiceForUrl(final String url)
             throws RegistryServiceException {
-        return getPort(url, QueryManager.class);
+        try {
+            return queryServices.get(url);
+        } catch (ExecutionException e) {
+            throw new RegistryServiceException(
+                    "Error gett queryManager service!", e);
+        }
     }
 
     /**
@@ -277,7 +346,12 @@ public class RegistrySOAPServices {
      */
     public static Validator getValidatorServiceForUrl(final String url)
             throws RegistryServiceException {
-        return getPort(url, Validator.class);
+        try {
+            return validatorServices.get(url);
+        } catch (ExecutionException e) {
+            throw new RegistryServiceException(
+                    "Error getting validator service!", e);
+        }
     }
 
     /**
@@ -340,27 +414,13 @@ public class RegistrySOAPServices {
         W3CEndpointReference ref = endpointBuilder.build();
         T port = (T) ref.getPort(serviceInterface);
 
-        ((HTTPConduit) ClientProxy.getClient(port).getConduit())
-                .setClient(httpClientPolicy);
-
-        if (RegistryUtil.LOCAL_REGISTRY_ADDRESS != null) {
-            List<Header> headerList = new ArrayList<Header>(1);
-            Header header = null;
-            try {
-                header = new Header(new QName(
-                        RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME),
-                        RegistryUtil.LOCAL_REGISTRY_ADDRESS,
-                        new JAXBDataBinding(String.class));
-            } catch (JAXBException e) {
-                throw new RegistryServiceException(
-                        "Error creating header objects on service port", e);
-            }
-            headerList.add(header);
-            BindingProvider bindingProvider = (BindingProvider) port;
-            bindingProvider.getRequestContext().put(Header.HEADER_LIST,
-                    headerList);
-
-        }
+        Client client = ClientProxy.getClient(port);
+        ((HTTPConduit) client.getConduit()).setClient(httpClientPolicy);
+        // Create HTTP header containing the calling registry
+        Map<String, List<String>> headers = new HashMap<String, List<String>>();
+        headers.put(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
+                Arrays.asList(RegistryUtil.LOCAL_REGISTRY_ADDRESS));
+        client.getRequestContext().put(Message.PROTOCOL_HEADERS, headers);
         return port;
     }
 

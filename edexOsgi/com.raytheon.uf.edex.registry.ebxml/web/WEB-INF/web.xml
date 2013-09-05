@@ -11,29 +11,22 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 	version="2.4">
 	<display-name>Data Delivery Web Services</display-name>
-
-	<context-param>
-		<param-name>webAppRootKey</param-name>
-		<param-value>registryEbxml</param-value>
-	</context-param>
-
+	
+    <context-param>
+    	<param-name>webAppRootKey</param-name>
+    	<param-value>registryEbxml</param-value>
+    </context-param>	
+	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/webServiceBeans.xml</param-value>
 	</context-param>
 
 	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
 	</listener>
-
-	<filter>
-		<filter-name>QoSFilter</filter-name>
-		<filter-class>org.eclipse.jetty.servlets.QoSFilter</filter-class>
-		<init-param>
-			<param-name>maxRequests</param-name>
-			<param-value>100</param-value>
-		</init-param>
-	</filter>
 
 	<filter>
 		<filter-name>hibernateFilter</filter-name>
@@ -51,12 +44,6 @@
 		<filter-name>hibernateFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
-	<filter-mapping>
-		<filter-name>QoSFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	
 
 	<servlet>
 		<servlet-name>RegistryWebServiceServlet</servlet-name>

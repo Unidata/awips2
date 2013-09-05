@@ -46,7 +46,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -66,6 +70,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -85,6 +90,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 5/21/2013    2022        bphillip    Made logging less verbose. added running boolean so subscriptions are not process on every single
  *                                      event.
  * 6/4/2013     2022        bphillip    Changed slot type of subscription last run time. Longs were being truncated when casting to ints
+ * 9/5/2013     1538        bphillip    Changed processing of each subscription to be in their own transaction. Subscriptions are now loaded on startup
  * </pre>
  * 
  * @author bphillip
@@ -93,7 +99,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 @Transactional
 @Component
 public class RegistrySubscriptionManager implements
-        IRegistrySubscriptionManager {
+        IRegistrySubscriptionManager, ApplicationContextAware,
+        RegistryInitializedListener {
 
     /** The logger instance */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -162,6 +169,8 @@ public class RegistrySubscriptionManager implements
 
     private final ConcurrentMap<String, SubscriptionNotificationListeners> listeners = new ConcurrentHashMap<String, SubscriptionNotificationListeners>();
 
+    private ApplicationContext applicationContext;
+
     public RegistrySubscriptionManager() {
 
     }
@@ -169,6 +178,22 @@ public class RegistrySubscriptionManager implements
     public RegistrySubscriptionManager(boolean subscriptionProcessingEnabled)
             throws JAXBException {
         this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
+    }
+
+    @Override
+    public void executeAfterRegistryInit() throws EbxmlRegistryException {
+        for (SubscriptionType subscription : subscriptionDao.eagerLoadAll()) {
+            statusHandler.info("Adding Subscription: " + subscription.getId());
+            addSubscriptionListener(subscription);
+        }
+    }
+
+    private void addSubscriptionListener(SubscriptionType subscription)
+            throws EbxmlRegistryException {
+        final List<NotificationListenerWrapper> subscriptionListeners = getNotificationListenersForSubscription(subscription);
+        listeners.put(subscription.getId(),
+                new SubscriptionNotificationListeners(subscription,
+                        subscriptionListeners));
     }
 
     /**
@@ -183,9 +208,8 @@ public class RegistrySubscriptionManager implements
             try {
                 final SubscriptionType subscription = subscriptionDao
                         .eagerGetById(id);
-                final List<NotificationListenerWrapper> subscriptionListeners = getNotificationListenersForSubscription(subscription);
-                listeners.put(id, new SubscriptionNotificationListeners(
-                        subscription, subscriptionListeners));
+                addSubscriptionListener(subscription);
+
             } catch (EbxmlRegistryException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -305,28 +329,19 @@ public class RegistrySubscriptionManager implements
                     .values();
 
             for (SubscriptionNotificationListeners subNotificationListener : subs) {
-                SubscriptionType sub = subscriptionDao
-                        .getById(subNotificationListener.subscription.getId());
-                try {
-                    if (subscriptionShouldRun(sub)) {
-                        try {
-                            processSubscription(subNotificationListener);
-                        } catch (Throwable e) {
-                            statusHandler.error(
-                                    "Errors occurred while processing subscription ["
-                                            + sub.getId() + "]", e);
-                        }
-                    } else {
-                        statusHandler
-                                .info("Skipping subscription ["
-                                        + sub.getId()
-                                        + "]. Required notification frequency interval has not elapsed.");
-                    }
-                } catch (EbxmlRegistryException e) {
-                    statusHandler.error(
-                            "Error processing subscription [" + sub.getId()
-                                    + "]", e);
+                if (subscriptionDao
+                        .getById(subNotificationListener.subscription.getId()) == null) {
+                    statusHandler
+                            .info("Registry subscription removed. Cancelling processing of subscription: "
+                                    + subNotificationListener.subscription
+                                            .getId());
+                    continue;
                 }
+                RegistrySubscriptionManager myself = (RegistrySubscriptionManager) applicationContext
+                        .getBean("RegistrySubscriptionManager");
+                myself.processSubscription(subNotificationListener.subscription
+                        .getId());
+
             }
             if (!subs.isEmpty()) {
                 statusHandler.info("Registry subscriptions processed in "
@@ -422,20 +437,36 @@ public class RegistrySubscriptionManager implements
      * @throws MsgRegistryException
      * @throws EbxmlRegistryException
      */
-    private void processSubscription(
-            final SubscriptionNotificationListeners subscriptionNotificationsListeners)
-            throws MsgRegistryException, EbxmlRegistryException {
-        SubscriptionType subscription = subscriptionDao
-                .getById(subscriptionNotificationsListeners.subscription
-                        .getId());
-        updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
-        statusHandler.info("Processing subscription [" + subscription.getId()
-                + "]...");
-
-        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
-        if (!objectsOfInterest.isEmpty()) {
-            notificationManager.sendNotifications(
-                    subscriptionNotificationsListeners, objectsOfInterest);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processSubscription(final String subscriptionName) {
+        try {
+            SubscriptionType subscription = subscriptionDao
+                    .getById(subscriptionName);
+            if (subscription == null) {
+                statusHandler
+                        .info("Registry subscription removed. Cancelling processing of subscription: "
+                                + subscriptionName);
+                return;
+            }
+            if (!subscriptionShouldRun(subscription)) {
+                statusHandler
+                        .info("Skipping subscription ["
+                                + subscription.getId()
+                                + "]. Required notification frequency interval has not elapsed.");
+                return;
+            }
+            statusHandler.info("Processing subscription [" + subscriptionName
+                    + "]...");
+            List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
+            if (!objectsOfInterest.isEmpty()) {
+                notificationManager.sendNotifications(
+                        listeners.get(subscriptionName), objectsOfInterest);
+            }
+            updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
+        } catch (Throwable e) {
+            statusHandler.error(
+                    "Errors occurred while processing subscription ["
+                            + subscriptionName + "]", e);
         }
 
     }
@@ -496,4 +527,11 @@ public class RegistrySubscriptionManager implements
             INotificationListenerFactory notificationListenerFactory) {
         this.notificationListenerFactory = notificationListenerFactory;
     }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
 }
