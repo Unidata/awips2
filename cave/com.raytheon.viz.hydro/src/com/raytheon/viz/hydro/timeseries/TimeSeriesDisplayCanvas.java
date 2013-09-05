@@ -138,7 +138,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 16 Jan   2013 15695   wkwock       Fix popup menu      
  * 24 Apr   2013  1921   mpduff       Fix zoom reset to only reset the "active" graph
  * 06 May   2013  1976   mpduff       Refactored Hydro time series data access.        
- * 29 May   2013  2016   mpduff       Fix TS Toggle Traces.           
+ * 29 May   2013  2016   mpduff       Fix TS Toggle Traces.   
+ * 05 Sep   2013 #2332   lvenable     Fixed memory leaks.       
  * @author lvenable
  * @version 1.0
  * 
@@ -165,7 +166,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
     /**
      * No Data Available string.
      */
-    private static final String NO_DATA_AVAILABLE = "NO DATA AVAILABLE";
+    private final String NO_DATA_AVAILABLE = "NO DATA AVAILABLE";
 
     /** Location ID */
     private String lid = null;
@@ -234,17 +235,17 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
     /**
      * List of regions for a single trace
      */
-    private final ArrayList<Region> regionList = new ArrayList<Region>();
+    private final List<Region> regionList = new ArrayList<Region>();
 
     /**
      * List of Region Lists
      */
-    private final ArrayList<ArrayList<Region>> listRegionList = new ArrayList<ArrayList<Region>>();
+    private final List<List<Region>> listRegionList = new ArrayList<List<Region>>();
 
     /**
      * List of regions for points for each trace
      */
-    private final ArrayList<ArrayList<Region>> pointList = new ArrayList<ArrayList<Region>>();
+    private final List<List<Region>> pointList = new ArrayList<List<Region>>();
 
     /**
      * Is a point selected?
@@ -327,11 +328,6 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
 
     /** Graph display Date Format MM/dd/yy HH 'z' */
     public SimpleDateFormat graphFormat;
-
-    /**
-     * List of graph traces that are available.
-     */
-    private ArrayList<Boolean> validGraph;
 
     /**
      * Show Latest Forecast flag.
@@ -483,6 +479,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 if ((canvasFont != null) && (canvasFont.isDisposed() == false)) {
                     canvasFont.dispose();
                 }
+
+                disposeRegions();
             }
         });
 
@@ -1143,7 +1141,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 }
 
                 if (points != null) {
-                    ArrayList<TimeSeriesPoint> pointList = new ArrayList<TimeSeriesPoint>();
+                    List<TimeSeriesPoint> pointList = new ArrayList<TimeSeriesPoint>();
                     /* Delete the specified point */
                     if ((deleteList.size() > 0) && (i == selectedTraceId)) {
                         for (int j = 0; j < points.length; j++) {
@@ -1623,7 +1621,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         } else if (dialog.isSelectMove() && traceSelected && !pointSelected) {
             // This catches the move event before point is selected
             if (!precipPE) {
-                ArrayList<Region> prl = pointList.get(selectedTraceId);
+                List<Region> prl = pointList.get(selectedTraceId);
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         setCursor(northSouthCursor);
@@ -1634,7 +1632,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
                 }
             } else {
-                ArrayList<Region> ppl = precipPointList.get(selectedTraceId);
+                List<Region> ppl = precipPointList.get(selectedTraceId);
                 for (int i = 0; i < ppl.size(); i++) {
                     if (ppl.get(i).contains(e.x, e.y)) {
                         setCursor(northSouthCursor);
@@ -1654,8 +1652,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 redraw();
             } else {
                 if (precipPE) {
-                    ArrayList<Region> ppl = precipPointList
-                            .get(selectedTraceId);
+                    List<Region> ppl = precipPointList.get(selectedTraceId);
                     for (int i = 0; i < ppl.size(); i++) {
                         if (ppl.get(i).contains(e.x, e.y)) {
                             setCursor(northSouthCursor);
@@ -1666,7 +1663,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         }
                     }
                 } else {
-                    ArrayList<Region> prl = pointList.get(selectedTraceId);
+                    List<Region> prl = pointList.get(selectedTraceId);
                     for (int i = 0; i < prl.size(); i++) {
                         if (prl.get(i).contains(e.x, e.y)) {
                             setCursor(handCursor);
@@ -1687,8 +1684,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 redraw();
             } else {
                 if (precipPE) {
-                    ArrayList<Region> ppl = precipPointList
-                            .get(selectedTraceId);
+                    List<Region> ppl = precipPointList.get(selectedTraceId);
                     for (int i = 0; i < ppl.size(); i++) {
                         if (ppl.get(i).contains(e.x, e.y)) {
                             setCursor(handCursor);
@@ -1699,7 +1695,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         }
                     }
                 } else {
-                    ArrayList<Region> prl = pointList.get(selectedTraceId);
+                    List<Region> prl = pointList.get(selectedTraceId);
                     for (int i = 0; i < prl.size(); i++) {
                         if (prl.get(i).contains(e.x, e.y)) {
                             setCursor(handCursor);
@@ -1898,7 +1894,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         } else if (traceSelected && dialog.isSelectMove()) {
             // loop to see if a dot is selected
             if (precipPE) {
-                ArrayList<Region> prl = precipPointList.get(selectedTraceId);
+                List<Region> prl = precipPointList.get(selectedTraceId);
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         setCursor(northSouthCursor);
@@ -1910,7 +1906,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
                 }
             } else {
-                ArrayList<Region> prl = pointList.get(selectedTraceId);
+                List<Region> prl = pointList.get(selectedTraceId);
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         setCursor(northSouthCursor);
@@ -1924,7 +1920,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             }
         } else if (traceSelected && dialog.isDelete()) {
             if (precipPE) {
-                ArrayList<Region> ppl = precipPointList.get(selectedTraceId);
+                List<Region> ppl = precipPointList.get(selectedTraceId);
                 for (int i = 0; i < ppl.size(); i++) {
                     if (ppl.get(i).contains(e.x, e.y)) {
                         deleteIndex = i;
@@ -1933,7 +1929,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
                 }
             } else {
-                ArrayList<Region> prl = pointList.get(selectedTraceId);
+                List<Region> prl = pointList.get(selectedTraceId);
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         deleteIndex = i;
@@ -1956,7 +1952,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             }
         } else if (traceSelected && dialog.isSetMissing()) {
             if (precipPE) {
-                ArrayList<Region> ppl = precipPointList.get(selectedTraceId);
+                List<Region> ppl = precipPointList.get(selectedTraceId);
                 for (int i = 0; i < ppl.size(); i++) {
                     if (ppl.get(i).contains(e.x, e.y)) {
                         setMissingIndex = i;
@@ -1965,7 +1961,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
                 }
             } else {
-                ArrayList<Region> prl = pointList.get(selectedTraceId);
+                List<Region> prl = pointList.get(selectedTraceId);
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         setMissingIndex = i;
@@ -2176,29 +2172,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
      */
     private void makeRegions(List<TraceData> traceList) {
         if (createRegions == true) {
+
             /* Dispose of the previous regions */
-            for (Region r : regionList) {
-                if (r.isDisposed() == false) {
-                    r.dispose();
-                }
-            }
-            for (ArrayList<Region> al : pointList) {
-                for (Region r : al) {
-                    if (r.isDisposed() == false) {
-                        r.dispose();
-                    }
-                }
-            }
-            for (ArrayList<Region> al : listRegionList) {
-                for (Region r : al) {
-                    if (r.isDisposed() == false) {
-                        r.dispose();
-                    }
-                }
-            }
-            regionList.clear();
-            pointList.clear();
-            listRegionList.clear();
+            disposeRegions();
 
             int dy = 15;
 
@@ -2276,6 +2252,31 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 }
             }
         }
+    }
+
+    private void disposeRegions() {
+        for (Region r : regionList) {
+            if (r.isDisposed() == false) {
+                r.dispose();
+            }
+        }
+        for (List<Region> al : pointList) {
+            for (Region r : al) {
+                if (r.isDisposed() == false) {
+                    r.dispose();
+                }
+            }
+        }
+        for (List<Region> al : listRegionList) {
+            for (Region r : al) {
+                if (r.isDisposed() == false) {
+                    r.dispose();
+                }
+            }
+        }
+        regionList.clear();
+        pointList.clear();
+        listRegionList.clear();
     }
 
     /**
