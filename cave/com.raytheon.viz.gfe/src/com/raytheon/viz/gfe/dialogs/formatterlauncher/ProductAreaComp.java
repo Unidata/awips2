@@ -61,6 +61,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 26 SEP 2012 15423       ryu         Fix product correction in practice mode
  * 15 MAY 2013  1842       dgilling    Change constructor signature to accept a
  *                                     DataManager instance.
+ * 05 SEP 2013  2329       randerso    Added call to ZoneCombinerComp.applyZoneCombo when
+ *                                     when run formatter button is clicked.
  * 
  * </pre>
  * 
@@ -386,12 +388,12 @@ public class ProductAreaComp extends Composite implements
                         // use
                         // it, else use the default
                         String dbId = null;
-                        // zoneCombinerComp.compactList();
+                        zoneCombiner.applyZoneCombo();
                         dbId = ((FormatterLauncherDialog) productTabCB)
                                 .getSelectedDataSource(productName);
                         FormatterUtil.runFormatterScript(textProductMgr,
-                                productName, zoneCombiner.getZoneGroupings(),
-                                dbId, vtecMode, ProductAreaComp.this);
+                                productName, dbId, vtecMode,
+                                ProductAreaComp.this);
                     }
                 }
             });
