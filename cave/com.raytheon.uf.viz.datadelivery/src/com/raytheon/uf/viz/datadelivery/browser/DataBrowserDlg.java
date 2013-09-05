@@ -993,6 +993,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                             return;
                         }
                     }
+                    loadSaveDlg = null;
                 }
             });
 
