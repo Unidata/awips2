@@ -32,22 +32,13 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
                 font-family: WxSymbolFont;
 
             }
-        text.special
-            {
-                fill: none;
-                font-size: 1em;
-                stroke-width: 1px;
-                font-size: 1em;
-                font-family: SpecialSymbolFont;
-            }
 ]]>
 </style>
 <symbol overflow="visible" id="plotData" class="info">
-  <text id="turbInensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="TBI" x="0" y="0">0</text>
-  <text id="fltLvlText" plotMode="text" plotParam="FLT_LVL" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
-  <text id="turbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="TBF" style="text-anchor: end" x="0" y="-10">0</text>
-  <!--text id="topText" plotMode="text" plotParam="TOP_HGT" plotUnit="hft" plotFormat="%3.0f" style="text-anchor: end;" x="-15px" y="-15px">75</text-->
-  <!--text id="botText" plotMode="text" plotParam="BOT_HGT" plotUnit="hft" plotFormat="%3.0f" style="text-anchor: end;" x="-15px" y="15px">75</text-->
+  <text id="sampleText" plotMode="sample" plotParam="obsText"> </text> 
+  <text id="turbInensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="turbInten" x="0" y="0">0</text>
+  <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
+  <text id="turbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="turbFreq" style="text-anchor: end" x="0" y="-10">0</text>
 </symbol>
 
 </defs>

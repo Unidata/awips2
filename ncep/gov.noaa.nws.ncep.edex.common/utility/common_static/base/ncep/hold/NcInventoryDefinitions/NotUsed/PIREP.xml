@@ -7,7 +7,7 @@
             <constraint constraintValue="PIREP" constraintType="EQUALS"/>
         </mapping>
         <mapping key="pluginName">
-            <constraint constraintValue="ncpirep" constraintType="EQUALS"/>
+            <constraint constraintValue="pirep" constraintType="EQUALS"/>
         </mapping>
     </baseConstraints>
 </NcInventoryDefinition>
