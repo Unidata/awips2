@@ -15,6 +15,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
 import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -80,6 +81,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      Remove frameAltered condition in matchesFrame. It prevented entries from being displayed.
  *                                      Check if geometry is null when inspecting.
  * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
+ * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
  * </pre>
  * 
  * @author jsanchez
@@ -133,7 +135,9 @@ public abstract class AbstractWWAResource extends
     /** map of dataURI to a warning entry **/
     protected Map<String, WarningEntry> entryMap;
 
-    protected IFont warningsFont;
+    protected IFont warningsFont = null;
+
+    protected IFont emergencyFont = null;
 
     protected RGB color;
 
@@ -368,8 +372,8 @@ public abstract class AbstractWWAResource extends
                     int outlineWidth = getCapability(OutlineCapability.class)
                             .getOutlineWidth();
                     // Make wire frame outline thicker for EMERGENCY warnings
-                    if (record.getRawmessage().contains("EMERGENCY")) {
-                        outlineWidth *= 2;
+                    if (EmergencyType.isEmergency(record.getRawmessage())) {
+                        outlineWidth *= 3;
                     }
 
                     target.drawWireframeShape(
@@ -398,7 +402,10 @@ public abstract class AbstractWWAResource extends
                             * paintProps.getZoomLevel() / 1000;
                     String[] textToPrint = getText(record, mapWidth);
                     if (warningsFont == null) {
-                        warningsFont = target.getDefaultFont().deriveWithSize(
+                        warningsFont = target.initializeFont(target
+                                .getDefaultFont().getFontName(), 11,
+                                new IFont.Style[0]);
+                        emergencyFont = target.getDefaultFont().deriveWithSize(
                                 11);
                     }
                     // DR14992: reverse the textToPrint array to plot the
@@ -418,14 +425,23 @@ public abstract class AbstractWWAResource extends
                     params.verticallAlignment = VerticalAlignment.BOTTOM;
                     params.magnification = getCapability(
                             MagnificationCapability.class).getMagnification();
-                    target.drawStrings(params);
 
                     // Draws the string again to have it appear bolder
-                    if (textToPrintReversed[2].endsWith("EMER")) {
-                        params.setText(new String[] { "", "", "EMER", "" },
-                                color);
-                        target.drawStrings(params);
+                    if (EmergencyType.isEmergency(record.getRawmessage())) {
+                        // moves over text to add EMER in a different font
+                        textToPrintReversed[2] = String.format("%1$-21" + "s",
+                                textToPrintReversed[2]);
+                        params.setText(textToPrintReversed, color);
+
+                        DrawableString emergencyString = new DrawableString(
+                                params);
+                        emergencyString.font = emergencyFont;
+                        emergencyString.setText(new String[] { "", "",
+                                " " + EmergencyType.EMER, "" }, color);
+                        target.drawStrings(emergencyString);
                     }
+
+                    target.drawStrings(params);
 
                 }
             }
@@ -598,12 +614,7 @@ public abstract class AbstractWWAResource extends
             textToPrint[0] += "." + vid;
         }
         textToPrint[0] += "." + record.getEtn();
-
-        if (record.getRawmessage().contains("EMERGENCY")) {
-            textToPrint[1] = record.getPil() + " EMER";
-        } else {
-            textToPrint[1] = record.getPil();
-        }
+        textToPrint[1] = record.getPil();
 
         SimpleDateFormat startFormat = DEFAULT_FORMAT;
         SimpleDateFormat endFormat = DEFAULT_FORMAT;
