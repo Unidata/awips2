@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -30,6 +32,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
  * Apr 30, 2013 1960       djohnson     just call init rather than drop/create tables explicitly.
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
+ * Sep 05, 2013 2330       bgonzale     On WFO registry init, only subscribe to local site subscriptions.
  * 
  * </pre>
  * 
@@ -82,9 +85,24 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
     public void executeAfterRegistryInit() {
         Set<Subscription> activeSubscriptions = Collections.emptySet();
         try {
-            // Load active subscriptions
-            activeSubscriptions = findSubscriptionsStrategy
-                    .findSubscriptionsToSchedule();
+            final String localOffice = SiteUtil.getSite();
+
+            // Load active subscriptions for the local office
+            for (Subscription sub : findSubscriptionsStrategy
+                    .findSubscriptionsToSchedule()) {
+                boolean isShared = (sub instanceof SharedSubscription);
+                boolean isLocalOffice = sub.getOfficeIDs()
+                        .contains(localOffice);
+
+                if (!isShared && isLocalOffice) {
+                    activeSubscriptions.add(sub);
+                    statusHandler.info("Scheduling Subscription: " + sub);
+                } else {
+                    statusHandler
+                            .info("Not Scheduling Non-local Subscription: "
+                                    + sub);
+                }
+            }
         } catch (Exception e) {
             statusHandler.error(
                     "Failed to query for subscriptions to schedule", e);
