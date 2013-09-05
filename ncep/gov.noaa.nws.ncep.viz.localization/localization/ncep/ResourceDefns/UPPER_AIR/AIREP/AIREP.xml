@@ -3,7 +3,7 @@
     <resourceDefnName>AIREP</resourceDefnName>
     <resourceCategory>UPPER_AIR</resourceCategory>
     <resourceParameters>
-pluginName=ncairep
+pluginName=airep
 reportType=AIREP
 legendString=Aircraft Reports
 spiFile=MTR.spi
