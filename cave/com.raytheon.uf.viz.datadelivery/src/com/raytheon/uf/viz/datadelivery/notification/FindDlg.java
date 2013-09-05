@@ -148,7 +148,7 @@ public class FindDlg extends CaveSWTDialog {
     public FindDlg(Shell parent,
             TableDataManager<NotificationRowData> filteredTableList,
             int sIndex, int eIndex, int selected, ITableFind callback) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.NONE);
+        super(parent, SWT.DIALOG_TRIM, CAVE.NONE | CAVE.DO_NOT_BLOCK);
         this.setText("Find");
 
         this.filteredTableList = filteredTableList;
