@@ -55,6 +55,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Mar 07, 2013  1759      dgilling     Refactored to remove dependency
  *                                      on GfeScriptExecutor.
  * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Sep 05, 2013  #2307     dgilling     Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -96,7 +97,8 @@ public class PurgeGfeGridsRequestHandler implements
             String includePath = PyUtil.buildJepIncludePath(
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath());
-            script = new PythonScript(scriptPath, includePath);
+            script = new PythonScript(scriptPath, includePath, this.getClass()
+                    .getClassLoader());
             try {
                 Map<String, Object> args = new HashMap<String, Object>();
                 args.put("databaseID", request.getDatabaseID().toString());
