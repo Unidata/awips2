@@ -185,21 +185,7 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.airep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.stormtrack"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.pirep"
          download-size="0"
          install-size="0"
          version="0.0.0"
