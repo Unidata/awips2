@@ -51,12 +51,15 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 17, 2009            njensen     Initial creation
- * Jun 29, 2009 2538       jsanchez    Implemented Metars.
- * May 14, 2013 1869       bsteffen    Get plots working without dataURI
- * Aug 09, 2013  2033      mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 17, 2009           njensen     Initial creation
+ * Jun 29, 2009  2538     jsanchez    Implemented Metars.
+ * May 14, 2013  1869     bsteffen    Get plots working without dataURI
+ * Aug 09, 2013  2033     mschenke    Switched File.separator to 
+ *                                    IPathManager.SEPARATOR
+ * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
+ * 
  * 
  * </pre>
  * 
@@ -148,7 +151,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * These use the original PlotResource, whoever can convert these gets
          * to delete thousands of lines of code, it will be amazing.
          */
-        pluginProps.put("pirep", new PluginPlotProperties(false, false));
         pluginProps.put("airep", new PluginPlotProperties(false, false));
         pluginProps.put("acars", new PluginPlotProperties(false, false));
 
@@ -191,6 +193,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
         pluginProps.put("madis", new PluginPlotProperties());
+        pluginProps.put("pirep", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
