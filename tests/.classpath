@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="*HILOTest.java*|com/raytheon/viz/gfe/core/parm/TestParm.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|com/raytheon/viz/gfe/ui/runtimeui/TestSmartScript.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java" kind="src" path="unit"/>
+	<classpathentry excluding="*HILOTest.java*|com/raytheon/viz/gfe/core/parm/TestParm.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java" kind="src" path="unit"/>
 	<classpathentry kind="src" path="deploy"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="integration"/>
