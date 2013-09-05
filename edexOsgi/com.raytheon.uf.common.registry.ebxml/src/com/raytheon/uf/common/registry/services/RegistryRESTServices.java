@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.registry.services;
 
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +30,8 @@ import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 
 import com.google.common.cache.CacheBuilder;
@@ -38,6 +41,7 @@ import com.google.common.io.Resources;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
 import com.raytheon.uf.common.registry.RegistryNamespaceMapper;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
@@ -58,6 +62,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 5/21/2013    2022        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Implemented registry data access service
  * 8/1/2013     1693        bphillip    Modified getregistry objects method to correctly handle response
+ * 9/5/2013     1538        bphillip    Changed cache expiration timeout and added http header
  * </pre>
  * 
  * @author bphillip
@@ -67,41 +72,37 @@ public class RegistryRESTServices {
 
     /** Map of known registry object request services */
     private static LoadingCache<String, IRegistryObjectsRestService> registryObjectServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, IRegistryObjectsRestService>() {
-                public IRegistryObjectsRestService load(String key) {
-                    return JAXRSClientFactory.create(key,
-                            IRegistryObjectsRestService.class);
+                public IRegistryObjectsRestService load(String url) {
+                    return getPort(url, IRegistryObjectsRestService.class);
                 }
             });
 
     /** Map of known repository item request services */
     private static LoadingCache<String, IRepositoryItemsRestService> repositoryItemServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, IRepositoryItemsRestService>() {
-                public IRepositoryItemsRestService load(String key) {
-                    return JAXRSClientFactory.create(key,
-                            IRepositoryItemsRestService.class);
+                public IRepositoryItemsRestService load(String url) {
+                    return getPort(url, IRepositoryItemsRestService.class);
                 }
             });
 
     /** Map of known registry availability services */
     private static LoadingCache<String, IRegistryAvailableRestService> registryAvailabilityServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, IRegistryAvailableRestService>() {
-                public IRegistryAvailableRestService load(String key) {
-                    return JAXRSClientFactory.create(key,
-                            IRegistryAvailableRestService.class);
+                public IRegistryAvailableRestService load(String url) {
+                    return getPort(url, IRegistryAvailableRestService.class);
                 }
             });
 
     /** Map of known registry data access services */
     private static LoadingCache<String, IRegistryDataAccessService> registryDataAccessServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, IRegistryDataAccessService>() {
-                public IRegistryDataAccessService load(String key) {
-                    return JAXRSClientFactory.create(key,
-                            IRegistryDataAccessService.class);
+                public IRegistryDataAccessService load(String url) {
+                    return getPort(url, IRegistryDataAccessService.class);
                 }
             });
 
@@ -221,14 +222,23 @@ public class RegistryRESTServices {
      * @return True if the registry services are available
      */
     public static boolean isRegistryAvailable(String baseURL) {
+        String response = null;
         try {
-            String response = getRegistryAvailableService(baseURL)
+            response = getRegistryAvailableService(baseURL)
                     .isRegistryAvailable();
+            if (RegistryAvailability.AVAILABLE.equals(response)) {
+                return true;
+            } else {
+                statusHandler.info("Registry at [" + baseURL
+                        + "] not available: " + response);
+            }
             return RegistryAvailability.AVAILABLE.equals(response);
         } catch (Throwable t) {
-            statusHandler.error(
-                    "Registry at [" + baseURL + "] not available: ",
-                    t.getMessage());
+            if (response == null) {
+                response = ExceptionUtils.getRootCauseMessage(t);
+            }
+            statusHandler.error("Registry at [" + baseURL + "] not available: "
+                    + response);
             return false;
         }
     }
@@ -274,5 +284,15 @@ public class RegistryRESTServices {
                     "Error unmarshalling xml response from REST Service at URL: ["
                             + url + "]");
         }
+    }
+
+    private static <T extends Object> T getPort(String url,
+            Class<T> serviceClass) {
+        T service = JAXRSClientFactory.create(url, serviceClass);
+        Client client = (Client) Proxy.getInvocationHandler((Proxy) service);
+        // Create HTTP header containing the calling registry
+        client.header(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
+                RegistryUtil.LOCAL_REGISTRY_ADDRESS);
+        return service;
     }
 }
