@@ -202,7 +202,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
     public LoadSaveConfigDlg(Shell parent, DialogType type,
             String fileNamePath, String excludedNameForSaving,
             boolean showPreview) {
-        super(parent, SWT.TITLE, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.TITLE | SWT.APPLICATION_MODAL, CAVE.DO_NOT_BLOCK);
 
         if (type == DialogType.OPEN) {
             setText("Load Configuration");
