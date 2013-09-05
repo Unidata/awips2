@@ -36,6 +36,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2013 1650       djohnson     Initial creation
+ * Sep 04, 2013 2330       bgonzale     Added get by site id.
  * 
  * </pre>
  * 
@@ -97,6 +98,17 @@ public final class SubscriptionManagerFilters {
                     throws RegistryHandlerException {
                 return subscriptionHandler.getActiveByDataSetAndProvider(
                         datasetName, providerName);
+            }
+        };
+    }
+
+    public static ISubscriptionManagerFilter getBySiteId(final String siteId) {
+        return new ISubscriptionManagerFilter() {
+            @Override
+            public List<Subscription> getSubscriptions(
+                    ISubscriptionHandler subscriptionHandler)
+                    throws RegistryHandlerException {
+                return subscriptionHandler.getByFilters(null, siteId);
             }
         };
     }
