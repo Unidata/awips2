@@ -18,6 +18,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2012            jsanchez     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
+ * 9/05/2013    2314       mpduff      Handle Load All flag.
  * 
  * </pre>
  * 
@@ -39,7 +40,7 @@ public class GetNotificationHandler extends AbstractHandler implements
             throws Exception {
         List<NotificationRecord> notifications = notificationDao
                 .lookupNotifications(request.getUsername(), request.getHours(),
-                        request.getMaxResults());
+                        request.getMaxResults(), request.getLoadAll());
         return notifications;
     }
 
