@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Jun 11, 2013   2064     mpduff      Fix editing of subscriptions.
  * Jun 14, 2013   2108     mpduff      Refactored DataSizeUtils and 
  *                                     implement subset size.
+ * Sep 05, 2013   2335     mpduff      Fix times for adhoc point queries.
  * 
  * </pre>
  * 
@@ -174,8 +175,18 @@ public class PointSubsetManagerDlg extends
      */
     @Override
     protected Time setupDataSpecificTime(Time newTime, Subscription sub) {
-        // TODO Auto-generated method stub
-        return null;
+        PointTime newTimePoint = (PointTime) newTime;
+
+        // Format must be set before setting the dates.
+        newTimePoint.setFormat(dataSet.getTime().getFormat());
+        int interval = timingTabControls.getSaveInfo()
+                .getDataRetrievalInterval();
+        newTimePoint.setInterval(interval);
+        newTimePoint.setStartDate(new Date());
+        newTimePoint.setEndDate(new Date());
+        newTimePoint.setInterval(timingTabControls.getDataRetrievalInterval());
+
+        return newTimePoint;
     }
 
     /**
@@ -194,12 +205,8 @@ public class PointSubsetManagerDlg extends
     protected <T extends Subscription> T populateSubscription(T sub,
             boolean create) {
 
-        PointTime newTime = new PointTime();
-        int interval = timingTabControls.getSaveInfo()
-                .getDataRetrievalInterval();
-        newTime.setInterval(interval);
-        newTime.setStartDate(new Date());
-        newTime.setEndDate(new Date());
+        Time newTime = new PointTime();
+        newTime = setupDataSpecificTime(newTime, sub);
         sub.setTime(newTime);
 
         Coverage cov = new Coverage();
