@@ -20,7 +20,7 @@
 
 package com.raytheon.uf.common.style;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +42,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2007                 njensen     Initial creation
  * May 21, 2012 DR 14833        gzhang		Adding a getter for StyleRuleset
+ * Sep 06, 2013 2251       mnash       Add ability to plug in new style types
  * </pre>
  * 
  * @author njensen
@@ -50,9 +51,9 @@ public class StyleManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StyleManager.class);
 
-    public static enum StyleType {
-        IMAGERY("ImageryStyleRules.xml"), GRAPH("GraphStyleRules.xml"), CONTOUR(
-                "ContourStyleRules.xml"), ARROW("ArrowStyleRules.xml");
+    public static enum StyleType implements IStyleType {
+        IMAGERY("ImageryStyleRules.xml"), CONTOUR("ContourStyleRules.xml"), ARROW(
+                "ArrowStyleRules.xml"), GEOMETRY("GeometryStyleRules.xml");
 
         private String[] extensions;
 
@@ -60,12 +61,16 @@ public class StyleManager {
             this.extensions = new String[] { extension };
         }
 
+        @Override
+        public String[] getExtensions() {
+            return extensions;
+        }
     };
 
     private static StyleManager instance;
 
-    private Map<StyleType, StyleRuleset> rules = new EnumMap<StyleType, StyleRuleset>(
-            StyleType.class);
+    // although HashMap allows null keys, would rather use this than Hashtable
+    private Map<IStyleType, StyleRuleset> rules = new HashMap<IStyleType, StyleRuleset>();
 
     private StyleManager() {
     }
@@ -78,12 +83,12 @@ public class StyleManager {
         return instance;
     }
 
-    private void loadRules(StyleType aType) {
+    private void loadRules(IStyleType aType) {
         try {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationFile[] files = pathMgr.listFiles(pathMgr
                     .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
-                    "styleRules", aType.extensions, true, true);
+                    "styleRules", aType.getExtensions(), true, true);
             StyleRuleset rules = new StyleRuleset();
             for (LocalizationFile lf : files) {
                 rules.addStyleRules(SerializationUtil.jaxbUnmarshalFromXmlFile(
@@ -106,7 +111,7 @@ public class StyleManager {
      * @return the best matching style rule, or null if no matches are found
      * @throws StyleException
      */
-    public StyleRule getStyleRule(StyleType aStyleType, MatchCriteria aCriteria)
+    public StyleRule getStyleRule(IStyleType aStyleType, MatchCriteria aCriteria)
             throws StyleException {
         synchronized (aStyleType) {
             if (!this.rules.containsKey(aStyleType)) {
@@ -127,8 +132,7 @@ public class StyleManager {
                     }
                 }
             } catch (Exception e) {
-                throw new StyleException(
-                        "Error determining matching rules.", e);
+                throw new StyleException("Error determining matching rules.", e);
             }
         }
         return bestMatch;
@@ -161,7 +165,7 @@ public class StyleManager {
      *            : StyleType
      * @return: StyleRuleset related to the StyleType
      */
-    public StyleRuleset getStyleRuleSet(StyleType st) {
+    public StyleRuleset getStyleRuleSet(IStyleType st) {
 
         synchronized (st) {
 
