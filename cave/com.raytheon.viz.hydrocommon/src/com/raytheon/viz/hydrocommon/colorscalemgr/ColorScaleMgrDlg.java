@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11 Mar 2013  15065      lbousaidi   fixed issue with both color legend 
  *                         disappearing after save
  * 01 Jul 2013  2088       rferrel     Changes for non-blocking dialogs.
+ * 06 Sep 2013  #2342      lvenable    Fixed color memory leaks and a null point exception.
  * </pre>
  * 
  * @author lvenable
@@ -124,6 +125,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * Used Color/Value array of color and value labels.
      */
     private java.util.List<ColorValueLabels> usedColorValLblArray;
+
+    /**
+     * Browse Color/Value array of color and value labels.
+     */
+    private java.util.List<ColorValueLabels> browseColorValLblArray;
 
     /**
      * Source combo box.
@@ -236,8 +242,6 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      */
     private Combo browseDurationCbo;
 
-    private java.util.List<ColorValueLabels> browseColorValLblArray;
-
     private Composite browseLabelComp;
 
     private Integer selectedDurationInSeconds = 0;
@@ -247,21 +251,6 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
     private String sourceColor = null;
 
     private Button saveAsUserBtn, saveAsOfficeBtn;
-
-    /**
-     * Common mouse listener for labels in the Color Value Label Bar.
-     */
-    private final MouseListener lableMouseListener = new MouseAdapter() {
-        @Override
-        public void mouseDown(MouseEvent e) {
-            Label lbl = (Label) e.getSource();
-            ColorValueLabels cvl = (ColorValueLabels) lbl.getData();
-            updateEditControlsValueSelected(cvl);
-            updateEditControlsColorSelected(cvl);
-            String source = getSource();
-            changeColor(cvl.getRgbColor(), source);
-        }
-    };
 
     /**
      * Constructor.
@@ -298,6 +287,17 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         createTabFolder();
         createCloseButton();
         updateButtons();
+    }
+
+    @Override
+    protected void disposed() {
+        if (currentColor != null) {
+            currentColor.dispose();
+        }
+
+        disposeLabelsInArray(colorValLblArray);
+        disposeLabelsInArray(usedColorValLblArray);
+        disposeLabelsInArray(browseColorValLblArray);
     }
 
     /**
@@ -901,6 +901,21 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
     }
 
     /**
+     * Common mouse listener for labels in the Color Value Label Bar.
+     */
+    private final MouseListener lableMouseListener = new MouseAdapter() {
+        @Override
+        public void mouseDown(MouseEvent e) {
+            Label lbl = (Label) e.getSource();
+            ColorValueLabels cvl = (ColorValueLabels) lbl.getData();
+            updateEditControlsValueSelected(cvl);
+            updateEditControlsColorSelected(cvl);
+            String source = getSource();
+            changeColor(cvl.getRgbColor(), source);
+        }
+    };
+
+    /**
      * Update the color label on the display
      * 
      * @param source
@@ -1443,11 +1458,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * adding/updating/deleting color/value pairs or when the data type changes.
      */
     private void updateColorValueLabelBar() {
-        for (int i = 0; i < colorValLblArray.size(); i++) {
-            colorValLblArray.get(i).disposeLabels();
-        }
 
-        colorValLblArray.clear();
+        disposeLabelsInArray(colorValLblArray);
 
         String source = getSource();
 
@@ -1492,11 +1504,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * same as updateColorValueLabelBar but for Browse Color Sets tab
      */
     private void updateBrowseColorValueLabelBar() {
-        for (int i = 0; i < browseColorValLblArray.size(); i++) {
-            browseColorValLblArray.get(i).disposeLabels();
-        }
 
-        browseColorValLblArray.clear();
+        disposeLabelsInArray(browseColorValLblArray);
 
         String source = getSource();
 
@@ -1537,11 +1546,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * adding/updating/deleting color/value pairs or when the data type changes.
      */
     private void updateUsedColorValueLabelBar() {
-        for (int i = 0; i < usedColorValLblArray.size(); i++) {
-            usedColorValLblArray.get(i).disposeLabels();
-        }
 
-        usedColorValLblArray.clear();
+        disposeLabelsInArray(usedColorValLblArray);
 
         String source = getSource();
 
@@ -1607,6 +1613,22 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             colorDlg.open();
         } else {
             colorDlg.bringToTop();
+        }
+    }
+
+    /**
+     * Dispose of the labels/colors in the specified array.
+     * 
+     * @param array
+     *            Array of color value labels.
+     */
+    private void disposeLabelsInArray(java.util.List<ColorValueLabels> array) {
+        if (array != null) {
+            for (ColorValueLabels cvl : array) {
+                cvl.disposeLabels();
+            }
+
+            array.clear();
         }
     }
 
@@ -1901,7 +1923,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             // add a check in case there is a typo in dataType the it will be
             // null
             if (!dt.contains("null")) {
-                dataTypeCbo.add(colorManager.getDescription(dt));
+                String description = colorManager.getDescription(dt);
+
+                if (description != null) {
+                    dataTypeCbo.add(description);
+                }
             }
         }
 
