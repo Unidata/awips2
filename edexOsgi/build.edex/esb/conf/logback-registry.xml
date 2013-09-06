@@ -123,6 +123,9 @@
    <logger name="edu">
       <level value="WARN" />
    </logger>
+   <logger name="org.apache.cxf">
+   	  <level value="ERROR"/>
+   </logger>
 
    <logger name="com.raytheon.uf.common.datadelivery" additivity="false">
         <level value="INFO"/>
