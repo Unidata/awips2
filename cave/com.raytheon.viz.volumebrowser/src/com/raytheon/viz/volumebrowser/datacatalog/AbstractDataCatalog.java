@@ -37,10 +37,11 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.IStyleType;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -56,6 +57,7 @@ import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData.AxisParameter;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.grid.GridLevelTranslator;
 import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
@@ -79,7 +81,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     points which contain the word Point
  * May 03, 2013 DR14824 mgamazaychikov Added alterProductParameters method
  * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
- * 
+ * Sep 06, 2013 2251       mnash       Move graph prefs style type to
+ *                                      graph plugin
  * 
  * </pre>
  * 
@@ -391,7 +394,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         StyleRule sr = null;
         try {
 
-            StyleManager.StyleType styleType = StyleManager.StyleType.CONTOUR;
+            IStyleType styleType = StyleManager.StyleType.CONTOUR;
 
             if (displayType.equals(DisplayType.IMAGE)) {
                 styleType = StyleManager.StyleType.IMAGERY;
@@ -405,7 +408,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
             if (catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.TIMESERIES
                     || catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.VARVSHGT) {
-                styleType = StyleManager.StyleType.GRAPH;
+                styleType = GraphPrefsFactory.GRAPH_STYLE_TYPE;
             }
 
             sr = StyleManager.getInstance().getStyleRule(styleType, match);
