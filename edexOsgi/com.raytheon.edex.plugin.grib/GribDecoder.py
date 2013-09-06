@@ -22,7 +22,8 @@ import grib2
 import numpy
 from math import pow
 import time, os, sys, math
-import LogStream
+import logging
+import UFStatusHandler
 import tempfile
 from matplotlib.mlab import griddata
 
@@ -122,14 +123,16 @@ THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 #  library to access the NCEP grib decoder for extracting data
 #
 #    
-#     SOFTWARE HISTORY
+# SOFTWARE HISTORY
 #    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    04/7/09         #1994         bphillip       Initial Creation.
-#    Mar 25, 2013    1821          bsteffen       Reshape grib data arrays in
-#                                                 place to improve performance.
-#    Sep 04, 2013    2298          rjpeter        Removed setPluginName call
+# Date          Ticket#  Engineer    Description
+# ------------- -------- ----------- --------------------------
+# Apr 07, 2009  1994     bphillip    Initial Creation.
+# Mar 25, 2013  1821     bsteffen    Reshape grib data arrays in place to
+#                                    improve performance.
+# Sep 04, 2013  2298     rjpeter     Removed setPluginName call
+# Sep 06, 2013  2336     bsteffen    Switch from logstream to logging with
+#                                    UFStatusHandler.
 class GribDecoder():
 
     ##
@@ -141,7 +144,10 @@ class GribDecoder():
     def __init__(self, text=None, filePath=None):  
         # Assign public file name
         self.fileName = filePath
-        
+
+        self.log = logging.getLogger("GribDecoder")
+        self.log.addHandler(UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "EDEX"))    
+
 
     ##
     # Decodes the grib file
@@ -166,7 +172,7 @@ class GribDecoder():
         else:
               decodeFile = self.fileName
         if decodeFile == None:
-            LogStream.logProblem("Could not get final filename to decode: [", self.fileName, "]")
+            self.log.error("Could not get final filename to decode: [" + self.fileName + "]")
             return records
         gribFile = open(decodeFile, "rb")
 
@@ -193,7 +199,7 @@ class GribDecoder():
                 recordIndex = recordIndex + 1
                 fieldIndex = 0
         except:
-            LogStream.logProblem("Error processing file [", self.fileName, "]: ", LogStream.exc())
+            self.log.exception("Error processing file [" + self.fileName + "]: ")
         finally:
             gribFile.close()       
                 
@@ -526,7 +532,7 @@ class GribDecoder():
                         parameterAbbreviation = parameter.getAbbreviation()
                     parameterUnit = parameter.getUnit()
                 else:
-                    LogStream.logEvent("No parameter information for center[" + str(centerID) + "], subcenter[" +
+                    self.log.info("No parameter information for center[" + str(centerID) + "], subcenter[" +
                                           str(subcenterID) + "], tableName[" + tableName +
                                           "], parameter value[" + str(pdsTemplate[1]) + "]");
                     parameterName = MISSING
@@ -543,7 +549,7 @@ class GribDecoder():
                levelName = gribLevel.getAbbreviation();
                levelUnit = gribLevel.getUnit()
             else:
-               LogStream.logEvent("No level information for center[" + str(centerID) + "], subcenter[" +
+               self.log.info("No level information for center[" + str(centerID) + "], subcenter[" +
                                      str(subcenterID) + "], tableName[" + LEVELS_TABLE + "], level value[" +
                                      str(pdsTemplate[9]) + "]");
 
@@ -1130,7 +1136,7 @@ class GribDecoder():
             minorAxis = self._convertScaledValue(gdsTemplate[2], gdsTemplate[1])
             majorAxis = minorAxis
             if majorAxis < 6000000.0 or minorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape majorAxis,minorAxis = " + str(majorAxis) + "," + str(minorAxis) + " defaulting to 6367470.0,6367470.0")
+                self.log.info("Invalid earth shape majorAxis,minorAxis = " + str(majorAxis) + "," + str(minorAxis) + " defaulting to 6367470.0,6367470.0")
                 minorAxis = majorAxis = 6367470.0
             
         # Earth assumed oblate spheriod with size as determined by IAU in 1965
@@ -1143,12 +1149,12 @@ class GribDecoder():
         elif number == 3:
             minorAxis = self._convertScaledValue(gdsTemplate[4], gdsTemplate[3]) * 1000
             if minorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
                 minorAxis = MINOR_AXIS_DEFAULT
                 
             majorAxis = self._convertScaledValue(gdsTemplate[6], gdsTemplate[5]) * 1000
             if majorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
                 majorAxis = MAJOR_AXIS_DEFAULT
                 
         # Earth assumed oblate spheriod as defined in IAG-GRS80 model
@@ -1171,12 +1177,12 @@ class GribDecoder():
         elif number == 7:
             minorAxis = self._convertScaledValue(gdsTemplate[4], gdsTemplate[3])
             if minorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
                 minorAxis = MINOR_AXIS_DEFAULT
                 
             majorAxis = self._convertScaledValue(gdsTemplate[6], gdsTemplate[5])
             if majorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
                 majorAxis = MAJOR_AXIS_DEFAULT
                 
         # Earth model assumed spherical with radius 6,371,200 m,
