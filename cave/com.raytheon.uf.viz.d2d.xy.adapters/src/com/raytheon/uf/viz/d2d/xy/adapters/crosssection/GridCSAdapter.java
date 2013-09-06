@@ -46,10 +46,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
@@ -72,7 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      in the data array for anything
  *                                      below 300MB for RUC80.
  * Oct 2, 2012  DR 15259  M.Porricelli  Allow plotting when 3 levels
- *                                      available (DGEX)                                     
+ *                                      available (DGEX)
+ * Sep  9, 2013 2277       mschenke     Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -362,17 +361,11 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
                     new RequestConstraint(descriptor.getHeightScale()
                             .getParameter()));
 
-            LayerProperty property = new LayerProperty();
-            property.setDesiredProduct(ResourceType.PLAN_VIEW);
-
-            property.setEntryQueryParameters(metadataMap, false);
-            property.setNumberOfImages(9999);
-            property.setSelectedEntryTimes(new DataTime[] { time });
-
-            List<Object> recs = DataCubeContainer.getData(property, 60000);
-            yRecords = new HashSet<GridRecord>(recs.size());
-            for (Object obj : recs) {
-                yRecords.add((GridRecord) obj);
+            PluginDataObject[] pdos = DataCubeContainer.getData(metadataMap,
+                    time);
+            yRecords = new HashSet<GridRecord>(pdos.length);
+            for (PluginDataObject pdo : pdos) {
+                yRecords.add((GridRecord) pdo);
             }
             this.yRecords.put(time, yRecords);
             if (yRecords.isEmpty()) {
