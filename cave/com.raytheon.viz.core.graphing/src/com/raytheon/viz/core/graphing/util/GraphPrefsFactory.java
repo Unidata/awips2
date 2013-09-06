@@ -21,10 +21,11 @@ package com.raytheon.viz.core.graphing.util;
 
 import java.util.ArrayList;
 
+import com.raytheon.uf.common.style.IStyleType;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.graph.AxisScale;
 import com.raytheon.uf.common.style.graph.GraphPreferences;
 import com.raytheon.uf.common.style.level.SingleLevel;
@@ -37,7 +38,7 @@ import com.raytheon.uf.common.style.level.SingleLevel;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2007            njensen     Initial creation
- * 
+ * Sep 06, 2013 2251       mnash       Move Graph prefs style type to here
  * </pre>
  * 
  * @author njensen
@@ -45,6 +46,14 @@ import com.raytheon.uf.common.style.level.SingleLevel;
  */
 
 public class GraphPrefsFactory {
+
+    public static final IStyleType GRAPH_STYLE_TYPE = new IStyleType() {
+
+        @Override
+        public String[] getExtensions() {
+            return new String[] { "GraphStyleRules.xml" };
+        }
+    };
 
     public static GraphPreferences buildPreferences(String parameter,
             SingleLevel level) throws StyleException {
@@ -106,7 +115,7 @@ public class GraphPrefsFactory {
         paramList.add(parameter);
         match.setParameterName(paramList);
         StyleRule sr = StyleManager.getInstance().getStyleRule(
-                StyleManager.StyleType.GRAPH, match);
+                GRAPH_STYLE_TYPE, match);
         if (sr != null) {
             prefs = (GraphPreferences) sr.getPreferences();
         }
