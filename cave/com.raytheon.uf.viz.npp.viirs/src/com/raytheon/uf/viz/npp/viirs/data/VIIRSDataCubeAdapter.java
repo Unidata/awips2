@@ -33,7 +33,6 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -196,13 +195,16 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter#getData(com
-     * .raytheon.uf.viz.core.catalog.LayerProperty, java.util.List)
+     * com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter#getData(java
+     * .util.Map, com.raytheon.uf.common.time.DataTime[], java.util.List)
      */
     @Override
-    protected List<Object> getData(LayerProperty property,
-            List<AbstractRequestableData> requesters) throws VizException {
-        List<Object> results = new ArrayList<Object>(requesters.size());
+    protected List<PluginDataObject> getData(
+            Map<String, RequestConstraint> constraints,
+            DataTime[] selectedTimes, List<AbstractRequestableData> requesters)
+            throws VizException {
+        List<PluginDataObject> results = new ArrayList<PluginDataObject>(
+                requesters.size());
         for (AbstractRequestableData requester : requesters) {
             List<VIIRSDataRecord> baseRecords = new ArrayList<VIIRSDataRecord>();
             findBaseRecords(requester, baseRecords);
@@ -258,7 +260,8 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
                 getBaseUpdateConstraints(baseConstraints, d.node);
             }
         } else if (!node.isConstant()) {
-            // If everything is working correctly than this is dead code, but it is here just in case I missed something.
+            // If everything is working correctly than this is dead code, but it
+            // is here just in case I missed something.
             Activator.statusHandler.handle(Priority.WARN, this.getClass()
                     .getSimpleName()
                     + " cannot determine base constraints for "

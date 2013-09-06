@@ -30,15 +30,18 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter;
+import com.raytheon.uf.common.dataplugin.bufrua.dao.BufrUAPointDataTransform;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.sounding.adapter.IVerticalSoundingProvider;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.sounding.Activator;
@@ -55,7 +58,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 22, 2013       2190 mschenke     Initial creation
+ * Jul 22, 2013       2190 mschenke    Initial creation
+ * Sep  9, 2013       2277 mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -63,7 +67,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * @version 1.0
  */
 
-public class BufruaSoundingProvider extends AbstractPDOVerticalSoundingProvider {
+public class BufruaSoundingProvider extends
+        AbstractVerticalSoundingProvider<PluginDataObject[]> {
 
     private static final double MAX_MOUSE_DISTANCE_DEG = 5.0;
 
@@ -73,7 +78,7 @@ public class BufruaSoundingProvider extends AbstractPDOVerticalSoundingProvider 
     protected DataTime[] queryForSoundingTimes(
             Map<String, RequestConstraint> constraints) {
         TimeQueryRequest request = new TimeQueryRequest();
-        request.setPluginName("bufrua");
+        request.setPluginName(UAObs.PLUGIN_NAME);
         request.setBinOffset(new BinOffset(3600, 3600));
         request.setQueryTerms(constraints);
         try {
@@ -82,6 +87,31 @@ public class BufruaSoundingProvider extends AbstractPDOVerticalSoundingProvider 
         } catch (VizException e) {
             throw new RuntimeException(
                     "Error querying for available sounding times", e);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.sounding.providers.AbstractVerticalSoundingProvider
+     * #queryForData(java.util.Map, com.raytheon.uf.common.time.DataTime,
+     * com.vividsolutions.jts.geom.Coordinate)
+     */
+    @Override
+    protected PluginDataObject[] queryForData(
+            Map<String, RequestConstraint> constraints, DataTime time,
+            Coordinate location) {
+        try {
+            constraints.put(PluginDataObject.DATATIME_ID,
+                    new RequestConstraint(time.toString()));
+            PointDataContainer pdc = DataCubeContainer.getPointData(
+                    UAObs.PLUGIN_NAME, BufrUAPointDataTransform.MAN_PARAMS,
+                    constraints);
+            return BufrUAPointDataTransform.toUAObsRecords(pdc);
+        } catch (VizException e) {
+            throw new RuntimeException("Error querying for sounding records: "
+                    + constraints, e);
         }
     }
 
