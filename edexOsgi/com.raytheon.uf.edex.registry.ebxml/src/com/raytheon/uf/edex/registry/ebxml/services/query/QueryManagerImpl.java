@@ -98,6 +98,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
  * Jun 24, 2013 2106       djohnson    Transaction must already be open.
+ * 9/5/2013     1538       bphillip    Removed log message
  * 
  * </pre>
  * 
@@ -548,8 +549,6 @@ public class QueryManagerImpl implements QueryManager {
     public QueryResponse executeQuery(ResponseOptionType responseOption,
             QueryType queryType, int depth, boolean matchOlderVersions,
             int maxResults, int startIndex) throws MsgRegistryException {
-        statusHandler
-                .info("Received internal request for query using specified values");
         QueryRequest queryRequest = EbxmlObjectUtil.queryObjectFactory
                 .createQueryRequest();
         queryRequest.setResponseOption(responseOption);

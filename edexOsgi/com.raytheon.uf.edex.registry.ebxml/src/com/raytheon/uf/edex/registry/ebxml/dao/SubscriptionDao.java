@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/13/2013    1082       bphillip    Initial creation
+ * 9/5/2013     1538       bphillip    Added eagerLoadAll method
  * 
  * </pre>
  * 
@@ -62,6 +63,34 @@ public class SubscriptionDao extends RegistryObjectTypeDao<SubscriptionType> {
      */
     public SubscriptionDao() throws JAXBException {
         subscriptionJaxbManager = new JAXBManager(SubscriptionType.class);
+    }
+
+    /**
+     * Eagerly loads all the registry subscriptions
+     * 
+     * @return All subscriptions in the registry
+     * @throws EbxmlRegistryException
+     *             If errors occur while querying
+     */
+    public List<SubscriptionType> eagerLoadAll() throws EbxmlRegistryException {
+        List<SubscriptionType> subs = this.template
+                .loadAll(SubscriptionType.class);
+        for (SubscriptionType sub : subs) {
+            try {
+                /*
+                 * FIXME: This is just a quick and dirty way of fully
+                 * initializing all the fields of the subscription. Since this
+                 * query happens relatively infrequently, having this operation
+                 * here does not pose any sort of performance penalty.
+                 * Obviously, a better solution needs to be devised in the
+                 * future
+                 */
+                subscriptionJaxbManager.marshalToXml(sub);
+            } catch (JAXBException e) {
+                throw new EbxmlRegistryException("Error initializing bean!", e);
+            }
+        }
+        return subs;
     }
 
     /**
