@@ -148,6 +148,14 @@ public class DbQueryRequest implements IServerRequest {
     @DynamicSerializeElement
     private Integer limit;
 
+    public DbQueryRequest() {
+        // For serialization
+    }
+
+    public DbQueryRequest(Map<String, RequestConstraint> constraints) {
+        setConstraints(new HashMap<String, RequestConstraint>(constraints));
+    }
+
     public String getDatabase() {
         return database;
     }

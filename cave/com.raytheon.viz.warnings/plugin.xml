@@ -37,11 +37,4 @@
             name="Warnings">
       </command>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="warning"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
 </plugin>

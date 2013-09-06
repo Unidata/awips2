@@ -10,15 +10,6 @@
             renderingOrderId="PLOT"
             resourceType="PLAN_VIEW"/>
    </extension>
-   <!--  already extended by raytheon's lightning resource
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="binlightning"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-   -->
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
       <nc-resource
