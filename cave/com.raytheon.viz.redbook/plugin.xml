@@ -38,13 +38,6 @@
       </resource>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="redbook"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-   <extension
          point="com.raytheon.uf.viz.productbrowser.dataDefinition">
          <dataDefinition
          	name="redbookProductBrowserDataDefinition"

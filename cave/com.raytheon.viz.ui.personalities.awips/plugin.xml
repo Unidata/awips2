@@ -41,18 +41,7 @@
          name="AWIPS" description="Command category for AWIPS">
 	  </category>
    </extension>
-   
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="bufr"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-      <scriptTemplate
-            pluginName="taf"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
+
    <extension
    		point="com.raytheon.uf.viz.core.component">
    		<component key="viz" class="com.raytheon.viz.ui.personalities.awips.CAVE"/>
