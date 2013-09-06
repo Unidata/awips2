@@ -32,13 +32,6 @@
             name="satBlendedResource"
             renderingOrderId="IMAGE_COUNTRY"/>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="satellite"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
    
    <extension
          point="com.raytheon.uf.viz.productbrowser.dataDefinition">
