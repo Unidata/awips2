@@ -123,13 +123,13 @@ if [ "${1}" = "-64bit" ]; then
 fi
 
 if [ "${1}" = "-rh6" ]; then
+   buildRPM "awips2-notification"
    buildRPM "awips2-common-base"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
    fi
    buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-notification"
    buildJava
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
@@ -150,6 +150,9 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-python-tpg"
    buildRPM "awips2-python-ufpy"
    buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-pygtk"
+   buildRPM "awips2-python-shapely"
    buildRPM "awips2-ant"
    buildRPM "awips2-tools"
    buildRPM "awips2-postgres"
