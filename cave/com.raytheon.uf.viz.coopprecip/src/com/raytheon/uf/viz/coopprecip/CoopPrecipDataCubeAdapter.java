@@ -43,7 +43,6 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -54,7 +53,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
- * TODO Add Description
+ * {@link IDataCubeAdapter} for coop precip data
  * 
  * <pre>
  * 
@@ -65,6 +64,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 3, 2010            bsteffen     Initial creation
  * Aug 14,2012   #1055    dgilling     Fix getData regression from
  *                                     fxatext schema changes.
+ * Sep  9, 2013  #2277    mschenke     Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -388,40 +388,35 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj)
             throws VizDataCubeException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
             String dataset) throws VizDataCubeException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
             String dataset) throws VizDataCubeException {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
-    public List<Object> getData(LayerProperty property, int timeOut)
+    public PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
             throws VizException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void initInventory() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public Object getInventory() {
-        // TODO Auto-generated method stub
         return null;
     }
 

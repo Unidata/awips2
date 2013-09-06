@@ -21,7 +21,6 @@ package com.raytheon.viz.pointdata.util;
 
 import java.awt.Point;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.measure.unit.SI;
@@ -42,7 +41,6 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wxmath.PToZsa;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -211,18 +209,12 @@ public class HeightOfRequestableData extends AbstractRequestableData {
      */
     private PluginDataObject loadPressureLevel(DataTime time)
             throws VizException {
-
-        LayerProperty lp = new LayerProperty();
-        lp.setNumberOfImages(1);
-        lp.setEntryQueryParameters(getConstraints(), false);
-        if (time != null) {
-            lp.setSelectedEntryTimes(new DataTime[] { time });
-        }
-        List<Object> resp = DataCubeContainer.getData(lp, 60000);
-        if (resp.isEmpty()) {
+        PluginDataObject[] pdos = DataCubeContainer.getData(getConstraints(),
+                time);
+        if (pdos == null || pdos.length == 0) {
             return null;
         }
-        PluginDataObject gribRec = (PluginDataObject) resp.get(0);
+        PluginDataObject gribRec = pdos[0];
         IDataRecord[] dr = DataCubeContainer.getDataRecord(gribRec);
         if (dr != null) {
             float[] data = (float[]) dr[0].getDataObject();

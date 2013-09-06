@@ -28,14 +28,7 @@
             renderingOrderId="CONTOUR"
             resourceType="PLAN_VIEW"/>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="qpf"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-      
+
    <extension
          point="com.raytheon.uf.viz.productbrowser.dataDefinition">
          <dataDefinition
