@@ -154,7 +154,7 @@ public class RegistryNotificationManager {
             SubscriptionNotificationListeners notificationListeners,
             final List<ObjectRefType> objectsOfInterest)
             throws EbxmlRegistryException {
-        int SIZE_LIMIT = 100;
+        int SIZE_LIMIT = 10;
 
         final List<NotificationListenerWrapper> listeners = notificationListeners.listeners;
         final SubscriptionType subscription = notificationListeners.subscription;
@@ -167,6 +167,7 @@ public class RegistryNotificationManager {
                 int subListCount = eventsOfInterest.size() / SIZE_LIMIT;
                 int lastListSize = eventsOfInterest.size() % SIZE_LIMIT;
                 for (int i = 0; i < subListCount; i++) {
+
                     NotificationType notification = getNotification(
                             subscription,
                             listener.address,
