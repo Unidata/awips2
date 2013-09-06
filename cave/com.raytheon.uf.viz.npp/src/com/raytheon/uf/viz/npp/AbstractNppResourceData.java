@@ -35,11 +35,9 @@ import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -100,23 +98,15 @@ public abstract class AbstractNppResourceData extends
         DataTime last = timesToLoad.get(timesToLoad.size() - 1);
         Map<String, RequestConstraint> requestMap = new HashMap<String, RequestConstraint>(
                 getMetadataMap());
-        RequestConstraint timeConst = new RequestConstraint();
-        timeConst.setConstraintType(ConstraintType.BETWEEN);
-        timeConst
-                .setBetweenValueList(new String[] {
-                        TimeUtil.formatToSqlTimestamp(first.getValidPeriod()
-                                .getStart()),
-                        TimeUtil.formatToSqlTimestamp(last.getValidPeriod()
-                                .getEnd()) });
-        requestMap.put("dataTime.refTime", timeConst);
+        requestMap.put(
+                "dataTime.refTime",
+                new RequestConstraint(TimeUtil.formatToSqlTimestamp(first
+                        .getValidPeriod().getStart()), TimeUtil
+                        .formatToSqlTimestamp(last.getValidPeriod().getEnd())));
 
-        LayerProperty property = new LayerProperty();
-        property.setEntryQueryParameters(requestMap, false);
-        property.setNumberOfImages(Integer.MAX_VALUE);
-
-        List<Object> pdos = DataCubeContainer.getData(property, 60000);
+        PluginDataObject[] pdos = DataCubeContainer.getData(requestMap);
         List<PluginDataObject> finalList = new ArrayList<PluginDataObject>(
-                pdos != null ? pdos.size() : 0);
+                pdos != null ? pdos.length : 0);
 
         if (pdos != null) {
             for (Object obj : pdos) {

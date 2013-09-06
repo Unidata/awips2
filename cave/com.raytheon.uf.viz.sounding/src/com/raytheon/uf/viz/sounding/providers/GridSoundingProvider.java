@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -69,7 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class GridSoundingProvider extends AbstractPDOVerticalSoundingProvider {
+public class GridSoundingProvider extends
+        AbstractVerticalSoundingProvider<PluginDataObject[]> {
 
     private static final String PARAM_TEMP = "T";
 
@@ -170,6 +172,26 @@ public class GridSoundingProvider extends AbstractPDOVerticalSoundingProvider {
                 "MB"));
         constraints.put(GridConstants.LEVEL_TWO,
                 new RequestConstraint(Level.getInvalidLevelValueAsString()));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.sounding.providers.AbstractVerticalSoundingProvider
+     * #queryForData(java.util.Map, com.raytheon.uf.common.time.DataTime,
+     * com.vividsolutions.jts.geom.Coordinate)
+     */
+    @Override
+    protected PluginDataObject[] queryForData(
+            Map<String, RequestConstraint> constraints, DataTime time,
+            Coordinate location) {
+        try {
+            return DataCubeContainer.getData(constraints, time);
+        } catch (VizException e) {
+            throw new RuntimeException("Error querying for sounding records: "
+                    + constraints, e);
+        }
     }
 
     /*
