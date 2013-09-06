@@ -223,7 +223,8 @@ public class CombinationsFileUtil {
         map.put("comboName", comboName);
         PythonScript python = null;
         try {
-            python = new PythonScript(scriptPath, comboPath);
+            python = new PythonScript(scriptPath, comboPath,
+                    CombinationsFileUtil.class.getClassLoader());
             Object com = python.execute("getCombinations", map);
             combos = (List<List<String>>) com;
         } catch (JepException e) {
