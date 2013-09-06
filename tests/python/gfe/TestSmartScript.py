@@ -34,23 +34,36 @@ idxKL = ["<None>", "one", "two", "three"]
 discreteGrid = (idxA, idxKL)
 
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DByte
-from com.raytheon.viz.gfe.ui.runtimeui import TestSmartScript
 
 numpyByteArray = np.ones((3,3), dtype=np.byte)
 dimx = 3
 dimy = 3
 
-def testGetGridShape():
+def testGetGridShape(dataMgr):
+    smartScript = SmartScript.SmartScript(dataMgr)
     valueExpected = (145, 145)
     valueObtained = smartScript.getGridShape()
     if not valueExpected==valueObtained:
         print "valueObtained =", valueObtained
     return (valueExpected==valueObtained)
 
-def testGetGridInfo(model, element, level, timeRange, mostRecentModel=0):
+def testGetGridInfo(dataMgr, model, element, level, timeRange, mostRecentModel=0):
+    smartScript = SmartScript.SmartScript(dataMgr)
     rtnInfo = smartScript.getGridInfo(model, element, level, timeRange, mostRecentModel)
     if rtnInfo is not None:
         gridTime = rtnInfo[0].gridTime()
         if gridTime is None:
             raise RuntimeError, "gridTime is None"
     return True
+
+def testSortUglyStr(dataMgr, uglyStr):
+    smartScript = SmartScript.SmartScript(dataMgr)
+    return smartScript.sortUglyStr(uglyStr)
+
+def testGetIndex(dataMgr, keyList, uglyStr):
+    smartScript = SmartScript.SmartScript(dataMgr)
+    return smartScript.getIndex(uglyStr, keyList)
+
+def getParm(dataMgr, model, element, level):
+    smartScript = SmartScript.SmartScript(dataMgr)
+    return smartScript.getParm(model, element, level)
