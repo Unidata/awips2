@@ -5,4 +5,5 @@ Bundle-SymbolicName: org.w3.xmlschema
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.w3.xmlschema
+Bundle-ClassPath: org.w3.XMLSchema.jar
 
