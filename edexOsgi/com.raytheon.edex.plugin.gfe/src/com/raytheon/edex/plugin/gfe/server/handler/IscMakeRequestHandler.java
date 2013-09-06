@@ -61,6 +61,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 08/21/09      1995       bphillip    Initial port
  * 09/22/09      3058       rjpeter     Converted to IRequestHandler
  * 03/07/13      1759       dgilling    Refactor to not use GfeScript.
+ * 09/05/13      2307       dgilling    Use better PythonScript constructor.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -132,7 +134,8 @@ public class IscMakeRequestHandler implements IRequestHandler<IscMakeRequest> {
                 try {
                     PythonScript script = null;
                     try {
-                        script = new PythonScript(scriptPath, includePath);
+                        script = new PythonScript(scriptPath, includePath,
+                                IscMakeRequestHandler.class.getClassLoader());
                         try {
                             script.execute(METHOD_NAME, args);
                         } catch (JepException e) {
