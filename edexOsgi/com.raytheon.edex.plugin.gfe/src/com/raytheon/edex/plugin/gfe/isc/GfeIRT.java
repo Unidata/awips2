@@ -60,6 +60,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * 07/14/09     1995       bphillip    Initial creation
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * 06/13/13     2044       randerso    Refactored to use IFPServer
+ * Sep 05, 2013 2307       dgilling    Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -132,7 +133,8 @@ public class GfeIRT extends Thread {
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath(),
                     GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
-            script = new PythonScript(scriptFile, includePath);
+            script = new PythonScript(scriptFile, includePath, this.getClass()
+                    .getClassLoader());
             Map<String, Object> args = new HashMap<String, Object>();
 
             GridLocation domain = config.dbDomain();
