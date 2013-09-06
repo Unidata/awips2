@@ -32,7 +32,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -44,7 +43,6 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
@@ -568,21 +566,8 @@ public abstract class AbstractWWAResource extends
 
         earliestRequested = earliest;
 
-        LayerProperty property = new LayerProperty();
-        property.setDesiredProduct(ResourceType.PLAN_VIEW);
-        property.setEntryQueryParameters(map, false);
-        property.setNumberOfImages(9999);
-
-        Object[] resp = null;
-        resp = DataCubeContainer.getData(property, 60000).toArray(
-                new Object[] {});
-        PluginDataObject[] arr = new PluginDataObject[resp.length];
-        int i = 0;
-        for (Object o : resp) {
-            arr[i] = (PluginDataObject) o;
-            i++;
-        }
-        addRecord(sort(arr));
+        PluginDataObject[] pdos = DataCubeContainer.getData(map);
+        addRecord(sort(pdos));
     }
 
     protected String[] getText(AbstractWarningRecord record, double mapWidth) {
