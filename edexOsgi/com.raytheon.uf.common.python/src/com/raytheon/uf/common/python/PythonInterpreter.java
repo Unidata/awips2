@@ -32,7 +32,9 @@ import jep.JepException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 7, 2009            njensen     Initial creation
+ * Dec 07, 2009            njensen     Initial creation
+ * Sep 05, 2013  #2307     dgilling    Remove constructor without explicit
+ *                                     ClassLoader.
  * 
  * </pre>
  * 
@@ -48,22 +50,6 @@ public abstract class PythonInterpreter {
             + "         g[i] = None\n\n";
 
     protected Jep jep;
-
-    /**
-     * Constructor
-     * 
-     * @param aFilePath
-     *            the path to the python script
-     * @param anIncludePath
-     *            the python include path, with multiple directories being
-     *            separated by :
-     * @throws JepException
-     */
-    public PythonInterpreter(String aFilePath, String anIncludePath)
-            throws JepException {
-        jep = new Jep(false, anIncludePath);
-        initializeJep(aFilePath, null);
-    }
 
     /**
      * Constructor
