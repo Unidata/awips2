@@ -19,16 +19,23 @@
  **/
 package com.raytheon.viz.gfe.ui.runtimeui;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import jep.JepException;
-import junit.framework.TestCase;
 
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.localization.PathManagerFactoryTest;
+import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.time.TimeRange;
 
@@ -39,65 +46,51 @@ import com.raytheon.uf.common.time.TimeRange;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 1, 2008            wdougherty     Initial creation
+ * Aug 01, 2008            wdougherty   Initial creation
+ * Sep 05, 2013  #2307     dgilling     Fix test case.
  * </pre>
  * 
  * @author wdougherty
  * @version 1.0
  */
 
-// TODO fix?
-@Ignore
-public class TestAbsTime extends TestCase {
+public class TestAbsTime {
 
-    protected static final String testScriptName = "ROOT/build/static/common/cave/etc/gfe/userPython/tests/TestAbsTime.py";
+    private static final File SCRIPT_FILE = new File(
+            "./python/gfe/TestAbsTime.py");
 
-    protected static final String smartScriptPath = "ROOT/build/static/common/cave/etc/gfe/userPython/utilities"
-            + ":ROOT/build"
-            + ":ROOT/AWIPSEdex/opt/utility/common_static/base/python/gfe"
-            + ":ROOT/AWIPSEdex/opt/utility/common_static/base/python"
-            + ":ROOT/AWIPSEdex/extensions/plugin-gfe/src";
+    private PythonScript testScript = null;
 
-    PythonScript testScript;
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        PathManagerFactoryTest.initLocalization();
+    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-    @Override
+    @Before
     public void setUp() throws Exception {
+        String includePath = PyUtil.buildJepIncludePath(
+                GfePyIncludeUtil.getCommonPythonIncludePath(),
+                GfePyIncludeUtil.getCommonGfeIncludePath(),
+                GfePyIncludeUtil.getUtilitiesIncludePath());
+
         try {
-            // Set up an interpreter that can run Python with Java classes.
-            // Hopefully, using user.home will make this portable to any
-            // developer.
-            String root = System.getProperty("user.home") + File.separator
-                    + "workspace";
-
-            testScript = new PythonScript(testScriptName.replaceAll("ROOT",
-                    root), smartScriptPath.replaceAll("ROOT", root));
-
+            testScript = new PythonScript(SCRIPT_FILE.getPath(), includePath,
+                    this.getClass().getClassLoader());
         } catch (JepException e) {
             throw new Exception(e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#tearDown()
-     */
-    @Override
-    public void tearDown() {
-        // Free any resources the previous interpreter used.
-        testScript.dispose();
+    @After
+    public void tearDown() throws Exception {
+        if (testScript != null) {
+            testScript.dispose();
+        }
     }
 
-    /**
-     * @throws Exception
-     */
+    @Test
     public void testAbsTimeZero() throws Exception {
-        Map<String, Object> emptyMap = new HashMap<String, Object>();
+        Map<String, Object> emptyMap = Collections.emptyMap();
         try {
             Date now = new Date();
             // AbsTime truncates to the nearest second. Wait one second

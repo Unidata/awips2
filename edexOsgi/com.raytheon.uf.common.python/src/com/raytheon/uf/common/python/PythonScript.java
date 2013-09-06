@@ -57,6 +57,8 @@ import jep.JepException;
  * Sep 18, 2009   2899     njensen     Added cProfile support
  * Dec 7, 2009    3310     njensen     Separated some functionality up to PythonInterpreter
  * Jun 26, 2012   #776     dgilling    Fix leaking of global names.
+ * Sep 05, 2013   #2307    dgilling    Remove constructor without explicit
+ *                                     ClassLoader.
  * 
  * </pre>
  * 
@@ -69,21 +71,6 @@ public class PythonScript extends PythonInterpreter {
     protected static final String RESULT = "__result";
 
     protected boolean profile = false;
-
-    /**
-     * Constructor
-     * 
-     * @param aFilePath
-     *            the path to the python script
-     * @param anIncludePath
-     *            the python include path, with multiple directories being
-     *            separated by :
-     * @throws JepException
-     */
-    public PythonScript(String aFilePath, String anIncludePath)
-            throws JepException {
-        super(aFilePath, anIncludePath);
-    }
 
     /**
      * Constructor

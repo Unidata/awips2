@@ -97,6 +97,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 04/24/2013    1936      dgilling    Move initialization of TextProductMgr
  *                                     to GFE startup.
  * 08/27/2013    2302      randerso    Code cleanup for AutoSaveJob
+ * 09/05/2013    2307      dgilling    Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -570,7 +571,7 @@ public class DataManager {
                     .getFile(
                             pathMgr.getContext(LocalizationType.COMMON_STATIC,
                                     LocalizationLevel.BASE), "python")
-                    .getPath()));
+                    .getPath()), this.getClass().getClassLoader());
             Map<String, Object> args = new HashMap<String, Object>();
             args.put("str", response.get(1));
             Map<String, ?> obj = (Map<String, ?>) script.execute("unPickle",
