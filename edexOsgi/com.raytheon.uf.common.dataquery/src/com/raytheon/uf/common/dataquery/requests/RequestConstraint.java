@@ -120,7 +120,11 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
      * Constructor
      */
     public RequestConstraint() {
-        this.constraintType = ConstraintType.EQUALS;
+        this(ConstraintType.EQUALS);
+    }
+
+    public RequestConstraint(ConstraintType constraintType) {
+        this.constraintType = constraintType;
         this.asMap = new HashMap<Class<?>, Object>();
     }
 
@@ -144,6 +148,39 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
     public RequestConstraint(String value, ConstraintType type) {
         this(value);
         this.constraintType = type;
+    }
+
+    /**
+     * Creates a {@link RequestConstraint} with {@link ConstraintType#IN} with
+     * inConstraints set as the {@link #setConstraintValueList(Collection)}
+     * 
+     * @param inConstraints
+     */
+    public RequestConstraint(Collection<String> inConstraints) {
+        this(ConstraintType.IN);
+        setConstraintValueList(inConstraints);
+    }
+
+    /**
+     * Creates a {@link RequestConstraint} with {@link ConstraintType#IN} with
+     * inConstraints set as the {@link #setConstraintValueList(String[])}
+     * 
+     * @param inConstraints
+     */
+    public RequestConstraint(String[] inConstraints) {
+        this(ConstraintType.IN);
+        setConstraintValueList(inConstraints);
+    }
+
+    /**
+     * Creates a {@link RequestConstraint} with {@link ConstraintType#BETWEEN}
+     * 
+     * @param low
+     * @param high
+     */
+    public RequestConstraint(String low, String high) {
+        this(ConstraintType.BETWEEN);
+        setBetweenValueList(new String[] { low, high });
     }
 
     @Override

@@ -118,6 +118,10 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     private static final long serialVersionUID = 1L;
 
+    public static final String PLUGIN_NAME_ID = "pluginName";
+
+    public static final String DATATIME_ID = "dataTime";
+
     public static final String ID_GEN = "idgen";
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
