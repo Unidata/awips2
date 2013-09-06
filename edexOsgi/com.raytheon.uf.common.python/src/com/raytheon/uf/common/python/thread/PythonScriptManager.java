@@ -34,11 +34,27 @@ import com.raytheon.uf.common.python.PythonScript;
  * through invariant ScriptRequest objects in a concurrent queue. Output from
  * the scripts is through a concurrent Map based on the id from the
  * ScriptRequest.
- * 
- * Why? Currently there are problems when a python script that includes pupynere
- * is disposed of in edex such as leaked memory and errors reloading the library
+ * <p>
+ * Why? Currently there are problems when a python script that includes numpy is
+ * disposed of in edex such as leaked memory and errors reloading the library
  * again.
+ * <p>
+ * Instead of using this class it is recommended that developers instead use
+ * {@link PythonJobCoordinator#newInstance(AbstractPythonScriptFactory<S>)}
+ * instead to provide multi-threaded Python execution to their code.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 05, 2013  #2307     dgilling     Use better PythonScript constructor,
+ *                                      mark as Deprecated.
+ * 
+ * </pre>
  */
+@Deprecated
 public class PythonScriptManager {
 
     private static final Object NullScriptResult = new Object();
@@ -104,7 +120,8 @@ public class PythonScriptManager {
             public void run() {
                 PythonScript script;
                 try {
-                    script = new PythonScript(scriptPath, pythonIncludePath);
+                    script = new PythonScript(scriptPath, pythonIncludePath,
+                            this.getClass().getClassLoader());
                 } catch (JepException e1) {
                     throw new RuntimeException("Failed to initialize script: "
                             + scriptPath);
