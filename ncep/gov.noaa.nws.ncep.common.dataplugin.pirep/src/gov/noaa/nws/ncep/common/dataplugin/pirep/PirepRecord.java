@@ -5,8 +5,6 @@ package gov.noaa.nws.ncep.common.dataplugin.pirep;
  * NOAA/NWS/NCEP/NCO in order to output point data in HDF5.
  **/
 
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -49,6 +47,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -234,7 +233,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlElement
     @DynamicSerializeElement
     // private Integer horzVisibility;
-    private Integer horzVisibility = IDecoderConstantsN.INTEGER_MISSING; // -9999
+    private Integer horzVisibility = IDecoderConstants.VAL_MISSING; // -9999
 
     @Transient
     @XmlElement
