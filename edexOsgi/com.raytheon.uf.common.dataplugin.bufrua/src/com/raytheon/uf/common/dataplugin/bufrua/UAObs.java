@@ -108,7 +108,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "bufrua", indexes = { @Index(name = "bufrua_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = UAObs.PLUGIN_NAME, indexes = { @Index(name = "bufrua_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -136,6 +136,8 @@ public class UAObs extends PersistablePluginDataObject implements
             return compValue;
         }
     };
+
+    public static final String PLUGIN_NAME = "bufrua";
 
     public static final Unit<Length> DISTANCE_UNIT = SI.METER;
 

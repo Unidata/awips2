@@ -85,38 +85,6 @@
                scriptLibrary="UARequest">
          </scriptTemplate>
          <scriptTemplate
-               pluginName="bufrssmi"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="goessounding"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="poessounding"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="acarssounding"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="pirep"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="bufrhdw"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="airep"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="acars"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
                pluginName="profiler"
                scriptLibrary="ProfilerRequest">
          </scriptTemplate>

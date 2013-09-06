@@ -45,7 +45,6 @@ import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -309,20 +308,14 @@ public class HydroDisplayManager {
                     + rfc));
 
             try {
-                LayerProperty lp = new LayerProperty();
-                lp.setNumberOfImages(9999);
-                lp.setEntryQueryParameters(reqMap, false);
-
-                List<Object> dataList = DataCubeContainer.getData(lp, 30);
+                PluginDataObject[] pdos = DataCubeContainer.getData(reqMap);
                 GridRecord gr = null;
-                int i = 0;
-                for (Object o : dataList) {
-                    gr = (GridRecord) o;
-                    IDataRecord[] recArr = DataCubeContainer
-                            .getDataRecord((PluginDataObject) o);
+                for (PluginDataObject pdo : pdos) {
+                    gr = (GridRecord) pdo;
+                    IDataRecord[] recArr = DataCubeContainer.getDataRecord(gr);
                     gr.setMessageData(((FloatDataRecord) recArr[0])
                             .getFloatData());
-                    ++i;
+                    break;
                 }
 
                 FFGGridResourceData resourceData = new FFGGridResourceData(
@@ -477,20 +470,14 @@ public class HydroDisplayManager {
                     + rfc));
 
             try {
-                LayerProperty lp = new LayerProperty();
-                lp.setNumberOfImages(9999);
-                lp.setEntryQueryParameters(reqMap, false);
-
-                List<Object> dataList = DataCubeContainer.getData(lp, 30);
+                PluginDataObject[] pdos = DataCubeContainer.getData(reqMap);
                 GridRecord gr = null;
-                int i = 0;
-                for (Object o : dataList) {
-                    gr = (GridRecord) o;
-                    IDataRecord[] recArr = DataCubeContainer
-                            .getDataRecord((PluginDataObject) o);
+                for (PluginDataObject pdo : pdos) {
+                    gr = (GridRecord) pdo;
+                    IDataRecord[] recArr = DataCubeContainer.getDataRecord(gr);
                     gr.setMessageData(((FloatDataRecord) recArr[0])
                             .getFloatData());
-                    ++i;
+                    break;
                 }
 
                 RFCGriddedBasinFFGResourceData resourceData = new RFCGriddedBasinFFGResourceData(
