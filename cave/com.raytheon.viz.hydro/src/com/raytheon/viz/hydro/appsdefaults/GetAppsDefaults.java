@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2011            mpduff     Initial creation
  * Dec 07, 2012 1353       rferrel    Make dialog non-blocking.
+ * 09 Sep 2013  #2349      lvenable   Fixed Font memory leak.
  * 
  * </pre>
  * 
@@ -166,6 +167,14 @@ public class GetAppsDefaults extends CaveSWTDialog {
                 close();
             }
         });
+    }
+
+    @Override
+    protected void disposed() {
+        if (font != null) {
+            font.dispose();
+            font = null;
+        }
     }
 
     private void gad() {
