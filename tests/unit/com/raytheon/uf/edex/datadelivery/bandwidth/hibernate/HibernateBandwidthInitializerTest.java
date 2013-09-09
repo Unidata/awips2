@@ -23,11 +23,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.edex.core.props.EnvAttributePropertyInjector;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
@@ -44,6 +46,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Feb 18, 2013 1543       djohnson     Initial creation
  * Apr 18, 2013 1914       djohnson     Fix broken test.
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager}.
+ * Sep 06, 2013 2344       bgonzale     Added property injection of valid test value.
  * 
  * </pre>
  * 
@@ -52,11 +55,19 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  */
 public class HibernateBandwidthInitializerTest {
 
+    @Before
+    public void setup() {
+        System.setProperty("edex.home", "../edexOsgi/build.edex/esb/");
+        EnvAttributePropertyInjector.injectAttributeProperty("SITENAME",
+                "sitename", "OAX");
+    }
+
     @Test
     public void testSchedulesAllSubscriptionReturnedFromIFindSubscriptions()
             throws Exception {
         final Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
+        subscription.addOfficeID("OAX");
         IFindSubscriptionsForScheduling strategy = mock(IFindSubscriptionsForScheduling.class);
         when(strategy.findSubscriptionsToSchedule()).thenReturn(
                 Sets.newHashSet(subscription));
