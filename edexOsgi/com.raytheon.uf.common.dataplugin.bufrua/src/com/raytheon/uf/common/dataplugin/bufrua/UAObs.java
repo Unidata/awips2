@@ -103,7 +103,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufruaseq")
-@Table(name = "bufrua", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = UAObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -850,36 +850,6 @@ public class UAObs extends PersistablePluginDataObject implements
         return wmoHeader;
     }
 
-    public static final void main(String[] args) {
-
-        List<UAObs> obsList = new ArrayList<UAObs>();
-        UAObs obsA = new UAObs();
-        obsA.setWmoHeader("IUSZ42 KWBC 271845 CCA");
-        obsList.add(obsA);
-        UAObs obsB = new UAObs();
-        obsB.setWmoHeader("IUSZ42 KWBC 271835 CCA");
-        obsList.add(obsB);
-        UAObs obs = new UAObs();
-        obs.setWmoHeader("IUSZ42 KWBC 271815");
-        obsList.add(obs);
-        obs = new UAObs();
-        obs.setWmoHeader("IUSZ42 KWBC 271825 CCA");
-        obsList.add(obs);
-
-        System.out.println(obsList);
-        obsList = sortByCorrection(obsList);
-        System.out.println(obsList);
-
-        int c = UAObs.getCorComparator().compare(obsA, obsB);
-        System.out.println(c);
-
-        UAObs test = new UAObs(
-                "/bufrua/2011-10-07_00:00:00.0/2022/null/IUSZ52_KWBC_070040/72634/44.90833/-84.71944");
-
-        System.out.println(test.dataURI);
-
-    }
-
     @Override
     @Column
     @Access(AccessType.PROPERTY)
@@ -889,6 +859,6 @@ public class UAObs extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "bufrua";
+        return PLUGIN_NAME;
     }
 }
