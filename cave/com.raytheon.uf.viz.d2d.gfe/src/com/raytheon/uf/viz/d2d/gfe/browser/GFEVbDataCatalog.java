@@ -36,7 +36,6 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -85,15 +84,20 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
 
     @Override
     public IDataCatalogEntry getCatalogEntry(SelectedData selectedData) {
-        HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(GFEDataAccessUtil.PLUGIN_NAME, new RequestConstraint("gfe"));
+        Map<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
+        queryList.put(GFEDataAccessUtil.PLUGIN_NAME, new RequestConstraint(
+                GFERecord.PLUGIN_NAME));
         queryList.putAll(getParmIdConstraint(selectedData));
         try {
-            String[] result = CatalogQuery.performQuery(GFEDataAccessUtil.PARM_ID,
-                    queryList);
-            if (result != null && result.length > 0) {
-                ParmID sampleId = new ParmID(result[0]);
-                return new GFECatalogEntry(selectedData, sampleId);
+            DbQueryRequest request = new DbQueryRequest(queryList);
+            request.addRequestField(GFEDataAccessUtil.PARM_ID);
+            request.setLimit(1);
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            ParmID[] results = response.getFieldObjects(
+                    GFEDataAccessUtil.PARM_ID, ParmID.class);
+            if (results.length > 0) {
+                return new GFECatalogEntry(selectedData, results[0]);
             } else {
                 return null;
             }
@@ -289,32 +293,32 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
                 styleType = StyleManager.StyleType.ARROW;
             }
 
-            sr = StyleManager.getInstance().getStyleRule(styleType,
-                    criteria);
+            sr = StyleManager.getInstance().getStyleRule(styleType, criteria);
         } catch (VizStyleException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Unable to obtain a style rule for"
-                                    + catalogEntry.getSelectedData()
-                                            .getUniqueKey(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to obtain a style rule for"
+                            + catalogEntry.getSelectedData().getUniqueKey(), e);
         }
         if (sr != null) {
             return sr.getPreferences().getDisplayUnitLabel();
         } else {
             try {
                 return UnitFormat.getUCUMInstance().format(
-                        GFEDataAccessUtil.getGridParmInfo(sampleId).getUnitObject());
+                        GFEDataAccessUtil.getGridParmInfo(sampleId)
+                                .getUnitObject());
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to obtain a unit information for"
-                                + catalogEntry.getSelectedData()
-                                        .getUniqueKey(), e);
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Unable to obtain a unit information for"
+                                        + catalogEntry.getSelectedData()
+                                                .getUniqueKey(), e);
                 return "";
             }
         }
     }
 
-    private Map<String, RequestConstraint> getParmIdConstraint(SelectedData selectedData) {
+    private Map<String, RequestConstraint> getParmIdConstraint(
+            SelectedData selectedData) {
         String parmName = VbGFEMapping.getGfeParam(selectedData.getFieldsKey());
         String parmLevel = VbGFEMapping
                 .getGfeLevel(selectedData.getPlanesKey());
