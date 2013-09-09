@@ -88,6 +88,15 @@ public class ProviderKeyRequestHandler implements
                 request.setProvider(provider);
                 request.setStatus(Status.SUCCESS);
             }
+        } else if (request.getRequestType() == RequestType.DELETE) {
+            ProviderCredentials creds = new ProviderCredentials(
+                    request.getProvider(), request.getProviderKey());
+            creds = ProviderCredentialsUtil.deleteCredentials(creds);
+
+            request.setStatus(creds.getStatus());
+            if (creds.getStatus() == Status.FAILURE) {
+                request.setMessage(creds.getMessage());
+            }
         }
 
         return request;
