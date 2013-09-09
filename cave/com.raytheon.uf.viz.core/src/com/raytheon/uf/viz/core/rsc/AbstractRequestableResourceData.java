@@ -40,9 +40,10 @@ import org.apache.commons.lang.Validate;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -51,7 +52,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AbstractAlertMessageParser;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
@@ -86,6 +86,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Mar 29, 2013 1638       mschenke    Switched to create PDO from dataURI
  *                                     mapping instead of dataURI string
  * May 14, 2013 1869       bsteffen    Get dataURI map directly from PDO.
+ * Sep  9, 2013 2277       mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -117,14 +118,22 @@ public abstract class AbstractRequestableResourceData extends
             Object objectToSend = null;
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
-            attribs.put("dataURI", message.dataURI);
 
             if (reqResourceData.isUpdatingOnMetadataOnly()) {
                 PluginDataObject record = RecordFactory.getInstance()
                         .loadRecordFromMap(attribs);
                 objectToSend = record;
             } else {
-                objectToSend = Loader.loadData(attribs);
+                DbQueryRequest request = new DbQueryRequest(
+                        RequestConstraint.toConstraintMapping(attribs));
+                request.setLimit(1);
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
+                PluginDataObject[] pdos = response
+                        .getEntityObjects(PluginDataObject.class);
+                if (pdos.length > 0) {
+                    objectToSend = pdos[0];
+                }
             }
             return objectToSend;
         }
