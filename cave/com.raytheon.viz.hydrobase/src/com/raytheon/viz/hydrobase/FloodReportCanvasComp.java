@@ -28,6 +28,8 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -54,6 +56,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008	2259    	lvenable	Initial creation
+ * 09 Sep 2013  #2346       lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -87,7 +90,7 @@ public class FloodReportCanvasComp {
      * Canvas composite containing the 2 canvases.
      */
     private Composite canvasComp;
-    
+
     /**
      * The scrolling composite that holds the graph
      */
@@ -112,10 +115,10 @@ public class FloodReportCanvasComp {
      * Graph canvas width.
      */
     private final int CANVAS_WIDTH = 350;
-    
+
     /** Pixels per hour */
     private final int PIXELS_PER_HOUR = 7;
-    
+
     /**
      * Scrolled composite height.
      */
@@ -184,16 +187,16 @@ public class FloodReportCanvasComp {
 
     /** Flood Stage */
     private double fs = 0;
-    
+
     /**
      * Calculated width of the graph canvas
      */
     private int canvasWidth = CANVAS_WIDTH;
-    
+
     private long zeroTime = 0;
-    
+
     private long lastTime = 0;
-    
+
     /**
      * Constructor.
      * 
@@ -209,8 +212,9 @@ public class FloodReportCanvasComp {
         gl.horizontalSpacing = 0;
         canvasComp.setLayout(gl);
 
-        crossHairCursor = new Cursor(parentComp.getDisplay(), SWT.CURSOR_CROSS);
-        arrowCursor = new Cursor(parentComp.getDisplay(), SWT.CURSOR_ARROW);
+        crossHairCursor = parentComp.getDisplay().getSystemCursor(
+                SWT.CURSOR_CROSS);
+        arrowCursor = parentComp.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
 
         setupLabelCanvas();
         setupGraphCanvas();
@@ -218,11 +222,22 @@ public class FloodReportCanvasComp {
         /* Graph Area Rectangle */
         // Set to 1 to prevent cross hairs from staying on
         // graph after mouse has left the area
-        graphAreaRectangle = new Rectangle(1, 0, SCROLLED_COMP_WIDTH, CANVAS_HEIGHT
-                - BOTTOM_OFFSET);
+        graphAreaRectangle = new Rectangle(1, 0, SCROLLED_COMP_WIDTH,
+                CANVAS_HEIGHT - BOTTOM_OFFSET);
 
         canvasFont = new Font(parentComp.getDisplay(), "Monospace", 10,
                 SWT.NORMAL);
+
+        parentComp.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (canvasFont != null) {
+                    canvasFont.dispose();
+                    canvasFont = null;
+                }
+            }
+        });
     }
 
     /**
@@ -249,8 +264,8 @@ public class FloodReportCanvasComp {
      * Setup the graph canvas.
      */
     private void setupGraphCanvas() {
-        scrolledComp = new ScrolledComposite(canvasComp,
-                SWT.H_SCROLL | SWT.V_SCROLL);
+        scrolledComp = new ScrolledComposite(canvasComp, SWT.H_SCROLL
+                | SWT.V_SCROLL);
         GridLayout gl = new GridLayout(1, false);
         scrolledComp.setLayout(gl);
         GridData gd = new GridData(SCROLLED_COMP_WIDTH, SCROLLED_COMP_HEIGHT);
@@ -261,8 +276,8 @@ public class FloodReportCanvasComp {
         gd.heightHint = CANVAS_HEIGHT;
         gd.widthHint = CANVAS_WIDTH;
 
-        graphCanvas.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);        
-        
+        graphCanvas.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+
         graphCanvas.setLayoutData(gd);
         graphCanvas.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
@@ -276,16 +291,16 @@ public class FloodReportCanvasComp {
                 handleMouseMoveEvent(e);
             }
         });
-        
+
         graphCanvas.addListener(SWT.MouseExit, new Listener() {
 
             @Override
             public void handleEvent(Event e) {
                 handleMouseExitEvent(e);
             }
-            
+
         });
-        
+
         scrolledComp.setContent(graphCanvas);
     }
 
@@ -432,38 +447,37 @@ public class FloodReportCanvasComp {
     /**
      * Get the pixel value corresponding to the date
      * 
-     * @param date The date to convert to pixel value
-     * @return
-     *      The pixel value
+     * @param date
+     *            The date to convert to pixel value
+     * @return The pixel value
      */
     private int x2pixel(Date date) {
         double millisPerPixel = (60 * 60 * 1000) / PIXELS_PER_HOUR;
         double xValue = (date.getTime() - zeroTime) / millisPerPixel;
         return (int) Math.round(xValue);
     }
-    
+
     /**
-     * Get the Date (X) value corresponding to the pixel value
-     * passed in
+     * Get the Date (X) value corresponding to the pixel value passed in
      * 
-     * @param xpix The pixel value to convert to Date
+     * @param xpix
+     *            The pixel value to convert to Date
      * 
-     * @return
-     *      The date corresponding to the pixel value
+     * @return The date corresponding to the pixel value
      */
     private Date pixel2x(int xpix) {
         double millisPerPixel = (60 * 60 * 1000) / PIXELS_PER_HOUR;
         double millisTime = xpix * millisPerPixel + zeroTime;
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTimeInMillis((long)millisTime);
+        cal.setTimeInMillis((long) millisTime);
         if (cal.get(Calendar.SECOND) >= 30) {
             cal.add(Calendar.MINUTE, 1);
         }
         cal.set(Calendar.SECOND, 0);
-        
+
         return cal.getTime();
     }
-    
+
     /**
      * convert real Y value to pixel value.
      * 
@@ -475,7 +489,8 @@ public class FloodReportCanvasComp {
      */
     private int y2pixel(double y) {
         double yDiff = this.maxY - this.minY;
-        double yValue = ((CANVAS_HEIGHT - BOTTOM_OFFSET - TOP_OFFSET)/ yDiff) * (y - minY);
+        double yValue = ((CANVAS_HEIGHT - BOTTOM_OFFSET - TOP_OFFSET) / yDiff)
+                * (y - minY);
 
         return (int) ((CANVAS_HEIGHT - BOTTOM_OFFSET) - Math.round(yValue));
     }
@@ -491,7 +506,8 @@ public class FloodReportCanvasComp {
      */
     private double pixel2y(int ypix) {
         double ydiff = maxY - minY;
-        double pixPerUnit = (CANVAS_HEIGHT - BOTTOM_OFFSET - TOP_OFFSET) / ydiff;
+        double pixPerUnit = (CANVAS_HEIGHT - BOTTOM_OFFSET - TOP_OFFSET)
+                / ydiff;
 
         return (maxY - ((ypix - TOP_OFFSET) / pixPerUnit));
     }
@@ -582,19 +598,19 @@ public class FloodReportCanvasComp {
                     gc.drawString("00Z", x - 5, y + 15);
 
                     /* Draw the month/day text. */
-                    gc.drawString(String.format(format,
-                            c.get(Calendar.MONTH) + 1)
-                            + "/"
-                            + String.format(format, c
-                                    .get(Calendar.DAY_OF_MONTH)), x - 19,
-                            y + 28);
+                    gc.drawString(
+                            String.format(format, c.get(Calendar.MONTH) + 1)
+                                    + "/"
+                                    + String.format(format,
+                                            c.get(Calendar.DAY_OF_MONTH)),
+                            x - 19, y + 28);
                 } else { /* just a regular 6 hour period */
                     /* Draw the hour text */
                     gc.drawString(c.get(Calendar.HOUR_OF_DAY) + "", x - 5,
                             y + 15);
                 }
             }
-            
+
             x += PIXELS_PER_HOUR;
         }
     }
@@ -636,7 +652,7 @@ public class FloodReportCanvasComp {
 
         gc.setLineWidth(lineWidth);
     }
-    
+
     /**
      * Reset the graph canvas
      */
@@ -647,7 +663,7 @@ public class FloodReportCanvasComp {
         Date endDate = (Date) floodData.get(floodData.size() - 1)[1];
         long start = startDate.getTime() - HydroConstants.MILLIS_PER_DAY;
         long end = endDate.getTime() + HydroConstants.MILLIS_PER_DAY;
-        
+
         TimeZone gmt = TimeZone.getTimeZone("GMT");
         Calendar startCal = Calendar.getInstance();
         startCal.setTimeZone(gmt);
@@ -667,28 +683,29 @@ public class FloodReportCanvasComp {
         this.zeroTime = startCal.getTimeInMillis();
         this.lastTime = endCal.getTimeInMillis();
 
-        int hours = (int) ((lastTime - zeroTime)/HydroConstants.MILLIS_PER_HOUR);
+        int hours = (int) ((lastTime - zeroTime) / HydroConstants.MILLIS_PER_HOUR);
         // 1 hour border at the right
         canvasWidth = hours * PIXELS_PER_HOUR - PIXELS_PER_HOUR;
         if (canvasWidth < CANVAS_WIDTH) {
             canvasWidth = CANVAS_WIDTH - PIXELS_PER_HOUR;
         }
-        
+
         graphAreaRectangle = new Rectangle(1, 0, canvasWidth, CANVAS_HEIGHT
                 - BOTTOM_OFFSET);
 
-        graphCanvas.setSize(canvasWidth, CANVAS_HEIGHT);        
+        graphCanvas.setSize(canvasWidth, CANVAS_HEIGHT);
         graphCanvas.layout();
         labelCanvas.layout();
         canvasComp.layout();
     }
-    
+
     private void getFloodData() {
         FloodReportDataManager dman = FloodReportDataManager.getInstance();
         Map<String, FloodReportData> dataMap = dman.getReportData();
         FloodReportData data = dataMap.get(selectedKey);
-        
-        floodData = dman.getFloodEventData(data.getLid(), data.getFloodEventId());
+
+        floodData = dman.getFloodEventData(data.getLid(),
+                data.getFloodEventId());
     }
 
     /**
@@ -699,7 +716,8 @@ public class FloodReportCanvasComp {
         String display = sdf.format(date);
 
         double y = pixel2y(currentY);
-        parentDlg.setStageLbl(String.format("Stage:  %6.2f at %s Z", y, display));
+        parentDlg.setStageLbl(String
+                .format("Stage:  %6.2f at %s Z", y, display));
     }
 
     /**
@@ -711,16 +729,16 @@ public class FloodReportCanvasComp {
     private void handleMouseMoveEvent(MouseEvent e) {
         /* Set the cursor location and cursor type */
         Rectangle bounds = graphCanvas.getBounds();
-        if (((e.x > 0) && //bounds.contains(e.x, e.y) && 
-                (e.y >= 10) && (e.y < CANVAS_HEIGHT - BOTTOM_OFFSET) &&
-                (e.x < bounds.width - PIXELS_PER_HOUR))) {
+        if (((e.x > 0) && // bounds.contains(e.x, e.y) &&
+                (e.y >= 10) && (e.y < CANVAS_HEIGHT - BOTTOM_OFFSET) && (e.x < bounds.width
+                - PIXELS_PER_HOUR))) {
 
             if (selectedLid != null) {
                 graphCanvas.setCursor(crossHairCursor);
 
                 currentX = e.x;
                 currentY = e.y;
-                
+
                 drawCrossHairs = true;
                 graphCanvas.redraw();
                 updateStageLbl();
@@ -732,11 +750,12 @@ public class FloodReportCanvasComp {
             graphCanvas.redraw();
         }
     }
-    
+
     /**
      * Remove the crosshairs when mouse leaves the graph.
      * 
-     * @param Event The mouse Event
+     * @param Event
+     *            The mouse Event
      */
     private void handleMouseExitEvent(Event e) {
         drawCrossHairs = false;
@@ -761,17 +780,11 @@ public class FloodReportCanvasComp {
         Map<String, FloodReportData> dataMap = dman.getReportData();
         FloodReportData data = dataMap.get(selectedKey);
         selectedLid = data.getLid();
-        
+
         if (data != null) {
             fs = data.getFloodStage();
-            floodData = dman.getFloodEventData(selectedLid, data.getFloodEventId());
-        }
-    }
-
-    protected void dispose() {
-        if (canvasFont != null) {
-            canvasFont.dispose();
-            canvasFont = null;
+            floodData = dman.getFloodEventData(selectedLid,
+                    data.getFloodEventId());
         }
     }
 }
