@@ -65,8 +65,6 @@ import com.raytheon.viz.gfe.core.internal.WEGroupManager;
 import com.raytheon.viz.gfe.core.msgs.ISCSendStatusChangedMsg;
 import com.raytheon.viz.gfe.core.parm.ParmOp;
 import com.raytheon.viz.gfe.gridmanager.IGridManager;
-import com.raytheon.viz.gfe.itool.IToolController;
-import com.raytheon.viz.gfe.itool.IToolFactory;
 import com.raytheon.viz.gfe.jobs.AutoSaveJob;
 import com.raytheon.viz.gfe.procedures.ProcedureFactory;
 import com.raytheon.viz.gfe.procedures.ProcedureUIController;
@@ -98,6 +96,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     to GFE startup.
  * 08/27/2013    2302      randerso    Code cleanup for AutoSaveJob
  * 09/05/2013    2307      dgilling    Use better PythonScript constructor.
+ * 09/16/2013    2033      dgilling    Remove unused IToolController.
  * 
  * </pre>
  * 
@@ -165,8 +164,6 @@ public class DataManager {
     private ProcedureUIController procedureInterface;
 
     private TextProductManager textProductMgr;
-
-    private IToolController itoolInterface;
 
     private EditActionProcessor editActionProcessor;
 
@@ -518,18 +515,6 @@ public class DataManager {
 
     public ProcedureUIController getProcedureInterface() {
         return procedureInterface;
-    }
-
-    public IToolController getIToolInterface() {
-        if (itoolInterface == null) {
-            try {
-                this.itoolInterface = IToolFactory.buildController(this);
-            } catch (JepException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error initializing itool interface", e);
-            }
-        }
-        return itoolInterface;
     }
 
     /**

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.smarttool;
 
-import java.io.File;
-
 /**
  * TODO Add Description
  * 
@@ -28,7 +26,8 @@ import java.io.File;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 19, 2008            njensen     Initial creation	
+ * Mar 19, 2008            njensen     Initial creation
+ * Sep 09, 2013  #2033     dgilling    Use new templates directory.
  * 
  * </pre>
  * 
@@ -46,6 +45,5 @@ public class SmartToolConstants {
 
     public static final String ASSIGN = "Assign_Value";
 
-    public static final String TEMPLATES_DIR = "gfe" + File.separator
-            + "userPython" + File.separator + "templates";
+    public static final String TEMPLATES_DIR = "/scriptTemplates/";
 }
