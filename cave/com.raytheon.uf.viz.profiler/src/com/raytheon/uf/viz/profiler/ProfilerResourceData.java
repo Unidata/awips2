@@ -20,7 +20,10 @@
 package com.raytheon.uf.viz.profiler;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -28,6 +31,13 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
+import com.raytheon.uf.common.dataplugin.profiler.dao.ProfilerDataTransform;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -44,6 +54,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    08Apr2009    2219        dhladky    Initial Creation.
+ *    09Sep2013    2277        mschenke   Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -67,6 +78,31 @@ public class ProfilerResourceData extends AbstractRequestableResourceData {
             }
         }
         return new ProfilerResource(this, loadProperties);
+    }
+
+    @Override
+    protected PluginDataObject[] requestPluginDataObjects(
+            Collection<DataTime> loadSet) throws VizException {
+        List<String> dataTimes = new ArrayList<String>(loadSet.size());
+        for (DataTime time : loadSet) {
+            dataTimes.add(time.toString());
+        }
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                getMetadataMap());
+        constraints.put(PluginDataObject.DATATIME_ID, new RequestConstraint(
+                dataTimes));
+        PointDataContainer pdc = DataCubeContainer.getPointData(
+                ProfilerObs.PLUGIN_NAME, ProfilerDataTransform.MAN_PARAMS,
+                constraints);
+        if (pdc != null) {
+            return ProfilerDataTransform.toProfilerRecords(pdc);
+        }
+        return null;
+    }
+
+    @Override
+    protected void update(AlertMessage... messages) {
+        invalidateAvailableTimesCache();
     }
 
     /**
