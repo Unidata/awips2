@@ -116,11 +116,14 @@ public class ProviderKeyRequest implements IServerRequest {
     public enum RequestType {
         @XmlEnumValue(RequestType.save)
         SAVE("SAVE"), @XmlEnumValue(RequestType.retrieve)
-        RETRIEVE("RETRIEVE");
+        RETRIEVE("RETRIEVE"), @XmlEnumValue(RequestType.delete)
+        DELETE("DELETE");
 
         private static final String save = "SAVE";
 
         private static final String retrieve = "RETRIEVE";
+
+        private static final String delete = "DELETE";
 
         private final String requestType;
 
