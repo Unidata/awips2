@@ -119,7 +119,7 @@ testUVI = [
 
 import os
 path, file = os.path.split(__file__)
-path = os.path.abspath(os.path.join(path,"../testdata"))
+path = os.path.abspath(os.path.join(path,"../../testdata"))
 testTides = """Definition["tideFiles"] = {               
              # For each tide table, list the file where it can
              # be found
