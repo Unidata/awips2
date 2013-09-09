@@ -94,7 +94,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "profiler", indexes = { @Index(name = "profiler_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = ProfilerObs.PLUGIN_NAME, indexes = { @Index(name = "profiler_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -104,6 +104,8 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         Comparable<ProfilerObs> {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "profiler";
 
     private static final HashMap<Integer, Integer> HGT_MAP = new HashMap<Integer, Integer>();
     static {
@@ -700,6 +702,6 @@ public class ProfilerObs extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "profiler";
+        return PLUGIN_NAME;
     }
 }
