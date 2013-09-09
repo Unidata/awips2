@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -73,7 +74,7 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractPointDataInventory.class);
 
-    public static String PLUGIN_NAME = "pluginName";
+    public static String PLUGIN_NAME = PluginDataObject.PLUGIN_NAME_ID;
 
     protected List<String> plugins;
 
