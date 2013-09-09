@@ -22,6 +22,8 @@ package com.raytheon.viz.hydrocommon.ratingcurve;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -44,6 +46,7 @@ import org.eclipse.swt.widgets.Composite;
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
  * Jul 15, 2013 2088        rferrel     Code clean part of non-blocking dialogs.
+ * 09 Sep 2013  #2349       lvenable    Fixed Font memory leak.
  * 
  * </pre>
  * 
@@ -279,6 +282,15 @@ public class RatingCurveCanvasComp extends Canvas {
         calcMaxStageMaxFlow();
         calcPixelsPerIncrement();
         setupCanvas();
+
+        parent.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (canvasFont != null) {
+                    canvasFont.dispose();
+                }
+            }
+        });
     }
 
     /**

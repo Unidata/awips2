@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 21 Feb 2010  2915       mpduff      Fixed Time Zone problem.
  * 23 Feb 2010  4303       mpduff      Changed the &quot;missing&quot; date display to be N/A.
  * 16 Apr 2013  1790       rferrel     Make dialog non-blocking.
+ * 09 Sep 2013  #2349      lvenable   Fixed Font memory leak.
  * 
  * </pre>
  * 
@@ -195,7 +196,13 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
      */
     @Override
     protected void disposed() {
-        font.dispose();
+        if (font != null) {
+            font.dispose();
+        }
+
+        if (controlFont != null) {
+            controlFont.dispose();
+        }
     }
 
     /*
@@ -632,7 +639,7 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
             for (StationReportingData currData : obsForLid) {
                 String entry = String
                         .format("%-8s %-3s %-5d %-4s %-2s %-17s  %-8.2f %-2s  %-2s %-2s %-11s %-16s %-16s", //
-                        currData.getLid(), //
+                                currData.getLid(), //
                                 currData.getPe(),//
                                 currData.getDur(), //
                                 currData.getTs(), //
