@@ -38,6 +38,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 18, 2012      #1091 randerso    added base directory to getGfeConfigIncludePath
  * Feb 27, 2013      #1447 dgilling    Re-factor based on PythonPathIncludeUtil.
  * Mar 11, 2013      #1759 dgilling    Add method getGfeConfigLF().
+ * Sep 16, 2013      #1759 dgilling    Move tests and autotests to GfeCavePyIncludeUtil.
  * </pre>
  * 
  * @author njensen
@@ -52,13 +53,9 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static final String ITOOL = FileUtil.join(GFE, "itool");
 
-    public static final String AUTO_TEST = FileUtil.join(GFE, "autotest");
-
     public static final String VTEC = "vtec";
 
     public static final String USER_PYTHON = FileUtil.join(GFE, "userPython");
-
-    public static final String TESTS = FileUtil.join(USER_PYTHON, "tests");
 
     public static final String CONFIG = FileUtil.join(USER_PYTHON, "gfeConfig");
 
@@ -131,10 +128,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         return PATH_MANAGER.getLocalizationFile(ctx, ITOOL);
     }
 
-    public static LocalizationFile getAutotestLF(LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, AUTO_TEST);
-    }
-
     public static LocalizationFile getHeadlineLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, HEADLINE);
     }
@@ -146,10 +139,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static LocalizationFile getCombinationsLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, COMBINATIONS);
-    }
-
-    public static LocalizationFile getTestsLF(LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, TESTS);
     }
 
     public static LocalizationFile getVCModUtilsLF(LocalizationContext ctx) {
@@ -317,11 +306,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
                 LocalizationLevel.BASE), ITOOL);
     }
 
-    public static String getAutotestIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), AUTO_TEST);
-    }
-
     public static String getHeadlineIncludePath() {
         return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.BASE), HEADLINE);
@@ -351,11 +335,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         } else {
             return PyUtil.buildJepIncludePath(siteDir, configDir);
         }
-    }
-
-    public static String getTestsIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), TESTS);
     }
 
     public static String getIscScriptsIncludePath() {
