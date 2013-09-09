@@ -92,7 +92,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "gfe", indexes = { @Index(name = "gfe_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = GFERecord.PLUGIN_NAME, indexes = { @Index(name = "gfe_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @DynamicSerialize
 @BatchSize(size = 500)
@@ -104,6 +104,8 @@ public class GFERecord extends PluginDataObject {
     public enum GridType {
         NONE, SCALAR, VECTOR, WEATHER, DISCRETE
     };
+
+    public static final String PLUGIN_NAME = "gfe";
 
     /**
      * The parmID of the associated parm.<br>
@@ -279,6 +281,6 @@ public class GFERecord extends PluginDataObject {
 
     @Override
     public String getPluginName() {
-        return "gfe";
+        return PLUGIN_NAME;
     }
 }
