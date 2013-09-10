@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.core.style.image;
+package com.raytheon.uf.common.style.image;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

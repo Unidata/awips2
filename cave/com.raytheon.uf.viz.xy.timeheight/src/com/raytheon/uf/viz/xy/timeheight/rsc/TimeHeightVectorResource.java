@@ -30,6 +30,11 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.arrow.ArrowPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -44,10 +49,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
@@ -56,7 +57,6 @@ import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.core.style.arrow.ArrowPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -104,7 +104,7 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.ARROW, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

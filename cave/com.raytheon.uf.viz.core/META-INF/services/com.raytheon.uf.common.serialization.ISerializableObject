@@ -23,9 +23,4 @@ com.raytheon.uf.viz.core.rsc.ResourceList
 com.raytheon.uf.viz.core.rsc.ResourceProperties
 com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties
 com.raytheon.uf.viz.core.rsc.LoadProperties
-com.raytheon.uf.viz.core.style.level.SingleLevel
-com.raytheon.uf.viz.core.style.level.RangeLevel
-com.raytheon.uf.viz.core.style.StyleRule
-com.raytheon.uf.viz.core.style.StyleRuleset
-com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria
 

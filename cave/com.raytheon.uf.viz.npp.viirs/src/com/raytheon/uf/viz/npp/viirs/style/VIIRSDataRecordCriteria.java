@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.npp.viirs.style;
 
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.VizStyleException;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 
 /**
  * Match criteria for a populated {@link VIIRSDataRecord} object
@@ -61,11 +61,11 @@ public class VIIRSDataRecordCriteria extends MatchCriteria {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.core.style.MatchCriteria#matches(com.raytheon.uf.
+     * com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon.uf.
      * viz.core.style.MatchCriteria)
      */
     @Override
-    public int matches(MatchCriteria aCriteria) throws VizStyleException {
+    public int matches(MatchCriteria aCriteria) throws StyleException {
         int rval = -1;
         if (aCriteria instanceof VIIRSDataMatchCriteria) {
             return matches(this, (VIIRSDataMatchCriteria) aCriteria);
