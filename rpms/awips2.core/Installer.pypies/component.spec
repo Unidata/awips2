@@ -16,7 +16,6 @@ Packager: Nate Jensen
 AutoReq: no
 provides: awips2-pypies
 requires: awips2-python >= 2.7-1
-requires: awips2-httpd-pypies
 requires: awips2-tools
 
 %description
