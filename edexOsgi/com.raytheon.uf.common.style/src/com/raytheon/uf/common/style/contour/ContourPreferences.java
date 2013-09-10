@@ -18,15 +18,15 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.core.style.contour;
+package com.raytheon.uf.common.style.contour;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.LabelingPreferences;
 
 /**
  * 

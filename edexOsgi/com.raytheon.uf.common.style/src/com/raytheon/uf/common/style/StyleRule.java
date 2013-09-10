@@ -18,41 +18,65 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
+package com.raytheon.uf.common.style;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElementRef;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * Abstract class of criteria to match against rules.
+ * A rule for visualization style.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 21, 2007            njensen     Initial creation
+ *                         chammack    Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * 
  */
+
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class MatchCriteria implements ISerializableObject {
+public class StyleRule implements ISerializableObject {
+
+    @XmlElementRef
+    private MatchCriteria matchCriteria;
+
+    @XmlElementRef
+    private AbstractStylePreferences preferences;
 
     /**
-     * Checks if the match criteria parameter is a match for this match
-     * criteria, and returns an integer value rating the match, where the higher
-     * the number, the better the match.
-     * 
-     * Note that x.matches(y) is not equal to y.matches(x).
-     * 
-     * @param aCriteria
-     *            the criteria to compare against
-     * @return the rating of the match, where a higher value is a stronger match
-     *         than a lower value
+     * @return the matchCriteria
      */
-    public abstract int matches(MatchCriteria aCriteria)
-            throws VizStyleException;
+    public MatchCriteria getMatchCriteria() {
+        return matchCriteria;
+    }
+
+    /**
+     * @param matchCriteria
+     *            the matchCriteria to set
+     */
+    public void setMatchCriteria(MatchCriteria matchCriteria) {
+        this.matchCriteria = matchCriteria;
+    }
+
+    /**
+     * @return the preferences
+     */
+    public AbstractStylePreferences getPreferences() {
+        return preferences;
+    }
+
+    /**
+     * @param preferences
+     *            the preferences to set
+     */
+    public void setPreferences(AbstractStylePreferences preferences) {
+        this.preferences = preferences;
+    }
+
 }
