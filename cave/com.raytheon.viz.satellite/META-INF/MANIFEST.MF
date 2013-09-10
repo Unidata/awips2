@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.viz.core;bundle-version="1.12.1174",
- javax.measure
+ javax.measure,
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc

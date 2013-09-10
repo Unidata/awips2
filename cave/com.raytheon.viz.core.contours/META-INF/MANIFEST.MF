@@ -11,12 +11,13 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174", 
  com.raytheon.uf.common.wxmath;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.core.contours,
  com.raytheon.viz.core.contours.rsc.displays,
  com.raytheon.viz.core.contours.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.viz.core.interval,
- com.raytheon.viz.core.style.contour
+Import-Package: com.raytheon.uf.common.style,
+ com.raytheon.uf.common.style.contour,
+ com.raytheon.viz.core.interval

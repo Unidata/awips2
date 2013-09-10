@@ -48,6 +48,18 @@ import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleManager.StyleType;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.arrow.ArrowPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.level.Level;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
@@ -73,15 +85,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.contours.ContourRenderable;
 import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
@@ -90,9 +93,6 @@ import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
-import com.raytheon.viz.core.style.arrow.ArrowPreferences;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
-import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -303,7 +303,11 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        initStylePreferences();
+        try {
+            initStylePreferences();
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
         initSampling();
     }
 
@@ -351,9 +355,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     /**
      * Gets style preferences from the StyleManager
      * 
-     * @throws VizStyleException
+     * @throws StyleException
      */
-    protected void initStylePreferences() throws VizStyleException {
+    protected void initStylePreferences() throws StyleException {
         DisplayType displayType = getDisplayType();
         StyleRule styleRule = null;
         MatchCriteria criteria = getMatchCriteria();

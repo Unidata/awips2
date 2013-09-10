@@ -25,6 +25,11 @@ import java.util.Arrays;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.VizApp;
@@ -38,16 +43,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.contours.ContourSupport;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 
 /**
  * Resource for displaying cross sections as contours
@@ -101,7 +101,7 @@ public class TimeHeightContourResource extends AbstractTimeHeightResource {
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.CONTOUR, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

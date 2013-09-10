@@ -38,6 +38,15 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParamet
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleManager.StyleType;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.DataScale;
+import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.SamplePreferences;
 import com.raytheon.uf.common.topo.TopoUtils;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
@@ -49,16 +58,8 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
-import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
-import com.raytheon.viz.core.style.image.DataScale;
-import com.raytheon.viz.core.style.image.ImagePreferences;
-import com.raytheon.viz.core.style.image.SamplePreferences;
 
 /**
  * Provides an SRTM hdf5-backed topographic map
@@ -125,8 +126,13 @@ public class TopoResource extends
         // TODO: create topo style rules for topo and bathymetric topo
         ParamLevelMatchCriteria criteria = new ParamLevelMatchCriteria();
         criteria.setParameterName(Arrays.asList(resourceData.getTopoFile()));
-        StyleRule styleRule = StyleManager.getInstance().getStyleRule(
-                StyleType.IMAGERY, criteria);
+        StyleRule styleRule;
+        try {
+            styleRule = StyleManager.getInstance().getStyleRule(
+                    StyleType.IMAGERY, criteria);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
 
         // Default colormap
         String colorMapName = "topo";

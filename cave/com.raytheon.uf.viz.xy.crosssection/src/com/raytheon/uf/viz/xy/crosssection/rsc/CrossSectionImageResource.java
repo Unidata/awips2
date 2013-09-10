@@ -39,6 +39,10 @@ import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -53,10 +57,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
@@ -103,7 +103,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting contour style rule", e);
         }
