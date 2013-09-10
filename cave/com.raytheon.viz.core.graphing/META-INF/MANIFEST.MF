@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.ui,
  javax.measure,
  org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.python;bundle-version="1.11.17",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.core.graphing,
  com.raytheon.viz.core.graphing.axis,

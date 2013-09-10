@@ -36,6 +36,11 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleManager.StyleType;
+import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -43,10 +48,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResource;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
 import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
@@ -283,7 +284,7 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
         StyleRule sr = null;
         try {
 
-            StyleManager.StyleType styleType = StyleManager.StyleType.CONTOUR;
+            StyleType styleType = StyleManager.StyleType.CONTOUR;
 
             if (displayType.equals(DisplayType.IMAGE)) {
                 styleType = StyleManager.StyleType.IMAGERY;
@@ -294,7 +295,7 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
             }
 
             sr = StyleManager.getInstance().getStyleRule(styleType, criteria);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to obtain a style rule for"
                             + catalogEntry.getSelectedData().getUniqueKey(), e);

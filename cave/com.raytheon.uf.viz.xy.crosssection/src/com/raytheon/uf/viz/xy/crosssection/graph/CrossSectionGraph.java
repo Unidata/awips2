@@ -35,6 +35,7 @@ import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.level.Level.LevelType;
 import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.common.wxmath.Hgt2Pres;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -47,7 +48,6 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.style.level.Level.LevelType;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.uf.viz.xy.crosssection.rsc.AbstractCrossSectionResource;
 import com.raytheon.uf.viz.xy.graph.AbstractGraph;
@@ -68,7 +68,7 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * 
- * TODO Add Description
+ * Creates a cross section on a graph display.
  * 
  * <pre>
  * 

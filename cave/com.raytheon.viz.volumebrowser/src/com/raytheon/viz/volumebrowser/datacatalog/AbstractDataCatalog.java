@@ -37,6 +37,10 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -45,10 +49,6 @@ import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
@@ -409,7 +409,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
             }
 
             sr = StyleManager.getInstance().getStyleRule(styleType, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to obtain a style rule for"
                             + catalogEntry.getSelectedData().getUniqueKey(), e);
@@ -486,14 +486,14 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
     protected boolean isLatLon(String plane) {
         return ((plane != null) && (plane.startsWith("Lat")
                 || plane.startsWith("Lon") || plane.equals("LATS") || plane
-                .equals("LONS")));
+                    .equals("LONS")));
     }
 
     protected boolean isPointLine(String plane) {
         return ((plane != null) && (plane.startsWith("Line") || plane
                 .startsWith("Point")));
     }
-    
+
     /**
      * Alter product parameters
      * 
@@ -501,9 +501,9 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
      * @param selectedValue
      * @param productParameters
      */
-    public void alterProductParameters(
-            String selectedKey,
-            String selectedValue, HashMap<String, RequestConstraint> productParameters) {
+    public void alterProductParameters(String selectedKey,
+            String selectedValue,
+            HashMap<String, RequestConstraint> productParameters) {
         return;
     }
 

@@ -37,6 +37,8 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -50,7 +52,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.labeling.DataTimeLabel;
@@ -228,8 +229,12 @@ public abstract class AbstractTimeHeightResource extends
             secondaryResource.init(target);
         }
         if (prefs == null) {
-            prefs = GraphPrefsFactory.buildPreferences(
-                    resourceData.getParameter(), null);
+            try {
+                prefs = GraphPrefsFactory.buildPreferences(
+                        resourceData.getParameter(), null);
+            } catch (StyleException e) {
+                throw new VizException(e.getLocalizedMessage(), e);
+            }
         }
         if (interpolatedData == null) {
             loadDataJob.schedule();
