@@ -66,7 +66,7 @@ public class VIIRSDataMatchCriteria extends MatchCriteria {
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon
-     * .uf. viz.core.style.MatchCriteria)
+     * .uf.common.style.MatchCriteria)
      */
     @Override
     public int matches(MatchCriteria aCriteria) throws StyleException {
