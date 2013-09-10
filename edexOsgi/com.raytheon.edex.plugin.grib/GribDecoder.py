@@ -118,6 +118,8 @@ THINNED_GRID_PT_MAP = {0:73, 1.25:73, 2.50:73, 3.75:73, 5.0:73, 6.25:73, 7.50:73
 
 THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 
+logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "EDEX")
+
 #
 #  Python implementation of the grib decoder.  This decoder uses the python ctypes
 #  library to access the NCEP grib decoder for extracting data
@@ -146,7 +148,7 @@ class GribDecoder():
         self.fileName = filePath
 
         self.log = logging.getLogger("GribDecoder")
-        self.log.addHandler(UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "EDEX"))    
+        self.log.addHandler(logHandler)    
 
 
     ##
