@@ -38,12 +38,12 @@ import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.units.PiecewisePixel;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -253,7 +253,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {

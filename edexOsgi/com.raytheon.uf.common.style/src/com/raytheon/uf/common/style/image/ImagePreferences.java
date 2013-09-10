@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.core.style.image;
+package com.raytheon.uf.common.style.image;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,8 +26,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.LabelingPreferences;
 
 /**
  * 
@@ -58,7 +58,7 @@ public class ImagePreferences extends AbstractStylePreferences {
 
     @XmlElement(name = "displayLegend")
     private String legend;
-    
+
     @XmlElement
     private SamplePreferences samplePrefs;
 
@@ -146,12 +146,12 @@ public class ImagePreferences extends AbstractStylePreferences {
     public void setSamplePrefs(SamplePreferences samplePrefs) {
         this.samplePrefs = samplePrefs;
     }
-    
+
     /**
-     *  @return the legend
+     * @return the legend
      */
     public String getLegend() {
         return legend;
     }
-    
+
 }

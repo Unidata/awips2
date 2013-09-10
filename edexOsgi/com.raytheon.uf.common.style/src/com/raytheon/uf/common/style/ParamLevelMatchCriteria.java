@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
+package com.raytheon.uf.common.style;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +29,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.RangeLevel;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
+import com.raytheon.uf.common.style.level.Level;
+import com.raytheon.uf.common.style.level.RangeLevel;
+import com.raytheon.uf.common.style.level.SingleLevel;
 
 /**
  * 
@@ -136,12 +136,12 @@ public class ParamLevelMatchCriteria extends MatchCriteria {
     }
 
     @Override
-    public int matches(MatchCriteria criteria) throws VizStyleException {
+    public int matches(MatchCriteria criteria) throws StyleException {
         int returnValue = -1;
         if (criteria instanceof ParamLevelMatchCriteria) {
             ParamLevelMatchCriteria imgCriteria = (ParamLevelMatchCriteria) criteria;
             if (this.parameterNames.size() != 1) {
-                throw new VizStyleException(
+                throw new StyleException(
                         "ParamLevelMatchCriteria requires single parameter to search for match against.");
             }
             String paramName = this.parameterNames.get(0);
@@ -150,7 +150,7 @@ public class ParamLevelMatchCriteria extends MatchCriteria {
             if (this.levels.size() == 1) {
                 level = levels.get(0);
             } else if (this.levels.size() > 1) {
-                throw new VizStyleException(
+                throw new StyleException(
                         "ParamLevelMatchCriteria does not support matching against multiple levels.");
             }
 

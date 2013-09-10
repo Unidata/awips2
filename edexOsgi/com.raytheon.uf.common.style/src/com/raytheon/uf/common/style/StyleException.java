@@ -18,55 +18,54 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
-
-import com.raytheon.uf.viz.core.exception.VizException;
+package com.raytheon.uf.common.style;
 
 /**
- * VizException for styles.
+ * Exception for styles.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 1, 2007             njensen     Initial creation
- * 
+ * Sep 5, 2013  2051       mnash       Moved style rules to common and made 
+ *                                     this extend Exception instead of VizException
  * </pre>
  * 
  * @author njensen
  */
-public class VizStyleException extends VizException {
+public class StyleException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Default Constructor
-	 * 
-	 */
-	public VizStyleException() {
-		super();
-	}
+    /**
+     * Default Constructor
+     * 
+     */
+    public StyleException() {
+        super();
+    }
 
-	/**
-	 * @param message
-	 */
-	public VizStyleException(String message) {
-		super(message);
-	}
+    /**
+     * @param message
+     */
+    public StyleException(String message) {
+        super(message);
+    }
 
-	/**
-	 * @param message
-	 * @param cause
-	 */
-	public VizStyleException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * @param message
+     * @param cause
+     */
+    public StyleException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * @param cause
-	 */
-	public VizStyleException(Throwable cause) {
-		super(cause);
-	}
+    /**
+     * @param cause
+     */
+    public StyleException(Throwable cause) {
+        super(cause);
+    }
 
 }
