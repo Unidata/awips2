@@ -2,9 +2,8 @@ package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
 import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.NcUnits;
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
-import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
-import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
 import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
@@ -30,7 +29,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -50,6 +48,15 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleRuleset;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.DataScale;
+import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.SamplePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
@@ -62,19 +69,10 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.StyleRuleset;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
-import com.raytheon.viz.core.style.image.DataScale;
-import com.raytheon.viz.core.style.image.ImagePreferences;
-import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -119,7 +117,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public abstract class AbstractSatelliteResource extends
         AbstractNatlCntrsResource<SatelliteResourceData, NCMapDescriptor>
-        implements  INatlCntrsResource, IResourceDataChanged, IAreaProviderCapable {
+        implements INatlCntrsResource, IResourceDataChanged,
+        IAreaProviderCapable {
 
     protected SatelliteResourceData satRscData;
 
@@ -882,7 +881,7 @@ public abstract class AbstractSatelliteResource extends
         } catch (SerializationException e1) {
 
             e1.printStackTrace();
-        } catch (VizStyleException e1) {
+        } catch (StyleException e1) {
 
             e1.printStackTrace();
         } catch (NullPointerException e1) {
@@ -1025,15 +1024,16 @@ public abstract class AbstractSatelliteResource extends
         }
     }
 
-    // for IAreaProviderCapable which triggers the Fit To Screen and Size Of Image
+    // for IAreaProviderCapable which triggers the Fit To Screen and Size Of
+    // Image
     // context menus
     @Override
-	public AreaSource getSourceProvider() {
-		return satRscData.getSourceProvider();
+    public AreaSource getSourceProvider() {
+        return satRscData.getSourceProvider();
     }
 
     @Override
-	public String getAreaName() {
-		return satRscData.getAreaName();
+    public String getAreaName() {
+        return satRscData.getAreaName();
     }
 }

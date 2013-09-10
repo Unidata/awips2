@@ -52,6 +52,13 @@ import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleManager.StyleType;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.DataScale;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -72,17 +79,11 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
-import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.tile.Tile;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 import com.raytheon.uf.viz.npp.viirs.Activator;
 import com.raytheon.uf.viz.npp.viirs.style.VIIRSDataRecordCriteria;
-import com.raytheon.viz.core.style.image.DataScale;
-import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -336,8 +337,13 @@ public class VIIRSResource extends
         name += " " + parameter;
 
         // Get style rule preferences
-        StyleRule styleRule = StyleManager.getInstance().getStyleRule(
-                StyleType.IMAGERY, new VIIRSDataRecordCriteria(dataRecord));
+        StyleRule styleRule;
+        try {
+            styleRule = StyleManager.getInstance().getStyleRule(
+                    StyleType.IMAGERY, new VIIRSDataRecordCriteria(dataRecord));
+        } catch (StyleException e1) {
+            throw new VizException(e1.getLocalizedMessage(), e1);
+        }
         ImagePreferences preferences = null;
         if (styleRule != null) {
             preferences = (ImagePreferences) styleRule.getPreferences();

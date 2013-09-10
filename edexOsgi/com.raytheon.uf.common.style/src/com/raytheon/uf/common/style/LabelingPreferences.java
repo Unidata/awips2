@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
+package com.raytheon.uf.common.style;
 
 import java.util.Arrays;
 

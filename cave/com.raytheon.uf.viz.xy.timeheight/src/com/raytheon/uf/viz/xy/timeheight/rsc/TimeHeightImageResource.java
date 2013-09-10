@@ -31,6 +31,10 @@ import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -43,10 +47,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
@@ -88,7 +88,7 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

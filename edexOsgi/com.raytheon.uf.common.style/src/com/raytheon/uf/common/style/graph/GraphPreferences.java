@@ -18,81 +18,71 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.core.style.image;
+package com.raytheon.uf.common.style.graph;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.LabelingPreferences;
 
 /**
- * 
- * Used to limit the range of sampling, values outside this range should be
- * labeled as <minValue or >maxValue.
+ * TODO class description
  * 
  * <pre>
- * 
  * SOFTWARE HISTORY
- * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 4, 2011            bsteffen     Initial creation
+ * Oct 3, 2007             njensen     Initial creation
  * 
  * </pre>
  * 
- * @author bsteffen
- * @version 1.0
+ * @author njensen
  */
+@XmlRootElement(name = "graphStyle")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SamplePreferences {
+public class GraphPreferences extends AbstractStylePreferences {
 
+    @XmlElement(name = "range")
+    private AxisScale axisScale;
+
+    /**
+     * Dotted lines are drawn at these values if they're within the range on the
+     * axis
+     */
     @XmlElement
-    private double minValue;
-
-    @XmlElement
-    private double maxValue;
-
-    @XmlElement
-    /**
-     * number of decimal places to format the string to
-     */
-    private String formatString;
+    private LabelingPreferences dottedLines;
 
     /**
-     * @return the minValue
+     * @return the axisScale
      */
-    public double getMinValue() {
-        return minValue;
+    public AxisScale getAxisScale() {
+        return axisScale;
     }
 
     /**
-     * @param minValue
-     *            the minValue to set
+     * @param axisScale
+     *            the axisScale to set
      */
-    public void setMinValue(double minValue) {
-        this.minValue = minValue;
+    public void setAxisScale(AxisScale axisScale) {
+        this.axisScale = axisScale;
     }
 
     /**
-     * @return the maxValue
+     * @return the dottedLines
      */
-    public double getMaxValue() {
-        return maxValue;
+    public LabelingPreferences getDottedLines() {
+        return dottedLines;
     }
 
     /**
-     * @param maxValue
-     *            the maxValue to set
+     * @param dottedLines
+     *            the dottedLines to set
      */
-    public void setMaxValue(double maxValue) {
-        this.maxValue = maxValue;
-    }
-
-    public String getFormatString() {
-        return formatString;
-    }
-
-    public void setFormatString(String formatString) {
-        this.formatString = formatString;
+    public void setDottedLines(LabelingPreferences dottedLines) {
+        this.dottedLines = dottedLines;
     }
 
 }

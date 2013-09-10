@@ -31,7 +31,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
  com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
  com.raytheon.uf.viz.xy;bundle-version="1.12.1174",
- com.raytheon.viz.core.graphing;bundle-version="1.12.1174"
+ com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.datacatalog,
