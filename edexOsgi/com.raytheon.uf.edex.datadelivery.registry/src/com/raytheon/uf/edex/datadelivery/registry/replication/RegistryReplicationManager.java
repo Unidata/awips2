@@ -249,9 +249,10 @@ public class RegistryReplicationManager {
                         } else {
                             synchronizeRegistryWithFederation(registryToSyncFrom
                                     .getRegistryBaseURL());
+
+                            break;
                         }
                     }
-                    startUptimeMonitor();
                 } catch (Exception e) {
                     // If no servers are found, don't retry, just throw the
                     // exception
@@ -272,9 +273,6 @@ public class RegistryReplicationManager {
                 }
             }
         }
-    }
-
-    private void startUptimeMonitor() {
         statusHandler.info("Starting federated uptime monitor...");
         scheduler.scheduleAtFixedRate(federatedRegistryMonitor, 0, 1,
                 TimeUnit.MINUTES);
