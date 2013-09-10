@@ -19,13 +19,11 @@
  **/
 package com.raytheon.uf.viz.preciprate;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
-import javax.measure.converter.MultiplyConverter;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
@@ -47,27 +45,25 @@ import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.units.PiecewisePixel;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.preciprate.xml.PrecipRateXML;
 import com.raytheon.uf.viz.preciprate.xml.SCANConfigPrecipRateXML;
-import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.RadarTextResource.IRadarTextGeneratingResource;
 import com.raytheon.viz.radar.rsc.image.RadarRadialResource;
-import com.raytheon.viz.radar.util.DataUtilities;
 
 public class PrecipRateResource extends RadarRadialResource implements
         IRadarTextGeneratingResource {
@@ -80,7 +76,7 @@ public class PrecipRateResource extends RadarRadialResource implements
     private SCANConfigPrecipRateXML cfgMXL = null;
 
     private PrecipRateRecord precipRecord;
-    
+
     private PrecipRateResourceData data = null;
 
     public PrecipRateResource(PrecipRateResourceData data,
@@ -217,16 +213,12 @@ public class PrecipRateResource extends RadarRadialResource implements
      * raytheon.uf.viz.core.IGraphicsTarget,
      * com.raytheon.uf.viz.core.drawables.ColorMapParameters,
      * com.raytheon.uf.common.dataplugin.radar.RadarRecord, java.awt.Rectangle)
-    
-    @Override
-    protected IImage createImage(IGraphicsTarget target,
-            ColorMapParameters params, final RadarRecord record,
-            final Rectangle rect) throws VizException {
-        return target.getExtension(IColormappedImageExtension.class)
-                .initializeRaster(
-                        new RadarImageDataRetrievalAdapter(record, null, rect) {
-                        }, params);
-    }
+     * 
+     * @Override protected IImage createImage(IGraphicsTarget target,
+     * ColorMapParameters params, final RadarRecord record, final Rectangle
+     * rect) throws VizException { return
+     * target.getExtension(IColormappedImageExtension.class) .initializeRaster(
+     * new RadarImageDataRetrievalAdapter(record, null, rect) { }, params); }
      */
 
     @Override
@@ -236,8 +228,13 @@ public class PrecipRateResource extends RadarRadialResource implements
         ColorMapParameters colorMapParameters = getCapability(
                 ColorMapCapability.class).getColorMapParameters();
         colorMapParameters = new ColorMapParameters();
-        StyleRule sr = StyleManager.getInstance().getStyleRule(
-                StyleManager.StyleType.IMAGERY, getMatchCriteria());
+        StyleRule sr;
+        try {
+            sr = StyleManager.getInstance().getStyleRule(
+                    StyleManager.StyleType.IMAGERY, getMatchCriteria());
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
         String colormapfile = ((ImagePreferences) sr.getPreferences())
                 .getDefaultColormap();
 
@@ -252,10 +249,11 @@ public class PrecipRateResource extends RadarRadialResource implements
         colorMapParameters.setDataMin(0);
         colorMapParameters.setDataMapping(((ImagePreferences) sr
                 .getPreferences()).getDataMapping());
-        double[] d1 = {1,255};
-        double[] d2 = {0,25.4};
+        double[] d1 = { 1, 255 };
+        double[] d2 = { 0, 25.4 };
         @SuppressWarnings({ "rawtypes", "unchecked" })
-		PiecewisePixel pw = new PiecewisePixel(NonSI.INCH.divide(NonSI.HOUR), d1, d2);
+        PiecewisePixel pw = new PiecewisePixel(NonSI.INCH.divide(NonSI.HOUR),
+                d1, d2);
         colorMapParameters.setDataUnit(pw);
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
@@ -359,9 +357,9 @@ public class PrecipRateResource extends RadarRadialResource implements
             dataVal = new RadarDataInterrogator(record).getDataValue(latLon
                     .asLatLon());
             if (dataVal == 0) {
-            	return "NO DATA";
+                return "NO DATA";
             }
-            
+
         } catch (Exception e) {
             UFStatus.getHandler().handle(
                     Priority.PROBLEM,
@@ -372,7 +370,7 @@ public class PrecipRateResource extends RadarRadialResource implements
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
         double val = params.getDataToDisplayConverter().convert(dataVal);
-                       
+
         if (val >= ScanUtils.MM_TO_INCH * precipRecord.getHailcap()
                 || Double.isNaN(val)) {
             return String.format(
@@ -390,11 +388,12 @@ public class PrecipRateResource extends RadarRadialResource implements
             throws VizException {
         return null;
     }
-    
+
     protected byte[] createConversionTable(ColorMapParameters params,
             RadarRecord record) {
-    	
-        UnitConverter dataToImage = params.getDataToImageConverter();;
+
+        UnitConverter dataToImage = params.getDataToImageConverter();
+        ;
         Unit<?> dataUnit = params.getDataUnit();
         // precompute the converted value for every possible value in the
         // record.

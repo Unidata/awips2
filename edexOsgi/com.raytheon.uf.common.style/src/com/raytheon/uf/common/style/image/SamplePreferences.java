@@ -18,56 +18,81 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
-
-import java.util.ArrayList;
+package com.raytheon.uf.common.style.image;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * Contains a set of style rules.
+ * 
+ * Used to limit the range of sampling, values outside this range should be
+ * labeled as <minValue or >maxValue.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 21, 2007            njensen     Initial creation
+ * Jan 4, 2011            bsteffen     Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author bsteffen
+ * @version 1.0
  */
-@XmlRootElement(name = "styleRuleset")
 @XmlAccessorType(XmlAccessType.NONE)
-public class StyleRuleset implements ISerializableObject {
+public class SamplePreferences {
 
-    @XmlElement(name = "styleRule")
-    private ArrayList<StyleRule> styleRules = new ArrayList<StyleRule>();
+    @XmlElement
+    private double minValue;
+
+    @XmlElement
+    private double maxValue;
+
+    @XmlElement
+    /**
+     * number of decimal places to format the string to
+     */
+    private String formatString;
 
     /**
-     * @return the styleRules
+     * @return the minValue
      */
-    public ArrayList<StyleRule> getStyleRules() {
-        return styleRules;
+    public double getMinValue() {
+        return minValue;
     }
 
     /**
-     * @param styleRules
-     *            the styleRules to set
+     * @param minValue
+     *            the minValue to set
      */
-    public void setStyleRules(ArrayList<StyleRule> styleRules) {
-        this.styleRules = styleRules;
+    public void setMinValue(double minValue) {
+        this.minValue = minValue;
     }
 
-    public void addStyleRules(StyleRuleset ruleset) {
-        for (StyleRule sr : ruleset.getStyleRules()) {
-            styleRules.add(sr);
-        }
+    /**
+     * @return the maxValue
+     */
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    /**
+     * @param maxValue
+     *            the maxValue to set
+     */
+    public void setMaxValue(double maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public String getFormatString() {
+        return formatString;
+    }
+
+    public void setFormatString(String formatString) {
+        this.formatString = formatString;
     }
 
 }

@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style.level;
+package com.raytheon.uf.common.style.level;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
