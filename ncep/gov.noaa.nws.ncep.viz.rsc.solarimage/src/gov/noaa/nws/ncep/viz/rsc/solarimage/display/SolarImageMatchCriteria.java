@@ -29,16 +29,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.style.MatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 
-
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "solarImageMatches")
 public class SolarImageMatchCriteria extends MatchCriteria {
 
-//    private static final String INSTRUMENT = "instrument";
-//
-//    private static final String WAVELENGTH = "wavelength";
-//
-//    private static final String INT_TIME = "intTime";
+    // private static final String INSTRUMENT = "instrument";
+    //
+    // private static final String WAVELENGTH = "wavelength";
+    //
+    // private static final String INT_TIME = "intTime";
 
     @XmlElement
     private String instrument;
@@ -57,16 +56,16 @@ public class SolarImageMatchCriteria extends MatchCriteria {
 
         SolarImageMatchCriteria criteria = new SolarImageMatchCriteria();
 
-        if( !rscdata.getInstrument().isEmpty() ) {
-            criteria.setInstrument( rscdata.getInstrument() );
+        if (!rscdata.getInstrument().isEmpty()) {
+            criteria.setInstrument(rscdata.getInstrument());
         }
 
-        if( !rscdata.getWavelength().isEmpty() ) {
-            criteria.setWavelength( rscdata.getWavelength() );
+        if (!rscdata.getWavelength().isEmpty()) {
+            criteria.setWavelength(rscdata.getWavelength());
         }
 
-        if( !rscdata.getIntTime().isEmpty() ) {
-            criteria.setIntTime( rscdata.getIntTime() );    
+        if (!rscdata.getIntTime().isEmpty()) {
+            criteria.setIntTime(rscdata.getIntTime());
         }
 
         return criteria;
@@ -76,7 +75,7 @@ public class SolarImageMatchCriteria extends MatchCriteria {
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon
-     * .uf. viz.core.style.MatchCriteria)
+     * .uf.common.style.MatchCriteria)
      */
     @Override
     public int matches(MatchCriteria aCriteria) throws StyleException {
@@ -96,10 +95,10 @@ public class SolarImageMatchCriteria extends MatchCriteria {
                     && wavelength.equalsIgnoreCase(criteria.wavelength)) {
                 rval++;
             }
-            /*if (detector != null
-                    && detector.equalsIgnoreCase(criteria.detector)) {
-                rval++;
-            }*/
+            /*
+             * if (detector != null &&
+             * detector.equalsIgnoreCase(criteria.detector)) { rval++; }
+             */
         }
         return rval;
     }
