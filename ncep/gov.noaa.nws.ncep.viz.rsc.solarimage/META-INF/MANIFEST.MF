@@ -28,7 +28,8 @@ Require-Bundle: gov.nasa.gsfc.fits,
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.viz.xy.timeseries;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.viz.common,
- gov.noaa.nws.ncep.viz.resources;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.viz.resources;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: gov.noaa.nws.ncep.viz.ui.display

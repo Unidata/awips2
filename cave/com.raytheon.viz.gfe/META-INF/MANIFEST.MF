@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.google.guava;bundle-version="1.0.0"
+ com.google.guava;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,

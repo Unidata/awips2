@@ -26,8 +26,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.VizStyleException;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -75,11 +75,11 @@ public class SolarImageMatchCriteria extends MatchCriteria {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.core.style.MatchCriteria#matches(com.raytheon
+     * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon
      * .uf. viz.core.style.MatchCriteria)
      */
     @Override
-    public int matches(MatchCriteria aCriteria) throws VizStyleException {
+    public int matches(MatchCriteria aCriteria) throws StyleException {
         int rval = -1;
         if (aCriteria instanceof SolarImageMatchCriteria) {
             rval = 0;

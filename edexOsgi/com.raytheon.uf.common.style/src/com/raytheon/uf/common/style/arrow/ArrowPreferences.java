@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.style.arrow;
+package com.raytheon.uf.common.style.arrow;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "arrowStyle")
