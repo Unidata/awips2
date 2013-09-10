@@ -32,6 +32,7 @@
     	errorHandlerRef="errorHandler"
     	autoStartup="false">
         <!-- Allow use of sbn -->
+        <!--
 	    <endpoint id="pirepFileEndpoint" uri="file:${edex.home}/data/sbn/pirep?noop=true&amp;idempotent=false"/>
         
         <route id="pirepFileConsumerRoute">
@@ -42,6 +43,7 @@
             </setHeader>
             <to uri="jms-generic:queue:Ingest.pirep"/>
         </route>
+        -->
         <!-- End of section to allow use of sbn -->
         
         <!-- Begin pirep routes -->
