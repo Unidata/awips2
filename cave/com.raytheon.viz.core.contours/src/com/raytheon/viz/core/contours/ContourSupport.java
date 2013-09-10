@@ -50,6 +50,7 @@ import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.LabelingPreferences;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -62,7 +63,6 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.viz.core.contours.cache.SubGridCacheKey;
 import com.raytheon.viz.core.contours.util.ContourContainer;
 import com.raytheon.viz.core.contours.util.FortConBuf;
@@ -72,7 +72,7 @@ import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
 import com.raytheon.viz.core.contours.util.StrmPak;
 import com.raytheon.viz.core.contours.util.StrmPakConfig;
 import com.raytheon.viz.core.interval.XFormFunctions;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**

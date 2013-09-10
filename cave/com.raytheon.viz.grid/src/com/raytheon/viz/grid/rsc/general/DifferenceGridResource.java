@@ -38,6 +38,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -48,7 +49,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.GroupNamingCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
 

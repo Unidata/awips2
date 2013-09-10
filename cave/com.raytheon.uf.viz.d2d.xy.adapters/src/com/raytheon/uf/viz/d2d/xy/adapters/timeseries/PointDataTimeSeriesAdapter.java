@@ -45,6 +45,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
@@ -53,7 +54,6 @@ import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.objectiveanalysis.rsc.OAGridTransformer;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -121,10 +121,9 @@ public class PointDataTimeSeriesAdapter extends
         // Perhaps this should just be done using the resource metadatamap
         for (PluginDataObject pdo : recordsToLoad) {
             DataTime dt = pdo.getDataTime();
-            dataTimeConstraint.addToConstraintValueList(dt
-                    .toString());
+            dataTimeConstraint.addToConstraintValueList(dt.toString());
             refTimeOnly &= !dt.getUtilityFlags().contains(FLAG.FCST_USED);
-            if(refTimeOnly){
+            if (refTimeOnly) {
                 refTimeConstraint.addToConstraintValueList(TimeUtil
                         .formatToSqlTimestamp(dt.getRefTime()));
             }
@@ -136,23 +135,23 @@ public class PointDataTimeSeriesAdapter extends
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
                 resourceData.getMetadataMap());
         String[] parameters = null;
-        if(refTimeOnly){
-            refTimeConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
+        if (refTimeOnly) {
+            refTimeConstraint
+                    .setConstraintType(RequestConstraint.ConstraintType.IN);
             constraints.put("dataTime.refTime", refTimeConstraint);
-            parameters = new String[] {
-                    PointDataConstants.DATASET_REFTIME, parameter };
-        }else{
-            dataTimeConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
+            parameters = new String[] { PointDataConstants.DATASET_REFTIME,
+                    parameter };
+        } else {
+            dataTimeConstraint
+                    .setConstraintType(RequestConstraint.ConstraintType.IN);
             constraints.put("dataTime", dataTimeConstraint);
-            parameters = new String[] {
-                    PointDataConstants.DATASET_REFTIME,
+            parameters = new String[] { PointDataConstants.DATASET_REFTIME,
                     PointDataConstants.DATASET_FORECASTHR, parameter };
         }
 
         PointDataContainer pdc = DataCubeContainer.getPointData(
                 recordsToLoad[0].getPluginName(), parameters,
-                resourceData.getLevelKey(),
-                constraints);
+                resourceData.getLevelKey(), constraints);
         ArrayList<XYData> data = new ArrayList<XYData>();
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
