@@ -37,6 +37,11 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -53,15 +58,10 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.viz.core.contours.ContourSupport;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -118,7 +118,7 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.CONTOUR, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting contour style rule", e);
         }

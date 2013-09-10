@@ -33,6 +33,7 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -45,7 +46,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

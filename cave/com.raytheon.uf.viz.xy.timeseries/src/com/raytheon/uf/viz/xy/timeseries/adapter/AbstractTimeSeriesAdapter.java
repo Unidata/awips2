@@ -28,15 +28,15 @@ import javax.measure.unit.Unit;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 
 /**
- * TODO Add Description
+ * Adapts data for rendering on time series displays.
  * 
  * <pre>
  * 

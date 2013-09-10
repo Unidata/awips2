@@ -49,6 +49,11 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.GridUtil;
@@ -72,18 +77,13 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -471,7 +471,7 @@ public class OAResource extends
                             .getPreferences();
                     this.parameterUnitString = prefs.getDisplayUnitLabel();
                 }
-            } catch (VizStyleException e) {
+            } catch (StyleException e) {
                 statusHandler.handle(Priority.VERBOSE, e.getLocalizedMessage(),
                         e);
             }

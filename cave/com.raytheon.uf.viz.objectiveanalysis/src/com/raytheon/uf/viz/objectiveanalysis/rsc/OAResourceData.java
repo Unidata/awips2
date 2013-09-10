@@ -33,14 +33,14 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.style.level.SingleLevel;
+import com.raytheon.uf.common.style.level.Level.LevelType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.style.level.Level.LevelType;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 
 /**
  * Resource Data for Objective Analysis
