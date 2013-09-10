@@ -18,6 +18,7 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.common.dataplugin.geomag;bundle-version="1.0.0",
  org.geotools;bundle-version="2.6.4",
  com.raytheon.viz.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.xy;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.xy;bundle-version="1.12.1174",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
