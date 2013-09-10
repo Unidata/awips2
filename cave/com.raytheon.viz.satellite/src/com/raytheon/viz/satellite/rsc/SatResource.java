@@ -47,6 +47,14 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.SamplePreferences;
+import com.raytheon.uf.common.style.level.Level;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -59,15 +67,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
-import com.raytheon.viz.core.style.image.ImagePreferences;
-import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
@@ -299,8 +300,13 @@ public class SatResource extends
         match.setParameterName(Arrays.asList(physicalElement));
         match.setLevels(Arrays.asList((Level) level));
         match.setCreatingEntityNames(Arrays.asList(record.getCreatingEntity()));
-        StyleRule sr = StyleManager.getInstance().getStyleRule(
-                StyleManager.StyleType.IMAGERY, match);
+        StyleRule sr;
+        try {
+            sr = StyleManager.getInstance().getStyleRule(
+                    StyleManager.StyleType.IMAGERY, match);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
             sampleRange = ((ImagePreferences) sr.getPreferences())
                     .getSamplePrefs();

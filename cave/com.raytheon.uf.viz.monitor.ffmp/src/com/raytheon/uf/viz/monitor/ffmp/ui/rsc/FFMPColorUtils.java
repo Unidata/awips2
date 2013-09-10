@@ -32,13 +32,14 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleRuleset;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.viz.core.style.image.ImagePreferences;
 
 /**
  * FFMPColor Utility
@@ -53,7 +54,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  * 05/21/12		DR 14833    G. Zhang    Error handling for invalid cmap 
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * Jun 10, 2013 2075        njensen     Improved init time
- * 
+ * Sep 5, 2013  2051        mnash       Moved style rule instantiation so that we don't get NPEs
  * </pre>
  * 
  * @author dhladky
@@ -99,32 +100,33 @@ public class FFMPColorUtils {
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, getMatchCriteria());
-        } catch (VizStyleException e) {
+
+            String colormapfile = ((ImagePreferences) sr.getPreferences())
+                    .getDefaultColormap();
+
+            IColorMap cxml = null;
+
+            try {
+                cxml = ColorMapLoader.loadColorMap(colormapfile);
+            } catch (VizException e) {
+                e.printStackTrace();
+            }
+
+            if (cxml == null)
+                cxml = getDefaultColorMap(); // DR 14833: load the default map
+            ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
+            colormapparams = new ColorMapParameters();
+            colormapparams.setColorMap(colorMap);
+            colormapparams.setDisplayUnit(((ImagePreferences) sr
+                    .getPreferences()).getDisplayUnits());
+            colormapparams.setDataMapping(((ImagePreferences) sr
+                    .getPreferences()).getDataMapping());
+
+            colormapparams.setColorMapMin(0);
+            colormapparams.setColorMapMax(255);
+        } catch (StyleException e) {
             e.printStackTrace();
         }
-        String colormapfile = ((ImagePreferences) sr.getPreferences())
-                .getDefaultColormap();
-
-        IColorMap cxml = null;
-
-        try {
-            cxml = ColorMapLoader.loadColorMap(colormapfile);
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        if (cxml == null)
-            cxml = getDefaultColorMap(); // DR 14833: load the default map
-        ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
-        colormapparams = new ColorMapParameters();
-        colormapparams.setColorMap(colorMap);
-        colormapparams.setDisplayUnit(((ImagePreferences) sr.getPreferences())
-                .getDisplayUnits());
-        colormapparams.setDataMapping(((ImagePreferences) sr.getPreferences())
-                .getDataMapping());
-
-        colormapparams.setColorMapMin(0);
-        colormapparams.setColorMapMax(255);
     }
 
     public ColorMapParameters getColorMapParameters() {
@@ -350,8 +352,8 @@ public class FFMPColorUtils {
          * StyleRule loaded. So it is guaranteed the default can be loaded.
          */
 
-        com.raytheon.uf.viz.core.style.StyleRuleset srs = StyleManager
-                .getInstance().getStyleRuleSet(StyleManager.StyleType.IMAGERY);
+        StyleRuleset srs = StyleManager.getInstance().getStyleRuleSet(
+                StyleManager.StyleType.IMAGERY);
 
         for (StyleRule srl : srs.getStyleRules()) {
             String pn = "", cm = "";
@@ -383,7 +385,7 @@ public class FFMPColorUtils {
          * 
          * //get the StyleRule try {
          * sr=StyleManager.getInstance().getStyleRule(StyleManager
-         * .StyleType.IMAGERY, match); } catch (VizStyleException e) {
+         * .StyleType.IMAGERY, match); } catch (StyleException e) {
          * e.printStackTrace(); } }
          */
         // get the colormapfile name
