@@ -82,7 +82,7 @@ Provides: httpd-mmn = %{mmn}
 Obsoletes: apache, secureweb, mod_dav, mod_gzip, stronghold-apache
 Obsoletes: stronghold-htdocs, mod_put, mod_roaming
 Conflicts: pcre < 4.0
-Requires: httpd-tools = %{version}-%{release}, apr-util-ldap
+Requires: apr-util-ldap
 
 %description
 The Apache HTTP Server is a powerful, efficient, and extensible
@@ -115,14 +115,6 @@ BuildArch: noarch
 The httpd-manual package contains the complete manual and
 reference guide for the Apache HTTP server. The information can
 also be found at http://httpd.apache.org/docs/2.2/.
-
-%package tools
-Group: AWIPSII
-Summary: Tools for use with the Apache HTTP Server
-
-%description tools
-The httpd-tools package contains tools which can be used with 
-the Apache HTTP Server.
 
 %package -n mod_ssl
 Group: AWIPSII
@@ -559,14 +551,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_collaboration%{_localstatedir}/lib/dav
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_collaboration%{_localstatedir}/cache/mod_proxy
 
-/awips2/httpd_collaboration/%{_mandir}/man8/*
-%exclude /awips2/httpd_collaboration/%{_mandir}/man8/apxs.8*
-
-%files tools
-%defattr(-,root,root)
-/awips2/httpd_collaboration/%{_bindir}/*
 /awips2/httpd_collaboration/%{_mandir}/man1/*
-%doc LICENSE
+/awips2/httpd_collaboration/%{_mandir}/man8/*
 
 %files manual
 %defattr(-,root,root)
