@@ -10,3 +10,4 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status;bundle-version="1.12.1112"
 Import-Package: org.apache.camel,
  org.apache.commons.logging
+Export-Package: com.raytheon.uf.edex.distribution
