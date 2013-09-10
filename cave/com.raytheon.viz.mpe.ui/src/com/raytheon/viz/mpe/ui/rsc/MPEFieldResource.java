@@ -43,16 +43,16 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingE
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
@@ -320,15 +320,15 @@ public class MPEFieldResource extends
         for (int i = 0; i < accumInterval; ++i) {
             timeToLoad.setTime(currTime.getRefTime());
             timeToLoad.add(Calendar.HOUR, -i);
-                    	
-            if (displayField==DisplayFieldData.satPre) {
-            	 //SATPRE MPE file time stamp is the start time of the hour 
-            	 //i.e. a 12z -13z product has a time stamp of 12z.             	
-            	 timeToLoad.add(Calendar.HOUR, -1);             	 
+
+            if (displayField == DisplayFieldData.satPre) {
+                // SATPRE MPE file time stamp is the start time of the hour
+                // i.e. a 12z -13z product has a time stamp of 12z.
+                timeToLoad.add(Calendar.HOUR, -1);
             }
-            	 
+
             XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
-                   timeToLoad.getTime()); 
+                    timeToLoad.getTime());
             try {
                 file.load();
             } catch (IOException e) {

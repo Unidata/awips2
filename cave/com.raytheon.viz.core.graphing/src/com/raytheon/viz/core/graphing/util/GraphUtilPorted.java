@@ -20,10 +20,10 @@
 
 package com.raytheon.viz.core.graphing.util;
 
+import com.raytheon.uf.common.style.graph.AxisScale;
+import com.raytheon.uf.common.style.graph.GraphPreferences;
 import com.raytheon.viz.core.graphing.DataAxisInfo;
 import com.raytheon.viz.core.interval.XFormFunctions;
-import com.raytheon.viz.core.style.graph.AxisScale;
-import com.raytheon.viz.core.style.graph.GraphPreferences;
 
 /**
  * Util methods ported from various parts of D2D. Mostly from XFormFunctions.
@@ -367,8 +367,7 @@ public class GraphUtilPorted {
                     .getInterval());
         else if (value > dataAxisInfo.getDLinear())
             return (float) (N_GRAPH_DATA_DIVS - Math.log10(dataAxisInfo
-                    .getDivMax()
-                    / value)
+                    .getDivMax() / value)
                     / dataAxisInfo.getInterval());
         else
             return dataAxisInfo.getZeroDiv() + value
@@ -1288,11 +1287,11 @@ public class GraphUtilPorted {
         float dataMax = valueOfAxisDivision(maxDiv, dataAxisInfo);
         // fprintf(stderr,"zoomAxisInfo dataMin %f dataMax
         // %f\n",dataMin,dataMax);
-        DataAxisInfo zoomedInfo = calcDataAxisInfo(dataMin, dataAxisInfo
-                .isZeroYes(), dataAxisInfo.getAbsMin(), dataMax, zoomFactor,
-                dataAxisInfo.getStyle(), dataAxisInfo.getDivMin(), dataAxisInfo
-                        .getDivMax(), dataAxisInfo.getInterval(), dataAxisInfo
-                        .getDLinear(), dataAxisInfo.getZeroDiv(), perDecade);
+        DataAxisInfo zoomedInfo = calcDataAxisInfo(dataMin,
+                dataAxisInfo.isZeroYes(), dataAxisInfo.getAbsMin(), dataMax,
+                zoomFactor, dataAxisInfo.getStyle(), dataAxisInfo.getDivMin(),
+                dataAxisInfo.getDivMax(), dataAxisInfo.getInterval(),
+                dataAxisInfo.getDLinear(), dataAxisInfo.getZeroDiv(), perDecade);
         return zoomedInfo;
     }
 
