@@ -60,9 +60,8 @@ public class VIIRSDataRecordCriteria extends MatchCriteria {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon.uf.
-     * viz.core.style.MatchCriteria)
+     * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon.uf.
+     * common.style.MatchCriteria)
      */
     @Override
     public int matches(MatchCriteria aCriteria) throws StyleException {
