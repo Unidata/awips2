@@ -18,65 +18,56 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
+package com.raytheon.uf.common.style;
+
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * A rule for visualization style.
+ * Contains a set of style rules.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *                         chammack    Initial creation
+ * Sep 21, 2007            njensen     Initial creation
  * 
  * </pre>
  * 
- * 
+ * @author njensen
  */
-
+@XmlRootElement(name = "styleRuleset")
 @XmlAccessorType(XmlAccessType.NONE)
-public class StyleRule implements ISerializableObject {
+public class StyleRuleset implements ISerializableObject {
 
-    @XmlElementRef
-    private MatchCriteria matchCriteria;
-
-    @XmlElementRef
-    private AbstractStylePreferences preferences;
+    @XmlElement(name = "styleRule")
+    private ArrayList<StyleRule> styleRules = new ArrayList<StyleRule>();
 
     /**
-     * @return the matchCriteria
+     * @return the styleRules
      */
-    public MatchCriteria getMatchCriteria() {
-        return matchCriteria;
+    public ArrayList<StyleRule> getStyleRules() {
+        return styleRules;
     }
 
     /**
-     * @param matchCriteria
-     *            the matchCriteria to set
+     * @param styleRules
+     *            the styleRules to set
      */
-    public void setMatchCriteria(MatchCriteria matchCriteria) {
-        this.matchCriteria = matchCriteria;
+    public void setStyleRules(ArrayList<StyleRule> styleRules) {
+        this.styleRules = styleRules;
     }
 
-    /**
-     * @return the preferences
-     */
-    public AbstractStylePreferences getPreferences() {
-        return preferences;
-    }
-
-    /**
-     * @param preferences
-     *            the preferences to set
-     */
-    public void setPreferences(AbstractStylePreferences preferences) {
-        this.preferences = preferences;
+    public void addStyleRules(StyleRuleset ruleset) {
+        for (StyleRule sr : ruleset.getStyleRules()) {
+            styleRules.add(sr);
+        }
     }
 
 }

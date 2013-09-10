@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.style;
+package com.raytheon.uf.common.style;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -86,8 +86,8 @@ public class StyleManager {
                     "styleRules", aType.extensions, true, true);
             StyleRuleset rules = new StyleRuleset();
             for (LocalizationFile lf : files) {
-                rules.addStyleRules((StyleRuleset) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(lf.getFile().getPath()));
+                rules.addStyleRules(SerializationUtil.jaxbUnmarshalFromXmlFile(
+                        StyleRuleset.class, lf.getFile().getPath()));
             }
             this.rules.put(aType, rules);
         } catch (Exception e) {
@@ -104,30 +104,33 @@ public class StyleManager {
      * @param aCriteria
      *            the match criteria to find the best match for
      * @return the best matching style rule, or null if no matches are found
-     * @throws VizStyleException
+     * @throws StyleException
      */
     public StyleRule getStyleRule(StyleType aStyleType, MatchCriteria aCriteria)
-            throws VizStyleException {
+            throws StyleException {
         synchronized (aStyleType) {
             if (!this.rules.containsKey(aStyleType)) {
                 loadRules(aStyleType);
             }
         }
-        List<StyleRule> rules = this.rules.get(aStyleType).getStyleRules();
+        StyleRuleset set = this.rules.get(aStyleType);
         StyleRule bestMatch = null;
-        int matchRank = 0;
-        try {
-            for (StyleRule rule : rules) {
-                int value = aCriteria.matches(rule.getMatchCriteria());
-                if (value > matchRank) {
-                    matchRank = value;
-                    bestMatch = rule;
+        if (set != null) {
+            List<StyleRule> rules = this.rules.get(aStyleType).getStyleRules();
+            int matchRank = 0;
+            try {
+                for (StyleRule rule : rules) {
+                    int value = aCriteria.matches(rule.getMatchCriteria());
+                    if (value > matchRank) {
+                        matchRank = value;
+                        bestMatch = rule;
+                    }
                 }
+            } catch (Exception e) {
+                throw new StyleException(
+                        "Error determining matching rules.", e);
             }
-        } catch (Exception e) {
-            throw new VizStyleException("Error determining matching rules.", e);
         }
-
         return bestMatch;
     }
 
@@ -149,24 +152,24 @@ public class StyleManager {
         return new double[] { vmin, vmax };
 
     }
-    
-    /**2012-05-21
-     * DR 14833: FFMP uses this getter to find the color
-     * map if a user modified ffmpImageryStlyeRules.xml 
-     * incorrectly.
-     *  
-     * @param st:	StyleType
-     * @return:		StyleRuleset related to the StyleType
+
+    /**
+     * 2012-05-21 DR 14833: FFMP uses this getter to find the color map if a
+     * user modified ffmpImageryStlyeRules.xml incorrectly.
+     * 
+     * @param st
+     *            : StyleType
+     * @return: StyleRuleset related to the StyleType
      */
-    public StyleRuleset getStyleRuleSet(StyleType st){
-    	
-    	synchronized(st){ 
-    		
-    		if( ! rules.containsKey(st)){ 
-    			loadRules(st);
-    		} 
-    	}
-    	
-    	return rules.get(st);
+    public StyleRuleset getStyleRuleSet(StyleType st) {
+
+        synchronized (st) {
+
+            if (!rules.containsKey(st)) {
+                loadRules(st);
+            }
+        }
+
+        return rules.get(st);
     }
 }

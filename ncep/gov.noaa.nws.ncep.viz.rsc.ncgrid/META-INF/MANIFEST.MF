@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1161",
  gov.noaa.nws.ncep.common.log;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.gempak;bundle-version="1.0.0",
- gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.ncgrid,
