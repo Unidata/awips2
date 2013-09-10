@@ -27,6 +27,7 @@
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
 		
+		<!--
 		<endpoint id="airepFileEndpoint" uri="file:${edex.home}/data/sbn/airep?noop=true&amp;idempotent=false" />
 
 		<route id="airepFileConsumerRoute">
@@ -37,7 +38,7 @@
 			</setHeader>
 			<to uri="jms-generic:queue:Ingest.airep" />
 		</route>
-		
+		-->
 
 		<!-- Begin airep routes -->
 		<route id="airepIngestRoute">
