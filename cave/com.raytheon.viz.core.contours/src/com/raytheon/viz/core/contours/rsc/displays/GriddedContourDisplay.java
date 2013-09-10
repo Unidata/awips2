@@ -29,7 +29,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.contours.ContourRenderable;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 
 /**
  * Displays contours from GFE Grid Data

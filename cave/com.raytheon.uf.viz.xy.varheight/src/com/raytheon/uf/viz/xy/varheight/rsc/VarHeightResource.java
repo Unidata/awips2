@@ -31,6 +31,8 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.graph.GraphPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
@@ -64,7 +66,6 @@ import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.style.graph.GraphPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -130,8 +131,12 @@ public class VarHeightResource extends
             this.combineOperation = combinedResourceData.getCombineOperation();
         }
 
-        prefs = GraphPrefsFactory.buildPreferences(resourceData.getParameter(),
-                null);
+        try {
+            prefs = GraphPrefsFactory.buildPreferences(
+                    resourceData.getParameter(), null);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
 
         resourceData.addChangeListener(new IResourceDataChanged() {
 
