@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,11 +48,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 
-import org.apache.cxf.headers.Header;
-import org.apache.cxf.helpers.CastUtils;
-import org.w3c.dom.Element;
-
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -372,28 +370,29 @@ public class EbxmlObjectUtil {
         if (mc == null) {
             return "INTERNAL";
         }
-        String ip = null;
-        List<Header> headerList = CastUtils.cast((List<?>) mc
-                .get(Header.HEADER_LIST));
-        for (Header header : headerList) {
-            if (header.getObject() instanceof Element) {
-                if (header.getName().getLocalPart()
-                        .equals(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME)) {
-                    return ((Element) header.getObject()).getTextContent();
-                }
+        String clientHost = null;
+
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> requestHeaders = (Map<String, List<String>>) mc
+                .get(MessageContext.HTTP_REQUEST_HEADERS);
+        List<String> callingRegistryHeader = requestHeaders
+                .get(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME);
+        if (!CollectionUtil.isNullOrEmpty(callingRegistryHeader)) {
+            clientHost = callingRegistryHeader.get(0);
+        } else {
+            HttpServletRequest request = (HttpServletRequest) mc
+                    .get(MessageContext.SERVLET_REQUEST);
+
+            for (int i = 0; (i < 5)
+                    && (clientHost == null || clientHost.isEmpty() || "unknown"
+                            .equalsIgnoreCase(clientHost)); i++) {
+                clientHost = request.getHeader(HTTP_HEADERS.get(i));
+            }
+            if (clientHost == null || clientHost.length() == 0
+                    || "unknown".equalsIgnoreCase(clientHost)) {
+                clientHost = request.getRemoteAddr();
             }
         }
-        HttpServletRequest request = (HttpServletRequest) mc
-                .get(MessageContext.SERVLET_REQUEST);
-
-        for (int i = 0; (i < 5)
-                && (ip == null || ip.isEmpty() || "unknown"
-                        .equalsIgnoreCase(ip)); i++) {
-            ip = request.getHeader(HTTP_HEADERS.get(i));
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
+        return clientHost;
     }
 }
