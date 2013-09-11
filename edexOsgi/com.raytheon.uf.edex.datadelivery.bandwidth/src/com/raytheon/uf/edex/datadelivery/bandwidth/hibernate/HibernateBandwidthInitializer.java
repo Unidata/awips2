@@ -1,7 +1,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Apr 30, 2013 1960       djohnson     just call init rather than drop/create tables explicitly.
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
  * Sep 05, 2013 2330       bgonzale     On WFO registry init, only subscribe to local site subscriptions.
+ * Sep 06, 2013 2344       bgonzale     Removed attempt to add to immutable empty set.
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     @Override
     public void executeAfterRegistryInit() {
-        Set<Subscription> activeSubscriptions = Collections.emptySet();
+        Set<Subscription> activeSubscriptions = new HashSet<Subscription>();
         try {
             final String localOffice = SiteUtil.getSite();
 
