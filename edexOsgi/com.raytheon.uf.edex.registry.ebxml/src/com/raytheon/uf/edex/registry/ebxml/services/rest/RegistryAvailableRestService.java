@@ -28,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 
 /**
@@ -43,6 +41,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
+ * 9/5/2013     1538        bphillip    Removed log message
  * </pre>
  * 
  * @author bphillip
@@ -54,10 +53,6 @@ import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 public class RegistryAvailableRestService implements
         IRegistryAvailableRestService {
 
-    /** The logger */
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RegistryAvailableRestService.class);
-
     /**
      * Creates a new RegistryAvailableRestService
      */
@@ -68,7 +63,6 @@ public class RegistryAvailableRestService implements
     @GET
     @Produces("text/plain")
     public String isRegistryAvailable() {
-        statusHandler.info("Received request checking registry availability");
         if (DbInit.isDbInitialized()) {
             return RegistryAvailability.AVAILABLE;
         } else {
