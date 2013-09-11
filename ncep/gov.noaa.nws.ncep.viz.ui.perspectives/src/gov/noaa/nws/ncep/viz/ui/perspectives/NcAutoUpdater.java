@@ -81,8 +81,6 @@ public class NcAutoUpdater implements IAlertObserver {
                 AbstractRequestableResourceData reqResourceData)
                 throws VizException {
             Object objectToSend = null;
-            Map<String, Object> attribs = new HashMap<String, Object>(
-                    message.decodedAlert);
             String dataURI = message.dataURI;
             if (reqResourceData.isUpdatingOnMetadataOnly()) {
                 PluginDataObject record = RecordFactory.getInstance()
@@ -90,8 +88,7 @@ public class NcAutoUpdater implements IAlertObserver {
                 objectToSend = record;
 
             } else {
-                attribs.put("dataURI", message.dataURI);
-                objectToSend = Loader.loadData(attribs);
+                objectToSend = Loader.loadData(dataURI);
             }
             return objectToSend;
         }
