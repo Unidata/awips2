@@ -48,7 +48,11 @@ import com.raytheon.uf.common.dataplugin.scan.data.DMDTableDataRow;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableDataRow;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
@@ -71,12 +75,9 @@ import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.ResourceMonitor;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -93,6 +94,7 @@ import com.raytheon.uf.viz.monitor.scan.tables.SCANDmdTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANMesoTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANTableData;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANTvsTableDlg;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -115,6 +117,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Jul 24, 2013     2218   mpduff      Improved error handling, optimizations
  * Jul 30, 2013     2143   skorolev    Changes for non-blocking dialogs.
  * Aug 15, 2013     2143   mpduff      Fixed bug in nullifyMonitor()
+ * Sep 11, 2013     2277   mschenke    Got rid of ScriptCreator references
  * </pre>
  * 
  * @author dhladky
@@ -478,11 +481,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             double tilt) throws VizException {
         String uri = getAvailableUri(tilt, date, type, icao);
         ScanRecord scanRec = null;
-        Map<String, Object> vals = new HashMap<String, Object>();
-        vals.put("pluginName", "scan");
-        vals.put("dataURI", uri);
         if (uri != null) {
-            scanRec = (ScanRecord) Loader.loadData(vals);
+            scanRec = (ScanRecord) Loader.loadData(uri);
             File loc = HDF5Util.findHDF5Location(scanRec);
             IDataStore dataStore = DataStoreFactory.getDataStore(loc);
             if (scanRec != null) {
@@ -694,7 +694,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         try {
             ScanRecord rec = getScanRecord(type, icao, date, tilt);
             if (rec != null) {
-                data = getScanRecord(type, icao, date, tilt).getTableData();
+                data = rec.getTableData();
             }
         } catch (VizException ve) {
             statusHandler.warn("Couldn't load new ScanRecord: " + type.name());
@@ -1548,47 +1548,42 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     public Map<String, UnwarnedCell> retrieveWarnings(String icao, Date time,
             boolean severe, boolean tvs) {
 
-        Object[] resp;
         List<String> removeList = new ArrayList<String>();
         HashMap<String, UnwarnedCell> cells = new HashMap<String, UnwarnedCell>();
         List<AbstractWarningRecord> tvswarnings = new ArrayList<AbstractWarningRecord>();
         List<AbstractWarningRecord> severewarnings = new ArrayList<AbstractWarningRecord>();
-        HashMap<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-        LayerProperty lp = new LayerProperty();
+
+        DbQueryRequest request = new DbQueryRequest();
+        // TODO: There should be a smarter way to cap data requested using time
+        // passed in possibly. Should investigate into it
+        request.setLimit(NUMBER_OF_IMAGES);
+        request.setEntityClass(CAVEMode.getMode() == CAVEMode.PRACTICE ? PracticeWarningRecord.class
+                : WarningRecord.class);
+        if (icao != null) {
+            request.addConstraint("officeid",
+                    new RequestConstraint(icao.toUpperCase()));
+        }
+
         GeometryFactory factory = new GeometryFactory();
 
         try {
             ScanTableData<?> cellTable = getTableData(ScanTables.CELL, icao,
                     time);
 
-            vals.put("pluginName", new RequestConstraint("warning"));
-            if (icao != null) {
-                vals.put("officeid", new RequestConstraint(icao.toUpperCase()));
-            }
-            lp.setDesiredProduct(ResourceType.PLAN_VIEW);
-            lp.setEntryQueryParameters(vals, false);
-
-            lp.setNumberOfImages(NUMBER_OF_IMAGES);
-
-            String script = ScriptCreator.createScript(lp);
-            if (script != null) {
-                resp = Connector.getInstance().connect(script, null, 60000);
-
-                for (int i = 0; i < resp.length; i++) {
-
-                    AbstractWarningRecord rec = (AbstractWarningRecord) resp[i];
-
-                    if (rec.getPhensig() != null) {
-                        if (tvs
-                                && rec.getPhensig().equals(
-                                        ScanUtils.TORNADO_WARNING_PHENSIG)) {
-                            tvswarnings.add(rec);
-                        }
-                        if (severe
-                                && rec.getPhensig().equals(
-                                        ScanUtils.SEVERE_THUNDERSTORM_PHENSIG)) {
-                            severewarnings.add(rec);
-                        }
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            for (AbstractWarningRecord rec : response
+                    .getEntityObjects(AbstractWarningRecord.class)) {
+                if (rec.getPhensig() != null) {
+                    if (tvs
+                            && rec.getPhensig().equals(
+                                    ScanUtils.TORNADO_WARNING_PHENSIG)) {
+                        tvswarnings.add(rec);
+                    }
+                    if (severe
+                            && rec.getPhensig().equals(
+                                    ScanUtils.SEVERE_THUNDERSTORM_PHENSIG)) {
+                        severewarnings.add(rec);
                     }
                 }
             }
