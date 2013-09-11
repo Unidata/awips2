@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 10, 2012  1259      bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
  * Jun 11, 2013  2021      dhladky    WFS semi-scientific sizing.
  * Jun 14, 2013  2108      mpduff     Abstracted the class.
+ * Sept 09, 2013 2351      dhladky    Fixed incorrect calculation for default pointdata overhead
  * 
  * </pre>
  * 
@@ -115,7 +116,6 @@ public abstract class DataSizeUtils<DS extends DataSet> {
             PointTime time = (PointTime) ra.getTime();
             long l = st.getRequestBytesPerLatLonBoxAndTime(latSpan, lonSpan,
                     time.getInterval());
-
             return l;
         } else {
             throw new IllegalStateException(
