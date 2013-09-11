@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip    Refactor of registry query handling
  * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
+ * 9/5/2013     1538       bphillip    Removed log message
  * 
  * </pre>
  * 
@@ -108,7 +109,6 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
         }
 
         query(queryRequest.getQuery(), queryResponse, client);
-        statusHandler.info("Query completed.");
     }
 
     protected QueryParameters getParameterMap(Collection<SlotType> slots,
