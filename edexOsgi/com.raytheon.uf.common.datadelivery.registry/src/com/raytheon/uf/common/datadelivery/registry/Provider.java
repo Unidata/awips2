@@ -56,6 +56,7 @@ public class Provider implements ISerializableObject {
      * ------------ ---------- ----------- --------------------------
      * Feb 16, 2012            dhladky     Initial creation
      * Aug 16, 2012 1022       djohnson    Add bytesPerParameterRequest.
+     * Sept 10, 2013 2352      dhladky     Changed default size for point overhead
      * 
      * </pre>
      * 
@@ -65,7 +66,7 @@ public class Provider implements ISerializableObject {
     public enum ServiceType {
 
         // TODO: Only OPENDAP and WFS have the correct amounts
-        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(1411724,
+        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(711724,
                 OneByOneBox), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
                 BYTES_IN_FLOAT);
 
@@ -100,7 +101,8 @@ public class Provider implements ISerializableObject {
         public long getRequestBytesPerLatLonBoxAndTime(double latSpan,
                 double lonSpan, int timeSpan) {
             // increments are in 5 minutes so 5/5 = 1
-            return (long) (latSpan * lonSpan * timeSpan / 5 * requestOverheadInBytes);
+            // 30 min increment would be 30/5 = 6 etc.
+            return (long) (latSpan * lonSpan * (timeSpan/5) * requestOverheadInBytes);
         }
     }
 
