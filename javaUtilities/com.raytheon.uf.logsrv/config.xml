@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<logSrvConfig>
+  <clusterName>ts1-oma</clusterName>
+  <databaseDir>/awips2/edex/data/utility/nate</databaseDir>
+  <fromAddress>Nathan.Jensen@raytheon.com</fromAddress>
+  <smtpHost>mk2-msg10.raymail.ray.com</smtpHost>
+  <smtpPort>143</smtpPort>
+  <!-- toAddress>awipsctl@list.app.ray.com</toAddress-->
+  <toAddress>Nathan.Jensen@raytheon.com</toAddress>
+  <timeToSend>01:30</timeToSend>
+</logSrvConfig>
