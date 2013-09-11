@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1082       bphillip    Initial creation
  * 4/9/2013     1802       bphillip    Implemented notification handling
  * 5/21/2013    2022       bphillip    Reworked how notifications are handled
+ * 9/11/2013    2254       bphillip    Cleaned up handling of notifications and removed unneccessary code
  * 
  * </pre>
  * 
@@ -129,11 +130,12 @@ public class NotificationListenerImpl implements NotificationListener {
 
         // Process the received auditable events and add them to the appropriate
         // list based on the action performed
-        RegistryObjectActionList objActionList = new RegistryObjectActionList();
+
         for (AuditableEventType event : events) {
             List<ActionType> actions = event.getAction();
             for (ActionType action : actions) {
                 String eventType = action.getEventType();
+                List<String> objectIds = new ArrayList<String>();
 
                 // Verify this is a valid event type
                 if (!classificationNodeDao.isValidNode(eventType)) {
@@ -145,58 +147,56 @@ public class NotificationListenerImpl implements NotificationListener {
                 if (action.getAffectedObjectRefs() != null) {
                     for (ObjectRefType ref : action.getAffectedObjectRefs()
                             .getObjectRef()) {
-                        objActionList.addAction(eventType, ref.getId());
+                        objectIds.add(ref.getId());
                     }
                 } else if (action.getAffectedObjects() != null) {
                     for (RegistryObjectType regObj : action
                             .getAffectedObjects().getRegistryObject()) {
-                        objActionList.addAction(eventType, regObj.getId());
+                        objectIds.add(regObj.getId());
                     }
                 } else {
                     statusHandler.info("Event " + event.getId()
                             + " contains 0 affected objects ");
+                    continue;
                 }
-            }
-        }
 
-        for (RegistryObjectAction regObjAction : objActionList.getActionList()) {
-            String action = regObjAction.getAction();
-            try {
-                if (action.equals(ActionTypes.create)
-                        || action.equals(ActionTypes.update)) {
-                    SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
-                            clientBaseURL, notification.getId(),
-                            regObjAction.getObjIds(), Mode.CREATE_OR_REPLACE);
-                    lcm.submitObjects(submitRequest);
-                } else if (action.equals(ActionTypes.delete)) {
+                if (eventType.equals(ActionTypes.create)
+                        || eventType.equals(ActionTypes.update)) {
+                    try {
+                        SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
+                                clientBaseURL, notification.getId(), objectIds,
+                                Mode.CREATE_OR_REPLACE);
+                        lcm.submitObjects(submitRequest);
+                    } catch (MsgRegistryException e) {
+                        statusHandler.error(
+                                "Error creating objects in registry!", e);
+                    } catch (EbxmlRegistryException e) {
+                        statusHandler.error(
+                                "Error creating submit objects request!", e);
+                    }
+                } else if (eventType.equals(ActionTypes.delete)) {
                     ObjectRefListType refList = new ObjectRefListType();
-                    for (String id : regObjAction.getObjIds()) {
+                    for (String id : objectIds) {
                         RegistryObjectType object = registryObjectDao
                                 .getById(id);
                         if (object != null) {
-                            String replicaHome = object
-                                    .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
-                            if (clientBaseURL.equals(replicaHome)) {
-                                ObjectRefType ref = new ObjectRefType();
-                                ref.setId(id);
-                                refList.getObjectRef().add(ref);
-                            }
+                            refList.getObjectRef().add(new ObjectRefType(id));
                         }
                     }
                     RemoveObjectsRequest request = new RemoveObjectsRequest(
                             "Remove Objects for notification ["
                                     + notification.getId() + "]",
                             "Notification delete object submission", null,
-                            null, refList, false, false,
+                            null, refList, false, true,
                             DeletionScope.DELETE_ALL);
-                    lcm.removeObjects(request);
+                    try {
+                        lcm.removeObjects(request);
+                    } catch (MsgRegistryException e) {
+                        statusHandler.error(
+                                "Error creating remove objects request!", e);
+                    }
                 }
 
-            } catch (EbxmlRegistryException e) {
-                statusHandler
-                        .error("Error getting remote objects to create", e);
-            } catch (MsgRegistryException e) {
-                statusHandler.error("Error creating objects in registry!", e);
             }
         }
 
@@ -319,51 +319,6 @@ public class NotificationListenerImpl implements NotificationListener {
 
     public void setRegistryDao(RegistryDao registryDao) {
         this.registryDao = registryDao;
-    }
-
-    private class RegistryObjectActionList {
-
-        List<RegistryObjectAction> actionList = new ArrayList<RegistryObjectAction>();
-
-        public void addAction(String action, String objId) {
-            if (actionList.isEmpty()
-                    || !actionList.get(actionList.size() - 1).getAction()
-                            .equals(action)) {
-                RegistryObjectAction newAction = new RegistryObjectAction(
-                        action);
-                newAction.addObj(objId);
-                actionList.add(newAction);
-            } else {
-                actionList.get(actionList.size() - 1).addObj(objId);
-            }
-        }
-
-        public List<RegistryObjectAction> getActionList() {
-            return actionList;
-        }
-    }
-
-    private class RegistryObjectAction {
-
-        private String action;
-
-        private List<String> objIds = new ArrayList<String>();
-
-        public RegistryObjectAction(String action) {
-            this.action = action;
-        }
-
-        public void addObj(String obj) {
-            this.objIds.add(obj);
-        }
-
-        public String getAction() {
-            return action;
-        }
-
-        public List<String> getObjIds() {
-            return objIds;
-        }
     }
 
 }
