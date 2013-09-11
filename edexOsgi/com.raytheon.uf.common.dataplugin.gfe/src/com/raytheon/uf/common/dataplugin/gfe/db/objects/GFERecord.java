@@ -86,7 +86,7 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gfeseq")
-@Table(name = "gfe", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = GFERecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = {
         "parmId_id", "rangestart", "rangeend", "refTime", "forecasttime" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since

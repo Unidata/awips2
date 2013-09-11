@@ -89,7 +89,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "profilerseq")
-@Table(name = "profiler", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = ProfilerObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
