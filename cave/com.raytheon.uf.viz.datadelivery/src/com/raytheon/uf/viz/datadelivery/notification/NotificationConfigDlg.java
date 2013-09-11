@@ -49,11 +49,11 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
 
 /**
  * Notification Configuration Dialog
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 2, 2012            mpduff     Initial creation
@@ -64,9 +64,10 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Aug 08, 2012   863     jpiatt     Added new interface method.
  * Aug 13, 2012   430     jpiatt     Modifications for sort asc & desc.
  * Oct 22, 2012  1284     mpduff     Code Cleanup.
- *
+ * Aug 30, 2013  2314     mpduff     Fixed sorting ambiguity.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -129,7 +130,7 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parentShell
      * @param callback
      */
@@ -170,7 +171,10 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
 
         if (col != null) {
             for (ColumnXML column : col) {
-                sortAsc = column.isSortAsc();
+                if (column.isSortColumn()) {
+                    sortAsc = column.isSortAsc();
+                    break;
+                }
             }
         }
     }
@@ -261,7 +265,7 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         sortComp.setLayoutData(gd);
 
         Label label = new Label(sortComp, SWT.NONE);
-        label.setText("Initial Sort Column:");
+        label.setText("Sort Column:");
 
         sortColumnCbo = new Combo(sortComp, SWT.READ_ONLY);
         sortColumnCbo.setLayoutData(new GridData(150, SWT.DEFAULT));
@@ -602,7 +606,7 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
 
     /**
      * Handle the combo box with data.
-     *
+     * 
      * @param entries
      *            true if data in the combo box.
      */
