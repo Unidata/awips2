@@ -246,6 +246,7 @@
         <!-- exclude OGC services -->
         <exclude>.*ogc.*</exclude>
         <exclude>grid-metadata.xml</exclude>
+        <exclude>wxsrv-dataset-urn.xml</exclude>
     </mode>
 
 	<!-- modes listed below are not supported in a production setting, they 

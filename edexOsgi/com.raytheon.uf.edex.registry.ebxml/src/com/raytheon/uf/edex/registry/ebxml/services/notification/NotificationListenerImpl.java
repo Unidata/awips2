@@ -112,6 +112,7 @@ public class NotificationListenerImpl implements NotificationListener {
 
     @Override
     public void onNotification(NotificationType notification) {
+
         String clientBaseURL = EbxmlObjectUtil.getClientHost(wsContext);
         RegistryType sourceRegistry = registryDao
                 .getRegistryByBaseURL(clientBaseURL);

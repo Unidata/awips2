@@ -81,8 +81,10 @@ import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -118,6 +120,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 06, 2013 2030       mpduff       Updates to help.
  * Jul 05, 2013 2137       mpduff       Changed data type to a single select list, changed layout.
  * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
+ * Sep 04, 2013   2314     mpduff       Load/save config dialog now non-blocking.
  * 
  * </pre>
  * 
@@ -922,71 +925,79 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
      * @param type
      *            Dialog type.
      */
-    private void displayLoadSaveConfigDlg(DialogType type) {
+    private void displayLoadSaveConfigDlg(final DialogType type) {
         if (loadSaveDlg == null || loadSaveDlg.isDisposed()) {
-            FilterManager fm = FilterManager.getInstance();
-
             loadSaveDlg = new LoadSaveConfigDlg(shell, type, CONFIG_PATH,
                     DEFAULT_CONFIG, true);
+            loadSaveDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        locFile = (LocalizationFile) returnValue;
+                        FilterManager fm = FilterManager.getInstance();
+                        if (type == DialogType.SAVE_AS) {
+                            xml = new FilterSettingsXML();
+                            if (datatypeList.getSelectionCount() > 0) {
+                                // Save data type
+                                String dataType = datatypeList
+                                        .getItem(datatypeList
+                                                .getSelectionIndex());
+
+                                FilterTypeXML ftx = new FilterTypeXML();
+                                ftx.setFilterType("Data Type");
+                                ftx.addValue(dataType);
+
+                                xml.addFilterType(ftx);
+
+                                // Save area settings
+                                AreaXML area = new AreaXML();
+                                if (envelope != null) {
+                                    area.setEnvelope(envelope);
+                                }
+                                xml.setArea(area);
+
+                                setText(WINDOW_TITLE + " - ("
+                                        + locFile.getFile().getName() + ")");
+
+                                // Save filter settings
+                                filterExpandBar.populateFilterSettingsXml(xml);
+
+                                fm.setCurrentFile(locFile);
+                                fm.setXml(xml);
+                                fm.saveXml();
+                                setClean();
+                            } else {
+                                DataDeliveryUtils.showMessage(getShell(),
+                                        SWT.ICON_INFORMATION,
+                                        "Selection Required",
+                                        "Must make a selection before saving.");
+                            }
+
+                        } else if (type == DialogType.OPEN) {
+                            setText(WINDOW_TITLE + " - ("
+                                    + locFile.getFile().getName() + ")");
+                            fm.setCurrentFile(locFile);
+                            xml = fm.getXml();
+                            updateFilters();
+                            selectedFile = locFile.getFile().getName();
+
+                        } else if (type == DialogType.DELETE) {
+                            try {
+                                if (locFile != null) {
+                                    locFile.delete();
+                                }
+                            } catch (LocalizationOpFailedException e) {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        e.getLocalizedMessage(), e);
+                            }
+                            return;
+                        }
+                    }
+                    loadSaveDlg = null;
+                }
+            });
+
             loadSaveDlg.open();
-
-            if (type == DialogType.SAVE_AS) {
-                this.locFile = (LocalizationFile) loadSaveDlg.getReturnValue();
-                if (locFile != null) {
-                    xml = new FilterSettingsXML();
-
-                    // Save data type
-                    String dataType = datatypeList.getItem(datatypeList
-                            .getSelectionIndex());
-
-                    FilterTypeXML ftx = new FilterTypeXML();
-                    ftx.setFilterType("Data Type");
-                    ftx.addValue(dataType);
-
-                    xml.addFilterType(ftx);
-
-                    // Save area settings
-                    AreaXML area = new AreaXML();
-                    if (envelope != null) {
-                        area.setEnvelope(envelope);
-                    }
-                    xml.setArea(area);
-
-                    setText(WINDOW_TITLE + " - (" + locFile.getFile().getName()
-                            + ")");
-
-                    // Save filter settings
-                    filterExpandBar.populateFilterSettingsXml(xml);
-
-                    fm.setCurrentFile(locFile);
-                    fm.setXml(xml);
-                    fm.saveXml();
-                }
-
-                setClean();
-            } else if (type == DialogType.OPEN) {
-                this.locFile = (LocalizationFile) loadSaveDlg.getReturnValue();
-                if (locFile != null) {
-                    setText(WINDOW_TITLE + " - (" + locFile.getFile().getName()
-                            + ")");
-                    fm.setCurrentFile(locFile);
-                    xml = fm.getXml();
-                    updateFilters();
-                    this.selectedFile = locFile.getFile().getName();
-                }
-            } else if (type == DialogType.DELETE) {
-                this.locFile = (LocalizationFile) loadSaveDlg.getReturnValue();
-                try {
-                    if (locFile != null) {
-                        locFile.delete();
-                    }
-                } catch (LocalizationOpFailedException e) {
-                    // statusHandler.handle(Priority.PROBLEM,
-                    // e.getLocalizedMessage(), e);
-                    e.printStackTrace();
-                }
-                return;
-            }
         } else {
             loadSaveDlg.bringToTop();
         }
