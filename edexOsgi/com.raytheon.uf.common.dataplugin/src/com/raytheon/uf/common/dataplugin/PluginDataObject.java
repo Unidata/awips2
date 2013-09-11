@@ -122,6 +122,8 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     public static final String DATATIME_ID = "dataTime";
 
+    public static final String DATAURI_ID = "dataURI";
+
     public static final String ID_GEN = "idgen";
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)

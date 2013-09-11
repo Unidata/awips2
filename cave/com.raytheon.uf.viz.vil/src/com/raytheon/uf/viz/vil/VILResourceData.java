@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.vil;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +32,6 @@ import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -114,21 +112,6 @@ public class VILResourceData extends AbstractRequestableResourceData {
      * @return
      */
     private IDataStore getDataStore(VILRecord record) {
-        IDataStore dataStore = null;
-        try {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("dataURI", record.getDataURI());
-            vals.put("pluginName", record.getPluginName());
-
-            record = (VILRecord) Loader.loadData(vals);
-
-            File loc = HDF5Util.findHDF5Location(record);
-            dataStore = DataStoreFactory.getDataStore(loc);
-
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return dataStore;
+        return DataStoreFactory.getDataStore(HDF5Util.findHDF5Location(record));
     }
 }

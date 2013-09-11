@@ -20,14 +20,9 @@
 package com.raytheon.viz.aviation.monitor;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.aviation.observer.TafMonitorDlg;
@@ -42,6 +37,7 @@ import com.raytheon.viz.aviation.observer.TafMonitorDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            njensen     Initial creation
+ * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -77,21 +73,12 @@ public class LtgMonitorObserver extends MonitorObserver {
 
     private static BinLightningRecord getRecord(String dataUri) {
         BinLightningRecord rec = null;
-        Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
-        map.put("pluginName", new RequestConstraint("binlightning"));
-        map.put("dataURI", new RequestConstraint(dataUri));
-        LayerProperty lp = new LayerProperty();
         try {
-            lp.setEntryQueryParameters(map);
-            List<Object> objs = Loader.loadData(lp, "select", 10000);
-            if (objs.size() > 0) {
-                rec = (BinLightningRecord) objs.get(0);
-            }
+            rec = (BinLightningRecord) Loader.loadData(dataUri);
         } catch (VizException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         return rec;
     }
 
