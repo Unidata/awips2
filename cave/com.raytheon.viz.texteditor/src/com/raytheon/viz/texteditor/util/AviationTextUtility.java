@@ -22,7 +22,6 @@ package com.raytheon.viz.texteditor.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
@@ -40,9 +39,7 @@ import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.texteditor.StdTextProductFactory;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
 
@@ -59,6 +56,7 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  *                                       dependency
  * 05/10/2010   2187        cjeanbap    Added StdTextProductFactory 
  *                                       functionality.
+ * 09/11/2013   2277        mschenke    Removed unused function
  * </pre>
  * 
  * @author grichard
@@ -66,7 +64,8 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  */
 
 public class AviationTextUtility implements IAviationObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AviationTextUtility.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AviationTextUtility.class);
 
     /**
      * Method to save a temporary working version of a TAF bulletin to the text
@@ -126,8 +125,7 @@ public class AviationTextUtility implements IAviationObserver {
             rcRow = new RequestConstraint(
                     SerializationUtil.marshalToXml(tmpProd));
         } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error serializing data", e);
+            statusHandler.handle(Priority.PROBLEM, "Error serializing data", e);
             return;
         }
         // New up hash map and populate with entry query
@@ -154,70 +152,9 @@ public class AviationTextUtility implements IAviationObserver {
             // textEditor.insert(((StdTextProduct) (list.get(0)))
             // .getProduct());
         } catch (VizException e1) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error retrieving metadata", e1);
+            statusHandler.handle(Priority.PROBLEM, "Error retrieving metadata",
+                    e1);
         }
-    }
-
-    /**
-     * Method to recover a temporary working version of a TAF bulletin from the
-     * text database.
-     * 
-     * @return String -- recovered temporary working version of a TAF bulletin
-     */
-    @Override
-    public List<Object> recoverTafBulletin() {
-        // Set the node based on localization.
-        String siteNode = LocalizationManager.getInstance().getCurrentSite();
-
-        // Set the Site ID based on localization.
-        String siteName = LocalizationManager.getInstance().getCurrentSite()
-                .toUpperCase();
-        if (siteName.length() == 3) {
-            siteName = SiteMap.getInstance().getSite4LetterId(siteName);
-        }
-        if ((siteName == null) || (siteName.equals(""))) {
-            siteName = "CCCC";
-        }
-
-        // New up request constraint for table request and
-        // also of the class name of the table for the request
-        RequestConstraint rcTable = new RequestConstraint("table");
-        String tableDatabaseName = "fxa";
-        String tableClassName = StdTextProduct.class.getName();
-
-        RequestConstraint rcDatabase = new RequestConstraint(tableDatabaseName);
-        RequestConstraint rcClass = new RequestConstraint(tableClassName);
-
-        RequestConstraint rcNode = new RequestConstraint(siteNode);
-        RequestConstraint rcCategory = new RequestConstraint("WRK");
-        RequestConstraint rcDesignator = new RequestConstraint("TAF");
-
-        // New up hash map and populate with entry query
-        // parameters before newing up layer property
-        HashMap<String, RequestConstraint> query = new HashMap<String, RequestConstraint>();
-        query.put("pluginName", rcTable);
-        query.put("databasename", rcDatabase);
-        query.put("classname", rcClass);
-        query.put("prodId.cccid", rcNode);
-        query.put("prodId.nnnid", rcCategory);
-        query.put("prodId.xxxid", rcDesignator);
-
-        // New up layer property and set then entry parameters
-        LayerProperty lpParm = new LayerProperty();
-        try {
-            lpParm.setEntryQueryParameters(query, false);
-            // Create Image <Any> Script for table request
-            String tableScript = ScriptCreator.createScript(lpParm);
-            // Capture the script to the console for now...
-            // System.out.printf("The query script is: %n%s%n",
-            // tableScript);
-            return Loader.loadData(tableScript, 10000);
-        } catch (VizException e1) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error retrieving metadata", e1);
-        }
-        return null;
     }
 
     private String getCurrentDate() {

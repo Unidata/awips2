@@ -60,12 +60,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "warningseq")
-@Table(name = "warning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = WarningRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "warning", indexes = {
+@org.hibernate.annotations.Table(appliesTo = WarningRecord.PLUGIN_NAME, indexes = {
         @Index(name = "warning_refTimeIndex", columnNames = { "refTime",
                 "forecastTime" }),
         @Index(name = "warning_office_phensig_index", columnNames = {
@@ -133,6 +133,8 @@ public class WarningRecord extends AbstractWarningRecord {
 
     }
 
+    public static final String PLUGIN_NAME = "warning";
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -173,6 +175,6 @@ public class WarningRecord extends AbstractWarningRecord {
 
     @Override
     public String getPluginName() {
-        return "warning";
+        return PLUGIN_NAME;
     }
 }
