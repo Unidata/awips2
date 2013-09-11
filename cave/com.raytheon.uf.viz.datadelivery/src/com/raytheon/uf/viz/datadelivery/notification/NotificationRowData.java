@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * ------------ ---------- ----------- --------------------------
  * Feb 3, 2012            mpduff     Initial creation
  * Jun 07, 2012   687     lvenable   Table data refactor.
+ * Aug 30, 2013  2314     mpduff     Fix formatting.
  * 
  * </pre>
  * 
@@ -48,7 +49,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 public class NotificationRowData implements ITableData<NotificationRowData> {
 
     /** Column string array */
-    private final String[] columns = DataDeliveryUtils.getColumnTitles(TABLE_TYPE.NOTIFICATION);
+    private final String[] columns = DataDeliveryUtils
+            .getColumnTitles(TABLE_TYPE.NOTIFICATION);
 
     /** Notification Identification number */
     private int id;
@@ -86,6 +88,7 @@ public class NotificationRowData implements ITableData<NotificationRowData> {
      * @param sortCallback
      *            The sort call back.
      */
+    @Override
     public void setSortCallback(ISortTable sortCallback) {
         this.sortCallback = sortCallback;
     }
@@ -224,19 +227,17 @@ public class NotificationRowData implements ITableData<NotificationRowData> {
 
         if (columnName.equals("Time")) {
             returnValue = checkDate(this.getDate(), o.getDate());
-        }
-        else if (columnName.equals("Priority")) {
+        } else if (columnName.equals("Priority")) {
             returnValue = 0;
             if (priority > o.getPriority()) {
                 returnValue = 1;
-            }
-            else if (priority < o.getPriority()) {
+            } else if (priority < o.getPriority()) {
                 returnValue = -1;
             }
-        }
-        else {
+        } else {
             if (o.getSortValue(columnName) != null) {
-                returnValue = sortValue.toUpperCase().compareTo(o.getSortValue(columnName).toUpperCase());
+                returnValue = sortValue.toUpperCase().compareTo(
+                        o.getSortValue(columnName).toUpperCase());
             }
         }
 
@@ -252,21 +253,17 @@ public class NotificationRowData implements ITableData<NotificationRowData> {
         // handle empty date cells
         if ((d1 == null) && (d2 == null)) {
             return 0;
-        }
-        else if (d1 == null) {
+        } else if (d1 == null) {
             return -1;
-        }
-        else if (d2 == null) {
+        } else if (d2 == null) {
             return 1;
         }
 
         if (d1.before(d2)) {
             return 1;
-        }
-        else if (d1.after(d2)) {
+        } else if (d1.after(d2)) {
             return -1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -288,20 +285,15 @@ public class NotificationRowData implements ITableData<NotificationRowData> {
 
         if (columnName.equals(columns[0])) {
             return String.valueOf(this.getDate());
-        }
-        else if (columnName.equals(columns[1])) {
+        } else if (columnName.equals(columns[1])) {
             return String.valueOf(this.priority);
-        }
-        else if (columnName.equals(columns[2])) {
+        } else if (columnName.equals(columns[2])) {
             return this.getCategory().toString();
-        }
-        else if (columnName.equals(columns[3])) {
+        } else if (columnName.equals(columns[3])) {
             return this.getUser().toString();
-        }
-        else if (columnName.equals(columns[4])) {
+        } else if (columnName.equals(columns[4])) {
             return this.getMessage().toString();
-        }
-        else {
+        } else {
             return null;
         }
     }

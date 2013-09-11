@@ -97,6 +97,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 6/4/2013     1707        bphillip    Changed to use new NotificationServer objects
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
  * 8/1/2013     1693        bphillip    Switch to use rest service instead of query manager for federation synchronization
+ * 9/5/2013     1538        bphillip    Changed when the registry availability monitor is started
  * </pre>
  * 
  * @author bphillip
@@ -145,7 +146,7 @@ public class RegistryReplicationManager {
      * will be used for synchronization. Configurable in the
      * com.raytheon.uf.edex.registry.ebxml.properties file. Default is 25
      */
-    private int registrySyncThreads = 25;
+    private int registrySyncThreads = 5;
 
     private int maxSyncRetries = 3;
 
@@ -249,12 +250,6 @@ public class RegistryReplicationManager {
                             synchronizeRegistryWithFederation(registryToSyncFrom
                                     .getRegistryBaseURL());
 
-                            statusHandler
-                                    .info("Starting federated uptime monitor...");
-                            scheduler.scheduleAtFixedRate(
-                                    federatedRegistryMonitor, 0, 1,
-                                    TimeUnit.MINUTES);
-                            // Sync was successful, break out of retry loop
                             break;
                         }
                     }
@@ -278,6 +273,9 @@ public class RegistryReplicationManager {
                 }
             }
         }
+        statusHandler.info("Starting federated uptime monitor...");
+        scheduler.scheduleAtFixedRate(federatedRegistryMonitor, 0, 1,
+                TimeUnit.MINUTES);
     }
 
     private void synchronizeRegistryWithFederation(String remoteRegistryUrl)

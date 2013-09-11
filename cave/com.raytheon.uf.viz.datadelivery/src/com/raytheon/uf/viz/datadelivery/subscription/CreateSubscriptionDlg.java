@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.auth.UserController;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
@@ -103,6 +104,8 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Jun 12, 2013 2038       djohnson    No longer modal.
  * Jul 26, 2013   2232     mpduff      Refactored Data Delivery permissions.
  * Aug 21, 2013   1848     mpduff      Check subscription.create and shared.subscription.create.
+ * Aug 30, 2013   2288     bgonzale    Added display of priority and latency rules.
+ * Sep 04, 2013   2314     mpduff      Pass in the office to Shared Subscription Dialog.
  * 
  * </pre>
  * 
@@ -227,17 +230,33 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         int latency = 15;
         SubscriptionPriority priority = SubscriptionPriority.NORMAL;
         SystemRuleManager ruleManager = SystemRuleManager.getInstance();
+        boolean isReadOnlyLatency = false;
+
+        // rule values
+        SubscriptionPriority priorityRule = null;
+        int latencyRule = 0;
 
         if (this.subscription.getDataSetType() == DataType.GRID) {
-            latency = ruleManager.getLatency(subscription, cycleTimes);
-            priority = ruleManager.getPriority(subscription, cycleTimes);
-            priorityComp = new PriorityComp(mainComp, latency, priority, false);
+            latencyRule = ruleManager.getLatency(subscription, cycleTimes);
+            priorityRule = ruleManager.getPriority(subscription, cycleTimes);
+            isReadOnlyLatency = false;
         } else if (this.subscription.getDataSetType() == DataType.POINT) {
             // For point the latency is the retrieval interval
-            latency = ((PointTime) subscription.getTime()).getInterval();
-            priority = ruleManager.getPointDataPriority(subscription);
-            priorityComp = new PriorityComp(mainComp, latency, priority, true);
+            latencyRule = ((PointTime) subscription.getTime()).getInterval();
+            priorityRule = ruleManager.getPointDataPriority(subscription);
+            isReadOnlyLatency = true;
         }
+
+        if (isCreate()) {
+            latency = latencyRule;
+            priority = priorityRule;
+        } else {
+            latency = subscription.getLatencyInMinutes();
+            priority = subscription.getPriority();
+        }
+
+        priorityComp = new PriorityComp(mainComp, latencyRule, latency,
+                priorityRule, priority, isReadOnlyLatency);
 
         if (this.subscription.getDataSetType() == DataType.GRID) {
             this.createCycleGroup();
@@ -382,7 +401,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         btn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
+                String currentSite = LocalizationManager.getInstance()
+                        .getCurrentSite();
+                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, currentSite,
                         sharedSites);
                 dlg.setCloseCallback(new ICloseCallback() {
                     @Override

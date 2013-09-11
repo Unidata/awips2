@@ -81,7 +81,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.w3.XMLSchema"
+         id="org.w3.xmlschema"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
