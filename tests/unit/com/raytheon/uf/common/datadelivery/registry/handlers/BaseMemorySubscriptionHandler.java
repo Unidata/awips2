@@ -42,6 +42,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Feb 20, 2013 1543       djohnson     Implement route filtering.
  * May 15, 2013 1040       mpduff       Office Id now a set.
  * May 28, 2013 1650       djohnson     Add getByNames.
+ * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -116,11 +117,13 @@ public class BaseMemorySubscriptionHandler<T extends Subscription> extends
      * {@inheritDoc}
      */
     @Override
-    public Set<String> getSubscribedToDataSetNames()
+    public Set<String> getSubscribedToDataSetNames(String siteId)
             throws RegistryHandlerException {
         Set<String> retVal = new HashSet<String>();
         for (T obj : getAll()) {
-            retVal.add(obj.getDataSetName());
+            if (matches(siteId, obj.getOfficeIDs())) {
+                retVal.add(obj.getDataSetName());
+            }
         }
 
         return retVal;

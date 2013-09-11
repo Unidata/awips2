@@ -99,6 +99,9 @@ public class DataProviderPasswordComposite extends Composite implements
     /** Provider object */
     private Provider provider;
 
+    /** Remove credentials check box */
+    private Button removeChk;
+
     /**
      * Constructor
      * 
@@ -228,6 +231,22 @@ public class DataProviderPasswordComposite extends Composite implements
             }
         });
 
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.horizontalSpan = 3;
+        Label sep = new Label(comp, SWT.SEPARATOR | SWT.SHADOW_IN
+                | SWT.HORIZONTAL);
+        sep.setLayoutData(gd);
+
+        removeChk = new Button(comp, SWT.CHECK);
+        removeChk.setText("Remove Credentials");
+        removeChk.setSelection(false);
+        removeChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                enableWidgets(!removeChk.getSelection());
+            }
+        });
+
         // Buttons
         buttonComp = new ApplyCancelComposite(this, SWT.NONE, this);
 
@@ -247,6 +266,12 @@ public class DataProviderPasswordComposite extends Composite implements
         }
         for (Provider p : providerList) {
             providerCombo.add(p.getName());
+        }
+
+        if (providerCombo.getItemCount() > 0) {
+            providerCombo.select(0);
+            handleProviderSelection();
+            checkUserInput();
         }
     }
 
@@ -286,17 +311,19 @@ public class DataProviderPasswordComposite extends Composite implements
                     resp = (ProviderKeyRequest) RequestRouter.route(req,
                             RegistryConstants.EBXML_REGISTRY_SERVICE);
                     Connection conn = resp.getProvider().getConnection();
-                    String userName = conn.getUnencryptedUsername();
-                    String passwd = conn.getUnencryptedPassword();
-                    String key = conn.getProviderKey();
-                    if (userName != null) {
-                        userTxt.setText(userName);
-                    }
-                    if (passwd != null) {
-                        passTxt.setText(passwd);
-                    }
-                    if (key != null) {
-                        keyTxt.setText(key);
+                    if (conn != null) {
+                        String userName = conn.getUnencryptedUsername();
+                        String passwd = conn.getUnencryptedPassword();
+                        String key = conn.getProviderKey();
+                        if (userName != null) {
+                            userTxt.setText(userName);
+                        }
+                        if (passwd != null) {
+                            passTxt.setText(passwd);
+                        }
+                        if (key != null) {
+                            keyTxt.setText(key);
+                        }
                     }
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -312,6 +339,7 @@ public class DataProviderPasswordComposite extends Composite implements
     @Override
     public boolean apply() {
         if (validation()) {
+
             ProviderKeyRequest req = new ProviderKeyRequest();
             Connection conn = provider.getConnection();
             conn.setPassword(passTxt.getText());
@@ -320,7 +348,11 @@ public class DataProviderPasswordComposite extends Composite implements
             conn.setEncryption(getEncryption());
             provider.setConnection(conn);
             req.setProvider(provider);
-            req.setRequestType(RequestType.SAVE);
+            if (removeChk.getSelection()) {
+                req.setRequestType(RequestType.DELETE);
+            } else {
+                req.setRequestType(RequestType.SAVE);
+            }
             req.setProviderKey(keyTxt.getText());
 
             ProviderKeyRequest resp;
@@ -342,6 +374,11 @@ public class DataProviderPasswordComposite extends Composite implements
                 DataDeliveryUtils.showMessage(getShell(), SWT.OK,
                         "Change Successful",
                         "The username/password has been updated.");
+                if (removeChk.getSelection()) {
+                    userTxt.setText("");
+                    passTxt.setText("");
+                    keyTxt.setText("");
+                }
             }
 
             return status == Status.SUCCESS;
@@ -349,6 +386,18 @@ public class DataProviderPasswordComposite extends Composite implements
 
         return false;
 
+    }
+
+    private void enableWidgets(boolean enable) {
+        userTxt.setEnabled(enable);
+        passTxt.setEnabled(enable);
+        keyTxt.setEnabled(enable);
+
+        if (!enable) {
+            buttonComp.enableButtons(true);
+        } else {
+            checkUserInput();
+        }
     }
 
     /**

@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.ColumnXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionManagerConfigXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 
@@ -66,6 +67,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Jan 03, 2013  1437      bgonzale   Removed xml attribute, use SubscriptionConfigurationManager
  *                                    instead.  Added configuration file management controls to
  *                                    this dialog.
+ * Sep 04, 2013  2314      mpduff     Load/save config dialog now non-blocking.
  * 
  * </pre>
  * 
@@ -80,7 +82,7 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
             .getHandler(SubscriptionManagerDlg.class);
 
     /** Callback to SubscriptionManagerDialog */
-    private ITableChange callback;
+    private final ITableChange callback;
 
     /** Dual List Config */
     private DualListConfig dualConfig;
@@ -101,7 +103,17 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
     /**
      * Configuration manager.
      */
-    private SubscriptionConfigurationManager configManager;
+    private final SubscriptionConfigurationManager configManager;
+
+    /**
+     * Delete saved configuration file dialog.
+     */
+    private LoadSaveConfigDlg deleteDialog;
+
+    /**
+     * Load saved configuration file dialog.
+     */
+    private LoadSaveConfigDlg loadDlg;
 
     /**
      * Initialization Constructor.
@@ -304,38 +316,55 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
      * Open dialog to remove a configuration.
      */
     protected void handleDelete() {
-        LoadSaveConfigDlg dialog = new LoadSaveConfigDlg(shell,
-                DialogType.DELETE, configManager.getLocalizationPath(),
-                configManager.getDefaultXMLConfig());
-        LocalizationFile file = (LocalizationFile) dialog.open();
-
-        if (file == null) {
-            return;
+        if (deleteDialog == null || deleteDialog.isDisposed()) {
+            deleteDialog = new LoadSaveConfigDlg(shell, DialogType.DELETE,
+                    configManager.getLocalizationPath(),
+                    configManager.getDefaultXMLConfig());
+            deleteDialog.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile file = (LocalizationFile) returnValue;
+                        try {
+                            file.delete();
+                        } catch (LocalizationOpFailedException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
+                        }
+                        updateFileCombo();
+                        handleApply();
+                    }
+                }
+            });
+            deleteDialog.open();
+        } else {
+            deleteDialog.bringToTop();
         }
-        try {
-            file.delete();
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        updateFileCombo();
-        handleApply();
     }
 
     /**
      * Open dialog for a new configuration.
      */
     protected void handleNew() {
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS, configManager.getLocalizationPath(),
-                configManager.getDefaultXMLConfig(), true);
-        LocalizationFile file = (LocalizationFile) loadDlg.open();
-
-        if (file == null) {
-            return;
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            loadDlg = new LoadSaveConfigDlg(shell, DialogType.SAVE_AS,
+                    configManager.getLocalizationPath(),
+                    configManager.getDefaultXMLConfig(), true);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile file = (LocalizationFile) returnValue;
+                        configManager.saveXml(file);
+                        handleApply();
+                        updateFileCombo();
+                    }
+                }
+            });
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
         }
-        configManager.saveXml(file);
-        handleApply();
-        updateFileCombo();
     }
 
     /**

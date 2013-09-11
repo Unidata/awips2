@@ -1,8 +1,10 @@
 package com.raytheon.uf.edex.datadelivery.event.notification;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -21,6 +23,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Mar 1, 2012            jsanchez     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
  * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
+ * 09/05/2013   2314       mpduff      Change query to an "in" query for user names.
  * 
  * </pre>
  * 
@@ -29,6 +32,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  */
 public class NotificationDao extends
         SessionManagedDao<Integer, NotificationRecord> {
+    private static final Pattern SPLIT_PATTERN = Pattern.compile(",");
 
     /**
      * Creates a new data access object
@@ -47,42 +51,56 @@ public class NotificationDao extends
      *            can be to be retrieved
      * @param maxResults
      *            The max result of records to retrieve
-     * @return the Notificaion records based on passed contraints. The records
+     * @param loadAll
+     *            Load all messages flag
+     * @return the Notification records based on passed constraints. The records
      *         are in descending order based on date
      */
     public List<NotificationRecord> lookupNotifications(String username,
-            Integer hours, Integer maxResults) {
-        String hql = "from NotificationRecord rec";
-        String nameClause = " rec.username=:userName ";
+            Integer hours, Integer maxResults, Boolean loadAll) {
+        StringBuilder hql = new StringBuilder("from NotificationRecord rec");
+        String nameClause = " rec.username in (:userNames) ";
         String dateClause = " rec.date >= :date ";
         Calendar latestTime = null;
+        List<String> userNames = null;
+
         if (hours != null) {
             latestTime = Calendar.getInstance();
             latestTime.add(Calendar.HOUR, -hours);
         }
 
-        List<Object> params = new ArrayList<Object>();
-        if (username == null && hours != null) {
-            hql += " where " + dateClause;
-            params.add("date");
-            params.add(latestTime);
-        } else if (username != null && hours == null) {
-            hql += " where " + nameClause;
-            params.add("userName");
-            params.add(username);
-        } else if (username != null && hours != null) {
-            hql += " where " + nameClause + " and " + dateClause;
-            params.add("date");
-            params.add(latestTime);
-            params.add("userName");
-            params.add(username);
+        if (username != null) {
+            String[] users = SPLIT_PATTERN.split(username);
+            userNames = Arrays.asList(users);
         }
-        hql += " order by rec.date desc";
+        List<Object> params = new ArrayList<Object>();
+        if (userNames == null && hours != null) {
+            if (!loadAll) {
+                hql.append(" where ").append(dateClause);
+                params.add("date");
+                params.add(latestTime);
+            }
+        } else if (userNames != null && hours == null) {
+            hql.append(" where ").append(nameClause);
+            params.add("userNames");
+            params.add(userNames);
+        } else if (userNames != null && hours != null) {
+            hql.append(" where ").append(nameClause);
+            if (!loadAll) {
+                hql.append(" and ").append(dateClause);
+                params.add("date");
+                params.add(latestTime);
+            }
+            params.add("userNames");
+            params.add(userNames);
+        }
+        hql.append(" order by rec.date desc");
 
         if (maxResults == null) {
-            return this.query(hql, params.toArray(new Object[params.size()]));
+            return this.query(hql.toString(),
+                    params.toArray(new Object[params.size()]));
         } else {
-            return this.query(hql, maxResults,
+            return this.query(hql.toString(), maxResults,
                     params.toArray(new Object[params.size()]));
         }
     }
