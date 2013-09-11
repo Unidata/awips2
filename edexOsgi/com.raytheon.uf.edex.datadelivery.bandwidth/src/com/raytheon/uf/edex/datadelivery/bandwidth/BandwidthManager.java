@@ -34,7 +34,6 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -115,6 +114,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jul 11, 2013 2106       djohnson     Propose changing available bandwidth returns subscription names.
  * Jul 18, 2013 1653       mpduff       Added case GET_SUBSCRIPTION_STATUS.
  * Aug 06, 2013 1654       bgonzale     Added SubscriptionRequestEvents.
+ * Sep 11, 2013 2351       dhladky      Fixed adhoc requests for pointdata
  * </pre>
  * 
  * @author dhladky
@@ -440,15 +440,13 @@ public abstract class BandwidthManager extends
         // Store the AdhocSubscription with a base time of now..
         subscriptions.add(bandwidthDao.newBandwidthSubscription(subscription,
                 now));
-
-        // Check start time in Time, if it is blank, we need to add the most
-        // recent MetaData for the DataSet subscribed to.
-        final Time subTime = subscription.getTime();
-        if (subTime.getStart() == null) {
-            subscription = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(
-                    subscription, true);
-        }
-
+        /**
+         * This check allows for retrieval of data older than current for grid.
+         * This is not allowed for pointdata types, they must grab current URL
+         * and time.
+         */
+        subscription = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(
+                subscription, true);
         // Use SimpleSubscriptionAggregator (i.e. no aggregation) to generate a
         // SubscriptionRetrieval for this AdhocSubscription
         SimpleSubscriptionAggregator a = new SimpleSubscriptionAggregator(
