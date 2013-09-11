@@ -78,7 +78,7 @@ public class CatalogQuery {
         for (int i = 0; i < fieldResults.length; ++i) {
             fieldResults[i] = String.valueOf(results[i]);
         }
-        return fieldResults.length == 0 ? null : fieldResults;
+        return fieldResults;
     }
 
     /**

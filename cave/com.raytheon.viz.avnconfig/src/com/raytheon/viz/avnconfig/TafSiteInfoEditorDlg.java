@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -50,16 +49,15 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
 import com.raytheon.uf.common.dataplugin.text.request.GetPartialAfosIdRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
@@ -84,6 +82,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                      and made non-blocking.
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 11 Sep 2013  2277       mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -487,8 +486,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
                     String description = "AvnFPS - Site Info Editor Help";
 
                     String helpText = "This dialog is used to define TAF site information.\n\nTo add a new site, enter site id and press \"Update\". Edit\ndisplayed entries and press \"Save\". Create default template\nfiles.\n\nTo change an existing TAF site attribute, enter site id and\npress the \"Load\" button.\n\nTo create template files, press \"Make\" in the \"Templates\"\narea.\n\nTo edit template file, select issue hour, then press \"Edit\"\nin the \"Templates\" area.\n\nYou can use \"Update\" button to extract information from\nAWIPS configuration files. Only non-empty fields will be\noverwritten.";
-                    usageDlg = new HelpUsageDlg(shell, description,
-                            helpText);
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
                     usageDlg.open();
                 } else {
                     usageDlg.bringToTop();
@@ -1003,34 +1001,21 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     private ObStation getObStation(String icao) throws VizException {
         // New up request constraint for table request and
         // also of the classname of the table for the request
-        String tablePluginName = "table";
-        String tableDatabaseName = "metadata";
-        String tableClassName = ObStation.class.getName();
-        RequestConstraint rcTable = new RequestConstraint(tablePluginName);
-        RequestConstraint rcDatabase = new RequestConstraint(tableDatabaseName);
-        RequestConstraint rcClass = new RequestConstraint(tableClassName);
-        RequestConstraint rcGid = new RequestConstraint(ObStation.createGID(
-                ObStation.CAT_TYPE_ICAO, icao));
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(ObStation.class);
+        request.addConstraint(
+                "gid",
+                new RequestConstraint(ObStation.createGID(
+                        ObStation.CAT_TYPE_ICAO, icao)));
+        request.setLimit(1);
 
-        // New up hash map and populate with entry query
-        // parameters before new'ng up layer property
-        HashMap<String, RequestConstraint> query = new HashMap<String, RequestConstraint>();
-        query.put("pluginName", rcTable);
-        query.put("databasename", rcDatabase);
-        query.put("classname", rcClass);
-        query.put("gid", rcGid);
-
-        // New up layer property and set the entry parameters
-        LayerProperty lpParm = new LayerProperty();
-        lpParm.setEntryQueryParameters(query, false);
-        // Create Image <Any> Script for table request
-        String tableScript = ScriptCreator.createScript(lpParm);
-        List<Object> list = Loader.loadData(tableScript, 10000);
-
-        if (list.size() == 0) {
+        DbQueryResponse response = (DbQueryResponse) ThriftClient
+                .sendRequest(request);
+        ObStation[] stations = response.getEntityObjects(ObStation.class);
+        if (stations.length == 0) {
             throw new VizException("Station not found: " + icao);
         }
-        return (ObStation) list.get(0);
+        return stations[0];
     }
 
     /**
