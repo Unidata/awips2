@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +42,7 @@ import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.util.PointDataSizeUtils;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.PointTimeSubsetPresenter;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
@@ -61,6 +62,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Jun 14, 2013   2108     mpduff      Refactored DataSizeUtils and 
  *                                     implement subset size.
  * Sep 05, 2013   2335     mpduff      Fix times for adhoc point queries.
+ * Sep 10, 2013   2351     dhladky     Finished adhoc queries
  * 
  * </pre>
  * 
@@ -181,11 +183,13 @@ public class PointSubsetManagerDlg extends
         newTimePoint.setFormat(dataSet.getTime().getFormat());
         int interval = timingTabControls.getSaveInfo()
                 .getDataRetrievalInterval();
+        Calendar cal = TimeUtil.newGmtCalendar();
         newTimePoint.setInterval(interval);
-        newTimePoint.setStartDate(new Date());
-        newTimePoint.setEndDate(new Date());
-        newTimePoint.setInterval(timingTabControls.getDataRetrievalInterval());
+        newTimePoint.setStartDate(cal.getTime());
+        cal.add(Calendar.MINUTE, interval * -1);
+        newTimePoint.setEndDate(cal.getTime());
 
+        sub.setLatencyInMinutes(interval);
         return newTimePoint;
     }
 

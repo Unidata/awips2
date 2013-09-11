@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import com.google.common.collect.Lists;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
@@ -52,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2013 2106       djohnson     Extracted from {@link RetrievalPlan}.
+ * Spet 08, 2013 2351      dhladky      Changed from ascending to descending bandwidth bucket selection
  * 
  * </pre>
  * 
@@ -179,9 +182,13 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
     public SortedSet<BandwidthBucket> getBucketsInWindow(Long startMillis,
             Long endMillis, Network network) {
         // Get the bucket for the startTime and endTime.
-        Long startKey = ceilingKey(startMillis, network);
-        Long endKey = floorBucket(endMillis, network);
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("startMillis: " + new Date(startMillis) + "/n"
+                    + "endMillis: " + new Date(endMillis));
+        }
 
+        Long startKey = floorBucket(startMillis, network);
+        Long endKey = ceilingKey(endMillis, network);
         // Handle the case where an invalid range was somehow specified
         // (shouldn't happen, so just throw an exception with as much
         // information as we have)
@@ -194,6 +201,14 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
 
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
+
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("startKey: " + new Date(startKey) + "\n"
+                    + "endKey: " + new Date(endKey) + "\n" + "firstKey: "
+                    + new Date(buckets.firstKey()) + "\n" + "lastKey: "
+                    + new Date(buckets.lastKey()));
+        }
+
         NavigableMap<Long, BandwidthBucket> window = buckets.subMap(startKey,
                 true, endKey, true);
         return new TreeSet<BandwidthBucket>(
@@ -210,7 +225,12 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
     private Long floorBucket(long key, Network network) {
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
-        return buckets.floorKey(key);
+        Long firstKey = buckets.floorKey(key);
+        if (firstKey == null) {
+            firstKey = buckets.firstKey();
+        }
+        
+        return firstKey;
     }
 
     /**
@@ -223,7 +243,12 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
     private Long ceilingKey(long key, Network network) {
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
-        return buckets.ceilingKey(key);
+        Long lastKey = buckets.ceilingKey(key);
+        if (lastKey == null) {
+           lastKey = buckets.lastKey();
+        }
+        
+        return lastKey;
     }
 
     /**
