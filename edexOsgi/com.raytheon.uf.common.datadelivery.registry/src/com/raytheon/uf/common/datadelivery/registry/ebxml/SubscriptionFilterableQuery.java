@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Oct 10, 2012 0726       djohnson    Add {@link #setActive(boolean)}.
  * Feb 20, 2013 1543       djohnson    Add ability to filter on routes.
  * May 28, 2013 1650       djohnson    More information when failing to schedule.
+ * Sep 04, 2013 2330       bgonzale    OfficeIds attribute is a collection.
  * 
  * </pre>
  * 
@@ -138,7 +139,11 @@ public abstract class SubscriptionFilterableQuery<T> extends
      *            The value of the officeId attribute to search for.
      */
     public void setOfficeId(String officeId) {
-        setAttribute("officeID", new StringAttribute(officeId));
+        List<String> officeIdList = new ArrayList<String>();
+        officeIdList.add(officeId);
+        StringAttribute stringAtt = new StringAttribute(officeIdList);
+        stringAtt.setCollection(true);
+        setAttribute("officeIDs", stringAtt);
     }
 
     /**
