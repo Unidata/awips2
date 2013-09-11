@@ -1,7 +1,6 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -33,6 +32,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 11, 2013 1763       dhladky      Made operational.
  * Jun 18, 2013 2120       dhladky      Added times and max feature processing
  * Aug 07, 2013 2097       dhladky      Revamped WFS to use POST (still 1.1.0 WFS)
+ * Sept 11, 2013 2351      dhladky      Fixed adhoc request times
  * 
  * </pre>
  * 
@@ -69,6 +69,50 @@ public class WfsRequestBuilder extends RequestBuilder {
     
     public static final String AMPERSAND = "&";
     
+    public static final String SPACE = " ";
+    
+    public static final String NEW_LINE = "\n";
+    
+    public static final String PROPERTTY_OPEN = "<ogc:PropertyName>";
+    
+    public static final String PROPERTTY_CLOSE = "</ogc:PropertyName>";
+    
+    public static final String PROPRERTYISGREATERTHAN_OPEN = "<ogc:PropertyIsGreaterThan>";
+    
+    public static final String PROPRERTYISGREATERTHAN_CLOSE = "</ogc:PropertyIsGreaterThan>";
+    
+    public static final String PROPRERTYISLESSTHAN_OPEN = "<ogc:PropertyIsLessThan>";
+    
+    public static final String PROPRERTYISLESSTHAN_CLOSE = "</ogc:PropertyIsLessThan>";
+    
+    public static final String ISLITERAL_OPEN = "<ogc:Literal>";
+    
+    public static final String ISLITERAL_CLOSE = "</ogc:Literal>";
+    
+    public static final String LOWER_CORNER_OPEN = "<gml:lowerCorner>";
+    
+    public static final String LOWER_CORNER_CLOSE = "</gml:lowerCorner>";
+    
+    public static final String UPPER_CORNER_OPEN = "<gml:upperCorner>";
+    
+    public static final String UPPER_CORNER_CLOSE = "</gml:upperCorner>";
+    
+    public static final String WITHIN_OPEN = "<ogc:Within>";
+    
+    public static final String WITHIN_CLOSE = "</ogc:Within>";
+    
+    public static final String AND_OPEN = "<ogc:And>";
+    
+    public static final String AND_CLOSE = "</ogc:And>";
+    
+    public static final String FILTER_OPEN = "<ogc:Filter>";
+    
+    public static final String FILTER_CLOSE = "</ogc:Filter>";
+    
+    public static final String ENVELOPE_OPEN = "<gml:Envelope";
+    
+    public static final String ENVELOPE_CLOSE = "</gml:Envelope>";
+
     private final String wfsURL;
     
     private String typeName = null;
@@ -80,22 +124,19 @@ public class WfsRequestBuilder extends RequestBuilder {
         this.typeName = attXML.getPlugin();
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(createHeader());
-        buffer.append("<ogc:Filter>\n");
+        buffer.append(FILTER_OPEN).append(NEW_LINE);
         
         if (attXML.getCoverage() != null && attXML.getTime() != null) {
-            buffer.append("<ogc:And>\n");
+            buffer.append(AND_OPEN).append(NEW_LINE);
         }
         
-        buffer.append(processTime(attXML.getTime()));
-        buffer.append(processCoverage());
+        buffer.append(processTime(attXML.getTime())).append(processCoverage());
   
         if (attXML.getCoverage() != null && attXML.getTime() != null) {
-            buffer.append("</ogc:And>\n");
+            buffer.append(AND_CLOSE).append(NEW_LINE);
         }
         
-        buffer.append("</ogc:Filter>\n");
-        buffer.append(createFooter());
-
+        buffer.append(FILTER_CLOSE).append(NEW_LINE).append(createFooter());
         this.wfsURL = buffer.toString().trim();
     }
 
@@ -146,28 +187,48 @@ public class WfsRequestBuilder extends RequestBuilder {
     public String processTime(Time inTime) {
 
         try {
-            if (inTime.getStartDate() != null) {
 
-                Date sDate = inTime.getStartDate();
-                Date eDate = inTime.getEndDate();
-                String endDateString = ogcDateFormat.get().format(eDate);
-                String startDateString = ogcDateFormat.get().format(sDate);
-                
-                StringBuilder sb = new StringBuilder(256);
-                sb.append("<ogc:PropertyIsGreaterThan>\n");
-                sb.append("<ogc:PropertyName>").append(typeName).append(":timeObs</ogc:PropertyName>\n");
-                sb.append("<ogc:Literal>").append(startDateString).append("</ogc:Literal>\n");
-                sb.append("</ogc:PropertyIsGreaterThan>\n");
-                
-                if (endDateString != null) {
-                    sb.append("<ogc:PropertyIsLessThan>\n");
-                    sb.append("<ogc:PropertyName>").append(typeName).append(":timeObs</ogc:PropertyName>\n");
-                    sb.append("<ogc:Literal>").append(endDateString).append("</ogc:Literal>\n");
-                    sb.append("</ogc:PropertyIsLessThan>\n");
-                }
+            String endDateString = null;
+            String startDateString = null;
 
-                return sb.toString();
+            if (inTime.getStart() != null && inTime.getEnd() != null) {
+                /**
+                 * THESE ARE ADHOC requests!!!!! They go backwards from normal
+                 * They are calculated (now - interval) 
+                 * Hence the start time is before the end time.
+                 * TODO:  We should look into this more.  I think more problems exist in BWM
+                 */
+                startDateString = inTime.getEnd();
+                endDateString = inTime.getStart();
+
+            } else if (inTime.getStartDate() != null
+                    && inTime.getEndDate() != null) {
+                /**
+                 * Normal recurring subscription requests
+                 */
+                endDateString = ogcDateFormat.get().format(inTime.getEndDate());
+                startDateString = ogcDateFormat.get().format(inTime.getStartDate());
             }
+
+            StringBuilder sb = new StringBuilder(256);
+            sb.append(PROPRERTYISGREATERTHAN_OPEN).append(NEW_LINE);
+            sb.append(PROPERTTY_OPEN).append(typeName).append(":timeObs")
+                    .append(PROPERTTY_CLOSE).append(NEW_LINE);
+            sb.append(ISLITERAL_OPEN).append(startDateString)
+                    .append(ISLITERAL_CLOSE).append(NEW_LINE);
+            sb.append(PROPRERTYISGREATERTHAN_CLOSE).append(NEW_LINE);
+
+            if (endDateString != null) {
+                sb.append(PROPRERTYISLESSTHAN_OPEN).append(NEW_LINE);
+                sb.append(PROPERTTY_OPEN).append(typeName).append(":timeObs")
+                        .append(PROPERTTY_CLOSE).append(NEW_LINE);
+                sb.append(ISLITERAL_OPEN).append(endDateString)
+                        .append(ISLITERAL_CLOSE).append(NEW_LINE);
+                sb.append(PROPRERTYISLESSTHAN_CLOSE).append(NEW_LINE);
+            }
+
+            return sb.toString();
+
         } catch (Exception e) {
             statusHandler.error("Couldn't parse Time object.", e);
         }
@@ -192,22 +253,23 @@ public class WfsRequestBuilder extends RequestBuilder {
                 double upperLon = ur.x;
                 double upperLat = ur.y;
 
-                sb.append("<ogc:Within>\n");
-                sb.append("<ogc:PropertyName>location/location</ogc:PropertyName>\n");
-                sb.append("<gml:Envelope srsName=\"").append(CRS)
-                        .append("\">\n");
-                sb.append("<gml:lowerCorner>");
+                sb.append(WITHIN_OPEN).append(NEW_LINE);
+                sb.append(PROPERTTY_OPEN).append("location/location")
+                        .append(PROPERTTY_CLOSE).append(NEW_LINE);
+                sb.append(ENVELOPE_OPEN).append(" srsName=\"").append(CRS)
+                        .append("\">").append(NEW_LINE);
+                sb.append(LOWER_CORNER_OPEN);
                 sb.append(lowerLon);
-                sb.append(" ");
+                sb.append(SPACE);
                 sb.append(lowerLat);
-                sb.append("</gml:lowerCorner>\n");
-                sb.append("<gml:upperCorner>");
+                sb.append(LOWER_CORNER_CLOSE).append(NEW_LINE);
+                sb.append(UPPER_CORNER_OPEN);
                 sb.append(upperLon);
-                sb.append(" ");
+                sb.append(SPACE);
                 sb.append(upperLat);
-                sb.append("</gml:upperCorner>\n");
-                sb.append("</gml:Envelope>\n");
-                sb.append("</ogc:Within>\n");
+                sb.append(UPPER_CORNER_CLOSE).append(NEW_LINE);
+                sb.append(ENVELOPE_CLOSE).append(NEW_LINE);
+                sb.append(WITHIN_CLOSE).append(NEW_LINE);
 
                 return sb.toString();
 
