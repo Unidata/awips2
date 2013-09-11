@@ -25,12 +25,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
-import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -53,6 +51,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013 1910       djohnson     Extracted subscription notification from the dao.
  * 8/1/2013     1692       bphillip    Refactored auditable event creation
+ * 9/11/2013    2254       bphillip    Cleaned up creation of auditable events
  * 
  * </pre>
  * 
@@ -90,36 +89,24 @@ public class AuditableEventService {
      * Creates auditable events from the given objects
      * 
      * @param request
-     *            The request object which was process that generated the events
-     * @param objectsCreated
-     *            The objects created during the processing of the request
-     * @param objectsUpdated
-     *            The objects updated during the processing of the request
-     * @param objectsVersioned
-     *            The objects versioned during the processing of the request
-     * @param objectsRemoved
-     *            The objects removed during the processing of the request
+     *            The request that generated the changes
+     * @param actionType
+     *            The action that was taken on the object
+     * @param objectsAffected
+     *            The objects that were affected
      * @throws EbxmlRegistryException
-     *             If errors occur creating the event
+     *             If errors occur while creating the event
      */
     public void createAuditableEventFromObjects(RegistryRequestType request,
-            List<RegistryObjectType> objectsCreated,
-            List<RegistryObjectType> objectsUpdated,
-            List<RegistryObjectType> objectsVersioned,
-            List<RegistryObjectType> objectsRemoved)
+            String actionType, List<RegistryObjectType> objectsAffected)
             throws EbxmlRegistryException {
-        AuditableEventType event = createEvent(request,
-                TimeUtil.currentTimeMillis());
-        addRegistryObjectActionToEvent(event, ActionTypes.create,
-                objectsCreated);
-        addRegistryObjectActionToEvent(event, ActionTypes.update,
-                objectsUpdated);
-        addRegistryObjectActionToEvent(event, ActionTypes.version,
-                objectsVersioned);
-        addRegistryObjectActionToEvent(event, ActionTypes.delete,
-                objectsRemoved);
-        auditDao.create(event);
-        notifySubscriptionManager();
+        if (!CollectionUtil.isNullOrEmpty(objectsAffected)) {
+            AuditableEventType event = createEvent(request,
+                    TimeUtil.currentTimeMillis());
+            addRegistryObjectActionToEvent(event, actionType, objectsAffected);
+            auditDao.create(event);
+            notifySubscriptionManager();
+        }
     }
 
     /**
@@ -134,49 +121,39 @@ public class AuditableEventService {
      */
     private void addRegistryObjectActionToEvent(AuditableEventType event,
             String eventType, List<RegistryObjectType> objs) {
-        if (!CollectionUtil.isNullOrEmpty(objs)) {
-            ActionType action = new ActionType();
-            action.setEventType(eventType);
-            RegistryObjectListType objList = new RegistryObjectListType();
-            objList.getRegistryObject().addAll(objs);
-            action.setAffectedObjects(objList);
-            event.getAction().add(action);
+        ActionType action = new ActionType();
+        action.setEventType(eventType);
+        ObjectRefListType objList = new ObjectRefListType();
+        for (RegistryObjectType obj : objs) {
+            objList.getObjectRef().add(new ObjectRefType(obj.getId()));
         }
+        action.setAffectedObjectRefs(objList);
+        event.getAction().add(action);
+
     }
 
     /**
      * Creates an auditable event from the given object references
      * 
      * @param request
-     *            The request that is generating the event
-     * @param objectsCreated
-     *            References to the objects created during the processing of the
-     *            request
-     * @param objectsUpdated
-     *            References to the objects updated during the processing of the
-     *            request
-     * @param objectsVersioned
-     *            References to the object versioned during the processing of
-     *            the request
-     * @param objectsRemoved
-     *            References to the objects removed during the processing of the
-     *            request
+     *            The request that generated the changes
+     * @param actionType
+     *            The action that was taken on the object
+     * @param objectsAffected
+     *            The references to the objects that were affected
      * @throws EbxmlRegistryException
-     *             If error occur while creating the event
+     *             If errors occur while creating the event
      */
     public void createAuditableEventFromRefs(RegistryRequestType request,
-            List<ObjectRefType> objectsCreated,
-            List<ObjectRefType> objectsUpdated,
-            List<ObjectRefType> objectsVersioned,
-            List<ObjectRefType> objectsRemoved) throws EbxmlRegistryException {
-        AuditableEventType event = createEvent(request,
-                TimeUtil.currentTimeMillis());
-        addObjectRefActionToEvent(event, ActionTypes.create, objectsCreated);
-        addObjectRefActionToEvent(event, ActionTypes.update, objectsUpdated);
-        addObjectRefActionToEvent(event, ActionTypes.version, objectsVersioned);
-        addObjectRefActionToEvent(event, ActionTypes.delete, objectsRemoved);
-        auditDao.create(event);
-        notifySubscriptionManager();
+            String actionType, List<ObjectRefType> objectsAffected)
+            throws EbxmlRegistryException {
+        if (!CollectionUtil.isNullOrEmpty(objectsAffected)) {
+            AuditableEventType event = createEvent(request,
+                    TimeUtil.currentTimeMillis());
+            addObjectRefActionToEvent(event, actionType, objectsAffected);
+            auditDao.create(event);
+            notifySubscriptionManager();
+        }
     }
 
     /**
@@ -191,14 +168,12 @@ public class AuditableEventService {
      */
     private void addObjectRefActionToEvent(AuditableEventType event,
             String eventType, List<ObjectRefType> objs) {
-        if (!CollectionUtil.isNullOrEmpty(objs)) {
-            ActionType action = new ActionType();
-            action.setEventType(eventType);
-            ObjectRefListType objList = new ObjectRefListType();
-            objList.getObjectRef().addAll(objs);
-            action.setAffectedObjectRefs(objList);
-            event.getAction().add(action);
-        }
+        ActionType action = new ActionType();
+        action.setEventType(eventType);
+        ObjectRefListType objList = new ObjectRefListType();
+        objList.getObjectRef().addAll(objs);
+        action.setAffectedObjectRefs(objList);
+        event.getAction().add(action);
     }
 
     /**
