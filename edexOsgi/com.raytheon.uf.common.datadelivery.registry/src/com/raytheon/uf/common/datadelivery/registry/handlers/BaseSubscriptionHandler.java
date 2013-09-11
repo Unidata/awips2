@@ -49,6 +49,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * May 28, 2013 1650       djohnson     Add getByNames.
  * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * Jul 18, 2013 2193       mpduff       Changes for SubscriptionDataSetNameQuery.
+ * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -126,10 +127,11 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
      * {@inheritDoc}
      */
     @Override
-    public Set<String> getSubscribedToDataSetNames()
+    public Set<String> getSubscribedToDataSetNames(String siteId)
             throws RegistryHandlerException {
         SubscriptionDataSetNameQuery query = new SubscriptionDataSetNameQuery();
         query.setRegistryObjectClass(getRegistryObjectClass().getName());
+        query.setOfficeId(siteId);
         RegistryQueryResponse<String> response = registryHandler
                 .getObjects(query);
 
