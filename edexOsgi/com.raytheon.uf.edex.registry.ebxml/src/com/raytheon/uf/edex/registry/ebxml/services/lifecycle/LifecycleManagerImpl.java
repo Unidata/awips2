@@ -52,6 +52,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.event.EventBus;
+import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
 import com.raytheon.uf.common.registry.constants.QueryLanguages;
@@ -99,6 +100,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor;
  * Apr 24, 2013 1910       djohnson    Use validation framework to check references.
  * Jun 24, 2013 2106       djohnson    Requires a transaction to already be open.
  * 8/1/2013     1693       bphillip    Added check references and refactored submit objects to conform to EBXML 4.0 spec
+ * 9/11/2013    2254       bphillip    Cleaned up creation of auditable events
  * 
  * 
  * </pre>
@@ -270,7 +272,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                                         + "]");
             }
             auditableEventService.createAuditableEventFromObjects(request,
-                    null, null, null, objectsToRemove);
+                    ActionTypes.delete, objectsToRemove);
         } catch (EbxmlRegistryException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
                     REMOVE_OBJECTS_ERROR_MSG, e);
@@ -457,7 +459,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
             statusHandler.info("Creating auditable events....");
             try {
                 auditableEventService.createAuditableEventFromObjects(request,
-                        objsCreated, objsUpdated, null, null);
+                        ActionTypes.create, objsCreated);
+                auditableEventService.createAuditableEventFromObjects(request,
+                        ActionTypes.update, objsUpdated);
             } catch (EbxmlRegistryException e) {
                 throw EbxmlExceptionUtil.createMsgRegistryException(
                         SUBMIT_OBJECTS_ERROR_MSG, e);
@@ -737,7 +741,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
         try {
             auditableEventService.createAuditableEventFromObjects(request,
-                    null, objectsToUpdate, null, null);
+                    ActionTypes.update, objectsToUpdate);
         } catch (EbxmlRegistryException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
                     UPDATE_OBJECTS_ERROR_MSG, e);
