@@ -91,12 +91,12 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "binlightningseq")
-@Table(name = "binlightning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = BinLightningRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "binlightning", indexes = { @Index(name = "binlightning_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = BinLightningRecord.PLUGIN_NAME, indexes = { @Index(name = "binlightning_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @XmlRootElement
 @DynamicSerialize
@@ -106,6 +106,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /** Serializable id * */
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "binlightning";
 
     @Transient
     private long[] obsTimes = null;
@@ -509,6 +511,6 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "binlightning";
+        return PLUGIN_NAME;
     }
 }
