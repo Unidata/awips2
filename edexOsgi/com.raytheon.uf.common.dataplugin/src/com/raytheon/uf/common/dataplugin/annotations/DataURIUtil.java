@@ -54,7 +54,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  *                                     from PluginDataObject
  * May 15, 2013 1869       bsteffen    Move uri map creation from RecordFactory.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract and removed setPluginName.
  * 
  * </pre>
  * 
@@ -66,6 +66,9 @@ public class DataURIUtil {
     private static final String PLUGIN_NAME_KEY = "pluginName";
 
     private static final String FIELD_SEPARATOR = ".";
+
+    private static final Pattern FIELD_SEPARATOR_PATTERN = Pattern.compile("["
+            + FIELD_SEPARATOR + "]");
 
     private static final Pattern SEPARATOR_PATTERN = Pattern
             .compile(DataURI.SEPARATOR);
@@ -300,14 +303,19 @@ public class DataURIUtil {
             accessMap.put(access.getFieldName(), access);
         }
         for (String dataKey : dataMap.keySet()) {
-            Object data = dataMap.get(dataKey);
-            DataURIFieldAccess access = accessMap.get(dataKey);
-            if (access == null) {
-                access = new DataURIFieldAccess(Arrays.asList(dataKey.split("["
-                        + FIELD_SEPARATOR + "]")),
-                        object != null ? object.getClass() : null);
+            if (!PLUGIN_NAME_KEY.equals(dataKey)) {
+                Object data = dataMap.get(dataKey);
+                DataURIFieldAccess access = accessMap.get(dataKey);
+                if (access == null) {
+
+                    access = new DataURIFieldAccess(
+                            Arrays.asList(FIELD_SEPARATOR_PATTERN
+                                    .split(dataKey)),
+                            object != null ? object.getClass() : null);
+                }
+
+                access.setFieldValue(object, data);
             }
-            access.setFieldValue(object, data);
         }
     }
 
