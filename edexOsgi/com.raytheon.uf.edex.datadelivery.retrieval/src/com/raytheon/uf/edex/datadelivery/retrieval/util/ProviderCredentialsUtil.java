@@ -130,6 +130,43 @@ public class ProviderCredentialsUtil {
     }
 
     /**
+     * Deletes the connection for the provider.
+     * 
+     * @param creds
+     *            ProviderCredentials object
+     * 
+     * @return ProviderCredentials object with status and message set
+     */
+    public static ProviderCredentials deleteCredentials(
+            ProviderCredentials creds) {
+        String providerName = creds.getProvider().getName();
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
+
+        String connectionFileName = CONNECTION_FILE_PREFIX + providerName
+                + CONNECTION_FILE_SUFFIX;
+        try {
+            LocalizationFile lf = pm
+                    .getLocalizationFile(lc, connectionFileName);
+            lf.delete();
+
+            ProviderKeyDao pkd = new ProviderKeyDao();
+            ProviderKeyRecord pkr = pkd.queryByProvider(providerName);
+            if (pkr != null) {
+                pkd.delete(pkr);
+            }
+            creds.setStatus(Status.SUCCESS);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't delete encrypted Connection!", e);
+            creds.setStatus(Status.FAILURE);
+            creds.setMessage("Error deleting encrypted connection.  See server log for error details.");
+        }
+        return creds;
+    }
+
+    /**
      * Gets the ProviderCredentials object containing the encrytped credentials.
      * 
      * @param providerName
