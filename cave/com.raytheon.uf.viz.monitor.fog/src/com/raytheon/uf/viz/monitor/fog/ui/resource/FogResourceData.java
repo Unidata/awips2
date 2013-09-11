@@ -45,7 +45,6 @@ import com.raytheon.uf.viz.monitor.fog.FogMonitor;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogAlgorithmMgr;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 
-
 /**
  * FogResourceData
  * 
@@ -70,40 +69,43 @@ import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 public class FogResourceData extends AbstractRequestableResourceData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FogResourceData.class);
+
     public FogRecord[] records;
-   
+
     public Map<Date, FogRecord> dataObjectMap;
-    
+
     public Map<Date, GriddedImageDisplay> gridImageMap;
-    
+
     protected FogMonitor monitor;
-    
+
     protected FogAlgorithmMgr fogAlgMgr;
-    
+
     protected FogThreat fogThreat;
-   
+
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
-     
+
         records = new FogRecord[objects.length];
         dataObjectMap = new HashMap<Date, FogRecord>();
         gridImageMap = new HashMap<Date, GriddedImageDisplay>();
-        
+
         for (int i = 0; i < objects.length; i++) {
             records[i] = (FogRecord) objects[i];
             try {
                 records[i] = populateRecord(records[i]);
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
-            if ( dataObjectMap.containsKey(records[i].getRefHour().getTime()) ) {
-            	if ( dataObjectMap.get(records[i].getRefHour().getTime()).getDataTime().greaterThan(records[i].getDataTime()) ) {
-            		continue;
-            	} else {
-            		dataObjectMap.remove(records[i].getRefHour().getTime());
-            		gridImageMap.remove(records[i].getRefHour().getTime());
-            	}
+            if (dataObjectMap.containsKey(records[i].getRefHour().getTime())) {
+                if (dataObjectMap.get(records[i].getRefHour().getTime())
+                        .getDataTime().greaterThan(records[i].getDataTime())) {
+                    continue;
+                } else {
+                    dataObjectMap.remove(records[i].getRefHour().getTime());
+                    gridImageMap.remove(records[i].getRefHour().getTime());
+                }
             }
             dataObjectMap.put(records[i].getRefHour().getTime(), records[i]);
             gridImageMap.put(records[i].getRefHour().getTime(), null);
@@ -111,7 +113,7 @@ public class FogResourceData extends AbstractRequestableResourceData {
 
         FogResource fogRes = new FogResource(this, loadProperties);
         getFogMonitor().addFogResourceListener(fogRes);
-        
+
         return fogRes;
     }
 
@@ -121,7 +123,7 @@ public class FogResourceData extends AbstractRequestableResourceData {
     public FogRecord[] getRecords() {
         return records;
     }
-    
+
     /**
      * @param records
      *            the records to set
@@ -129,19 +131,18 @@ public class FogResourceData extends AbstractRequestableResourceData {
     public void setRecords(FogRecord[] records) {
         this.records = records;
     }
-    
+
     /**
      * populate Fog Record
      * 
      * @param record
      */
-    public FogRecord populateRecord(FogRecord record)
-            throws VizException {
+    public FogRecord populateRecord(FogRecord record) throws VizException {
         IDataStore dataStore = getDataStore(record);
         record.retrieveFromDataStore(dataStore);
         return record;
     }
-    
+
     /**
      * Get the data store
      * 
@@ -149,35 +150,21 @@ public class FogResourceData extends AbstractRequestableResourceData {
      * @return
      */
     private IDataStore getDataStore(FogRecord record) {
-        IDataStore dataStore = null;
-        try {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("dataURI", record.getDataURI());
-            vals.put("pluginName", record.getPluginName());
-
-            record = (FogRecord) Loader.loadData(vals);
-
-            File loc = HDF5Util.findHDF5Location(record);
-            dataStore = DataStoreFactory.getDataStore(loc);
-
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return dataStore;
+        return DataStoreFactory.getDataStore(HDF5Util.findHDF5Location(record));
     }
-    
+
     /** Get the Fog Algorithm manager **/
     protected FogAlgorithmMgr getAlgorithmManager() {
-        
+
         if (fogAlgMgr == null) {
             fogAlgMgr = FogAlgorithmMgr.getInstance();
         }
         return fogAlgMgr;
     }
-    
+
     /**
      * Gets the fog Threat generator
+     * 
      * @return
      */
     protected FogThreat getFogThreat() {
@@ -186,7 +173,7 @@ public class FogResourceData extends AbstractRequestableResourceData {
         }
         return fogThreat;
     }
-        
+
     /** Get the Fog monitor **/
     protected FogMonitor getFogMonitor() {
         if (monitor == null) {
@@ -194,12 +181,11 @@ public class FogResourceData extends AbstractRequestableResourceData {
         }
         return monitor;
     }
-       
+
     public void resetGridImgMap() {
-        for(Date key: dataObjectMap.keySet()){
+        for (Date key : dataObjectMap.keySet()) {
             gridImageMap.put(key, null);
         }
     }
 
-    
 }

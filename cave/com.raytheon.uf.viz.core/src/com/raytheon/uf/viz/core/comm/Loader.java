@@ -32,8 +32,6 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -65,45 +63,17 @@ public class Loader {
 
     public static final String SELECT_MODE = "select";
 
-    private static final String PLUGINNAME_COLUMN = "pluginName";
-
-    private static final String DATAURI_COLUMN = "dataURI";
-
     public static final String ROW_NAME = "rowname";
 
     public static final String CLASS_NAME = "classname";
 
     public static final String DATABASE_NAME = "databasename";
 
-    public static final String PLUGIN_NAME = PLUGINNAME_COLUMN;
-
     /**
      * Private constructor
      */
     private Loader() {
 
-    }
-
-    /**
-     * Loads a list of objects from a LayerProperty
-     * 
-     * @param property
-     *            the layerproperty
-     * @param mode
-     *            the mode (e.g. "select")
-     * @param timeOut
-     *            the timeout in milliseconds
-     * @return the list of objects
-     * @throws VizException
-     */
-    public static List<Object> loadData(LayerProperty property, String mode,
-            int timeOut) throws VizException {
-        Validate.notNull(property, "LayerProperty can not be null");
-        Validate.notNull(property, "Mode must not be null");
-
-        String script = ScriptCreator.createScript(property, mode);
-        List<Object> responses = loadScripts(new String[] { script }, timeOut);
-        return responses;
     }
 
     /**
@@ -143,32 +113,22 @@ public class Loader {
     }
 
     /**
-     * Load a plugin data object from a request map
+     * Load a plugin data object from a data uri
      * 
      * @param obj
      *            the request map
      * @return the fully filled out plugindataobject
      * @throws VizException
      */
-    public static PluginDataObject loadData(Map<String, Object> obj)
-            throws VizException {
+    public static PluginDataObject loadData(String dataURI) throws VizException {
         Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-
-        if (!obj.containsKey(DATAURI_COLUMN)
-                || !obj.containsKey(PLUGINNAME_COLUMN)) {
-            throw new IllegalArgumentException(
-                    "Map must contain a datauri and plugin name");
-        }
 
         try {
             vals.putAll(RequestConstraint.toConstraintMapping(DataURIUtil
-                    .createDataURIMap(obj.get(DATAURI_COLUMN).toString())));
+                    .createDataURIMap(dataURI)));
         } catch (PluginException e) {
             throw new VizException(e);
         }
-
-        vals.put(PLUGINNAME_COLUMN,
-                new RequestConstraint(obj.get(PLUGINNAME_COLUMN).toString()));
 
         DbQueryRequest request = new DbQueryRequest(vals);
         request.setLimit(1);
