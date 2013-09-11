@@ -39,6 +39,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
+import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -65,6 +66,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/15/2013    1905        bphillip    Implemented notification to email endpoints
  * Apr 17, 2013 1672        djohnson    No longer cares about notification protocol.
  * 5/21/2013    2022        bphillip    Cleaned up unused method parameters and batching of notifications
+ * 9/11/2013    2354        bphillip    Added logic to ensure delete events get included in notifications
  * </pre>
  * 
  * @author bphillip
@@ -229,7 +231,7 @@ public class RegistryNotificationManager {
                                 .getAffectedObjectRefs().getObjectRef();
                         for (ObjectRefType obj : objRefs) {
                             boolean found = objectInList(objectsOfInterest, obj);
-                            if (!found) {
+                            if (!found && !action.equals(ActionTypes.delete)) {
                                 refsToRemove.add(obj);
                             }
                         }
@@ -239,7 +241,7 @@ public class RegistryNotificationManager {
                                 .getAffectedObjects().getRegistryObject();
                         for (RegistryObjectType obj : regObjs) {
                             boolean found = objectInList(objectsOfInterest, obj);
-                            if (!found) {
+                            if (!found && !action.equals(ActionTypes.delete)) {
                                 objectsToRemove.add(obj);
                             }
                         }
