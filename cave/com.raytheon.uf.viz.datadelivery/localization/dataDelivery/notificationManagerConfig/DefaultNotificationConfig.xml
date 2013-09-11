@@ -2,7 +2,7 @@
 <NotificationColumns>
     <column sortAsc="true" sortColumn="true" visible="true" name="User"/>
     <column sortAsc="true" sortColumn="false" visible="true" name="Message"/>
-    <column sortAsc="true" sortColumn="false" visible="true" name="Time"/>
+    <column sortAsc="false" sortColumn="false" visible="true" name="Time"/>
     <column sortAsc="true" sortColumn="false" visible="true" name="Priority"/>
     <column sortAsc="true" sortColumn="false" visible="true" name="Category"/>
     <messageLoad>
