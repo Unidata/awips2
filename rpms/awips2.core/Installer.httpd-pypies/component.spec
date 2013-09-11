@@ -345,11 +345,15 @@ ln -s ../../..%{_datadir}/pixmaps/poweredby.png \
 rmdir $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/logs
 mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_localstatedir}/log/httpd
 mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_localstatedir}/run/httpd
+mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_localstatedir}/lock/subsys
 
+pushd .
+cd $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd
 # symlinks for /etc/httpd
 ln -s ../..%{_localstatedir}/log/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/logs
 ln -s ../..%{_localstatedir}/run/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/run
 ln -s ../..%{_libdir}/httpd/modules $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/modules
+popd
 
 # install service script
 mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
@@ -588,7 +592,9 @@ rm -rf $RPM_BUILD_ROOT
 %config /awips2/httpd_pypies%{contentdir}/error/*.var
 %config /awips2/httpd_pypies%{contentdir}/error/include/*.html
 
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/lock/subsys
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/log/httpd
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/run/httpd
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/lib/dav
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/cache/mod_proxy
 
