@@ -45,7 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012    754         dhladky     Initial creation
+ * Aug 21, 2012    754      dhladky     Initial creation
+ * Sept 11, 2013  2351      dhladky     Added more point intervals
  * 
  * </pre>
  * 
@@ -68,6 +69,11 @@ public class PointTime extends Time implements ISerializableObject,
     @XmlElements({ @XmlElement(name = "times", type = Date.class) })
     @DynamicSerializeElement
     private List<Date> times;
+    
+    /**
+     * Intervals for point request
+     */
+    public static final SortedSet<Integer> INTERVALS = Sets.newTreeSet(Arrays.asList(5, 10, 15, 20, 30, 60));
 
     /**
      * Default Constructor.
@@ -136,6 +142,6 @@ public class PointTime extends Time implements ISerializableObject,
      * @return the allowed refresh intervals
      */
     public static SortedSet<Integer> getAllowedRefreshIntervals() {
-        return Sets.newTreeSet(Arrays.asList(5, 10, 15, 30));
+        return INTERVALS;
     }
 }
