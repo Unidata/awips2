@@ -77,12 +77,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tafseq")
-@Table(name = "taf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = TafRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "taf", indexes = { @Index(name = "taf_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = TafRecord.PLUGIN_NAME, indexes = { @Index(name = "taf_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
@@ -90,6 +90,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "taf";
 
     @DynamicSerializeElement
     @XmlElement
@@ -429,6 +431,6 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
     @Override
     public String getPluginName() {
-        return "taf";
+        return PLUGIN_NAME;
     }
 }

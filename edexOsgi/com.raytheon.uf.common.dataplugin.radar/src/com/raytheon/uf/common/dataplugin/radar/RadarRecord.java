@@ -142,7 +142,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "radarseq")
-@Table(name = "radar", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = RadarRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
