@@ -66,6 +66,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2013            bclement     Initial creation
  * Aug 08, 2013 2097       dhladky      Made operational
+ * Aug 30, 2013 2098       dhladky      Improved
+ * Spet 2, 2013 2098       dhladky      Updated how times are managed.
  * 
  * </pre>
  * 
@@ -91,6 +93,8 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
     protected int roundCutoff = 45;
 
     protected final String layerName;
+    
+    protected Date previousTime = null;
 
     /**
      * @param layerName
@@ -243,8 +247,14 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
                 dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
                 time.setFormat(dateFormat.toPattern());
                 if (!times.isEmpty()) {
-                    time.setStart(dateFormat.format(times.get(0)));
-                    time.setEnd(dateFormat.format(times.size() - 1));
+                    if (previousTime == null) {
+                        time.setStart(dateFormat.format(times.get(0)));
+                    } else {
+                        time.setStart(dateFormat.format(previousTime));
+                    }
+                    Date lastTime = times.get(times.size() - 1);
+                    time.setEnd(dateFormat.format(lastTime));
+                    setPreviousTime(lastTime);
                 }
             }
         }
@@ -402,14 +412,6 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
         return null;
     }
 
-    /**
-     * @param roundCutoff
-     *            the roundCutoff to set
-     */
-    public void setRoundCutoff(int roundCutoff) {
-        this.roundCutoff = roundCutoff;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -430,6 +432,23 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
     @Override
     public void onPurgeExpired(Set<Date> timesToKeep) {
         // TODO Auto-generated method stub
+    }
+
+    /**
+     * Marker time for sending back and requesting data
+     * From this date to last will be the next query
+     * @return
+     */
+    public Date getPreviousTime() {
+        return previousTime;
+    }
+
+    /**
+     * Sets the marker time for previousDate
+     * @param previousTime
+     */
+    public void setPreviousTime(Date previousTime) {
+        this.previousTime = previousTime;
     }
 
 }
