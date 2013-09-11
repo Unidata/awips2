@@ -26,7 +26,6 @@ import java.util.Date;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ogc.common.db.LayerCollector;
 import com.raytheon.uf.edex.ogc.common.util.PluginIngestFilter;
 import com.raytheon.uf.edex.ogc.registry.WfsRegistryCollectorAddon;
 import com.raytheon.uf.edex.plugin.madis.ogc.MadisDimension;
@@ -44,6 +43,9 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2013            bclement     Initial creation
  * Aug 18, 2013 #2097      dhladky      Restored original functionality before renaming of this class
+ * Aug 30, 2013 #2098      dhladky      Incorrect time returned
+ * Sept 2, 2013 #2098      dhladky      Improved time management.
+ * Sept 9, 2013 #2351      dhladky      Speed improvements
  *
  * </pre>
  *
@@ -73,7 +75,7 @@ public class MadisRegistryCollectorAddon extends
 	@Override
 	protected Date getTime(MadisRecord record) {
 		Date time = record.getTimeObs();
-		return LayerCollector.roundToHour(time, roundCutoff);
+		return time;
 	}
 
 	/*
@@ -95,35 +97,36 @@ public class MadisRegistryCollectorAddon extends
 
 		Collection<MadisRecord> withInGeoConstraint = new ArrayList<MadisRecord>();
 		PluginDataObject[] pdor = null;
+		Envelope e = null;
+		
+        if (getCoverage() != null) {
+            
+            e = getCoverage().getEnvelope();
 
-		for (PluginDataObject record : pdos) {
+            for (PluginDataObject record : pdos) {
 
-			MadisRecord rec = (MadisRecord) record;
+                MadisRecord rec = (MadisRecord) record;
 
-			if (rec != null) {
+                if (rec != null && rec.getLocation() != null) {
 
-				Envelope e = getCoverage().getEnvelope();
+                    Coordinate c = rec.getLocation().getLocation()
+                            .getCoordinate();
 
-				if (rec.getLocation() != null) {
+                    if (c != null) {
 
-					Coordinate c = rec.getLocation().getLocation()
-							.getCoordinate();
-
-					if (c != null) {
-
-						if (e.contains(c)) {
-							withInGeoConstraint.add(rec);
-						} else {
-							statusHandler.handle(
-									Priority.DEBUG,
-									"Madis record discarded:  outside of range: "
-											+ rec.getLatitude() + " "
-											+ rec.getLongitude());
-						}
-					}
-				}
-			}
-		}
+                        if (e.contains(c)) {
+                            withInGeoConstraint.add(rec);
+                        } else {
+                            statusHandler.handle(
+                                    Priority.DEBUG,
+                                    "Madis record discarded:  outside of range: "
+                                            + rec.getLatitude() + " "
+                                            + rec.getLongitude());
+                        }
+                    }
+                }
+            }
+        }
 
 		if (!withInGeoConstraint.isEmpty()) {
 			int size = withInGeoConstraint.size();
