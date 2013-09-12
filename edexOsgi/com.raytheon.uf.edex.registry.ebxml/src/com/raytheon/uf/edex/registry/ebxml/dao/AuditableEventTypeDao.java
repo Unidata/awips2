@@ -21,8 +21,8 @@
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * May 02, 2013 1910       djohnson    Broke out registry subscription notification to a service class.
  * 7/29/2013    2191       bphillip    Changed method to get expired events
  * 8/1/2013     1693       bphillip    Moved creation of auditable events to the auditable event service class
+ * 9/11/2013    2354       bphillip    Modified queries to find deleted objects
  * 
  * </pre>
  * 
@@ -68,11 +70,20 @@ public class AuditableEventTypeDao extends
      * Query to find events of interest when sending registry replication
      * notifications
      */
-    private static final String EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
+    private static final String FIND_EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
             + "left outer join event.action as action "
             + "left outer join action.affectedObjects as AffectedObjects "
+            + "left outer join action.affectedObjectRefs as AffectedObjectRefs "
             + "left outer join AffectedObjects.registryObject as RegistryObjects "
-            + "where (RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
+            + "left outer join AffectedObjectRefs.objectRef as ObjRefs "
+            + "where (ObjRefs.id in (:ids) OR RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
+
+    /**
+     * Query to find deleted events
+     */
+    private static final String FIND_DELETED_EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
+            + "left outer join event.action as action "
+            + "where action.eventType = :eventType and event.timestamp >= :startTime";
 
     /** Optional end time clause */
     private static final String END_TIME_CLAUSE = " and event.timestamp <= :endTime";
@@ -136,24 +147,33 @@ public class AuditableEventTypeDao extends
     public List<AuditableEventType> getEventsOfInterest(
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
             List<ObjectRefType> objectsOfInterest) {
-        if (objectsOfInterest.isEmpty()) {
-            return Collections.emptyList();
+        String query = FIND_DELETED_EVENTS_OF_INTEREST_QUERY;
+        List<Object> queryParams = new ArrayList<Object>(4);
+        queryParams.add("eventType");
+        queryParams.add(ActionTypes.delete);
+        queryParams.add("startTime");
+        queryParams.add(startTime);
+        if (!CollectionUtil.isNullOrEmpty(objectsOfInterest)) {
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < objectsOfInterest.size(); i++) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append("'").append(objectsOfInterest.get(i).getId())
+                        .append("'");
+            }
+            query = FIND_EVENTS_OF_INTEREST_QUERY.replaceAll(IDS, buf.toString());
+
+            if (endTime == null) {
+                query += ORDER_CLAUSE;
+            } else {
+                query += END_TIME_CLAUSE + ORDER_CLAUSE;
+                queryParams.add("endTime");
+                queryParams.add(endTime);
+            }
         }
-        StringBuilder buf = new StringBuilder();
-        for (ObjectRefType objOfInterest : objectsOfInterest) {
-            buf.append(", '").append(objOfInterest.getId()).append("'");
-        }
-        String inString = buf.toString().replaceFirst(",", "");
-        if (endTime == null) {
-            return this.query((EVENTS_OF_INTEREST_QUERY + ORDER_CLAUSE)
-                    .replace(IDS, inString), "startTime", startTime,
-                    "eventType", ActionTypes.delete);
-        } else {
-            return this.query(
-                    (EVENTS_OF_INTEREST_QUERY + END_TIME_CLAUSE + ORDER_CLAUSE)
-                            .replace(IDS, inString), "startTime", startTime,
-                    "eventType", ActionTypes.delete, "endTime", endTime);
-        }
+        return this.query(query,
+                queryParams.toArray(new Object[queryParams.size()]));
     }
 
     /**
