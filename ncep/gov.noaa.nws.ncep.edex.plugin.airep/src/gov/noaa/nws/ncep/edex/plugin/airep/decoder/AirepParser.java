@@ -19,9 +19,9 @@ import com.raytheon.uf.edex.decodertools.aircraft.AircraftLatitude;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftLongitude;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftRemarks;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.core.PlatformLocationProxy;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 /**
  * The AirepParser takes a String that should contain a single AIREP observation
@@ -64,8 +64,9 @@ public class AirepParser
     // Once set the obs data cannot be changed!
     private final String reportData;
     
-    private static final float RMISSD = IDecoderConstantsN.UAIR_FLOAT_MISSING;
-    private static final int IMISSD = IDecoderConstantsN.INTEGER_MISSING;
+    private static final float RMISSD = -9999.f;
+
+    private static final int IMISSD = IDecoderConstants.VAL_MISSING;
     
     private static final Map<String,String> WX_COND_WORDS = new HashMap<String,String>();
     static {
