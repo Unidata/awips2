@@ -329,6 +329,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 										add selection listener to catch the highlight words and 
  * 										set the highlight colors.	
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
+ * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
+ *                                      command history or close browser window for "update obs".
  * 
  * </pre>
  * 
@@ -1100,11 +1102,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Flag indicating if the editor is in overwrite mode.
      */
     private boolean overwriteMode = false;
-
-    /**
-     * flag to indicate it a product request is from the GUI or an updated ob.
-     */
-    private final AtomicInteger updateCount = new AtomicInteger(0);
 
     /**
      * The expire notification when editing a warn gen product.
@@ -3098,12 +3095,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         accumChkBtn = new Button(topBtnRowComp, SWT.CHECK);
         accumChkBtn.setText("Accum");
         accumChkBtn.setLayoutData(rd);
-        accumChkBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                productQueryJob.setAccumulate(accumChkBtn.getSelection());
-            }
-        });
 
         // Add the Update Observation check button.
         rd = new RowData(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -5896,12 +5887,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
-        if (browser != null) {
-            browser.close();
-            browser = null;
+        if (! isObsUpdated) {
+            if (browser != null) {
+                browser.close();
+                browser = null;
+            }
+
+            commandHistory.addCommand(command);
         }
 
-        commandHistory.addCommand(command);
         statusBarLabel.setText("Loading "
                 + TextEditorUtil.getCommandText(command));
         statusBarLabel.update();
@@ -5910,7 +5904,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             if (queryTransport == null) {
                 queryTransport = TextEditorUtil.getTextDbsrvTransport();
             }
-        productQueryJob.addRequest(command, isObsUpdated);
+        productQueryJob.addRequest(command, isObsUpdated,
+                accumChkBtn.getSelection());
     }
 
     /**
@@ -5991,7 +5986,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         stripWMOHeaders(prod);
                     }
 
-                    if (updateCount.get() > 0) {
+                    if (isObsUpdated) {
                         updateDisplayedProduct(prod);
                     } else {
                         setDisplayedProduct(prod);
@@ -6086,13 +6081,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void postExecute(boolean hasAttachment, boolean enterEditor,
             boolean validExecuteCommand, String attachedFilename) {
         if (!this.isDisposed()) {
-            if (hasAttachment) {
-                statusBarLabel.setText("Attachment: " + attachedFilename);
-            } else {
-                statusBarLabel.setText("");
+            if (! productQueryJob.isExpectingRequests()) {
+                if (hasAttachment) {
+                    statusBarLabel.setText("Attachment: " + attachedFilename);
+                } else {
+                    statusBarLabel.setText("");
+                }
+                statusBarLabel.update();
+                setBusy(false);
             }
-            statusBarLabel.update();
-            setBusy(false);
             // Automatically open the editor window with returned data.
             if (enterEditor) {
                 enterEditor();
@@ -6471,7 +6468,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     @Override
     public void setAccumulation(boolean flag) {
         this.accumChkBtn.setSelection(flag);
-        productQueryJob.setAccumulate(flag);
     }
 
     /*
@@ -6958,7 +6954,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // retrieved for display in this text editor dialog
         // instance.
         TextDisplayModel.getInstance().setStdTextProduct(token, product);
-        updateCount.addAndGet(-1);
     }
 
     /*
@@ -7309,7 +7304,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     msgPIL = "";
                 }
                 if (isObsDisplayed(msgPIL)) {
-                    updateCount.addAndGet(1);
                     ICommand command = CommandFactory.getAfosCommand(msgPIL);
                     UpdateObsRun run = new UpdateObsRun(command);
                     VizApp.runSync(run);
