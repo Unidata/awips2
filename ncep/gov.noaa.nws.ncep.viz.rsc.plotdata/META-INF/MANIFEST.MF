@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata,
  gov.noaa.nws.ncep.edex.common,
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.ui.pgen
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin,
@@ -30,9 +31,12 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.viz.core.rsc,
  com.vividsolutions.jts.geom,
  gov.noaa.nws.ncep.edex.common.sounding,
+ gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea,
+ gov.noaa.nws.ncep.ui.pgen.display,
+ gov.noaa.nws.ncep.ui.pgen.elements,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels,
  gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements,
- gov.noaa.nws.ncep.viz.ui.display,
- gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea
+ gov.noaa.nws.ncep.viz.ui.display
 Export-Package: gov.noaa.nws.ncep.viz.rsc.plotdata,
  gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter,
  gov.noaa.nws.ncep.viz.rsc.plotdata.parameters,
