@@ -2109,10 +2109,10 @@ public class ProductConverter {
 	    			cntyName = cnty.getName().replaceAll("City of ", "").replaceAll(" City", "");
 	    		}
 				
-	    		fwb.getCounties().add(String.format("%1$-7s%2$-5s%3$-12s%4$6.2f%5$8.2f%6$7s%7$5s %8$s", 
+	    		fwb.getCounties().add(String.format("%1$-7s%2$-5s%3$-12s%4$6.2f%5$8.2f%6$7s%7$5s", 
 	    				cnty.getUgcId(), cnty.getState(), cntyName,
 						cnty.getCentriod().y, cnty.getCentriod().x, cnty.getFips(),
-						cnty.getWfo(), cnty.getZoneName().toUpperCase()));
+						cnty.getWfo()));
 	    	}
 	    	
 	    	//set states
