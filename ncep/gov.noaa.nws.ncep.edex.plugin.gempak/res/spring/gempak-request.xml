@@ -1,0 +1,54 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  
+    <bean id="GetTimesHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.gempak.handler.GetTimesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.gempak.request.GetTimesRequest" />
+        <constructor-arg ref="GetTimesHandler" />
+    </bean>
+  
+    <bean id="GetStationsHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.gempak.handler.GetStationsHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.gempak.request.GetStationsRequest" />
+        <constructor-arg ref="GetStationsHandler" />
+    </bean>
+  
+    <bean id="StationDataRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.gempak.handler.StationDataRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.gempak.request.StationDataRequest" />
+        <constructor-arg ref="StationDataRequestHandler" />
+    </bean>
+  
+    <bean id="GetGridDataRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.gempak.handler.GetGridDataRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.gempak.request.GetGridDataRequest" />
+        <constructor-arg ref="GetGridDataRequestHandler" />
+    </bean>
+  
+    <bean id="GetGridInfoRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.gempak.handler.GetGridInfoRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.gempak.request.GetGridInfoRequest" />
+        <constructor-arg ref="GetGridInfoRequestHandler" />
+    </bean>
+  
+    <bean id="GetGridNavRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.gempak.handler.GetGridNavRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.gempak.request.GetGridNavRequest" />
+        <constructor-arg ref="GetGridNavRequestHandler" />
+    </bean>
+  
+</beans>
+  
