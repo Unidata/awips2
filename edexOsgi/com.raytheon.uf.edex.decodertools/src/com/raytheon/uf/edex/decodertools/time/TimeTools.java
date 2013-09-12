@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 20070925            391 jkorman     Added copyToNearestHour method.
  * 20071019            391 jkorman     Added getSystemCalendar and TimeService.
  * 20130219           1636 rferrel     File timestamp can now be YYMMDD or YYMMDDHH.
+ * 20130912           2249 rferrel     Added getWarningTimestamp method.
  * </pre>
  * 
  * @author jkorman
@@ -64,7 +65,13 @@ public class TimeTools {
      * name: .YYYYMMDD or .YYYYMMDDHH
      */
     private static final Pattern FILE_TIMESTAMP = Pattern
-            .compile("(.*\\.)(\\d{8}|\\d{10}$)");
+            .compile("(.*\\.)(\\d{8}|\\d{10})$");
+
+    /**
+     * Time stamp for a file name created by the Text Editor Dialog.
+     */
+    private static final Pattern FILE_WARNING_TIMESTAMP = Pattern
+            .compile(".*\\.wan(\\d{10})$");
 
     public static final Pattern WMO_TIMESTAMP = Pattern
             .compile("([0-3][0-9])(\\d{2})(\\d{2})[Zz]?");
@@ -234,6 +241,21 @@ public class TimeTools {
         Matcher matcher = FILE_TIMESTAMP.matcher(fileName);
         if (matcher.find()) {
             timestamp = matcher.group(2);
+        }
+        return timestamp;
+    }
+
+    /**
+     * Get the time stamp of a warning file name.
+     * 
+     * @param fileName
+     * @return timestamp if if matches FILE_WARNING_TIMESTAMP otherwise null
+     */
+    public static final String getWarningTimestamp(String fileName) {
+        String timestamp = null;
+        Matcher matcher = FILE_WARNING_TIMESTAMP.matcher(fileName);
+        if (matcher.find()) {
+            timestamp = matcher.group(1);
         }
         return timestamp;
     }
