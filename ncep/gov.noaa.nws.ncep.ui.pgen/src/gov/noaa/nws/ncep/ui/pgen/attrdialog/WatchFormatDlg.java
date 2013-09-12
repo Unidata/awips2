@@ -20,6 +20,8 @@ import java.util.TimeZone;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -54,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
  * 05/12		#776, 769	B. Yin		Added UTC time. Carry ove info from WCC/WCL dialogs.
  * 08/12        #770        Q. Zhou     added continuing Watch.
+ * 08/13		TTR 796		B. Yin		Added drop down list for expiration time.
  * </pre>
  * 
  * @author	B. Yin
@@ -100,7 +103,10 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	
 	//expiration date and time
 	private DateTime validDate;
-	private Text validTime;
+	private Combo validTime;
+	public static String HOURS[] =  { "0000", "0100", "0200", "0300", "0400", "0500", "0600", "0700", "0800",
+									  "0900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700",
+									  "1800", "1900", "2000", "2100", "2200", "2300"};
 	
 	//hail size
     private Combo hailCombo;
@@ -237,6 +243,8 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		validDate = new DateTime(dt, SWT.BORDER | SWT.DATE );
 
 		Calendar expTime = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
+		expTime.add(Calendar.HOUR, 8);
+
 		validDate.setYear( expTime.get(Calendar.YEAR));
 		validDate.setMonth( expTime.get(Calendar.MONTH));
 		validDate.setDay( expTime.get(Calendar.DAY_OF_MONTH));
@@ -244,13 +252,19 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		Composite c1 = new Composite(dt, SWT.NONE);
 		c1.setLayout( new FormLayout());
 
-		validTime = new Text(c1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+		validTime = new Combo( c1, SWT.DROP_DOWN | SWT.MULTI );;
 
 		FormData fd = new FormData();
 		fd.top = new FormAttachment(watchNumber,2, SWT.BOTTOM);
 		fd.left = new FormAttachment(validDate, 5, SWT.RIGHT);
+		fd.width = 80;;
 		validTime.setLayoutData(fd);
-		PgenUtil.setUTCTimeTextField(c1, validTime,  expTime, watchNumber, 5);
+
+		for ( String hrStr : HOURS ) {
+			validTime.add( hrStr );
+		}
+		
+		setUTCTimeTextField(c1, validTime,  expTime, watchNumber, 5);
 
 		//create watch type
 		Label typeLbl = new Label(top, SWT.LEFT);
@@ -882,6 +896,44 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	public boolean close(){
 		if ( msgDlg != null ) msgDlg.close(); 
 		return super.close();
+	}
+	
+	/**
+	 *		Sets the UTC time text widget
+	 */
+	static public void setUTCTimeTextField( Composite parent, final Combo validTime, Calendar cal,  Control topWidget, int offset ){
+		
+		validTime.setTextLimit(4);
+		validTime.setText( String.format("%02d00", cal.get(Calendar.HOUR_OF_DAY)));
+		validTime.addVerifyListener( new VerifyListener(){
+
+			@Override
+			public void verifyText(VerifyEvent ve) {
+				final char BACKSPACE = 0x08;
+				final char DELETE = 0x7F;
+				
+				if ( Character.isDigit(ve.character) || Character.UNASSIGNED == ve.character ||
+					  ve.character == BACKSPACE || ve.character == DELETE ) ve.doit = true;
+				else {
+					ve.doit = false;
+					Display.getCurrent().beep();
+				}
+			}} );
+		
+		validTime.addModifyListener( new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if ( !validTime.getText().isEmpty() ){
+					if ( PgenUtil.isTimeValid( validTime.getText() ) )
+						validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_WHITE));
+					else
+						validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_RED));
+				}
+			}
+			
+		});
+		
 	}
 	
 }
