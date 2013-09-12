@@ -60,17 +60,23 @@ public class MeanSeaLevelPres extends AbstractMetParameter implements
 		else if ( ( formatStr.compareToIgnoreCase("RMSL") == 0 ) 
 			     || (formatStr.compareToIgnoreCase("SMSL") == 0 )){
 		              double  newPresValInMb = Double.NaN;
-		              if ( ( this.getUnit().toString().compareTo("mb") != 0 ) ){
+		              if ( ( this.getUnit().toString().compareTo("mb") != 0
+		            		  && this.getUnit().toString().compareTo("hPa") != 0) ){
 				                  double  oldPresVal     = getValue().doubleValue();
 				                  newPresValInMb = this.getUnit()
 				                                           .getConverterTo( NcUnits.MILLIBAR )
 				                                           .convert( oldPresVal ) ;
-				                  //setValue(new Amount ( newPresValInMb, NcUnits.MILLIBAR ));
 				       }
-				         double temp = newPresValInMb * 10;
+		              else
+		                 newPresValInMb = getValue().doubleValue();
+				         int multiplier = 10;
+		                 if( newPresValInMb / 1000 < 1 )
+		                	 multiplier = 1000;
+		                 double temp = newPresValInMb * multiplier;
+		                 
 						 double abbrevPressVal    = temp % 1000; 
 						 abbrevPressVal = Math.abs(abbrevPressVal);
-						 Integer abbrevpressValAsInt = new Integer ( ( int ) abbrevPressVal );
+						 Integer abbrevpressValAsInt = new Integer ( (int) Math.round (abbrevPressVal) );
 						 String abbrevPressureString = abbrevpressValAsInt.toString();
 						 if (  abbrevPressureString.length() == 1 ){
 		                	 abbrevPressureString = new String ( "00" + abbrevPressureString);
@@ -81,30 +87,34 @@ public class MeanSeaLevelPres extends AbstractMetParameter implements
 						 return abbrevPressureString;
 
 		}
-
+		else if( formatStr.compareToIgnoreCase("PMSL") == 0 ){
+            double  newPresValInMb = Double.NaN;
+            if ( ( this.getUnit().toString().compareTo("mb") != 0
+          		  && this.getUnit().toString().compareTo("hPa") != 0) ){
+		                  double  oldPresVal     = getValue().doubleValue();
+		                  newPresValInMb = (this.getUnit()
+		                                           .getConverterTo( NcUnits.MILLIBAR )
+		                                           .convert( oldPresVal ) );
+		       }
 		else  
-			return super.getFormattedString( formatStr );
-//		String fmtValStr = super.getFormattedString( "%2.2f" );
-//
-//		return fmtValStr.substring( 1 );
+               newPresValInMb = getValue().doubleValue();
+               
+               if( newPresValInMb < 100){
+            	   newPresValInMb *= 100;
+               }
+               else if(newPresValInMb > 10000){
+            	   newPresValInMb /= 10;
 	}
 
+               int t = (int) Math.round(newPresValInMb);
 	
+               return String.valueOf(t);
  	
+		}
+		else  
+			return super.getFormattedString( formatStr );
  	
+	}
  	
-//	@DeriveMethod		
-//	public MeanSeaLevelPres derive( StationPressure prs, Temperature t, 
-//						DewPointTemp dpt, StationElevation selv ) {
-//		if( prs.hasValidValue() && t.hasValidValue() && dpt.hasValidValue() &&
-//				selv.hasValidValue() ) {
-////			Amount prPmsl ( Amount pres,  Amount tmpc,  Amount dwpc,  Amount selv );			
-//		}
-//		else { 
-//			setValueToMissing();
-//		}
-//		
-//		return this;
-//	}		
 
 }
