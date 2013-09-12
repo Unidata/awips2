@@ -4,7 +4,7 @@
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>    
 pluginName=aww
-reportType=SEVERE_THUNDERSTORM_WARNING,TORNADO_WARNING,FLASH_FLOOD_WARNING
+reportType=SEVERE THUNDERSTORM WARNING,TORNADO WARNING,FLASH FLOOD WARNING
 color=RGB {155, 155, 155}
     </resourceParameters>
     <rscImplementation>Warn</rscImplementation>
