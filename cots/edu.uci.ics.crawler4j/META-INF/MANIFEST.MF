@@ -21,7 +21,7 @@ Bundle-ClassPath: apache-mime4j-core-0.7.jar,
  tika-parsers-1.0.jar,
  .
 Require-Bundle: org.eclipse.core.runtime,
- org.apache.log4j 
+ org.apache.log4j,
  org.apache.commons.compress;bundle-version="1.5.0"
 Export-Package: com.drew.imaging,
  com.drew.imaging.jpeg,
