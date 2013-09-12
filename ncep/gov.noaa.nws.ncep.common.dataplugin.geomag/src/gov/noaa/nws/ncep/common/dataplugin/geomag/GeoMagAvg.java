@@ -84,6 +84,7 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
      * H data Hour Average
      */
 	@Column(length=16)
+	@XmlAttribute
     @DynamicSerializeElement
 	private float hHrAvg;
    
@@ -91,6 +92,7 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
      * D data Hour Average
      */
 	@Column(length=16)
+	@XmlAttribute
     @DynamicSerializeElement
     private float dHrAvg;
 	
@@ -169,5 +171,3 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
         this.stationCode = stationCode;
     }
 }
-
-

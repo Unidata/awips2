@@ -23,7 +23,7 @@ import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -74,6 +74,7 @@ public abstract class AbstractMetParameter extends Amount implements Quantity, I
 	
 	public AbstractMetParameter(){
 		super();
+		listOfInputMetPrmNamesForDerivingThisMetPrm = new ArrayList<String>(0);
 	}
 	@DynamicSerializeElement
 	private boolean useStringValue; // override to true for String parameters.
@@ -89,6 +90,12 @@ public abstract class AbstractMetParameter extends Amount implements Quantity, I
 //        return standardUnit;
 //    }
 
+	protected List<String> listOfInputMetPrmNamesForDerivingThisMetPrm;
+	
+	public final List<String> getListOfInputMetPrmNamesForDerivingThisMetParameter(){
+		return listOfInputMetPrmNamesForDerivingThisMetPrm;
+	}
+	
 	/**
 	 * @return the dataTime
 	 */
@@ -447,11 +454,18 @@ public abstract class AbstractMetParameter extends Amount implements Quantity, I
 							argParam = (AbstractMetParameter)
 												argClass.getConstructor( ).newInstance();
 							
-							checkedParams.add( argParam.getMetParamName() );
+							String metPrmName = argParam.getMetParamName();
+							checkedParams.add( metPrmName );
 							
 							prmIsDerivable = argParam.derivable( checkedParams, inputParams);
 							
-							checkedParams.remove( argParam.getMetParamName() );
+							if(prmIsDerivable){
+								if(listOfInputMetPrmNamesForDerivingThisMetPrm == null )
+									listOfInputMetPrmNamesForDerivingThisMetPrm = new ArrayList<String>(0);
+								
+								listOfInputMetPrmNamesForDerivingThisMetPrm.add(metPrmName);
+							}
+							checkedParams.remove( metPrmName );
 							
 						} catch (Exception e) {
 							System.out.println("error getting newInstance for metParam " + argClass.getSimpleName() );
@@ -465,7 +479,6 @@ public abstract class AbstractMetParameter extends Amount implements Quantity, I
 				} // end loop thru derive() args					
 			
 				if( derivable ) {
-					//return m;
 					foundDeriveMthds.add( m );
 				}
 			}
@@ -557,6 +570,23 @@ public abstract class AbstractMetParameter extends Amount implements Quantity, I
 				break;				
 			}
 
+             if( derivedParam != null ){
+            	 if(listOfInputMetPrmNamesForDerivingThisMetPrm == null )
+            		 listOfInputMetPrmNamesForDerivingThisMetPrm = new ArrayList<String>(0);
+//            	 String metPrmName = derivedParam.getClass().getSimpleName();
+//            	 int size = mthdArgs.size();
+            	 for(AbstractMetParameter thisPrm : mthdArgs ){
+            		 String metParamName = thisPrm.getMetParamName();
+            		 if(metParamName.compareTo(derivedParam.getClass().getSimpleName()) == 0 ){
+            			 if(!listOfInputMetPrmNamesForDerivingThisMetPrm.contains(metParamName)){
+            				 listOfInputMetPrmNamesForDerivingThisMetPrm.add(metParamName);
+            			 }
+            		 }
+            	 }
+//            	 if(listOfInputMetPrmNamesForDerivingThisMetPrm.contains(metPrmName))
+//            		 listOfInputMetPrmNamesForDerivingThisMetPrm.remove(metPrmName);
+             }
+            	 
 			return (AbstractMetParameter) derivedParam;
 
 		} catch (IllegalArgumentException e) {
@@ -600,4 +630,53 @@ public abstract class AbstractMetParameter extends Amount implements Quantity, I
 			return getClass().getSimpleName()+ " "+ getValue().toString() + " " + getUnit().toString();
 		}
 	}
+	
+//	@Override
+//	public Object clone(){
+//		AbstractMetParameter metParam = null;
+//		try {
+//			synchronized(this){
+//			metParam = this.getClass().newInstance();
+//			
+//			if(metParam == null )
+//				return metParam;
+//			
+//			if(this.getDataTime() == null )
+//				return metParam;
+//			if(this.getDataTime() != null )
+//			    metParam.dataTime = new DataTime(this.getDataTime().getRefTime());
+//			
+//			if( this.listOfInputMetPrmNamesForDerivingThisMetPrm != null )
+//			    metParam.listOfInputMetPrmNamesForDerivingThisMetPrm = new ArrayList<String>(this.listOfInputMetPrmNamesForDerivingThisMetPrm);
+//			
+//			if( this.valueString != null )
+//			    metParam.valueString = new String(this.valueString);
+//			
+//			if( this.getUnit() != null)
+//				metParam.setUnit(this.getUnit());
+//			
+//			if ( this.getUnitStr() != null )
+//				 metParam.setUnitStr( new String( this.getUnitStr() ) );
+//			
+//			if ( this.getValueString() != null )
+//				metParam.setValueString( new String( this.getValueString()));
+//			
+//			if ( this.getValue() != null  )
+//			     metParam.setValue(this.getValue());
+//				
+//			metParam.useStringValue = this.useStringValue;
+//			}	
+//			
+//		} catch (InstantiationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		return metParam;
+//	}
+	
+	
 }
