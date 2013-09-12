@@ -66,34 +66,6 @@
                resourceType="PLAN_VIEW">
          </resource>
       </extension>
-      <extension
-            point="com.raytheon.uf.viz.core.scriptTemplate">
-         <scriptTemplate
-               pluginName="obs"
-               scriptLibrary="ObsRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="sfcobs"
-               scriptLibrary="SfcObsRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="fssobs"
-               scriptLibrary="FSSObsRequest">
-         </scriptTemplate>         
-         <scriptTemplate
-               pluginName="bufrua"
-               scriptLibrary="UARequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="profiler"
-               scriptLibrary="ProfilerRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="pointdata"
-               scriptTemplateFile="scriptTemplates/pointData.vm">
-         </scriptTemplate>
-      </extension>
-      
  	<extension
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
