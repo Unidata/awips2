@@ -95,6 +95,6 @@ public class NucapsRecord extends NPPSoundingRecord {
 
     @Override
     public String getPluginName() {
-        return PLUGIN_NAME;
+        return "nucaps";
     }
 }
