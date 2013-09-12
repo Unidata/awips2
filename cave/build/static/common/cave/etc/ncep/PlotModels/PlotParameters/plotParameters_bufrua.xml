@@ -68,9 +68,9 @@
     <PlotParameterDefn  ncepParamName="PRES" plotMode="text" dbParamName="prMan" plotUnit="hPa" plotFormat="%3.0f"/>
     
 	<!-- WIND -->
-	<PlotParameterDefn  ncepParamName="BRBK" plotMode="barb" class="barb" dbParamName="wsMan,wdMan" plotUnit="kts" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>
+	<PlotParameterDefn  ncepParamName="BRBK" plotMode="barb" dbParamName="wsMan,wdMan" plotUnit="kts"/>
 	<PlotParameterDefn  ncepParamName="BRBM" plotMode="barb" dbParamName="wsMan,wdMan" plotUnit="m/s" />     
 	   
- 	<PlotParameterDefn  ncepParamName="PSYM" plotMode="text" dbParamName=""/>
+ 	<!-- <PlotParameterDefn  ncepParamName="PSYM" plotMode="text" dbParamName=""/>  -->
     
 </PlotParameterDefns>
