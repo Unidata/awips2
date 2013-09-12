@@ -63,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 5/16/08      875        bphillip    Initial Creation.
  * 10/10/12     #1260      randerso    Added getters for source and destination glocs
  * 02/19/13     #1637      randerso    Fixed remapping of byte grids
+ * 08/27/13     #2287      randerso    Removed 180 degree adjustment required by error
+ *                                     in Maputil.rotation
  * 
  * </pre>
  * 
@@ -598,7 +600,7 @@ public class RemapGrid {
                     Coordinate llc = destinationGloc
                             .latLonCenter(new Coordinate(x1, y1));
                     this.rotation.set(x1, y1,
-                            (float) (180 - MapUtil.rotation(llc, sourceGloc)));
+                            (float) (-MapUtil.rotation(llc, sourceGloc)));
                 }
             }
         }
