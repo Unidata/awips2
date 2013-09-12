@@ -64,9 +64,9 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            snaples     Initial creation
- * Mar 7, 2013   15657    lbousaidi   fixed DQC slider and added listener to the Keys
- *                                     when pressed. 									      	
- * 
+ * Mar 7, 2013  15657      lbousaidi   fixed DQC slider and added listener to the Keys
+ *                                     when pressed.
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * </pre>
  * 
  * @author snaples
@@ -381,7 +381,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         dataOptionsGroup.setLayoutData(gd);
         final Shell shell = this.getParent();
         final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = new Cursor(Display.getDefault(),
+        final Cursor waitCursor = Display.getDefault().getSystemCursor(
                 SWT.CURSOR_WAIT);
 
         if (MPEDisplayManager.pcpn_time_step != 1) {
@@ -910,9 +910,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         });
 
         /**
-         * Add a key listener for up and down arrows
-         * to move up and down through the filter
-         * scale
+         * Add a key listener for up and down arrows to move up and down through
+         * the filter scale
          */
 
         pntFilter.addKeyListener(new KeyAdapter() {
@@ -966,9 +965,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
                 });
         /**
-         * Add a key listener for up and down arrows
-         * to move up and down through the reverse filter
-         * scale
+         * Add a key listener for up and down arrows to move up and down through
+         * the reverse filter scale
          */
         pntRevFilter.addKeyListener(new KeyAdapter() {
             @Override
