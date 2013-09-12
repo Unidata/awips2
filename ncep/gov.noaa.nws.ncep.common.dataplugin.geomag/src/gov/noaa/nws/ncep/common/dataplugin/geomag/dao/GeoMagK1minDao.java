@@ -1,5 +1,19 @@
 package gov.noaa.nws.ncep.common.dataplugin.geomag.dao;
 
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
 import gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagK1min;
 
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -41,5 +55,22 @@ public class GeoMagK1minDao extends CoreDao {
     public int getAreaId (int id){
         return queryById(id).getId();
     }
-}
 
+    @SuppressWarnings("unchecked")
+    public List<GeoMagK1min> getSingleK1min(final String stationCode,  final Date date) {
+    	
+        return (List<GeoMagK1min>) txTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                HibernateTemplate ht = getHibernateTemplate();
+                Session sess = ht.getSessionFactory().getCurrentSession();
+                Criteria crit = sess.createCriteria(GeoMagK1min.class);
+                Criterion where1 = Restrictions.eq("stationCode", stationCode);
+                crit.add(where1);
+                Criterion where2 = Restrictions.eq("refTime", date);
+                crit.add(where2); 
+                return crit.list();
+            }
+        });
+    }
+}
