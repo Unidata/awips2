@@ -18,6 +18,7 @@ FINT=10;30;70;90
 FLINE=18;8;0;22;23
 HILO=0
 HLSYM=0
+CLRBAR=1
 WIND=
 TITLE=1/-2/~ @ MEAN LAYER RELATIVE HUMIDITY!0
 COLORS=2                                                                       
