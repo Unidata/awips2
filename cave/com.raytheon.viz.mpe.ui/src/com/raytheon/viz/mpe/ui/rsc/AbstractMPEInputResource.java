@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 8, 2011            mschenke     Initial creation
+ * Feb 8, 2011             mschenke    Initial creation
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public abstract class AbstractMPEInputResource extends
         map.put(PROPERTY, false);
     }
 
-    private static final Cursor CURSOR_HAND = new Cursor(Display.getDefault(),
+    private final Cursor CURSOR_HAND = Display.getDefault().getSystemCursor(
             SWT.CURSOR_HAND);
 
     /** Input handler for polygon creation and dialog opening */
