@@ -1,4 +1,3 @@
- * 08/08/13    1028            G. Hull      rm underscores from reportType and set mndTime in URI           
 package gov.noaa.nws.ncep.edex.plugin.aww.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwLatlons;
@@ -53,11 +52,12 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 11/2009      38              L. Lin      Correctly get UGC information.    
  * 11/2009      38              L. Lin      Migration to TO11 D6.
  * 05/2010      38              L. Lin      Migration to TO11DR11.    
- * 01/26/2011   N/A             M. Gao      Refactor: 
+ * Jan 26, 2011 N/A             M. Gao      Refactor: 
  *                                          1. if AwwParser.processWMO failed, simply
  *                                             drop the record by throwing an exception
  *                                          2. comment out the end check "if(record == null") 
  *                                             because it is a dead code.                
+ * Aug 08, 2013 1028            G. Hull     rm underscores from reportType and set mndTime in URI           
  * Aug 30, 2013 2298            rjpeter     Make getPluginName abstract
  * </pre>
  * 
@@ -248,12 +248,7 @@ public class AwwDecoder extends AbstractDecoder {
                             List<AwwLatlons> pointAwwLatLonsList = AwwLatLonUtil
                                     .getAwwLatLonsListBySereveWeatherStatusPointLine(awwVtec
                                             .getVtecLine());
-                            // System.out.println("==========, within AwwDecoder, pointAwwLatLonsList.size="+pointAwwLatLonsList.size());
-                            int index = 0;
                             for (AwwLatlons eachAwwLatlons : pointAwwLatLonsList) {
-                                // System.out.println("===============,before adding awwLatLons to ugc,  No."+(index+1)+" awwLatLons.getLat="+
-                                // eachAwwLatlons.getLat()+"    awwLatLons.getLon="+eachAwwLatlons.getLon());
-                                index++;
                                 ugc.addAwwLatLon(eachAwwLatlons);
                             }
                         }
@@ -278,15 +273,14 @@ public class AwwDecoder extends AbstractDecoder {
                 return new PluginDataObject[0];
             }
 
-            record.setReportType( reportType.trim() );
+            record.setReportType(reportType.trim());
             record.setTraceId(traceId);
             // Set MND remark before the URI is constructed
-            if( mt.getMndTimeString() == null || 
-                mt.getMndTimeString().trim().isEmpty() ) {
-                record.setMndTime( "unknown" );            
-            }
-            else {
-                record.setMndTime( mt.getMndTimeString() );
+            if ((mt.getMndTimeString() == null)
+                    || mt.getMndTimeString().trim().isEmpty()) {
+                record.setMndTime("unknown");
+            } else {
+                record.setMndTime(mt.getMndTimeString());
             }
 
             try {
