@@ -4,7 +4,7 @@
  **/
 package gov.noaa.nws.ncep.edex.plugin.airep.decoder;
 
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /*a
  * TODO Enter a description here.
@@ -29,7 +29,7 @@ public class AIREPWeather
     private static final int WX_WEATHER = 1;
     private static final int WX_FLIGHT	= 2;
     
-    private static final int IMISSD = IDecoderConstantsN.INTEGER_MISSING;
+    private static final int IMISSD = IDecoderConstants.VAL_MISSING;
     
     private final String theRawData;
 
