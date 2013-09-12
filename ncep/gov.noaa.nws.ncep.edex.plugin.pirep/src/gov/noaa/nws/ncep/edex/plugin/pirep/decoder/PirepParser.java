@@ -18,8 +18,6 @@
  * further licensing information.
  **/
 package gov.noaa.nws.ncep.edex.plugin.pirep.decoder;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -39,6 +37,7 @@ import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightCondition;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightLevel;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftRemarks;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
@@ -84,9 +83,9 @@ public class PirepParser {
     // Allowable future time in milliseconds (15 minutes).
     private static final int ALLOWABLE_TIME = 15;
     
-    private static final float RMISSD = IDecoderConstantsN.UAIR_FLOAT_MISSING;
+    private static final float RMISSD = -9999.f;
     
-    private static final int IMISSD = IDecoderConstantsN.UAIR_INTEGER_MISSING;
+    private static final int IMISSD = IDecoderConstants.VAL_MISSING;;
 
     private static final String[] RPIDS = { "UUA", "UA" };
 
@@ -325,7 +324,7 @@ public class PirepParser {
      */
     public Integer getFlightLevel() {
         //Integer retValue = null;
-        Integer retValue = IDecoderConstantsN.UAIR_INTEGER_MISSING; //-9999; 
+        Integer retValue = PirepTools.UAIR_INTEGER_MISSING; // -9999;
         if (flightLevel != null) {
             retValue = flightLevel.getFlightLevel();
         }
@@ -1732,12 +1731,12 @@ public class PirepParser {
                 s1 = matcher.group(8);
                 s2 = matcher.group(9);
                 if(BLO_HGT.equals(s1)) {
-                    at.setBaseHeight(IDecoderConstantsN.UAIR_INTEGER_MISSING);
+                    at.setBaseHeight(PirepTools.UAIR_INTEGER_MISSING);
                     at.setTopHeight(decodeHeight(s2));
                     
                 } else if (ABV_HGT.equals(s1)) {
                     at.setBaseHeight(decodeHeight(s2));
-                    at.setTopHeight(IDecoderConstantsN.UAIR_INTEGER_MISSING);
+                    at.setTopHeight(PirepTools.UAIR_INTEGER_MISSING);
                 } else {
                     // Check for one or more levels
                     s1 = matcher.group(11);
@@ -1751,8 +1750,8 @@ public class PirepParser {
                     if((s1 != null)&&(s2 != null)) {
                         Integer base = at.getBaseHeight();
                         Integer top = at.getTopHeight();
-                        if(base != IDecoderConstantsN.UAIR_INTEGER_MISSING) {
-                            if(top != IDecoderConstantsN.UAIR_INTEGER_MISSING) {
+                        if (base != PirepTools.UAIR_INTEGER_MISSING) {
+                            if (top != PirepTools.UAIR_INTEGER_MISSING) {
                                 if(base > top) {
                                     logger.debug(traceId + "- BASE-TOP inversion fixed");
                                     at.setBaseHeight(top);

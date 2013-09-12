@@ -2,8 +2,6 @@ package gov.noaa.nws.ncep.edex.plugin.pirep.decoder;
 
 //import gov.noaa.nws.ncep.edex.plugin.pirep.common.AircraftFlightCondition;
 
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +29,8 @@ import com.raytheon.uf.edex.decodertools.aircraft.WordTranslator;
 
 public class PirepTools  {
     
+    public static final int UAIR_INTEGER_MISSING = -9999;
+
     private static final char SPACE = ' ';
     
     private static final char DASH = '-';
@@ -292,12 +292,12 @@ public class PirepTools  {
                 case MOD_ID: {
                     switch(e.getFirstId()) {
                     case MOD_ID_ABV : {
-                        afc.setTopHeight(IDecoderConstantsN.UAIR_INTEGER_MISSING); //-9999
+                        afc.setTopHeight(UAIR_INTEGER_MISSING); // -9999
                         flB = true;
                         break;
                     }
                     case MOD_ID_BLO : {
-                        afc.setBaseHeight(IDecoderConstantsN.UAIR_INTEGER_MISSING);
+                        afc.setBaseHeight(UAIR_INTEGER_MISSING);
                         flA = true;
                         break;
                     }
