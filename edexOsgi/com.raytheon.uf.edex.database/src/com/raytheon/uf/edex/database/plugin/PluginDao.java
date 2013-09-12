@@ -754,7 +754,7 @@ public abstract class PluginDao extends CoreDao {
      * @throws DataAccessLayerException
      */
     protected int purgeExpiredKey(PurgeRuleSet ruleSet, String[] purgeKeys)
-            String[] purgeKeys) throws DataAccessLayerException {
+            throws DataAccessLayerException {
         List<PurgeRule> rules = ruleSet.getRuleForKeys(purgeKeys);
 
         if (rules == null) {
