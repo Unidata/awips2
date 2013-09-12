@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul, 7 2009             snaples     Initial creation
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -382,7 +383,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         dataOptionsGroup.setLayoutData(gd);
         final Shell shell = this.getParent();
         final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = new Cursor(Display.getDefault(),
+        final Cursor waitCursor = Display.getDefault().getSystemCursor(
                 SWT.CURSOR_WAIT);
 
         // Create a container to hold the label and the combo box.
