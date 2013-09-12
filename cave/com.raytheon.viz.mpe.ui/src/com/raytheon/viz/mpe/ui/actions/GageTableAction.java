@@ -23,7 +23,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -37,7 +36,8 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.GageTableDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 28, 2009            mpduff     Initial creation
+ * May 28, 2009            mpduff      Initial creation
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leaks.
  * 
  * </pre>
  * 
@@ -46,41 +46,17 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.GageTableDlg;
  */
 
 public class GageTableAction extends AbstractHandler {
-    private Cursor waitCursor = null;
-
-    private Cursor arrowCursor = null;
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        waitCursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(shell.getDisplay(), SWT.CURSOR_ARROW);
-        
-        shell.setCursor(waitCursor);
+
+        shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         GageTableDlg gageTable = new GageTableDlg();
         gageTable.open();
-//        try {
-//            gageTable.showGageTable();
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-//                    | SWT.OK);
-//            mb.setText("Error");
-//            mb
-//                    .setMessage("Unable to open Gage Table Dialog.");
-//            mb.open();
-//        } catch (IOException e) {
-//            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-//                    | SWT.OK);
-//            mb.setText("Error");
-//            mb
-//                    .setMessage("Unable to open Gage Table Dialog.");
-//            mb.open();
-//            e.printStackTrace();
-//        }
-        shell.setCursor(arrowCursor);
-        
+        shell.setCursor(null);
+
         return null;
     }
 
