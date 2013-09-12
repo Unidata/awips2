@@ -60,7 +60,7 @@
                      dbParamName="WTHR"
                      plotMode="table" symbolFont="WxSymbolFont" 
                      arrayIndex="0"
-                     plotLookupTable="wx_symbol_trans.txt"/>
+                     plotLookupTable="pgen_wsym.txt"/>
 <!-- STATION VARIABLES -->
 	<PlotParameterDefn  plotParamName="STID" metParamName="StationID" plotMode="text" dbParamName="stationId"/>
     
