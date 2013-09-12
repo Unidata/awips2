@@ -825,9 +825,9 @@ public class NcInventoryControlDlg extends Dialog {
 	// 
     public String deleteInventory( String inventoryName ) throws VizException {
     	
-    	if( inventoryName.equals( NcGridInventory.ncGridInventoryName ) ) {
-			throw new VizException( "Can't delete the NcGridInventory." );
-    	}
+//    	if( inventoryName.equals( NcGridInventory.ncGridInventoryName ) ) {
+//			throw new VizException( "Can't delete the NcGridInventory." );
+//    	}
     	
     	// Create an NcInventoryRequest script to get query the ncInventory for the types.
     	// 
@@ -846,13 +846,13 @@ public class NcInventoryControlDlg extends Dialog {
 		
 		if( !(rslts instanceof String) ) {
 			out.println("Inventory Delete Error: expecting String return." );
-			throw new VizException("Inventory Dump Request Error: String response expecting instead of "+
+			throw new VizException("Inventory Delete Request Error: String response expecting instead of "+
 					rslts.getClass().getName() );
 		}
 
 		long t02 = System.currentTimeMillis();
 
-		out.println("Inventory Dump for "+ inventoryName+ 
+		out.println("Inventory Delete for "+ inventoryName+ 
 				" took "+ (t02-t01)+ "msecs " );
 		return (String)rslts;
     }
@@ -867,7 +867,7 @@ public class NcInventoryControlDlg extends Dialog {
 //								getResourceDefnName();
 		reqMsg.setInventoryName( inventoryName );
 		
-		reqMsg.setRequestedParam( "" ); 
+//		reqMsg.setRequestedParams( "" ); 
 //				( inventoryName.equals( NcGridInventory.ncGridInventoryName  ) ? ""
 //					: "dataTime" ) );
 //		reqMsg.setDumpToFile( true );

@@ -16,6 +16,7 @@ FINT=50;60;70;80;90
 FLINE=0;29;28;27;26;0
 HILO=
 HLSYM=
+CLRBAR=
 WIND=18/1/1
 TITLE=1/-1/~ FFG0124hr !0
 COLORS=2                                                                       
