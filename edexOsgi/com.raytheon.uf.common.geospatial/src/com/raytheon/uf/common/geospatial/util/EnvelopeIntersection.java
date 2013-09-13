@@ -49,9 +49,12 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 14, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 14, 2012           mschenke    Initial creation
+ * Sep 13, 2013  2309     bsteffen    Corrected Lines that are extrapolated to
+ *                                    intersect the border will use projection
+ *                                    factor from all 4 corners instead of 3.
  * 
  * </pre>
  * 
@@ -237,12 +240,8 @@ public class EnvelopeIntersection {
                 // Complicated case, take valid line strings and compute
                 // intersection area with target border and combine all
                 // intersections in collection
-                LineSegment top = new LineSegment(ul, ur);
-                LineSegment right = new LineSegment(ur, lr);
-                LineSegment bottom = new LineSegment(ll, lr);
-                LineSegment left = new LineSegment(ul, ll);
-                LineSegment[] borderSegments = new LineSegment[] { top, right,
-                        bottom, left };
+                Coordinate[] borderCorners = { ul, ur, lr, ll };
+
 
                 // First, world wrap correct the line strings
                 List<LineString> corrected = new ArrayList<LineString>();
@@ -335,14 +334,13 @@ public class EnvelopeIntersection {
                         double bestProjectionFactorOne = 1.0;
                         double bestProjectionFactorTwo = 1.0;
                         Coordinate cOne = null, cTwo = null;
-                        for (LineSegment ls : borderSegments) {
-                            double factor = one.projectionFactor(ls
-                                    .getCoordinate(0));
+                        for (Coordinate borderCorner : borderCorners) {
+                            double factor = one.projectionFactor(borderCorner);
                             if (factor > bestProjectionFactorOne) {
                                 cOne = one.pointAlong(factor);
                                 bestProjectionFactorOne = factor;
                             }
-                            factor = two.projectionFactor(ls.getCoordinate(0));
+                            factor = two.projectionFactor(borderCorner);
                             if (factor > bestProjectionFactorTwo) {
                                 cTwo = two.pointAlong(factor);
                                 bestProjectionFactorTwo = factor;
