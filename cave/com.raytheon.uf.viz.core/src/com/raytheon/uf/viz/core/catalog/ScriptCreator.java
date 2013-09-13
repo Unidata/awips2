@@ -22,25 +22,13 @@ package com.raytheon.uf.viz.core.catalog;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IContributor;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
@@ -71,6 +59,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    3/17/2008     933         grichard    Added support for taf plugin.
  *    04/14/2008                chammack    Complete refactor to Velocity
  *    Feb 15, 2013  1638        mschenke    Created common VelocityManager for executing scripts
+ *    Sep 12, 2013  2277        mschenke    Remove references to this class and deleted unused
+ *                                          functionality
  * 
  * </pre>
  * 
@@ -79,148 +69,23 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  */
 @Deprecated
 public class ScriptCreator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ScriptCreator.class);
 
-    private static final String DEFAULT_SCRIPT_LIBRARY = "BaseRequest";
+    private static String SCRIPT_LIBRARY = "BaseRequest";
 
-    /** The extension point where resources are defined */
-    private static final String RESOURCE_EXTENSION = "com.raytheon.uf.viz.core.scriptTemplate";
-
-    private static final String PLUGINNAME_TAG = "pluginName";
-
-    private static final String SCRIPT_TEMPLATE_TAG = "scriptTemplateFile";
-
-    private static final String SCRIPT_LIBRARY_TAG = "scriptLibrary";
-
-    private static Map<String, ScriptProperties> pluginToLibraryMap;
-
-    private static File DEFAULT_TEMPLATE;
+    private static File SCRIPT_TEMPLATE;
 
     static {
         try {
-            DEFAULT_TEMPLATE = new File(FileLocator.resolve(
+            SCRIPT_TEMPLATE = new File(FileLocator.resolve(
                     FileLocator.find(Activator.getDefault().getBundle(),
                             new Path("scriptTemplates/standardTemplate.vm"),
                             null)).getPath());
         } catch (IOException e) {
-            statusHandler
+            UFStatus.getHandler(ScriptCreator.class)
                     .handle(Priority.CRITICAL,
                             "Unable to load the standard script template.  Requesting products will not work until this is fixed.",
                             e);
         }
-    }
-
-    private static class ScriptProperties {
-        public File scriptTemplate;
-
-        public String scriptLibrary;
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null || !(obj instanceof ScriptProperties)) {
-                return false;
-            }
-
-            ScriptProperties props = (ScriptProperties) obj;
-
-            boolean part1 = (scriptTemplate == null && props.scriptTemplate == null)
-                    || (scriptTemplate != null && scriptTemplate
-                            .equals(props.scriptTemplate));
-
-            boolean part2 = (scriptLibrary == null && props.scriptLibrary == null)
-                    || (scriptLibrary != null && scriptLibrary
-                            .equals(props.scriptLibrary));
-
-            return part1 && part2;
-
-        }
-
-        @Override
-        public String toString() {
-            return "(Template: " + scriptTemplate + ", Library: "
-                    + scriptLibrary + ")";
-        }
-
-    }
-
-    /**
-     * Create an internal representation of script properties extensions in
-     * memory
-     */
-    private static synchronized void createPluginToLibraryMap() {
-        if (pluginToLibraryMap != null) {
-            return;
-        }
-
-        pluginToLibraryMap = new HashMap<String, ScriptProperties>();
-        IExtensionRegistry registry = Platform.getExtensionRegistry();
-
-        IExtensionPoint point = registry.getExtensionPoint(RESOURCE_EXTENSION);
-
-        if (point == null) {
-            return;
-        }
-        IExtension[] extensions = point.getExtensions();
-
-        List<IExtension> extensionList = new ArrayList<IExtension>();
-        extensionList.addAll(Arrays.asList(extensions));
-
-        for (int i = 0; i < extensionList.size(); i++) {
-            IConfigurationElement[] config = extensionList.get(i)
-                    .getConfigurationElements();
-
-            for (int j = 0; j < config.length; j++) {
-                String pluginName = config[j].getAttribute(PLUGINNAME_TAG);
-                String template = config[j].getAttribute(SCRIPT_TEMPLATE_TAG);
-                String library = config[j].getAttribute(SCRIPT_LIBRARY_TAG);
-                IContributor contrib = extensionList.get(i).getContributor();
-                Bundle bundle = Platform.getBundle(contrib.getName());
-                File templateFile = null;
-                try {
-                    if (template != null) {
-                        URL url = FileLocator.find(bundle, new Path(template),
-                                null);
-                        if (url == null) {
-                            String message = "Error opening the script template for: "
-                                    + pluginName;
-                            statusHandler.handle(Priority.PROBLEM, message);
-                            continue;
-                        }
-
-                        templateFile = new File(FileLocator.resolve(url)
-                                .getPath());
-                    }
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error opening resource", e);
-                    continue;
-                }
-
-                if (pluginName != null) {
-                    ScriptProperties newValue = new ScriptProperties();
-                    newValue.scriptLibrary = library;
-                    newValue.scriptTemplate = templateFile;
-
-                    ScriptProperties existingValue = pluginToLibraryMap
-                            .get(pluginName);
-                    if (existingValue != null) {
-                        // If duplicates, warn to log, and use the first value.
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Duplicate value for plugin registry: "
-                                        + pluginName + " had value: "
-                                        + existingValue + ", new value: "
-                                        + newValue + ".  Ignoring new value.");
-
-                    } else {
-                        pluginToLibraryMap.put(pluginName, newValue);
-                    }
-
-                }
-
-            }
-        }
-
     }
 
     /**
@@ -237,50 +102,8 @@ public class ScriptCreator {
      */
     public static String createScript(LayerProperty layerProperty)
             throws VizException {
-        return createScript(layerProperty, "select");
-    }
-
-    /**
-     * Create a script from a LayerProperty class with a mode
-     * 
-     * The mode is a user definable concept, but typically "select", "catalog"
-     * and "update" are valid values, however script templates may implement
-     * anything they choose to.
-     * 
-     * @param layerProperty
-     *            the layer property
-     * @param mode
-     *            the mode
-     * @return the script
-     * @throws VizException
-     *             an exception if generation fails.
-     */
-    public static String createScript(LayerProperty layerProperty, String mode)
-            throws VizException {
-        if (mode.equals("update") || mode.equals("catalog")
-                || mode.equals("plot")) {
-            return createScript(layerProperty.getEntryQueryParameters(false),
-                    layerProperty.getNumberOfImages(), mode);
-        }
         return createScript(layerProperty.getEntryQueryParameters(true),
-                layerProperty.getNumberOfImages(), mode);
-    }
-
-    /**
-     * Create a script from a LayerProperty class, with mode "update"
-     * 
-     * This is a convenience method for the more general
-     * createImageScript(LayerProperty, String).
-     * 
-     * @param layerProperty
-     *            the layer property
-     * @return the script object
-     * @throws VizException
-     *             an exception if generation fails.
-     */
-    public static String createUpdateScript(LayerProperty layerProperty)
-            throws VizException {
-        return createScript(layerProperty, "update");
+                layerProperty.getNumberOfImages(), "select");
     }
 
     /**
@@ -297,56 +120,27 @@ public class ScriptCreator {
      * @throws VizException
      * 
      */
-    public static String createScript(
-            Map<String, RequestConstraint> queryTerms, int maxRecords,
-            String mode) throws VizException {
-
-        String plugin = queryTerms.get("pluginName").getConstraintValue();
-
-        if (plugin == null) {
-            throw new IllegalArgumentException(
-                    "Metadata does not contain pluginName, which is required.");
-        }
-
-        return createScript(plugin, queryTerms, maxRecords, mode);
-
-    }
-
-    public static String createScript(String templateName,
+    private static String createScript(
             Map<String, RequestConstraint> queryTerms, int maxRecords,
             String mode) throws VizException {
 
         // long t0 = System.currentTimeMillis();
 
-        createPluginToLibraryMap();
-
-        if (templateName == null) {
-            throw new IllegalArgumentException(
-                    "No templateName, which is required.");
-        }
-
-        ScriptProperties props = pluginToLibraryMap.get(templateName);
-
-        if (props == null) {
-            props = new ScriptProperties();
-            props.scriptLibrary = DEFAULT_SCRIPT_LIBRARY;
-        }
-
-        File stringTemplate = props.scriptTemplate;
-        if (stringTemplate == null) {
-            stringTemplate = DEFAULT_TEMPLATE;
+        if (SCRIPT_TEMPLATE == null) {
+            throw new IllegalStateException(
+                    "ScriptCreator did not initialize properly");
         }
 
         Map<String, Object> templateObjects = new HashMap<String, Object>();
         templateObjects.put("scriptMetadata", queryTerms);
         templateObjects.put("maxRecords", maxRecords);
-        templateObjects.put("scriptLibrary", props.scriptLibrary);
+        templateObjects.put("scriptLibrary", SCRIPT_LIBRARY);
         templateObjects.put("mode", mode);
 
         try {
             String script = VelocityManager.executeTemplate(
-                    stringTemplate,
-                    DEFAULT_TEMPLATE.getParentFile(),
+                    SCRIPT_TEMPLATE,
+                    SCRIPT_TEMPLATE.getParentFile(),
                     new File(FileUtil.join(LocalizationManager.getUserDir(),
                             "logs")), templateObjects);
             // System.out.println("Script gen: "
