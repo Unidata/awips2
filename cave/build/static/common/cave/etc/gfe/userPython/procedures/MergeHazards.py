@@ -42,7 +42,7 @@ import HazardUtils
 import VTECTable
 import LogStream
 import numpy
-from MessageBox import MessageBox
+
 
 from HazardUtils import MODEL
 from HazardUtils import ELEMENT
@@ -256,6 +256,7 @@ class Procedure(SmartScript.SmartScript):
     # Displays a dialog box and queries the user to continue to merge or
     # abort the merge
     def displayDialog(self, message):
+        from MessageBox import MessageBox
         messageBox = MessageBox(style=MessageBox.ICON_WARNING)
         messageBox.setText("MakeHazard")
         messageBox.setMessage(message)
