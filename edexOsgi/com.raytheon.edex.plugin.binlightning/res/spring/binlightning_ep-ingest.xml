@@ -9,7 +9,7 @@
 	<bean id="binlightningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="binlightning" />
-		<constructor-arg value="jms-dist:queue:Ingest.binlightning?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.binlightning" />
 	</bean>
 
 	<bean id="binlightningCamelRegistered" factory-bean="clusteredCamelContextMgr"
@@ -31,13 +31,13 @@
 			<setHeader headerName="pluginName">
 				<constant>binlightning</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.binlightning" />
+			<to uri="jms-durable:queue:Ingest.binlightning" />
 		</route>
 		-->
 
 		<!-- Begin binlightning routes -->
 		<route id="binlightningIngestRoute">
-			<from uri="jms-generic:queue:Ingest.binlightning?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.binlightning"/>
 			<setHeader headerName="pluginName">
 				<constant>binlightning</constant>
 			</setHeader>
