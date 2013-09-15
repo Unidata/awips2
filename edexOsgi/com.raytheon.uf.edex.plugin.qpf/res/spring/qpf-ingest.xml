@@ -12,7 +12,7 @@
 	
 	<camelContext id="qpf-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="QPFGenerate">
-        	<from uri="jms-generic:queue:qpfGenerate?destinationResolver=#qpidDurableResolver" />
+        	<from uri="jms-durable:queue:qpfGenerate"/>
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
 	        	<bean ref="qpfGenerator" method="generate" />
