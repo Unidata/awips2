@@ -26,7 +26,7 @@
     <!-- bean id="awwDistRegistry" class="com.raytheon.uf.edex.distribution.DistributionSrv"
 		factory-method="register">
 		<constructor-arg value="aww" />
-		<constructor-arg value="jms-generic:queue:Ingest.AlphaNumeric" />
+		<constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />
 	</bean-->
     
 	<bean id="awwCamelRegistered" factory-bean="contextManager"
@@ -47,11 +47,11 @@
             <setHeader headerName="pluginName">
                 <constant>aww</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.aww"/>
+            <to uri="jms-durable:queue:Ingest.aww"/>
         </route>
         
         <route id="awwIngestRoute">
-            <from uri="jms-generic:queue:Ingest.aww"/>
+            <from uri="jms-durable:queue:Ingest.aww"/>
             <setHeader headerName="pluginName">
                 <constant>aww</constant>
             </setHeader>
