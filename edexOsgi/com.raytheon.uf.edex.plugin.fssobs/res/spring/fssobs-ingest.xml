@@ -15,7 +15,7 @@
 	
 	<camelContext id="fssobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="FSSObsGenerate">
-        	<from uri="jms-generic:queue:fssobsGenerate?destinationResolver=#qpidDurableResolver" />
+        	<from uri="jms-durable:queue:fssobsGenerate"/>
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
 	        	<bean ref="fssObsGenerator" method="generate" />
