@@ -29,11 +29,11 @@
 
 		<route id="idftFileConsumerRoute"> <from ref="idftFileEndpoint" /> <bean 
 			ref="fileToString" /> <setHeader headerName="pluginName"> <constant>idft</constant> 
-			</setHeader> <to uri="jms-generic:queue:Ingest.idft" /> </route>
+			</setHeader> <to uri="jms-durable:queue:Ingest.idft" /> </route>
 			
 		<!-- Begin idft routes -->
 		<route id="idftIngestRoute">
-			<from uri="jms-generic:queue:Ingest.idft" />
+			<from uri="jms-durable:queue:Ingest.idft" />
 			<setHeader headerName="pluginName">
 				<constant>idft</constant>
 			</setHeader>

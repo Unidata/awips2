@@ -54,7 +54,7 @@
 
         <route id="bandwidthManagerProcessWork">
             <from
-                uri="jms-generic:queue:matureSubscriptions?destinationResolver=#qpidDurableResolver" />
+                uri="jms-durable:queue:matureSubscriptions"/>
             <doTry>
                 <pipeline>
                     <bean ref="serializationUtil" method="transformFromThrift" />
