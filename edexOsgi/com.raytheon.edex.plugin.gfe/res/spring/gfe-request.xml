@@ -461,11 +461,9 @@
 	<bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue"
     	factory-method="getInstance" />
   	<bean id="jms-iscsend" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIscSendConfig" />
+        <constructor-arg ref="jmsDurableConfig" />
 		<property name="taskExecutor" ref="iscSendThreadPool" />		
 	</bean>
-	<bean id="jmsIscSendConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
 	<bean id="iscSendThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />
@@ -487,11 +485,9 @@
   	<!-- ISC Receive Beans -->
 	
   	<bean id="jms-iscrec" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIscReceiveConfig" />
+        <constructor-arg ref="jmsDurableConfig" />
 		<property name="taskExecutor" ref="iscReceiveThreadPool" />		
 	</bean>
-	<bean id="jmsIscReceiveConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
 	<bean id="iscReceiveThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />
@@ -623,7 +619,7 @@
 		
 		<!-- ISC Data Receive route -->
 		<route id="iscReceiveRoute">
-			<from uri="jms-iscrec:queue:gfeIscDataReceive?concurrentConsumers=2&amp;destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-iscrec:queue:gfeIscDataReceive?concurrentConsumers=2"/>
 			<doTry>
 				<pipeline>
 					<bean ref="serializationUtil" method="transformFromThrift" />
@@ -643,7 +639,7 @@
 		errorHandlerRef="errorHandler" autoStartup="false">
 		
 		<route id="iscSendJobQueueAggr">
-			<from uri="jms-iscsend:queue:iscSendNotification?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-iscsend:queue:iscSendNotification" />
             <doTry>
     			<bean ref="serializationUtil" method="transformFromThrift" />
 			    <bean ref="iscSendQueue" method="addSendJobs" />

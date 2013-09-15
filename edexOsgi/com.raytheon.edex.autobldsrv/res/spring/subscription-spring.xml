@@ -50,7 +50,7 @@
 
 		<!-- LDAD (watch/warn) triggered script runner -->
 		<route id="ldadWatchWarn">
-		   <from uri="jms-generic:queue:watchwarn?destinationResolver=#qpidDurableResolver"/>
+		   <from uri="jms-durable:queue:watchwarn"/>
 		   <doTry>
 		   	   <bean ref="ldadScriptRunner" method="runScripts" />
 		   	   <doCatch>
