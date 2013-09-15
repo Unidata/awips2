@@ -36,12 +36,12 @@
 			<setHeader headerName="pluginName">
 				<constant>ncscat</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.Ncscat" />
+			<to uri="jms-durable:queue:Ingest.Ncscat" />
 		</route>
 
 
 		<route id="ncscatIngestRoute">
-			<from uri="jms-generic:queue:Ingest.Ncscat" />
+			<from uri="jms-durable:queue:Ingest.Ncscat" />
 		<!-- 	<setHeader headerName="pluginName">
 				<constant>ncscat</constant>
 			</setHeader>-->
