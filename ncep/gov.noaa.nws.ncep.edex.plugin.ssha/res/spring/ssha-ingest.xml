@@ -40,11 +40,11 @@
 			<setHeader headerName="pluginName">
 				<constant>ssha</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.ssha" />
+			<to uri="jms-durable:queue:Ingest.ssha" />
 		</route>
 
 		<route id="sshaIngestRoute">
-			<from uri="jms-generic:queue:Ingest.ssha?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.ssha"/>
 			<setHeader headerName="pluginName">
 				<constant>ssha</constant>
 			</setHeader>

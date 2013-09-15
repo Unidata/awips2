@@ -12,7 +12,7 @@
 	
 	<camelContext id="vil-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="VILGenerate">
-        	<from uri="jms-generic:queue:vilGenerate?destinationResolver=#qpidDurableResolver" />
+        	<from uri="jms-durable:queue:vilGenerate"/>
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
 	        	<bean ref="vilGenerator" method="generate" />
