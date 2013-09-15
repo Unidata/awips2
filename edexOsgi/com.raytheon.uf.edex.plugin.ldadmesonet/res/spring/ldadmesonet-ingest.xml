@@ -15,7 +15,7 @@
 	<bean id="ldadmesonetDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadmesonet" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadmesonet?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.ldadmesonet"/>
 	</bean>
 
 	<bean id="ldadmesonetPointData" class="com.raytheon.uf.common.dataplugin.ldadmesonet.LdadmesonetPointDataTransform"/>
@@ -30,7 +30,7 @@
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
 		<route id="ldadmesonetIngestRoute">
-			<from uri="jms-generic:queue:Ingest.ldadmesonet?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.ldadmesonet"/>
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile" />
