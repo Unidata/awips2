@@ -24,7 +24,7 @@
 
         <!-- Begin crimss routes -->
         <route id="crimssIngestRoute">
-            <from uri="jms-generic:queue:Ingest.crimss?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.crimss"/>
             <setHeader headerName="pluginName">
                 <constant>crimss</constant>
             </setHeader>
