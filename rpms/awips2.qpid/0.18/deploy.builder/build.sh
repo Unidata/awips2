@@ -5,6 +5,10 @@ if [ -z ${WORKSPACE} ]; then
    echo "Error: the location of the baseline workspace must be specified using the WORKSPACE environment variable."
    exit 1
 fi
+if [ -z ${AWIPSII_BUILD_ROOT} ]; then
+   echo "Error: the location of the AWIPS II build root must be specified using the AWIPSII_BUILD_ROOT environment variable."
+   exit 1
+fi
 
 __SPECS=qpid-java.spec
 __SPECS_PATCH0=qpid-java.spec.patch0
