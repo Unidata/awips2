@@ -24,7 +24,7 @@
         autoStartup="false">
 
         <route id="svrwxIngestRoute">
-            <from uri="jms-generic:queue:Ingest.svrwx?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.svrwx"/>
             <setHeader headerName="pluginName">
                 <constant>svrwx</constant>
             </setHeader>
