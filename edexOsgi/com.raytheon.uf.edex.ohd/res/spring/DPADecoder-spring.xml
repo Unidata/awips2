@@ -9,13 +9,13 @@
 	<bean id="dpaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="dpa" />
-		<constructor-arg value="jms-dist:queue:Ingest.dpa?destinationResolver=#qpidDurableResolver"/>
+		<constructor-arg value="jms-dist:queue:Ingest.dpa"/>
 	</bean>
 	
 	<bean id="dpaRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="dpa" />
-		<constructor-arg value="jms-dist:queue:Ingest.dpa?destinationResolver=#qpidDurableResolver"/>
+		<constructor-arg value="jms-dist:queue:Ingest.dpa"/>
 	</bean>
 
 	<camelContext id="dpa-camel"
@@ -30,13 +30,13 @@
 			<setHeader headerName="pluginName">
 				<constant>dpa</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.dpa"/>
+			<to uri="jms-durable:queue:Ingest.dpa"/>
 		</route>
 		-->
 
 		<!-- Begin dpa Routes -->
 		<route id="dpaIngestRoute">
-			<from uri="jms-generic:queue:Ingest.dpa?destinationResolver=#qpidDurableResolver"/>
+			<from uri="jms-durable:queue:Ingest.dpa"/>
 			<setHeader headerName="pluginName">
 				<constant>dpa</constant>
 			</setHeader>
@@ -55,6 +55,5 @@
 				</doCatch>
 			</doTry>
 		</route>
-
 	</camelContext>
 </beans>
