@@ -79,7 +79,7 @@ public interface IGraphicsTarget extends IImagingExtension {
 
     /** Defines text characteristics */
     public static enum TextStyle {
-        NORMAL, BLANKED, BOXED, WORD_WRAP, DROP_SHADOW, OUTLINE
+        NORMAL, BLANKED, BOXED, WORD_WRAP, DROP_SHADOW, OUTLINE, UNDERLINE, OVERLINE, STRIKETHROUGH;
     };
 
     /**
