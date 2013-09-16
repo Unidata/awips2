@@ -9,7 +9,7 @@ CAVE_DIR=/awips2/cave
 
 # execute the runProcedure module
 _GFECLI="${RUN_FROM_DIR}/gfeclient.sh"
-_MODULE="${CAVE_DIR}/etc/gfe/itool/runProcedure.py"
+_MODULE="${RUN_FROM_DIR}/src/runprocedure/runProcedure.py"
 
 # quoting of '$@' is used to prevent command line interpretation
 if [ ! -f $_GFECLI ] || [ ! -d $CAVE_DIR ]
