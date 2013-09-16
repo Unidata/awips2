@@ -16,7 +16,7 @@
     <bean id="bufrssmiDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrssmiPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrssmi?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrssmi"/>
 	</bean>
 
 	<bean id="bufrssmiCamelRegistered" factory-bean="contextManager"
@@ -37,13 +37,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrssmi</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.bufrssmi" />
+            <to uri="jms-durable:queue:Ingest.bufrssmi" />
         </route>
         -->
 
         <!-- Begin bufrssmi routes -->
         <route id="bufrssmiIngestRoute">
-            <from uri="jms-generic:queue:Ingest.bufrssmi?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.bufrssmi" />
             <setHeader headerName="pluginName">
                 <constant>bufrssmi</constant>
             </setHeader>
