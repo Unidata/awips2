@@ -22,16 +22,12 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -61,6 +57,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -70,21 +67,17 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.textformatter.CombinationsFileGenerator;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
-import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
 
 /**
@@ -100,8 +93,9 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     Changes for non-blocking SaveDeleteComboDlg.
  *                                     Changes for non-blocking ShuffleZoneGroupsDialog.
  *                                     Changes for non-blocking ZoneColorEditorDlg.
- * 
  * Mar 14, 2013 1794       djohnson    Consolidate common FilenameFilter implementations.
+ * Sep 05, 2013 2329       randerso    Removed obsolete methods, added ApplyZoneCombo method
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -307,6 +301,8 @@ public class ZoneCombinerComp extends Composite implements
         createMapArea(theSaved);
 
         createBottomControls();
+
+        applyButtonState(false);
     }
 
     /**
@@ -455,6 +451,7 @@ public class ZoneCombinerComp extends Composite implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 zoneSelector.updateCombos(new HashMap<String, Integer>());
+                applyButtonState(false);
             }
         });
         clearMI.setText("Clear");
@@ -731,14 +728,7 @@ public class ZoneCombinerComp extends Composite implements
         applyZoneComboBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                try {
-                    CombinationsFileGenerator.generateAutoCombinationsFile(
-                            zoneSelector.getZoneGroupings(),
-                            getCombinationsFileName() + ".py");
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM, "Unable to save "
-                            + getCombinationsFileName(), e);
-                }
+                applyZoneCombo();
             }
         });
         Label label = new Label(controlComp, SWT.CENTER);
@@ -752,6 +742,25 @@ public class ZoneCombinerComp extends Composite implements
             label.setText(productName + " (" + getCombinationsFileName() + ")");
         }
         label.setAlignment(SWT.CENTER);
+    }
+
+    /**
+     * Save zone combo
+     */
+    public void applyZoneCombo() {
+        if (!buttonState()) {
+            return;
+        }
+
+        try {
+            CombinationsFileUtil.generateAutoCombinationsFile(
+                    zoneSelector.getZoneGroupings(), getCombinationsFileName()
+                            + ".py");
+            applyButtonState(false);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to save "
+                    + getCombinationsFileName(), e);
+        }
     }
 
     /**
@@ -846,93 +855,6 @@ public class ZoneCombinerComp extends Composite implements
     }
 
     /**
-     * Get the names of the combo files at the given level. If level is null,
-     * get the names of the combo files at all levels. Otherwise, only get the
-     * names of the files at the given level.
-     * 
-     * @param level
-     * @return the save combo files at the given level
-     */
-    public String[] getSavedCombos(LocalizationLevel level) {
-        String comboDirName = "saved";
-        String[] combos;
-        File localFile;
-        // Accept any file whose name ends with ".py".
-        FilenameFilter filter = FilenameFilters.byFileExtension(".py");
-
-        if (level == null) {
-            // Aggregate the filenames for all levels.
-            // Use a set to keep names unique.
-            Set<String> comboSet = new TreeSet<String>();
-            LocalizationLevel[] levels = PathManagerFactory.getPathManager()
-                    .getAvailableLevels();
-            for (int i = levels.length - 1; i >= 0; --i) {
-                localFile = getLocalization(comboDirName, levels[i]);
-                if ((localFile != null) && localFile.exists()) {
-                    comboSet.addAll(Arrays.asList(localFile.list(filter)));
-                }
-            }
-
-            combos = comboSet.toArray(new String[0]);
-        } else {
-            // Get only the filenames for USER level.
-            localFile = getLocalization(comboDirName);
-            combos = localFile.list(filter);
-        }
-        return combos;
-    }
-
-    /**
-     * Load the combinations file called filename if it is in list or
-     * filename.py is in list, and return the loaded file as a List of Lists of
-     * Strings.
-     * 
-     * @param list
-     *            The list of valid filenames
-     * @param filename
-     *            The filename to load
-     * @return the contents of the file, as a List of Lists of Strings.
-     */
-    // public List<List<String>> findCombos(String[] list, String filename) {
-    // List<List<String>> listOfCombos = null;
-    // for (int i = 0; i < list.length; i++) {
-    // if (list[i].equals(filename) || list[i].equals(filename + ".py")) {
-    // listOfCombos = loadCombinationsFile(filename);
-    // }
-    // }
-    // return listOfCombos;
-    // }
-
-    /**
-     * Deletes the saved file chosen
-     * 
-     * @param name
-     *            the combo file name
-     * @throws LocalizationOpFailedException
-     *             if the server copy of the file cannot be deleted
-     */
-    public void deleteSavedCombos(String name)
-            throws LocalizationOpFailedException {
-        String searchName = FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH,
-                "saved", name + ".py");
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext userContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile userFile = pm.getLocalizationFile(userContext,
-                searchName);
-
-        if (AccessMgr.verifyDelete(userFile.getName(),
-                LocalizationType.CAVE_STATIC, false)) {
-            if (userFile.isAvailableOnServer()) {
-                userFile.delete();
-            } else if (userFile.exists()) {
-                File localFile = userFile.getFile();
-                localFile.delete();
-            }
-        }
-    }
-
-    /**
      * Returns the localization for the save and delete functions. This is a
      * wrapper around getLocalization(String, level).
      * 
@@ -987,34 +909,40 @@ public class ZoneCombinerComp extends Composite implements
     }
 
     public Map<String, Integer> loadCombinationsFile(String comboName) {
-        List<List<String>> combolist = new ArrayList<List<String>>();
-        File localFile = PathManagerFactory.getPathManager().getStaticFile(
-                FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH, comboName
-                        + ".py"));
-        if (localFile != null) {
-            combolist = CombinationsFileUtil.init(comboName);
-        }
-
-        // reformat combinations into combo dictionary
-        Map<String, Integer> d = new HashMap<String, Integer>();
+        Map<String, Integer> dict = new HashMap<String, Integer>();
         try {
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext ctx = pm.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+            File localFile = pm.getFile(ctx, FileUtil.join(
+                    CombinationsFileUtil.COMBO_DIR_PATH, comboName + ".py"));
+
+            List<List<String>> combolist = new ArrayList<List<String>>();
+            if (localFile != null && localFile.exists()) {
+                combolist = CombinationsFileUtil.init(comboName);
+            } else {
+                statusHandler.error("Combinations file does not found: "
+                        + comboName);
+            }
+
+            // reformat combinations into combo dictionary
             int group = 1;
             for (List<String> zonelist : combolist) {
                 for (String z : zonelist) {
-                    d.put(z, group);
+                    dict.put(z, group);
                 }
                 group += 1;
             }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.SIGNIFICANT,
-                    "Combo file is not in combo format: " + comboName);
+        } catch (GfeException e) {
+            statusHandler.handle(Priority.SIGNIFICANT, e.getLocalizedMessage(),
+                    e);
             return new HashMap<String, Integer>();
         }
 
         currentComboFile = FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH,
                 comboName + ".py");
 
-        return d;
+        return dict;
     }
 
     /**
@@ -1060,11 +988,12 @@ public class ZoneCombinerComp extends Composite implements
                 && message.getFileName().equalsIgnoreCase(currentComboFile)) {
             File file = new File(message.getFileName());
             String comboName = file.getName().replace(".py", "");
-            if (file.getParent().endsWith("saved")) {
-                comboName = FileUtil.join("saved", comboName);
-            }
+            statusHandler
+                    .info("Received FileUpdatedMessage for combinations file: "
+                            + comboName);
             Map<String, Integer> comboDict = loadCombinationsFile(comboName);
             this.zoneSelector.updateCombos(comboDict);
+            applyButtonState(false);
         }
     }
 
@@ -1084,5 +1013,21 @@ public class ZoneCombinerComp extends Composite implements
                 }
             });
         }
+    }
+
+    private boolean buttonState() {
+        final boolean[] state = { false };
+        if (this.applyZoneComboBtn != null
+                && !this.applyZoneComboBtn.isDisposed()) {
+            VizApp.runSync(new Runnable() {
+                @Override
+                public void run() {
+                    state[0] = ZoneCombinerComp.this.applyZoneComboBtn
+                            .isEnabled();
+                }
+            });
+        }
+
+        return state[0];
     }
 }
