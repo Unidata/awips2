@@ -18,6 +18,8 @@
 # further licensing information.
 ##
 
+import os
+
 from com.raytheon.uf.viz.core import RGBColors
 from com.raytheon.uf.viz.core.map import MapDescriptor
 from com.raytheon.uf.viz.core.rsc.capabilities import ColorableCapability,\
@@ -35,6 +37,7 @@ from java.lang import Double
 from java.lang import Integer
 from javax.imageio import ImageIO
 from java.util import HashSet
+from java.io import File
 
 #
 # GFE Painter for painting GFE data from scripts
@@ -47,7 +50,8 @@ from java.util import HashSet
 #    04/01/09                      njensen        Initial Creation.
 #    08/20/2012           #1077    randerso       Fixed backgroundColor setting
 #    09/13/2012           #1147    dgilling       Allow map labels to be disabled.
-#    11/6/2012       15406         ryu            Correction for computing domain from mask
+#    11/06/2012           15406    ryu            Correction for computing domain from mask
+#    09/12/2013           #2033    dgilling       Change how logo files are accessed.
 #
 #
 
@@ -175,12 +179,8 @@ class GFEPainter(VizPainter.VizPainter):
         rendered = self.getTarget().screenshot()
         if attachLogo:
             from java.awt.image import BufferedImage
-            from com.raytheon.uf.common.localization import PathManagerFactory
-            noaa = 'pyViz/logos/noaalogo2.png'
-            nws = 'pyViz/logos/nwslogo.png'
-            pathMgr = PathManagerFactory.getPathManager()
-            noaa = pathMgr.getStaticFile(noaa)
-            nws = pathMgr.getStaticFile(nws)
+            noaa = File(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logos/noaalogo2.png'))
+            nws = File(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logos/nwslogo.png'))
             noaaImage = ImageIO.read(noaa)
             nwsImage = ImageIO.read(nws)
             height = rendered.getHeight() + noaaImage.getHeight()
