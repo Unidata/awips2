@@ -44,7 +44,6 @@ import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,7 +136,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -187,8 +186,6 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
-
-// import com.raytheon.uf.viz.core.RGBColors;
 
 /**
  * Main Text Editor dialog.
@@ -323,14 +320,16 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 31JAN2013   1568         rferrel     Spell checker now tied to this dialog instead of parent.
  * 26Apr2013   16123        snaples     Removed setFocus to TextEditor in postExecute method.
  * 07Jun2013   1981         mpduff      Add user id to OUPRequest as it is now protected.
- * 20Jun2013   15733		XHuang		Add functionalities that get Font size, Text colors from 
- * 										*.xml files in localization; 
- * 										add selection listener to catch the highlight words and 
- * 										set the highlight colors.	
+ * 20Jun2013   15733	    XHuang	Add functionalities that get Font size, Text colors from 
+ * 					*.xml files in localization; 
+ * 					add selection listener to catch the highlight words and 
+ * 					set the highlight colors.
  * 23Jul2013   2176         jsanchez    Added a new confirmation message for emergency warnings.
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
  *                                      command history or close browser window for "update obs".
+ * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use 
+ *                                       simulated time.
  * 
  * </pre>
  * 
@@ -378,8 +377,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * System colro to use for foreground color when an obs is updated.
      */
     private static final int UPDATE_FG = SWT.COLOR_WHITE;
-
-    private final int HIGHLIGHT_BG = SWT.COLOR_RED;
 
     /**
      * The length of BEGIN_ELEMENT_TAG.
@@ -1089,11 +1086,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private SearchReplaceDlg searchReplaceDlg;
 
     /**
-     * Flag to indicate if the document being edited has been modified.
-     */
-    private boolean dirty = false;
-
-    /**
      * Flag to indicate if the document being edited has been saved.
      */
     private boolean saved = false;
@@ -1505,7 +1497,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         return;
                     }
 
-                    if (afosBrowser != null
+                    if ((afosBrowser != null)
                             && afosBrowser.isAfosBrowserActive()) {
                         afosBrowser.hide();
                         displayAfosBrowser = true;
@@ -1630,7 +1622,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             @Override
             public void widgetSelected(SelectionEvent event) {
 
-                if (faxAllMsgDlg == null || faxAllMsgDlg.isDisposed()) {
+                if ((faxAllMsgDlg == null) || faxAllMsgDlg.isDisposed()) {
                     faxAllMsgDlg = new FaxMessageDlg(shell);
                     faxAllMsgDlg.setInitialText(textEditor.getText());
                     faxAllMsgDlg.open();
@@ -1645,7 +1637,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         faxSelectionItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (faxMsgDlg == null || faxMsgDlg.isDisposed()) {
+                if ((faxMsgDlg == null) || faxMsgDlg.isDisposed()) {
                     faxMsgDlg = new FaxMessageDlg(shell);
                     faxMsgDlg.setInitialText(textEditor.getSelectionText());
                     faxMsgDlg.open();
@@ -1660,7 +1652,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         configAutoFaxItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (ldadFaxSitesDlg == null || ldadFaxSitesDlg.isDisposed()) {
+                if ((ldadFaxSitesDlg == null) || ldadFaxSitesDlg.isDisposed()) {
                     ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
                     ldadFaxSitesDlg.open();
                 } else {
@@ -1948,7 +1940,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         searchItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (searchReplaceDlg == null || searchReplaceDlg.isDisposed()) {
+                if ((searchReplaceDlg == null) || searchReplaceDlg.isDisposed()) {
                     searchReplaceDlg = new SearchReplaceDlg(shell, textEditor,
                             inEditMode);
                     searchReplaceDlg.open();
@@ -2450,7 +2442,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         }
-
     }
 
     /**
@@ -2476,7 +2467,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
 
                 // skip any spaces at cursor
-                while (text.charAt(searchOffset) == ' ' && searchOffset > 0) {
+                while ((text.charAt(searchOffset) == ' ') && (searchOffset > 0)) {
                     searchOffset--;
                 }
 
@@ -2507,8 +2498,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
 
                 // skip any spaces at cursor
-                while (text.charAt(searchOffset) == ' '
-                        && searchOffset < text.length()) {
+                while ((text.charAt(searchOffset) == ' ')
+                        && (searchOffset < text.length())) {
                     searchOffset++;
                 }
 
@@ -2517,7 +2508,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 // set missing to end of text
                 if (index == -1) {
                     index = text.length() - 1;
-                } else if (index < text.length() - 1) {
+                } else if (index < (text.length() - 1)) {
                     // skip the space
                     index++;
                 }
@@ -2678,7 +2669,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     int line = textEditor.getLineAtOffset(caretOffset);
                     int finish;
 
-                    if (line + 1 < textEditor.getLineCount()) {
+                    if ((line + 1) < textEditor.getLineCount()) {
                         finish = textEditor.getOffsetAtLine(line + 1) - 1;
                     } else {
                         // Guard against over-indexing in getText()
@@ -2834,7 +2825,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             }
         }
 
-        if (selectionCnt == 0 && autoWrapCfg.getButtons().size() > 0) {
+        if ((selectionCnt == 0) && (autoWrapCfg.getButtons().size() > 0)) {
             WrapButtonCfg buttonCfg = autoWrapCfg.getButtons().get(0);
             message.append("No button selected. Selecting top item \"")
                     .append(buttonCfg.getLabelName()).append("\"\n");
@@ -2923,7 +2914,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void createTextCharWrapDialog(final int rangeStart,
             final int rangeEnd) {
         // Create the text character wrap dialog.
-        if (textCharWrapDlg == null || textCharWrapDlg.isDisposed()) {
+        if ((textCharWrapDlg == null) || textCharWrapDlg.isDisposed()) {
             textCharWrapDlg = new TextCharWrapDlg(shell, this,
                     otherCharWrapCol, rangeStart, rangeEnd);
 
@@ -2952,20 +2943,22 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            The font size sub menu.
      */
     private void createFontSizeSubMenu(Menu fontSizeSubMenu) {
-        
-        FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg().getFontSizeCfg();
-        SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg().getSelectedFontButton();
-        
+
+        FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg()
+                .getFontSizeCfg();
+        SizeButtonCfg seldFontBtn = TextEditorCfg.getSelectedFontButton();
+
         for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
             MenuItem item = new MenuItem(fontSizeSubMenu, SWT.RADIO);
             item.setText(buttonCfg.getLabelName());
-            item.setSelection( false );
+            item.setSelection(false);
             item.setData(buttonCfg);
-            
+
             // if this button is the initial selection.
-            if( seldFontBtn.getLabelName().equals( buttonCfg.getLabelName() ) ) {            	
+            if (seldFontBtn.getLabelName().equals(buttonCfg.getLabelName())) {
                 item.setSelection(true);
-            	setDefaultFont( seldFontBtn.getFontSize(), seldFontBtn.getFontName() );
+                setDefaultFont(seldFontBtn.getFontSize(),
+                        seldFontBtn.getFontName());
             }
 
             item.addSelectionListener(new SelectionAdapter() {
@@ -2973,10 +2966,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 public void widgetSelected(SelectionEvent event) {
                     MenuItem item = (MenuItem) event.getSource();
                     if (item.getSelection()) {
-                        int selectFontSize = ( (SizeButtonCfg) item.getData()).getFontSize();
-                		 String seldFontName = ((SizeButtonCfg) item.getData()).getFontName();
-                	
-                		 setDefaultFont( selectFontSize, seldFontName );
+                        int selectFontSize = ((SizeButtonCfg) item.getData())
+                                .getFontSize();
+                        String seldFontName = ((SizeButtonCfg) item.getData())
+                                .getFontName();
+
+                        setDefaultFont(selectFontSize, seldFontName);
 
                         textEditor.setFont(dftFont);
                         headerTF.setFont(dftFont);
@@ -2987,8 +2982,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     }
 
-    public void setDefaultFont( int fontSize, String fontName ) {
-    	dftFont =  new Font( getDisplay(), fontName, fontSize, SWT.NORMAL);    	    	
+    public void setDefaultFont(int fontSize, String fontName) {
+        dftFont = new Font(getDisplay(), fontName, fontSize, SWT.NORMAL);
     }
 
     /**
@@ -3395,7 +3390,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             public void widgetDefaultSelected(SelectionEvent event) {
                 awipsIdTF.setText(awipsIdTF.getText().trim().toUpperCase());
                 int charCount = awipsIdTF.getCharCount();
-                if (charCount < 4 || charCount > 6) {
+                if ((charCount < 4) || (charCount > 6)) {
                     userInformation("Must enter a 4 to 6 character AWIPS ID");
                     awipsIdTF.setFocus();
                     return;
@@ -3498,7 +3493,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void clearUpdateFlag(int offset) {
         for (StyleRange range : textEditor.getStyleRanges()) {
-            if (range.start <= offset && offset < (range.start + range.length)) {
+            if ((range.start <= offset)
+                    && (offset < (range.start + range.length))) {
                 StyleRange lock = (StyleRange) range.clone();
                 lock.background = null;
                 lock.foreground = null;
@@ -3698,13 +3694,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         editorInsertCmb.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (editorInsertCmb.getSelectionIndex() == INSERT_TEXT
-                        && overwriteMode == true) {
+                if ((editorInsertCmb.getSelectionIndex() == INSERT_TEXT)
+                        && (overwriteMode == true)) {
                     textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                     overwriteMode = false;
                     overStrikeItem.setSelection(false);
-                } else if (editorInsertCmb.getSelectionIndex() == OVERWRITE_TEXT
-                        && overwriteMode == false) {
+                } else if ((editorInsertCmb.getSelectionIndex() == OVERWRITE_TEXT)
+                        && (overwriteMode == false)) {
                     textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                     overwriteMode = true;
                     overStrikeItem.setSelection(true);
@@ -3723,7 +3719,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         textEditorComp = new Composite(shell, SWT.NONE);
         GridLayout gridLayout = new GridLayout(1, false);
-//        TextColorsCfg textColorCfg = null;
+        // TextColorsCfg textColorCfg = null;
 
         textEditorComp.setLayout(gridLayout);
         textEditorComp.setLayoutData(gd);
@@ -3745,8 +3741,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
         textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
 
-//        textColorCfg = getTextColorCfg();
-        setDefaultTextColor( TextEditorCfg.getTextEditorCfg() );
+        // textColorCfg = getTextColorCfg();
+        setDefaultTextColor(TextEditorCfg.getTextEditorCfg());
         textEditor.setForeground(textForeground);
         textEditor.setBackground(textBackground);
 
@@ -3774,7 +3770,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.keyCode == SWT.ARROW_LEFT && !textEditor.getEditable()) {
+                if ((e.keyCode == SWT.ARROW_LEFT) && !textEditor.getEditable()) {
                     commandHistory.resetIndex(CommandType.AFOS);
                     ICommand command = commandHistory
                             .getPreviousCommand(CommandType.AFOS);
@@ -3785,7 +3781,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             executeCommand(cmd);
                         }
                     }
-                } else if (e.keyCode == SWT.ARROW_RIGHT
+                } else if ((e.keyCode == SWT.ARROW_RIGHT)
                         && !textEditor.getEditable()) {
                     commandHistory.resetIndex(CommandType.AFOS);
                     ICommand command = commandHistory
@@ -3837,13 +3833,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 if (textEditor.getEditable() == false) {
                     return;
                 }
-                if (event.keyCode == SWT.DEL || event.keyCode == SWT.BS
-                        || event.keyCode == SWT.SHIFT) {
+                if ((event.keyCode == SWT.DEL) || (event.keyCode == SWT.BS)
+                        || (event.keyCode == SWT.SHIFT)) {
                     // Do nothing...
                     // We need to capture the Delete, Backspace and Shift
                     // keystrokes...
-                } else if (event.keyCode == SWT.HOME
-                        || event.keyCode == SWT.END) {
+                } else if ((event.keyCode == SWT.HOME)
+                        || (event.keyCode == SWT.END)) {
                     if (!textEditor.getEditable()) {
                         int offset = 0;
 
@@ -3855,17 +3851,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         textEditor.showSelection();
                         event.doit = false;
                     }
-                } else if (event.keyCode == SWT.PAGE_UP
-                        && event.stateMask == SWT.CTRL) {
+                } else if ((event.keyCode == SWT.PAGE_UP)
+                        && (event.stateMask == SWT.CTRL)) {
                     event.doit = false; // Ingnore Ctrl + PageUp
-                } else if (event.keyCode == SWT.PAGE_DOWN
-                        && event.stateMask == SWT.CTRL) {
+                } else if ((event.keyCode == SWT.PAGE_DOWN)
+                        && (event.stateMask == SWT.CTRL)) {
                     event.doit = false; // Ignore Ctrl + PageDown
-                } else if (event.keyCode == SWT.PAGE_UP
-                        && event.stateMask == (SWT.CTRL | SWT.SHIFT)) {
+                } else if ((event.keyCode == SWT.PAGE_UP)
+                        && (event.stateMask == (SWT.CTRL | SWT.SHIFT))) {
                     event.doit = false; // Ignore Ctrl+Shift+PageUp
-                } else if (event.keyCode == SWT.PAGE_DOWN
-                        && event.stateMask == (SWT.CTRL | SWT.SHIFT)) {
+                } else if ((event.keyCode == SWT.PAGE_DOWN)
+                        && (event.stateMask == (SWT.CTRL | SWT.SHIFT))) {
                     event.doit = false; // Ignore Ctrl+Shift+PageDown
                 } else if (event.keyCode == SWT.INSERT) {
                     // Ins key on the keypad
@@ -3887,18 +3883,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 // if some event is going to happen and the key was not enter
                 // then set userKeyPressed to true
-                if (event.doit && event.character != 0
-                        && event.character != '\r' && event.character != '\n') {
+                if (event.doit && (event.character != 0)
+                        && (event.character != '\r')
+                        && (event.character != '\n')) {
                     userKeyPressed = true;
                 }
-            }
-        });
-        textEditor.addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent e) {
-                // when we modify the text, we want to set the 'dirty' flag.
-                dirty = true;
             }
         });
 
@@ -3948,42 +3937,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
     }
 
-//    private TextColorsCfg getTextColorCfg() {
-//        TextColorsCfg textColorsCfg =  TextEditorCfg.getTextEditorCfg().getTextColorsCfg();
-//
-//        // Perform Sanity Checks on configuration.
-//        StringBuilder message = new StringBuilder();
-//        
-//        for (TextColorElement textElm : textColorsCfg.getTextColorElements()) {
-//    		String prmtName = textElm.getParamName();
-//            if (prmtName == null) {
-//            	message.append("Item \"paramName\" problem!\n");
-//                    
-//            }
-//    		
-//            if( textElm.getColor() == null ) {
-//            	message.append("Item \"color\" data enter problem!\n");
-//            }
-//            
-//            if (message.length() > 0) {
-//                message.insert(0, "TextColorsCfg broblem(s): ");
-//                IUFStatusHandler statusHandler = UFStatus
-//                        .getHandler(TextEditorDialog.class);
-//                statusHandler.handle(Priority.PROBLEM, message.toString());
-//            }
-//    		
-//    	}
-//    	
-//    	return textColorsCfg;
-//    }
-
-    
-    private void setDefaultTextColor(TextEditorCfg  txtClrCfg ) {
-        	
-    	textBackground = new Color( shell.getDisplay(), txtClrCfg.getTextBackgroundColor() );    				 
-    	textForeground = new Color(shell.getDisplay(), txtClrCfg.getTextForegroundColor() );
-    	highlightBackground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextBackgroundColor() );
-    	highlightForeground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextForegroundColor() );   
+    private void setDefaultTextColor(TextEditorCfg txtClrCfg) {
+        textBackground = new Color(shell.getDisplay(),
+                txtClrCfg.getTextBackgroundColor());
+        textForeground = new Color(shell.getDisplay(),
+                txtClrCfg.getTextForegroundColor());
+        highlightBackground = new Color(shell.getDisplay(),
+                txtClrCfg.getHighlightTextBackgroundColor());
+        highlightForeground = new Color(shell.getDisplay(),
+                txtClrCfg.getHighlightTextForegroundColor());
     }
 
     /**
@@ -4112,7 +4074,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void enterEditor() {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
-        if (product != null
+        if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
             inEditMode = false;
@@ -4122,7 +4084,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Set the edit mode flag to true.
         inEditMode = true;
         int ranges[] = textEditor.getRanges();
-        if (ranges == null || ranges.length == 0) {
+        if ((ranges == null) || (ranges.length == 0)) {
             originalText = removeSoftReturns(textEditor.getText());
         } else {
             textEditor.setText(originalText);
@@ -4213,7 +4175,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         stopAutoSave();
 
-        if (warnGenFlag && queuedProduct != null) {
+        if (warnGenFlag && (queuedProduct != null)) {
             // Display the WarnGen in the queue, perform the popup and stop the
             // cancel.
             showWarngenProduct(queuedProduct, queuedNotify);
@@ -4267,9 +4229,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             originalText = combineOriginalMessage();
         }
 
-        // update editor status flags
-        dirty = false;
-
         if (originalText != null) {
             textEditor.setText(originalText);
         }
@@ -4309,8 +4268,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            false otherwise.
      */
     private void editHeader(String warning, boolean closeEditorOnCancel) {
-        if (headerEditSession != null)
+        if (headerEditSession != null) {
             return;
+        }
 
         // Create and display the AWIPS header block dialog.
         AWIPSHeaderBlockDlg awipsHeaderBlockDlg = new AWIPSHeaderBlockDlg(
@@ -4369,16 +4329,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             editing = true;
         } else {
-            if (lastSession == HeaderEditSession.CLOSE_ON_EXIT)
+            if (lastSession == HeaderEditSession.CLOSE_ON_EXIT) {
                 editing = !cancelEditor(false);
+            }
         }
 
-        if (lastSession == HeaderEditSession.CLOSE_ON_EXIT)
+        if (lastSession == HeaderEditSession.CLOSE_ON_EXIT) {
             if (editing) {
                 StdTextProduct product = TextDisplayModel.getInstance()
                         .getStdTextProduct(token);
-                if (product == null)
+                if (product == null) {
                     return;
+                }
                 if (autoSave == null) {
                     // user can cancel the edit immediately when the header is
                     // displayed, verify it was not cancelled before starting
@@ -4390,6 +4352,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             } else {
                 stopAutoSave();
             }
+        }
     }
 
     /**
@@ -4428,8 +4391,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Disabled when in editor mode
         // ---------------------------------
         resendWarningProductnItem.setEnabled(!inEditMode
-                && textEditor.getText() != null
-                && textEditor.getText().length() > 0);
+                && (textEditor.getText() != null)
+                && (textEditor.getText().length() > 0));
 
         // ---------------------------------
         // File Menu menu items
@@ -4650,7 +4613,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         dlg.setText("Attach File");
         dlg.setFilterNames(FILTER_NAMES);
         dlg.setFilterExtensions(FILTER_EXTS);
-        if (attachedFilename != null && attachedFilename.trim().length() > 0) {
+        if ((attachedFilename != null)
+                && (attachedFilename.trim().length() > 0)) {
             int startIndex = statusBarLabel.getText().indexOf(":") + 1;
             int endIndex = statusBarLabel.getText().lastIndexOf(File.separator) + 1;
             String filterPath = statusBarLabel.getText().substring(startIndex,
@@ -4668,9 +4632,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     byte[] bytes = new byte[(int) file.length()];
                     int offset = 0;
                     int numRead = 0;
-                    while (offset < bytes.length
-                            && (numRead = in.read(bytes, offset, bytes.length
-                                    - offset)) >= 0) {
+                    while ((offset < bytes.length)
+                            && ((numRead = in.read(bytes, offset, bytes.length
+                                    - offset)) >= 0)) {
                         offset += numRead;
                     }
                     in.close();
@@ -4726,7 +4690,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 s.append(removeSoftReturns(textEditor.getText()));
                 int eolIndex = s.indexOf("\n");
                 int ddhhmmIndex = s.indexOf("DDHHMM");
-                if (ddhhmmIndex > 0 && ddhhmmIndex < eolIndex) {
+                if ((ddhhmmIndex > 0) && (ddhhmmIndex < eolIndex)) {
                     s.replace(ddhhmmIndex, ddhhmmIndex + 6, "000000");
                 }
                 out.append(s);
@@ -5003,10 +4967,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 oup.setSource("TextWS");
                 oup.setWmoType(fixNOR(prod.getBbbid()));
                 oup.setUserDateTimeStamp(prod.getHdrtime());
-                oup.setFilename(awipsID + ".wan"
-                        + (System.currentTimeMillis() / 1000));
+                StringBuilder fileName = new StringBuilder();
+                fileName.append(awipsID).append(".wan")
+                        .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
+                oup.setFilename(fileName.toString());
                 oup.setAddress(addressee);
-                if (attachedFile != null && attachedFilename != null) {
+                if ((attachedFile != null) && (attachedFilename != null)) {
                     oup.setAttachedFile(attachedFile);
                     oup.setAttachedFilename(attachedFilename);
                 }
@@ -5042,7 +5008,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             }
         }
 
-        if (inEditMode == false && resend == false) {
+        if ((inEditMode == false) && (resend == false)) {
             saved = true;
             StdTextProductId finalProduct = this.getStdTextProduct()
                     .getProdId();
@@ -5102,7 +5068,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     synchronized private void saveProduct() {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
-        if (product != null
+        if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
             inEditMode = false;
@@ -5112,7 +5078,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean successful = saveEditedProduct(false, false, false);
         if (successful) {
             // reset the editor status flags
-            dirty = false;
             saved = true;
             replaceWorkProductId();
             originalText = combineOriginalMessage();
@@ -5136,7 +5101,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             boolean resend, boolean isOperationalSend) {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
-        if (product != null
+        if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
             inEditMode = false;
@@ -5149,7 +5114,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
          * DR14613 - string currectDate is derived from Date now ensuring the
          * same time in WMO heading and in the MND heading.
          */
-        Date now = SimulatedTime.getSystemTime().getTime();
+        Date now = TimeUtil.newDate();
         String currentDate = getCurrentDate(now);
         TextDisplayModel tdmInst = TextDisplayModel.getInstance();
 
@@ -5178,7 +5143,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         String productText = resend ? resendMessage()
                 : combineOriginalMessage();
 
-        if (warnGenFlag == true && resend == false) {
+        if ((warnGenFlag == true) && (resend == false)) {
             productText = removeSoftReturns(productText);
         }
 
@@ -5283,16 +5248,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         String[] parts = productText.split("\n", 2);
         if (parts.length > 0) {
             String[] headerParts = parts[0].split("\\s+", 0);
-            if (headerParts.length >= 3)
+            if (headerParts.length >= 3) {
                 headerParts[2] = ddhhmm;
+            }
             // TODO: else raise error?
             StringBuilder sb = new StringBuilder(productText.length());
             boolean first = true;
             for (String s : headerParts) {
-                if (first)
+                if (first) {
                     first = false;
-                else
+                } else {
                     sb.append(' ');
+                }
                 sb.append(s);
             }
             if (parts.length > 1) {
@@ -5334,8 +5301,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.addVerifyListener(TextEditorDialog.this);
 
         for (StyleRange lock : locks) {
-            if (0 <= lock.start
-                    && lock.start + lock.length <= textEditor.getCharCount()) {
+            if ((0 <= lock.start)
+                    && ((lock.start + lock.length) <= textEditor.getCharCount())) {
                 textEditor.setStyleRange(lock);
             }
         }
@@ -5400,7 +5367,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private boolean saveStoredTextProduct(StdTextProduct storedProduct) {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
-        if (product != null
+        if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
             inEditMode = false;
@@ -5470,13 +5437,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 do {
                     startIndex = sb.indexOf(BEGIN_ELEMENT_TAG, currentIndex);
                     endIndex = sb.indexOf(END_ELEMENT_TAG, currentIndex);
-                } while (startIndex > 0
-                        && endIndex > 0
-                        && (currentIndex = sb.indexOf(BEGIN_ELEMENT_TAG,
-                                startIndex + BEGIN_ELEMENT_TAG_LEN)) > 0
-                        && currentIndex < endIndex);
+                } while ((startIndex > 0)
+                        && (endIndex > 0)
+                        && ((currentIndex = sb.indexOf(BEGIN_ELEMENT_TAG,
+                                startIndex + BEGIN_ELEMENT_TAG_LEN)) > 0)
+                        && (currentIndex < endIndex));
 
-                if (currentIndex > 0 && currentIndex < endIndex) {
+                if ((currentIndex > 0) && (currentIndex < endIndex)) {
                     startIndex = currentIndex;
                 }
 
@@ -5529,14 +5496,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int length = event.end - event.start;
         try {
             if (length == 0) {
-                if (event.start != 0
-                        && event.start != textEditor.getCharCount()) {
+                if ((event.start != 0)
+                        && (event.start != textEditor.getCharCount())) {
                     int ranges[] = textEditor.getRanges(event.start - 1,
                             length + 2);
                     for (int i = 0; i < ranges.length; i += 2) {
                         int rangeStart = ranges[i];
                         int rangeEnd = rangeStart + ranges[i + 1];
-                        if (event.start > rangeStart && event.start < rangeEnd) {
+                        if ((event.start > rangeStart)
+                                && (event.start < rangeEnd)) {
                             event.doit = false;
                             /*
                              * DR15704 - this needs to be set so the rewrap is
@@ -5549,7 +5517,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             } else {
                 int ranges[] = textEditor.getRanges(event.start, length);
-                if (inEditMode && ranges != null && ranges.length != 0) {
+                if (inEditMode && (ranges != null) && (ranges.length != 0)) {
                     event.doit = false;
                     /*
                      * DR15704 - this needs to be set so the rewrap is not
@@ -5690,7 +5658,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     numberOfBlankLines++;
                     line = textEditor.getLine(thisLine
                             + numberOfLinesOfHeaderText + numberOfBlankLines);
-                } while (line.length() == 0 || line.equals(""));
+                } while ((line.length() == 0) || line.equals(""));
                 // Note: 'st' is a reference to 'textEditor'...
                 // delelete the header from the text in 'textEditor'
                 finish = textEditor.getOffsetAtLine(thisLine
@@ -5704,8 +5672,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 textEditor.setText("");
             }
         }
-        // set editor status flags
-        dirty = false;
     }
 
     /**
@@ -5755,7 +5721,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private String updateVtecTimes(String product, VtecObject vtecObj, Date now) {
 
-        if (vtecObj == null || vtecObj.getAction().equals("COR")) {
+        if ((vtecObj == null) || vtecObj.getAction().equals("COR")) {
             return product;
         }
         // Update the vtec start time
@@ -5903,7 +5869,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
-        if (! isObsUpdated) {
+        if (!isObsUpdated) {
             if (browser != null) {
                 browser.close();
                 browser = null;
@@ -5937,7 +5903,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean validExecuteCommand = command != null;
 
         if (validExecuteCommand) {
-            if (prodList != null && prodList.size() > 0) {
+            if ((prodList != null) && (prodList.size() > 0)) {
                 if (prodList.size() > 1) {
                     if (CommandType.WMO.equals(command.getType())) {
                         final boolean hasAtt = hasAttachment;
@@ -6097,7 +6063,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void postExecute(boolean hasAttachment, boolean enterEditor,
             boolean validExecuteCommand, String attachedFilename) {
         if (!this.isDisposed()) {
-            if (! productQueryJob.isExpectingRequests()) {
+            if (!productQueryJob.isExpectingRequests()) {
                 if (hasAttachment) {
                     statusBarLabel.setText("Attachment: " + attachedFilename);
                 } else {
@@ -6425,7 +6391,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     public void manageScriptOutputWindow(boolean visible) {
         if (visible) {
             // need to set state of menu item to true
-            if (scriptsShowOutputItem != null
+            if ((scriptsShowOutputItem != null)
                     && !scriptsShowOutputItem.isDisposed()) {
                 scriptsShowOutputItem.setSelection(true);
             }
@@ -6436,7 +6402,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             }
 
             // create the script output window
-            if (scriptOutput == null || !scriptOutput.isDisposed()) {
+            if ((scriptOutput == null) || !scriptOutput.isDisposed()) {
                 scriptOutput = new ScriptOutputDlg(shell, token);
                 // open the script output window
                 scriptOutput.setCloseCallback(new ICloseCallback() {
@@ -6444,7 +6410,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     @Override
                     public void dialogClosed(Object returnValue) {
                         // update the menu following close
-                        if (scriptsShowOutputItem != null
+                        if ((scriptsShowOutputItem != null)
                                 && !scriptsShowOutputItem.isDisposed()) {
                             scriptsShowOutputItem.setSelection(false);
                         }
@@ -6463,7 +6429,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             if (scriptOutput != null) {
                 scriptOutput.close();
             } else {
-                if (scriptsShowOutputItem != null
+                if ((scriptsShowOutputItem != null)
                         && !scriptsShowOutputItem.isDisposed()) {
                     scriptsShowOutputItem.setSelection(false);
                 }
@@ -7054,7 +7020,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         String body = textEditor.getText();
         StdTextProduct stdTextProduct = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
-        if (body == null || body.length() == 0) {
+        if ((body == null) || (body.length() == 0)) {
             userInformation("Resend Warning Product Error",
                     "There is no product to send. \n Action aborted!");
             resend = false;
@@ -7105,7 +7071,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         String text = textEditor.getText();
         int startIndex = text.indexOf("!--");
         int endIndex = text.indexOf("--!", startIndex);
-        while (startIndex >= 0 && endIndex >= startIndex) {
+        while ((startIndex >= 0) && (endIndex >= startIndex)) {
             String part1 = text.substring(0, startIndex).trim();
             String part2 = text.substring(endIndex + 3).trim();
             text = part1 + "\n\n" + part2;
@@ -7168,7 +7134,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 // delete and write new file, rename didn't always work
                 // rename would end up writing a new file every time and
                 // kept the original in sync
-                if (file != null && file.exists()) {
+                if ((file != null) && file.exists()) {
                     file.delete();
                 }
 
@@ -7213,8 +7179,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         xml = new String(b);
                     }
 
-                    rval = (StdTextProduct) SerializationUtil
-                            .unmarshalFromXml(xml);
+                    rval = SerializationUtil.unmarshalFromXml(
+                            StdTextProduct.class, xml);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Retrieval of product failed", e);
@@ -7254,13 +7220,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             }
 
             return success;
-        }
-
-        public void stopTimer() {
-            if (timer != null) {
-                timer.cancel();
-                timer = null;
-            }
         }
 
         private void setupTimer() {
@@ -7500,7 +7459,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int x = rect.width / 4;
 
             // account for dual monitor
-            if (rect.width > rect.height * 2) {
+            if (rect.width > (rect.height * 2)) {
                 x /= 2;
             }
 
@@ -7509,7 +7468,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     .intValue();
 
             int offset = (editorIndex - 1) * 25;
-            getShell().setLocation(x + offset, rect.height / 4 + offset);
+            getShell().setLocation(x + offset, (rect.height / 4) + offset);
         }
 
         inEditMode = false;
@@ -7648,8 +7607,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (hasLockAtOffset(offset)) {
             StyleRange[] ranges = textEditor.getStyleRanges();
             for (StyleRange range : ranges) {
-                if (offset >= range.start
-                        && offset <= range.start + range.length) {
+                if ((offset >= range.start)
+                        && (offset <= (range.start + range.length))) {
                     rval = range.start;
                     break;
                 }
@@ -7669,8 +7628,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (hasLockAtOffset(offset)) {
             StyleRange[] ranges = textEditor.getStyleRanges();
             for (StyleRange range : ranges) {
-                if (offset >= range.start
-                        && offset <= range.start + range.length) {
+                if ((offset >= range.start)
+                        && (offset <= (range.start + range.length))) {
                     rval = range.length;
                     break;
                 }
@@ -7692,7 +7651,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int lineLength = textEditor.getLine(lineNumber).length();
 
         StyleRange[] ranges = textEditor.getStyleRanges(lineStart, lineLength);
-        if (ranges != null && ranges.length > 0) {
+        if ((ranges != null) && (ranges.length > 0)) {
             rval = true;
         }
         return rval;
@@ -7775,7 +7734,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             padding = "  ";
         }
 
-        if (inLocations && paragraphStartLineNumber == lineNumber) {
+        if (inLocations && (paragraphStartLineNumber == lineNumber)) {
             // Keep LOCATIONS first line short & don't paste more to it.
             if (line.indexOf("...") == line.lastIndexOf("...")) {
                 return;
@@ -7807,7 +7766,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 if (lineNumber < endWrapLine) {
                     // May have more lines to wrap.
                     int nextLine = lineNumber + 1;
-                    while (nextLine <= endWrapLine
+                    while ((nextLine <= endWrapLine)
                             && textEditor.getLine(nextLine).trim().isEmpty()) {
                         ++nextLine;
                     }
@@ -7840,7 +7799,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // If the next line is part of the same paragraph and not empty make it
         // part of the current line.
-        if (lineNumber + 1 < textEditor.getLineCount()) {
+        if ((lineNumber + 1) < textEditor.getLineCount()) {
             // if the next line does not start a new paragraph
             if (!isParagraphStart(lineNumber + 1)) {
                 // if the next line is not empty
@@ -7852,8 +7811,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         String allText = textEditor.getText();
                         int eol = textEditor.getOffsetAtLine(lineNumber)
                                 + line.length();
-                        if (allText.charAt(eol) == '\r'
-                                && allText.charAt(eol + 1) == '\n') {
+                        if ((allText.charAt(eol) == '\r')
+                                && (allText.charAt(eol + 1) == '\n')) {
                             deleteLen = 2;
                         } else if (allText.charAt(eol) == '\n') {
                             deleteLen = 1;
@@ -7868,7 +7827,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         // if the line does not start with a lock
                         int lineStart = textEditor
                                 .getOffsetAtLine(lineNumber + 1);
-                        if (padding.length() > 0
+                        if ((padding.length() > 0)
                                 && textEditor.getLine(lineNumber + 1)
                                         .startsWith(padding)) {
                             // add two to skip over padding if it exists and
@@ -7881,7 +7840,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             // if the lock is too long to fit on this line do
                             // not bring up the next line
                             int lockLength = getLengthOfLockAtOffset(lockStart);
-                            if (line.length() + lockLength > charWrapCol) {
+                            if ((line.length() + lockLength) > charWrapCol) {
                                 // lock is too long, do not bring up next
                                 // line
                                 return;
@@ -7892,7 +7851,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     int lineStartOffset = textEditor
                             .getOffsetAtLine(lineNumber);
                     int newlinePosition = lineStartOffset + line.length();
-                    if (padding.length() > 0
+                    if ((padding.length() > 0)
                             && textEditor.getLine(lineNumber + 1).startsWith(
                                     "  ")) {
                         deleteLen += padding.length();
@@ -7991,7 +7950,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int padLen = padding.length();
             if (padLen > 0) {
                 int cnt = 0;
-                while (cnt < padLen
+                while ((cnt < padLen)
                         && textEditor.getText(position + cnt, position + cnt)
                                 .equals(" ")) {
                     ++cnt;
@@ -8013,7 +7972,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void checkAndWrapNextLine(int line) {
         // if there is a next line
-        if (line + 1 < textEditor.getLineCount()) {
+        if ((line + 1) < textEditor.getLineCount()) {
             // if the next line does not start a new paragraph
             if (!isParagraphStart(line + 1)) {
                 // if the next line is not empty ( marks the end of a paragraph
@@ -8021,10 +7980,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 if (!textEditor.getLine(line + 1).trim().isEmpty()) {
                     // rewrap the next line
                     rewrapInternal(line + 1);
-                } else if (line + 1 < endWrapLine) {
+                } else if ((line + 1) < endWrapLine) {
                     // See if another paragraph needs to be wrapped.
                     int nextLine = line + 1;
-                    while (nextLine <= endWrapLine
+                    while ((nextLine <= endWrapLine)
                             && textEditor.getLine(nextLine).trim().isEmpty()) {
                         ++nextLine;
                     }
@@ -8032,7 +7991,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         rewrapInternal(nextLine);
                     }
                 }
-            } else if (line + 1 <= endWrapLine) {
+            } else if ((line + 1) <= endWrapLine) {
                 rewrapInternal(line + 1);
             }
         }
@@ -8075,7 +8034,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (isPreviousLineWrapped) {
             return;
         }
-        if (line - 1 > 0) {
+        if ((line - 1) > 0) {
             // if the previous line does not start a new paragraph
             if (!isParagraphStart(line - 1)) {
                 // if the previous line is not empty ( marks the end of a
@@ -8085,10 +8044,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     // rewrap the previous line
                     isPreviousLineWrapped = true;
                     rewrapInternal(line - 1);
-                } else if (line - 1 < endWrapLine) {
+                } else if ((line - 1) < endWrapLine) {
                     // See if another paragraph needs to be wrapped.
                     int nextLine = line - 1;
-                    while (nextLine <= endWrapLine
+                    while ((nextLine <= endWrapLine)
                             && textEditor.getLine(nextLine).trim().isEmpty()) {
                         --nextLine;
                     }
@@ -8097,7 +8056,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         rewrapInternal(nextLine);
                     }
                 }
-            } else if (line - 1 <= endWrapLine) {
+            } else if ((line - 1) <= endWrapLine) {
                 isPreviousLineWrapped = true;
                 rewrapInternal(line - 1);
             }
@@ -8114,7 +8073,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private boolean checkParagraphPadding(String firstLine) {
         boolean rval = false;
-        if (firstLine.length() > 0
+        if ((firstLine.length() > 0)
                 && PADDED_PARAGRAPH_DELIMITERS.contains(firstLine.substring(0,
                         1))) {
             rval = true;
@@ -8160,7 +8119,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             rval = true;
         } else if (PARAGRAPH_DELIMITERS.contains(lineText.substring(0, 1))) {
             rval = true;
-        } else if (isSaoMetarFlag && lineText.startsWith(" ") == false) {
+        } else if (isSaoMetarFlag && (lineText.startsWith(" ") == false)) {
             rval = true;
         }
         return rval;
@@ -8268,8 +8227,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         if (lineOffset > 0) {
             boolean goBack = true;
-            while (goBack && lineIndex > 0) {
-                if (lineText.startsWith(" ") || lineText.length() == 0) {
+            while (goBack && (lineIndex > 0)) {
+                if (lineText.startsWith(" ") || (lineText.length() == 0)) {
                     lineIndex--;
                 } else {
                     String tempLine = st.getLine(lineIndex);
@@ -8298,10 +8257,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean result = false;
 
         byte[] bytesFromFile = getBytesFromFile(file);
-        for (int i = 0; i < bytesFromFile.length; i++) {
-            byte b = bytesFromFile[i];
-            if (b == 0x09 || b == 0x0A || b == 0x0C || b == 0x0D
-                    || (b >= 0x20 && b <= 0x7E)) {
+        for (byte b : bytesFromFile) {
+            if ((b == 0x09) || (b == 0x0A) || (b == 0x0C) || (b == 0x0D)
+                    || ((b >= 0x20) && (b <= 0x7E))) {
                 result = true;
                 break;
             }
@@ -8314,38 +8272,47 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Get the contents of file as a byte array.
      * 
      * @param file
-     * @return
+     * @return bytes
      * @throws IOException
      */
     private static byte[] getBytesFromFile(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
+        InputStream is = null;
+        byte[] bytes = null;
 
-        // Get the size of the file
-        long length = file.length();
+        try {
+            is = new FileInputStream(file);
 
-        if (length > Integer.MAX_VALUE) {
-            // File is too large
+            // Get the size of the file
+            long length = file.length();
+
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+            }
+
+            // Create the byte array to hold the data
+            bytes = new byte[(int) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while ((offset < bytes.length)
+                    && ((numRead = is
+                            .read(bytes, offset, bytes.length - offset)) >= 0)) {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in
+            if (offset < bytes.length) {
+                throw new IOException("Could not completely read file "
+                        + file.getName());
+            }
+        } finally {
+
+            // Close the input stream and return bytes
+            if (is != null) {
+                is.close();
+            }
         }
-
-        // Create the byte array to hold the data
-        byte[] bytes = new byte[(int) length];
-
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while (offset < bytes.length
-                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-            offset += numRead;
-        }
-
-        // Ensure all the bytes have been read in
-        if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "
-                    + file.getName());
-        }
-
-        // Close the input stream and return bytes
-        is.close();
         return bytes;
     }
 
@@ -8387,7 +8354,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private boolean gfeForbidden(String ccc, String nnn) {
         boolean retval = false;
-        if (ccc != null && nnn != null) {
+        if ((ccc != null) && (nnn != null)) {
             if (gfePils.contains(nnn) && !exceptionCCCs.contains(ccc)) {
                 retval = true;
             }
@@ -8428,9 +8395,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return
      */
     private static String fixNOR(String bbb) {
-        if ("NOR".equals(bbb))
+        if ("NOR".equals(bbb)) {
             return "";
-        else
+        } else {
             return bbb;
+        }
     }
 }
