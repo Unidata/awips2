@@ -196,9 +196,6 @@
         	
         		<fileset dir="${buildDirectory}/../../static/win32.x86" 
         			excludes="alertviz/**" />
-        		<!-- Include cave/etc in the win32 CAVE zip -->
-        		<fileset dir="${buildDirectory}/../../static/common"
-        			excludes="alertviz/**" />
         	</zip>
         </target>
 
