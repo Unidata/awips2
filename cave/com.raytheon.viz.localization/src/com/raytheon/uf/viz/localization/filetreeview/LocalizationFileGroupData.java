@@ -62,4 +62,8 @@ public class LocalizationFileGroupData extends FileTreeEntryData {
     public void addChildData(LocalizationFileEntryData data) {
         childrenData.add(data);
     }
+
+    public void clearChildData() {
+        childrenData.clear();
+    }
 }
