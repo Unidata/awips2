@@ -269,5 +269,4 @@ cd ../
 
 # Only Build The RPMs That May Have Changed - AWIPS II-Specific Components.
 buildRPM "Installer.cave"
-buildRPM "Installer.cave-etc"
 buildFeatureRPMs
