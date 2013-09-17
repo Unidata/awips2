@@ -152,7 +152,7 @@ public class RegistryXPathProcessor {
             Node currentNode = nodeList.item(i);
             checkForProhibitedUpdates(currentNode);
             Node newNode = toDom(addNode).getDocumentElement();
-            Node importedNode = domDocument.importNode(newNode, false);
+            Node importedNode = domDocument.importNode(newNode, true);
             currentNode.appendChild(importedNode);
         }
         // Converts the updated object back from DOM
