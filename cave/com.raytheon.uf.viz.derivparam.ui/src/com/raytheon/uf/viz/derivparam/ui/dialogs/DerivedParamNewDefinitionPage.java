@@ -41,18 +41,16 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.derivparam.library.DerivParamConstantField;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamField;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
-import com.raytheon.uf.viz.derivparam.ui.Activator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizardPage;
 
@@ -74,7 +72,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTWizardPage;
  */
 
 public class DerivedParamNewDefinitionPage extends CaveSWTWizardPage {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DerivedParamNewDefinitionPage.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DerivedParamNewDefinitionPage.class);
 
     /* SWT Widgets */
     private Text nameText;
@@ -125,10 +124,10 @@ public class DerivedParamNewDefinitionPage extends CaveSWTWizardPage {
                 desc.addMethod((DerivParamMethod) ti.getData());
             }
             try {
-                return SerializationUtil.marshalToXml(desc);
+                return new JAXBManager(DerivParamDesc.class).marshalToXml(desc);
             } catch (JAXBException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
                 return null;
             }
         }
