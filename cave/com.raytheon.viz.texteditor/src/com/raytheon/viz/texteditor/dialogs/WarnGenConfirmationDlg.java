@@ -20,6 +20,7 @@
 
 package com.raytheon.viz.texteditor.dialogs;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.swt.SWT;
@@ -33,6 +34,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -50,13 +54,21 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10Nov2011    11552       rferrel     returnvalue no longer null
  * 08/20/2012   DR 15340    D. Friedman Use callbacks for closing
  * 09/24/2012   1196        rferrel     Refactored to use close callback
- *                                       added to CaveSWTDialog.
+ *                                      added to CaveSWTDialog.
+ * 17 Sep 2013  #2384       lvenable    Fixed memory leak and utilized the disposed()
+ *                                      method.
  * 
  * </pre>
  * 
  * @author cjeanbap
  */
 public class WarnGenConfirmationDlg extends CaveSWTDialog {
+
+    /**
+     * Handler used for messges.
+     */
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TextEditorDialog.class);
 
     private String productMessage;
 
@@ -70,6 +82,20 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
 
     private String IMAGE_PRACTICE = "res/images/twsPractice.gif";
 
+    private Image stopSign = null;
+
+    /**
+     * Constructor.
+     * 
+     * @param parentShell
+     *            Parent shell.
+     * @param title
+     *            Dialog title.
+     * @param productMessage
+     *            Product message.
+     * @param modeMessage
+     *            Mode message.
+     */
     protected WarnGenConfirmationDlg(Shell parentShell, String title,
             String productMessage, String modeMessage) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, CAVE.NONE
@@ -111,9 +137,15 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
             is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
         }
 
-        Image stopSign = new Image(mainComposite.getDisplay(), is);
+        stopSign = new Image(mainComposite.getDisplay(), is);
         Label stopSignLbl = new Label(mainComposite, 0);
         stopSignLbl.setImage(stopSign);
+
+        try {
+            is.close();
+        } catch (IOException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
     private void createMessageLabel(Composite mainComposite) {
@@ -161,6 +193,13 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
 
     private void dispose(Boolean returnValue) {
         setReturnValue(returnValue);
-        shell.dispose();
+        close();
+    }
+
+    @Override
+    protected void disposed() {
+        if (stopSign != null) {
+            stopSign.dispose();
+        }
     }
 }
