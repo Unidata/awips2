@@ -115,6 +115,9 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jul 18, 2013 1653       mpduff       Added case GET_SUBSCRIPTION_STATUS.
  * Aug 06, 2013 1654       bgonzale     Added SubscriptionRequestEvents.
  * Sep 11, 2013 2351       dhladky      Fixed adhoc requests for pointdata
+ * Sep 17, 2013 2383       bgonzale     Reverted back to how BandwidthManager. handles
+ *                                      case for no matching dataset metadata for an 
+ *                                      adhoc subscription.
  * </pre>
  * 
  * @author dhladky
@@ -445,8 +448,13 @@ public abstract class BandwidthManager extends
          * This is not allowed for pointdata types, they must grab current URL
          * and time.
          */
-        subscription = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(
+        AdhocSubscription subscriptionUpdated = bandwidthDaoUtil
+                .setAdhocMostRecentUrlAndTime(
                 subscription, true);
+        if (subscriptionUpdated != null) {
+            subscription = subscriptionUpdated;
+        }
+
         // Use SimpleSubscriptionAggregator (i.e. no aggregation) to generate a
         // SubscriptionRetrieval for this AdhocSubscription
         SimpleSubscriptionAggregator a = new SimpleSubscriptionAggregator(
