@@ -119,32 +119,37 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
     }
 
     private void createImage(Composite mainComposite) {
+
         InputStream is = null;
-
-        ClassLoader cl = WarnGenConfirmationDlg.class.getClassLoader();
-
-        if (mode.equals(CAVEMode.OPERATIONAL)) {
-            // add Live image
-            is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
-        } else if (mode.equals(CAVEMode.TEST)) {
-            // add Test image
-            is = cl.getResourceAsStream(IMAGE_TEST);
-        } else if (mode.equals(CAVEMode.PRACTICE)) {
-            // add Practice image
-            is = cl.getResourceAsStream(IMAGE_PRACTICE);
-        } else {
-            // unknown
-            is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
-        }
-
-        stopSign = new Image(mainComposite.getDisplay(), is);
-        Label stopSignLbl = new Label(mainComposite, 0);
-        stopSignLbl.setImage(stopSign);
-
         try {
-            is.close();
-        } catch (IOException e) {
+            ClassLoader cl = WarnGenConfirmationDlg.class.getClassLoader();
+
+            if (mode.equals(CAVEMode.OPERATIONAL)) {
+                // add Live image
+                is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
+            } else if (mode.equals(CAVEMode.TEST)) {
+                // add Test image
+                is = cl.getResourceAsStream(IMAGE_TEST);
+            } else if (mode.equals(CAVEMode.PRACTICE)) {
+                // add Practice image
+                is = cl.getResourceAsStream(IMAGE_PRACTICE);
+            } else {
+                // unknown
+                is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
+            }
+
+            stopSign = new Image(mainComposite.getDisplay(), is);
+            Label stopSignLbl = new Label(mainComposite, 0);
+            stopSignLbl.setImage(stopSign);
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
     }
 
