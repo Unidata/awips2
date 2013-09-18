@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2013 2106       djohnson     Initial creation
+ * Sep 17, 2013 2383       bgonzale     Added test for same start and end time.
  * 
  * </pre>
  * 
@@ -209,6 +210,14 @@ public class BandwidthBucketDaoTest extends AbstractBandwidthBucketDaoTest {
     @Override
     public void getBucketsInWindowsReturnsBucketAtEndTime() {
         super.getBucketsInWindowsReturnsBucketAtEndTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getBucketsInWindowsWhereStartTimeEqualsEndTime() {
+        super.getBucketsInWindowsWhereStartTimeEqualsEndTime();
     }
 
     /**
