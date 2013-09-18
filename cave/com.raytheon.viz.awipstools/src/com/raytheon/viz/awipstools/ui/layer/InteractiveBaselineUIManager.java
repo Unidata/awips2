@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 29, 2013 2281       bsteffen    Rename ToolsUiUitil.
+ * Sep 18, 2013 2360       njensen     Don't handle mouse actions when layer is invisible
  * 
  * 
  * </pre>
@@ -146,7 +147,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             hoverCoords = null;
         }
 
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             // Only operate if editable
             if (inMotion != null) {
                 // Already have something in motion, process the move
@@ -200,7 +202,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
      */
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             Baseline inMotion = baselinesLayer.getLineInMotion();
             // Only operate if editable
             if (inMotion != null) {
@@ -251,7 +254,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             lastX = x;
             lastY = y;
         }
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             Baseline inMotion = baselinesLayer.getLineInMotion();
             // Only process if editable
             if (selectX >= 0 && selectY >= 0) {
@@ -313,7 +317,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             lastX = x;
             lastY = y;
         }
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             if (deleting) {
                 baselinesLayer.issueRefresh();
                 return true;
