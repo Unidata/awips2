@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Aug 13, 2012   430     jpiatt     Modifications for sort asc & desc.
  * Oct 22, 2012  1284     mpduff     Code Cleanup.
  * Aug 30, 2013  2314     mpduff     Fixed sorting ambiguity.
+ * Sep 16, 2013  2375     mpduff     Add apply button.
  * 
  * </pre>
  * 
@@ -152,7 +153,6 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         shell.setLayoutData(gd);
 
         readConfigFile();
-        createStartupGroup();
         createDisplayGroup();
         createBottomButtons();
         loadLists();
@@ -180,22 +180,24 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
     }
 
     /**
-     * Create the group used on startup.
+     * Create the group used for immediate display.
      */
-    private void createStartupGroup() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+    private void createDisplayGroup() {
+        int pageSet = 0;
+        int i = 0;
+
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         GridLayout gl = new GridLayout(1, false);
 
-        // Number of messages to load on startup
-        Group startupGroup = new Group(shell, SWT.NONE);
-        startupGroup.setLayout(gl);
-        startupGroup.setLayoutData(gd);
-        startupGroup.setText(" Initial Startup Configuration ");
-        startupGroup
-                .setToolTipText("Items which are loaded when the table is opened");
+        Group displayGroup = new Group(shell, SWT.NONE);
+        displayGroup.setLayout(gl);
+        displayGroup.setLayoutData(gd);
+        displayGroup.setText(" Display Configuration Settings ");
+        displayGroup
+                .setToolTipText("Items which refresh the table after clicking OK");
 
         // Load all messages check box
-        allMsgChk = new Button(startupGroup, SWT.CHECK);
+        allMsgChk = new Button(displayGroup, SWT.CHECK);
         allMsgChk.setText("Load All Messages");
         allMsgChk.setToolTipText("Load all available messages");
         allMsgChk.addSelectionListener(new SelectionAdapter() {
@@ -207,7 +209,7 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
 
         gd = new GridData(SWT.DEFAULT, SWT.CENTER, true, false);
         gl = new GridLayout(3, false);
-        Composite msgComp = new Composite(startupGroup, SWT.NONE);
+        Composite msgComp = new Composite(displayGroup, SWT.NONE);
         msgComp.setLayout(gl);
         msgComp.setLayoutData(gd);
 
@@ -243,6 +245,10 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         hourRdo.setSelection(true);
         hourRdo.setToolTipText("Display last number of hours");
 
+        Label sep = new Label(displayGroup, SWT.SEPARATOR | SWT.SHADOW_OUT
+                | SWT.HORIZONTAL);
+        sep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
         MessageLoadXML msgLoad = xml.getMessageLoad();
         if (msgLoad != null && msgLoad.isLoadAllMessages()) {
             allMsgChk.setSelection(true);
@@ -260,7 +266,7 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         // Initial Sort Combo Box
         gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
         gl = new GridLayout(3, false);
-        Composite sortComp = new Composite(startupGroup, SWT.NONE);
+        Composite sortComp = new Composite(displayGroup, SWT.NONE);
         sortComp.setLayout(gl);
         sortComp.setLayoutData(gd);
 
@@ -291,24 +297,9 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         sortDescRdo.setSelection(!sortAsc);
         sortAscRdo.setSelection(sortAsc);
 
-    }
-
-    /**
-     * Create the group used for immediate display.
-     */
-    private void createDisplayGroup() {
-        int pageSet = 0;
-        int i = 0;
-
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        GridLayout gl = new GridLayout(1, false);
-
-        Group displayGroup = new Group(shell, SWT.NONE);
-        displayGroup.setLayout(gl);
-        displayGroup.setLayoutData(gd);
-        displayGroup.setText(" Display Configuration Settings ");
-        displayGroup
-                .setToolTipText("Items which refresh the table after clicking OK");
+        Label sep2 = new Label(displayGroup, SWT.SEPARATOR | SWT.SHADOW_OUT
+                | SWT.HORIZONTAL);
+        sep2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
         // Pagination Combo Box
         gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
@@ -317,8 +308,8 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         rowComp.setLayout(gl);
         rowComp.setLayoutData(gd);
 
-        Label label = new Label(rowComp, SWT.NONE);
-        label.setText("Rows Per Page:");
+        Label rowsPerPageLabel = new Label(rowComp, SWT.NONE);
+        rowsPerPageLabel.setText("Rows Per Page:");
 
         // Select rows per page combo box
         pageSet = xml.getPaginationSetting();
@@ -338,6 +329,10 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         }
 
         rowNumCbo.select(i);
+
+        Label sep3 = new Label(displayGroup, SWT.SEPARATOR | SWT.SHADOW_OUT
+                | SWT.HORIZONTAL);
+        sep3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
         // Priority settings
         gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
@@ -403,6 +398,10 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
             numNameRdo.setSelection(true);
         }
 
+        Label sep4 = new Label(displayGroup, SWT.SEPARATOR | SWT.SHADOW_OUT
+                | SWT.HORIZONTAL);
+        sep4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
         // Column settings
         gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         gl = new GridLayout(1, false);
@@ -448,6 +447,17 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         // OK button
         int buttonWidth = 75;
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
+        Button applyBtn = new Button(bottomComp, SWT.PUSH);
+        applyBtn.setText("Apply");
+        applyBtn.setLayoutData(btnData);
+        applyBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleOK();
+            }
+        });
+
+        btnData = new GridData(buttonWidth, SWT.DEFAULT);
         Button okBtn = new Button(bottomComp, SWT.PUSH);
         okBtn.setText("OK");
         okBtn.setLayoutData(btnData);
@@ -455,10 +465,12 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handleOK();
+                close();
             }
         });
 
         // Cancel button
+        btnData = new GridData(buttonWidth, SWT.DEFAULT);
         Button closeBtn = new Button(bottomComp, SWT.PUSH);
         closeBtn.setText("Cancel");
         closeBtn.setLayoutData(btnData);
@@ -542,7 +554,6 @@ public class NotificationConfigDlg extends CaveSWTDialog implements IUpdate {
         configManager.setConfigXml(xml);
 
         callback.tableChanged();
-        close();
     }
 
     private void updateColumnXMl(NotificationConfigXML xml, String columnName,
