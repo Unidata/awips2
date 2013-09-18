@@ -91,6 +91,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 11, 2013 2106       djohnson     Look up subscription from the handler directly.
  * Jul 19, 2013 2209       dhladky      Fixed un-serialized subscription for pointData.
  * Sep 13, 2013 2267       bgonzale     Check for no subscription retrieval attribute found.
+ * Sep 16, 2013 2383       bgonzale     Add exception information for no subscription found.
+ *                                      Add throws to updatePointDataSetMetaData.
+ * 
  * </pre>
  * 
  * @author djohnson
@@ -235,6 +238,13 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
             Subscription subscription;
             try {
                 subscription = subscriptionHandler.getByName(dao.getName());
+
+                if (subscription == null) {
+                    StringBuilder sb = new StringBuilder("Subscription: ");
+                    sb.append(dao.getName());
+                    sb.append(" Not Found in Subscription Handler.");
+                    throw new RegistryHandlerException(sb.toString());
+                }
             } catch (RegistryHandlerException e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to retrieve the subscription by name!", e1);
@@ -393,9 +403,11 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      * 
      * @param dataSetMetaData
      *            the metadadata
+     * @throws ParseException
      */
     @Subscribe
-    public void updatePointDataSetMetaData(PointDataSetMetaData dataSetMetaData) {
+    public void updatePointDataSetMetaData(PointDataSetMetaData dataSetMetaData)
+            throws ParseException {
         // TODO: Change PointDataSetMetaData to only be able to use PointTime
         // objects
         final PointTime time = (PointTime) dataSetMetaData.getTime();
