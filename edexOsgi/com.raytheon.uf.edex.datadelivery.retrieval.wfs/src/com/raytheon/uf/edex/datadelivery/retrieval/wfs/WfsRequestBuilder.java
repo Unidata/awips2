@@ -33,6 +33,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 18, 2013 2120       dhladky      Added times and max feature processing
  * Aug 07, 2013 2097       dhladky      Revamped WFS to use POST (still 1.1.0 WFS)
  * Sept 11, 2013 2351      dhladky      Fixed adhoc request times
+ * Sept 17, 2013 2383      bgonzale     Removed exceptional code for point start and
+ *                                      end since the times will be correct now.
  * 
  * </pre>
  * 
@@ -191,24 +193,8 @@ public class WfsRequestBuilder extends RequestBuilder {
             String endDateString = null;
             String startDateString = null;
 
-            if (inTime.getStart() != null && inTime.getEnd() != null) {
-                /**
-                 * THESE ARE ADHOC requests!!!!! They go backwards from normal
-                 * They are calculated (now - interval) 
-                 * Hence the start time is before the end time.
-                 * TODO:  We should look into this more.  I think more problems exist in BWM
-                 */
-                startDateString = inTime.getEnd();
-                endDateString = inTime.getStart();
-
-            } else if (inTime.getStartDate() != null
-                    && inTime.getEndDate() != null) {
-                /**
-                 * Normal recurring subscription requests
-                 */
-                endDateString = ogcDateFormat.get().format(inTime.getEndDate());
-                startDateString = ogcDateFormat.get().format(inTime.getStartDate());
-            }
+            endDateString = ogcDateFormat.get().format(inTime.getEndDate());
+            startDateString = ogcDateFormat.get().format(inTime.getStartDate());
 
             StringBuilder sb = new StringBuilder(256);
             sb.append(PROPRERTYISGREATERTHAN_OPEN).append(NEW_LINE);
