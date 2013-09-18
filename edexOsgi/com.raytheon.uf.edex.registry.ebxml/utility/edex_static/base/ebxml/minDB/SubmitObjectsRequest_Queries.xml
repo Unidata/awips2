@@ -706,5 +706,21 @@
                 </rim:Description>
             </rim:Parameter>
         </rim:RegistryObject>    
+        <rim:RegistryObject xsi:type="rim:QueryDefinitionType" lid="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject" id="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject">
+            <rim:Name>
+                <rim:LocalizedString value="Get Referenced Object"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString value="Gets Registry Object referenced"/>
+            </rim:Description>
+            <rim:Parameter parameterName="objectReference" dataType="string" minOccurs="0" maxOccurs="1">
+                <rim:Name>
+                    <rim:LocalizedString value="Object reference"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="ID of the object referenced"/>
+                </rim:Description>
+            </rim:Parameter>
+        </rim:RegistryObject> 
     </rim:RegistryObjectList>
 </SubmitObjectsRequest>
