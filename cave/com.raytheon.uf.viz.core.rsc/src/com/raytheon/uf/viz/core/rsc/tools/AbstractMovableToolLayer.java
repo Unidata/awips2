@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     not allow the legend to change.
  * 07-21-2010              bkowal      We will now display the standard SWT &quot;hand&quot;
  * Mar 21, 2013       1638 mschenke    Changed to use generic tool data
+ * Sep 18, 2013 #2360      njensen     Ignore mouse actions if layer is invisible
  * 
  * </pre>
  * 
@@ -293,7 +294,7 @@ public abstract class AbstractMovableToolLayer<T> extends
     }
 
     public boolean handleMouseDown(int x, int y, int mouseButton) {
-        if ((liveObject == null) && isEditable()) {
+        if ((liveObject == null) && isEditable() && getProperties().isVisible()) {
             IDisplayPaneContainer container = getResourceContainer();
             lastMouseLoc = container.translateClick(x, y);
 
@@ -351,7 +352,8 @@ public abstract class AbstractMovableToolLayer<T> extends
                 issueRefresh();
             }
             return true;
-        } else if ((liveObject == null) && isEditable()) {
+        } else if ((liveObject == null) && isEditable()
+                && getProperties().isVisible()) {
             if (objects == null) {
                 return false;
             }
@@ -394,7 +396,7 @@ public abstract class AbstractMovableToolLayer<T> extends
 
     @SuppressWarnings("unchecked")
     public boolean handleMouseUp(int x, int y, int mouseButton) {
-        if (!isEditable()) {
+        if (!isEditable() || !getProperties().isVisible()) {
             return false;
         }
 
