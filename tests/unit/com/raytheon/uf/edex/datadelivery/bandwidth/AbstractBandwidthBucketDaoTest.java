@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2013 2106       djohnson     Initial creation
+ * Sep 17, 2013 2383       bgonzale     Added test for same start and end time.
  * 
  * </pre>
  * 
@@ -400,6 +401,28 @@ public abstract class AbstractBandwidthBucketDaoTest {
                 latestBucket.getBucketStartTime(), network);
 
         assertThat(returned, hasItem(latestBucket));
+    }
+
+    @Test
+    public void getBucketsInWindowsWhereStartTimeEqualsEndTime() {
+
+        final Network network = Network.OPSNET;
+
+        final BandwidthBucket expectedBucket = new BandwidthBucket(5L, 100,
+                network);
+        List<BandwidthBucket> buckets = Arrays.asList(new BandwidthBucket(4L,
+                100, network), expectedBucket, new BandwidthBucket(6L, 100,
+                network));
+
+        for (BandwidthBucket bucket : buckets) {
+            dao.create(bucket);
+        }
+
+        final SortedSet<BandwidthBucket> returned = dao.getBucketsInWindow(
+                expectedBucket.getBucketStartTime(),
+                expectedBucket.getBucketStartTime(), network);
+
+        assertThat(returned, hasItem(expectedBucket));
     }
 
     @Test
