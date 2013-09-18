@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Jan 22, 2013  1520      mpduff       Update javadoc.
  * Apr 25, 2013  1820      mpduff       Get the column list every time.
  * Aug 30, 2013  2314      mpduff       Sort the table data on load.
+ * Sep 16, 2013  2375      mpduff       Removed initial sorting.
  * </pre>
  * 
  * @author lvenable
@@ -1027,31 +1028,20 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                     tc.setResizable(false);
                 }
 
-                if (!initialized) {
-                    // Find which column is configured to be the sort column
-                    boolean sortCol = column.isSortColumn();
-                    if (sortCol) {
-                        sortedColumn = tc;
-                    }
-
-                    // Check if any columns set to descending
-                    boolean sortAsc = column.isSortAsc();
-                    if (!sortAsc) {
-                        sortDir = SortDirection.ASCENDING;
-                    }
-
-                    sortDirectionMap.put(colName, sortDir);
-                } else {
-                    if (tc.getText().equals(sortedColumnName)) {
-                        sortedColumn = tc;
-                        sortDirectionMap.put(tc.getText(), sortedDirectionName);
-                    }
+                // Find which column is configured to be the sort column
+                if (column.isSortColumn()) {
+                    sortedColumn = tc;
                 }
 
+                // Check if any columns set to descending
+                sortDir = SortDirection.DESCENDING;
+                if (column.isSortAsc()) {
+                    sortDir = SortDirection.ASCENDING;
+                }
+
+                sortDirectionMap.put(colName, sortDir);
             }
-
         }
-
     }
 
     /**
