@@ -29,6 +29,7 @@
                 <ref bean="getRegistryPackagesByMemberId" />
                 <ref bean="keywordSearch" />
                 <ref bean="registryPackageSelector" />
+                <ref bean="getReferencedObject"/>
             </util:list>
         </constructor-arg>
     </bean>
@@ -125,6 +126,10 @@
         class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.RegistryPackageSelector">
         <property name="registryObjectDao" ref="registryObjectDao" />
     </bean>
-
+	<bean id="getReferencedObject"
+        class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetReferencedObject">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="referenceResolver" ref="objectReferenceResolver"/>
+    </bean>
 
 </beans>
