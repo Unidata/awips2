@@ -45,7 +45,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * Adapter used to decode ACARS data in BUFR format.
  * 
  * <pre>
  * 
@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Jan 22, 2009 1939       jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sep 18, 2013 2339       njensen     Index safety check in getTailNumber()
  * 
  * </pre>
  * 
@@ -878,11 +879,13 @@ public class ACARSDataAdapter {
 
         String tailNumber = null;
 
-        IBUFRDataPacket packet = dataList.get(pos);
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
-            if (!packet.isMissing()) {
-                tailNumber = cleanString((String) packet.getValue());
+        if (pos < dataList.size()) {
+            IBUFRDataPacket packet = dataList.get(pos);
+            int d = packet.getReferencingDescriptor().getDescriptor();
+            if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
+                if (!packet.isMissing()) {
+                    tailNumber = cleanString((String) packet.getValue());
+                }
             }
         }
 
