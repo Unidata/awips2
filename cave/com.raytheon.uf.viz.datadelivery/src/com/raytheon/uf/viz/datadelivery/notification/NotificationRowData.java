@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Feb 3, 2012            mpduff     Initial creation
  * Jun 07, 2012   687     lvenable   Table data refactor.
  * Aug 30, 2013  2314     mpduff     Fix formatting.
+ * Sep 16, 2013  2375     mpduff     Change date sort order.
  * 
  * </pre>
  * 
@@ -260,9 +261,9 @@ public class NotificationRowData implements ITableData<NotificationRowData> {
         }
 
         if (d1.before(d2)) {
-            return 1;
-        } else if (d1.after(d2)) {
             return -1;
+        } else if (d1.after(d2)) {
+            return 1;
         } else {
             return 0;
         }
