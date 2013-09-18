@@ -4968,6 +4968,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 oup.setWmoType(fixNOR(prod.getBbbid()));
                 oup.setUserDateTimeStamp(prod.getHdrtime());
                 StringBuilder fileName = new StringBuilder();
+
+                // The .wan extension followed by the 10 digit epoch seconds
+                // of simulated time is used in EDEX's WarningDecoder to
+                // determine the base time.
                 fileName.append(awipsID).append(".wan")
                         .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
                 oup.setFilename(fileName.toString());
