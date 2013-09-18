@@ -63,6 +63,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Jun 03, 2013 2038       djohnson     Add ability to schedule down to minute granularity.
  * Jun 04, 2013  223       mpduff       Refactor changes.
  * Sept 10, 2013 2351      dhladky      Made adhoc queries for pointdata work
+ * Sept 17, 2013 2383      bgonzale     setAdhocMostRecentUrlAndTime returns null if grid and
+ *                                      no metadata found.
  * 
  * </pre>
  * 
@@ -326,7 +328,7 @@ public class BandwidthDaoUtil {
                                 + adhoc.getDataSetName() + " Provider: "
                                 + adhoc.getProvider(), e);
             }
-            
+
             if (dataSetMetaDatas != null && !dataSetMetaDatas.isEmpty()) {
                 // just grab the most recent one, all we need is the URL
                 adhoc.setUrl(dataSetMetaDatas.get(0).getUrl());
@@ -376,7 +378,7 @@ public class BandwidthDaoUtil {
                                                     adhoc.getName(),
                                                     daoToUse.getUrl()));
                         }
-                        
+
                         adhoc.setUrl(daoToUse.getUrl());
                         adhocTime.setStartDate(daoToUse.getDataSetBaseTime()
                                 .getTime());
@@ -384,9 +386,6 @@ public class BandwidthDaoUtil {
                         retVal = adhoc;
                     }
                 }
-            } else {
-                // Just return the adhoc sub
-                retVal = adhoc;
             }
         } else {
             throw new IllegalArgumentException("DataType: "
