@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * Jun 03, 2013 2095       djohnson     Move getPointDataSet in from subclass.
  * Jul 09, 2013 2106       djohnson     Add datadelivery handlers, since they are now dependency injected.
+ * Sep 17, 2013 2383       bgonzale     Added "thrift.stream.maxsize" System property to setup.
  * 
  * </pre>
  * 
@@ -134,6 +135,7 @@ public abstract class AbstractBandwidthManagerIntTest {
         System.getProperties().putAll(properties);
 
         TimeUtilTest.freezeTime(TimeUtil.MILLIS_PER_DAY * 2);
+        System.setProperty("thrift.stream.maxsize", "200");
     }
 
     @AfterClass
@@ -230,7 +232,6 @@ public abstract class AbstractBandwidthManagerIntTest {
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));
         subscription.setRoute(getRouteToUseForSubscription());
-
         return subscription;
     }
 
