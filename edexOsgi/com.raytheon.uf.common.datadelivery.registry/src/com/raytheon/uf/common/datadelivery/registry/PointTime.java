@@ -21,6 +21,7 @@ package com.raytheon.uf.common.datadelivery.registry;
  **/
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +48,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012    754      dhladky     Initial creation
  * Sept 11, 2013  2351      dhladky     Added more point intervals
+ * Sept 17, 2013  2383      bgonzale    Use end or start time when times are
+ *                                      null because times are not always set.
  * 
  * </pre>
  * 
@@ -92,32 +95,42 @@ public class PointTime extends Time implements ISerializableObject,
 
     /**
      * gets the most recent date
+     * 
+     * @throws ParseException
      */
     @Override
-    public Date getEndDate() {
-        for (Date time : getTimes()) {
-            if (endDate == null) {
-                endDate = time;
-            } else if (endDate.before(time)) {
-                endDate = time;
+    public Date getEndDate() throws ParseException {
+        List<Date> timesList = getTimes();
+        if (timesList != null) {
+            for (Date time : timesList) {
+                if (endDate == null) {
+                    endDate = time;
+                } else if (endDate.before(time)) {
+                    endDate = time;
+                }
             }
         }
-        return endDate;
+        return super.getEndDate();
     }
 
     /**
      * gets the earliest date
+     * 
+     * @throws ParseException
      */
     @Override
-    public Date getStartDate() {
-        for (Date time : getTimes()) {
-            if (startDate == null) {
-                startDate = time;
-            } else if (startDate.after(time)) {
-                startDate = time;
+    public Date getStartDate() throws ParseException {
+        List<Date> timesList = getTimes();
+        if (timesList != null) {
+            for (Date time : timesList) {
+                if (startDate == null) {
+                    startDate = time;
+                } else if (startDate.after(time)) {
+                    startDate = time;
+                }
             }
         }
-        return startDate;
+        return super.getStartDate();
     }
 
     /**
