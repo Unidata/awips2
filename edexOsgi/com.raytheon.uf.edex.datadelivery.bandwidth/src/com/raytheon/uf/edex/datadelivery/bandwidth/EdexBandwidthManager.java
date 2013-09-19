@@ -90,7 +90,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 10, 2013 2106       djohnson     Extracted from {@link BandwidthManager}.
  * Jul 11, 2013 2106       djohnson     Look up subscription from the handler directly.
  * Jul 19, 2013 2209       dhladky      Fixed un-serialized subscription for pointData.
- * 
+ * Sep 13, 2013 2267       bgonzale     Check for no subscription retrieval attribute found.
  * </pre>
  * 
  * @author djohnson
@@ -633,10 +633,14 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
         Set<Subscription> subscriptions = new HashSet<Subscription>();
         for (SubscriptionRetrieval retrieval : retrievals) {
             try {
-                final Subscription sub = bandwidthDao
-                        .getSubscriptionRetrievalAttributes(retrieval)
-                        .getSubscription();
-                subscriptions.add(sub);
+                final SubscriptionRetrievalAttributes sra = bandwidthDao
+                        .getSubscriptionRetrievalAttributes(retrieval);
+                if (sra != null) {
+                    Subscription sub = sra.getSubscription();
+                    if (sub != null) {
+                        subscriptions.add(sub);
+                    }
+                }
             } catch (SerializationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to deserialize a subscription", e);
