@@ -30,6 +30,7 @@ package com.raytheon.uf.common.registry.constants;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/9/2013     1802        bphillip    Initial implementation
+ * 9/18/2013    1705        bphillip    Added GetReferencedObject canonical query
  * </pre>
  * 
  * @author bphillip
@@ -76,5 +77,7 @@ public class CanonicalQueryTypes {
     public static final String CLASSIFICATION_SCHEME_SELECTOR = "urn:oasis:names:tc:ebxml-regrep:query:ClassificationSchemeSelector";
 
     public static final String GET_NOTIFICATION = "urn:oasis:names:tc:ebxml-regrep:query:GetNotification";
+
+    public static final String GET_REFERENCED_OBJECT = "urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject";
 
 }
