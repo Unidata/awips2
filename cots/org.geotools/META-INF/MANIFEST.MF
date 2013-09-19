@@ -5,7 +5,6 @@ Bundle-SymbolicName: org.geotools
 Bundle-Version: 2.6.4
 Bundle-ClassPath: common-2.2.1.jar,
  commons-beanutils-1.7.0.jar,
- commons-codec-1.2.jar,
  commons-collections-3.1.jar,
  commons-dbcp-1.2.2.jar,
  commons-jxpath-1.2.jar,
