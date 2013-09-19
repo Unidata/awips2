@@ -37,9 +37,11 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 8, 2011            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 08, 2011           mschenke    Initial creation
+ * Sep 18, 2013  2309     bsteffen    Share a single DataStoreCache for all
+ *                                    data stores.
  * 
  * </pre>
  * 
@@ -54,15 +56,16 @@ public class CachingDataStoreFactory implements IDataStoreFactory,
 
     private boolean cachingData;
 
-    private File cacheDir;
+    private DataStoreCache cache;
 
     public CachingDataStoreFactory(IDataStoreFactory delegateFactory) {
         this.delegateFactory = delegateFactory;
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         cachingData = store
                 .getBoolean(ThinClientPreferenceConstants.P_CACHE_WEATHER);
-        cacheDir = new File(
+        File cacheDir = new File(
                 store.getString(ThinClientPreferenceConstants.P_CACHE_DIR));
+        cache = new DataStoreCache(cacheDir);
         store.addPropertyChangeListener(this);
     }
 
@@ -77,7 +80,7 @@ public class CachingDataStoreFactory implements IDataStoreFactory,
     public IDataStore getDataStore(File file, boolean useLocking) {
         IDataStore dataStore = delegateFactory.getDataStore(file, useLocking);
         if (cachingData) {
-            dataStore = new CachingDataStore(dataStore, cacheDir);
+            dataStore = new CachingDataStore(dataStore, cache);
         }
         return dataStore;
     }
@@ -96,7 +99,8 @@ public class CachingDataStoreFactory implements IDataStoreFactory,
             cachingData = Boolean.valueOf(String.valueOf(event.getNewValue()));
         } else if (ThinClientPreferenceConstants.P_CACHE_DIR.equals(event
                 .getProperty())) {
-            cacheDir = new File(String.valueOf(event.getNewValue()));
+            File cacheDir = new File(String.valueOf(event.getNewValue()));
+            cache = new DataStoreCache(cacheDir);
         }
     }
 
