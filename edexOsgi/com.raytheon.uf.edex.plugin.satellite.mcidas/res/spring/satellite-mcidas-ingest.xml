@@ -4,7 +4,7 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="jms-satellite-mcidas" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsSatelliteMcidasConfig" />
 		<property name="taskExecutor" ref="satelliteMcidasThreadPool" />		
 	</bean>
 	<bean id="satelliteMcidasThreadPool"
@@ -12,7 +12,8 @@
 		<property name="corePoolSize" value="1" />
 		<property name="maxPoolSize" value="1" />
 	</bean>
-
+    <bean id="jmsSatelliteMcidasConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder">
 	</bean>
 	
