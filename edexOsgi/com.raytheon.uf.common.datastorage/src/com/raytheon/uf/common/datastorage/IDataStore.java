@@ -32,13 +32,16 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 9, 2007             chammack    Initial Creation.
- * Apr 1, 2008             chammack    Added delete API
- * Aug 3, 2009             chammack    Modified to support Request
- * Sep 27, 2010      5091  njensen     Added deleteFiles(String)
- * Feb 12, 2013     #1608  randerso    Added explicit methods for deleting groups and datasets
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 09, 2007           chammack    Initial Creation.
+ * Apr 01, 2008           chammack    Added delete API
+ * Aug 03, 2009           chammack    Modified to support Request
+ * Sep 27, 2010  5091     njensen     Added deleteFiles(String)
+ * Feb 12, 2013  1608     randerso    Added explicit methods for deleting
+ *                                    groups and datasets
+ * Sep 19, 2013  2309     bsteffen    Deprecate retrieve(String, boolean)
+ * 
  * 
  * </pre>
  * 
@@ -155,6 +158,7 @@ public interface IDataStore extends ISerializableObject {
      * @throws StorageException
      * @throws FileNotFoundException
      */
+    @Deprecated
     public abstract IDataRecord[] retrieve(String group,
             boolean includeInterpolated) throws StorageException,
             FileNotFoundException;
