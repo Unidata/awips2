@@ -121,4 +121,11 @@
 			</menu>
 		</menuContribution>
 	</extension>
+   <extension
+         point="com.raytheon.uf.viz.productbrowser.dataDefinition">
+      <dataDefinition
+            class="com.raytheon.uf.viz.datadelivery.DataDeliveryProductBrowserDataDefinition"
+            name="dataDeliveryProductBrowserDataDefinition">
+      </dataDefinition>
+   </extension>
 </plugin>
