@@ -9,10 +9,11 @@
 
 	<bean id="jms-dist" class="org.apache.camel.component.jms.JmsComponent">
 	    <!-- All initial distribution queues are durable -->
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsDistConfig" />
 		<property name="taskExecutor" ref="distributionThreadPool" />		
 	</bean>
-
+    <bean id="jmsDistConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="distributionThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="7" />
