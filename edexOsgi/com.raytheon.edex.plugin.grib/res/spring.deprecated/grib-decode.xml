@@ -6,10 +6,11 @@
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
 	<bean id="ingest-grib" class="org.apache.camel.component.jms.JmsComponent">
-		<constructor-arg ref="jmsDurableConfig" />
+		<constructor-arg ref="jmsGribConfig" />
 		<property name="taskExecutor" ref="gribThreadPool" />
 	</bean>
-	
+    <bean id="jmsGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="gribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${grib-decode.count.threads}" />
