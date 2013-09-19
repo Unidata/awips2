@@ -461,10 +461,12 @@
 	<bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue"
     	factory-method="getInstance" />
   	<bean id="jms-iscsend" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsIscSendConfig" />
 		<property name="taskExecutor" ref="iscSendThreadPool" />		
 	</bean>
-	<bean id="iscSendThreadPool"
+    <bean id="jmsIscSendConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
+    <bean id="iscSendThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />
 		<property name="maxPoolSize" value="2" />
@@ -485,9 +487,11 @@
   	<!-- ISC Receive Beans -->
 	
   	<bean id="jms-iscrec" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsIscRecConfig" />
 		<property name="taskExecutor" ref="iscReceiveThreadPool" />		
 	</bean>
+    <bean id="jmsIscRecConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="iscReceiveThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />

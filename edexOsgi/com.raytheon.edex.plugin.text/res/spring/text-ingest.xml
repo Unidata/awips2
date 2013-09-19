@@ -28,9 +28,11 @@
     <bean id="textVersionPurge" class="com.raytheon.edex.plugin.text.TextVersionPurge" depends-on="textRegistered"/>
 
 	<bean id="jms-text" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsTextConfig" />
 		<property name="taskExecutor" ref="textThreadPool" />		
 	</bean>
+    <bean id="jmsTextConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="textThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />
