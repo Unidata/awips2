@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.ogc.common.feature.ObsLocation;
  * Mar 27, 2013 1746        dhladky     Initial creation
  * Jun 03, 2013 1763        dhladky     Altered QCD values map
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Sept 19,2013 2388        dhladky     Fixed creation of geometry (location assignment)
  * </pre>
  * 
  * @author dhladky
@@ -175,7 +176,7 @@ public class Madis extends AbstractFeatureType {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Madis.class);
-
+    
     /**
      * Converts a MADIS record to a MADIS feature
      * 
@@ -743,8 +744,7 @@ public class Madis extends AbstractFeatureType {
                 obsLocation.getStationId());
         sol.setElevation(obsLocation.getElevation());
         List<Double> points = obsLocation.getLocation().getPos().getValue();
-        sol.setLongitude(points.get(0));
-        sol.setLatitude(points.get(1));
+        sol.assignLocation(points.get(1), points.get(0));
 
         return sol;
     }
