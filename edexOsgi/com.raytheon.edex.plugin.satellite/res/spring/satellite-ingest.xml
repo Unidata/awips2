@@ -4,9 +4,11 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="jms-satellite" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsSatelliteConfig" />
 		<property name="taskExecutor" ref="satelliteThreadPool" />		
 	</bean>
+    <bean id="jmsSatelliteConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="satelliteThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="1" />
