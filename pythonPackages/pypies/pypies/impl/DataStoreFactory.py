@@ -28,6 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/21/10                      njensen       Initial Creation.
+#    09/19/13        2309          bsteffen      Fix group name in returned
+#                                                records.
 #    
 # 
 #
@@ -57,7 +59,7 @@ def createStorageRecord(rawData, ds):
     parentName = '/'
     slashIndex = name.rfind('/')
     if slashIndex > -1:
-        parentName = name[0:slashIndex]
+        parentName = name[0:slashIndex].replace('::','/')
         name = name[slashIndex+1:]
     inst.setName(name)
     inst.setGroup(parentName)
