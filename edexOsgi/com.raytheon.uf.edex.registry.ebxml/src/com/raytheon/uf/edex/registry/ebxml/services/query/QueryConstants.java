@@ -29,6 +29,7 @@ package com.raytheon.uf.edex.registry.ebxml.services.query;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 9/18/2013    1705       bphillip     Added objectReference
  * 
  * </pre>
  * 
@@ -106,4 +107,6 @@ public class QueryConstants {
     public static final String QUERY_EXPRESSION = "queryExpression";
 
     public static final String QUERY_LANGUAGE = "queryLanguage";
+
+    public static final String OBJECT_REFERENCE = "objectReference";
 }
