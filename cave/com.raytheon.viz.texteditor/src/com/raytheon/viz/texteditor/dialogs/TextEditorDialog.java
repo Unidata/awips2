@@ -40,11 +40,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -331,6 +329,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
  *                                      command history or close browser window for "update obs".
+ * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 
  * </pre>
  * 
@@ -344,7 +343,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Handler used for messges.
      */
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextEditorDialog.class);
 
     /**
@@ -378,8 +377,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * System colro to use for foreground color when an obs is updated.
      */
     private static final int UPDATE_FG = SWT.COLOR_WHITE;
-
-    private final int HIGHLIGHT_BG = SWT.COLOR_RED;
 
     /**
      * The length of BEGIN_ELEMENT_TAG.
@@ -1089,11 +1086,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private SearchReplaceDlg searchReplaceDlg;
 
     /**
-     * Flag to indicate if the document being edited has been modified.
-     */
-    private boolean dirty = false;
-
-    /**
      * Flag to indicate if the document being edited has been saved.
      */
     private boolean saved = false;
@@ -1373,15 +1365,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private boolean isPreviousLineWrapped;
 
-    private Color textForeground;
+    /** Text foregraound color. */
+    private Color textForegroundClr;
 
-    private Color textBackground;
+    /** Text background color. */
+    private Color textBackgroundClr;
 
-    private Color highlightForeground;
+    /** Highlight foreground color. */
+    private Color highlightForegroundClr;
 
-    private Color highlightBackground;
-
-    // protected Color color;
+    /** Highlight background color. */
+    private Color highlightBackgroundClr;
 
     /**
      * Constructor with additional cave style rules
@@ -2417,41 +2411,41 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Method to preserve the spacing in a bulleted section of text. Only
      * applies to VTEC warning (vtecAfosProductEnum) type products.
      */
-    private void PreserveBulletedTextSpacing(StyledText st) {
-        // Capture the input from the styled text widget.
-        String in = st.getText();
-        // New up a Scanner to use to parse the text in the editor.
-        Scanner sc = new Scanner(in).useDelimiter("\\n");
-        // Declare variables for processing the editor's contents.
-        int thisLine = -1;
-        String whatMatched;
-
-        // Process the editor's contents.
-        while (sc.hasNext()) {
-            whatMatched = sc.next();
-            thisLine++;
-            if ((whatMatched != null) && (sc.hasNext())
-                    && (whatMatched.startsWith("*"))) {
-                while (sc.hasNext()) {
-                    whatMatched = sc.next();
-                    thisLine++;
-                    if ((whatMatched != null)
-                            && (!(whatMatched.startsWith(" ")))
-                            && (!(whatMatched.equals("")))) {
-                        // Indent the bullet list entry by one space.
-                        // If operator enables word wrap they are responsible
-                        // for reformatting bullet list items that span lines.
-                        st.setCaretOffset(st.getOffsetAtLine(thisLine));
-                        st.insert(" ");
-                    } else if ((whatMatched != null)
-                            && (whatMatched.equals(""))) {
-                        break; // The end of bullet list is detected.
-                    }
-                }
-            }
-        }
-
-    }
+    // private void PreserveBulletedTextSpacing(StyledText st) {
+    // // Capture the input from the styled text widget.
+    // String in = st.getText();
+    // // New up a Scanner to use to parse the text in the editor.
+    // Scanner sc = new Scanner(in).useDelimiter("\\n");
+    // // Declare variables for processing the editor's contents.
+    // int thisLine = -1;
+    // String whatMatched;
+    //
+    // // Process the editor's contents.
+    // while (sc.hasNext()) {
+    // whatMatched = sc.next();
+    // thisLine++;
+    // if ((whatMatched != null) && (sc.hasNext())
+    // && (whatMatched.startsWith("*"))) {
+    // while (sc.hasNext()) {
+    // whatMatched = sc.next();
+    // thisLine++;
+    // if ((whatMatched != null)
+    // && (!(whatMatched.startsWith(" ")))
+    // && (!(whatMatched.equals("")))) {
+    // // Indent the bullet list entry by one space.
+    // // If operator enables word wrap they are responsible
+    // // for reformatting bullet list items that span lines.
+    // st.setCaretOffset(st.getOffsetAtLine(thisLine));
+    // st.insert(" ");
+    // } else if ((whatMatched != null)
+    // && (whatMatched.equals(""))) {
+    // break; // The end of bullet list is detected.
+    // }
+    // }
+    // }
+    // }
+    //
+    // }
 
     /**
      * Method to create selection sub-menu.
@@ -2766,8 +2760,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             autoWrapCfg = JAXB.unmarshal(path, AutoWrapCfg.class);
         } catch (Exception e) {
-            IUFStatusHandler statusHandler = UFStatus
-                    .getHandler(TextEditorDialog.class);
             statusHandler.handle(Priority.ERROR,
                     "Unable to parse Autowrap menu configuration.", e);
             autoWrapCfg = new AutoWrapCfg();
@@ -3753,8 +3745,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // textColorCfg = getTextColorCfg();
         setDefaultTextColor(TextEditorCfg.getTextEditorCfg());
-        textEditor.setForeground(textForeground);
-        textEditor.setBackground(textBackground);
+        textEditor.setForeground(textForegroundClr);
+        textEditor.setBackground(textBackgroundClr);
 
         textEditor.addSelectionListener(new SelectionListener() {
             @Override
@@ -3771,8 +3763,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 // String slctText = stylText.getSelectionText();
                 // int length = slctText.length();
 
-                stylText.setSelectionBackground(highlightBackground);
-                stylText.setSelectionForeground(highlightForeground);
+                stylText.setSelectionBackground(highlightBackgroundClr);
+                stylText.setSelectionForeground(highlightForegroundClr);
 
             }
         });
@@ -3900,14 +3892,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         });
-        textEditor.addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent e) {
-                // when we modify the text, we want to set the 'dirty' flag.
-                dirty = true;
-            }
-        });
 
         textEditor.addMouseListener(new MouseListener() {
             @Override
@@ -3985,15 +3969,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     // return textColorsCfg;
     // }
 
-    
     private void setDefaultTextColor(TextEditorCfg txtClrCfg) {
-        textBackground = new Color(shell.getDisplay(),
+        textBackgroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getTextBackgroundColor());
-        textForeground = new Color(shell.getDisplay(),
+        textForegroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getTextForegroundColor());
-        highlightBackground = new Color(shell.getDisplay(),
+        highlightBackgroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getHighlightTextBackgroundColor());
-        highlightForeground = new Color(shell.getDisplay(),
+        highlightForegroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getHighlightTextForegroundColor());
     }
 
@@ -4277,9 +4260,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             replaceWorkProductId();
             originalText = combineOriginalMessage();
         }
-
-        // update editor status flags
-        dirty = false;
 
         if (originalText != null) {
             textEditor.setText(originalText);
@@ -5128,7 +5108,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean successful = saveEditedProduct(false, false, false);
         if (successful) {
             // reset the editor status flags
-            dirty = false;
             saved = true;
             replaceWorkProductId();
             originalText = combineOriginalMessage();
@@ -5723,8 +5702,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 textEditor.setText("");
             }
         }
-        // set editor status flags
-        dirty = false;
     }
 
     /**
@@ -5922,7 +5899,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
-        if (! isObsUpdated) {
+        if (!isObsUpdated) {
             if (browser != null) {
                 browser.close();
                 browser = null;
@@ -6116,7 +6093,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void postExecute(boolean hasAttachment, boolean enterEditor,
             boolean validExecuteCommand, String attachedFilename) {
         if (!this.isDisposed()) {
-            if (! productQueryJob.isExpectingRequests()) {
+            if (!productQueryJob.isExpectingRequests()) {
                 if (hasAttachment) {
                     statusBarLabel.setText("Attachment: " + attachedFilename);
                 } else {
@@ -7637,6 +7614,22 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             browser = null;
         }
 
+        if (textForegroundClr != null) {
+            textForegroundClr.dispose();
+        }
+
+        if (textBackgroundClr != null) {
+            textBackgroundClr.dispose();
+        }
+
+        if (highlightForegroundClr != null) {
+            highlightForegroundClr.dispose();
+        }
+
+        if (highlightBackgroundClr != null) {
+            highlightBackgroundClr.dispose();
+        }
+
         inEditMode = false;
     }
 
@@ -8313,7 +8306,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return
      * @throws IOException
      */
-    private static boolean isTextFile(File file) throws IOException {
+    private boolean isTextFile(File file) throws IOException {
         boolean result = false;
 
         byte[] bytesFromFile = getBytesFromFile(file);
@@ -8335,35 +8328,47 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return
      * @throws IOException
      */
-    private static byte[] getBytesFromFile(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
+    private byte[] getBytesFromFile(File file) throws IOException {
+        InputStream is = null;
+        byte[] bytes = null;
 
-        // Get the size of the file
-        long length = file.length();
+        try {
+            is = new FileInputStream(file);
 
-        if (length > Integer.MAX_VALUE) {
-            // File is too large
+            // Get the size of the file
+            long length = file.length();
+
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+            }
+
+            // Create the byte array to hold the data
+            bytes = new byte[(int) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while ((offset < bytes.length)
+                    && ((numRead = is
+                            .read(bytes, offset, bytes.length - offset)) >= 0)) {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in
+            if (offset < bytes.length) {
+                throw new IOException("Could not completely read file "
+                        + file.getName());
+            }
+        } catch (Exception ex) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error opening input stream.", ex);
+        } finally {
+            // Close the input stream and return bytes
+            if (is != null) {
+                is.close();
+            }
         }
 
-        // Create the byte array to hold the data
-        byte[] bytes = new byte[(int) length];
-
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while ((offset < bytes.length)
-                && ((numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)) {
-            offset += numRead;
-        }
-
-        // Ensure all the bytes have been read in
-        if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "
-                    + file.getName());
-        }
-
-        // Close the input stream and return bytes
-        is.close();
         return bytes;
     }
 
