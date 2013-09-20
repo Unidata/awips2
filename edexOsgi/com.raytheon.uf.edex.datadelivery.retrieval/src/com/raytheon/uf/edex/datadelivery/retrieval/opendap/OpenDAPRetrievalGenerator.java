@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalGeneratorUtilit
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Nov 25, 2012 1340       dhladky      Added type for subscriptions to retrieval
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
+ * Sep 18, 2013 2383       bgonzale     Added subscription name to log output.
  * 
  * </pre>
  * 
@@ -318,7 +319,9 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
 
             if (sub.getUrl() == null) {
                 statusHandler
-                        .info("Skipping subscription that is unfulfillable with the current metadata.");
+                        .info("Skipping subscription "
+                                + sub.getName()
+                                + " that is unfulfillable with the current metadata (null URL.)");
                 return Collections.emptyList();
             }
 
