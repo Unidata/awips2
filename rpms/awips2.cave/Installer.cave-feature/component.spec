@@ -1,4 +1,5 @@
-%define _component_zip_file_name  %{_component_feature}-repo-linux.%{_build_arch}.zip
+%define _component_zip_file_name  %{_component_feature}-linux.%{_build_arch}.zip
+%define _component_repo_zip_file_name  %{_component_feature}-repo-linux.%{_build_arch}.zip
 #
 # awips2-cave Spec File
 #
@@ -41,7 +42,7 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
    rm -rf ${RPM_BUILD_ROOT}
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/.repository
+mkdir -p ${RPM_BUILD_ROOT}
 CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
 
 if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
@@ -49,8 +50,8 @@ if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
    exit 1
 fi
 
-cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
-   ${RPM_BUILD_ROOT}/awips2/cave/.repository
+unzip ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
+   -d ${RPM_BUILD_ROOT}
 
 %build
 
@@ -162,7 +163,7 @@ fi
 # unzip the repository
 cd /awips2/cave/.repository
 cleanupUnzip
-unzip %{_component_zip_file_name} > /dev/null 2>&1
+unzip %{_component_repo_zip_file_name} > /dev/null 2>&1
 RC=$?
 if [ ${RC} -ne 0 ]; then
    echo "ERROR: Unzip of repository FAILED."
@@ -248,5 +249,7 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
+%dir /awips2/cave/
+/awips2/cave/*
 %dir /awips2/cave/.repository
 /awips2/cave/.repository/*
