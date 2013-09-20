@@ -55,6 +55,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2013 2106       djohnson     Extracted from {@link RetrievalPlan}.
  * Spet 08, 2013 2351      dhladky      Changed from ascending to descending bandwidth bucket selection
+ * Sept 17, 2013 2383      bgonzale     Switched back to start from ceiling and end from floor.
+ *                                      Constrain start and end keys by each other.
  * 
  * </pre>
  * 
@@ -187,8 +189,9 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
                     + "endMillis: " + new Date(endMillis));
         }
 
-        Long startKey = floorBucket(startMillis, network);
-        Long endKey = ceilingKey(endMillis, network);
+        Long startKey = ceilingKey(startMillis, network, endMillis);
+        Long endKey = floorBucket(endMillis, network, startMillis);
+
         // Handle the case where an invalid range was somehow specified
         // (shouldn't happen, so just throw an exception with as much
         // information as we have)
@@ -209,8 +212,21 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
                     + new Date(buckets.lastKey()));
         }
 
-        NavigableMap<Long, BandwidthBucket> window = buckets.subMap(startKey,
+        NavigableMap<Long, BandwidthBucket> window = null;
+        try {
+            window = buckets.subMap(startKey,
                 true, endKey, true);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Failed to get Bucket SubMap: \nstartMillis: "
+                            + new Date(startMillis) + "\nendMillis: "
+                            + new Date(endMillis) + "\nstartKey: "
+                            + new Date(startKey) + "\nendKey: "
+                            + new Date(endKey) + "\nfirstBucketKey: "
+                            + new Date(buckets.firstKey())
+                            + "\nlastBucketsKey: "
+                            + new Date(buckets.lastKey()), e);
+        }
         return new TreeSet<BandwidthBucket>(
                 copyAndWrapInUnmodifiableList(window.values()));
     }
@@ -220,12 +236,17 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
      * there is no such key.
      * 
      * @param key
+     * @param keyConstraint
      * @return the floored key, or null
      */
-    private Long floorBucket(long key, Network network) {
+    private Long floorBucket(long key, Network network, Long keyConstraint) {
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
         Long firstKey = buckets.floorKey(key);
+        if (firstKey < keyConstraint) {
+            // then go back to key before this one
+            firstKey = buckets.ceilingKey(key);
+        }
         if (firstKey == null) {
             firstKey = buckets.firstKey();
         }
@@ -238,12 +259,17 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
      * there is no such key.
      * 
      * @param key
+     * @param keyConstraint
      * @return the ceiling-ed key, or null
      */
-    private Long ceilingKey(long key, Network network) {
+    private Long ceilingKey(long key, Network network, Long keyConstraint) {
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
         Long lastKey = buckets.ceilingKey(key);
+        if (lastKey > keyConstraint) {
+            // then go back to key before this one
+            lastKey = buckets.floorKey(key);
+        }
         if (lastKey == null) {
            lastKey = buckets.lastKey();
         }
