@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
  * May 31, 2013 2038       djohnson     Move to correct repo.
  * Jun 04, 2013 1763       dhladky      Readied for WFS Retrievals.
  * Jun 18, 2013 2120       dhladky      Fixed times.
+ * Sep 18, 2013 2383       bgonzale     Added subscription name to log output.
  * 
  * </pre>
  * 
@@ -86,7 +87,9 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
 
             if (sub.getUrl() == null) {
                 statusHandler
-                        .info("Skipping subscription that is unfulfillable with the current metadata.");
+                        .info("Skipping subscription "
+                                + sub.getName()
+                                + " that is unfulfillable with the current metadata (null URL.)");
                 return Collections.emptyList();
             }
 
