@@ -43,6 +43,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * ------------ ---------- ----------- --------------------------
  * Feb 09, 2009            bwoodle     Initial creation
  * May 08, 2013  #1842     dgilling    Code cleanup.
+ * Aug 29, 2013  #1843     dgilling    Use new GetNextEtnRequest constructor.
  * 
  * </pre>
  * 
@@ -111,23 +112,69 @@ public class VtecUtil {
         return replaceFirstVtecString(message, vtec);
     }
 
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurs while submitting or processing the remote
+     *             request.
+     */
     public static int getNextEtn(String office, String phensig, boolean lockEtn)
             throws VizException {
-        int rval = 1;
-        GetNextEtnRequest req = new GetNextEtnRequest();
-        req.setSiteID(office);
-        req.setPhensig(phensig);
-        req.setLockEtn(lockEtn);
+        return getNextEtn(office, phensig, lockEtn, false);
+    }
+
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See {@link
+     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
+     *            String, Calendar, List<IRequestRouter>)} for more information.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurs while submitting or processing the remote
+     *             request.
+     */
+    public static int getNextEtn(String office, String phensig,
+            boolean lockEtn, boolean performISC) throws VizException {
         Calendar currentTime = Calendar.getInstance();
         currentTime.setTime(SimulatedTime.getSystemTime().getTime());
-        req.setCurrentTime(currentTime);
-        CAVEMode mode = CAVEMode.getMode();
-        if (mode.equals(CAVEMode.PRACTICE)) {
-            req.setMode(ActiveTableMode.PRACTICE);
-        } else {
-            req.setMode(ActiveTableMode.OPERATIONAL);
-        }
+        ActiveTableMode activeTable = (CAVEMode.getMode()
+                .equals(CAVEMode.PRACTICE)) ? ActiveTableMode.PRACTICE
+                : ActiveTableMode.OPERATIONAL;
+        GetNextEtnRequest req = new GetNextEtnRequest(office, activeTable,
+                phensig, currentTime, lockEtn, performISC);
 
+        int rval = 1;
         Integer resp = (Integer) ThriftClient.sendRequest(req);
         if (resp != null) {
             rval = resp;
