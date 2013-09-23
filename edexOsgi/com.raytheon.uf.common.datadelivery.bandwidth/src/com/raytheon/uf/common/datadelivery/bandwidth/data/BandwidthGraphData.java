@@ -20,13 +20,17 @@
 package com.raytheon.uf.common.datadelivery.bandwidth.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -43,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 25, 2012    1269    lvenable    Initial creation.
  * Dec 06, 2012    1397    djohnson    Add dynamic serialize class annotation.
  * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
+ * Sep 20, 2013   2397     bgonzale    Added Map of Bucket Descriptions.
  * 
  * </pre>
  * 
@@ -58,6 +63,10 @@ public class BandwidthGraphData {
     /** Subscription Name -> Subscription Priority */
     @DynamicSerializeElement
     private Map<String, SubscriptionPriority> priorityMap;
+
+    /** Network -> Bandwidth Bucket Descriptions */
+    @DynamicSerializeElement
+    private Map<Network, SortedSet<BandwidthBucketDescription>> networkBucketMap;
 
     /** Bin duration in minutes */
     @DynamicSerializeElement
@@ -114,6 +123,36 @@ public class BandwidthGraphData {
      */
     public void setPriorityMap(Map<String, SubscriptionPriority> priorityMap) {
         this.priorityMap = priorityMap;
+    }
+
+    /**
+     * @return the networkBucketMap
+     */
+    public Map<Network, SortedSet<BandwidthBucketDescription>> getNetworkBucketMap() {
+        return networkBucketMap;
+    }
+
+    /**
+     * @param networkBucketMap
+     *            the networkBucketMap to set
+     */
+    public void setNetworkBucketMap(
+            Map<Network, SortedSet<BandwidthBucketDescription>> networkBucketMap) {
+        /*
+         * Ensure bucket description set sorting. This is done like this because
+         * the thrift version we are using is recreating the SortedSet as a
+         * HashSet on deserialization and causing
+         * getNetworkBucketMap().get(Network) to throw
+         * "java.lang.ClassCastException: java.util.HashSet cannot be cast to java.util.SortedSet"
+         */
+        this.networkBucketMap = new HashMap<Network, SortedSet<BandwidthBucketDescription>>();
+        for (Entry<Network, SortedSet<BandwidthBucketDescription>> descEntry : networkBucketMap
+                .entrySet()) {
+            this.networkBucketMap.put(descEntry.getKey(),
+                    new TreeSet<BandwidthBucketDescription>(
+                            (Collection<BandwidthBucketDescription>) descEntry
+                            .getValue()));
+        }
     }
 
     /**
