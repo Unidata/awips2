@@ -23,9 +23,11 @@
   	</bean>  
 
 	<bean id="jms-warning" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsWarningConfig" />
 		<property name="taskExecutor" ref="warningThreadPool" />		
 	</bean>
+    <bean id="jmsWarningConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="warningThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="1" />
