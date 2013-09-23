@@ -65,6 +65,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2013  2391      mpduff      Initial creation
+ * Sept 22, 2013 2246      dhladky     Setup binoffset for time into +-5 min intervals
  * 
  * </pre>
  * 
@@ -109,7 +110,12 @@ public class DataDeliveryProductBrowserDataDefinition
     private final String[] GRID_ORDER = new String[] {
             GridInventory.MODEL_NAME_QUERY, GridInventory.PARAMETER_QUERY,
             GridInventory.MASTER_LEVEL_QUERY, GridInventory.LEVEL_ID_QUERY };
-
+    
+    /**
+     * Setup as 5 mins +- (60x5=300) from a reference time
+     */
+    private final int frameOffset = 300;
+    
     /**
      * Constructor.
      */
@@ -246,7 +252,7 @@ public class DataDeliveryProductBrowserDataDefinition
     public AbstractRequestableResourceData getResourceData() {
         if (selectedDataType.equalsIgnoreCase(DataType.POINT.name())) {
             resourceData = new PlotResourceData();
-            resourceData.setBinOffset(new BinOffset(900, 900));
+            resourceData.setBinOffset(new BinOffset(frameOffset, frameOffset));
             resourceData.setRetrieveData(false);
             resourceData.setUpdatingOnMetadataOnly(true);
             ((PlotResourceData) resourceData).setTopOfTheHour(false);
