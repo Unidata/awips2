@@ -8,11 +8,8 @@
 		<property name="maxPoolSize" value="1" />
 	</bean>
 
-	<bean id="jmsIngestVIIRSConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
-
 	<bean id="jms-viirs" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIngestVIIRSConfig" />
+        <constructor-arg ref="jmsDurableConfig" />
 		<property name="taskExecutor" ref="viirsThreadPool" />		
 	</bean>
 	
@@ -42,7 +39,7 @@
 
 		<!-- Begin VIIRS routes -->
 		<route id="viirsIngestRoute">
-			<from uri="jms-viirs:queue:Ingest.VIIRS?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-viirs:queue:Ingest.VIIRS"/>
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile" />

@@ -185,7 +185,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/26/2013  DR 16376    Qinglu Lin  Moved adjustVertex() and computeSlope() to PolygonUtil; removed calculateDistance();
  *                                     updated AreaHatcher's run().
  * 07/26/2013  DR 16450    D. Friedman Fix logic errors when frame count is one.
- * 09/04/2013  DR 16496    Qinglu Lin  Fixed CAN polygon editable issue occurred after swapping out and in.
+ * 09/17/2013  DR 16496    D. Friedman Make editable state more consistent.
  * </pre>
  * 
  * @author mschenke
@@ -197,9 +197,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getHandler(WarngenLayer.class);
 
     String uniqueFip = null;
-    private boolean polygonChanged = false;
-    private String equivalentString = "";
-    private Polygon savedWarningPolygon;
 
     private static class GeospatialDataList {
 
@@ -486,11 +483,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         public synchronized void hatchArea(Polygon warningPolygon,
                 Geometry warningArea, Polygon oldWarningPolygon) {
             synchronized (polygonUtil) {
-                savedWarningPolygon = warningPolygon;
-                if (warningAction != WarningAction.CON || 
-                        (warningAction == WarningAction.CON && getPolygonState())) {
-                    this.warningPolygon = warningPolygon;
-                }
+                this.warningPolygon = warningPolygon;
                 this.warningArea = warningArea;
                 this.oldWarningPolygon = oldWarningPolygon;
             }
@@ -2973,10 +2966,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 final boolean editable = isEditable();
                 boxEditable = editable;
                 displayState.editable = editable;
-                if (editable) {
-                    boxEditable = dialog.boxEditable();
-                    displayState.editable = dialog.trackEditable();
-                }
+                dialog.realizeEditableState();
                 final WarngenDialog dlg = dialog;
                 dialog.getDisplay().asyncExec(new Runnable() {
                     @Override
@@ -3096,29 +3086,5 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 uniqueFip = iter.next();
             }
         }
-    }
-
-    public WarningAction getWarningAction() {
-        return warningAction;
-    }
-    
-    public void setPolygonState(boolean b) {
-        polygonChanged = b;
-    }
-
-    public boolean getPolygonState() {
-        return polygonChanged;
-    }
-
-    public void setEquivalentString(String s) {
-        equivalentString = s;
-    }
-
-    public String getEquivalentString() {
-        return equivalentString;
-    }
-
-    public void assignSavedWarningPolygon() {
-        this.areaHatcher.warningPolygon = savedWarningPolygon;
     }
 }
