@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthBucketDescription;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -57,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * Jan 25, 2013 1528       djohnson     Subscription priority is now an enum.
  * Jun 24, 2013 2106       djohnson     Access bucket allocations through RetrievalPlan.
  * Jul 11, 2013 2106       djohnson     Use priority straight from the BandwidthSubscription.
+ * Sep 20, 2013 2397       bgonzale     Add Map of Bucket Descriptions to BandwidthGraphData.
  * 
  * </pre>
  * 
@@ -103,6 +107,7 @@ class BandwidthGraphDataAdapter {
                 .create();
         Multimap<String, SubscriptionRetrieval> subNameToRetrievals = ArrayListMultimap
                 .create();
+        Map<Network, SortedSet<BandwidthBucketDescription>> networkBucketMap = new HashMap<Network, SortedSet<BandwidthBucketDescription>>();
 
         Collection<RetrievalPlan> retrievalPlans = retrievalManager
                 .getRetrievalPlans().values();
@@ -113,6 +118,8 @@ class BandwidthGraphDataAdapter {
                     .getBucketsInWindow(TimeUtil.currentTimeMillis(),
                             Long.MAX_VALUE);
 
+            networkBucketMap.put(retrievalPlan.getNetwork(),
+                    toDescriptions(bandwidthBuckets));
             // Add all subscription retrievals to a collection keyed by sub
             // name, and associate all of the bandwidth reservations with their
             // associated retrievals
@@ -170,8 +177,24 @@ class BandwidthGraphDataAdapter {
 
         bandwidthGraphData.setDataMap(dataMap);
         bandwidthGraphData.setPriorityMap(priorityMap);
+        bandwidthGraphData.setNetworkBucketMap(networkBucketMap);
 
         return bandwidthGraphData;
+    }
+
+    /*
+     * Return BandwithBucketDescription objects for the given BandwidthBuckets.
+     */
+    private SortedSet<BandwidthBucketDescription> toDescriptions(
+            SortedSet<BandwidthBucket> bandwidthBuckets) {
+        SortedSet<BandwidthBucketDescription> descriptions = new TreeSet<BandwidthBucketDescription>();
+        for (BandwidthBucket bucket : bandwidthBuckets) {
+            BandwidthBucketDescription desc = new BandwidthBucketDescription(
+                    bucket.getNetwork(), bucket.getBucketSize(),
+                    bucket.getCurrentSize(), bucket.getBucketStartTime());
+            descriptions.add(desc);
+        }
+        return descriptions;
     }
 
 }
