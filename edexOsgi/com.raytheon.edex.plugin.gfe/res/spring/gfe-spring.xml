@@ -5,9 +5,11 @@
   	
   	<bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue"/>
   	<bean id="jms-smartinit" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsSmartInitConfig" />
 		<property name="taskExecutor" ref="smartInitThreadPool" />		
 	</bean>
+    <bean id="jmsSmartInitConfig" class="org.apache.camel.component.jms.JmsConfiguration" factory-bean="jmsDurableConfig"
+        factory-method="copy"/>
 	<bean id="smartInitThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${smartinit.threadpoolsize}" />
