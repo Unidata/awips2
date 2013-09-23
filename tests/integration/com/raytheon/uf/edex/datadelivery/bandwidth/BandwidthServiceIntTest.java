@@ -42,6 +42,7 @@ import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.WfoBandwidthService;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthBucketDescription;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
@@ -59,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -529,10 +531,18 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
         service.schedule(subscription2);
 
         BandwidthGraphData graphData = service.getBandwidthGraphData();
+        RetrievalPlan opsnetPlan = retrievalManager.getPlan(Network.OPSNET);
 
         assertEquals("Incorrect number of subscriptions returned!",
-                retrievalManager.getPlan(Network.OPSNET).getBucketMinutes(),
+                opsnetPlan.getBucketMinutes(),
                 graphData.getBinTimeInMinutes());
+        SortedSet<BandwidthBucketDescription> descs = graphData
+                .getNetworkBucketMap().get(Network.OPSNET);
+        long earliestTime = descs.first().getBucketStartTime();
+        long latestTime = descs.last().getBucketStartTime();
+        assertEquals("Incorrect number of buckets returned", opsnetPlan
+                .getBucketsInWindow(earliestTime, latestTime).size(),
+                descs.size());
     }
 
     @Test
