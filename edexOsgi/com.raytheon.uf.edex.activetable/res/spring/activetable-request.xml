@@ -69,6 +69,18 @@
   	  <constructor-arg ref="ingestATHandler"/>
     </bean>
     
+    <bean id="lockAndGetEtnHandler" class="com.raytheon.uf.edex.activetable.handler.LockAndGetNextEtnHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.request.LockAndGetNextEtnRequest"/>
+  	  <constructor-arg ref="lockAndGetEtnHandler"/>
+    </bean>
+    
+    <bean id="setAndUnlockEtnHandler" class="com.raytheon.uf.edex.activetable.handler.UnlockActiveTablePhenSigHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.request.UnlockAndSetNextEtnRequest"/>
+  	  <constructor-arg ref="setAndUnlockEtnHandler"/>
+    </bean>
+    
     <bean id="fetchATSrv" class="com.raytheon.uf.edex.activetable.vtecsharing.FetchActiveTableSrv"/>
     <camelContext id="activeTableSharingRoutes"
 		xmlns="http://camel.apache.org/schema/spring"
