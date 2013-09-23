@@ -9,7 +9,7 @@
 		<constructor-arg ref="jmsGribConfig" />
 		<property name="taskExecutor" ref="gribThreadPool" />
 	</bean>
-    <bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+    <bean id="jmsGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
             factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="gribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
