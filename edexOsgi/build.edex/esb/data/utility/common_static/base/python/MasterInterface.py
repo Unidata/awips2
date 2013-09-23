@@ -140,10 +140,14 @@ class MasterInterface(object):
     
     def reloadModule(self, moduleName):
         if sys.modules.has_key(moduleName):
-            # because the user might have added or removed items 
-            # from the module's dictionary, we cannot trust reload() here.
-            sys.modules.__delitem__(moduleName)
-        __import__(moduleName)
-            
-
-        
+            # Because the user might have removed items
+            # from the module's dictionary, we cannot trust reload() to
+            # remove old items. We will manually remove everything
+            # but built-ins to ensure everything gets re-initialized when
+            # reload() is called.
+            mod = sys.modules[moduleName]
+            modGlobalsToRemove = [k for k in mod.__dict__ if not k.startswith('_')]
+            for k in modGlobalsToRemove:
+                mod.__dict__.pop(k)
+            reload(mod)
+ 
