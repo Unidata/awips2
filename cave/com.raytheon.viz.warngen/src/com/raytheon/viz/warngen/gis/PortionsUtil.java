@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2013  2177       jsanchez     Initial creation
+ * Sep 22, 2013 2177       jsanchez     Updated logic.
  * 
  * </pre>
  * 
@@ -71,9 +72,16 @@ public class PortionsUtil {
         countyOrZone.getUserData();
         EntityData entityData = gridUtil.calculateGrids(countyOrZone,
                 warnedArea);
-        EnumSet<Direction> portions = getAreaDesc(entityData.getMeanMask(),
-                entityData.getCoverageMask(), entityData.getOctants(),
-                useExtreme);
+        EnumSet<Direction> portions = null;
+        if (warnedArea.getArea() < countyOrZone.getArea() * .01) {
+            // this is for the case when only a "sliver" of the county or zone
+            // is warned
+            portions = getPointDesc(entityData.getMeanMask(), true);
+        } else {
+            portions = getAreaDesc(entityData.getMeanMask(),
+                    entityData.getCoverageMask(), entityData.getOctants(),
+                    useExtreme);
+        }
         return suppressPortions(entityID, portions);
     }
 
@@ -127,6 +135,7 @@ public class PortionsUtil {
         // }
 
         // Test for central by not being near adjacent borders.
+        // Another possible case of a stripe across the middle.
         if (octants == 0
                 || ((octants & CoverageConstants.EXTREME_YES) == 0)
                 && (meanMask & CoverageConstants.CENTER) == CoverageConstants.CENTER) {
@@ -144,28 +153,28 @@ public class PortionsUtil {
         int nn, ss, ee, ww, ne, nw, se, sw;
         nn = ss = ee = ww = ne = nw = se = sw = 0;
         int omerge = xxoctant | xoctant | octants;
-        if ((omerge & (CoverageConstants.NNE | CoverageConstants.ENE)) > 0) {
+        if ((omerge & (CoverageConstants.NNE | CoverageConstants.ENE)) != 0) {
             ne = 1;
         }
-        if ((omerge & (CoverageConstants.SSE | CoverageConstants.ESE)) > 0) {
+        if ((omerge & (CoverageConstants.SSE | CoverageConstants.ESE)) != 0) {
             se = 1;
         }
-        if ((omerge & (CoverageConstants.NNW | CoverageConstants.WNW)) > 0) {
+        if ((omerge & (CoverageConstants.NNW | CoverageConstants.WNW)) != 0) {
             nw = 1;
         }
-        if ((omerge & (CoverageConstants.SSW | CoverageConstants.WSW)) > 0) {
+        if ((omerge & (CoverageConstants.SSW | CoverageConstants.WSW)) != 0) {
             sw = 1;
         }
-        if ((omerge & (CoverageConstants.NNE | CoverageConstants.NNW)) > 0) {
+        if ((omerge & (CoverageConstants.NNE | CoverageConstants.NNW)) != 0) {
             nn = 1;
         }
-        if ((omerge & (CoverageConstants.SSE | CoverageConstants.SSW)) > 0) {
+        if ((omerge & (CoverageConstants.SSE | CoverageConstants.SSW)) != 0) {
             ss = 1;
         }
-        if ((omerge & (CoverageConstants.WNW | CoverageConstants.WSW)) > 0) {
+        if ((omerge & (CoverageConstants.WNW | CoverageConstants.WSW)) != 0) {
             ww = 1;
         }
-        if ((omerge & (CoverageConstants.ENE | CoverageConstants.ESE)) > 0) {
+        if ((omerge & (CoverageConstants.ENE | CoverageConstants.ESE)) != 0) {
             ee = 1;
         }
         if ((areaMask & CoverageConstants.NORTH_SOUTH) == 0) {
@@ -180,23 +189,23 @@ public class PortionsUtil {
         // Identify extremes in use.
         int nnx, ssx, eex, wwx;
         nnx = ssx = eex = wwx = 0;
-        if ((areaMask & CoverageConstants.XNORTH) > 0) {
+        if ((areaMask & CoverageConstants.XNORTH) != 0) {
             nnx = 1;
         }
-        if ((areaMask & CoverageConstants.XSOUTH) > 0) {
+        if ((areaMask & CoverageConstants.XSOUTH) != 0) {
             ssx = 1;
         }
-        if ((areaMask & CoverageConstants.XWEST) > 0) {
+        if ((areaMask & CoverageConstants.XWEST) != 0) {
             wwx = 1;
         }
-        if ((areaMask & CoverageConstants.XEAST) > 0) {
+        if ((areaMask & CoverageConstants.XEAST) != 0) {
             eex = 1;
         }
         int xxx = nnx + ssx + eex + wwx;
 
         // Modify masks based on whether we can use extreme.
-        if ((octants & CoverageConstants.EXTREME_NO) > 0
-                && (areaMask & CoverageConstants.EXTREME) > 0) {
+        if ((octants & CoverageConstants.EXTREME_NO) != 0
+                && (areaMask & CoverageConstants.EXTREME) != 0) {
             areaMask &= CoverageConstants.NOT_EXTREME;
             meanMask &= CoverageConstants.NOT_EXTREME;
         }
@@ -220,12 +229,6 @@ public class PortionsUtil {
             meanMask &= CoverageConstants.NOT_CENTRAL;
         }
 
-        // Another possible case of a stripe across the middle.
-        if (q == 4 && (meanMask & CoverageConstants.CENTER) > 0) {
-            portions.add(Direction.CENTRAL);
-            return portions;
-        }
-
         // All quadrants in use.
         if (q == 4 && qq == 4) {
             return EnumSet.noneOf(Direction.class);
@@ -233,20 +236,6 @@ public class PortionsUtil {
 
         // Only one typical quadrant in use.
         if (q == 1) {
-            // if (ne == 1) {
-            // portions.add(Direction.NORTH);
-            // portions.add(Direction.EAST);
-            // } else if (nw == 1) {
-            // portions.add(Direction.NORTH);
-            // portions.add(Direction.WEST);
-            // } else if (se == 1) {
-            // portions.add(Direction.SOUTH);
-            // portions.add(Direction.EAST);
-            // } else if (sw == 1) {
-            // portions.add(Direction.SOUTH);
-            // portions.add(Direction.WEST);
-            // }
-            // return portions;
             return getPointDesc2(meanMask, exYes, nn, ss, ee, ww);
         }
 
@@ -259,7 +248,7 @@ public class PortionsUtil {
         // No more than two quadrants of any kind in use, or all quadrants.
         if (q < 3 && qq < 3) {
             if (nnx != ssx && wwx != eex
-                    || (meanMask & CoverageConstants.CENTRAL) > 0) {
+                    || (meanMask & CoverageConstants.CENTRAL) != 0) {
                 return getPointDesc2(meanMask, exYes, nn, ss, ee, ww);
 
             } else {
@@ -273,28 +262,28 @@ public class PortionsUtil {
             if (ne == 0) {
                 // The next line is the original port of A1 code but prevented
                 // producing the correct result:
-                // if (ne == 0 && (xxoctant & (SSW | WSW)) > 0) {
+                // if (ne == 0 && (xxoctant & (SSW | WSW)) != 0) {
                 portions.add(Direction.SOUTH);
                 portions.add(Direction.WEST);
 
             } else if (se == 0) {
                 // The next line is the original port of A1 code but prevented
                 // producing the correct result:
-                // } else if (se == 0 && (xxoctant & (NNW | WNW)) > 0) {
+                // } else if (se == 0 && (xxoctant & (NNW | WNW)) != 0) {
                 portions.add(Direction.NORTH);
                 portions.add(Direction.WEST);
 
             } else if (nw == 0) {
                 // The next line is the original port of A1 code but prevented
                 // producing the correct result:
-                // } else if (nw == 0 && (xxoctant & (SSE | ESE)) > 0) {
+                // } else if (nw == 0 && (xxoctant & (SSE | ESE)) != 0) {
                 portions.add(Direction.SOUTH);
                 portions.add(Direction.EAST);
 
             } else if (sw == 0) {
                 // The next line is the original port of A1 code but prevented
                 // producing the correct result:
-                // } else if (sw == 0 && (xxoctant & (NNE | ENE)) > 0) {
+                // } else if (sw == 0 && (xxoctant & (NNE | ENE)) != 0) {
                 portions.add(Direction.NORTH);
                 portions.add(Direction.EAST);
             }
@@ -318,7 +307,7 @@ public class PortionsUtil {
 
         // add extreme for three quadrant case.
         if (!portions.isEmpty()) {
-            if (exYes && ((areaMask & CoverageConstants.EXTREME)) > 0) {
+            if (exYes && ((areaMask & CoverageConstants.EXTREME)) != 0) {
                 portions.add(Direction.EXTREME);
             }
             return portions;
@@ -334,25 +323,25 @@ public class PortionsUtil {
         ss = areaMask & CoverageConstants.SOUTHERN;
         ee = areaMask & CoverageConstants.EASTERN;
         ww = areaMask & CoverageConstants.WESTERN;
-        if (ss > 0 && nn > 0 || q == 0) {
-            if (ee == 0 && ww > 0) {
+        if (ss != 0 && nn != 0 || q == 0) {
+            if (ee == 0 && ww != 0) {
                 portions.add(Direction.WEST);
             }
-            if (ww == 0 && ee > 0) {
+            if (ww == 0 && ee != 0) {
                 portions.add(Direction.EAST);
             }
-        } else if (ee > 0 && ww > 0 || q == 0) {
-            if (nn == 0 && ss > 0) {
+        } else if (ee != 0 && ww != 0 || q == 0) {
+            if (nn == 0 && ss != 0) {
                 portions.add(Direction.SOUTH);
             }
-            if (ss == 0 && nn > 0) {
+            if (ss == 0 && nn != 0) {
                 portions.add(Direction.NORTH);
             }
         }
 
         // add extreme for simple direction case.
         if (!portions.isEmpty()) {
-            if (exYes && ((areaMask & CoverageConstants.EXTREME)) > 0) {
+            if (exYes && ((areaMask & CoverageConstants.EXTREME)) != 0) {
                 portions.add(Direction.EXTREME);
             }
             return portions;
@@ -372,9 +361,6 @@ public class PortionsUtil {
     private static EnumSet<Direction> getPointDesc(int mask, boolean exYes) {
         EnumSet<Direction> portions = EnumSet.noneOf(Direction.class);
 
-        if (mask == 0) {
-            return portions;
-        }
 
         int cc = mask & CoverageConstants.CENTRAL;
         if (cc == CoverageConstants.CENTRAL) {
@@ -406,7 +392,7 @@ public class PortionsUtil {
             portions.add(Direction.CENTRAL);
         }
 
-        if (exYes && ((int) (mask & CoverageConstants.EXTREME) > 0)) {
+        if (exYes && ((int) (mask & CoverageConstants.EXTREME) != 0)) {
             portions.add(Direction.EXTREME);
         }
 
@@ -432,22 +418,22 @@ public class PortionsUtil {
         }
 
         int counter = 0;
-        if (nn > 0 && ss > 0) {
+        if (nn != 0 && ss != 0) {
             ;
-        } else if (ss > 0) {
+        } else if (ss != 0) {
             portions.add(Direction.SOUTH);
             counter++;
-        } else if (nn > 0) {
+        } else if (nn != 0) {
             portions.add(Direction.NORTH);
             counter++;
         }
 
-        if (ee > 0 && ww > 0) {
+        if (ee != 0 && ww != 0) {
             ;
-        } else if (ww > 0) {
+        } else if (ww != 0) {
             portions.add(Direction.WEST);
             counter++;
-        } else if (ee > 0) {
+        } else if (ee != 0) {
             portions.add(Direction.EAST);
             counter++;
         }
@@ -462,7 +448,7 @@ public class PortionsUtil {
             portions.add(Direction.CENTRAL);
         }
 
-        if (exYes && ((int) (mask & CoverageConstants.EXTREME) > 0)) {
+        if (exYes && ((int) (mask & CoverageConstants.EXTREME) != 0)) {
             portions.add(Direction.EXTREME);
         }
 
