@@ -116,6 +116,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     reuse.
  * Jun 11, 2013 2092       bclement    Added purge results
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sept23, 2013 2399       dhladky     Changed logging of duplicate records.
+ * 
  * 
  * </pre>
  * 
@@ -209,9 +211,15 @@ public abstract class PluginDao extends CoreDao {
             toPersist.add(record);
         }
         List<PluginDataObject> duplicates = mergeAll(toPersist);
-        for (PluginDataObject pdo : duplicates) {
-            logger.info("Discarding duplicate: " + ((pdo)).getDataURI());
-            toPersist.remove(pdo);
+        toPersist.removeAll(duplicates);
+        
+        if (!duplicates.isEmpty()) {
+            logger.info("Discarded : " + duplicates.size() + " duplicates!");
+            if (logger.isDebugEnabled()) {
+                for (PluginDataObject pdo : duplicates) {
+                    logger.debug("Discarding duplicate: " + ((pdo)).getDataURI());
+                }
+            }
         }
         return toPersist.toArray(new PluginDataObject[toPersist.size()]);
     }
