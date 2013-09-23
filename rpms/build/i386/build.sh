@@ -350,7 +350,7 @@ if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
   # buildRPM "awips2-rcm"
-  # buildRPM "awips2-hydroapps-shared"
+   buildRPM "awips2-hydroapps-shared"
   # buildRPM "awips2-notification"
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -364,7 +364,7 @@ fi
 if [ "${1}" = "-edex" ]; then
    #buildRPM "awips2"
    #buildRPM "awips2-common-base"
- #  buildRPM "awips2-adapt-native"
+   buildRPM "awips2-adapt-native"
    #buildRPM "awips2-python-qpid"
  # buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
@@ -378,6 +378,16 @@ if [ "${1}" = "-edex" ]; then
 
    exit 0
 fi
+
+if [ "${1}" = "-localization" ]; then
+   buildLocalizationRPMs
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
 
 if [ "${1}" = "-qpid" ]; then
    buildQPID
