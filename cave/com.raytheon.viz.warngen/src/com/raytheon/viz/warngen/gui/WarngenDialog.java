@@ -144,7 +144,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 16, 2013 DR 16387    Qinglu Lin  Reset totalSegments for each followup product.
  *  Jul 29, 2013 DR 16352    D. Friedman Move 'result' to okPressed().
  *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
- *  Sep  4, 2013 DR 16496    Qinglu Lin  Fixed warning area expandable issue occurred after re-clicking on CON option.
+ *  Sep 17, 2013 DR 16496    D. Friedman Make editable state more consistent.
  * </pre>
  * 
  * @author chammack
@@ -1322,11 +1322,9 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Box was selected, allow editing of box only
      */
     private void boxSelected() {
-        boxEditable = !polygonLocked;
-        trackEditable = true;
-        warngenLayer.getStormTrackState().editable = trackEditable;
-        warngenLayer.setBoxEditable(boxEditable);
-        warngenLayer.issueRefresh();
+        boxEditable = true;
+        trackEditable = false;
+        realizeEditableState();
     }
 
     /**
@@ -1335,20 +1333,16 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void trackSelected() {
         boxEditable = false;
         trackEditable = true;
-        warngenLayer.getStormTrackState().editable = trackEditable;
-        warngenLayer.setBoxEditable(boxEditable);
-        warngenLayer.issueRefresh();
+        realizeEditableState();
     }
 
     /**
      * Box and track was selected, allow editing of both
      */
     private void boxAndTrackSelected() {
-        boxEditable = !polygonLocked;
+        boxEditable = true;
         trackEditable = true;
-        warngenLayer.getStormTrackState().editable = trackEditable;
-        warngenLayer.setBoxEditable(boxEditable);
-        warngenLayer.issueRefresh();
+        realizeEditableState();
     }
 
     /**
@@ -1432,8 +1426,6 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Redraw everything based on warned area
      */
     private void redrawFromWarned() {
-        warngenLayer.assignSavedWarningPolygon();
-        warngenLayer.setPolygonState(false);
         try {
             warngenLayer.redrawBoxFromHatched();
         } catch (VizException e) {
@@ -1459,11 +1451,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         if (templateName.equals(warngenLayer.getTemplateName())) {
             return;
         }
-
-        warngenLayer.setEquivalentString("");
-        warngenLayer.setPolygonState(false);
-        warngenLayer.setBoxEditable(true);
-        warngenLayer.setWarningAction(WarningAction.valueOf(""));
 
         String lastAreaSource = warngenLayer.getConfiguration()
                 .getHatchedAreaSource().getAreaSource();
@@ -1610,24 +1597,11 @@ public class WarngenDialog extends CaveSWTDialog implements
      * item from update list selected
      */
     public void updateListSelected() {
-        FollowupData data = null;
-        if (updateListCbo != null) {
-            data = (FollowupData) updateListCbo.getData(updateListCbo
-                    .getItem(updateListCbo.getSelectionIndex()));
-            if (data != null) {
-                String s = data.getEquvialentString();
-                if (!s.equals(warngenLayer.getEquivalentString())) {
-                    warngenLayer.setEquivalentString(s);
-                    warngenLayer.setPolygonState(false);
-                }
-            }
-        }
-        if (warngenLayer.getPolygonState()) {
-            return;
-        }
         if (updateListCbo.getSelectionIndex() >= 0) {
-            warngenLayer.setOldWarningPolygon(null);
             AbstractWarningRecord oldWarning = null;
+            FollowupData data = (FollowupData) updateListCbo
+                    .getData(updateListCbo.getItem(updateListCbo
+                            .getSelectionIndex()));
             Mode currMode = warngenLayer.getStormTrackState().mode;
             if (data != null) {
                 // does not refesh if user selected already highlighted option
@@ -1642,12 +1616,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                                     .getEquvialentString());
                         }
                         return;
-                    } else {
-                        warngenLayer.setPolygonState(false);
                     }
                 }
             } else {
-                warngenLayer.setOldWarningPolygon(null);
                 if (warngenLayer.state.followupData != null) {
                     // Sets the updatelist with the last selected vtec option
                     for (int i = 0; i < updateListCbo.getItemCount(); i++) {
@@ -1666,7 +1637,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                     return;
                 }
             }
-            warngenLayer.setOldWarningPolygon(null);
             if (currMode == Mode.DRAG_ME) {
                 warngenLayer.setLastMode(Mode.TRACK);
                 warngenLayer.getStormTrackState().mode = Mode.TRACK;
@@ -1677,20 +1647,12 @@ public class WarngenDialog extends CaveSWTDialog implements
                 return;
             }
 
+            warngenLayer.setOldWarningPolygon(null);
             bulletList.setEnabled(true);
             durationList.setEnabled(true);
             totalSegments = 0;
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
-
-            if (warngenLayer.isBoxEditable()) {
-                if (action == WarningAction.CAN || action == WarningAction.COR
-                        || action == WarningAction.EXT
-                        || action == WarningAction.EXP) {
-                    warngenLayer.setPolygonState(false);
-                }
-            }
-
             warngenLayer.setWarningAction(action);
             if (action == WarningAction.CON) {
                 oldWarning = conSelected(data);
@@ -2229,11 +2191,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                 shell.moveAbove(getParent());
             }
         }
-        String action = warngenLayer.getEquivalentString();
-        if (action.contains("CAN-") || action.contains("COR-")
-                || action.contains("EXT-") || action.contains("EXP-")) {
-            warngenLayer.setBoxEditable(false);
-        }
     }
 
     private void otherSelected() {
@@ -2482,6 +2439,14 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
         }
+    }
+
+    public void realizeEditableState() {
+        boolean layerEditable = warngenLayer.isEditable();
+        // TODO: Note there is no 'is track editing allowed' state yet.
+        warngenLayer.getStormTrackState().editable = layerEditable && trackEditable;
+        warngenLayer.setBoxEditable(layerEditable && boxEditable && !polygonLocked);
+        warngenLayer.issueRefresh();
     }
 
 }
