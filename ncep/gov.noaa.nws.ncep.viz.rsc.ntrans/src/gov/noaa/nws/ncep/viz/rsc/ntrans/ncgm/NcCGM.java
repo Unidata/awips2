@@ -113,6 +113,10 @@ public class NcCGM extends CGM implements Cloneable {
 			
 			if (c == null) continue; // or should we add as null command?
 			
+			if (c instanceof NcLineWidth || c instanceof NcTextAlignment) {
+			    logger.info("[CGM command #" + com + " completed]  " + c.toString());
+			}
+			
 			logger.debug("[CGM command #" + com + " completed]  " + c.toString());
 
 			for (ICommandListener listener : this.commandListeners) {
