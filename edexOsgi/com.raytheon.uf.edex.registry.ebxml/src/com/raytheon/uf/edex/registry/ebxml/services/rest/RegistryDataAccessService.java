@@ -19,16 +19,23 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
+import java.io.File;
 import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.RemoveObjectsRequest;
+import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -51,6 +59,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
+ * 9/20/2013    2385        bphillip    Added subscription backup functions
  * </pre>
  * 
  * @author bphillip
@@ -63,12 +72,24 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryDataAccessService.class);
 
+    private static final File SUBSCRIPTION_BACKUP_DIR = new File(
+            System.getProperty("edex.home")
+                    + "/data/registrySubscriptionBackup");
+
+    private static final String GET_SUBSCRIPTIONS_QUERY = "FROM RegistryObjectType obj where lower(obj.objectType) like '%subscription%' order by obj.id asc";
+
     /** Data access object for registry objects */
     private RegistryObjectDao registryObjectDao;
 
     /** Lifecyclemanager */
     private LifecycleManager lcm;
 
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .getRegistryObjectIdsOfType(String)
+     */
+    @Override
     @GET
     @Path("/rest/dataAccess/getRegistryObjectIds/{objectType}")
     public RestCollectionResponse<String> getRegistryObjectIdsOfType(
@@ -81,6 +102,12 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
         return response;
     }
 
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .removeSubscriptionsForSite(String)
+     */
+    @Override
     @GET
     @Path("/rest/dataAccess/removeSubscriptionsFor/{siteId}")
     public void removeSubscriptionsForSite(@PathParam("siteId") String siteId) {
@@ -110,6 +137,224 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
                         "Error removing subscriptions for site " + siteId, e);
             }
         }
+    }
+
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .getSubscriptions()
+     */
+    @Override
+    @GET
+    @Path("/rest/dataAccess/getSubscriptions")
+    public String getSubscriptions() {
+        String[] slotNames = new String[] { "name", "owner", "dataSetName",
+                "provider", "dataSetType", "route", "active", "groupName",
+                "valid", "fullDataSet" };
+
+        StringBuilder response = new StringBuilder();
+        response.append("<table border=\"1\" style=\"border-style:solid; border-width:thin\"> ");
+        response.append("<tr>");
+        response.append("<th>ID</th>");
+        for (String slotName : slotNames) {
+            response.append("<th>").append(slotName).append("</th>");
+        }
+        response.append("</tr>");
+
+        List<RegistryObjectType> subs = registryObjectDao
+                .executeHQLQuery(GET_SUBSCRIPTIONS_QUERY);
+        for (RegistryObjectType obj : subs) {
+            String[] values = new String[slotNames.length + 1];
+            values[0] = obj.getId();
+            for (int i = 0; i < slotNames.length; i++) {
+                values[i + 1] = String.valueOf(obj.getSlotValue(slotNames[i]));
+            }
+            response.append("<tr>");
+            for (String val : values) {
+                response.append("<td>").append(val).append("</td>");
+            }
+            response.append("</tr>");
+        }
+        response.append("</table>");
+        return response.toString();
+    }
+
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .backupSubscription(String)
+     */
+    @Override
+    @GET
+    @Path("/rest/dataAccess/backupSubscription/{subscriptionName}")
+    public String backupSubscription(
+            @PathParam("subscriptionName") String subscriptionName)
+            throws JAXBException {
+        StringBuilder response = new StringBuilder();
+        RegistryObjectType sub = registryObjectDao.getById(subscriptionName);
+
+        if (sub == null) {
+            response.append("Subscription with ID [").append(subscriptionName)
+                    .append("] not found in registry");
+        } else {
+            if (!SUBSCRIPTION_BACKUP_DIR.exists()) {
+                SUBSCRIPTION_BACKUP_DIR.mkdirs();
+            }
+            JAXBManager jaxb = new JAXBManager(SubmitObjectsRequest.class);
+            String subId = sub.getId();
+            File backupFile = new File(SUBSCRIPTION_BACKUP_DIR.getPath()
+                    + File.separator + subId);
+            SubmitObjectsRequest submitObjectsRequest = new SubmitObjectsRequest();
+            submitObjectsRequest.setCheckReferences(false);
+            submitObjectsRequest
+                    .setComment("Restoring backed up subscriptions");
+            submitObjectsRequest.setId("Restore subscription [" + subId + "]");
+            submitObjectsRequest.setMode(Mode.CREATE_OR_REPLACE);
+            submitObjectsRequest
+                    .setRegistryObjectList(new RegistryObjectListType());
+            submitObjectsRequest.getRegistryObjects().add(sub);
+
+            try {
+                jaxb.getJaxbContext().createMarshaller()
+                        .marshal(submitObjectsRequest, backupFile);
+            } catch (JAXBException e) {
+                statusHandler.error("Error backing up subscription [" + subId
+                        + "]", e);
+                response.append("Error backing up subscription [")
+                        .append(subId).append("]<br>");
+            }
+            response.append("Subscription [").append(subId)
+                    .append("] successfully backed up to [")
+                    .append(backupFile.getPath()).append("]<br>");
+        }
+        return response.toString();
+    }
+
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .backupAllSubscriptions()
+     */
+    @Override
+    @GET
+    @Path("/rest/dataAccess/backupAllSubscriptions/")
+    public String backupAllSubscriptions() throws JAXBException {
+        StringBuilder response = new StringBuilder();
+        List<RegistryObjectType> subs = registryObjectDao
+                .executeHQLQuery(GET_SUBSCRIPTIONS_QUERY);
+        if (subs.isEmpty()) {
+            response.append("No subscriptions present to backup!");
+        } else {
+            for (RegistryObjectType sub : subs) {
+                response.append(backupSubscription(sub.getId()));
+            }
+        }
+        return response.toString();
+    }
+
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .restoreSubscription(String)
+     */
+    @Override
+    @GET
+    @Path("/rest/dataAccess/restoreSubscription/{subscriptionName}")
+    public String restoreSubscription(
+            @PathParam("subscriptionName") String subscriptionName)
+            throws JAXBException {
+        StringBuilder response = new StringBuilder();
+        File subscriptionFile = new File(SUBSCRIPTION_BACKUP_DIR
+                + File.separator + subscriptionName);
+        if (subscriptionFile.exists()) {
+            JAXBManager jaxb = new JAXBManager(SubmitObjectsRequest.class);
+            SubmitObjectsRequest submitRequest = (SubmitObjectsRequest) jaxb
+                    .getJaxbContext().createUnmarshaller()
+                    .unmarshal(subscriptionFile);
+            try {
+                lcm.submitObjects(submitRequest);
+            } catch (MsgRegistryException e) {
+                response.append("Error restoring subscription from file [")
+                        .append(subscriptionFile).append("] ")
+                        .append(e.getMessage()).append("<br>");
+                statusHandler.error("Error restoring subscription from file ["
+                        + subscriptionFile + "]", e);
+                return response.toString();
+            }
+            subscriptionFile.delete();
+            response.append("Subscription successfully restored from file [")
+                    .append(subscriptionFile).append("]<br>");
+        } else {
+            response.append("No backup file exists for subscription[")
+                    .append(subscriptionName).append("]<br>");
+        }
+
+        return response.toString();
+    }
+
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .restoreSubscriptions()
+     */
+    @Override
+    @GET
+    @Path("/rest/dataAccess/restoreSubscriptions/")
+    public String restoreSubscriptions() {
+        StringBuilder response = new StringBuilder();
+        if (SUBSCRIPTION_BACKUP_DIR.exists()) {
+            File[] filesToRestore = SUBSCRIPTION_BACKUP_DIR.listFiles();
+            if (filesToRestore.length == 0) {
+                response.append("No subscriptions found to restore<br>");
+            } else {
+                for (File subscription : filesToRestore) {
+
+                    try {
+                        response.append(restoreSubscription(subscription
+                                .getName()));
+                    } catch (JAXBException e) {
+                        statusHandler.error("Error restoring subscription ["
+                                + subscription + "]", e);
+                        response.append("Error restoring subscription [")
+                                .append(subscription).append("] ")
+                                .append(e.getMessage()).append("<br>");
+                        continue;
+                    }
+                }
+            }
+        } else {
+            response.append("No subscriptions found to restore<br>");
+        }
+        return response.toString();
+    }
+
+    /**
+     * @see 
+     *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
+     *      .clearSubscriptionBackupFiles()
+     */
+    @GET
+    @Path("/rest/dataAccess/clearSubscriptionBackupFiles/")
+    public String clearSubscriptionBackupFiles() {
+        StringBuilder response = new StringBuilder();
+        if (SUBSCRIPTION_BACKUP_DIR.exists()) {
+            File[] filesToDelete = SUBSCRIPTION_BACKUP_DIR.listFiles();
+            if (filesToDelete.length == 0) {
+                response.append("No backup files to delete");
+            }
+            for (File file : filesToDelete) {
+                if (file.delete()) {
+                    response.append("Deleted backup file [")
+                            .append(file.getPath()).append("]<br>");
+                } else {
+                    response.append("Error deleting backup file [")
+                            .append(file.getPath()).append("]<br>");
+                }
+            }
+        } else {
+            response.append("No backup files to delete");
+        }
+        return response.toString();
     }
 
     public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
