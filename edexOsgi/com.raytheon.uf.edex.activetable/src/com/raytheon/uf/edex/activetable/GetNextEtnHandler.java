@@ -42,9 +42,10 @@ public class GetNextEtnHandler implements IRequestHandler<GetNextEtnRequest> {
 
     @Override
     public Integer handleRequest(GetNextEtnRequest request) throws Exception {
-        Integer nextEtn = ActiveTable.getNextEtn(request.getSiteID(),
+        Integer nextEtn = GetNextEtnUtil.getNextEtn(request.getSiteID(),
                 request.getMode(), request.getPhensig(),
-                request.getCurrentTime(), request.isLockEtn());
+                request.getCurrentTime(), request.isLockEtn(),
+                request.isPerformISC());
         return nextEtn;
     }
 
