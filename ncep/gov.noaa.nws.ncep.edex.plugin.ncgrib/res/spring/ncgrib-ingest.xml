@@ -17,9 +17,11 @@
   	</bean>
   	
   	<bean id="ingest-ncgrib" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsNcgribConfig" />
 		<property name="taskExecutor" ref="ncgribThreadPool" />		
 	</bean>
+    <bean id="jmsNcgribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="ncgribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" ref="ncgribDecodeThreads" />
