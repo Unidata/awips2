@@ -6,9 +6,11 @@
 	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
 	<bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
 	<bean id="jms-radar" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsDurableConfig" />
+        <constructor-arg ref="jmsRadarConfig" />
 		<property name="taskExecutor" ref="radarThreadPool" />		
 	</bean>
+    <bean id="jmsRadarConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="radarThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />
