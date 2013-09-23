@@ -22,6 +22,7 @@ package com.raytheon.uf.common.registry.services.rest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
@@ -37,6 +38,7 @@ import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResp
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
+ * 9/20/2013    2385        bphillip    Added subscription backup functions
  * </pre>
  * 
  * @author bphillip
@@ -68,4 +70,74 @@ public interface IRegistryDataAccessService {
     @Path("/rest/dataAccess/removeSubscriptionsFor/{siteId}")
     public void removeSubscriptionsForSite(@PathParam("siteId") String siteId)
             throws RegistryException;
+
+    /**
+     * Gets the subscriptions that are currently in the registry and formats
+     * them in HTML for viewing in a web browser
+     * 
+     * @return The page containing the subscriptions
+     */
+    @GET
+    @Path("/rest/dataAccess/getSubscriptions")
+    public String getSubscriptions();
+
+    /**
+     * 
+     * Backs up the specified subscription to be restored at a later time
+     * 
+     * @param subscriptionName
+     *            The subscription to be backed up
+     * @return Status message about whether the backup was successful
+     * @throws JAXBException
+     *             If marshalling/unmarshalling errors are encountered
+     */
+    @GET
+    @Path("/rest/dataAccess/backupSubscription/{subscriptionName}")
+    public String backupSubscription(
+            @PathParam("subscriptionName") String subscriptionName)
+            throws JAXBException;
+
+    /**
+     * Backs up all subscriptions currently in the registry
+     * 
+     * @return Status message about whether the backup was successful
+     * @throws JAXBException
+     *             If marshalling/unmarshalling errors are encountered
+     */
+    @GET
+    @Path("/rest/dataAccess/backupAllSubscriptions/")
+    public String backupAllSubscriptions() throws JAXBException;
+
+    /**
+     * Restores the specified subscription
+     * 
+     * @param subscriptionName
+     *            The name of the subscription to restore
+     * @return Status message about whether the backup was successful
+     * @throws JAXBException
+     */
+    @GET
+    @Path("/rest/dataAccess/restoreSubscription/{subscriptionName}")
+    public String restoreSubscription(
+            @PathParam("subscriptionName") String subscriptionName)
+            throws JAXBException;
+
+    /**
+     * Restores any subscriptions that were previously backed up
+     * 
+     * @return Status messages relating to the success or failure of the restore
+     */
+    @GET
+    @Path("/rest/dataAccess/restoreSubscriptions/")
+    public String restoreSubscriptions();
+
+    /**
+     * Clears the backup file directory
+     * 
+     * @return Status message
+     */
+    @GET
+    @Path("/rest/dataAccess/clearSubscriptionBackupFiles/")
+    public String clearSubscriptionBackupFiles();
+
 }
