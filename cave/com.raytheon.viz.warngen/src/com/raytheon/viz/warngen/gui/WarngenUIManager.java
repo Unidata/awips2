@@ -65,8 +65,6 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
  * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * Jun 25, 2013  DR 16013 Qinglu Lin   Called setUniqueFip() in handleMouseUp().
- * Sep  4, 2013  DR 16496 Qinglu Lin   Fixed warning area expandable issue which occurs after re-clicking on 
- *                                     a CON option.
  * 
  * </pre>
  * 
@@ -139,10 +137,6 @@ public class WarngenUIManager extends InputAdapter {
         if (!handleInput || warngenLayer.isBoxEditable() == false) {
             return super.handleMouseDown(x, y, button);
         }
-        if (warngenLayer.getWarningAction() == WarningAction.CON &&
-                !warngenLayer.getPolygonState()) {
-            warngenLayer.setPolygonState(true);
-        } 
         boolean rval = false;
         if (button == 1 && moveType != null) {
             return true;
