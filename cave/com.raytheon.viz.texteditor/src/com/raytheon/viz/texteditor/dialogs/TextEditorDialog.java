@@ -328,9 +328,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
  *                                      command history or close browser window for "update obs".
+ * 04Sep2013   2176         jsanchez    Changed the order of the QC check dialogs.
  * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use 
  *                                       simulated time.
- * 
  * </pre>
  * 
  * @author lvenable
@@ -4822,14 +4822,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     @Override
                     public void dialogClosed(Object returnValue) {
                         if (Boolean.TRUE.equals(returnValue)) {
-                            checkEmergencyProduct(resend);
+                            finishSendProduct(resend);
                         }
 
                     }
                 });
                 wgcd.open();
             } else {
-                checkEmergencyProduct(resend);
+                finishSendProduct(resend);
             }
         } else {
             finishSendProduct(resend);
@@ -4879,7 +4879,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             @Override
             public void dialogClosed(Object returnValue) {
                 if (Boolean.TRUE.equals(returnValue)) {
-                    warngenCloseCallback(resend);
+                    checkEmergencyProduct(resend);
                 }
             }
         });
@@ -4907,14 +4907,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void dialogClosed(Object returnValue) {
                     if (Boolean.TRUE.equals(returnValue)) {
-                        finishSendProduct(resend);
+                        warngenCloseCallback(resend);
                     }
 
                 }
             });
             wgcd.open();
         } else {
-            finishSendProduct(resend);
+            warngenCloseCallback(resend);
         }
     }
 
