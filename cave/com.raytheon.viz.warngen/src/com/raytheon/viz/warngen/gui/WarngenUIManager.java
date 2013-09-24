@@ -110,14 +110,14 @@ public class WarngenUIManager extends InputAdapter {
 
         warngenLayer.getResourceContainer().registerMouseHandler(this);
 
-        Display display = Display.getCurrent();
-
-        movePolygon = display.getSystemCursor(SWT.CURSOR_SIZEALL);
-        movePoint = display.getSystemCursor(SWT.CURSOR_HAND);
+        movePolygon = new Cursor(null, SWT.CURSOR_SIZEALL);
+        movePoint = new Cursor(null, SWT.CURSOR_HAND);
     }
 
     public void dispose() {
         warngenLayer.getResourceContainer().unregisterMouseHandler(this);
+        movePolygon.dispose();
+        movePoint.dispose();
     }
 
     /*
