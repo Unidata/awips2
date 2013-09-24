@@ -130,6 +130,13 @@ if [ "${1}" = "-python-qpid" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-notification" ]; then
+   buildRPM "awips2-notification"
+
+   exit 0
+fi
+
+
 if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-postgres"
    buildRPM "awips2-database-server-configuration"
@@ -333,6 +340,12 @@ if [ "${1}" = "-ade" ]; then
       exit 1
    fi
 
+    # Build the source jar file
+    ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB13.5.1-CM"
+    cd $ade_work_dir
+    ./build_source_jar.sh
+    cp -v /tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
+
    # Tar the directory.
    pushd . > /dev/null 2>&1
    cd ${WORKSPACE}
@@ -350,7 +363,7 @@ if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
   # buildRPM "awips2-rcm"
-  # buildRPM "awips2-hydroapps-shared"
+   buildRPM "awips2-hydroapps-shared"
   # buildRPM "awips2-notification"
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -364,7 +377,7 @@ fi
 if [ "${1}" = "-edex" ]; then
    #buildRPM "awips2"
    #buildRPM "awips2-common-base"
- #  buildRPM "awips2-adapt-native"
+   buildRPM "awips2-adapt-native"
    #buildRPM "awips2-python-qpid"
  # buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
@@ -378,6 +391,16 @@ if [ "${1}" = "-edex" ]; then
 
    exit 0
 fi
+
+if [ "${1}" = "-localization" ]; then
+   buildLocalizationRPMs
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
 
 if [ "${1}" = "-qpid" ]; then
    buildQPID
