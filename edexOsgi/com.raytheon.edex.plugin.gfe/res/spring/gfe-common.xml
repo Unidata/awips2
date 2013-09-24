@@ -55,7 +55,7 @@
 		errorHandlerRef="errorHandler">
 
 		<route id="gfeParmIdCacheListenerEndpoint">
-			<from uri="jms-generic:topic:gfeGribNotification?concurrentConsumers=1" />
+			<from uri="jms-generic:topic:gfeGribNotification"/>
 			<doTry>
 				<bean ref="serializationUtil" method="transformFromThrift" />
 				<bean ref="parmIdFilter" method="updateParmIdCache" />
@@ -87,7 +87,7 @@
 		</route>
 		
 		<route id="rebuildD2DCacheAfterPurge">
-			<from uri="jms-generic:topic:pluginPurged" />
+			<from uri="jms-durable:topic:pluginPurged" />
 			<doTry>
 				<bean ref="d2dParmIdCache" method="pluginPurged" />
 				<doCatch>
