@@ -8,22 +8,52 @@
  SHOULD BE MODIFIED.
  
  EXAMPLE FOR INTERSTATE 435 in the Kansas City Metro follows:
- 
+
+  
  <pointSource variable="i435mm">
-    <pointSource>i435mm</pointSource>
+    <pointSource>i435</pointSource>
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>1000</maxResults>
  	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>gid</sort>
+  	</sortBy>
  </pointSource>
   <pointSource variable="i435mmid">
-    <pointSource>i435mm</pointSource>
+    <pointSource>i435</pointSource>
  	<pointField>GID</pointField>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>1000</maxResults>
  	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>gid</sort>
+  	</sortBy>
  </pointSource>
  
- -->
+  <pointSource variable="i35momm">
+    <pointSource>i35mo</pointSource>
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>1000</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>gid</sort>
+  	</sortBy>
+ </pointSource>
+  <pointSource variable="i35mommid">
+    <pointSource>i35mo</pointSource>
+ 	<pointField>GID</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>1000</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>gid</sort>
+  	</sortBy>
+ </pointSource>
+  -->
+  
