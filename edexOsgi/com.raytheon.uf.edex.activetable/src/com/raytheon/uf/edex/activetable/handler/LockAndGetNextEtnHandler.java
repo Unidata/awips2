@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.activetable.GetNextEtnUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2013  #1843     dgilling     Initial creation
+ * Oct 23, 2013  #1843     dgilling     Update with ETN override.
  * 
  * </pre>
  * 
@@ -64,6 +65,6 @@ public class LockAndGetNextEtnHandler implements
                 + request.getSiteID() + "]: phensig= " + request.getPhensig());
         return GetNextEtnUtil.lockAndGetNextEtn(request.getSiteID(),
                 request.getMode(), request.getPhensig(),
-                request.getCurrentTime(), true);
+                request.getCurrentTime(), true, request.getEtnOverride());
     }
 }
