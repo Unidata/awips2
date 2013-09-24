@@ -55,6 +55,8 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * May 15, 2013 1869       bsteffen    Move uri map creation from RecordFactory.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract and removed setPluginName.
+ * Sep 24, 2013 2081       mschenke    Removed special handling of spaces and only handle 
+ *                                     {@link DataURI#SEPARATOR} specially
  * 
  * </pre>
  * 
@@ -63,19 +65,30 @@ import com.raytheon.uf.common.util.ConvertUtil;
  */
 public class DataURIUtil {
 
-    private static final String PLUGIN_NAME_KEY = "pluginName";
+    private static final String PLUGIN_NAME_KEY = PluginDataObject.PLUGIN_NAME_ID;
 
     private static final String FIELD_SEPARATOR = ".";
 
     private static final Pattern FIELD_SEPARATOR_PATTERN = Pattern.compile("["
             + FIELD_SEPARATOR + "]");
 
-    private static final Pattern SEPARATOR_PATTERN = Pattern
+    private static final String DATAURI_SEPARATOR_ENCODED = "%2F";
+
+    private static final String DATAURI_SEPARATOR_ESCAPE_CHAR = "%";
+
+    private static final String DATAURI_SEPARATOR_CHAR_ENCODED = "%25";
+
+    private static final Pattern DATAURI_SEPARATOR_ENCODED_PATTERN = Pattern
+            .compile(DATAURI_SEPARATOR_ENCODED);
+
+    private static final Pattern DATAURI_SEPARATOR_PATTERN = Pattern
             .compile(DataURI.SEPARATOR);
 
-    private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_");
+    private static final Pattern DATAURI_SEPARATED_ESCAPE_CHAR_PATTERN = Pattern
+            .compile(DATAURI_SEPARATOR_ESCAPE_CHAR);
 
-    private static final Pattern SPACE_PATTERN = Pattern.compile(" ");
+    private static final Pattern DATAURI_SEPARATOR_CHAR_ENCODED_PATTERN = Pattern
+            .compile(DATAURI_SEPARATOR_CHAR_ENCODED);
 
     /*
      * Compares two fields with the DataURI annotations based off the position.
@@ -122,7 +135,7 @@ public class DataURIUtil {
         for (DataURIFieldAccess access : getAccess(pdo.getClass())) {
             addToDataURI(uri, access.getFieldValue(pdo));
         }
-        return SPACE_PATTERN.matcher(uri).replaceAll("_");
+        return uri.toString();
     }
 
     /**
@@ -140,22 +153,31 @@ public class DataURIUtil {
         for (DataURIFieldAccess access : getAccess(pluginName)) {
             addToDataURI(uri, dataMap.get(access.getFieldName()));
         }
-        return SPACE_PATTERN.matcher(uri).replaceAll("_");
+        return uri.toString();
     }
 
     /*
      * Properly formats an arbitrary object into a dataURI.
      */
     private static void addToDataURI(StringBuilder uri, Object property) {
-        uri.append("/");
-        if (property == null) {
-            uri.append("null");
-        } else if (property instanceof Calendar) {
-            uri.append(TimeUtil.formatCalendar((Calendar) property));
+        String propertyString;
+        if (property instanceof Calendar) {
+            propertyString = TimeUtil.formatCalendar((Calendar) property);
         } else {
-            uri.append(SEPARATOR_PATTERN.matcher(String.valueOf(property))
-                    .replaceAll("_"));
+            propertyString = String.valueOf(property);
         }
+
+        // This is done so if the property actually contained '%2F' that
+        // wouldn't get converted to '/' when tokenized. %2F becomes %252F
+        // because the '%' is replaced with '%25'
+        String escapeCharEscaped = DATAURI_SEPARATED_ESCAPE_CHAR_PATTERN
+                .matcher(propertyString).replaceAll(
+                        DATAURI_SEPARATOR_CHAR_ENCODED);
+        // Now replace any '/' with %2F to escape slashes in the property
+        String fullyEscapedProperty = DATAURI_SEPARATOR_PATTERN.matcher(
+                escapeCharEscaped).replaceAll(DATAURI_SEPARATOR_ENCODED);
+
+        uri.append(DataURI.SEPARATOR).append(fullyEscapedProperty);
     }
 
     /**
@@ -336,8 +358,15 @@ public class DataURIUtil {
      * Split a URI on the seperator and remove empty first element.
      */
     private static List<String> tokenizeURI(String dataURI) {
-        dataURI = UNDERSCORE_PATTERN.matcher(dataURI).replaceAll(" ");
-        String[] tokens = SEPARATOR_PATTERN.split(dataURI);
+        String[] tokens = DATAURI_SEPARATOR_PATTERN.split(dataURI);
+        for (int i = 0; i < tokens.length; ++i) {
+            // Replace %2F with '/'
+            tokens[i] = DATAURI_SEPARATOR_ENCODED_PATTERN.matcher(tokens[i])
+                    .replaceAll(DataURI.SEPARATOR);
+            // Convert %25 to %
+            tokens[i] = DATAURI_SEPARATOR_CHAR_ENCODED_PATTERN.matcher(
+                    tokens[i]).replaceAll(DATAURI_SEPARATOR_ESCAPE_CHAR);
+        }
         return Arrays.asList(tokens).subList(1, tokens.length);
     }
 
@@ -495,4 +524,5 @@ public class DataURIUtil {
             }
         }
     }
+
 }
