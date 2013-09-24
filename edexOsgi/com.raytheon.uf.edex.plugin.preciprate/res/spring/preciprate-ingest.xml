@@ -12,7 +12,7 @@
 	
 	<camelContext id="preciprate-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="PrecipRateGenerate">
-        	<from uri="jms-generic:queue:preciprateGenerate?destinationResolver=#qpidDurableResolver" />
+        	<from uri="jms-durable:queue:preciprateGenerate"/>
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
 	        	<bean ref="preciprateGenerator" method="generate" />
