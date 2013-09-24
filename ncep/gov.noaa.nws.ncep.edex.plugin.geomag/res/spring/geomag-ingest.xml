@@ -1,8 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="geomagDao" class="gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagDao">
 		<constructor-arg ref="geomagPluginName" />
@@ -15,7 +14,7 @@
 	<bean id="geomagDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="geomagPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.GeoMag"/>
 	</bean>
 
     <bean id="geomagCamelRegistered" factory-bean="contextManager"
@@ -38,12 +37,12 @@
 			<setHeader headerName="pluginName">
 				<constant>geomag</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.GeoMag" />
+			<to uri="jms-durable:queue:Ingest.GeoMag" />
 		</route>
 		
 		<!-- Begin GeoMag routes -->
 		<route id="geomagIngestRoute">
-			<from uri="jms-generic:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.GeoMag"/>
 			<setHeader headerName="pluginName">
 				<constant>geomag</constant>
 			</setHeader>
@@ -64,7 +63,7 @@
 	        <from uri="jms-generic:topic:edex.alerts"/>
 	        <doTry>
 		          <pipeline>
-		          	<bean ref="serializationUtil" method="transformFromThrift" />
+                            <bean ref="serializationUtil" method="transformFromThrift" />
 		            <bean ref="trig1minCalc" method="trig1min"/>
 		          </pipeline>
 		          <doCatch>

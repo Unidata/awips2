@@ -61,6 +61,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      adjustment of density.
  *                                      Added gridRelative flag to indicate whether direction
  *                                      data is relative to grid or true north
+ * Sep 9, 2013  DR16257    MPorricelli  When setDestinationGeographicPoint fails (which can
+ *                                      happen for global lat/lon grid winds displayed on
+ *                                      Equidistant Cylindrical map) try again with different
+ *                                      pixel location.
  * 
  * </pre>
  * 
@@ -157,7 +161,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         if (Float.isNaN(spd) || Float.isNaN(dir)) {
             return;
         }
-
+        int tryDiffPixLoc = 0;
         try {
             ReferencedCoordinate rCoord = new ReferencedCoordinate(
                     gridGeometryOfGrid, ijcoord);
@@ -169,12 +173,24 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
             if (stationPixelLocation != null) {
                 stationPixelLocation[1]--;
-                double[] newWorldLocation = this.descriptor
-                        .pixelToWorld(stationPixelLocation);
-                this.gc.setStartingGeographicPoint(stationLocation[0],
-                        stationLocation[1]);
-                this.gc.setDestinationGeographicPoint(newWorldLocation[0],
-                        newWorldLocation[1]);
+                do {
+                   try {
+                        double[] newWorldLocation = this.descriptor
+                                .pixelToWorld(stationPixelLocation);
+                        this.gc.setStartingGeographicPoint(stationLocation[0],
+                                stationLocation[1]);
+                        this.gc.setDestinationGeographicPoint(
+                                newWorldLocation[0], newWorldLocation[1]);
+                        tryDiffPixLoc = 2; // setting of pts succeeded; do not need to try again
+
+                    } catch (Exception e2) {
+                        if (tryDiffPixLoc == 0) { // setting of points failed first time through
+                            stationPixelLocation[1] += 2; // try pixel location in opposite dir of 1st try
+                            tryDiffPixLoc++;
+                        } else
+                            throw new VizException(e2); // failed on second try; give up
+                    }
+                } while (tryDiffPixLoc < 2);
             }
 
             if (gridRelative) {
@@ -185,6 +201,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
             // rotate dir from true north to display up
             dir -= this.gc.getAzimuth();
+
         } catch (Exception e) {
             throw new VizException(e);
         }
