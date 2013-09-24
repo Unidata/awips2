@@ -21,7 +21,7 @@
 	<bean id="stormTrackDistRegistry" factory-bean="distributionSrv" 
 		factory-method="register">
 		<constructor-arg value="stormTrack" />
-		<!-- <constructor-arg value="jms-generic:queue:Ingest.AlphaNumeric" />  -->
+		<!-- <constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />  -->
 		<constructor-arg value="jms-dist:queue:Ingest.stormTrack" />
 	</bean>
 
@@ -42,11 +42,11 @@
 			<setHeader headerName="pluginName">
 				<constant>stormtrack</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.stormtrack" />
+			<to uri="jms-durable:queue:Ingest.stormtrack" />
 		</route>
 
 		<route id="stormTrackIngestRoute">
-			<from uri="jms-generic:queue:Ingest.stormtrack" />
+			<from uri="jms-durable:queue:Ingest.stormtrack" />
 			<setHeader headerName="pluginName">
 				<constant>stormtrack</constant>
 			</setHeader>
