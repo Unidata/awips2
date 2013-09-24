@@ -9,7 +9,7 @@
     <bean id="bufrncwfDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrncwfPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrncwf?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrncwf"/>
 	</bean>
 
 	<bean id="bufrncwfCamelRegistered" factory-bean="contextManager"
@@ -30,13 +30,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrncwf</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.bufrncwf" />
+            <to uri="jms-durable:queue:Ingest.bufrncwf" />
         </route>
         -->
 
         <!-- Begin bufrncwf routes -->
         <route id="bufrncwfIngestRoute">
-            <from uri="jms-generic:queue:Ingest.bufrncwf?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.bufrncwf"/>
             <setHeader headerName="pluginName">
                 <constant>bufrncwf</constant>
             </setHeader>
