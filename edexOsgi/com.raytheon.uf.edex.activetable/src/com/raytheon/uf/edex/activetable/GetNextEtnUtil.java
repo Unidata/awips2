@@ -28,9 +28,13 @@ import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.SortedMap;
@@ -40,6 +44,7 @@ import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.request.LockAndGetNextEtnRequest;
 import com.raytheon.uf.common.activetable.request.UnlockAndSetNextEtnRequest;
+import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -79,7 +84,7 @@ public final class GetNextEtnUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GetNextEtnUtil.class);
 
-    private static final String CONFIG_FILE_NAME = "remote-etn-partners.properties";
+    public static final String CONFIG_FILE_NAME = "remote-etn-partners.properties";
 
     private static final String NEXT_ETN_LOCK = "ActiveTableNextEtn";
 
@@ -121,29 +126,59 @@ public final class GetNextEtnUtil {
      *            <code>isLock</code> is false, this flag is effectively false
      *            and your configured remote partners will not be contacted to
      *            determine the next ETN.
-     * @return The next ETN to be used in sequence.
+     * @param reportConflictOnly
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return A <code>GetNextEtnResponse</code> containing the next ETN to use
+     *         and any hosts that couldn't be contacted during this process.
      */
-    public static Integer getNextEtn(String siteId, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean isLock,
-            boolean performISC) {
-        List<IRequestRouter> hostsToQuery = Collections.emptyList();
+    public static GetNextEtnResponse getNextEtn(String siteId,
+            ActiveTableMode mode, String phensig, Calendar currentTime,
+            boolean isLock, boolean performISC, boolean reportConflictOnly,
+            Integer etnOverride) {
+        SortedMap<String, IRequestRouter> hostsToQuery = new TreeMap<String, IRequestRouter>();
+        List<String> readEtnSourcesErrors = Collections.emptyList();
         if (performISC) {
-            hostsToQuery = GetNextEtnUtil.getRemoteEtnSources(siteId);
+            try {
+                hostsToQuery = GetNextEtnUtil.getRemoteEtnSources(siteId);
+            } catch (UnknownHostException e) {
+                readEtnSourcesErrors = Arrays.asList(
+                        "Falling back to local ETN calculation: ",
+                        "Could not perform reverse lookup for localhost: "
+                                + e.getLocalizedMessage());
+            } catch (IOException e) {
+                readEtnSourcesErrors = Arrays.asList(
+                        "Falling back to local ETN calculation: ",
+                        "Could not read configuration file " + CONFIG_FILE_NAME
+                                + ": " + e.getLocalizedMessage());
+            }
         }
 
-        int nextEtn;
-        if (performISC && isLock && (!hostsToQuery.isEmpty())) {
-            nextEtn = GetNextEtnUtil.getNextEtnFromPartners(siteId, mode,
-                    phensig, currentTime, hostsToQuery);
+        GetNextEtnResponse response;
+        if (performISC && isLock && (!hostsToQuery.isEmpty())
+                && (readEtnSourcesErrors.isEmpty())) {
+            response = GetNextEtnUtil.getNextEtnFromPartners(siteId, mode,
+                    phensig, currentTime, hostsToQuery, reportConflictOnly,
+                    etnOverride);
         } else {
-            nextEtn = GetNextEtnUtil.getNextEtnFromLocal(siteId, mode, phensig,
-                    currentTime, isLock);
+            int nextEtn = GetNextEtnUtil.getNextEtnFromLocal(siteId, mode,
+                    phensig, currentTime, isLock);
+            response = new GetNextEtnResponse(nextEtn, phensig);
+            response.setErrorMessages(readEtnSourcesErrors);
         }
 
-        return nextEtn;
+        return response;
     }
 
-    private static List<IRequestRouter> getRemoteEtnSources(String siteId) {
+    private static SortedMap<String, IRequestRouter> getRemoteEtnSources(
+            String siteId) throws IOException, UnknownHostException {
         Properties etnBackupProps = new Properties();
         FileInputStream fis = null;
         try {
@@ -156,11 +191,11 @@ public final class GetNextEtnUtil {
             etnBackupProps.load(fis);
         } catch (FileNotFoundException e) {
             statusHandler.error(CONFIG_FILE_NAME + " file does not exist!", e);
-            return Collections.emptyList();
+            return new TreeMap<String, IRequestRouter>();
         } catch (IOException e) {
             statusHandler.error("Error reading " + CONFIG_FILE_NAME + " file!",
                     e);
-            return Collections.emptyList();
+            throw e;
         } finally {
             if (fis != null) {
                 try {
@@ -172,6 +207,8 @@ public final class GetNextEtnUtil {
             }
         }
 
+        String localhostFQDN = getLocalhostFQDN();
+
         String[] tokens = etnBackupProps.getProperty("BACKUP.HOSTS." + siteId,
                 "").split(",");
 
@@ -182,17 +219,7 @@ public final class GetNextEtnUtil {
         for (String token : tokens) {
             String host = token.trim().toLowerCase();
             if ("localhost".equals(host)) {
-                try {
-                    host = InetAddress.getLocalHost().getCanonicalHostName();
-                } catch (UnknownHostException e) {
-                    statusHandler.error(
-                            "Unable to retrieve host name for localhost.", e);
-                    statusHandler
-                            .handle(Priority.CRITICAL,
-                                    "ETN assignment will not be able to query local server for used ETNs. Please check your network configuration and "
-                                            + CONFIG_FILE_NAME + ".");
-                    continue;
-                }
+                continue;
             }
 
             IRequestRouter reqHandler = new RemoteServerRequestRouter("http://"
@@ -200,7 +227,11 @@ public final class GetNextEtnUtil {
             sources.put(host, reqHandler);
         }
 
-        return new ArrayList<IRequestRouter>(sources.values());
+        IRequestRouter reqHandler = new RemoteServerRequestRouter("http://"
+                + localhostFQDN + ":9581/services");
+        sources.put(localhostFQDN, reqHandler);
+
+        return sources;
     }
 
     /**
@@ -244,10 +275,13 @@ public final class GetNextEtnUtil {
      *            needed if only determining a preliminary ETN. Required to be
      *            set to <code>true</code> if you want to actually move the
      *            sequence forward.
+     * @param etnOverride
+     *            TODO
      * @return The next ETN to be used in sequence.
      */
     public static int lockAndGetNextEtn(String siteId, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean isLock) {
+            String phensig, Calendar currentTime, boolean isLock,
+            Integer etnOverride) {
         String lockName = getEtnClusterLockName(siteId, mode);
         ClusterTask ct = null;
         if (isLock) {
@@ -264,19 +298,25 @@ public final class GetNextEtnUtil {
                 currentTime);
         int nextEtn = (lastEtn != null) ? lastEtn + 1 : 1;
 
-        String year = Integer.toString(currentTime.get(Calendar.YEAR));
-        String eInfo = ct.getExtraInfo();
-        if ((!StringUtil.isEmptyString(eInfo)) && (eInfo.startsWith(year))) {
-            // parse year info
-            try {
-                int ctNextEtn = Integer
-                        .parseInt(eInfo.substring(year.length() + 1)) + 1;
-                nextEtn = Math.max(nextEtn, ctNextEtn);
-            } catch (NumberFormatException e) {
-                statusHandler.error(
-                        "Caught excetion parsing etn from cluster_task", e);
+        int sysNextEtn = -1;
+        if (etnOverride == null) {
+            String year = Integer.toString(currentTime.get(Calendar.YEAR));
+            String eInfo = ct.getExtraInfo();
+            if ((!StringUtil.isEmptyString(eInfo)) && (eInfo.startsWith(year))) {
+                // parse year info
+                try {
+                    sysNextEtn = Integer
+                            .parseInt(eInfo.substring(year.length() + 1)) + 1;
+                } catch (NumberFormatException e) {
+                    statusHandler
+                            .error("Caught exception parsing etn from cluster_task",
+                                    e);
+                }
             }
+        } else {
+            sysNextEtn = etnOverride.intValue();
         }
+        nextEtn = Math.max(nextEtn, sysNextEtn);
 
         return nextEtn;
     }
@@ -330,7 +370,7 @@ public final class GetNextEtnUtil {
             ActiveTableMode mode, String phensig, Calendar currentTime,
             boolean isLock) {
         int nextEtn = lockAndGetNextEtn(siteId, mode, phensig, currentTime,
-                isLock);
+                isLock, null);
         if (isLock) {
             setNextEtnAndUnlock(siteId, mode, phensig,
                     currentTime.get(Calendar.YEAR), nextEtn);
@@ -360,50 +400,88 @@ public final class GetNextEtnUtil {
      * @param hostsToQuery
      *            The remote hosts to query. This should also include the local
      *            EDEX instance initiating this operation.
-     * @return The next ETN to be used in sequence.
+     * @param reportConflictOnly
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return A <code>GetNextEtnResponse</code> containing the next ETN to use
+     *         and any hosts that couldn't be contacted during this process.
+     * @throws UnknownHostException
      */
-    public static Integer getNextEtnFromPartners(String siteId,
+    public static GetNextEtnResponse getNextEtnFromPartners(String siteId,
             ActiveTableMode mode, String phensig, Calendar currentTime,
-            List<IRequestRouter> hostsToQuery) {
-        Queue<IRequestRouter> lockQueue = new ArrayDeque<IRequestRouter>(
-                hostsToQuery);
-        Queue<IRequestRouter> unlockQueue = Collections
-                .asLifoQueue(new ArrayDeque<IRequestRouter>(hostsToQuery.size()));
+            SortedMap<String, IRequestRouter> hostsToQuery,
+            boolean reportConflictOnly, Integer etnOverride) {
+        Queue<Entry<String, IRequestRouter>> unlockQueue = Collections
+                .asLifoQueue(new ArrayDeque<Entry<String, IRequestRouter>>(
+                        hostsToQuery.size()));
+
+        Map<String, Integer> resultsByHost = new HashMap<String, Integer>(
+                hostsToQuery.size(), 1f);
+        List<String> errors = new ArrayList<String>();
 
         String mySiteId = SiteUtil.getSite();
 
         IServerRequest getAndLockReq = new LockAndGetNextEtnRequest(siteId,
-                mySiteId, mode, phensig, currentTime);
-        int nextEtn = 1;
-        for (IRequestRouter router : lockQueue) {
+                mySiteId, mode, phensig, currentTime, etnOverride);
+        for (Entry<String, IRequestRouter> host : hostsToQuery.entrySet()) {
+            IRequestRouter router = host.getValue();
+            String hostName = host.getKey();
+            Integer partnersNextEtn = null;
             try {
-                Integer partersNextEtn = (Integer) GetNextEtnUtil
-                        .sendThriftRequest(router, getAndLockReq);
-                nextEtn = Math.max(nextEtn, partersNextEtn);
-                unlockQueue.add(router);
+                partnersNextEtn = (Integer) GetNextEtnUtil.sendThriftRequest(
+                        router, getAndLockReq);
+                unlockQueue.add(host);
             } catch (RemoteException e) {
-                statusHandler
-                        .handle(Priority.WARN,
-                                "Error occurred contacting one of the remote ETN partners.",
-                                e);
+                String message = "Error occurred contacting remote ETN partner ["
+                        + hostName + "]: " + e.getLocalizedMessage();
+                if (!reportConflictOnly) {
+                    errors.add(message);
+                }
+                statusHandler.handle(Priority.WARN, message, e);
+            }
+            resultsByHost.put(hostName, partnersNextEtn);
+        }
+
+        int nextEtn = 1;
+        for (Entry<String, Integer> entry : resultsByHost.entrySet()) {
+            int partnerEtn = (entry.getValue() != null) ? entry.getValue() : -1;
+            nextEtn = Math.max(nextEtn, partnerEtn);
+
+            if ((etnOverride != null) && (etnOverride < partnerEtn)) {
+                String message = "User-provided ETN value of "
+                        + etnOverride.toString()
+                        + " conflicts with calculated ETN value " + partnerEtn
+                        + " from host " + entry.getKey();
+                errors.add(message);
+                statusHandler.warn(message);
             }
         }
 
         IServerRequest unlockReq = new UnlockAndSetNextEtnRequest(siteId,
                 mySiteId, mode, currentTime.get(Calendar.YEAR), phensig,
                 nextEtn);
-        for (IRequestRouter router : unlockQueue) {
+        for (Entry<String, IRequestRouter> host : unlockQueue) {
+            IRequestRouter router = host.getValue();
             try {
                 GetNextEtnUtil.sendThriftRequest(router, unlockReq);
             } catch (RemoteException e) {
-                statusHandler
-                        .handle(Priority.WARN,
-                                "Error occurred unlocking one of the remote ETN partners.",
-                                e);
+                String message = "Error occurred unlocking remote ETN partner ["
+                        + host.getKey() + "]: " + e.getLocalizedMessage();
+                if (!reportConflictOnly) {
+                    errors.add(message);
+                }
+                statusHandler.handle(Priority.WARN, message, e);
             }
         }
 
-        return nextEtn;
+        return new GetNextEtnResponse(nextEtn, phensig, resultsByHost, errors);
     }
 
     private static Object sendThriftRequest(final IRequestRouter router,
@@ -428,5 +506,18 @@ public final class GetNextEtnUtil {
         }
 
         return retVal;
+    }
+
+    private static String getLocalhostFQDN() throws UnknownHostException {
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            statusHandler.error("Unable to retrieve host name for localhost.",
+                    e);
+            statusHandler
+                    .handle(Priority.CRITICAL,
+                            "ETN assignment will not be able to query local server for used ETNs. Please check your network configuration.");
+            throw e;
+        }
     }
 }
