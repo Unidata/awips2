@@ -29,11 +29,11 @@
 
 		<route id="wcpFileConsumerRoute"> <from ref="wcpFileEndpoint" /> <bean 
 			ref="fileToString" /> <setHeader headerName="pluginName"> <constant>wcp</constant> 
-			</setHeader> <to uri="jms-generic:queue:Ingest.wcp" /> </route>
+			</setHeader> <to uri="jms-durable:queue:Ingest.wcp" /> </route>
 			
 		<!-- Begin wcp routes -->
 		<route id="wcpIngestRoute">
-			<from uri="jms-generic:queue:Ingest.wcp" />
+			<from uri="jms-durable:queue:Ingest.wcp" />
 			<setHeader headerName="pluginName">
 				<constant>wcp</constant>
 			</setHeader>
