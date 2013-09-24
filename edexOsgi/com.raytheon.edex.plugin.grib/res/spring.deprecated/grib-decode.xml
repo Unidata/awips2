@@ -6,14 +6,11 @@
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
 	<bean id="ingest-grib" class="org.apache.camel.component.jms.JmsComponent">
-		<constructor-arg ref="jmsIngestGribConfig" />
+		<constructor-arg ref="jmsGribConfig" />
 		<property name="taskExecutor" ref="gribThreadPool" />
 	</bean>
-	
-	<bean id="jmsIngestGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-		factory-bean="jmsConfig" factory-method="copy">
-	</bean>
-	
+    <bean id="jmsGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="gribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${grib-decode.count.threads}" />
@@ -61,7 +58,7 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		<endpoint id="gribJmsEndpoint" uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=${grib-decode.count.threads}&amp;destinationResolver=#qpidDurableResolver" />
+		<endpoint id="gribJmsEndpoint" uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=${grib-decode.count.threads}"/>
 		
 	 	<route id="gribFileConsumerRoute">
 	 		<from ref="gribFileEndpoint" />
