@@ -21,4 +21,5 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.message;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
- org.jep;bundle-version="1.0.0"
+ org.jep;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
