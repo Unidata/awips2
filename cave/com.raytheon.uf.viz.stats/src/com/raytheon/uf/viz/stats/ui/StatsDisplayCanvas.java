@@ -84,6 +84,7 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
  * Jan 17, 2013    1357    mpduff      Added mouse listeners.
  * Jan 29, 2013    1523    mpduff      Fix for count units.
  * Mar 12, 2013    1760    mpduff      Fix for 3 hour graph x axis labels.
+ * Sep 25, 2013    2406    lvenable    Fixed color memory leaks.
  * 
  * </pre>
  * 
@@ -218,6 +219,9 @@ public class StatsDisplayCanvas extends Canvas {
     /** Hide dataset dialog */
     private HideDlg hideDlg;
 
+    /** Background color */
+    private Color backgroundColor = null;
+
     /**
      * Constructor
      * 
@@ -249,6 +253,10 @@ public class StatsDisplayCanvas extends Canvas {
      * Initialize the canvas.
      */
     private void setupCanvas() {
+
+        RGB rgbColor = RGBColors.getRGBColor("gray85");
+        backgroundColor = new Color(parentComp.getDisplay(), rgbColor);
+
         canvasFont = new Font(parentComp.getDisplay(), "Monospace", 9,
                 SWT.NORMAL);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -317,9 +325,7 @@ public class StatsDisplayCanvas extends Canvas {
                 .getSystemColor(SWT.COLOR_WHITE));
         gc.fillRectangle(0, 0, canvasWidth, canvasHeight + 2);
 
-        RGB color = RGBColors.getRGBColor("gray85");
-        gc.setBackground(new Color(parentComp.getDisplay(), color.red,
-                color.green, color.blue));
+        gc.setBackground(backgroundColor);
         Rectangle graphArea = new Rectangle(GRAPH_BORDER, GRAPH_BORDER,
                 GRAPH_WIDTH, GRAPH_HEIGHT);
         gc.fillRectangle(graphArea);
@@ -718,9 +724,11 @@ public class StatsDisplayCanvas extends Canvas {
         UnitUtils uu = callback.getUnitUtils();
         GraphData graphData = callback.getGraphData();
 
+        Color color = null;
+
         for (String key : graphData.getKeysWithData()) {
             if (groupSettings.containsKey(key)) {
-                Color color = new Color(getDisplay(), groupSettings.get(key));
+                color = new Color(getDisplay(), groupSettings.get(key));
                 gc.setForeground(color);
                 gc.setBackground(color);
                 if (groupSettings.containsKey(key)) {
@@ -789,6 +797,8 @@ public class StatsDisplayCanvas extends Canvas {
                         }
                     }
                 }
+
+                color.dispose();
             }
         }
     }
@@ -1012,6 +1022,9 @@ public class StatsDisplayCanvas extends Canvas {
         if (this.canvasFont != null && !canvasFont.isDisposed()) {
             this.canvasFont.dispose();
         }
+
+        backgroundColor.dispose();
+
         super.dispose();
     }
 
