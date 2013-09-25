@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.notification.PriorityImages.Priority;
 import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
 import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationConfigXML;
+import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationFilterXML;
 import com.raytheon.uf.viz.datadelivery.notification.xml.PrioritySettingXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
@@ -102,6 +103,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 06, 2013  2030      mpduff     Refactored help.
  * Aug 30, 2013  2314      mpduff     Change the reading of the xml. Make load config dlg non-blocking.
  * Sep 25, 2013  2408      mpduff     Added a restore hidden notifications menu.
+ * Sep 25, 2013  2410      mpduff     Check type of localization file.
  * 
  * </pre>
  * 
@@ -649,17 +651,21 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
                 public void dialogClosed(Object returnValue) {
                     if (returnValue instanceof LocalizationFile) {
                         try {
-                            NotificationConfigXML xml;
                             LocalizationFile fileName = (LocalizationFile) returnValue;
                             // Get the name of the selected file
                             if (fileName != null && fileName.exists()) {
                                 File file = fileName.getFile();
 
                                 if (file != null) {
-                                    xml = (NotificationConfigXML) unmarshaller
-                                            .unmarshal(file);
+                                    Object obj = unmarshaller.unmarshal(file);
 
-                                    configMan.setConfigXml(xml);
+                                    if (obj instanceof NotificationFilterXML) {
+                                        configMan
+                                                .setFilterXml((NotificationFilterXML) obj);
+                                    } else if (obj instanceof NotificationConfigXML) {
+                                        configMan
+                                                .setConfigXml((NotificationConfigXML) obj);
+                                    }
 
                                     tableComp.tableChangedAfterConfigLoad();
                                 }
@@ -684,7 +690,8 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
     @SuppressWarnings("rawtypes")
     private void createContext() {
         Class[] classes = new Class[] { NotificationConfigXML.class,
-                MessageLoadXML.class, PrioritySettingXML.class };
+                MessageLoadXML.class, PrioritySettingXML.class,
+                NotificationFilterXML.class };
 
         try {
             jax = JAXBContext.newInstance(classes);
