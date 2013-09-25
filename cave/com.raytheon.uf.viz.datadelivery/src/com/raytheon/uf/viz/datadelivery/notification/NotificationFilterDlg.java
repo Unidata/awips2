@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.notification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -58,6 +59,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Feb  6, 2012            mpduff     Initial creation.
  * Mar 20, 2012   240      jpiatt     Updates to filter notification table data.
  * Jun  1, 2012   645      jpiatt     Added tooltips.
+ * Sep 25, 2013  2408      mpduff     Added sort to subscription lists.
  * 
  * </pre>
  * 
@@ -377,6 +379,8 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
 
         }
 
+        Collections.sort(selectedSubListFinal);
+        Collections.sort(fullSubList);
         DualListConfig dualConfig = new DualListConfig();
         dualConfig.setListHeight(120);
         dualConfig.setListWidth(125);
