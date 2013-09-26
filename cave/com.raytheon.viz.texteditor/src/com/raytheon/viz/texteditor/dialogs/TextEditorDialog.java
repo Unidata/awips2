@@ -135,7 +135,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -185,8 +185,6 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
-
-// import com.raytheon.uf.viz.core.RGBColors;
 
 /**
  * Main Text Editor dialog.
@@ -329,8 +327,10 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
  *                                      command history or close browser window for "update obs".
+ * 04Sep2013   2176         jsanchez    Changed the order of the QC check dialogs.
+ * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use 
+ *                                       simulated time.
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
- * 
  * </pre>
  * 
  * @author lvenable
@@ -2947,8 +2947,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg()
                 .getFontSizeCfg();
-        SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg()
-                .getSelectedFontButton();
+        SizeButtonCfg seldFontBtn = TextEditorCfg.getSelectedFontButton();
 
         for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
             MenuItem item = new MenuItem(fontSizeSubMenu, SWT.RADIO);
@@ -3939,36 +3938,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
     }
 
-    // private TextColorsCfg getTextColorCfg() {
-    // TextColorsCfg textColorsCfg =
-    // TextEditorCfg.getTextEditorCfg().getTextColorsCfg();
-    //
-    // // Perform Sanity Checks on configuration.
-    // StringBuilder message = new StringBuilder();
-    //
-    // for (TextColorElement textElm : textColorsCfg.getTextColorElements()) {
-    // String prmtName = textElm.getParamName();
-    // if (prmtName == null) {
-    // message.append("Item \"paramName\" problem!\n");
-    //
-    // }
-    //
-    // if( textElm.getColor() == null ) {
-    // message.append("Item \"color\" data enter problem!\n");
-    // }
-    //
-    // if (message.length() > 0) {
-    // message.insert(0, "TextColorsCfg broblem(s): ");
-    // IUFStatusHandler statusHandler = UFStatus
-    // .getHandler(TextEditorDialog.class);
-    // statusHandler.handle(Priority.PROBLEM, message.toString());
-    // }
-    //
-    // }
-    //
-    // return textColorsCfg;
-    // }
-
     private void setDefaultTextColor(TextEditorCfg txtClrCfg) {
         textBackgroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getTextBackgroundColor());
@@ -4854,14 +4823,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     @Override
                     public void dialogClosed(Object returnValue) {
                         if (Boolean.TRUE.equals(returnValue)) {
-                            checkEmergencyProduct(resend);
+                            finishSendProduct(resend);
                         }
 
                     }
                 });
                 wgcd.open();
             } else {
-                checkEmergencyProduct(resend);
+                finishSendProduct(resend);
             }
         } else {
             finishSendProduct(resend);
@@ -4911,7 +4880,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             @Override
             public void dialogClosed(Object returnValue) {
                 if (Boolean.TRUE.equals(returnValue)) {
-                    warngenCloseCallback(resend);
+                    checkEmergencyProduct(resend);
                 }
             }
         });
@@ -4939,14 +4908,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void dialogClosed(Object returnValue) {
                     if (Boolean.TRUE.equals(returnValue)) {
-                        finishSendProduct(resend);
+                        warngenCloseCallback(resend);
                     }
 
                 }
             });
             wgcd.open();
         } else {
-            finishSendProduct(resend);
+            warngenCloseCallback(resend);
         }
     }
 
@@ -4999,8 +4968,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 oup.setSource("TextWS");
                 oup.setWmoType(fixNOR(prod.getBbbid()));
                 oup.setUserDateTimeStamp(prod.getHdrtime());
-                oup.setFilename(awipsID + ".wan"
-                        + (System.currentTimeMillis() / 1000));
+                StringBuilder fileName = new StringBuilder();
+
+                // The .wan extension followed by the 10 digit epoch seconds
+                // of simulated time is used in EDEX's WarningDecoder to
+                // determine the base time.
+                fileName.append(awipsID).append(".wan")
+                        .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
+                oup.setFilename(fileName.toString());
                 oup.setAddress(addressee);
                 if ((attachedFile != null) && (attachedFilename != null)) {
                     oup.setAttachedFile(attachedFile);
@@ -5144,7 +5119,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
          * DR14613 - string currectDate is derived from Date now ensuring the
          * same time in WMO heading and in the MND heading.
          */
-        Date now = SimulatedTime.getSystemTime().getTime();
+        Date now = TimeUtil.newDate();
         String currentDate = getCurrentDate(now);
         TextDisplayModel tdmInst = TextDisplayModel.getInstance();
 
@@ -7209,8 +7184,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         xml = new String(b);
                     }
 
-                    rval = (StdTextProduct) SerializationUtil
-                            .unmarshalFromXml(xml);
+                    rval = SerializationUtil.unmarshalFromXml(
+                            StdTextProduct.class, xml);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Retrieval of product failed", e);
@@ -7250,13 +7225,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             }
 
             return success;
-        }
-
-        public void stopTimer() {
-            if (timer != null) {
-                timer.cancel();
-                timer = null;
-            }
         }
 
         private void setupTimer() {
@@ -8325,7 +8293,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Get the contents of file as a byte array.
      * 
      * @param file
-     * @return
+     * @return bytes
      * @throws IOException
      */
     private byte[] getBytesFromFile(File file) throws IOException {
