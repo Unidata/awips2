@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableFind;
@@ -793,14 +794,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     public void populateTableDataRows(
             ArrayList<NotificationRecord> notificationRecords) {
         List<NotificationRecord> notificationList = new ArrayList<NotificationRecord>();
-
+        MessageLoadXML messageLoad = null;
         NotificationConfigManager configMan = NotificationConfigManager
                 .getInstance();
         ArrayList<String> users = configMan.getFilterXml().getUserFilterXml()
                 .getUserList();
 
         if (notificationRecords == null) {
-            MessageLoadXML messageLoad = msgLoadCallback.getMessageLoad();
+            messageLoad = msgLoadCallback.getMessageLoad();
             handler = new NotificationHandler();
             notificationList = handler.intialLoad(messageLoad, users);
             masterTableList.clearAll();
@@ -808,7 +809,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         } else {
             for (NotificationRecord rec : notificationRecords) {
                 // prevents duplicates
-                if (currentRecordIds.contains(rec.getId()) == false) {
+                if (!currentRecordIds.contains(rec.getId())) {
                     notificationList.add(rec);
                 }
             }
@@ -845,8 +846,50 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             }
         }
 
+        messageLoad = msgLoadCallback.getMessageLoad();
+        if (messageLoad != null) {
+            if (!messageLoad.isLoadAllMessages()) {
+                // Sort data by time
+                sortByTime(filteredTableList);
+
+                int loadLast = messageLoad.getLoadLast();
+
+                // Keep only the specified number of rows
+                if (messageLoad.isNumMessages()) {
+                    int numRecs = filteredTableList.getDataArray().size();
+                    if (numRecs > loadLast) {
+                        for (int i = loadLast - 1; i < numRecs; i++) {
+                            filteredTableList.removeDataRow(i);
+                        }
+                    }
+                } else {
+                    long backTime = loadLast * TimeUtil.MILLIS_PER_HOUR;
+                    long currentTime = TimeUtil.currentTimeMillis();
+                    List<NotificationRowData> dataList = filteredTableList
+                            .getDataArray();
+                    List<Integer> indicesToRemove = new ArrayList<Integer>();
+                    for (int i = 0; i < dataList.size(); i++) {
+                        if (currentTime - dataList.get(i).getDate().getTime() > backTime) {
+                            indicesToRemove.add(i);
+                        }
+                    }
+
+                    for (int i : indicesToRemove) {
+                        filteredTableList.removeDataRow(i);
+                    }
+                }
+            }
+        }
+
+        // Now do the configured sort
         updateSortDirection(this.sortedColumn, filteredTableList, false);
         filteredTableList.sortData();
+    }
+
+    private void sortByTime(TableDataManager<NotificationRowData> data) {
+        data.setSortDirection(SortDirection.DESCENDING);
+        data.setSortColumn("Time");
+        data.sortData();
     }
 
     /**
