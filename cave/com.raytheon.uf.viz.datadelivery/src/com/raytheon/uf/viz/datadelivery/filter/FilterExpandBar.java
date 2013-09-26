@@ -84,6 +84,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * May 15, 2013   1040     mpduff       Called markNotBusyInUIThread.
  * Jul 05, 2013   2137     mpduff       Only a single data type can be selected.
  * Jul 05, 2013   2138     mpduff       Fixed to not use filter if filter is disabled.
+ * Sep 26, 2013   2412     mpduff       Don't create expand items if no data type is selected.
  * 
  * </pre>
  * 
@@ -595,7 +596,9 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
         this.dataType = dataType;
         setEnvelope(envelope);
         disposeExpandItemsAndControls();
-        createExpandItems();
+        if (!dataType.isEmpty()) {
+            createExpandItems();
+        }
     }
 
     /**
