@@ -121,6 +121,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 05, 2013 2137       mpduff       Changed data type to a single select list, changed layout.
  * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
  * Sep 04, 2013   2314     mpduff       Load/save config dialog now non-blocking.
+ * Sep 26, 2013   2412     mpduff       Handle auto selecting data type.
  * 
  * </pre>
  * 
@@ -1077,6 +1078,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                     }
                 }
                 datatypeList.select(i);
+                handleDataTypeSelection();
             }
         }
 
