@@ -25,6 +25,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013 2000       djohnson     Initial creation
+ * Sept 24, 2013 2386       dhladky     Made multi-data type
  * 
  * </pre>
  * 
@@ -83,6 +85,16 @@ public class SubscriptionDuplicateChecker implements
     public int getCycleDuplicationPercent(Subscription sub1, Subscription sub2) {
         return getDuplicationPercent(sub1.getTime().getCycleTimes(), sub2
                 .getTime().getCycleTimes());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getTimeDuplicationPercent(Subscription sub1, Subscription sub2) {
+
+        return getDuplicationPercent(((PointTime) sub1.getTime()).getTimes(),
+                ((PointTime) sub2.getTime()).getTimes());
     }
 
     /**
