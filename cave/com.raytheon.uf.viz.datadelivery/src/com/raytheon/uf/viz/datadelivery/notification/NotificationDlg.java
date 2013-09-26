@@ -101,6 +101,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 25, 2013  1820      mpduff     Implemente delete config.
  * Jun 06, 2013  2030      mpduff     Refactored help.
  * Aug 30, 2013  2314      mpduff     Change the reading of the xml. Make load config dlg non-blocking.
+ * Sep 25, 2013  2408      mpduff     Added a restore hidden notifications menu.
  * 
  * </pre>
  * 
@@ -184,7 +185,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
     private MenuItem tooltipMI;
 
     private final Collection<MenuItem> lockableMenuItems = new ArrayList<MenuItem>();
-    
+
     /** Load config dialog */
     private LoadSaveConfigDlg loadDlg;
 
@@ -404,6 +405,18 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
             public void widgetSelected(SelectionEvent event) {
                 tableComp.handleDeleteNotification();
             }
+        });
+
+        MenuItem unhideMI = new MenuItem(editMenu, SWT.NONE);
+        lockableMenuItems.add(unhideMI);
+        unhideMI.setText("Show Hidden Notifications");
+        unhideMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                tableComp.populateTableDataRows(null);
+                tableComp.populateTable();
+            }
+
         });
 
         // Create the settings menu
