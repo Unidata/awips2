@@ -72,7 +72,6 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
  * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
  * Jun 13, 2013  #2044    randerso    Refactored to use IFPServer
- * 
  * </pre>
  * 
  * @author njensen
@@ -99,7 +98,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     private boolean intialized = false;
 
-    private ExecutorService postActivationTaskExecutor = MoreExecutors
+    private final ExecutorService postActivationTaskExecutor = MoreExecutors
             .getExitingExecutorService((ThreadPoolExecutor) Executors
                     .newCachedThreadPool());
 
