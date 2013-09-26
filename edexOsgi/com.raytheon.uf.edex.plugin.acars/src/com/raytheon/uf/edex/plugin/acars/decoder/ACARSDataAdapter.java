@@ -209,7 +209,7 @@ public class ACARSDataAdapter {
                             if (tailNumber != null) {
                                 rpt = new ACARSRecord();
 
-                                rpt.setTailNumber(tailNumber);
+                                rpt.setTailNumber(tailNumber.trim());
                                 rpt.setLocation(loc);
 
                                 getReceiver(subList, rpt, 7);
@@ -257,7 +257,7 @@ public class ACARSDataAdapter {
                             if (tailNumber != null) {
                                 rpt = new ACARSRecord();
 
-                                rpt.setTailNumber(tailNumber);
+                                rpt.setTailNumber(tailNumber.trim());
                                 rpt.setLocation(loc);
 
                                 rpt.setTimeObs(timeObs);
@@ -302,7 +302,7 @@ public class ACARSDataAdapter {
                             if (tailNumber != null) {
                                 rpt = new ACARSRecord();
 
-                                rpt.setTailNumber(tailNumber);
+                                rpt.setTailNumber(tailNumber.trim());
                                 rpt.setLocation(loc);
 
                                 rpt.setTimeObs(timeObs);
