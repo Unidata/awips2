@@ -75,6 +75,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -108,10 +109,10 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.ChangeCombineMode;
@@ -153,15 +154,16 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/01/2008              chammack    Initial Creation.
- * Aug 20, 2008            dglazesk    Update for the ColorMap interface change
- * Nov 23, 2011            mli         set vector lineStyle
- * May 11, 2012            njensen     Allow rsc to be recycled
- * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
- * Mar 04, 2013 1637       randerso    Fix time matching for ISC grids
- * Aug 27, 2013 2287       randerso    Fixed scaling and direction of wind arrows
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 01, 2008           chammack    Initial Creation.
+ * Aug 20, 2008           dglazesk    Update for the ColorMap interface change
+ * Nov 23, 2011           mli         set vector lineStyle
+ * May 11, 2012           njensen     Allow rsc to be recycled
+ * Nov 08, 2012  1298     rferrel     Changes for non-blocking FuzzValueDialog.
+ * Mar 04, 2013  1637     randerso    Fix time matching for ISC grids
+ * Aug 27, 2013  2287     randerso    Fixed scaling and direction of wind arrows
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -173,6 +175,16 @@ import com.vividsolutions.jts.geom.Envelope;
 public class GFEResource extends
         AbstractVizResource<GFEResourceData, MapDescriptor> implements
         IResourceDataChanged, IContextMenuContributor, IMessageClient {
+
+    /* arbitrary value chosen to most closely match A1 */
+    private static final double VECTOR_DENSITY_FACTOR = 1.36;
+
+    /* Unknown source, provides acceptable sized barbs. */
+    private static final double BARB_SCALE_FACTOR = 0.4;
+
+    /* Unknown source, provides acceptable sized arrows heads. */
+    private static final double ARROW_HEAD_RATIO = 1.0 / 7.0;
+
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEResource.class);
 
@@ -618,41 +630,55 @@ public class GFEResource extends
                     }
 
                     clearVectorDisplays();
-                    GFEVectorGraphicsRenderableFactory factory;
+                    VectorGraphicsConfig vectorConfig;
                     for (VisualizationType type : visTypes) {
                         switch (type) {
                         case WIND_ARROW:
+                            vectorConfig = new VectorGraphicsConfig();
+                            double size = getVectorSize("WindArrowDefaultSize");
+                            vectorConfig.setBaseSize(size);
+                            vectorConfig.setCalmCircleSizeRatio(vectorConfig
+                                    .getCalmCircleSizeRatio()
+                                    * BARB_SCALE_FACTOR);
+                            vectorConfig
+                                    .setArrowHeadStaffRatio(ARROW_HEAD_RATIO);
+                            vectorConfig.alwaysIncludeCalmCircle();
+                            vectorConfig.alwaysIncludeVector();
                             // get the logFactor
                             double logFactor = prefs.getDouble(parm.getParmID()
                                     .compositeNameUI() + "_arrowScaling");
-                            if (logFactor < 0.0) {
-                                logFactor = 0.0;
+                            double maxVal = parm.getGridInfo().getMaxValue();
+                            if (logFactor <= 0.0) {
+                                vectorConfig.setLinearArrowScaleFactor(size
+                                        / maxVal);
+                            } else {
+                                vectorConfig.setArrowScaler(new LogArrowScalar(
+                                        size, logFactor, maxVal));
                             }
-                            factory = new GFEVectorGraphicsRenderableFactory(
-                                    logFactor, parm.getGridInfo().getMaxValue());
 
                             this.vectorDisplay.add(new GriddedVectorDisplay(
                                     mag, dir, descriptor, MapUtil
                                             .getGridGeometry(gs.getGridInfo()
                                                     .getGridLoc()),
-                                    getVectorSize("WindArrowDefaultSize"),
-                                    1.36, false, visTypeToDisplayType(type),
-                                    factory));
+                                    VECTOR_DENSITY_FACTOR,
+                                    false, visTypeToDisplayType(type),
+                                    vectorConfig));
                             break;
 
                         case WIND_BARB:
-                            factory = new GFEVectorGraphicsRenderableFactory(
-                                    0.0, parm.getGridInfo().getMaxValue());
-                            this.vectorDisplay
-                                    .add(new GriddedVectorDisplay(
-                                            mag,
-                                            dir,
-                                            descriptor,
-                                            MapUtil.getGridGeometry(gs
-                                                    .getGridInfo().getGridLoc()),
-                                            getVectorSize("WindBarbDefaultSize"),
-                                            1.36, false,
-                                            visTypeToDisplayType(type), factory));
+                            vectorConfig = new VectorGraphicsConfig();
+                            vectorConfig
+                                    .setBaseSize(getVectorSize("WindBarbDefaultSize")
+                                            * BARB_SCALE_FACTOR);
+                            vectorConfig.alwaysIncludeCalmCircle();
+                            vectorConfig.alwaysIncludeVector();
+                            this.vectorDisplay.add(new GriddedVectorDisplay(
+                                    mag, dir, descriptor, MapUtil
+                                            .getGridGeometry(gs.getGridInfo()
+                                                    .getGridLoc()),
+                                    VECTOR_DENSITY_FACTOR / BARB_SCALE_FACTOR,
+                                    false, visTypeToDisplayType(type),
+                                    vectorConfig));
                             break;
 
                         case IMAGE:

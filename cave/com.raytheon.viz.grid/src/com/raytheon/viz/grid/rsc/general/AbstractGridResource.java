@@ -89,7 +89,7 @@ import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -104,15 +104,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 09, 2011            bsteffen    Initial creation
- * May 08, 2013 1980       bsteffen    Set paint status in GridResources for
- *                                     KML.
- * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013 2287       randerso    Added new parameters required by GriddedVectorDisplay
- *                                     and GriddedIconDisplay
- * Sep 24, 2013 2404        bclement   colormap params now created using match criteria
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2011           bsteffen    Initial creation
+ * May 08, 2013  1980     bsteffen    Set paint status in GridResources for
+ *                                    KML.
+ * Jul 15, 2013  2107     bsteffen    Fix sampling of grid vector arrows.
+ * Aug 27, 2013  2287     randerso    Added new parameters required by 
+ *                                    GriddedVectorDisplay and
+ *                                    GriddedIconDisplay
+ * Sep 24, 2013  2404     bclement    colormap params now created using match criteria
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -124,6 +126,12 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         extends AbstractVizResource<T, IMapDescriptor> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGridResource.class);
+
+    /* Unknown source, provides acceptable vector size. */
+    private static final double VECTOR_SIZE = 25.6;
+
+    /* Unknown source, provides acceptable density. */
+    private static final double VECTOR_DENSITY_FACTOR = 1.875;
 
     public static final String INTERROGATE_VALUE = "value";
 
@@ -496,10 +504,30 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         case ARROW:
         case DUALARROW:
             convertData(data);
-            VectorGraphicsRenderableFactory factory = new VectorGraphicsRenderableFactory();
+            VectorGraphicsConfig config = new VectorGraphicsConfig();
+            config.setBaseSize(VECTOR_SIZE);
+            if (displayType != DisplayType.BARB) {
+                config.setArrowHeadSizeRatio(0.15625);
+                config.setMinimumMagnitude(VECTOR_SIZE
+                        * config.getArrowHeadSizeRatio());
+                config.disableCalmCircle();
+                if (stylePreferences != null
+                        && stylePreferences instanceof ArrowPreferences) {
+                    double scale = ((ArrowPreferences) stylePreferences)
+                            .getScale();
+                    if (scale >= 0.0) {
+                        config.setLinearArrowScaleFactor(scale);
+                    } else {
+                        config.setArrowScaler(new LogArrowScaler(-1 * scale));
+                    }
+                } else {
+                    config.setLinearArrowScaleFactor(1.0);
+                }
+            }
             GriddedVectorDisplay vectorDisplay = new GriddedVectorDisplay(
                     data.getMagnitude(), data.getDirection(), descriptor,
-                    gridGeometry, 64, 0.75, true, displayType, factory);
+                    gridGeometry, VECTOR_DENSITY_FACTOR, true, displayType,
+                    config);
             vectorDisplay.setColor(getCapability(ColorableCapability.class)
                     .getColor());
             vectorDisplay.setLineStyle(getCapability(OutlineCapability.class)
@@ -510,11 +538,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     .getDensity());
             vectorDisplay.setMagnification(getCapability(
                     MagnificationCapability.class).getMagnification());
-            if (stylePreferences != null
-                    && stylePreferences instanceof ArrowPreferences) {
-                factory.setScale(((ArrowPreferences) stylePreferences)
-                        .getScale());
-            }
             renderable = vectorDisplay;
             break;
         case ICON:

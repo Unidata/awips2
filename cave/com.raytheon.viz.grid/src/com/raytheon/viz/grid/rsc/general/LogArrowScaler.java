@@ -17,30 +17,40 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.util;
+package com.raytheon.viz.grid.rsc.general;
 
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig.IArrowScaler;
 
 /**
- * Interface for factory class to create a VectorGraphicsRenderable for
- * GriddedVectorDisplay
+ * 
+ * Provides logarithmic scaling of arrows.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 22, 2013     #2287  randerso     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 23, 2013  2363     bsteffen    Initial creation
  * 
  * </pre>
  * 
- * @author randerso
+ * @author bsteffen
  * @version 1.0
+ * @see VectorGraphicsConfig
  */
+public class LogArrowScaler implements IArrowScaler {
 
-public interface IVectorGraphicsRenderableFactory {
-    public VectorGraphicsRenderable createRenderable(IDescriptor descriptor,
-            IGraphicsTarget target, double size);
+    protected final double scaleFactor;
+
+    public LogArrowScaler(double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
+
+    @Override
+    public double scale(double magnitude) {
+        return Math.log10(magnitude * scaleFactor) * 10 + 10;
+    }
+
 }
