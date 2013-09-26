@@ -43,7 +43,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2010            dgilling     Initial creation
  * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
- * 
+ * Sep 13, 2013 2368       rjpeter      Used durable jms settings.
  * </pre>
  * 
  * @author dgilling
@@ -94,7 +94,7 @@ public class SmartInitRequestHandler extends BaseGfeRequestHandler implements
                         .append(SmartInitRecord.MANUAL_SMART_INIT_PRIORITY);
 
                 EDEXUtil.getMessageProducer().sendAsyncUri(
-                        "jms-generic:queue:manualSmartInit",
+                        "jms-durable:queue:manualSmartInit",
                         manualInitString.toString());
             } else {
                 sr.addMessage("No valid model data could be retrieved for model "

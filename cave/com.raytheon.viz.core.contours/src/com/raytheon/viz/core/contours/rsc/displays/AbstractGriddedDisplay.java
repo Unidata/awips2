@@ -60,6 +60,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 27, 2013 2287       randerso    Replaced hard coded constant with densityFactor
  *                                     parameter to allow application specific density
  *                                     scaling to better match A1 displays
+ * Sep 10, 2013 DR 16257   MPorricelli  Fix so that wind for global grids displays on
+ *                                      mercator maps.
  * 
  * </pre>
  * 

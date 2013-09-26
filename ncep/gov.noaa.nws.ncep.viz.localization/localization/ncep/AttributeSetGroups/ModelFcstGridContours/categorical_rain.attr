@@ -17,6 +17,7 @@ FINT=1
 FLINE=0;21-30;14-20;5                                                         
 HILO=0                                                                    
 HLSYM=0                                                                       
+CLRBAR=0                                                                     
 WIND=
 TITLE=5/-1/~ CRAIN  
 COLORS=2                                                                       
