@@ -59,7 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 19, 2013 1804       bsteffen    Reduce useless data stored in radar hdf5
  * Mar 19, 2013 1804       bsteffen    Remove empty data structures from radar
  *                                     hdf5.
- * 
+ * Sep 03, 2013 DR 13083   gzhang    Add DHR Bias support for ADAD(38)/(46).
  * </pre>
  * 
  * @author mnash
@@ -507,7 +507,7 @@ public class RadarRecordUtil {
                 map.put(DHRValues.ZRMULTCOEFF, parseDHRValue(v[vi + 9]));
                 map.put(DHRValues.ZRPOWERCOEFF, parseDHRValue(v[vi + 10]));
                 map.put(DHRValues.MAXPRECIPRATEALLOW, parseDHRValue(v[vi + 25]));
-                map.put(DHRValues.BIASAPPLIEDFLAG, parseDHRValue(v[vi + 37]));
+                map.put(DHRValues.BIASAPPLIEDFLAG, parseDHRValue(v[vi + 37]));	biasApplied = map.get(DHRValues.BIASAPPLIEDFLAG) > 0;// DR 13083
                 s = v[46];
                 if (s.equals("SUPL(15)")) {
                     biasCalculated = parseDHRValue(v[71]);
@@ -524,10 +524,10 @@ public class RadarRecordUtil {
                 map.put(DHRValues.MAXPRECIPRATEALLOW, parseDHRValue(v[vi + 25]));
                 s = v[68];
                 if (s.equals("BIAS(11)")) {
-                    map.put(DHRValues.BIASAPPLIEDFLAG, parseDHRValue(v[53]));
+                    map.put(DHRValues.BIASAPPLIEDFLAG, parseDHRValue(v[53]));	biasApplied = map.get(DHRValues.BIASAPPLIEDFLAG) > 0;// DR 13083
                     biasCalculated = parseDHRValue(v[77]);
                 } else if (s.equals("BIAS( 9)")) {
-                    map.put(DHRValues.BIASAPPLIEDFLAG, parseDHRValue(v[53]));
+                    map.put(DHRValues.BIASAPPLIEDFLAG, parseDHRValue(v[53]));	biasApplied = map.get(DHRValues.BIASAPPLIEDFLAG) > 0;// DR 13083
                     biasCalculated = parseDHRValue(v[73]);
                 }
                 vi = nv;
@@ -537,7 +537,7 @@ public class RadarRecordUtil {
             map.put(DHRValues.FLAGZEROHYBRID, (double) flagZeroHybrid);
         if (!biasApplied) {
             biasCalculated = 1.0;
-        }
+        } else { if(biasCalculated < 0.01 || biasCalculated > 100.0) biasCalculated = 1.0; } // DR 13083
         map.put(DHRValues.BIAS, biasCalculated);
 
         // Also include logic from A1 FFMPContainer::read(), FFMP_ORPG case

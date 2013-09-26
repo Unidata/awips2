@@ -115,6 +115,6 @@
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
                      plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="clouds_bestCat" 
-                     plotLookupTable="ncep_cloudsbestCat.txt" />   
+                     plotLookupTable="pgen_clouds_best_cat.txt" />   
 
 </PlotParameterDefns>

@@ -91,7 +91,7 @@ public class SatelliteDecoder {
 
     private IUFStatusHandler statusHandler = UFStatus.getHandler(getClass());
 
-    private String traceId = "";
+    private final String traceId = "";
 
     private static final int MAX_IMAGE_SIZE = 30000000;
 
@@ -112,8 +112,9 @@ public class SatelliteDecoder {
 
         SatelliteRecord record = null;
 
-        if (file == null || (file.length() < 1))
+        if ((file == null) || (file.length() < 1)) {
             return new PluginDataObject[0];
+        }
         RandomAccessFile f = new RandomAccessFile(file, "r");
         try {
             ITimer timer = TimeUtil.getTimer();
@@ -260,7 +261,7 @@ public class SatelliteDecoder {
                 // Get the Satellite Height
                 int satHeight = byteBuffer.getShort(53);
 
-                if (latSub != 0 || lonSub != 0 || satHeight != 0) {
+                if ((latSub != 0) || (lonSub != 0) || (satHeight != 0)) {
                     // Correct the longitude so negative is west
                     lonSub *= -1;
                     // Correct the height to be height above ground
@@ -543,14 +544,13 @@ public class SatelliteDecoder {
         // Allocate 30MB for a possible max size
         ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_IMAGE_SIZE);
         int totalBytesDecomp = 0;
-        int decompByteCounter = 0;
         byte[] inputArray = new byte[1024 * 10];
         Inflater decompressor = new Inflater();
         int index = -1;
         try {
             while (totalBytesDecomp < zSatellite.length) {
 
-                int compChunkSize = zSatellite.length - totalBytesDecomp > 10240 ? 10240
+                int compChunkSize = (zSatellite.length - totalBytesDecomp) > 10240 ? 10240
                         : zSatellite.length - totalBytesDecomp;
 
                 // copy compChunkSize compressed data from zSatellite, offset by
@@ -574,9 +574,6 @@ public class SatelliteDecoder {
                         throw new DecoderException(
                                 "Unable to decompress satellite data - input data appears to be truncated");
                     }
-                    // add the total bytes decompressed from inflate call
-                    decompByteCounter += inflatedBytes;
-
                     // retrieve the total compressed bytes input so far
                     totalBytesDecomp += decompressor.getTotalIn();
 
@@ -645,9 +642,9 @@ public class SatelliteDecoder {
 
         }
 
-        if (index != -1 && (index + 3 <= inflateArray.length - 1)) {
-            if (!(inflateArray[index] == -1 && inflateArray[index + 1] == 0
-                    && inflateArray[index + 2] == -1 && inflateArray[index + 3] == 0)) {
+        if ((index != -1) && ((index + 3) <= (inflateArray.length - 1))) {
+            if (!((inflateArray[index] == -1) && (inflateArray[index + 1] == 0)
+                    && (inflateArray[index + 2] == -1) && (inflateArray[index + 3] == 0))) {
                 index = getIndex(inflateArray, index + 1);
             }
         } else {
@@ -690,7 +687,7 @@ public class SatelliteDecoder {
         if (byteArray[0] < 0) {
             // remove the negative value
             byteArray[0] &= 127;
-            latitude = byteArrayToFloat(byteArray) / 10000 * -1;
+            latitude = (byteArrayToFloat(byteArray) / 10000) * -1;
         } else {
             latitude = byteArrayToFloat(byteArray) / 10000;
         }

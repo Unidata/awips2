@@ -16,6 +16,7 @@ FINT=
 FLINE=0;29;28;27;26;0
 HILO=
 HLSYM=
+CLRBAR=0
 WIND=
 TITLE=1/-1/~ PPAN
 COLORS=2                                                                       

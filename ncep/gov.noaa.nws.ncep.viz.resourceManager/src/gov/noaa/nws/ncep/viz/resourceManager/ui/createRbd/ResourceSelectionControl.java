@@ -1062,7 +1062,7 @@ public class ResourceSelectionControl extends Composite {
 						// 'Check Availability' button.
 						DataTime latestTime = rscDefn.getLatestDataTime( seldResourceName );
 
-						if( latestTime.isNull() ) {
+						if( latestTime == null || latestTime.isNull() ) {
 							enableSelections = false;
 						}
 						else {
