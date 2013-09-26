@@ -49,7 +49,6 @@ Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.viz.d2d.core.map,
  com.raytheon.viz.alerts,
  com.raytheon.viz.alerts.observers,
- com.raytheon.viz.core.drawables,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.rsc.displays
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

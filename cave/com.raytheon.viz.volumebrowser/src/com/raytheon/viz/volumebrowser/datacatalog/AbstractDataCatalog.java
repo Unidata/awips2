@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
@@ -58,7 +59,6 @@ import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData.AxisParamete
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
-import com.raytheon.viz.grid.GridLevelTranslator;
 import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.vividsolutions.jts.geom.Coordinate;
