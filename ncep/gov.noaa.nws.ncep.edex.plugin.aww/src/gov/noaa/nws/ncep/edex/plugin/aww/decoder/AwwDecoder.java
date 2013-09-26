@@ -52,7 +52,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 11/2009      38              L. Lin      Correctly get UGC information.    
  * 11/2009      38              L. Lin      Migration to TO11 D6.
  * 05/2010      38              L. Lin      Migration to TO11DR11.    
- * 01/26/2011   N/A             M. Gao      Refactor: 
+ * Jan 26, 2011 N/A             M. Gao      Refactor: 
  *                                          1. if AwwParser.processWMO failed, simply
  *                                             drop the record by throwing an exception
  *                                          2. comment out the end check "if(record == null") 
@@ -248,12 +248,7 @@ public class AwwDecoder extends AbstractDecoder {
                             List<AwwLatlons> pointAwwLatLonsList = AwwLatLonUtil
                                     .getAwwLatLonsListBySereveWeatherStatusPointLine(awwVtec
                                             .getVtecLine());
-                            // System.out.println("==========, within AwwDecoder, pointAwwLatLonsList.size="+pointAwwLatLonsList.size());
-                            int index = 0;
                             for (AwwLatlons eachAwwLatlons : pointAwwLatLonsList) {
-                                // System.out.println("===============,before adding awwLatLons to ugc,  No."+(index+1)+" awwLatLons.getLat="+
-                                // eachAwwLatlons.getLat()+"    awwLatLons.getLon="+eachAwwLatlons.getLon());
-                                index++;
                                 ugc.addAwwLatLon(eachAwwLatlons);
                             }
                         }
