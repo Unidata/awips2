@@ -17,6 +17,7 @@ FINT=
 FLINE=
 HILO=0
 HLSYM=0
+CLRBAR=0
 WIND=
 TITLE=1/-2/~ 2-METER 12-HR MIN TEMPERATURE (C)!0
 COLORS=2                                                                       

@@ -18,6 +18,7 @@ FINT=!0.5;1.0;1.5;2.0
 FLINE=!0;23;22;30;14
 HILO=!!2;6/X;N/10-99;10-99       !             !
 HLSYM=
+CLRBAR=1
 WIND=9/.8/2/112
 TITLE=1/-1/~ 200mb HGHT, VORTICITY, PW AND 850 WIND (KTS)!0
 COLORS=2                                                                       

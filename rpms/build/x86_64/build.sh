@@ -85,6 +85,7 @@ if [ "${2}" = "-nobinlightning" ]; then
 fi
 
 if [ "${1}" = "-64bit" ]; then
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1

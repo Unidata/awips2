@@ -12,6 +12,7 @@ Export-Package: gov.noaa.nws.ncep.common.dataplugin.geomag,
  gov.noaa.nws.ncep.common.dataplugin.geomag.table,
  gov.noaa.nws.ncep.common.dataplugin.geomag.util
 Import-Package: com.raytheon.uf.common.localization,
+ gov.noaa.nws.ncep.common.dataplugin.geomag,
  org.apache.commons.logging
 
 
