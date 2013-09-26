@@ -188,12 +188,12 @@ public class RadarXsectXYResource extends RadarXYResource implements
         double width = 460;
         double height = 430;
 
-        width *= scalar;
-        height *= scalar;
+        width *= SCALAR;
+        height *= SCALAR;
 
-        double upper = (yOffsetNWP + jStart) * scalar;
+        double upper = (Y_OFFSET_NWP + jStart) * SCALAR;
         double lower = upper + height;
-        double left = (xOffsetNWP + iStart) * scalar;
+        double left = (X_OFFSET_NWP + iStart) * SCALAR;
         double right = left + width;
 
         return new PixelCoverage(new Coordinate(right, lower), new Coordinate(
