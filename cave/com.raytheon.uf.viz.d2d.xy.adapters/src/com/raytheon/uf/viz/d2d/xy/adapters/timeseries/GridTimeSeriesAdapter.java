@@ -33,6 +33,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -53,7 +54,6 @@ import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 import com.raytheon.viz.core.graphing.xy.XYIconImageData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.grid.GridLevelTranslator;
 
 /**
  * Adapter providing a TimeSeries view of GridData.

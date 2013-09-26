@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid;
+package com.raytheon.uf.common.dataplugin.grid.util;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
