@@ -126,7 +126,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 05, 2013 2064       mpduff     Fix for filtering combo boxes.
  * Jun 06, 2013 2030       mpduff     Refactored help.
  * Jun 14, 2013 2064       mpduff     Check for null/disposed sort column.
- * Jul 26, 2031   2232     mpduff     Refactored Data Delivery permissions.
+ * Jul 26, 2013   2232     mpduff     Refactored Data Delivery permissions.
+ * Sep 25. 2013   2409     mpduff     Add check for widget disposed after calling configuration.
  * </pre>
  * 
  * @author mpduff
@@ -918,7 +919,10 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         } else {
             configDlg.bringToTop();
         }
-        handleTooltipSelection(tooltipMI.getSelection());
+
+        if (!this.isDisposed()) {
+            handleTooltipSelection(tooltipMI.getSelection());
+        }
     }
 
     /**
