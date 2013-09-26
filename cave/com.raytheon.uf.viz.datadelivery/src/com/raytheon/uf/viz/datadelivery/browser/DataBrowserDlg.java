@@ -122,6 +122,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
  * Sep 04, 2013   2314     mpduff       Load/save config dialog now non-blocking.
  * Sep 26, 2013   2412     mpduff       Handle auto selecting data type.
+ * Sep 26, 2013   2413     mpduff       Added isDirty check to New Configuration menu selection.
  * 
  * </pre>
  * 
@@ -884,18 +885,18 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
      * Apply the new configuration selections to the Data Browser dialog.
      */
     private void handleNewConfigurationAction() {
+        if (isDirty()) {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
+                    | SWT.NO);
+            mb.setText("New Configuration");
+            mb.setMessage("Creating a new configuration will discard any changes you have "
+                    + "made to Area, Data Types, and Filters.\n\nDo you wish to continue?");
+            int result = mb.open();
 
-        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
-                | SWT.NO);
-        mb.setText("New Configuration");
-        mb.setMessage("Creating a new configuration will discard any changes you have "
-                + "made to Area, Data Types, and Filters.\n\nDo you wish to continue?");
-        int result = mb.open();
-
-        if (result == SWT.NO) {
-            return;
+            if (result == SWT.NO) {
+                return;
+            }
         }
-
         xml = new FilterSettingsXML();
         setText(WINDOW_TITLE);
 
@@ -910,11 +911,6 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
 
         // Clear the filters.
         updateFilters();
-
-        String selection = datatypeList.getItem(datatypeList
-                .getSelectionIndex());
-
-        filterExpandBar.updateFilters(selection, envelope);
 
         // Clear the table and disable the buttons.
         resetTableAndControls();
