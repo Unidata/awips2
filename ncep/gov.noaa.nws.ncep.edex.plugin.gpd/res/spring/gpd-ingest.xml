@@ -7,11 +7,6 @@
 	<bean id="gpdDecoder" class="gov.noaa.nws.ncep.edex.plugin.gpd.decoder.GenericPointDataDecoder">
 		<property name="pluginName" value="gpd" />		
 	</bean>
-	<bean id="gpdDistRegistry" factory-bean="distributionSrv"
-		factory-method="register">
-		<constructor-arg value="gpd" />
-		<constructor-arg value="jms-dist:queue:ingest.gpd" />
-	</bean>
 	
     <bean id="gpdCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
