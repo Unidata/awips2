@@ -34,6 +34,8 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2013       2189 mschenke     Initial creation
+ * Sep 13, 2013      16581 kshrestha    Variables scaleFont and smoothing 
+ *                                      initialized to true. 
  * 
  * </pre>
  * 
