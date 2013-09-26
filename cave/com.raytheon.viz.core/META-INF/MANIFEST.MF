@@ -34,7 +34,6 @@ Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.common.geospatial, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status
 Export-Package: 
  com.raytheon.viz.core,
- com.raytheon.viz.core.drawables,
  com.raytheon.viz.core.imagery,
  com.raytheon.viz.core.interval,
  com.raytheon.viz.core.map,

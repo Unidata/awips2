@@ -17,9 +17,8 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.drawables;
+package com.raytheon.uf.common.style.image;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,27 +28,20 @@ import javax.measure.unit.Unit;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.LabelingPreferences;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
-import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.DataScale.Type;
-import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.level.Level;
 import com.raytheon.uf.common.style.level.RangeLevel;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.util.GridUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
+
 
 /**
  * ColorMapParameterFactory
@@ -64,6 +56,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *    Mar 26, 2009     2086    jsanchez    Added a entityList to the match criteria.
  *    Feb 15, 2013 1638        mschenke    Moved GRID_FILL_VALUE from edex.common Util into GridUtil
  *    Jun 24, 2013 2122        mschenke    Added method for constructing {@link ColorMapParameters} from {@link StyleRule}
+ *    Sep 24, 2013 2404        bclement    moved to common.style from viz.core, added build method that takes ParamLevelMatchCriteria, removed unused methods
  * </pre>
  * 
  * @author chammack
@@ -79,7 +72,7 @@ public class ColorMapParameterFactory {
 
     public static ColorMapParameters build(Object data, String parameter,
             Unit<?> parameterUnits, SingleLevel level, String entity)
-            throws VizException {
+            throws StyleException {
 
         // StyleRule sr = StyleLoader.getInstance()
         // .getStyleRule(parameter, levels);
@@ -93,14 +86,33 @@ public class ColorMapParameterFactory {
             entityList.add(entity);
             match.setCreatingEntityNames(entityList);
         }
-        StyleRule sr;
-        try {
-            sr = StyleManager.getInstance().getStyleRule(
-                    StyleManager.StyleType.IMAGERY, match);
-        } catch (StyleException e) {
-            throw new VizException(e.getLocalizedMessage(), e);
-        }
+        StyleRule sr = StyleManager.getInstance().getStyleRule(
+                StyleManager.StyleType.IMAGERY, match);
 
+        return build(sr, data, level, parameterUnits);
+    }
+
+    /**
+     * Find style rules for match and construct colormap parameters for data
+     * 
+     * @param data
+     *            primitive number array
+     * @param parameterUnits
+     * @param match
+     * @return
+     * @throws StyleException
+     */
+    public static ColorMapParameters build(Object data, Unit<?> parameterUnits,
+            ParamLevelMatchCriteria match) throws StyleException {
+        StyleRule sr = StyleManager.getInstance().getStyleRule(
+                StyleManager.StyleType.IMAGERY, match);
+        SingleLevel level = null;
+        if (match.getLevels() != null && !match.getLevels().isEmpty()) {
+            Level styleLevel = match.getLevels().get(0);
+            if (styleLevel instanceof SingleLevel) {
+                level = (SingleLevel) styleLevel;
+            }
+        }
         return build(sr, data, level, parameterUnits);
     }
 
@@ -359,67 +371,8 @@ public class ColorMapParameterFactory {
     }
 
     public static ColorMapParameters build(Object data, String parameter,
-            Unit<?> parameterUnits, SingleLevel level) throws VizException {
+            Unit<?> parameterUnits, SingleLevel level) throws StyleException {
         return build(data, parameter, parameterUnits, level, null);
-    }
-
-    public static ColorMapParameters build(File file, String dataURI,
-            String parameter, Unit<?> parameterUnits, SingleLevel level,
-            String entity) throws VizException {
-        ColorMapParameters params = null;
-        if (file != null) {
-            IDataRecord rec = null;
-            try {
-                IDataStore ds = DataStoreFactory.getDataStore(file);
-                rec = ds.retrieve("", dataURI, Request.ALL);
-            } catch (Exception e) {
-                throw new VizException("Unable to read file (File: " + file
-                        + ") (DataSet: " + dataURI + ")", e);
-            }
-
-            if (rec != null) {
-                Object data = rec.getDataObject();
-                params = build(data, parameter, parameterUnits, level, entity);
-            }
-        } else {
-            params = build(null, parameter, parameterUnits, level, entity);
-        }
-
-        return params;
-    }
-
-    public static ColorMapParameters build(File file, String dataURI,
-            String parameter, Unit<?> parameterUnits, SingleLevel level)
-            throws VizException {
-        return build(file, dataURI, parameter, parameterUnits, level, null);
-    }
-
-    public static ColorMapParameters build(PluginDataObject record,
-            String parameter, Unit<?> parameterUnits, SingleLevel level,
-            String entity) throws VizException {
-        ColorMapParameters params = null;
-        if (record != null) {
-            IDataRecord rec = null;
-            IDataRecord[] records = DataCubeContainer.getDataRecord(record);
-            if (records != null && records.length > 0) {
-                rec = records[0];
-            }
-            if (rec != null) {
-                Object data = rec.getDataObject();
-                params = build(data, parameter, parameterUnits, level, entity);
-            }
-        } else {
-            params = build((Object) null, parameter, parameterUnits, level,
-                    entity);
-        }
-
-        return params;
-    }
-
-    public static ColorMapParameters build(PluginDataObject record,
-            String parameter, Unit<?> parameterUnits, SingleLevel level)
-            throws VizException {
-        return build(record, parameter, parameterUnits, level, null);
     }
 
     private static void extractLabelValues(StyleRule sr, float max, float min,

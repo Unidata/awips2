@@ -31,3 +31,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  javax.measure,
  javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0"
+Import-Package: com.raytheon.uf.common.style,
+ com.raytheon.uf.common.style.level

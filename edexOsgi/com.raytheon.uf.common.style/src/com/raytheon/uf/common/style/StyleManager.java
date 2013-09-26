@@ -28,6 +28,7 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 24, 2007                 njensen     Initial creation
  * May 21, 2012 DR 14833        gzhang		Adding a getter for StyleRuleset
  * Sep 06, 2013 2251       mnash       Add ability to plug in new style types
+ * Sep 24, 2013 2404        bclement        changed to look in common for files
  * </pre>
  * 
  * @author njensen
@@ -86,18 +88,34 @@ public class StyleManager {
     private void loadRules(IStyleType aType) {
         try {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationFile[] files = pathMgr.listFiles(pathMgr
-                    .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+            LocalizationFile[] commonFiles = pathMgr.listFiles(pathMgr
+                    .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
                     "styleRules", aType.getExtensions(), true, true);
             StyleRuleset rules = new StyleRuleset();
-            for (LocalizationFile lf : files) {
-                rules.addStyleRules(SerializationUtil.jaxbUnmarshalFromXmlFile(
-                        StyleRuleset.class, lf.getFile().getPath()));
-            }
+            addRules(commonFiles, rules);
             this.rules.put(aType, rules);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, "Error loading style rules",
                     e);
+        }
+    }
+
+    /**
+     * Add style rules from jaxb files to rule set
+     * 
+     * @param files
+     * @param rules
+     * @throws SerializationException
+     */
+    private void addRules(LocalizationFile[] files, StyleRuleset rules)
+            throws SerializationException {
+        if (files == null) {
+            return;
+        }
+        for (LocalizationFile lf : files) {
+            rules.addStyleRules((StyleRuleset) SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(StyleRuleset.class, lf.getFile()
+                            .getPath()));
         }
     }
 
