@@ -30,9 +30,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -56,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 07, 2012    687      lvenable   Table data refactor.
  * Dec 12. 2012   1418      mpduff     Change label.
  * Aug 30, 2013   2314      mpduff     Fixed find, filter, and various other bugs.
+ * Sep 26, 2013   2417      mpduff     Reset the highlight all indices on close.
  * 
  * </pre>
  * 
@@ -182,6 +185,12 @@ public class FindDlg extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        shell.addListener(SWT.Close, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                callback.selectIndices(null);
+            }
+        });
         createFindLayout();
         createBottomButtons();
     }
@@ -305,6 +314,7 @@ public class FindDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                callback.selectIndices(null);
                 close();
             }
         });
@@ -490,6 +500,7 @@ public class FindDlg extends CaveSWTDialog {
             mb.setMessage("No item matching your search was found.");
             mb.open();
             tableIndex = 0;
+            callback.clearSelections();
         }
     }
 
