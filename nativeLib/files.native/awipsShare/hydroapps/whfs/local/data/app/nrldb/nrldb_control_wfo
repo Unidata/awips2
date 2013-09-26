@@ -1,0 +1,174 @@
+#NRLDB national configuration file
+#
+#
+[hsa]
+fields = ALL
+
+[wfo]
+fields = ALL
+
+[state]
+fields = ALL
+
+[counties]
+fields = ALL
+
+[network]
+fields = ALL
+
+[rfc]
+fields = ALL
+
+[timezone]
+fields = ALL
+
+#[admin]
+#fields = ALL
+
+[coopcomms] 
+fields = ALL
+
+[cooprecip] 
+fields = ALL
+
+[coopspons] 
+fields = ALL
+
+[dcpowner] 
+fields = ALL
+
+#[eligzon] 
+#fields = ALL
+
+[gagemaint] 
+fields = ALL
+
+[gageowner] 
+fields = ALL
+
+[gagetype] 
+fields = ALL
+
+[proximity] 
+fields = ALL
+
+[telmtype] 
+fields = ALL
+
+[telmowner] 
+fields = ALL
+
+[telmpayor] 
+fields = ALL
+
+[resowner]
+fields = ALL
+
+[damtypes]
+fields = ALL
+
+[location]
+fields = ALL
+
+[riverstat]
+fields = ALL
+
+[benchmark]
+fields = lid, bnum, elev, remark
+
+[observer]
+fields = ALL
+
+#[zonenum]
+#fields = lid, state, zonenum
+
+[reservoir]
+fields = ALL
+
+[crest] 
+fields = ALL
+
+[datum] 
+fields = ALL
+
+#[dcp] 
+#fields = ALL
+[dcp]
+fields = lid, criteria, owner, goes, rptfreq, rptime, notify, obsvfreq, randrept
+
+[descrip] 
+fields = ALL
+
+[flood] 
+fields = ALL
+
+[floodcat]
+fields = ALL
+
+[floodstmt] 
+fields = ALL
+
+[gage] 
+fields = ALL
+
+[lowwater] 
+fields = ALL
+
+[pub] 
+fields = ALL
+
+[refer] 
+fields = ALL
+
+#[telem] 
+#fields = ALL
+[telem]
+fields = lid, type, payor, cost, criteria, owner, phone, sensorid, rptfreq, notify, obsvfreq
+
+[rating] 
+fields = ALL
+
+[ratingshift] 
+fields = ALL
+
+[contacts]
+fields = ALL
+
+[countynum]
+fields = ALL
+
+[unitgraph]
+fields = ALL
+
+[hgstation]
+fields = ALL
+
+#[floodts]
+#fields = ALL
+
+[lwstmt]
+fields = ALL
+
+[rpffcstgroup]
+fields = ALL
+
+[rpffcstpoint]
+fields = ALL
+
+[locdatalimits]
+fields = lid,pe,dur,monthdaystart,monthdayend,gross_range_min,gross_range_max,reason_range_min,reason_range_max,roc_max
+
+[sshpconfig]
+fields = ALL
+
+[shefpe]
+fields = ALL
+
+[shefdur]
+fields = ALL
+
+#[ingestfilter]
+#fields = ALL
+
+[locarea]
+fields = ALL 
