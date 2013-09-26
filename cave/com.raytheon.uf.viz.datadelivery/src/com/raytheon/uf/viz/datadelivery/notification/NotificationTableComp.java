@@ -80,6 +80,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Apr 25, 2013  1820      mpduff       Get the column list every time.
  * Aug 30, 2013  2314      mpduff       Sort the table data on load.
  * Sep 16, 2013  2375      mpduff       Removed initial sorting.
+ * Sep 26, 2013  2417      mpduff       Fix the find all row selection.
  * </pre>
  * 
  * @author lvenable
@@ -1150,7 +1151,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                         if (startIndex == 0) {
                             highlightIndex = index;
                         } else if (selectedPage > 0) {
-                            int extra = (selectedPage * pageConfig);
+                            int extra = ((selectedPage - 1) * pageConfig);
                             highlightIndex = index - extra;
                         } else {
                             highlightIndex = index - pageConfig;
@@ -1311,10 +1312,11 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     @Override
     public void selectIndices(int[] indices) {
         this.indices = indices;
-
-        // highlight table rows
-        table.select(indices);
-        handlePageSelection();
+        if (indices != null && indices.length > 0) {
+            // highlight table rows
+            table.select(indices);
+            handlePageSelection();
+        }
     }
 
     /**
@@ -1344,5 +1346,10 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      */
     public boolean isLocked() {
         return pauseButton.getSelection();
+    }
+
+    @Override
+    public void clearSelections() {
+        table.deselectAll();
     }
 }
