@@ -42,7 +42,7 @@
 
 		<!-- Begin airep routes -->
 		<route id="airepIngestRoute">
-			<from uri="jms-generic:queue:Ingest.airep" />
+			<from uri="jms-durable:queue:Ingest.airep" />
 			<setHeader headerName="pluginName">
 				<constant>airep</constant>
 			</setHeader>

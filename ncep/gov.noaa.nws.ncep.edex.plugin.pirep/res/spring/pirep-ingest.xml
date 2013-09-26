@@ -48,7 +48,7 @@
         
         <!-- Begin pirep routes -->
         <route id="pirepIngestRoute">
-            <from uri="jms-generic:queue:Ingest.pirep"/>
+            <from uri="jms-durable:queue:Ingest.pirep"/>
             <setHeader headerName="pluginName">
                 <constant>pirep</constant>
             </setHeader>

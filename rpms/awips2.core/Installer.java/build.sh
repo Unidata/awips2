@@ -34,6 +34,7 @@ buildRPM ${SPECS}
 if [ $? -ne 0 ]; then
    exit 1
 fi
+exit 0
 
 # build java 1.7
 SPECS=1.7/component.spec

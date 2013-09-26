@@ -15,6 +15,8 @@ import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
  *  Date          Ticket#     Engineer     Description
  * ------------ ---------- ----------- --------------------------
  *  11-Jun-2012    743       Archana.S   Initial Creation
+ *  08-Aug-2013    743       S. Gurung   Fixed NullPointerException caused when user enters a value 
+ *                                       greater than the size of GempakColor values.
  * </pre>
  * 
  * @author Archana.S
@@ -41,7 +43,6 @@ public class CLRBAR {
 
 	private void parse(String strToParse) {
 	  
-
 	  if (strToParse == null || strToParse.isEmpty())
 			return;
 
@@ -51,13 +52,15 @@ public class CLRBAR {
   		  int color;
 		  try {
 				color = Integer.parseInt(parsedStringArray[0]);
+				if (color > GempakColor.values().length)
+					color = -1;
 				
 				if(color == 0)
 					cBarAttributesBuilder.setDrawColorBar(false);
 				else
 					cBarAttributesBuilder.setDrawColorBar(true);
 				
-				if (color < 0 ){
+				if (color < 0){
 					cBarAttributesBuilder.setDrawBoxAroundColorBar(false);
 					cBarAttributesBuilder.setColor(GempakColor.convertToRGB(color * -1));
 				}else{
