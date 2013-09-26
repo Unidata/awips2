@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.awt.Rectangle;
 import java.nio.FloatBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,6 +110,9 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 05/02/2013   #1969       randerso    Removed unnecessary updateDbs method
  * 05/03/2013   #1974       randerso    Fixed error handling when no D2D level mapping found
  * 06/13/2013   #2044       randerso    Added convenience methods, general code cleanup
+ * 09/12/2013   #2348       randerso    Removed code that called getDb from  getD2DDatabaseIdsFromDb
+ *                                      Added function to create a D2DGridDatabase object only if there is
+ *                                      data in postgres for the desired model/reftime
  * 
  * </pre>
  * 
@@ -167,23 +172,25 @@ public class D2DGridDatabase extends VGridDatabase {
      * @return D2DGridDatabase or null if not available
      */
     public static D2DGridDatabase getDatabase(IFPServerConfig config,
-            DatabaseID dbId) {
-        String gfeModelName = dbId.getModelName();
-        Date refTime = dbId.getModelDate();
-
-        String d2dModelName = config.d2dModelNameMapping(gfeModelName);
+            String d2dModelName, Date refTime) {
         try {
             GFED2DDao dao = new GFED2DDao();
             // TODO create query for single refTime
             List<Date> result = dao.getModelRunTimes(d2dModelName, -1);
 
             if (result.contains(refTime)) {
-                D2DGridDatabase db = new D2DGridDatabase(config, dbId);
+                D2DGridDatabase db = new D2DGridDatabase(config, d2dModelName,
+                        refTime);
                 return db;
             }
             return null;
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    DatabaseID.MODEL_TIME_FORMAT);
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to create D2DGridDatabase for " + d2dModelName
+                            + "_" + sdf.format(refTime), e);
             return null;
         }
     }
@@ -312,31 +319,11 @@ public class D2DGridDatabase extends VGridDatabase {
     private Map<String, D2DParm> d2dParms = new HashMap<String, D2DParm>();
 
     /**
-     * Constructs a new D2DGridDatabase from a DatabaseID
-     * 
-     * @param config
-     * @param dbId
-     * @throws GfeException
-     */
-    public D2DGridDatabase(IFPServerConfig config, DatabaseID dbId)
-            throws GfeException {
-        super(config);
-
-        if (!dbId.getDbType().equals("D2D")) {
-            throw new GfeException(
-                    "Attempting to create D2DGridDatabase for non-D2D DatabaseID: "
-                            + dbId);
-        }
-
-        String gfeModelName = dbId.getModelName();
-        String d2dModelName = this.config.d2dModelNameMapping(gfeModelName);
-        Date refTime = dbId.getModelDate();
-
-        init(d2dModelName, refTime);
-    }
-
-    /**
      * Constructs a new D2DGridDatabase
+     * 
+     * For internal use only. External code should call
+     * D2DGridDatabase.getDatabase(IFPServerConfig, String, Date) to ensure
+     * objects are only created if data is present
      * 
      * @param config
      * @param d2dModelName
@@ -344,7 +331,7 @@ public class D2DGridDatabase extends VGridDatabase {
      * 
      * @throws GfeException
      */
-    public D2DGridDatabase(IFPServerConfig config, String d2dModelName,
+    private D2DGridDatabase(IFPServerConfig config, String d2dModelName,
             Date refTime) throws GfeException {
         super(config);
 
