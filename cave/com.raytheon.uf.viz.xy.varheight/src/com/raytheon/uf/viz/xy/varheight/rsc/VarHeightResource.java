@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -75,10 +76,12 @@ import com.vividsolutions.jts.geom.Geometry;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 23, 2009            mschenke     Initial creation
- * Feb 10, 2011 8344       bkowal       enabled the magnification capability.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 23, 2009           mschenke    Initial creation
+ * Feb 10, 2011  8344     bkowal      enabled the magnification capability.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * 
  * 
  * </pre>
  * 
@@ -108,8 +111,6 @@ public class VarHeightResource extends
     protected CombineOperation combineOperation;
 
     protected DataTime currentTime = null;
-
-    private double imageSize = XYWindImageData.IMAGE_SIZE;
 
     protected VarHeightResource(VarHeightResourceData resourceData,
             LoadProperties loadProperties, AbstractVarHeightAdapter<?> adapter)
@@ -319,9 +320,14 @@ public class VarHeightResource extends
         descriptor.getGraph(this).setCurrentMagnification(magnification);
         target.setupClippingPlane(descriptor.getGraph(this).getExtent());
 
+        double ratio = paintProps.getView().getExtent().getWidth()
+                / paintProps.getCanvasBounds().width;
+
         // build the renderable
+        VectorGraphicsConfig config = new VectorGraphicsConfig();
+        config.setSizeScaler(magnification * ratio);
         VectorGraphicsRenderable vgr = new VectorGraphicsRenderable(
-                this.descriptor, target, this.imageSize, 1.0f);
+                this.descriptor, target, config);
         for (int i = 0; i < data.size(); i++) {
             XYData d = data.get(i);
             double x = ((Number) d.getX()).doubleValue();
@@ -332,8 +338,6 @@ public class VarHeightResource extends
             double screenX = screenLoc[0];
             double screenY = screenLoc[1];
 
-            double ratio = paintProps.getView().getExtent().getWidth()
-                    / paintProps.getCanvasBounds().width;
 
             IExtent graphExtent = descriptor.getGraph(this).getExtent();
 
@@ -349,8 +353,7 @@ public class VarHeightResource extends
                 }
 
                 if (withinBounds) {
-                    double adjSize = (this.imageSize * magnification) * ratio;
-                    vgr.paintBarb(plotLoc, adjSize, dd.getWindSpd(),
+                    vgr.paintBarb(plotLoc, dd.getWindSpd(),
                             dd.getWindDir() * DEGREE_TO_RADIAN);
                     vgr.setColor(color);
                     vgr.setLineWidth(getCapability(OutlineCapability.class)
