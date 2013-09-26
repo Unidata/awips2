@@ -88,6 +88,7 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  *  03/2013       #972        Greg Hull   AttrSetsOrganization
  *  04/2013       #864        Greg Hull   mv filters and isEnabled
  *  04/2013       #838        B. Hebbard  Add special handling (like satellite) for NTRANS compound subType
+ *  08/2013       #1031       Greg Hull   modified inventory query 
  * 
  * </pre>
  * 
@@ -187,10 +188,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	
 	private String  inventoryAlias = null;
 	
-    // the names of the parameters which are stored in the inventory for this RD;
-    //	
-    private ArrayList<String> inventoryParamNames = new ArrayList<String>();
-    
     // a map from the resource Constraints to a cache of the availableTimes and the
     // latest time. The availableTimes may come from an inventory query or a db query and
     // the latest time may be determined from the latest time or it may be updated
@@ -301,6 +298,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     }
 
     public String[] getSubTypeGenParamsList() {
+    	
     	if( subTypeGenerator == null || subTypeGenerator.trim().isEmpty() ) {
     		return new String[0];
     	}
@@ -582,8 +580,27 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	return getResourceParameters(false).get("pluginName");    	
     }
     
+    public List<String> getUnconstrainedParameters() {
+    	HashMap<String,RequestConstraint> constrMap = 
+    			getInventoryConstraintsFromParameters( getResourceParameters( true ),true );
+    	List<String> unconstPrms = new ArrayList<String>();
+    	
+    	for( String prm : constrMap.keySet() ) {
+    		if( constrMap.get( prm ) == RequestConstraint.WILDCARD ) {
+    			unconstPrms.add( prm );
+    		}
+    	}
+    	//  TODO : add dataTime here?
+    	return unconstPrms;
+    }
+    
     public HashMap<String,RequestConstraint>  getInventoryConstraintsFromParameters( 
     		HashMap<String,String> paramValues ) {
+    	return getInventoryConstraintsFromParameters(paramValues, false );
+    }
+
+    public HashMap<String,RequestConstraint>  getInventoryConstraintsFromParameters( 
+    		HashMap<String,String> paramValues, Boolean includeWildcard ) {
 
     	HashMap<String,RequestConstraint> inventoryConstraints = 
     		new HashMap<String,RequestConstraint>( );
@@ -616,7 +633,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     				RequestConstraint reqConstr = getConstraintFromParamValue( 
     													paramValues.get( prmName ) );
     				
-    				if( reqConstr != RequestConstraint.WILDCARD ) {
+    				if( includeWildcard || 
+    					reqConstr != RequestConstraint.WILDCARD ) {
+
     					inventoryConstraints.put( cnstrName, reqConstr );
     				}
     			}
@@ -632,9 +651,16 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	return inventoryConstraints;
     }
 
+    public String getInventoryAlias() {
+    	return inventoryAlias;
+    }
+    
     public RequestConstraint getConstraintFromParamValue( String paramVal ) {
     	if( paramVal.equals( "%" ) ) {
     		return RequestConstraint.WILDCARD;
+    	}
+    	else if( paramVal.indexOf( "%" ) != -1 ) {
+        	return new RequestConstraint( paramVal, ConstraintType.LIKE );
     	}
     	else if( paramVal.indexOf( "," ) == -1 ) {
         	return new RequestConstraint( paramVal, ConstraintType.EQUALS );
@@ -642,6 +668,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	else { 
     		return new RequestConstraint( paramVal, ConstraintType.IN );
     	}
+    	// TODO : do we need a syntax for 'BETWEEN'
     }
 
     public boolean isInventoryInitialized() {
@@ -726,10 +753,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	return isRequestable() &&
     		   !isPgenResource() && 
     		   !getPluginName().equals( GempakGrid.gempakPluginName );
-    }
-    
-    public List<String> getInventoryParameterNames() {
-    	return inventoryParamNames;
     }
     
     public HashMap<String,String> getDefaultParameterValues() {
@@ -856,7 +879,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
  
 		baseConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
 		//        	inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
-		inventoryParamNames = new ArrayList<String>();
+		ArrayList<String>  inventoryParamNames = new ArrayList<String>();
 		inventoryParamNames.add( "pluginName" );
 		
 //		if( rscImplementation == "ModelFcstGridContours" ) {
@@ -1029,7 +1052,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
 		// get a list of the generated Resource Types from the inventory.
 		//
-		HashMap<String, RequestConstraint> searchConstraints = 
+		Map<String, RequestConstraint> searchConstraints = 
 					getInventoryConstraintsFromParameters( getResourceParameters(true) );
 
 		// Create an NcInventoryRequest script to get query the ncInventory for the types.
@@ -1040,12 +1063,15 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
 		reqMsg.setInventoryName( inventoryAlias );
 		reqMsg.setReqConstraintsMap( searchConstraints );
+		reqMsg.setUniqueValues( true );
 		
 		// TODO : Need to change this to return the constraint field instead of the 
 		// generator parameter. Til then all parameters that generate
 		// a type or sub type must be the same name as the request constraint. 
 		String genType = getRscTypeGenerator();
+		
 		String cnstrName = null;
+		
 		if ( genType != null ) {
 			HashMap<String, ResourceParamInfo> rscImplParams = 
 				ResourceExtPointMngr.getInstance().getResourceParameters( rscImplementation );
@@ -1059,7 +1085,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 				}
 			}
     	}
-		reqMsg.setRequestedParam( cnstrName );
+		reqMsg.setRequestedParams( new String[]{cnstrName} );
 
 		Object rslts;
 
@@ -1082,9 +1108,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 //				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.length + " results." );
 //		out.println("    RscTypes = "+ (rsltsArray.toString() ) );
 
+		// just 1 requested param so the result string will be the 1 value
 		for( String rsltStr : rsltsArray ) {
-			String genTypesArr[] = rsltStr.split("/");
-			generatedTypesList.add( getResourceDefnName() + ":" + genTypesArr[ genTypesArr.length-1] );
+//			String genTypesArr[] = rsltStr.split("/");
+			generatedTypesList.add( getResourceDefnName() + ":" + rsltStr );//genTypesArr[ genTypesArr.length-1] );
 		}
 	    	
     	return generatedTypesList;
@@ -1128,21 +1155,32 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		// parameters that are specified in an attribute set. (ex. radar product codes and 
 		// satellite imageTypes.)
 		//		
+    	Map<String, RequestConstraint> searchConstraints = 
+   		     getInventoryConstraintsFromParameters( getResourceParameters(true) );
+
+    	// get the names of the db fields which may be different than the rsc's parameter names.
     	int numSubTypeGenParams = getSubTypeGenParamsList().length;
-    	String queryParam = getSubTypeGenParamsList()[ numSubTypeGenParams-1 ];
+    	String[] subTypeParamNames=getSubTypeGenParamsList();
+    	String[] queryParams = new String[numSubTypeGenParams];
     			
-    	HashMap<String, RequestConstraint> searchConstraints = 
-    		     getInventoryConstraintsFromParameters( getResourceParameters(true) );
+    	HashMap<String, ResourceParamInfo> rscImplParams = 
+				ResourceExtPointMngr.getInstance().getResourceParameters( rscImplementation );
+    	
+    	for(  int i=0 ; i<subTypeParamNames.length ; i++ ) {
+    		String subTypeParam = subTypeParamNames[i];
+    		queryParams[i] = subTypeParam; //init
+    		if( rscImplParams.containsKey( subTypeParam ) ) {
+    			queryParams[i] = rscImplParams.get( subTypeParam).getConstraintName();
+    		}
+    	}
 		
 		// Create an NcInventoryRequest script to get query the ncInventory for the types.
 		// 
-//		String inventoryName = 
-//				LocalizationManager.getInstance().getCurrentUser() + ":" + getResourceDefnName();
-		
 		NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
 		reqMsg.setInventoryName( inventoryAlias );
 		reqMsg.setReqConstraintsMap( searchConstraints );
-		reqMsg.setRequestedParam( queryParam );
+		reqMsg.setRequestedParams( queryParams );
+		reqMsg.setUniqueValues( true );
 
 		Object rslts;
 
@@ -1175,21 +1213,31 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 	    	//
 	    	String[] queryResults = rsltStr.replaceAll("_", " ").split("/");
 
-	    	if( numSubTypeGenParams == 1 ) {
+	    	if( queryResults.length != queryParams.length ) {
+	    		System.out.println("sanity check: number of requested params doesn't match returned values");
+	    		continue;
+	    	}
 
-	    		generatedSubTypesList.add( queryResults[1] );
+	    	if( numSubTypeGenParams == 1 ) {
+	    		generatedSubTypesList.add( queryResults[0] );
 	    	}
 	    	// if there are 2 parameters used to generate the subType query for the second 
 	    	// parameter and create a subType for each unique combination.
 	    	//
 	    	else if( numSubTypeGenParams == 2 ) {
-	    		String subType;
-	    		if (queryResults[2] == "0" && getSubTypeGenParamsList()[1].equals("resolution")) {  // check resolution
-	    			subType = queryResults[1] + "_native";   
-	    		} else {
-	    			subType = queryResults[1] + "_"+     // note that the 'km' here will make the code 
-	    			queryResults[2] + "km";    // to parse the subType non-generic so we might want to change it.
+	    		String subType = queryResults[0] + "_" + queryResults[1];
+
+    			if( getPluginName().equals("mcidas") ) {
+    				// if we are going to hard-code the resolution then we may as well hard-code its position in the 
+    				// list as the seconde param.
+    				if( subTypeParamNames[1].equals("resolution")) {  // check resolution
+    					// note that the 'km' here will make the code 
+	    				// to parse the subType non-generic so we might want to change it. 
+	    				subType = queryResults[0] + "_"+
+	    						 (queryResults[1] == "0" ? "native" : queryResults[1] + "km");   	    				    				
+	    			}
 	    		}
+	    		
 	    		
 	    		if( !generatedSubTypesList.contains( subType ) ) {
 	    			generatedSubTypesList.add( subType );					
@@ -1223,8 +1271,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
     	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
 		reqMsg.setInventoryName( inventoryAlias );
-		reqMsg.setRequestedParam( invPrm );
+		reqMsg.setRequestedParams( new String[]{invPrm} );
 		reqMsg.setReqConstraintsMap( searchConstraints );
+		reqMsg.setUniqueValues( true );
 		
 		Object rslts;
 
@@ -1291,11 +1340,16 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     			}
 //    		}
     		
-    		// I pulled 12 out of my arse. Not sure what the best number is.
+    		// There can be more than 1 entry in the cache for each RD. Generated types/sub-types
+    		// for example, or for cases where the attribute sets contain request constraint parameters 
+    		// (ie synop reportTypes or mcidas imageTypes.) 
+    			
+    		// I pulled 4 out of my arse. Not sure what the best number is.
     		// Even though the inventory is very quick, getLatestTime() can get called 
     		// many times by the LabelProvider when showing the attrSet List and there can
     		// be a slight delay for example with all (40) radar products.
     		//    		
+    		// 
     		if( availTimesCache.size() == 4 ) {
     			for( DataTimesCacheEntry uriRefreshCallback : availTimesCache.values() ) {    				
     				uriRefreshCallback.addToUriCatalog( );    				
@@ -1343,7 +1397,14 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	if( latestTime == null  ) {
     		long t0 = System.currentTimeMillis();
     		
-    		getDataTimes( rscName );
+    		// if not querying an inventory, add to the URI catalog so 
+    		// at least we can get the latest times from there.
+        	if( !usesInventory() ||
+        		(inventoryEnabled && !isInventoryInitialized()) ) {
+        		
+        	}
+        	
+    		getDataTimes( rscName ); // this will add the times to the cache.
     	
     		if( availTimesCache.containsKey( resourceConstraints ) ) {
     			latestTime = availTimesCache.get( resourceConstraints ).getLatestTime();
@@ -1382,10 +1443,16 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     		getInventoryConstraintsFromParameters( 
     				ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName ) );
 
+    	if( !availTimesCache.containsKey( resourceConstraints ) ) {
+    		// if there is no entry in the cache for this resourceName, add an entry
+    		// and possibly add it to the URICatalog
+    		addTimesCacheEntry( rscName );
+    	}
+    	
     	// if times are cached for these constraints, and if the times haven't expired,
     	//   then just return the cached times.
     	//    	
-    	if( availTimesCache.containsKey( resourceConstraints ) ) {
+
     		DataTimesCacheEntry cachedTimesEntry = availTimesCache.get( resourceConstraints );
 
     		List<DataTime> availTimes = cachedTimesEntry.getAvailableTimes();
@@ -1393,14 +1460,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     		if( availTimes != null ) {
     			return availTimes;
     		}    		
+    	
     		// (Do not remove the entry in the cache since this may be being refreshed 
     		// with the latestTimes from the URICatalog. 
-    	}
-    	else {
-    		// if there is no entry in the cache for this resourceName, add an entry
-    		// and possibly add it to the URICatalog
-    		addTimesCacheEntry( rscName );
-    	}
+    	
 
     	try {
     		DataTime dataTimeArr[] = null;
@@ -1411,9 +1474,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     			
     	    	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();    			
     			reqMsg.setInventoryName( inventoryAlias );
-    			reqMsg.setRequestedParam( "dataTime" );
+    			reqMsg.setRequestedParams( new String[]{"dataTime"} );
     			reqMsg.setReqConstraintsMap( 
     					(HashMap<String, RequestConstraint>)resourceConstraints );
+    			reqMsg.setUniqueValues( true );
     			
     			Object rslts;
 
@@ -1422,7 +1486,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     			rslts = ThriftClient.sendRequest( reqMsg );
     			
     			if( !(rslts instanceof String[]) ) {
-    				out.println("Inventory Request Failed:"+rslts.toString() );
+    				out.println("Inventory Request Failed: "+rslts.toString() );
     				
     				disableInventoryUse();
     				
@@ -1435,20 +1499,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     			String[] rsltsList = (String[]) rslts;
     			dataTimeArr = new DataTime[ rsltsList.length ];
 
-//    			out.println("Inventory DataTime Query for "+ resourceDefnName+ 
-//    					" took "+ (t02-t01)+ "msecs for "+ rsltsList.length + " results." );
-    			//    		out.println("    DataTimes are " + rsltsArray.toString() );
-
     			for( int i=0 ; i<rsltsList.length ; i++ ) {
-
-    				String rsltStr = (String)rsltsList[i];
-    				if( rsltStr == null ) {
-    					dataTimeArr[i] = new DataTime(new Date(0)); // ??? shouldn't happen but what to do here?
-    				}
-    				else {
-    					String[] queryResults = rsltStr.split("/");
-    					dataTimeArr[i] = new DataTime( queryResults[ queryResults.length-1 ] );
-    				}
+    				dataTimeArr[i] = ( rsltsList[i] == null ? 
+    							  new DataTime(new Date(0)) : new DataTime( rsltsList[i] ) );
     			}
     		}
     		else  { // if the inventory is not enabled
@@ -1491,7 +1544,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 //		String inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
 //								getResourceDefnName();
 		reqMsg.setInventoryName( inventoryAlias );
-		reqMsg.setRequestedParam( "dataTime" );
+		reqMsg.setRequestedParams( new String[]{"dataTime"} );
 //		reqMsg.setDumpToFile( true );
 //		reqMsg.setReqConstraintsMap(  );
 		
@@ -1843,11 +1896,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 			if (other.inventoryEnabled != null)
 				return false;
 		} else if (!inventoryEnabled.equals(other.inventoryEnabled))
-			return false;
-		if (inventoryParamNames == null) {
-			if (other.inventoryParamNames != null)
-				return false;
-		} else if (!inventoryParamNames.equals(other.inventoryParamNames))
 			return false;
 		if (resourceCategory.getCategoryName() == null) {
 			if (other.resourceCategory.getCategoryName() != null)
