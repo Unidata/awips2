@@ -53,15 +53,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 23, 2010            bsteffen    Initial creation
- * Aug 07, 2013 2077       bsteffen    Revise pixel size calculations.
- * Aug 27, 2013 2287       randerso    Replaced hard coded constant with densityFactor
- *                                     parameter to allow application specific density
- *                                     scaling to better match A1 displays
- * Sep 10, 2013 DR 16257   MPorricelli  Fix so that wind for global grids displays on
- *                                      mercator maps.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 23, 2010           bsteffen    Initial creation
+ * Aug 07, 2013  2077     bsteffen    Revise pixel size calculations.
+ * Aug 27, 2013  2287     randerso    Replaced hard coded constant with
+ *                                    densityFactor parameter to allow
+ *                                    application specific density scaling to
+ *                                    better match A1 displays
+ * Sep 10, 2013  16257    MPorricelli Fix so that wind for global grids displays on
+ *                                    mercator maps.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -106,7 +108,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
     protected IGraphicsTarget target;
 
-    protected final int size;
+    protected final double size;
 
     protected final double densityFactor;
 
@@ -131,7 +133,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
      *            adjustment factor to make density match A1
      */
     public AbstractGriddedDisplay(IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid, int size,
+            GeneralGridGeometry gridGeometryOfGrid, double size,
             double densityFactor) {
         this.calculationQueue = new ConcurrentLinkedQueue<Coordinate>();
 
