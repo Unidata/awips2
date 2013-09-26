@@ -32,9 +32,10 @@ import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -49,7 +50,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -153,9 +153,14 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
             // change
             ColorMapParameters prevParams = getCapability(
                     ColorMapCapability.class).getColorMapParameters();
-            ColorMapParameters colorMapParams = ColorMapParameterFactory.build(
-                    interpolatedData, resourceData.getParameter(), getUnit(),
-                    null);
+            ColorMapParameters colorMapParams;
+            try {
+                colorMapParams = ColorMapParameterFactory.build(
+                        interpolatedData, resourceData.getParameter(),
+                        getUnit(), null);
+            } catch (StyleException e) {
+                throw new VizException(e.getLocalizedMessage(), e);
+            }
             if (prevParams != null) {
                 colorMapParams.setColorMap(prevParams.getColorMap());
                 colorMapParams.setColorMapName(prevParams.getColorMapName());
