@@ -51,15 +51,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.AbstractStylePreferences;
 import com.raytheon.uf.common.style.MatchCriteria;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleManager.StyleType;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.arrow.ArrowPreferences;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.image.ImagePreferences;
-import com.raytheon.uf.common.style.level.Level;
-import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
@@ -91,7 +90,6 @@ import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -114,6 +112,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
  * Aug 27, 2013 2287       randerso    Added new parameters required by GriddedVectorDisplay
  *                                     and GriddedIconDisplay
+ * Sep 24, 2013 2404        bclement   colormap params now created using match criteria
  * 
  * </pre>
  * 
@@ -581,27 +580,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     protected ColorMapParameters createColorMapParameters(GeneralGridData data)
             throws VizException {
         ParamLevelMatchCriteria criteria = getMatchCriteria();
-        String parameter = null;
-        Unit<?> parameterUnits = data.getDataUnit();
-        SingleLevel level = null;
-        String creatingEntity = null;
-        if (criteria.getParameterNames() != null
-                && !criteria.getParameterNames().isEmpty()) {
-            parameter = criteria.getParameterNames().get(0);
+        ColorMapParameters newParameters;
+        try {
+            newParameters = ColorMapParameterFactory.build(data.getScalarData()
+                    .array(), data.getDataUnit(), criteria);
+        } catch (StyleException e) {
+            throw new VizException("Unable to build colormap parameters", e);
         }
-        if (criteria.getLevels() != null && !criteria.getLevels().isEmpty()) {
-            Level styleLevel = criteria.getLevels().get(0);
-            if (styleLevel instanceof SingleLevel) {
-                level = (SingleLevel) styleLevel;
-            }
-        }
-        if (criteria.getCreatingEntityNames() != null
-                && !criteria.getCreatingEntityNames().isEmpty()) {
-            creatingEntity = criteria.getCreatingEntityNames().get(0);
-        }
-        ColorMapParameters newParameters = ColorMapParameterFactory.build(data
-                .getScalarData().array(), parameter, parameterUnits, level,
-                creatingEntity);
         ColorMapParameters oldParameters = this.getCapability(
                 ColorMapCapability.class).getColorMapParameters();
         if (oldParameters != null
