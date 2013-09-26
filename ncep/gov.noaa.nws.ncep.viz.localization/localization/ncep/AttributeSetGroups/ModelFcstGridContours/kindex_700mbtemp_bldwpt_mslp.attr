@@ -20,6 +20,7 @@ FINT=15;24;33;42
 FLINE=0;24;30;14;2
 HILO=0!0!0!6/H#;L#/1020-1070;900-1012
 HLSYM=!!!1.5;1.5//22;22/3;3/hw
+CLRBAR=1/V/LL!0
 WIND=
 TITLE=1/-1/~ K INDEX, 700mb TMP (GREATER THAN 6 C), BL (0-30 MB AGL) DWPT (deg F), EMSL!0
 COLORS=2                                                                       

@@ -148,6 +148,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 29, 2013 DR 16352    D. Friedman Move 'result' to okPressed().
  *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
  *  Aug 15, 2013 DR 16418    D. Friedman Make dialog visibility match editable state.
+ *  Sep 17, 2013 DR 16496    D. Friedman Make editable state more consistent.
  *  Sep 24, 2013 #2401       lvenable    Fixed font memory leak.
  * </pre>
  * 
@@ -1343,11 +1344,9 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Box was selected, allow editing of box only
      */
     private void boxSelected() {
-        boxEditable = !polygonLocked;
-        trackEditable = true;
-        warngenLayer.getStormTrackState().editable = trackEditable;
-        warngenLayer.setBoxEditable(boxEditable);
-        warngenLayer.issueRefresh();
+        boxEditable = true;
+        trackEditable = false;
+        realizeEditableState();
     }
 
     /**
@@ -1356,20 +1355,16 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void trackSelected() {
         boxEditable = false;
         trackEditable = true;
-        warngenLayer.getStormTrackState().editable = trackEditable;
-        warngenLayer.setBoxEditable(boxEditable);
-        warngenLayer.issueRefresh();
+        realizeEditableState();
     }
 
     /**
      * Box and track was selected, allow editing of both
      */
     private void boxAndTrackSelected() {
-        boxEditable = !polygonLocked;
+        boxEditable = true;
         trackEditable = true;
-        warngenLayer.getStormTrackState().editable = trackEditable;
-        warngenLayer.setBoxEditable(boxEditable);
-        warngenLayer.issueRefresh();
+        realizeEditableState();
     }
 
     /**
@@ -1624,7 +1619,6 @@ public class WarngenDialog extends CaveSWTDialog implements
      * item from update list selected
      */
     public void updateListSelected() {
-        warngenLayer.setOldWarningPolygon(null);
         if (updateListCbo.getSelectionIndex() >= 0) {
             AbstractWarningRecord oldWarning = null;
             FollowupData data = (FollowupData) updateListCbo
@@ -1675,6 +1669,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 return;
             }
 
+            warngenLayer.setOldWarningPolygon(null);
             bulletList.setEnabled(true);
             durationList.setEnabled(true);
             totalSegments = 0;
@@ -2468,6 +2463,14 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
         }
+    }
+
+    public void realizeEditableState() {
+        boolean layerEditable = warngenLayer.isEditable();
+        // TODO: Note there is no 'is track editing allowed' state yet.
+        warngenLayer.getStormTrackState().editable = layerEditable && trackEditable;
+        warngenLayer.setBoxEditable(layerEditable && boxEditable && !polygonLocked);
+        warngenLayer.issueRefresh();
     }
 
 }
