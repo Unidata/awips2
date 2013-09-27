@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.datadelivery.system;
 
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.swt.SWT;
@@ -30,7 +32,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.service.subscription.GridSubscriptionOverlapConfig;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
+import com.raytheon.uf.common.datadelivery.service.subscription.PointSubscriptionOverlapConfig;
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapConfig;
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapMatchStrategy;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -52,6 +57,7 @@ import com.raytheon.viz.ui.widgets.IApplyCancelAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 07, 2013    2180    mpduff      Initial creation.
+ * Sept 24, 2013  2386     dhladky     Started work on Multiple Type Configs
  * 
  * </pre>
  * 
@@ -78,24 +84,26 @@ public class SubscriptionComposite extends Composite implements
         },
         FORECAST_HOURS("Forecast Hours:") {
             @Override
+            // TODO: hard coded to Grid for now
             public int getValue(SubscriptionOverlapConfig config) {
-                return config.getMaxAllowedForecastHourDuplication();
+                return ((GridSubscriptionOverlapConfig)config).getMaxAllowedForecastHourDuplication();
             }
 
             @Override
             public void setValue(SubscriptionOverlapConfig config, int value) {
-                config.setMaxAllowedForecastHourDuplication(value);
+                ((GridSubscriptionOverlapConfig)config).setMaxAllowedForecastHourDuplication(value);
             }
         },
         CYCLES("Cycles:") {
             @Override
+            // TODO: hard coded to Grid for now
             public int getValue(SubscriptionOverlapConfig config) {
-                return config.getMaxAllowedCycleDuplication();
+                return ((GridSubscriptionOverlapConfig)config).getMaxAllowedCycleDuplication();
             }
 
             @Override
             public void setValue(SubscriptionOverlapConfig config, int value) {
-                config.setMaxAllowedCycleDuplication(value);
+                ((GridSubscriptionOverlapConfig)config).setMaxAllowedCycleDuplication(value);
             }
         },
         SPATIAL("Spatial:") {
@@ -255,7 +263,7 @@ public class SubscriptionComposite extends Composite implements
      * Load configuration data
      */
     private void loadConfiguration() {
-        SubscriptionOverlapConfig config;
+        Map<DataType, SubscriptionOverlapConfig> config = new HashMap<DataType, SubscriptionOverlapConfig>();
         try {
             config = overlapService.readConfig();
         } catch (LocalizationException e) {
@@ -264,12 +272,16 @@ public class SubscriptionComposite extends Composite implements
                             "Unable to load the subscription overlap rules.  "
                                     + "Defaulting to configuration that will never overlap.",
                             e);
-            config = SubscriptionOverlapConfig.NEVER_OVERLAPS;
+           
+            config.put(DataType.GRID, new GridSubscriptionOverlapConfig().getNeverOverlaps());
+            config.put(DataType.POINT, new PointSubscriptionOverlapConfig().getNeverOverlaps());
         }
 
+        // TODO: hard coded to Grid for now
         for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
             final Spinner spinner = entry.getValue();
-            final int initialValue = entry.getKey().getValue(config);
+            // Hard coded to Grid until we change front end design
+            final int initialValue = entry.getKey().getValue(config.get(DataType.GRID));
 
             DataDeliveryGUIUtils.removeListeners(spinner, SWT.Selection,
                     SWT.DefaultSelection);
@@ -283,7 +295,8 @@ public class SubscriptionComposite extends Composite implements
         DataDeliveryGUIUtils.removeListeners(matchStrategyCombo, SWT.Selection,
                 SWT.DefaultSelection);
 
-        final int indexOfConfigValue = matchStrategyCombo.indexOf(config
+        // TODO: hard coded to Grid for now
+        final int indexOfConfigValue = matchStrategyCombo.indexOf(config.get(DataType.GRID)
                 .getMatchStrategy().getDisplayString());
         matchStrategyCombo.select(indexOfConfigValue);
         matchStrategyCombo.addSelectionListener(DataDeliveryGUIUtils
@@ -298,7 +311,8 @@ public class SubscriptionComposite extends Composite implements
      * @throws LocalizationException
      */
     private boolean saveConfiguration() throws LocalizationException {
-        SubscriptionOverlapConfig config = new SubscriptionOverlapConfig();
+        // TODO: hard coded to Grid for now
+        GridSubscriptionOverlapConfig config = new GridSubscriptionOverlapConfig();
 
         for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
             final OverlapSpinners key = entry.getKey();
