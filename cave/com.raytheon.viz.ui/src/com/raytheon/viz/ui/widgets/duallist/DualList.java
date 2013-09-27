@@ -57,6 +57,9 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
  * Dec 17, 2012   1431     mpduff      Fix filter problem when deselecting items.
  * Jan 07, 2013   1456     bgonzale    Added setSelectedList(ArrayList<String>).
  * Aug 20, 2013   1733     mpduff      Search now uses SearchUtils.
+ * Sep 27, 2013  #2419     lvenable    Removed the ability to get the dual config list
+ *                                     and added some convenience methods to clear and add
+ *                                     to the include list.
  * 
  * </pre>
  * 
@@ -447,7 +450,7 @@ public class DualList extends Composite {
      * @param fullList
      *            all users listed in notification table
      */
-    public void setFullList(ArrayList<String> fullList) {
+    public void setFullList(java.util.List<String> fullList) {
         config.setFullList(fullList);
         populateLists();
     }
@@ -911,22 +914,21 @@ public class DualList extends Composite {
     }
 
     /**
-     * Get the configuration.
-     * 
-     * @return the configuration.
+     * Clear the include list. The include list is the list of items that will
+     * always be present in the selected list control.
      */
-    public DualListConfig getConfig() {
-        return config;
+    public void clearIncludeList() {
+        config.getIncludeList().clear();
     }
 
     /**
-     * Set the configuration.
+     * Add an item to the include list.
      * 
-     * @param config
-     *            the configuration.
+     * @param item
+     *            Item to add to the include list.
      */
-    public void setConfig(DualListConfig config) {
-        this.config = config;
+    public void addToIncludeList(String item) {
+        config.getIncludeList().add(item);
     }
 
     /**
