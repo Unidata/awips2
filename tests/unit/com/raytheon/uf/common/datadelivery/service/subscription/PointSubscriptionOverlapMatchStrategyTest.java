@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 /**
- * Test {@link SubscriptionOverlapMatchStrategy}.
+ * Test {@link PointSubscriptionOverlapMatchStrategy}.
  * 
  * <pre>
  * 
@@ -37,15 +37,17 @@ import org.junit.Test;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013 2000       djohnson     Initial creation
+ * Sept 24, 2012 2386      dhladky      Made point specific
+ * 
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class SubscriptionOverlapMatchStrategyTest {
+public class PointSubscriptionOverlapMatchStrategyTest {
 
-    private static final SubscriptionOverlapConfig MUST_EXCEED_FIFTY_PERCENT = new SubscriptionOverlapConfig(
+    private static final SubscriptionOverlapConfig MUST_EXCEED_FIFTY_PERCENT = new PointSubscriptionOverlapConfig(
             50, 50, 50, 50, null);
 
     @Test
