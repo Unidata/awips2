@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
+import java.util.Map;
+
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 
@@ -79,7 +82,7 @@ public interface ISubscriptionOverlapService {
             Subscription sub2);
 
     /**
-     * Writes the new configuration.
+     * Writes a new configuration file.
      * 
      * @param config
      *            the configuration
@@ -92,9 +95,9 @@ public interface ISubscriptionOverlapService {
     /**
      * Read the configuration.
      * 
-     * @return the configuration
+     * @return the configurations
      * @throws LocalizationException
      *             on error reading the configuration
      */
-    SubscriptionOverlapConfig readConfig() throws LocalizationException;
+    Map<DataType, SubscriptionOverlapConfig> readConfig() throws LocalizationException;
 }

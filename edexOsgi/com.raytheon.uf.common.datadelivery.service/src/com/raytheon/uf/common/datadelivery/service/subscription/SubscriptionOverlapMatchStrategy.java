@@ -1,3 +1,5 @@
+package com.raytheon.uf.common.datadelivery.service.subscription;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -17,8 +19,6 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.service.subscription;
-
 import javax.xml.bind.annotation.XmlEnum;
 
 /**
@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlEnum;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013 2000       djohnson     Initial creation
+ * Sept 24, 2013 2386      dhladky      Added impl for other types besides grid
  * 
  * </pre>
  * 
@@ -46,20 +47,43 @@ public enum SubscriptionOverlapMatchStrategy {
                 int parameterDuplicationPercent,
                 int forecastHourDuplicationPercent,
                 int cycleDuplicationPercent, int spatialDuplicationPercent) {
+            
+            boolean[] toCheck = null;
+
             final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
                     .getMaxAllowedParameterDuplication();
-            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
-                    .getMaxAllowedForecastHourDuplication();
-            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
-                    .getMaxAllowedCycleDuplication();
             final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
                     .getMaxAllowedSpatialDuplication();
 
-            boolean[] toCheck = new boolean[] {
-                    exceedsAllowedParameterDuplication,
-                    exceedsAllowedForecastHourDuplication,
-                    exceedsAllowedCycleDuplication,
-                    exceedsAllowedSpatialDuplication };
+            // gridded products
+            if (config instanceof GridSubscriptionOverlapConfig) {
+
+                GridSubscriptionOverlapConfig gconfig = (GridSubscriptionOverlapConfig) config;
+
+                final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > gconfig
+                        .getMaxAllowedForecastHourDuplication();
+                final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > gconfig
+                        .getMaxAllowedCycleDuplication();
+
+                toCheck = new boolean[] { exceedsAllowedParameterDuplication,
+                        exceedsAllowedForecastHourDuplication,
+                        exceedsAllowedCycleDuplication,
+                        exceedsAllowedSpatialDuplication };
+            } 
+             // point products
+            else if (config instanceof PointSubscriptionOverlapConfig) {
+                PointSubscriptionOverlapConfig pconfig = (PointSubscriptionOverlapConfig) config;
+
+                final boolean exceedsAllowedTimeDuplication = forecastHourDuplicationPercent > pconfig
+                        .getMaxAllowedTimeDuplication();
+
+                toCheck = new boolean[] { exceedsAllowedParameterDuplication,
+                        exceedsAllowedTimeDuplication,
+                        exceedsAllowedSpatialDuplication };
+            } else {
+                throw new IllegalArgumentException("Data type "+config.getClass()+" has no implementation");
+            }
+
             final int numBooleans = toCheck.length;
             final int halfNumBooleans = numBooleans / 2;
 
@@ -87,19 +111,45 @@ public enum SubscriptionOverlapMatchStrategy {
                 int forecastHourDuplicationPercent,
                 int cycleDuplicationPercent, int spatialDuplicationPercent) {
 
+            boolean response = false;
+            
             final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
                     .getMaxAllowedParameterDuplication();
-            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
-                    .getMaxAllowedForecastHourDuplication();
-            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
-                    .getMaxAllowedCycleDuplication();
+
             final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
                     .getMaxAllowedSpatialDuplication();
 
-            return exceedsAllowedParameterDuplication
-                    && exceedsAllowedForecastHourDuplication
-                    && exceedsAllowedCycleDuplication
-                    && exceedsAllowedSpatialDuplication;
+            // gridded products
+            if (config instanceof GridSubscriptionOverlapConfig) {
+
+                GridSubscriptionOverlapConfig gconfig = (GridSubscriptionOverlapConfig) config;
+
+                final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > gconfig
+                        .getMaxAllowedForecastHourDuplication();
+                final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > gconfig
+                        .getMaxAllowedCycleDuplication();
+
+                response = exceedsAllowedParameterDuplication
+                        && exceedsAllowedForecastHourDuplication
+                        && exceedsAllowedCycleDuplication
+                        && exceedsAllowedSpatialDuplication;
+
+            // point products
+            } else if (config instanceof PointSubscriptionOverlapConfig) {
+                PointSubscriptionOverlapConfig pconfig = (PointSubscriptionOverlapConfig) config;
+
+                final boolean exceedsAllowedTimeDuplication = forecastHourDuplicationPercent > pconfig
+                        .getMaxAllowedTimeDuplication();
+               
+                response = exceedsAllowedParameterDuplication
+                        && exceedsAllowedTimeDuplication
+                        && exceedsAllowedSpatialDuplication;
+            } else {
+                throw new IllegalArgumentException("Data type "+config.getClass()+" has no implementation");
+            }
+
+            
+            return response;
         }
 
         @Override
@@ -113,20 +163,44 @@ public enum SubscriptionOverlapMatchStrategy {
                 int parameterDuplicationPercent,
                 int forecastHourDuplicationPercent,
                 int cycleDuplicationPercent, int spatialDuplicationPercent) {
+            
+            boolean response = false;
 
             final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
                     .getMaxAllowedParameterDuplication();
-            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
-                    .getMaxAllowedForecastHourDuplication();
-            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
-                    .getMaxAllowedCycleDuplication();
+
             final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
                     .getMaxAllowedSpatialDuplication();
 
-            return exceedsAllowedParameterDuplication
-                    || exceedsAllowedForecastHourDuplication
-                    || exceedsAllowedCycleDuplication
-                    || exceedsAllowedSpatialDuplication;
+            // gridded products
+            if (config instanceof GridSubscriptionOverlapConfig) {
+                GridSubscriptionOverlapConfig gconfig = (GridSubscriptionOverlapConfig) config;
+
+                final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > gconfig
+                        .getMaxAllowedForecastHourDuplication();
+                final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > gconfig
+                        .getMaxAllowedCycleDuplication();
+
+                response = exceedsAllowedParameterDuplication
+                        || exceedsAllowedForecastHourDuplication
+                        || exceedsAllowedCycleDuplication
+                        || exceedsAllowedSpatialDuplication;
+            }
+            // point products
+            else if (config instanceof PointSubscriptionOverlapConfig) {
+                PointSubscriptionOverlapConfig pconfig = (PointSubscriptionOverlapConfig) config;
+
+                final boolean exceedsAllowedTimeDuplication = forecastHourDuplicationPercent > pconfig
+                        .getMaxAllowedTimeDuplication();
+
+                response = exceedsAllowedParameterDuplication
+                        || exceedsAllowedTimeDuplication
+                        || exceedsAllowedSpatialDuplication;
+            } else {
+                throw new IllegalArgumentException("Data type "+config.getClass()+" has no implementation");
+            }
+
+            return response;
         }
 
         @Override
@@ -141,8 +215,8 @@ public enum SubscriptionOverlapMatchStrategy {
      * 
      * @param config
      * @param parameterDuplicationPercent
-     * @param forecastHourDuplicationPercent
-     * @param cycleDuplicationPercent
+     * @param forecastHourDuplicationPercent or timeDuplicatePercent
+     * @param cycleDuplicationPercent or notUsed
      * @param spatialDuplicationPercent
      * @return true if the subscription should be considered overlapping
      */
@@ -158,3 +232,4 @@ public enum SubscriptionOverlapMatchStrategy {
      */
     public abstract String getDisplayString();
 }
+
