@@ -52,12 +52,12 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * @version 1.0
  */
 
-public class SubscriptionOverlapServiceTest {
+public class GridSubscriptionOverlapServiceTest {
 
-    private static final SubscriptionOverlapConfig ANY_MUST_EXCEED_65_PERCENT = new SubscriptionOverlapConfig(
+    private static final SubscriptionOverlapConfig ANY_MUST_EXCEED_65_PERCENT = new GridSubscriptionOverlapConfig(
             65, 65, 65, 65, MATCH_ANY);
 
-    private static final SubscriptionOverlapConfig ALL_MUST_EXCEED_65_PERCENT = new SubscriptionOverlapConfig(
+    private static final SubscriptionOverlapConfig ALL_MUST_EXCEED_65_PERCENT = new GridSubscriptionOverlapConfig(
             65, 65, 65, 65, MATCH_ALL);
 
     private final ISubscriptionDuplicateChecker duplicateChecker = mock(ISubscriptionDuplicateChecker.class);

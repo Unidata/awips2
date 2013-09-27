@@ -31,6 +31,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013 2000       djohnson     Initial creation
+ * Sept 24, 2013 2386      dhladky      Added a method
  * 
  * </pre>
  * 
@@ -60,6 +61,16 @@ public interface ISubscriptionDuplicateChecker {
      * @return 0-100
      */
     int getForecastHourDuplicationPercent(Subscription sub1, Subscription sub2);
+    
+    /**
+     * Returns the percent, 0-100, of how similar the time is from sub2 to sub1.
+     * 
+     * @param sub1
+     * @param sub2
+     * 
+     * @return 0-100
+     */
+    int getTimeDuplicationPercent(Subscription sub1, Subscription sub2);
 
     /**
      * Returns the percent, 0-100, of how many cycle hours from sub2 are
