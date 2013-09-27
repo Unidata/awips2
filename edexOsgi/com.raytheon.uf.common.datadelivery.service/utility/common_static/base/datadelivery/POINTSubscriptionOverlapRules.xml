@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<subscriptionOverlapConfig>
+<pointSubscriptionOverlapConfig>
     <!-- Each value is represented by a percent, 0-100 -->
     <maxAllowedParameterDuplication>65</maxAllowedParameterDuplication>
-    <maxAllowedForecastHourDuplication>65</maxAllowedForecastHourDuplication>
-    <maxAllowedCycleDuplication>65</maxAllowedCycleDuplication>
+    <maxAllowedTimeDuplication>65</maxAllowedTimeDuplication>
     <maxAllowedSpatialDuplication>65</maxAllowedSpatialDuplication>
     <!--
         Available options:
@@ -18,4 +17,4 @@
         overlapping.
     -->
     <matchStrategy>MATCH_ANY</matchStrategy>
-</subscriptionOverlapConfig>
+</pointSubscriptionOverlapConfig>

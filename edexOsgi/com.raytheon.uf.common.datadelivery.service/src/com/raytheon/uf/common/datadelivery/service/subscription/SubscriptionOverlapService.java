@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -48,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * May 07, 2013 2000       djohnson     Initial creation
  * Jun 04, 2013  223       mpduff       Get base file if site doesn't exist.
+ * Sept 23, 2013 2283      dhladky      Updated for multiple configs
  * 
  * </pre>
  * 
@@ -103,7 +106,9 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
     private static final String UNABLE_TO_UNMARSHAL = "Unable to unmarshal the configuration file.  "
             + "No subscriptions will be considered to overlap!";
 
-    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = "datadelivery/subscriptionOverlapRules.xml";
+    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT = "SubscriptionOverlapRules.xml";
+    
+    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = "datadelivery/";
 
     private final ISubscriptionDuplicateChecker duplicateChecker;
 
@@ -119,7 +124,11 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
         this.duplicateChecker = duplicateChecker;
 
         try {
-            jaxbManager = new JAXBManager(SubscriptionOverlapConfig.class);
+            @SuppressWarnings("rawtypes")
+            Class[] clazzes = new Class[]{SubscriptionOverlapConfig.class,
+                    GridSubscriptionOverlapConfig.class,
+                    PointSubscriptionOverlapConfig.class};
+            jaxbManager = new JAXBManager(clazzes);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -135,26 +144,74 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
         if (sub1.getName().equals(sub2.getName())) {
             return new SubscriptionOverlapResponse(false, false);
         }
+        
+        // Ignore requests where the two subscriptions are of different types
+        if (!sub1.getDataSetType().equals(sub2.getDataSetType())) {
+            return new SubscriptionOverlapResponse(false, false);
+        }
+        
+        SubscriptionOverlapConfig config = getConfigFile(sub1.getDataSetType());
+        
+        return getOverlap(config, sub1, sub2);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeConfig(SubscriptionOverlapConfig config)
+            throws LocalizationException {
         final IPathManager pathManager = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathManager.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        
+        String fileName = null;
+        
+        if (config instanceof PointSubscriptionOverlapConfig) {
+            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH+DataType.POINT.name()+SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
+        } else if (config instanceof GridSubscriptionOverlapConfig) {
+            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH+DataType.GRID.name()+SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
+        } else {
+            throw new IllegalArgumentException(config.getClass()+" Doesn't have any implementation in use");
+        }
+        
+        final LocalizationFile configFile = pathManager
+                .getLocalizationFile(
+                        context,
+                        fileName);
+        configFile.jaxbMarshal(config, jaxbManager);
+    }
 
-        final LocalizationFile localizationFile = pathManager
-                .getStaticLocalizationFile(SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws LocalizationException
+     */
+    @Override
+    public Map<DataType, SubscriptionOverlapConfig> readConfig()
+            throws LocalizationException {
 
-        SubscriptionOverlapConfig config;
-        try {
-            if (!localizationFile.exists()) {
-                throw new MissingResourceException(localizationFile.getName()
-                        + " does not exist.",
-                        SubscriptionOverlapConfig.class.getName(), "");
+        HashMap<DataType, SubscriptionOverlapConfig> configs = new HashMap<DataType, SubscriptionOverlapConfig>();
+
+        for (DataType type : DataType.values()) {
+            SubscriptionOverlapConfig config = getConfigFile(type);
+            if (config != null) {
+                configs.put(type, config);
             }
-            config = localizationFile.jaxbUnmarshal(
-                    SubscriptionOverlapConfig.class, jaxbManager);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, UNABLE_TO_UNMARSHAL, e);
-            config = SubscriptionOverlapConfig.NEVER_OVERLAPS;
         }
 
+        return configs;
+    }
+
+    /**
+     * Process a set of Gridded subscriptions for duplication;
+     * @param config
+     * @param sub1
+     * @param sub2
+     * @return
+     */
+    private SubscriptionOverlapResponse processGriddedSubscriptionOverlap(GridSubscriptionOverlapConfig config, Subscription sub1, Subscription sub2) {
+       
         final int parameterDuplicationPercent = duplicateChecker
                 .getParameterDuplicationPercent(sub1, sub2);
         final int forecastHourDuplicationPercent = duplicateChecker
@@ -175,46 +232,100 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
 
         return new SubscriptionOverlapResponse(duplicate, overlaps);
     }
-
-    /**
-     * {@inheritDoc}
+    
+    /***
+     * Process a set of Point subscriptions for duplication
+     * @param config
+     * @param sub1
+     * @param sub2
+     * @return
      */
-    @Override
-    public void writeConfig(SubscriptionOverlapConfig config)
-            throws LocalizationException {
-        final IPathManager pathManager = PathManagerFactory.getPathManager();
-        LocalizationContext context = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        final LocalizationFile configFile = pathManager
-                .getLocalizationFile(
-                        context,
-                        SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
-        configFile.jaxbMarshal(config, jaxbManager);
+    private SubscriptionOverlapResponse processPointSubscriptionOverlap(PointSubscriptionOverlapConfig config, Subscription sub1, Subscription sub2) {
+        
+        final int parameterDuplicationPercent = duplicateChecker
+                .getParameterDuplicationPercent(sub1, sub2);
+        final int timeDuplicationPercent = duplicateChecker
+                .getTimeDuplicationPercent(sub1, sub2);
+        final int spatialDuplicationPercent = duplicateChecker
+                .getSpatialDuplicationPercent(sub1, sub2);
+
+        final boolean overlaps = config.isOverlapping(
+                parameterDuplicationPercent, timeDuplicationPercent,
+                0, spatialDuplicationPercent);
+
+        final boolean duplicate = (parameterDuplicationPercent == ONE_HUNDRED_PERCENT)
+                && (timeDuplicationPercent == ONE_HUNDRED_PERCENT)
+                && (spatialDuplicationPercent == ONE_HUNDRED_PERCENT);
+
+        return new SubscriptionOverlapResponse(duplicate, overlaps);
     }
-
+    
     /**
-     * {@inheritDoc}
-     * 
-     * @throws LocalizationException
+     * Gets the overlap config file by type
+     * @param type
+     * @return
      */
-    @Override
-    public SubscriptionOverlapConfig readConfig() throws LocalizationException {
+    private SubscriptionOverlapConfig getConfigFile(DataType type) {
+        
         final IPathManager pathManager = PathManagerFactory.getPathManager();
-        Map<LocalizationLevel, LocalizationFile> configFileMap = pathManager
-                .getTieredLocalizationFile(
-                        LocalizationType.COMMON_STATIC,
-                        SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
+        LocalizationFile localizationFile = null;
+        SubscriptionOverlapConfig config = null;
+        localizationFile = pathManager
+                .getStaticLocalizationFile(SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH+type.name()+SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT);
+       
+        try {
+            if (!localizationFile.exists()) {
+                throw new MissingResourceException(localizationFile.getName()
+                        + " does not exist.",
+                        SubscriptionOverlapConfig.class.getName(), "Not yet implemented!");
+            }
 
-        LocalizationFile configFile = null;
+            if (type == DataType.GRID) {
+                config = localizationFile.jaxbUnmarshal(
+                        GridSubscriptionOverlapConfig.class, jaxbManager);
 
-        if (configFileMap.containsKey(LocalizationLevel.SITE)) {
-            configFile = configFileMap.get(LocalizationLevel.SITE);
-        } else {
-            configFile = configFileMap.get(LocalizationLevel.BASE);
+            } else if (type == DataType.POINT) {
+                config = localizationFile.jaxbUnmarshal(
+                        PointSubscriptionOverlapConfig.class, jaxbManager);
+
+            } 
+            
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, UNABLE_TO_UNMARSHAL, e.getLocalizedMessage());
+            // this a fall back so at least some checking gets done
+            if (type == DataType.GRID) {
+                config = new GridSubscriptionOverlapConfig().getNeverOverlaps();
+            } else if (type == DataType.POINT) {
+                config = new PointSubscriptionOverlapConfig().getNeverOverlaps();
+            } 
         }
-
-        return configFile.jaxbUnmarshal(SubscriptionOverlapConfig.class,
-                jaxbManager);
+        
+        return config;
     }
-
+    
+    /**
+     * Gets the SubscriptionOverlapResponse by type
+     * @param config
+     * @param sub1
+     * @param sub2
+     * @return
+     */
+    private SubscriptionOverlapResponse getOverlap(SubscriptionOverlapConfig config, Subscription sub1, Subscription sub2) {
+        
+        SubscriptionOverlapResponse response = null;
+        DataType type = sub1.getDataSetType();
+        
+        if (type == DataType.GRID) {
+            response = processGriddedSubscriptionOverlap(
+                    (GridSubscriptionOverlapConfig) config, sub1, sub2);
+        } else if (type == DataType.POINT) {
+            response = processPointSubscriptionOverlap(
+                    (PointSubscriptionOverlapConfig) config, sub1, sub2);
+        } else {
+            throw new IllegalArgumentException(type
+                    + " Config not yet Implemented!");
+        }
+        
+        return response;
+    }
 }
