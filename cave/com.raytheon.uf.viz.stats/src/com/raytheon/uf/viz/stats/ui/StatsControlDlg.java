@@ -74,6 +74,8 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Sep 25, 2012   1357     mpduff      Initial creation.
  * Jan 17, 2013   1357     mpduff      Added timestep settings.
  * Feb 26, 2013   1667     mpduff      Sort categories.
+ * Sep 27, 2013  #2419     lvenable    Changed code so the dual list will
+ *                                     function correctly on start up.
  * 
  * </pre>
  * 
@@ -518,9 +520,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         List<String> groupList = data.getGroupList();
         Collections.sort(groupList);
         groupFilterDualList.clearAvailableList(true);
-        groupFilterDualList.clearSelection();
-        groupFilterDualList.setAvailableItems(groupList);
-        groupFilterDualList.getConfig().setFullList(groupList);
+        groupFilterDualList.setFullList(groupList);
     }
 
     /**
@@ -544,9 +544,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         List<String> groupList = data.getGroupList();
         Collections.sort(groupList);
         groupFilterDualList.clearAvailableList(true);
-        groupFilterDualList.clearSelection();
-        groupFilterDualList.setAvailableItems(groupList);
-        groupFilterDualList.getConfig().setFullList(groupList);
+        groupFilterDualList.setFullList(groupList);
     }
 
     /**
