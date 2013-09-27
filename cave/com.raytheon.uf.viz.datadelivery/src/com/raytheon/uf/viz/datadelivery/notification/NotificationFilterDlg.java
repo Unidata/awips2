@@ -60,6 +60,8 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Mar 20, 2012   240      jpiatt     Updates to filter notification table data.
  * Jun  1, 2012   645      jpiatt     Added tooltips.
  * Sep 25, 2013  2408      mpduff     Added sort to subscription lists.
+ * Sep 27, 2013  #2419     lvenable   Update code to reflect changes made in
+ *                                    the dual list.
  * 
  * </pre>
  * 
@@ -172,8 +174,8 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (alwaysIncludeMeBtn.getSelection()) {
-                    userDualList.getConfig().getIncludeList().clear();
-                    userDualList.getConfig().getIncludeList().add(currentUser);
+                    userDualList.clearIncludeList();
+                    userDualList.addToIncludeList(currentUser);
 
                     // Available and Selected Filter Lists
                     String[] available = userDualList.getAvailableListItems();
@@ -210,7 +212,7 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
                     userDualList.setAvailableItems(arr2);
 
                 } else {
-                    userDualList.getConfig().getIncludeList().clear();
+                    userDualList.clearIncludeList();
                 }
 
             }
@@ -261,11 +263,11 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
 
         }
 
-        HashSet<String> h = new HashSet<String>();
+        HashSet<String> includeItems = new HashSet<String>();
 
         if (selfInclude) {
 
-            h.add(currentUser);
+            includeItems.add(currentUser);
         }
 
         // Create the user dual list
@@ -273,7 +275,7 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
         dualConfig.setListHeight(120);
         dualConfig.setListWidth(125);
         dualConfig.setShowUpDownBtns(false);
-        dualConfig.setIncludeList(h);
+        dualConfig.setIncludeList(includeItems);
         dualConfig.setAvailableListLabel("Available Users:");
         dualConfig.setSelectedListLabel("Selected Users:");
 
