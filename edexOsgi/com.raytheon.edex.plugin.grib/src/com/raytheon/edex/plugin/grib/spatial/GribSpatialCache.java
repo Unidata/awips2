@@ -430,7 +430,7 @@ public class GribSpatialCache {
         if (f.length() > 0) {
             try {
                 JAXBManager manager = new JAXBManager(SubGridDef.class);
-                rval = (SubGridDef) manager.jaxbUnmarshalFromXmlFile(f);
+                rval = (SubGridDef) manager.unmarshalFromXmlFile(f);
                 if ((rval.getReferenceModel() == null && rval
                         .getReferenceGrid() == null)
                         || (rval.getModelNames() == null)
@@ -596,7 +596,7 @@ public class GribSpatialCache {
                 JAXBManager mgr = new JAXBManager(
                         DefaultSubGridCenterPoint.class);
                 DefaultSubGridCenterPoint defaultSubGridLocation = (DefaultSubGridCenterPoint) mgr
-                        .jaxbUnmarshalFromXmlFile(defaultSubGridLocationFile);
+                        .unmarshalFromXmlFile(defaultSubGridLocationFile);
                 if ((defaultSubGridLocation != null)
                         && (defaultSubGridLocation.getCenterLatitude() != null)
                         && (defaultSubGridLocation.getCenterLongitude() != null)) {
