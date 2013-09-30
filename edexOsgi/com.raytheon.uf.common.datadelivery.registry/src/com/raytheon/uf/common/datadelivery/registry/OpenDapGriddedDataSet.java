@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Jul 31, 2012 1022       djohnson     Initial creation
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -134,7 +135,7 @@ public class OpenDapGriddedDataSet extends GriddedDataSet {
      * {@inheritDoc}
      */
     @Override
-    public void combine(DataSet toCombine) {
+    public void combine(DataSet<GriddedTime, GriddedCoverage> toCombine) {
         super.combine(toCombine);
 
         if (toCombine instanceof OpenDapGriddedDataSet) {
