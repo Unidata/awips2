@@ -1,3 +1,13 @@
-#Fri May 15 18:15:38 CDT 2009
 eclipse.preferences.version=1
-environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="false">\n<variable delimiter\=";" name\="HOME" operation\="replace" value\="${env_var\:HOME}"/>\n<variable delimiter\=";" name\="PATH" operation\="replace" value\="../../build.native/i386-pc-linux-gnu/bin\:${env_var\:PATH}"/>\n<variable delimiter\=";" name\="USER" operation\="replace" value\="${env_var\:USER}"/>\n</environment>\n
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705=
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/HOME/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/HOME/operation=replace
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/HOME/value=${env_var\:HOME}
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/PATH/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/PATH/operation=replace
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/PATH/value=../../build.native/i386-pc-linux-gnu/bin\:${env_var\:PATH}
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/USER/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/USER/operation=replace
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/USER/value=${env_var\:USER}
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/append=true
+environment/project/cdt.managedbuild.config.gnu.so.debug.582269678.451214705/appendContributed=false
