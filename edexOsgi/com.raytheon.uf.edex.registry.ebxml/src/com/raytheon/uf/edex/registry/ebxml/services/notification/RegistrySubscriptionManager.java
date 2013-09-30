@@ -92,6 +92,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 6/4/2013     2022        bphillip    Changed slot type of subscription last run time. Longs were being truncated when casting to ints
  * 9/5/2013     1538        bphillip    Changed processing of each subscription to be in their own transaction. Subscriptions are now loaded on startup
  * 9/11/2013    2354        bphillip    Added handling of deleted objects
+ * 9/30/2013    2191        bphillip    Fixing federated replication
  * </pre>
  * 
  * @author bphillip
@@ -482,7 +483,6 @@ public class RegistrySubscriptionManager implements
                 .getEventsOfInterest(startTime, null, objectsOfInterest);
         NotificationType notification = notificationManager.getNotification(
                 subscription, address, objectsOfInterest, eventsOfInterest);
-        notificationManager.saveNotification(notification);
         return notification;
     }
 
