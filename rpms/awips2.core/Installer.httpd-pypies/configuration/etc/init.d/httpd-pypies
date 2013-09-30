@@ -77,7 +77,7 @@ check13 () {
 start() {		
         source /etc/profile.d/awips2HDF5Tools.sh
         echo -n $"Starting logging service:"
-        nohup su awips -c "$loggingCmd > /tmp/pypiesLoggingService.log 2>&1" > /dev/null &
+        nohup su awips -c "$loggingCmd > /tmp/pypiesLoggingService.log 2>&1" > /dev/null 2>&1 &
         RC=$?
         # TODO: need better checks to ensure that the logging service actually keeps
         #       running after startup.

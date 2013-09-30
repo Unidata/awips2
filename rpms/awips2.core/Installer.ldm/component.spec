@@ -21,7 +21,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 Requires: awips2-qpid-lib
-Requires: zlib-devel
+requires: awips2-python
 requires: awips2-python
 provides: awips2-ldm
 provides: awips2-base-component
@@ -40,40 +40,34 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-/bin/mkdir -p %{_build_root}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+
+%build
+
+%install
 
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%build
 
-%install
 _ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
@@ -428,6 +422,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
-%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm-i386.conf
+%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
 %attr(755,root,root) /etc/init.d/ldmcp
