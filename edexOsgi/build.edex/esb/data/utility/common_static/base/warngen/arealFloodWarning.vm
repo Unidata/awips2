@@ -1,17 +1,14 @@
 ##############################
 ### AREAL FLOOD WARNING ######
 ##############################
-############################################################################
-## EDITED BY MIKE DANGELO 7-13-2011 ##
-## Edited by Phil Kurimski 8-16-2011 R11.8 ##
-## EDITED BY MIKE DANGELO 9-19-2011 at Alaska TIM ##
-## EDITED BY Evan Bookbinder 2-24-2012
-## EDITED BY Phil Kurimski   2-28-2012
-## Mike Dangelo 9-13-2012 minor tweaks to ${variables}## 
-## Phil Kurimski 2-05-2013
+## RECENT VERSION HISTORY:
 ## Mike Dangelo 2-6-2013 added satellite estimate logic
-## Mike Dangelo 5-2-2013 removed redundant entry/logic for particular/specific stream
+## Mike Dangelo 5-2-2013 removed redundant entry/logic for specific stream
+## Mike Dangelo 9-16-2013 fixed name of bullet for specific stream and removed redundant CTA
+## Mike Dangelo 09-18-2013 added code for init pos & pathcasting
+## Evan Bookbinder 9-18-2013 implemented config.vm
 #################################### SET SOME VARIABLES ###################################
+#parse("config.vm")
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -80,7 +77,11 @@ ${ugcline}
 /${productClass}.${action}.${vtecOffice}.FA.W.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas})
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -113,7 +114,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 
-#set($report = "!**YOU DID NOT SELECT AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!") 
+#set($report = "!**YOU DID NOT SELECT EITHER A /REPORT/ BULLET OR AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!") 
 #set($rainAmount = "") 
 #if(${list.contains(${bullets}, "doppler")})
   #set($report = "DOPPLER RADAR INDICATED HEAVY RAIN THAT WILL CAUSE FLOODING.")   
@@ -192,15 +193,53 @@ THIS IS A TEST MESSAGE. ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
+############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
+#if(${list.contains(${bullets},"stormPosition")})
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+#if(${stormType} == "line")
+...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+...AND IS STATIONARY. ##
+#else
+#if(${stormType} == "line")
+...AND MOVING ## 
+#else
+...MOVING ##
+#end
+#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
+#end
+${rainAmount}
+#else
+###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report} ${rainAmount}
+#end
 
 #############################################################
 ######## FOURTH BULLET (OPTIONAL IN FLOOD PRODUCTS) #########
 #############################################################
-#set($phenomena = "FLOOD")
-#set($warningType = "WARNING")
+############# IF TRACK IS ENABLED AND pathcast AND stormPosition BOTH SELECTED ###############################################
+#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#if($movementSpeed < 3 )
+#pathCast("HEAVY RAIN WILL CONTINUE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+#pathCast("HEAVY RAIN WILL MOVE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+#end
+################
 #if(${list.contains(${bullets}, "listofcities")})
+#set($floodType = "FLOODING") 
 * ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
@@ -209,7 +248,7 @@ THIS IS A TEST MESSAGE. ##
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." ${floodType} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
 
@@ -230,8 +269,9 @@ ADDITIONAL RAINFALL AMOUNTS OF !** EDIT AMOUNT **! ARE POSSIBLE IN THE WARNED AR
 FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
 
 #end
-## parse file command here is to pull in mile marker info
+## parse file commands here pull in mile marker and/or point marker info
 ## #parse("mileMarkers.vm")
+## #parse("pointMarkers.vm")
 
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
