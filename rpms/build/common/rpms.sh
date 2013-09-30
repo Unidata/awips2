@@ -1,5 +1,34 @@
 #!/bin/bash
 
+function buildOpenfire()
+{
+   lookupRPM "awips2-openfire"
+   if [ $? -ne 0 ]; then
+      echo "ERROR: '${1}' is not a recognized AWIPS II RPM."
+      exit 1
+   fi
+
+   /usr/bin/rpmbuild -ba --target=i386 \
+      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
+      --define '_baseline_workspace %(echo ${WORKSPACE})' \
+      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
+      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
+      --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \
+      --define '_component_build_time %(echo ${COMPONENT_BUILD_TIME})' \
+      --define '_component_build_system %(echo ${COMPONENT_BUILD_SYSTEM})' \
+      --buildroot ${AWIPSII_BUILD_ROOT} \
+      ${RPM_SPECIFICATION}/component.spec
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build RPM ${1}."
+      exit 1
+   fi
+
+   return 0
+}
+
 function buildJava()
 {
    pushd . > /dev/null 2>&1
@@ -51,43 +80,14 @@ function buildQPID()
       return 1
    fi
 
-   # determine which qpid libs we need to copy
-   _arch=`uname -i`
-
-   if [ "${_arch}" = "x86_64" ]; then
-      if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/x86_64 ]; then
-         mkdir -p ${AWIPSII_TOP_DIR}/RPMS/x86_64
-         if [ $? -ne 0 ]; then
-            exit 1
-         fi
-      fi
-
-      cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/x86_64
-      if [ $? -ne 0 ]; then
-         echo "ERROR: Failed to build Qpid v0.18."
-         return 1
-      fi
-      /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/x86_64
-      if [ $? -ne 0 ]; then
-         return 1
-      fi
-   else
-      if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/i386 ]; then
-         mkdir -p ${AWIPSII_TOP_DIR}/RPMS/i386
-         if [ $? -ne 0 ]; then
-            exit 1
-         fi
-      fi
-
-      cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/i386
-      if [ $? -ne 0 ]; then
-         echo "ERROR: Failed to build Qpid v0.18."
-         return 1
-      fi
-      /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/i386
-      if [ $? -ne 0 ]; then
-         return 1
-      fi
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/x86_64
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid v0.18."
+      return 1
+   fi
+   /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/x86_64
+   if [ $? -ne 0 ]; then
+      return 1
    fi
 
    popd > /dev/null 2>&1
@@ -203,9 +203,13 @@ function unpackHttpdPypies()
    # into the: ${AWIPSII_TOP_DIR}/SOURCES directory.
    awips2_core_directory=${WORKSPACE}/rpms/awips2.core
    httpd_pypies_directory=${awips2_core_directory}/Installer.httpd-pypies
-   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.3-SOURCES.tar
+   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.15-SOURCES.tar
 
    /bin/tar -xvf ${httpd_SOURCES} -C ${AWIPSII_TOP_DIR}/SOURCES
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+   cp -vf ${httpd_pypies_directory}/SOURCES/* ${AWIPSII_TOP_DIR}/SOURCES
    if [ $? -ne 0 ]; then
       return 1
    fi
