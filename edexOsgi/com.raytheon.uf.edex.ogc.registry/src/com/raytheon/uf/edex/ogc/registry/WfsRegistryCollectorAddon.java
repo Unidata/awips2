@@ -40,7 +40,6 @@ import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
-import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.WFSPointDataSet;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -68,6 +67,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 08, 2013 2097       dhladky      Made operational
  * Aug 30, 2013 2098       dhladky      Improved
  * Spet 2, 2013 2098       dhladky      Updated how times are managed.
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -260,7 +260,7 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
         }
     }
 
-    protected Time getTime() {
+    protected PointTime getTime() {
         return time;
     }
 

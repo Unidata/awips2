@@ -24,7 +24,9 @@ import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -49,18 +51,19 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Mar 11, 2013 1645       djohnson     Add missing Spring file.
  * May 15, 2013 2000       djohnson     Include daos.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Oct 2,  2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator {
+public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> implements IEdexBandwidthManagerCreator {
 
     /**
      * WFO {@link BandwidthManager} implementation.
      */
-    static class WfoBandwidthManager extends EdexBandwidthManager {
+    static class WfoBandwidthManager<T extends Time, C extends Coverage> extends EdexBandwidthManager<T, C> {
 
         private static final String[] WFO_BANDWIDTH_MANAGER_FILES = new String[] {
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo-edex-impl.xml"),
@@ -72,7 +75,7 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
 
         // TODO: Change to be DIed in Spring
-        private final IBandwidthService ncfBandwidthService = new NcfBandwidthService();
+        private final IBandwidthService<T, C> ncfBandwidthService = new NcfBandwidthService();
 
         /**
          * Constructor.
@@ -101,7 +104,7 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         @Override
         protected IProposeScheduleResponse proposeScheduleSbnSubscription(
-                List<Subscription> subscriptions) throws Exception {
+                List<Subscription<T, C>> subscriptions) throws Exception {
 
             final IProposeScheduleResponse proposeResponse = ncfBandwidthService
                     .proposeSchedule(subscriptions);
@@ -121,7 +124,7 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         @Override
         protected Set<String> scheduleSbnSubscriptions(
-                List<Subscription> subscriptions) throws SerializationException {
+                List<Subscription<T, C>> subscriptions) throws SerializationException {
 
             final Set<String> ncfResponse = ncfBandwidthService
                     .schedule(subscriptions);
@@ -135,12 +138,12 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
      * {@inheritDoc}
      */
     @Override
-    public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
+    public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler) {
-        return new WfoBandwidthManager(dbInit, bandwidthDao, retrievalManager,
+        return new WfoBandwidthManager<T, C>(dbInit, bandwidthDao, retrievalManager,
                 bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler);
     }
 
