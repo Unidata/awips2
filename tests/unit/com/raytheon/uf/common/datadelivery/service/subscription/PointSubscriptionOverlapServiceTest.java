@@ -30,8 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 
@@ -46,6 +46,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * ------------ ---------- ----------- --------------------------
  * May 07, 2013 2000       djohnson     Initial creation
  * Sept, 24 2013 2386      dhladky      Made point specific
+ * Sept 25, 2013 1797      dhladky      fixed tests
  * 
  * </pre>
  * 
@@ -92,32 +93,16 @@ public class PointSubscriptionOverlapServiceTest {
     }
 
     @Test
-    public void moreForecastHoursInCommonThanAllowedOverlaps() {
-        when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
+    public void moreTimeInCommonThanAllowedOverlaps() {
+        when(duplicateChecker.getTimeDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
 
         assertThat(service.isOverlapping(sub1, sub2).isOverlapping(), is(true));
     }
 
     @Test
-    public void lessForecastHoursInCommonThanAllowedDoesNotOverlap() {
-        when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
-                .thenReturn(64);
-
-        assertThat(service.isOverlapping(sub1, sub2).isOverlapping(), is(false));
-    }
-
-    @Test
-    public void moreCyclesInCommonThanAllowedOverlaps() {
-        when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
-                .thenReturn(66);
-
-        assertThat(service.isOverlapping(sub1, sub2).isOverlapping(), is(true));
-    }
-
-    @Test
-    public void lessCyclesInCommonThanAllowedDoesNotOverlap() {
-        when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
+    public void lessTimeInCommonThanAllowedDoesNotOverlap() {
+        when(duplicateChecker.getTimeDuplicationPercent(sub1, sub2))
                 .thenReturn(64);
 
         assertThat(service.isOverlapping(sub1, sub2).isOverlapping(), is(false));
@@ -168,9 +153,7 @@ public class PointSubscriptionOverlapServiceTest {
             throws LocalizationException, TransformException {
         service.writeConfig(ANY_MUST_EXCEED_65_PERCENT);
 
-        when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
-                .thenReturn(66);
-        when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
+        when(duplicateChecker.getTimeDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
         when(duplicateChecker.getParameterDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
@@ -185,9 +168,7 @@ public class PointSubscriptionOverlapServiceTest {
             throws LocalizationException, TransformException {
         service.writeConfig(ALL_MUST_EXCEED_65_PERCENT);
 
-        when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
-                .thenReturn(66);
-        when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
+        when(duplicateChecker.getTimeDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
         when(duplicateChecker.getParameterDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
@@ -200,9 +181,7 @@ public class PointSubscriptionOverlapServiceTest {
     @Test
     public void whenAllComparisonsReturnOneHundredPercentReturnsDuplicate()
             throws LocalizationException, TransformException {
-        when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
-                .thenReturn(100);
-        when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
+        when(duplicateChecker.getTimeDuplicationPercent(sub1, sub2))
                 .thenReturn(100);
         when(duplicateChecker.getParameterDuplicationPercent(sub1, sub2))
                 .thenReturn(100);
@@ -215,9 +194,7 @@ public class PointSubscriptionOverlapServiceTest {
     @Test
     public void whenAllComparisonsDontReturnOneHundredPercentReturnsNotDuplicate()
             throws LocalizationException, TransformException {
-        when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
-                .thenReturn(100);
-        when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
+        when(duplicateChecker.getTimeDuplicationPercent(sub1, sub2))
                 .thenReturn(100);
         when(duplicateChecker.getParameterDuplicationPercent(sub1, sub2))
                 .thenReturn(100);
