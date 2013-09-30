@@ -39,8 +39,6 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
    fi
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/utility
-
 %build
 
 %install
@@ -49,11 +47,15 @@ if [ ! -d %{_baseline_workspace}/%{_localization_directory} ]; then
    exit 1
 fi
 
+mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/utility
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 # Copy the localization.
 cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility
-RC=$?
-if [ ${RC} -ne 0 ]; then
+if [ $? -ne 0 ]; then
    exit 1
 fi
 

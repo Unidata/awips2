@@ -30,43 +30,27 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 LOCALAPPS_RPM_DIR="rpms/awips2.core/Installer.localapps-environment"
 PROFILED_DIR="${LOCALAPPS_RPM_DIR}/scripts/profile.d"
 
 # Copy the profile.d scripts.
 cp %{_baseline_workspace}/${PROFILED_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II localapps environment...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-
 %post
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II localapps environment installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %preun
-
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II localapps environment Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo ""
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
