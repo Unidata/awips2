@@ -32,6 +32,9 @@
 		<!-- Copy The P2 Build build.properties File. -->
 		<copy tofile="${basedir}/cave/p2/build.properties" 
 			file="${basedir}/build.properties.p2" verbose="true" />
+		<!-- Copy the P2 Custom Assembly File. -->
+		<copy tofile="${basedir}/cave/p2/customAssembly.xml" 
+			file="${basedir}/customAssembly.xml.p2" verbose="true" />		
 		
 		<!-- We Will Copy The Plugins Here Eventually. -->
 		<mkdir dir="${basedir}/cave/p2/plugins" />
@@ -413,9 +416,39 @@
 		</if>
 
 		<!-- Package The Repository -->
+		<mkdir dir="${basedir}/cave/p2/STAGING/awips2" />
+		
+		<mkdir dir="${basedir}/cave/p2/STAGING/awips2/cave/.repository" />
+		<mkdir dir="${basedir}/cave/p2/STAGING/awips2/cave/etc" />
 		<zip
-			destfile="${basedir}/cave/p2/dist/${feature}-repo-${build.os}.${build.arch}.zip"
+			destfile="${basedir}/cave/p2/STAGING/awips2/cave/.repository/${feature}-repo-${build.os}.${build.arch}.zip"
 			basedir="${basedir}/cave/p2/repository" />
+		
+		<!-- copy etc to STAGING, if it exists -->
+		<if>
+			<available file="${basedir}/cave/p2/etc" 
+				type="dir" />
+			<then>
+				<copy todir="${basedir}/cave/p2/STAGING/awips2/cave/etc">
+					<fileset dir="${basedir}/cave/p2/etc"
+						includes="*/**" />
+				</copy>
+				
+				<!-- remove the etc directory -->
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}/cave/p2/etc" />
+				</delete>
+			</then>
+		</if>
+		
+		<!-- zip the entire distribution -->
+		<zip
+			destfile="${basedir}/cave/p2/dist/${feature}-${build.os}.${build.arch}.zip"
+			basedir="${basedir}/cave/p2/STAGING" />
+		
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/cave/p2/STAGING" />
+		</delete>
 		
 		<!-- Cleanup The Current Build -->
 		<if>
