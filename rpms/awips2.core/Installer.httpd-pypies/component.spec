@@ -1,94 +1,92 @@
 %define contentdir /var/www
 %define suexec_caller apache
 %define mmn 20051115
-%define vstring CentOS
-%define distro CentOS
+%define vstring Red Hat
+%define mpms worker event
 
 Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
-Version: 2.2.3
-# This Is Officially Release: 22%{?dist}
-Release: 30%{?dist}
+Version: 2.2.15
+Release: 15.2.el6
 URL: http://httpd.apache.org/
-Prefix: /awips2/httpd_pypies
-Source0: http://www.apache.org/dist/httpd/httpd-%{version}.tar.gz
-Source1: centos_index.html
+Source0: http://archive.apache.org/dist/httpd/httpd-%{version}.tar.gz
+Source1: index.html
 Source3: httpd-pypies.logrotate
 Source4: httpd-pypies.init
 Source5: httpd.sysconf
-Source8: centos_powered_by_rh.png
 Source10: httpd.conf
 Source11: ssl.conf
 Source12: welcome.conf
 Source13: manual.conf
-Source14: proxy_ajp.conf
 # Documentation
-Source30: migration.xml
-Source31: migration.css
-Source32: html.xsl
 Source33: README.confd
 # build/scripts patches
 Patch1: httpd-2.1.10-apctl.patch
 Patch2: httpd-2.1.10-apxs.patch
-Patch3: httpd-2.0.45-deplibs.patch
+Patch3: httpd-2.2.9-deplibs.patch
 Patch4: httpd-2.1.10-disablemods.patch
 Patch5: httpd-2.1.10-layout.patch
-Patch6: httpd-2.2.2-ac260.patch
 # Features/functional changes
-Patch20: httpd-2.0.48-release.patch
-Patch21: httpd-2.0.40-xfsz.patch
+Patch20: httpd-2.2.14-release.patch
+Patch21: httpd-2.2.11-xfsz.patch
 Patch22: httpd-2.1.10-pod.patch
 Patch23: httpd-2.0.45-export.patch
-Patch24: httpd-2.0.48-corelimit.patch
-Patch25: httpd-2.0.54-selinux.patch
-Patch26: httpd-2.2.3-proxysessid.patch
-Patch27: httpd-2.2.3-proxypmatch.patch
-Patch28: httpd-2.2.3-nbchunk.patch
+Patch24: httpd-2.2.11-corelimit.patch
+Patch25: httpd-2.2.11-selinux.patch
+Patch26: httpd-2.2.15-sslfips.patch
+Patch27: httpd-2.2.15-modreqto2217.patch
 # Bug fixes
-Patch50: httpd-2.0.45-encode.patch
-Patch54: httpd-2.2.0-authnoprov.patch
-Patch55: httpd-2.2.3-proxyopt.patch
-Patch56: httpd-2.2.3-proxyoride.patch
-Patch57: httpd-2.0.52-logresline.patch
-Patch58: httpd-2.2.3-ldappool.patch
-Patch59: httpd-2.2.3-ssldynlock.patch
-Patch60: httpd-2.0.52-escaperrs.patch
-Patch61: httpd-2.2.3-eventdlock.patch
-Patch62: httpd-2.2.3-hdrsedit.patch
-Patch63: httpd-2.2.3-dummyreq.patch
-# Security Fixes
-Patch100: httpd-2.2.3-CVE-2006-5752.patch
-Patch101: httpd-2.2.3-CVE-2007-1863.patch
-Patch102: httpd-2.2.3-CVE-2007-3304.patch
-Patch103: httpd-2.2.3-CVE-2007-3847.patch
-Patch104: httpd-2.2.3-CVE-2007-5000.patch
-Patch105: httpd-2.2.3-CVE-2007-4465.patch
-Patch106: httpd-2.2.3-CVE-2007-6421.patch
-Patch107: httpd-2.2.3-CVE-2007-6422.patch
-Patch108: httpd-2.2.3-CVE-2007-6388.patch
-Patch109: httpd-2.2.3-prftpcset.patch
-Patch110: httpd-2.2.3-CVE-2007-3304-update.patch
-Patch111: httpd-2.2.3-CVE-2008-2939.patch
-# Rebases
-Patch200: httpd-2.2.3-proxy229.patch
-Patch201: httpd-2.2.3-cache229.patch
-License: Apache Software License
+Patch60: httpd-2.0.52-logresline.patch
+Patch61: httpd-2.2.3-defpidlog.patch
+Patch62: httpd-2.2.3-extfiltereos.patch
+Patch63: httpd-2.2.3-graceful-ebadf.patch
+Patch64: httpd-2.2.3-noxpad.patch
+Patch65: httpd-2.2.3-pngmagic.patch
+Patch67: httpd-2.2.14-ldapdyngrp.patch
+Patch68: httpd-2.2.15-proxyconn.patch
+Patch69: httpd-2.2.0-authnoprov.patch
+Patch70: httpd-2.2.15-ssloidval.patch
+Patch71: httpd-2.2.15-davputfail.patch
+Patch72: httpd-2.2.15-expectnoka.patch
+Patch73: httpd-2.2.15-pr49328.patch
+Patch74: httpd-2.2.15-aboverflow.patch
+Patch75: httpd-2.2.15-pr45444.patch
+Patch76: httpd-2.2.15-ssldupkeys.patch
+Patch77: httpd-2.2.15-ldapcache.patch
+Patch78: httpd-2.2.3-pr41743.patch
+Patch79: httpd-2.2.15-filterhdr.patch
+Patch80: httpd-2.2.15-oomabort.patch
+Patch81: httpd-2.2.15-sslpxycerts.patch
+Patch82: httpd-2.2.15-sslproxyio.patch
+Patch83: httpd-2.2.15-ajperror.patch
+Patch84: httpd-2.2.15-sslsninotreq.patch
+Patch85: httpd-2.2.15-sslbadcdev.patch
+Patch86: httpd-2.2.15-proxyepsv.patch
+Patch87: httpd-2.2.15-cachehardmax.patch
+# Security fixes
+Patch200: httpd-2.2.15-CVE-2010-1452.patch
+Patch201: httpd-2.2.15-CVE-2011-3192ver3.patch
+Patch202: httpd-2.2.15-CVE-2011-3368.patch
+Patch203: httpd-2.2.15-CVE-2011-3348.patch
+License: ASL 2.0
 Group: AWIPSII
-BuildRoot: %{_tmppath}/%{name}-root
-BuildRequires: autoconf, perl, pkgconfig, xmlto >= 0.0.11, findutils
-BuildRequires: db4-devel, expat-devel, zlib-devel, libselinux-devel
-BuildRequires: apr-devel >= 1.2.0, apr-util-devel >= 1.2.0, pcre-devel >= 5.0, 
-Requires: /etc/mime.types, gawk, /usr/share/magic.mime, /usr/bin/find
-Requires: initscripts >= 8.36
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: autoconf, perl, pkgconfig, findutils
+BuildRequires: zlib-devel, libselinux-devel
+BuildRequires: apr-devel >= 1.2.0, apr-util-devel >= 1.2.0, pcre-devel >= 5.0
+Requires: initscripts >= 8.36, /etc/mime.types, system-logos >= 7.92.1-1
 Requires: awips2-tools
 Obsoletes: httpd-suexec
-Prereq: /sbin/chkconfig, /bin/mktemp, /bin/rm, /bin/mv
-Prereq: sh-utils, textutils, /usr/sbin/useradd
+Requires(pre): /usr/sbin/useradd
+Requires(post): chkconfig
 Provides: webserver
+Provides: mod_dav = %{version}-%{release}, httpd-suexec = %{version}-%{release}
 Provides: httpd-mmn = %{mmn}
-Obsoletes: apache, secureweb, mod_dav, mod_gzip, stronghold-apache, stronghold-htdocs
-Obsoletes: mod_put, mod_roaming, mod_jk
+Obsoletes: apache, secureweb, mod_dav, mod_gzip, stronghold-apache
+Obsoletes: stronghold-htdocs, mod_put, mod_roaming
 Conflicts: pcre < 4.0
+Requires: apr-util-ldap
+requires: awips2-pypies
 
 %description
 The Apache HTTP Server is a powerful, efficient, and extensible
@@ -96,7 +94,7 @@ web server.
 
 %package devel
 Group: AWIPSII
-Summary: Development tools for the Apache HTTP server.
+Summary: Development interfaces for the Apache HTTP server
 Obsoletes: secureweb-devel, apache-devel, stronghold-apache-devel
 Requires: apr-devel, apr-util-devel, pkgconfig
 Requires: httpd = %{version}-%{release}
@@ -112,9 +110,10 @@ to install this package.
 
 %package manual
 Group: AWIPSII
-Summary: Documentation for the Apache HTTP server.
+Summary: Documentation for the Apache HTTP server
 Requires: httpd = %{version}-%{release}
 Obsoletes: secureweb-manual, apache-manual
+BuildArch: noarch
 
 %description manual
 The httpd-manual package contains the complete manual and
@@ -123,10 +122,11 @@ also be found at http://httpd.apache.org/docs/2.2/.
 
 %package -n mod_ssl
 Group: AWIPSII
-Summary: SSL/TLS module for the Apache HTTP server
+Summary: SSL/TLS module for the Apache HTTP Server
 Epoch: 1
-BuildRequires: openssl-devel, distcache-devel
+BuildRequires: openssl-devel
 Requires(post): openssl >= 0.9.7f-4, /bin/cat
+Requires(pre): httpd
 Requires: httpd = 0:%{version}-%{release}, httpd-mmn = %{mmn}
 Obsoletes: stronghold-mod_ssl
 
@@ -136,52 +136,53 @@ server via the Secure Sockets Layer (SSL) and Transport Layer
 Security (TLS) protocols.
 
 %prep
-%setup -q -n httpd-2.2.3
+%setup -q -n httpd-2.2.15
 %patch1 -p1 -b .apctl
 %patch2 -p1 -b .apxs
 %patch3 -p1 -b .deplibs
 %patch4 -p1 -b .disablemods
 %patch5 -p1 -b .layout
-%patch6 -p1 -b .ac260
 
-%patch21 -p0 -b .xfsz
+%patch21 -p1 -b .xfsz
 %patch22 -p1 -b .pod
 %patch23 -p1 -b .export
 %patch24 -p1 -b .corelimit
 %patch25 -p1 -b .selinux
-%patch26 -p1 -b .proxysessid
-%patch27 -p1 -b .proxypmatch
-%patch28 -p1 -b .nbchunk
+%patch26 -p1 -b .sslfips
+%patch27 -p1 -b .modreqto2217
 
-# no -b to prevent droplets in install root
-%patch50 -p1
-%patch54 -p1 -b .authnoprov
-%patch55 -p1 -b .proxyopt
-%patch56 -p1 -b .proxyoride
-%patch57 -p1 -b .logresline
-%patch58 -p1 -b .ldappool
-%patch59 -p1 -b .ssldynlock
-%patch60 -p1 -b .escaperrs
-%patch61 -p1 -b .eventdlock
-%patch62 -p1 -b .hdrsedit
-%patch63 -p1 -b .dummyreq
+%patch60 -p1 -b .logresline
+%patch61 -p1 -b .defpidlog
+%patch62 -p1 -b .extfiltereos
+%patch63 -p1 -b .graceful-ebadf
+%patch64 -p1 -b .noxpad
+%patch65 -p1 -b .pngmagic
+%patch67 -p1 -b .ldapdyngrp
+%patch68 -p1 -b .proxyconn
+%patch69 -p1 -b .authnoprov
+%patch70 -p1 -b .ssloidval
+%patch71 -p1 -b .davputfail
+%patch72 -p1 -b .expectnoka
+%patch73 -p1 -b .pr49328
+%patch74 -p1 -b .aboverflow
+%patch75 -p1 -b .pr45444
+%patch76 -p1 -b .ssldupkeys
+%patch77 -p1 -b .ldapcache
+%patch78 -p1 -b .pr41743
+%patch79 -p1 -b .filterhdr
+%patch80 -p1 -b .oomabort
+%patch81 -p1 -b .sslpxycerts
+%patch82 -p1 -b .sslproxyio
+%patch83 -p1 -b .ajperror
+%patch84 -p1 -b .sslsninotreq
+%patch85 -p1 -b .sslbadcdev
+%patch86 -p1 -b .proxyepsv
+%patch87 -p1 -b .cachehardmax
 
-%patch100 -p1 -b .cve5752
-%patch101 -p1 -b .cve1853
-%patch102 -p1 -b .cve3304
-%patch103 -p1 -b .cve3847
-%patch104 -p1 -b .cve5000
-%patch105 -p1 -b .cve4465
-%patch106 -p1 -b .cve6421
-%patch107 -p1 -b .cve6422
-%patch108 -p1 -b .cve6388
-%patch109 -p1 -b .prftpcset
-%patch110 -p1 -b .cve3304-update
-%patch111 -p1 -b .cve2939
-
-# Rebases -- any changes to proxy/cache modules must come later:
-%patch200 -p1 -b .proxy229
-%patch201 -p1 -b .cache229
+%patch200 -p1 -b .cve1452
+%patch201 -p1 -b .cve3192ver3
+%patch202 -p1 -b .cve3368
+%patch203 -p1 -b .cve3348
 
 # Patch in vendor/release string
 sed "s/@VENDOR@/%{vstring}/;s/@RELEASE@/%{release}/" < %{PATCH20} | patch -p1 -b -z .release
@@ -194,7 +195,7 @@ if test "x${vmmn}" != "x%{mmn}"; then
    exit 1
 fi
 
-: Building for '%{distro}' with MMN %{mmn} and vendor string '%{vstring}'
+: Building with MMN %{mmn} and vendor string '%{vstring}'
 
 %build
 # forcibly prevent use of bundled apr, apr-util, pcre
@@ -203,24 +204,16 @@ rm -rf srclib/{apr,apr-util,pcre}
 # regenerate configure scripts
 autoheader && autoconf || exit 1
 
-# Limit size of CHANGES to recent history
-echo '1,/Changes with Apache MPM/wq' | ed CHANGES
-
 # Before configure; fix location of build dir in generated apxs
-%{__perl} -pi -e "s:\@exp_installbuilddir\@:/awips2/httpd_pypies%{_libdir}/httpd/build:g" \
+%{__perl} -pi -e "s:\@exp_installbuilddir\@:%{_libdir}/httpd/build:g" \
 	support/apxs.in
-# update location of migration guide in apachectl
-%{__perl} -pi -e "s:\@docdir\@:%{_docdir}/%{name}-%{version}:g" \
-	support/apachectl.in
 
-# Build the migration guide
-sed 's/@DISTRO@/%{distro}/' < $RPM_SOURCE_DIR/migration.xml > migration.xml
-xmlto -x $RPM_SOURCE_DIR/html.xsl html-nochunks migration.xml
-cp $RPM_SOURCE_DIR/migration.css . # make %%doc happy
-
-CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
+CFLAGS="$RPM_OPT_FLAGS -Wformat-security -fno-strict-aliasing"
 SH_LDFLAGS="-Wl,-z,relro"
 export CFLAGS SH_LDFLAGS
+
+# Forcibly disable use of rsync to install (#557049)
+export ac_cv_path_RSYNC=
 
 # Hard-code path to links to avoid unnecessary builddep
 export LYNX_PATH=/usr/bin/links
@@ -234,7 +227,7 @@ mkdir $mpm; pushd $mpm
  	--exec-prefix=/awips2/httpd_pypies%{_prefix} \
  	--bindir=/awips2/httpd_pypies%{_bindir} \
  	--sbindir=/awips2/httpd_pypies%{_sbindir} \
- 	--mandir=/awips2/httpd_pypies/%{_mandir} \
+ 	--mandir=/awips2/httpd_pypies%{_mandir} \
 	--libdir=/awips2/httpd_pypies%{_libdir} \
 	--sysconfdir=/awips2/httpd_pypies%{_sysconfdir}/httpd/conf \
 	--includedir=/awips2/httpd_pypies%{_includedir}/httpd \
@@ -253,24 +246,26 @@ mkdir $mpm; pushd $mpm
         --with-pcre \
 	$*
 
-make %{?_smp_mflags}
+make %{?_smp_mflags} EXTRA_CFLAGS="-Werror-implicit-function-declaration"
 popd
 }
 
 # Build everything and the kitchen sink with the prefork build
 mpmbuild prefork \
         --enable-mods-shared=all \
-	--enable-ssl --with-ssl --enable-distcache \
+	--enable-ssl --with-ssl \
 	--enable-proxy \
-        --enable-cache --enable-mem-cache \
-        --enable-file-cache --enable-disk-cache \
+        --enable-cache \
+        --enable-disk-cache \
         --enable-ldap --enable-authnz-ldap \
         --enable-cgid \
-        --enable-authn-anon --enable-authn-alias
+        --enable-authn-anon --enable-authn-alias \
+        --disable-imagemap
 
 # For the other MPMs, just build httpd and no optional modules
-mpmbuild worker --enable-modules=none
-mpmbuild event --enable-modules=none
+for f in %{mpms}; do
+   mpmbuild $f --enable-modules=none
+done
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -284,23 +279,25 @@ make DESTDIR=$RPM_BUILD_ROOT install
 popd
 
 # install alternative MPMs
-install -m 755 worker/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sbindir}/httpd.worker
-install -m 755 event/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sbindir}/httpd.event
+for f in %{mpms}; do
+  install -m 755 ${f}/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sbindir}/httpd.${f}
+done
 
 # install conf file/directory
 mkdir $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d
 install -m 644 $RPM_SOURCE_DIR/README.confd \
     $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/README
-for f in ssl.conf welcome.conf manual.conf proxy_ajp.conf; do
-  install -m 644 $RPM_SOURCE_DIR/$f $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/$f
+for f in ssl.conf welcome.conf manual.conf; do
+  install -m 644 -p $RPM_SOURCE_DIR/$f \
+        $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/$f
 done
 
 rm $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf/*.conf
-install -m 644 $RPM_SOURCE_DIR/httpd.conf \
+install -m 644 -p $RPM_SOURCE_DIR/httpd.conf \
    $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf/httpd.conf
 
 mkdir $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/sysconfig
-install -m 644 $RPM_SOURCE_DIR/httpd.sysconf \
+install -m 644 -p $RPM_SOURCE_DIR/httpd.sysconf \
    $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/sysconfig/httpd
 
 # for holding mod_dav lock database
@@ -322,17 +319,13 @@ echo %{mmn} > $RPM_BUILD_ROOT/awips2/httpd_pypies%{_includedir}/httpd/.mmn
 
 # docroot
 mkdir $RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/html
-install -m 644 $RPM_SOURCE_DIR/centos_index.html \
-	$RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/error/noindex.html
+install -m 644 -p $RPM_SOURCE_DIR/index.html \
+        $RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/error/noindex.html
 
 # remove manual sources
 find $RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/manual \( \
     -name \*.xml -o -name \*.xml.* -o -name \*.ent -o -name \*.xsl -o -name \*.dtd \
     \) -print0 | xargs -0 rm -f
-
-# added for branding
-install -m 644 %{SOURCE8} \
-        $RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/icons/powered_by_rh.png
 
 # Strip the manual down just to English and replace the typemaps with flat files:
 set +x
@@ -344,28 +337,32 @@ for f in `find $RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/manual -name \*.
 done
 set -x
 
-# logs
+# Symlink for the powered-by-$DISTRO image:
+ln -s ../../..%{_datadir}/pixmaps/poweredby.png \
+        $RPM_BUILD_ROOT/awips2/httpd_pypies%{contentdir}/icons/poweredby.png
+
+# Set up /var directories
 rmdir $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/logs
 mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_localstatedir}/log/httpd
+mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_localstatedir}/run/httpd
+mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_localstatedir}/lock/subsys
 
-# run
-mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies/var/run
-
-mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies/var/lock/subsys/
-
+pushd .
+cd $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd
 # symlinks for /etc/httpd
 ln -s ../..%{_localstatedir}/log/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/logs
-ln -s ../..%{_localstatedir}/run $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/run
+ln -s ../..%{_localstatedir}/run/httpd $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/run
 ln -s ../..%{_libdir}/httpd/modules $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/modules
+popd
 
-# install service script.
+# install service script
 mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
 install -m755 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies \
-    ${RPM_BUILD_ROOT}/etc/init.d
+   ${RPM_BUILD_ROOT}/etc/init.d
 
 # install log rotation stuff
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-install -m644 $RPM_SOURCE_DIR/httpd-pypies.logrotate \
+install -m 644 -p $RPM_SOURCE_DIR/httpd-pypies.logrotate \
 	$RPM_BUILD_ROOT/etc/logrotate.d/httpd-pypies
 
 # fix man page paths
@@ -374,9 +371,9 @@ sed -e "s|/usr/local/apache2/conf/httpd.conf|/etc/httpd/conf/httpd.conf|" \
     -e "s|/usr/local/apache2/conf/magic|/etc/httpd/conf/magic|" \
     -e "s|/usr/local/apache2/logs/error_log|/var/log/httpd/error_log|" \
     -e "s|/usr/local/apache2/logs/access_log|/var/log/httpd/access_log|" \
-    -e "s|/usr/local/apache2/logs/httpd.pid|/var/run/httpd.pid|" \
+    -e "s|/usr/local/apache2/logs/httpd.pid|/var/run/httpd/httpd.pid|" \
     -e "s|/usr/local/apache2|/etc/httpd|" < docs/man/httpd.8 \
-  > $RPM_BUILD_ROOT/awips2/httpd_pypies/%{_mandir}/man8/httpd.8
+  > $RPM_BUILD_ROOT/awips2/httpd_pypies%{_mandir}/man8/httpd.8
 
 # Make ap_config_layout.h libdir-agnostic
 sed -i '/.*DEFAULT_..._LIBEXECDIR/d;/DEFAULT_..._INSTALLBUILDDIR/d' \
@@ -436,7 +433,7 @@ fi
 # Install the module required by pypies.
 install -m755 .libs/mod_wsgi.so \
     ${RPM_BUILD_ROOT}/awips2/httpd_pypies/etc/httpd/modules
-    
+
 cd ../
 /bin/rm -f mod_wsgi-3.3.tar.gz
 if [ $? -ne 0 ]; then
@@ -463,17 +460,11 @@ install -m644 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/con
 
 %pre
 # Add the "apache" user
-/usr/sbin/useradd -c "Apache" -u 48 \
-	-s /sbin/nologin -r -d /awips2/httpd_pypies%{contentdir} apache 2> /dev/null || :
-
-%triggerpostun -- apache < 2.0, stronghold-apache < 2.0
-/sbin/chkconfig --add httpd-pypies
-
-# Prevent removal of index.html on upgrades from 1.3
-%triggerun -- apache < 2.0, stronghold-apache < 2.0
-if [ -r /awips2/httpd_pypies%{contentdir}/index.html -a ! -r /awips2/httpd_pypies%{contentdir}/index.html.rpmold ]; then
-  mv /awips2/httpd_pypies%{contentdir}/index.html /awips2/httpd_pypies%{contentdir}/index.html.rpmold
-fi
+getent group apache >/dev/null || groupadd -g 48 -r apache
+getent passwd apache >/dev/null || \
+  useradd -r -u 48 -g apache -s /sbin/nologin \
+    -d %{contentdir} -c "Apache" apache
+exit 0
 
 %post
 # Register the httpd service
@@ -484,9 +475,12 @@ fi
 # httpd-pypies causes 'yum groupremove' to abort and leaves us with
 # an incomplete version of httpd-pypies that cannot be un-installed.
 #if [ $1 = 0 ]; then
-#	/sbin/service httpd-pypies stop > /dev/null 2>&1
-#	/sbin/chkconfig --del httpd-pypies
+#	/sbin/service httpd stop > /dev/null 2>&1
+#	/sbin/chkconfig --del httpd
 #fi
+
+%posttrans
+/sbin/service httpd condrestart >/dev/null 2>&1 || :
 
 %define sslcert /awips2/httpd_pypies%{_sysconfdir}/pki/tls/certs/localhost.crt
 %define sslkey /awips2/httpd_pypies%{_sysconfdir}/pki/tls/private/localhost.key
@@ -526,7 +520,7 @@ fi
 
 # Verify that the same modules were built into the httpd binaries
 ./prefork/httpd -l | grep -v prefork > prefork.mods
-for mpm in worker; do
+for mpm in %{mpms}; do
   ./${mpm}/httpd -l | grep -v ${mpm} > ${mpm}.mods
   if ! diff -u prefork.mods ${mpm}.mods; then
     : Different modules built into httpd binaries, will not proceed
@@ -541,7 +535,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,awips,fxalpha)
 
 %doc ABOUT_APACHE README CHANGES LICENSE VERSIONING NOTICE
-%doc migration.html migration.css
 
 %dir /awips2/httpd_pypies
 %dir /awips2/httpd_pypies/etc
@@ -554,11 +547,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir /awips2/httpd_pypies/var
 %dir /awips2/httpd_pypies/var/cache
 %dir /awips2/httpd_pypies/var/lib
-%dir /awips2/httpd_pypies/var/lock
 %dir /awips2/httpd_pypies/var/log
 %dir /awips2/httpd_pypies%{_sysconfdir}/httpd
 %dir /awips2/httpd_pypies/var/run
-%dir /awips2/httpd_pypies/var/lock/subsys/
 %dir /awips2/httpd_pypies/var/www/wsgi
 %config(noreplace) /awips2/httpd_pypies/var/www/wsgi/pypies.wsgi
 /awips2/httpd_pypies%{_sysconfdir}/httpd/modules
@@ -568,7 +559,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf/httpd.conf
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/pypies.conf
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/welcome.conf
-%config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/proxy_ajp.conf
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf/magic
 
 %config(noreplace) %{_sysconfdir}/logrotate.d/httpd-pypies
@@ -602,116 +592,278 @@ rm -rf $RPM_BUILD_ROOT
 %config /awips2/httpd_pypies%{contentdir}/error/*.var
 %config /awips2/httpd_pypies%{contentdir}/error/include/*.html
 
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/lock/subsys
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/log/httpd
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/run/httpd
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/lib/dav
 %attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/cache/mod_proxy
 
-/awips2/httpd_pypies/%{_mandir}/man?/*
-%exclude /awips2/httpd_pypies/%{_mandir}/man8/apxs.8*
+/awips2/httpd_pypies/%{_mandir}/man1/*
+/awips2/httpd_pypies/%{_mandir}/man8/*
 
 %files manual
 %defattr(-,root,root)
-/awips2/httpd_pypies%{contentdir}/manual
-%config /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/manual.conf
+/awips2/httpd_pypies/%{contentdir}/manual
+%config /awips2/httpd_pypies/%{_sysconfdir}/httpd/conf.d/manual.conf
 
 %files -n mod_ssl
 %defattr(-,root,root)
-/awips2/httpd_pypies%{_libdir}/httpd/modules/mod_ssl.so
-%config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/ssl.conf
-%attr(0700,apache,root) %dir /awips2/httpd_pypies%{_localstatedir}/cache/mod_ssl
-%attr(0600,apache,root) %ghost /awips2/httpd_pypies%{_localstatedir}/cache/mod_ssl/scache.dir
-%attr(0600,apache,root) %ghost /awips2/httpd_pypies%{_localstatedir}/cache/mod_ssl/scache.pag
-%attr(0600,apache,root) %ghost /awips2/httpd_pypies%{_localstatedir}/cache/mod_ssl/scache.sem
+/awips2/httpd_pypies/%{_libdir}/httpd/modules/mod_ssl.so
+%config(noreplace) /awips2/httpd_pypies/%{_sysconfdir}/httpd/conf.d/ssl.conf
+%attr(0700,apache,root) %dir /awips2/httpd_pypies/%{_localstatedir}/cache/mod_ssl
+%attr(0600,apache,root) %ghost /awips2/httpd_pypies/%{_localstatedir}/cache/mod_ssl/scache.dir
+%attr(0600,apache,root) %ghost /awips2/httpd_pypies/%{_localstatedir}/cache/mod_ssl/scache.pag
+%attr(0600,apache,root) %ghost /awips2/httpd_pypies/%{_localstatedir}/cache/mod_ssl/scache.sem
 
 %files devel
 %defattr(-,root,root)
-/awips2/httpd_pypies%{_includedir}/httpd
-/awips2/httpd_pypies%{_sbindir}/apxs
+/awips2/httpd_pypies/%{_includedir}/httpd
+/awips2/httpd_pypies/%{_sbindir}/apxs
 /awips2/httpd_pypies/%{_mandir}/man8/apxs.8*
 %dir /awips2/httpd_pypies%{_libdir}/httpd/build
 /awips2/httpd_pypies%{_libdir}/httpd/build/*.mk
 /awips2/httpd_pypies%{_libdir}/httpd/build/*.sh
 
 %changelog
-* Thu Jan 22 2009 Karanbir Singh <kbsingh@centos.org> 2.2.3-22.el5.centos
-- Roll in CentOS branding changes
+* Thu Oct  6 2011 Joe Orton <jorton@redhat.com> - 2.2.15-15
+- mod_proxy_ftp: fix handling of EPSV w/IPv6 localhost (#737960)
+- core: add security fix for CVE-2011-3368 (#743659)
+- mod_proxy_ajp: add security fix for CVE-2011-3348 (#738961)
+- mod_cache: forward-port CacheMaxExpire "hard" option (#740242)
 
-* Wed Nov 12 2008 Joe Orton <jorton@redhat.com> 2.2.3-22.el5
-- add security fixes for CVE-2008-2939 (#468841)
-- note that the mod_proxy 2.2.9 rebase fixed CVE-2008-2634
+* Wed Sep 28 2011 Joe Orton <jorton@redhat.com> - 2.2.15-14
+- update to byterange patch (#736592)
 
-* Tue Oct 21 2008 Joe Orton <jorton@redhat.com> 2.2.3-21.el5
-- avoid strict-aliasing warnings (#462877)
+* Thu Sep  8 2011 Joe Orton <jorton@redhat.com> - 2.2.15-13
+- add security fix for CVE-2011-3192 (#733063, #736592)
 
-* Tue Oct 21 2008 Joe Orton <jorton@redhat.com> 2.2.3-20.el5
-- mod_proxy: scoreboard access fix (#252024)
+* Mon Aug  8 2011 Joe Orton <jorton@redhat.com> - 2.2.15-12
+- mod_ssl: ignore SNI hints unless required by config (#714704)
+- mod_ssl: fix segfault with bad SSLCryptoDevice argument (#729585)
 
-* Thu Sep 18 2008 Joe Orton <jorton@redhat.com> 2.2.3-19.el5
-- mod_proxy: various backport fixes (#252024)
+* Tue Jul 26 2011 Joe Orton <jorton@redhat.com> - 2.2.15-11
+- rebase mod_reqtimeout to 2.2.17 (#676634)
+- mod_proxy_ajp: honour ProxyErrorOverride (#694939)
+- mod_ssl: add fix for handling incomplete lines w/revproxy (#700074)
+- mod_filter: fix matching against non-std response headers (#700075)
+- core: abort() on malloc() failure (#700393)
+- mod_ssl: fix startup crash w/client cert shared across vhosts (#720980)
 
-* Thu Sep 18 2008 Joe Orton <jorton@redhat.com> 2.2.3-17.el5
-- fix mod_proxy symbol use
+* Tue Jun  7 2011 Joe Orton <jorton@redhat.com> - 2.2.15-10
+- mod_filter: fix test against non-standard response headers (#700075)
 
-* Mon Sep 15 2008 Joe Orton <jorton@redhat.com> 2.2.3-16.el5
-- mod_proxy*, mod_cache*: rebase to 2.2.9 (#252024, #249534,
-  #439842)
-- backport changes to make chunk filter non-blocking (#454098)
+* Fri Apr  8 2011 Joe Orton <jorton@redhat.com> - 2.2.15-9
+- mod_ssl: complete fix for overlapping memcpy (#652335)
 
-* Fri Sep 12 2008 Joe Orton <jorton@redhat.com> 2.2.3-15.el5
-- mod_ldap: fix memory lifetime issues (#440259)
-- mod_ssl: configure OpenSSL dynamic lock callbacks (#462044)
-- escape the Request-Method in canned error responses (#445888)
-- build the event MPM and fix a deadlock therein (#444643)
-- mod_headers: support "RequestHeader edit" (#428253)
-- use "OPTIONS *" rather than "GET /" in dummy connection (#367981)
+* Mon Mar 21 2011 Joe Orton <jorton@redhat.com> - 2.2.15-8
+- mod_ssl: fix compat with FIPS-enabled OpenSSL (#684144)
 
-* Thu Aug 14 2008 Joe Orton <jorton@redhat.com> 2.2.3-14.el5
-- mod_proxy: add ProxyPassMatch support (#449159)
+* Thu Feb 24 2011 Joe Orton <jorton@redhat.com> - 2.2.15-7
+- mod_ldap: fix caching with per-vhost directive use (#676635)
+- mod_ssl: fix startup with duplicate SSL vhost configurations (#676831)
+- prefork: ensure early child exit during graceful restart (#679476)
 
-* Mon Jul 21 2008 Joe Orton <jorton@redhat.com> 2.2.3-13.el5
-- mod_proxy_balancer: allow alternative string to match for
-  stickysession parameter (#439218)
-- fix dist tag in Release (#440615)
+* Mon Jan 31 2011 Joe Orton <jorton@redhat.com> - 2.2.15-6
+- ab: fail gracefully for OOM allocating stats structures (#645846)
+- init script: use $STOP_DELAY as delay before SIGKILL of parent (#657480)
+- stop multiple invocations of filter init functions (#631849)
+- mod_ssl: avoid overlapping memcpy (#652335)
+- mark httpd.conf as noreplace
 
-* Fri Jan 11 2008 Joe Orton <jorton@redhat.com> 2.2.3-12.el5_1.3
-- further update to backport for CVE-2007-6421 (#427240)
+* Fri Aug 13 2010 Joe Orton <jorton@redhat.com> - 2.2.15-5
+- add security fix for CVE-2010-1452 (#618193)
 
-* Fri Jan 11 2008 Joe Orton <jorton@redhat.com> 2.2.3-12.el5_1.2
-- updated backport for CVE-2007-6421 (#427240)
+* Wed Jun 23 2010 Joe Orton <jorton@redhat.com> - 2.2.15-4
+- use init script to rotate logs (#606955)
+- disable keepalive for 100-continue and error response (#606964)
 
-* Mon Jan  7 2008 Joe Orton <jorton@redhat.com> 2.2.3-11.el5_1.1
-- add security fixes for CVE-2007-6388, CVE-2007-6421
-  and CVE-2007-6422 (#427240)
-- add security fix for CVE-2007-4465, CVE-2007-5000 (#421631)
-- add security fix for mod_proxy_ftp UTF-7 XSS (#427745)
+* Tue May 25 2010 Joe Orton <jorton@redhat.com> - 2.2.15-3
+- add "Satisfy All" for .htaccess in httpd.conf (#594981)
+- adjust user/group creation in %%pre (#594395)
+- mod_ssl: tweak OID() evaluation of unknown exts (#594980)
 
-* Mon Aug  6 2007 Joe Orton <jorton@redhat.com> 2.2.3-11.el5
-- mark httpd.conf config(noreplace) (#247881)
+* Thu May  6 2010 Joe Orton <jorton@redhat.com> - 2.2.15-2
+- init script fixes for LSB compliance (#546252)
+ * exit code 2 for an unknown script argument
+ * exit code 6 for a reload if config-test fails
+ * exit code 7 for a reload on a stopped service
+ * fixed help output to cover all options
+- mod_dav: handle PUT failure more cleanly (#572911)
 
-* Fri Aug  3 2007 Joe Orton <jorton@redhat.com> 2.2.3-10.el5
-- add security fix for CVE-2007-3847 (#250761)
+* Thu Mar 11 2010 Joe Orton <jorton@redhat.com> - 2.2.15-1
+- update to 2.2.15 (#570465, #570442)
+- fix version string (#572140)
+- mod_ssl: use ASN1_STRING_print() in SSLRequire's OID() (#552942)
+- prevent use of rsync during "make install" (#557049)
+- load mod_version by default in httpd.conf
 
-* Wed Aug  1 2007 Joe Orton <jorton@redhat.com> 2.2.3-9.el5
-- load mod_version by default (#247881)
+* Tue Feb  9 2010 Joe Orton <jorton@redhat.com> - 2.2.14-5
+- mod_ssl: fix CVE-2009-3555 backport (#563119)
+- mod_authnz_ldap: fix for dynamic group support
+- mod_ssl: add SSLInsecureRenegotiation directive (#561435)
 
-* Tue Jun 26 2007 Joe Orton <jorton@redhat.com> 2.2.3-8.el5
-- add 'ServerTokens Full-Release' config option (#240857)
-- use init script in logrotate postrotate (#241680)
-- fix mod_proxy option inheritance (#245719)
-- fix ProxyErrorOverride to only affect 4xx, 5xx responses (#240024)
-- bump logresolve line buffer length to 10K (#245763)
-- add security fixes for CVE-2007-1863, CVE-2007-3304,
-  and CVE-2006-5752 (#244666)
+* Thu Jan 14 2010 Joe Orton <jorton@redhat.com> - 2.2.14-4
+- mod_ssl: add further mitigation for CVE-2009-3555
+- drop proxy_ajp.conf
+- update httpd.conf: decrease Timeout to 1m, update LoadModule
+  directives, bump worker to 4 proc/300clients
+- fix hard-coded default pidfile to match default config (#547629)
+- drop legacy X-Pad header from short responses (#526110)
+- disable keepalive for Expect: 100-continue and error response (#533407)
+- mod_ext_filter: fix spurious error log output (#479463)
+- mod_rewrite: don't serialize logfile access (#493023)
+- fix spurious error messages on graceful restart (#233955)
+- mod_ssl: fix potential hang in renegotiation (#510515)
+- mod_proxy_connect: support use SSL client connection (#523594)
 
-* Wed Nov 29 2006 Joe Orton <jorton@redhat.com> 2.2.3-6.el5
+* Wed Dec  9 2009 Joe Orton <jorton@redhat.com> - 2.2.14-3
+- add 'ServerTokens Full-Release' config option (#477006)
+
+* Tue Dec  8 2009 Joe Orton <jorton@redhat.com> - 2.2.14-2
+- drop distcache support
+
+* Thu Dec  3 2009 Joe Orton <jorton@redhat.com> - 2.2.14-1
+- update to 2.2.14
+- relax permissions on /var/run/httpd (#495780)
+- Requires(pre): httpd in mod_ssl subpackage (#543275)
+- add partial security fix for CVE-2009-3555 (#533125)
+
+* Tue Sep  8 2009 Joe Orton <jorton@redhat.com> 2.2.13-2
+- restart service in posttrans (#491567)
+
+* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 2.2.13-2
+- rebuilt with new openssl
+
+* Tue Aug 18 2009 Joe Orton <jorton@redhat.com> 2.2.13-1
+- update to 2.2.13
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2.11-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Tue Jun 16 2009 Joe Orton <jorton@redhat.com> 2.2.11-9
+- build -manual as noarch
+
+* Tue Mar 17 2009 Joe Orton <jorton@redhat.com> 2.2.11-8
+- fix pidfile in httpd.logrotate (thanks to Rainer Traut)
+- don't build mod_mem_cache or mod_file_cache
+
+* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2.11-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Thu Jan 22 2009 Joe Orton <jorton@redhat.com> 2.2.11-6
+- Require: apr-util-ldap (#471898)
+- init script changes: pass pidfile to status(), use status() in
+  condrestart (#480602), support try-restart as alias for
+  condrestart
+- change /etc/httpd/run symlink to have destination /var/run/httpd,
+  and restore "run/httpd.conf" as default PidFile (#478688)
+
+* Fri Jan 16 2009 Tomas Mraz <tmraz@redhat.com> 2.2.11-5
+- rebuild with new openssl
+
+* Sat Dec 27 2008 Robert Scheck <robert@fedoraproject.org> 2.2.11-4
+- Made default configuration using /var/run/httpd for pid file
+
+* Thu Dec 18 2008 Joe Orton <jorton@redhat.com> 2.2.11-3
+- update to 2.2.11
+- package new /var/run/httpd directory, and move default pidfile
+  location inside there
+
+* Tue Oct 21 2008 Joe Orton <jorton@redhat.com> 2.2.10-2
+- update to 2.2.10
+
+* Tue Jul 15 2008 Joe Orton <jorton@redhat.com> 2.2.9-5
+- move AddTypes for SSL cert/CRL types from ssl.conf to httpd.conf (#449979)
+
+* Mon Jul 14 2008 Joe Orton <jorton@redhat.com> 2.2.9-4
+- use Charset=UTF-8 in default httpd.conf (#455123)
+- only enable suexec when appropriate (Jim Radford, #453697)
+
+* Thu Jul 10 2008 Tom "spot" Callaway <tcallawa@redhat.com>  2.2.9-3
+- rebuild against new db4 4.7
+
+* Tue Jul  8 2008 Joe Orton <jorton@redhat.com> 2.2.9-2
+- update to 2.2.9
+- build event MPM too
+
+* Wed Jun  4 2008 Joe Orton <jorton@redhat.com> 2.2.8-4
+- correct UserDir directive in default config (#449815)
+
+* Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 2.2.8-3
+- Autorebuild for GCC 4.3
+
+* Tue Jan 22 2008 Joe Orton <jorton@redhat.com> 2.2.8-2
+- update to 2.2.8
+- drop mod_imagemap
+
+* Wed Dec 05 2007 Release Engineering <rel-eng at fedoraproject dot org> - 2.2.6-4
+ - Rebuild for openssl bump
+
+* Mon Sep 17 2007 Joe Orton <jorton@redhat.com> 2.2.6-3
+- add fix for SSL library string regression (PR 43334)
+- use powered-by logo from system-logos (#250676)
+- preserve timestamps for installed config files
+
+* Fri Sep  7 2007 Joe Orton <jorton@redhat.com> 2.2.6-2
+- update to 2.2.6 (#250757, #282761)
+
+* Sun Sep  2 2007 Joe Orton <jorton@redhat.com> 2.2.4-10
+- rebuild for fixed APR
+
+* Wed Aug 22 2007 Joe Orton <jorton@redhat.com> 2.2.4-9
+- rebuild for expat soname bump
+
+* Tue Aug 21 2007 Joe Orton <jorton@redhat.com> 2.2.4-8
+- fix License
+- require /etc/mime.types (#249223)
+
+* Thu Jul 26 2007 Joe Orton <jorton@redhat.com> 2.2.4-7
+- drop -tools dependency on httpd (thanks to Matthias Saou)
+
+* Wed Jul 25 2007 Joe Orton <jorton@redhat.com> 2.2.4-6
+- split out utilities into -tools subpackage, based on patch
+  by Jason Tibbs (#238257)
+
+* Tue Jul 24 2007 Joe Orton <jorton@redhat.com> 2.2.4-5
+- spec file cleanups: provide httpd-suexec, mod_dav; 
+ don't obsolete mod_jk; drop trailing dots from Summaries
+- init script
+ * add LSB info header, support force-reload (#246944)
+ * update description
+ * drop 1.3 config check
+ * pass $pidfile to daemon and pidfile everywhere
+
+* Wed May  9 2007 Joe Orton <jorton@redhat.com> 2.2.4-4
+- update welcome page branding
+
+* Tue Apr  3 2007 Joe Orton <jorton@redhat.com> 2.2.4-3
+- drop old triggers, old Requires, xmlto BR
+- use Requires(...) correctly 
+- use standard BuildRoot 
+- don't mark init script as config file
+- trim CHANGES further
+
+* Mon Mar 12 2007 Joe Orton <jorton@redhat.com> 2.2.4-2
+- update to 2.2.4
+- drop the migration guide (#223605)
+
+* Thu Dec  7 2006 Joe Orton <jorton@redhat.com> 2.2.3-8
 - fix path to instdso.sh in special.mk (#217677)
 - fix detection of links in "apachectl fullstatus"
 
-* Tue Sep 19 2006 Joe Orton <jorton@redhat.com> 2.2.3-5.el5
-- rebuild
+* Tue Dec  5 2006 Joe Orton <jorton@redhat.com> 2.2.3-7
+- rebuild for libpq soname bump
 
-* Fri Aug 11 2006 Joe Orton <jorton@redhat.com> 2.2.3-3.el5
-- use RHEL branding
+* Sat Nov 11 2006 Joe Orton <jorton@redhat.com> 2.2.3-6
+- rebuild for BDB soname bump
+
+* Mon Sep 11 2006 Joe Orton <jorton@redhat.com> 2.2.3-5
+- updated "powered by Fedora" logo (#205573, Diana Fong)
+- tweak welcome page wording slightly (#205880)
+
+* Fri Aug 18 2006 Jesse Keating <jkeating@redhat.com> - 2.2.3-4
+- rebuilt with latest binutils to pick up 64K -z commonpagesize on ppc*
+  (#203001)
 
 * Thu Aug  3 2006 Joe Orton <jorton@redhat.com> 2.2.3-3
 - init: use killproc() delay to avoid race killing parent
