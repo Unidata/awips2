@@ -25,8 +25,10 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -44,14 +46,15 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013 2000       djohnson     Initial creation
  * Sept 24, 2013 2386       dhladky     Made multi-data type
+ * Sept 25, 2013 1797       dhladky     separated time from griddedtime
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class SubscriptionDuplicateChecker implements
-        ISubscriptionDuplicateChecker {
+public class SubscriptionDuplicateChecker<T extends Time, C extends Coverage> implements
+        ISubscriptionDuplicateChecker<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionDuplicateChecker.class);
@@ -63,8 +66,8 @@ public class SubscriptionDuplicateChecker implements
      * {@inheritDoc}
      */
     @Override
-    public int getParameterDuplicationPercent(Subscription sub1,
-            Subscription sub2) {
+    public int getParameterDuplicationPercent(Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
         return getDuplicationPercent(sub1.getParameter(), sub2.getParameter());
     }
 
@@ -72,36 +75,66 @@ public class SubscriptionDuplicateChecker implements
      * {@inheritDoc}
      */
     @Override
-    public int getForecastHourDuplicationPercent(Subscription sub1,
-            Subscription sub2) {
-        return getDuplicationPercent(sub1.getTime().getSelectedTimeIndices(),
-                sub2.getTime().getSelectedTimeIndices());
+    public int getForecastHourDuplicationPercent(Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
+
+        if (sub1.getTime() instanceof GriddedTime) {
+
+            GriddedTime gtime1 = (GriddedTime) sub1.getTime();
+            GriddedTime gtime2 = (GriddedTime) sub2.getTime();
+
+            return getDuplicationPercent(gtime1.getSelectedTimeIndices(),
+                    gtime2.getSelectedTimeIndices());
+        } else {
+            throw new IllegalArgumentException(sub1.getTime().getClass()
+                    + " Config not yet Implemented!");
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getCycleDuplicationPercent(Subscription sub1, Subscription sub2) {
-        return getDuplicationPercent(sub1.getTime().getCycleTimes(), sub2
-                .getTime().getCycleTimes());
+    public int getCycleDuplicationPercent(Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
+
+        if (sub1.getTime() instanceof GriddedTime) {
+
+            GriddedTime gtime1 = (GriddedTime) sub1.getTime();
+            GriddedTime gtime2 = (GriddedTime) sub2.getTime();
+
+            return getDuplicationPercent(gtime1.getCycleTimes(),
+                    gtime2.getCycleTimes());
+        } else {
+            throw new IllegalArgumentException(sub1.getTime().getClass()
+                    + " Config not yet Implemented!");
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getTimeDuplicationPercent(Subscription sub1, Subscription sub2) {
+    public int getTimeDuplicationPercent(Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
 
-        return getDuplicationPercent(((PointTime) sub1.getTime()).getTimes(),
-                ((PointTime) sub2.getTime()).getTimes());
+        if (sub1.getTime() instanceof PointTime) {
+
+            PointTime ptime1 = (PointTime) sub1.getTime();
+            PointTime ptime2 = (PointTime) sub2.getTime();
+
+            return getDuplicationPercent(ptime1.getTimes(), ptime2.getTimes());
+        } else {
+            return 0;
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getSpatialDuplicationPercent(Subscription sub1, Subscription sub2) {
+    public int getSpatialDuplicationPercent(Subscription<T, C> sub1, Subscription<T, C> sub2) {
+       
         final Coverage sub1Coverage = sub1.getCoverage();
         final Coverage sub2Coverage = sub2.getCoverage();
 
@@ -127,13 +160,13 @@ public class SubscriptionDuplicateChecker implements
         return 0;
     }
 
-    private <T> int getDuplicationPercent(Collection<T> coll1,
-            Collection<T> coll2) {
+    private <M> int getDuplicationPercent(Collection<M> coll1,
+            Collection<M> coll2) {
 
         int numberSatisfiedByFirstCollection = 0;
         if (!CollectionUtil.isNullOrEmpty(coll1)
                 && !CollectionUtil.isNullOrEmpty(coll2)) {
-            for (T entry : coll2) {
+            for (M entry : coll2) {
                 if (coll1.contains(entry)) {
                     numberSatisfiedByFirstCollection++;
                 }
@@ -144,4 +177,5 @@ public class SubscriptionDuplicateChecker implements
 
         return 0;
     }
+
 }
