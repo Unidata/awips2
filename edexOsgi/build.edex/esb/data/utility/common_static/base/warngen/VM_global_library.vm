@@ -9,6 +9,7 @@
 #####    Evan Bookbinder    02-06-2013 Added WrapText macro to handle customization of indents
 #####                                  like the ~ and % characters in A1.
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
+#####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -31,7 +32,7 @@ $simplify is a boolean value (true or false)
 
 ### AUTHORS: EVAN BOOKBINDER & MIKE DANGELO
 ### PURPOSE: OUTPUT MILE MARKER, ROAD, INTERSECTION INFO
-#macro(mmarkers$markers $id $name $type $simplify)
+#macro(mmarkers $markers $id $name $type $simplify)
 #set($size = ${list.size($markers)})
 #if(${type.length()} > 0) 
 #set($singType = "${type} ")
@@ -415,6 +416,7 @@ ${mathUtil.round(${motspd})}KT ##
 ########END MACRO
 
 #macro(handleClosestPoints $list, $points1, $points2, $stormType, $nearText, $nearThreshold, $overText, $overThreshold, $units, $useSecondRef)
+#if(${list.size($points1)} > 0)
 #if(${stormType} == "line")
 #set($used = [])
 #set($used1 = [])
@@ -462,6 +464,10 @@ ${location}##
 #end
 ${location}##
 #end
+#end
+#else
+###NO POINTS FOUND
+OVER ${noLocPhrase} OF !** ENTER STORM DOT COUNTY/ZONE PORTION **!
 #end
 #end
 ########END MACRO
@@ -517,7 +523,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 ### CHECK FOR DUPLICATE COUNTY NAMES WITHIN A CWA
 #parse("dupCounties.vm")
 #foreach (${area} in ${areas})
-#if(${list.contains($dupcounties, "${area.fips}")})
+#if(${list.contains($dupcounties, "${area.state_zone}")})
 #set($useStates = true)
 #end
 #end
@@ -584,7 +590,9 @@ THE ##
 #end
 ${prevCounty}##
 #if((${prevCountyType} != ${area.areaNotation} || ${useStates} == true) && ${prevStateAbbrev} != "DC")
+#if(${prevCountyType.length()} > 0) 
  ${prevCountyType}##
+#end
 #end
 #if(${useStates} == true && ${prevStateAbbrev} != "DC")
  IN ##
@@ -603,10 +611,14 @@ ${prevCounty}##
 #if(${prevCountyType} != ${area.areaNotation} || ${useStates} == true)
 #if(${countyCount} > 1)
 #if(${prevCountiesType})
+#if(${prevCountiesType.length()} > 0) 
  ${prevCountiesType}##
 #end
+#end
 #elseif(${prevCountyType})
+#if(${prevCountyType.length()} > 0) 
  ${prevCountyType}##
+#end
 #end
 #end
 #if(${useStates} == true && ${prevStateAbbrev} != "DC")
@@ -632,10 +644,14 @@ ${prevCounty}##
 #if(${prevStateAbbrev} != "DC" && (${prevCountyType} != ${area.areaNotation} || (${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true))))
 #if(${countyCount} > 1)
 #if(${prevCountiesType})
+#if(${prevCountiesType.length()} > 0) 
  ${prevCountiesType}##
 #end
+#end
 #elseif(${prevCountyType})
+#if(${prevCountyType.length()} > 0) 
  ${prevCountyType}##
+#end
 #end
 #end
 #if((${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)) && ${prevStateAbbrev} != "DC")
@@ -652,9 +668,9 @@ THE ##
 #end
 ${area.name}##
 #if(${area.areasNotation})
-#if(${countyCount} >= 1)
+#if(${countyCount} >= 1 && ${area.areasNotation.length()} > 0)
  ${area.areasNotation}##
-#else
+#elseif(${area.areasNotation.length()} > 0)
  ${area.areaNotation}##
 #end
 #end
@@ -677,7 +693,10 @@ THE ##
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-${area.name} ${area.areaNotation}##
+${area.name}##
+#if(${area.areasNotation.length()} > 0)
+ ${area.areaNotation}##
+#end
 #if(${useStates} == true && ${area.stateabbr} != "DC")
  IN ##
 #areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
@@ -858,7 +877,11 @@ THE ##
 #end
 ${prevZone}##
 #if(${useStates} == true && ${prevStateAbbrev} != "DC")
+#if(${prevStateAbbrev.length()} > 0) 
  IN ##
+#else
+IN ##
+#end
 #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
 ${prevState}##
 #end
@@ -872,7 +895,11 @@ THE ##
 #end
 ${prevZone}##
 #if(${useStates} == true && ${prevStateAbbrev} != "DC")
+#if(${prevStateAbbrev.length()} > 0) 
  IN ##
+#else
+IN ##
+#end
 #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
 ${prevState}##
 #end 
@@ -892,7 +919,11 @@ THE ##
 #end
 ${prevZone}##
 #if(((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)) && ${prevStateAbbrev} != "DC")
+#if(${prevStateAbbrev.length()} > 0) 
  IN ##
+#else
+IN ##
+#end
 #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
 ${prevState}##
 #end
@@ -905,7 +936,11 @@ THE ##
 #end
 ${area.name}##
 #if(${useStates} == true && ${prevStateAbbrev} != "DC")
+#if(${prevStateAbbrev.length()} > 0) 
  IN ##
+#else
+IN ##
+#end
 #areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
 ${area.parentRegion}##
 #end
@@ -921,7 +956,11 @@ THE ##
 #end
 ${area.name} ##
 #if(${useStates} == true && ${area.stateabbr} != "DC")
+#if(${area.stateabbr.length()} > 0) 
  IN ##
+#else
+IN ##
+#end
 #areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
 ${area.parentRegion}##
 #end		
@@ -968,7 +1007,11 @@ ${prevZone}##
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} true true true)##
 #end
+#if(${area.areaNotation.length()} > 0) 
 ${area.name} ${area.areaNotation} IN ##
+#else
+${area.name} IN ##
+#end
 #areaFormat(${area.partOfParentRegion} true false true)##
 ${area.parentRegion}...
 ##OUTPUT FOR D.C.
@@ -1009,6 +1052,14 @@ ${area.parentRegion}...
 #elseif(${list.size($areas)} == 1 && ${list.get(${areas},0).stateabbr} == "LA")
 THE FOLLOWING PARISH...
 
+##ONE LOCATION AND ONLY Alaska
+#elseif(${list.size($areas)} == 1 && ${list.get(${areas},0).stateabbr} == "AK")
+THE FOLLOWING AREA...
+
+##ONE LOCATION AND ONLY PR
+#elseif(${list.size($areas)} == 1 && ${list.get(${areas},0).stateabbr} == "PR")
+THE FOLLOWING MUNICIPALITY...
+
 ##ONE LOCATION OTHERWISE
 #elseif(${list.size($areas)} == 1)
 THE FOLLOWING COUNTY...
@@ -1020,8 +1071,16 @@ THE FOLLOWING COUNTY...
 #end
 #end
 #if(${parishFlag} == 0)
+#if(${area.stateabbr} == "AK")
+THE FOLLOWING MUNICIPALITIES...
+
+#elseif(${area.stateabbr} == "PR")
+THE FOLLOWING AREAS...
+
+#else
 THE FOLLOWING COUNTIES...
 
+#end
 #elseif(${list.size($areas)} == ${parishFlag})
 THE FOLLOWING PARISHES...
 
@@ -1191,15 +1250,15 @@ ${location}##
 #if($marineFlag == 1)
 ${otherLead} WILL REMAIN OVER MAINLY OPEN WATERS.
 #else
-${otherLead} WILL REMAIN OVER MAINLY RURAL AREAS OF ##
+${otherLead} WILL REMAIN OVER ${noLocPhrase} OF ##
 #headlineLocList(${areas} true true true false).##
 ###NOW SEARCH FOR OTHER POINTS (PRESUMABLY 3s) AND LIST THEM HERE
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
-#set($numOtherPoints = ${list.size($thirdTier)})
+#set($numOtherPoints = ${list.size($otherPoints)})
 #if($numOtherPoints > 0)
-..INCLUDING THE FOLLOWING LOCATIONS ##
+..INCLUDING THE FOLLOWING LOCATIONS...##
 #set($count = 0)
-#foreach(${loc} in ${thirdTier})
+#foreach(${loc} in ${otherPoints})
 #set($count = $count + 1)
 #if(${loc.partOfArea}) 
 #set($location = "#areaFormat(${loc.partOfArea} true false false) ${loc.name}")
@@ -1207,7 +1266,7 @@ ${otherLead} WILL REMAIN OVER MAINLY RURAL AREAS OF ##
 #else
 #set($location = "${loc.name}")
 #end
-${location.name}##
+${location}##
 #if($count == $numOtherPoints - 1)
  AND ##
 #elseif($count < $numOtherPoints)
@@ -1376,7 +1435,7 @@ AND ${strOutput}
 ${ruralPhrase} WILL REMAIN OVER MAINLY OPEN WATERS.
 #else
 ## NO MAJOR POINTS FOUND. LIST RURAL AREAS
-${ruralPhrase} WILL REMAIN OVER MAINLY RURAL AREAS OF #headlineLocList(${areas} true true true false).##
+${ruralPhrase} WILL REMAIN OVER ${noLocPhrase} OF #headlineLocList(${areas} true true true false).##
 #set($numMinorPoints = ${list.size($otherLocList)})
 #if(${numMinorPoints} == 1)
 ..WHICH INCLUDES ##
