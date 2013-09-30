@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.io.File;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -50,19 +52,20 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Add IEdexBandwidthManagerCreator.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Oct 3,  2013 1797       dhladky      Some generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class EdexBandwidthContextFactory implements BandwidthContextFactory {
+public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> implements BandwidthContextFactory {
 
     /**
      * Pluggable strategy for how to create the {@link BandwidthManager}.
      * Intentionally package-private.
      */
-    public static interface IEdexBandwidthManagerCreator {
+    public static interface IEdexBandwidthManagerCreator<T extends Time, C extends Coverage> {
 
         /**
          * Get the bandwidth manaager.
@@ -75,22 +78,22 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
          * @param subscriptionHandler
          * @return the bandwidth manager
          */
-        IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
-                IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-                BandwidthDaoUtil bandwidthDaoUtil,
+        IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
+                IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
+                BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler);
     }
 
     private static EdexBandwidthManager instance;
 
-    private final IBandwidthDao bandwidthDao;
+    private final IBandwidthDao<T, C> bandwidthDao;
 
     private final IBandwidthBucketDao bandwidthBucketDao;
 
     private final BandwidthInitializer bandwidthInitializer;
 
-    private final IEdexBandwidthManagerCreator bandwidthManagerCreator;
+    private final IEdexBandwidthManagerCreator<T, C> bandwidthManagerCreator;
 
     private final IBandwidthDbInit dbInit;
 
@@ -110,10 +113,10 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param dataSetMetaDataHandler
      * @param subscriptionHandler
      */
-    EdexBandwidthContextFactory(IBandwidthDao bandwidthDao,
+    EdexBandwidthContextFactory(IBandwidthDao<T, C> bandwidthDao,
             IBandwidthBucketDao bandwidthBucketDao,
             BandwidthInitializer bandwidthInitializer,
-            IEdexBandwidthManagerCreator bandwidthManagerCreator,
+            IEdexBandwidthManagerCreator<T, C> bandwidthManagerCreator,
             IBandwidthDbInit dbInit,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler) {
@@ -134,7 +137,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param instance
      *            the {@link BandwidthManager} instance
      */
-    EdexBandwidthContextFactory(EdexBandwidthManager instance) {
+    EdexBandwidthContextFactory(EdexBandwidthManager<T, C> instance) {
         this(null, null, null, null, null, null, null);
         EdexBandwidthContextFactory.instance = instance;
     }
@@ -190,7 +193,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * {@inheritDoc}
      */
     @Override
-    public IBandwidthDao getBandwidthDao() {
+    public IBandwidthDao<T, C> getBandwidthDao() {
         return bandwidthDao;
     }
 
@@ -222,7 +225,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * {@inheritDoc}
      */
     @Override
-    public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
+    public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
         return bandwidthManagerCreator.getBandwidthManager(dbInit,

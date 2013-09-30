@@ -146,7 +146,7 @@ public class DataSetHandler extends
                 // referenced by
                 // their RegistryObject ids...
                 Map<String, Parameter> remap = new HashMap<String, Parameter>();
-                for (Parameter parm : obj.getParameters().values()) {
+                for (Parameter parm : (List<Parameter>) obj.getParameters().values()) {
                     try {
                         remap.put(RegistryUtil.getRegistryObjectKey(parm), parm);
                     } catch (Throwable e1) {
