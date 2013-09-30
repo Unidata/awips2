@@ -22,6 +22,7 @@ package com.raytheon.uf.common.dataplugin.gfe.reference;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -32,12 +33,11 @@ import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.datum.PixelInCell;
 
-import com.raytheon.uf.common.dataplugin.gfe.StatusConstants;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.serialization.adapters.JTSGeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Polygonal;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 01/31/2008              randerso    Initial creation
+ * 10/01/2013   2361       njensen     Added static JAXBManager
  * 
  * </pre>
  * 
@@ -79,9 +80,13 @@ import com.vividsolutions.jts.geom.Polygonal;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ReferenceData implements ISerializableObject {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ReferenceData.class);
+public class ReferenceData {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ReferenceData.class);
+
     private static final GeometryFactory geometryFactory = new GeometryFactory();
+
+    private static final SingleTypeJAXBManager<ReferenceData> jaxb = initializeJAXB();
 
     public enum RefType {
         NONE, QUERY, POLYGON, QUERY_POLYGON
@@ -106,6 +111,34 @@ public class ReferenceData implements ISerializableObject {
     private Grid2DBit grid;
 
     private CoordinateType coordType;
+
+    /**
+     * Initializes the JAXB manager for reading/writing ReferenceData to/from
+     * XML.
+     * 
+     * @return the JAXBManager
+     */
+    private static SingleTypeJAXBManager<ReferenceData> initializeJAXB() {
+        SingleTypeJAXBManager<ReferenceData> retVal = null;
+        try {
+            retVal = new SingleTypeJAXBManager<ReferenceData>(
+                    ReferenceData.class);
+        } catch (JAXBException e) {
+            statusHandler
+                    .error("Error initializing ReferenceData JAXBManager, edit areas will not work",
+                            e);
+        }
+        return retVal;
+    }
+
+    /**
+     * Returns the JAXBManager that handles ReferenceData
+     * 
+     * @return
+     */
+    public static SingleTypeJAXBManager<ReferenceData> getJAXBManager() {
+        return jaxb;
+    }
 
     /**
      * Default constructor
@@ -396,8 +429,8 @@ public class ReferenceData implements ISerializableObject {
             try {
                 calcGrid();
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "getGrid() failed for " + this.getId().getName(), e);
+                statusHandler.handle(Priority.PROBLEM, "getGrid() failed for "
+                        + this.getId().getName(), e);
 
                 // return an empty grid
                 grid = new Grid2DBit(gloc.getNx(), gloc.getNy());
