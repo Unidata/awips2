@@ -52,6 +52,7 @@ import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -102,6 +103,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
  * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
  * Jul 18, 2013 2205       djohnson     If null time is selected from the dialog, return null for the adhoc.
+ * Sept 25, 2013 1797      dhladky      Separated Time from GriddedTime
  * 
  * 
  * </pre>
@@ -381,7 +383,7 @@ public class GriddedSubsetManagerDlg
     @Override
     protected SpecificDateTimeXML getTimeXmlFromSubscription() {
         SpecificDateTimeXML timeXml = new SpecificDateTimeXML();
-        Time time = this.subscription.getTime();
+        GriddedTime time = (GriddedTime)this.subscription.getTime();
         List<Integer> cycleTimes = time.getCycleTimes();
         if (!CollectionUtil.isNullOrEmpty(cycleTimes)) {
             for (int cycle : cycleTimes) {
@@ -473,7 +475,10 @@ public class GriddedSubsetManagerDlg
      * {@inheritDoc}
      */
     @Override
-    protected Time setupDataSpecificTime(Time newTime, Subscription sub) {
+    protected GriddedTime setupDataSpecificTime(Time subTime, Subscription sub) {
+        
+        GriddedTime newTime = (GriddedTime)subTime;
+        
         if (asString.isEmpty()) {
             SortedSet<ImmutableDate> newestToOldest = new TreeSet<ImmutableDate>(
                     Ordering.natural().reverse());
@@ -512,7 +517,7 @@ public class GriddedSubsetManagerDlg
         }
 
         if (cycle != null) {
-            Time time;
+            GriddedTime time;
             this.useLatestDate = (cycle == -999 ? true : false);
             if (!useLatestDate) {
                 newTime.addCycleTime(cycle);
@@ -521,14 +526,14 @@ public class GriddedSubsetManagerDlg
                 if (metaData == null) {
                     return null;
                 } else {
-                    time = metaData.getTime();
+                    time = (GriddedTime)metaData.getTime();
                     time.addCycleTime(cycle);
                     return time;
                 }
             } else {
                 // If ulse latest data is selected then add all cycle times, the
                 // retrieval generator will determine which one to use.
-                time = dataSet.getTime();
+                time = (GriddedTime)dataSet.getTime();
                 for (Integer c : new TreeSet<Integer>(dataSet.getCycles())) {
                     time.addCycleTime(c);
                 }
@@ -584,9 +589,9 @@ public class GriddedSubsetManagerDlg
         ArrayList<Parameter> selectedParameterObjs = vTab.getParameters();
         sub.setParameter(selectedParameterObjs);
 
-        Time dataSetTime = dataSet.getTime();
+        GriddedTime dataSetTime = (GriddedTime)dataSet.getTime();
 
-        Time newTime = new Time();
+        GriddedTime newTime = new GriddedTime();
 
         if (sub instanceof AdhocSubscription) {
             newTime = setupDataSpecificTime(newTime, sub);
@@ -595,7 +600,7 @@ public class GriddedSubsetManagerDlg
             }
             sub.setTime(newTime);
         } else if (!create) {
-            Time time = sub.getTime();
+            GriddedTime time = (GriddedTime)sub.getTime();
             List<String> fcstHours = time.getFcstHours();
             String[] selectedItems = this.timingTabControls
                     .getSelectedFcstHours();

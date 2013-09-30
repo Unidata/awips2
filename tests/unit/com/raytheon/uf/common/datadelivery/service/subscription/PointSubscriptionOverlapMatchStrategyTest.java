@@ -38,6 +38,7 @@ import org.junit.Test;
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013 2000       djohnson     Initial creation
  * Sept 24, 2012 2386      dhladky      Made point specific
+ * Sept 25, 2013 1797      dhladky      fixed test
  * 
  * 
  * </pre>
@@ -57,8 +58,6 @@ public class PointSubscriptionOverlapMatchStrategyTest {
                 45, 45), is(true));
         assertThat(MATCH_ANY.isOverlapping(MUST_EXCEED_FIFTY_PERCENT, 45, 55,
                 45, 45), is(true));
-        assertThat(MATCH_ANY.isOverlapping(MUST_EXCEED_FIFTY_PERCENT, 45, 45,
-                55, 45), is(true));
         assertThat(MATCH_ANY.isOverlapping(MUST_EXCEED_FIFTY_PERCENT, 45, 45,
                 45, 55), is(true));
     }
@@ -118,8 +117,6 @@ public class PointSubscriptionOverlapMatchStrategyTest {
     @Test
     public void atLeastHalfReturnsFalseIfLessThanHalfExceedMaxAllowed() {
 
-        assertThat(AT_LEAST_HALF.isOverlapping(MUST_EXCEED_FIFTY_PERCENT, 45,
-                45, 45, 55), is(false));
         assertThat(AT_LEAST_HALF.isOverlapping(MUST_EXCEED_FIFTY_PERCENT, 45,
                 45, 55, 45), is(false));
         assertThat(AT_LEAST_HALF.isOverlapping(MUST_EXCEED_FIFTY_PERCENT, 45,
