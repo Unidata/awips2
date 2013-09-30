@@ -16,7 +16,6 @@ Packager: Nate Jensen
 AutoReq: no
 provides: awips2-pypies
 requires: awips2-python >= 2.7-1
-requires: awips2-httpd-pypies
 requires: awips2-tools
 
 %description
@@ -34,12 +33,17 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/${PYPIES_PY_DEST_DIR}
-mkdir -p ${RPM_BUILD_ROOT}/awips2/python/lib/python2.7/site-packages/pypies
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/${PYPIES_PY_DEST_DIR}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/awips2/python/lib/python2.7/site-packages/pypies
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # Copy The PyPIES modules To The appropriate directory.
 PYPIES_FILE_SRC_DIR="pythonPackages/pypies"
@@ -55,34 +59,9 @@ cp %{_baseline_workspace}/${PYPIES_FILE_SRC_DIR}/pypies.cfg \
 mkdir -p ${RPM_BUILD_ROOT}/awips2/pypies/logs
 
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II PyPIES...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = /awips2/pypies\e[m"
-
 %post
-# Determine the location of awips2-python
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II PyPIES Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %preun
-
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II PyPIES Installation Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo ""
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
