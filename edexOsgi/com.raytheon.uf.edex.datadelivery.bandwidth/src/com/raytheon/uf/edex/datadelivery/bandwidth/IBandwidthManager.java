@@ -22,7 +22,9 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
@@ -46,7 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
  * @version 1.0
  */
 
-public interface IBandwidthManager {
+public interface IBandwidthManager<T extends Time, C extends Coverage> {
 
     /**
      * Schedule all cycles of a Subscription.
@@ -54,7 +56,7 @@ public interface IBandwidthManager {
      * @param subscription
      * @return A list of bandwidth allocations that are not scheduled
      */
-    List<BandwidthAllocation> schedule(Subscription subscription);
+    List<BandwidthAllocation> schedule(Subscription<T, C> subscription);
 
     /**
      * Schedule AdhocSubscription to run as soon as the RetrievalPlan will
@@ -64,7 +66,7 @@ public interface IBandwidthManager {
      * @param b
      * @return
      */
-    List<BandwidthAllocation> schedule(AdhocSubscription subscription);
+    List<BandwidthAllocation> schedule(AdhocSubscription<T, C> subscription);
 
     /**
      * When a Subscription is updated in the Registry, update the retrieval plan
@@ -74,7 +76,7 @@ public interface IBandwidthManager {
      * @return
      * @throws SerializationException
      */
-    List<BandwidthAllocation> subscriptionUpdated(Subscription subscription)
+    List<BandwidthAllocation> subscriptionUpdated(Subscription<T, C> subscription)
             throws SerializationException;
 
     /**
@@ -82,7 +84,7 @@ public interface IBandwidthManager {
      * @param adhoc
      * @return
      */
-    List<BandwidthAllocation> adhocSubscription(AdhocSubscription adhoc);
+    List<BandwidthAllocation> adhocSubscription(AdhocSubscription<T, C> adhoc);
 
     void setAggregator(ISubscriptionAggregator aggregator);
 

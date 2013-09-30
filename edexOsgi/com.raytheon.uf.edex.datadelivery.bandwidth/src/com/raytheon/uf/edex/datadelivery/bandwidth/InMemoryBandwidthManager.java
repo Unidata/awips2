@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -51,13 +53,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
  * Jul 09, 2013 2106       djohnson     Add shutdownInternal().
+ * Oct 2,  2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class InMemoryBandwidthManager extends BandwidthManager {
+class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends BandwidthManager<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(InMemoryBandwidthManager.class);
@@ -116,7 +119,7 @@ class InMemoryBandwidthManager extends BandwidthManager {
      * @param bandwidthDaoUtil
      */
     public InMemoryBandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
+            IBandwidthDao<T,C> bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
     }
@@ -134,7 +137,7 @@ class InMemoryBandwidthManager extends BandwidthManager {
      */
     @Override
     protected ProposeScheduleResponse proposeScheduleSbnSubscription(
-            List<Subscription> subscriptions) throws Exception {
+            List<Subscription<T,C>> subscriptions) throws Exception {
         return proposeScheduleSubscriptions(subscriptions);
     }
 
@@ -143,7 +146,7 @@ class InMemoryBandwidthManager extends BandwidthManager {
      */
     @Override
     protected Set<String> scheduleSbnSubscriptions(
-            List<Subscription> subscriptions) throws SerializationException {
+            List<Subscription<T,C>> subscriptions) throws SerializationException {
         return scheduleSubscriptions(subscriptions);
     }
 

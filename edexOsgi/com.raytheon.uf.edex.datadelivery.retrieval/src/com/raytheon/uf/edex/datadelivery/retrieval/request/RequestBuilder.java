@@ -20,6 +20,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.request;
  * further licensing information.
  **/
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
 
@@ -39,15 +41,15 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestB
  * @author dhladky
  * @version 1.0
  */
-public abstract class RequestBuilder implements IRetrievalRequestBuilder {
+public abstract class RequestBuilder<T extends Time, C extends Coverage> implements IRetrievalRequestBuilder<T, C> {
 
-    private final RetrievalAttribute ra;
+    private final RetrievalAttribute<T, C> ra;
 
-    protected RequestBuilder(RetrievalAttribute ra) {
+    protected RequestBuilder(RetrievalAttribute<T, C> ra) {
         this.ra = ra;
     }
 
-    public RetrievalAttribute getRetrievalAttribute() {
+    public RetrievalAttribute<T, C> getRetrievalAttribute() {
         return ra;
     }
 }
