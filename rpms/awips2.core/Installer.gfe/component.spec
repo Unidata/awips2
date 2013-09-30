@@ -31,11 +31,13 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # Determine which version of the gfe we should use.
 RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
@@ -59,11 +61,8 @@ if [ $? -ne 0 ]; then
 fi
 
 %pre
-
 %post
-
 %preun
-
 %postun
 
 %clean
