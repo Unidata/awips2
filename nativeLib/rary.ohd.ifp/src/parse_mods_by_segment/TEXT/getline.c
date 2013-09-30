@@ -6,8 +6,8 @@
  */
 int getline(s, lim, stream)
 
-char    s[];
-int     lim;
+char    **s;
+size_t  *lim;
 FILE    *stream;
 {
   int c, i, j,start;
