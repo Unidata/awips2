@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.weatherelement.WEGroup;
@@ -44,7 +46,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -62,7 +64,8 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Jun 5, 2008				chammack	Initial creation
+ * Jun 5, 2008              chammack    Initial creation
+ * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -89,8 +92,18 @@ public class WEGroupManager implements IWEGroupManager,
 
     private LocalizationFile weGroupDir;
 
+    private SingleTypeJAXBManager<WEGroup> jaxb;
+
     public WEGroupManager(final DataManager dataManager) {
         this.dataManager = dataManager;
+
+        try {
+            this.jaxb = new SingleTypeJAXBManager<WEGroup>(WEGroup.class);
+        } catch (JAXBException e) {
+            statusHandler
+                    .error("Error initializing WEGroup JAXBManager, Weather Element Groups will not work",
+                            e);
+        }
 
         loadGroups();
 
@@ -223,8 +236,7 @@ public class WEGroupManager implements IWEGroupManager,
 
         WEGroup weGroup = null;
         try {
-            weGroup = (WEGroup) SerializationUtil.jaxbUnmarshalFromXmlFile(file
-                    .getFile().getPath());
+            weGroup = jaxb.unmarshalFromXmlFile(file.getFile().getPath());
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting weather element group", e);
@@ -368,8 +380,7 @@ public class WEGroupManager implements IWEGroupManager,
         LocalizationFile file = pm.getLocalizationFile(lc,
                 FileUtil.join(WEGROUP_DIR, getName(key)));
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(objectToSave, file.getFile()
-                    .getPath());
+            jaxb.marshalToXmlFile(objectToSave, file.getFile().getPath());
             file.save();
         } catch (LocalizationOpFailedException e) {
             statusHandler.handle(Priority.PROBLEM,

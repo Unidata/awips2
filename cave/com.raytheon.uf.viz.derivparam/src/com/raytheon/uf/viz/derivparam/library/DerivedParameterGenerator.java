@@ -251,7 +251,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
             for (LocalizationFile file : xmlFiles) {
                 try {
                     DerivParamDesc desc = (DerivParamDesc) jaxbMan
-                            .jaxbUnmarshalFromXmlFile(file.getFile());
+                            .unmarshalFromXmlFile(file.getFile());
                     if (derParLibrary.containsKey(desc.getAbbreviation())) {
                         DerivParamDesc oldDesc = derParLibrary.get(desc
                                 .getAbbreviation());
