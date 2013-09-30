@@ -34,20 +34,25 @@
 
 package com.raytheon.uf.common.dataplugin.gfe.server.message;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
-@XmlAccessorType(XmlAccessType.NONE)
+/**
+ * Encapsulates a message on the server.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * --/--/--                            Initial Creation
+ * 09/30/13     #2361      njensen     Removed XML annotations
+ * </pre>
+ * 
+ */
 @DynamicSerialize
-public class ServerMsg implements ISerializableObject {
+public class ServerMsg {
 
     /** The message */
-    @XmlAttribute
     @DynamicSerializeElement
     private String message;
 
