@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
@@ -33,15 +35,16 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttr
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2013 2106       djohnson     Initial creation
+ * Oct 2,  2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class SubscriptionRetrievalAttributesDao extends
-        SessionManagedDao<Long, SubscriptionRetrievalAttributes> implements
-        ISubscriptionRetrievalAttributesDao {
+public class SubscriptionRetrievalAttributesDao<T extends Time, C extends Coverage> extends
+        SessionManagedDao<Long, SubscriptionRetrievalAttributes<T, C>> implements
+        ISubscriptionRetrievalAttributesDao<T, C> {
 
     private static final String GET_BY_SUBSCRIPTIONRETRIEVAL = "from SubscriptionRetrievalAttributes sr where "
             + "sr.subscriptionRetrieval.id = :id";
@@ -49,16 +52,17 @@ public class SubscriptionRetrievalAttributesDao extends
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings({ "unchecked" })
     @Override
-    protected Class<SubscriptionRetrievalAttributes> getEntityClass() {
-        return SubscriptionRetrievalAttributes.class;
+    protected Class<SubscriptionRetrievalAttributes<T, C>> getEntityClass() {
+        return (Class<SubscriptionRetrievalAttributes<T, C>>) new SubscriptionRetrievalAttributes<T, C>().getClass();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionRetrievalAttributes getBySubscriptionRetrieval(
+    public SubscriptionRetrievalAttributes<T, C> getBySubscriptionRetrieval(
             SubscriptionRetrieval retrieval) {
         return uniqueResult(GET_BY_SUBSCRIPTIONRETRIEVAL, "id",
                 retrieval.getId());

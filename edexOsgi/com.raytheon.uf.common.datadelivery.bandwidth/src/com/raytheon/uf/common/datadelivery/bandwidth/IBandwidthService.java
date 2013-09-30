@@ -26,8 +26,10 @@ import java.util.Set;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 
 /**
  * Service interface for interacting with the bandwidth manager.
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
  * Jul 11, 2013 2106       djohnson     Bandwidth service now returns names of subscriptions for proposing bandwidth availability.
  * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
+ * Oct 2, 2013  1797       dhladky      Generics
  * 
  * </pre>
  * 
@@ -50,7 +53,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * @version 1.0
  */
 
-public interface IBandwidthService {
+public interface IBandwidthService<T extends Time, C extends Coverage> {
 
     /**
      * Retrieve the available bandwidth for a {@link Network}.
@@ -86,25 +89,25 @@ public interface IBandwidthService {
             int bandwidth);
 
     /**
+     * Schedules a list of subscriptions for bandwidth management.
+     * 
+     * @param subscriptions
+     *            the subscription
+     * @return the set of subscription names that have had some cycles
+     *         unscheduled
+     */
+    Set<String> schedule(List<Subscription<T, C>> subscriptions);
+    
+    /**
      * Schedules a subscription for bandwidth management.
      * 
-     * @param subscription
+     * @param subscriptions
      *            the subscription
      * @return the set of subscription names that have had some cycles
      *         unscheduled
      */
-    Set<String> schedule(Subscription subscription);
-
-    /**
-     * Schedules a list of subscription for bandwidth management.
-     * 
-     * @param subscription
-     *            the subscription
-     * @return the set of subscription names that have had some cycles
-     *         unscheduled
-     */
-    Set<String> schedule(List<Subscription> subscriptions);
-
+    Set<String> schedule(Subscription<T, C> subscription);
+    
     /**
      * Proposes scheduling a subscription for bandwidth management
      * 
@@ -112,7 +115,7 @@ public interface IBandwidthService {
      *            the subscription
      * @return the response object
      */
-    IProposeScheduleResponse proposeSchedule(Subscription subscription);
+    IProposeScheduleResponse proposeSchedule(Subscription<T, C> subscription);
 
     /**
      * Proposes scheduling the subscriptions with bandwidth management.
@@ -121,7 +124,7 @@ public interface IBandwidthService {
      *            the subscriptions
      * @return the response object
      */
-    IProposeScheduleResponse proposeSchedule(List<Subscription> subscriptions);
+    IProposeScheduleResponse proposeSchedule(List<Subscription<T, C>> subscriptions);
 
     /**
      * Reinitializes the state of bandwidth management using the persistent
@@ -137,7 +140,7 @@ public interface IBandwidthService {
      *            the subscription
      * @return the estimated completion time as a date
      */
-    Date getEstimatedCompletionTime(AdhocSubscription sub);
+    Date getEstimatedCompletionTime(AdhocSubscription<T, C> sub);
 
     /**
      * Retrieve bandwidth graph data.
@@ -155,5 +158,5 @@ public interface IBandwidthService {
      * @return The summary
      */
     SubscriptionStatusSummary getSubscriptionStatusSummary(
-            Subscription subscription);
+            Subscription<T, C> subscription);
 }
