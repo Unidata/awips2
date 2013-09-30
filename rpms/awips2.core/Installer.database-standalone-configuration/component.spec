@@ -32,11 +32,14 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/data
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/data
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 PROJECT_DIR="Installer.database-standalone-configuration"
 CONFIGURATION_DIR="rpms/awips2.core/${PROJECT_DIR}/configuration"
 CONF_FILE="postgresql.conf"

@@ -37,6 +37,9 @@ if [ -d %{_build_root} ]; then
    fi
 fi
 
+%build
+
+%install
 mkdir -p %{_build_root}/awips2
 if [ $? -ne 0 ]; then
    exit 1
@@ -46,9 +49,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%build
-
-%install
 RPMS_DIRECTORY="%{_baseline_workspace}/rpms"
 INSTALLER_GROOVY="${RPMS_DIRECTORY}/awips2.core/Installer.groovy"
 
