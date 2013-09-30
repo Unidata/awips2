@@ -49,7 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "providerName", "collectionName", "dataSetName" })
-public abstract class DataSet {
+public abstract class DataSet<T extends Time, C extends Coverage>{
 
     @RegistryObjectOwner
     @XmlAttribute
@@ -81,7 +81,7 @@ public abstract class DataSet {
 
     @XmlElement(name = "coverage")
     @DynamicSerializeElement
-    protected Coverage coverage;
+    protected C coverage;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -92,7 +92,7 @@ public abstract class DataSet {
     @DynamicSerializeElement
     @SlotAttribute
     @SlotAttributeConverter(TimeSlotConverter.class)
-    protected Time time;
+    protected T time;
 
     public Map<String, Parameter> getParameters() {
         return parameters;
@@ -118,11 +118,11 @@ public abstract class DataSet {
         this.dataSetName = dataSetName;
     }
 
-    public void setCoverage(Coverage coverage) {
+    public void setCoverage(C coverage) {
         this.coverage = coverage;
     }
 
-    public Coverage getCoverage() {
+    public C getCoverage() {
         return coverage;
     }
 
@@ -142,11 +142,11 @@ public abstract class DataSet {
         this.providerName = providerName;
     }
 
-    public void setTime(Time time) {
+    public void setTime(T time) {
         this.time = time;
     }
 
-    public Time getTime() {
+    public T getTime() {
         return time;
     }
 
@@ -160,6 +160,7 @@ public abstract class DataSet {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DataSet) {
+            @SuppressWarnings("rawtypes")
             DataSet other = (DataSet) obj;
             EqualsBuilder eqBuilder = new EqualsBuilder();
             eqBuilder.append(this.getProviderName(), other.getProviderName());
@@ -187,7 +188,7 @@ public abstract class DataSet {
      * @param result
      *            the combined dataset
      */
-    public void combine(DataSet toCombine) {
+    public void combine(DataSet<T, C> toCombine) {
         this.getParameters().putAll(toCombine.getParameters());
     }
 }
