@@ -40,6 +40,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
@@ -93,13 +94,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Sep 13, 2013 2267       bgonzale     Check for no subscription retrieval attribute found.
  * Sep 16, 2013 2383       bgonzale     Add exception information for no subscription found.
  *                                      Add throws to updatePointDataSetMetaData.
+ * Oct 1 2013   1797       dhladky      Time and GriddedTime separation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public abstract class EdexBandwidthManager extends BandwidthManager {
+public abstract class EdexBandwidthManager<T extends Time, C extends Coverage> extends BandwidthManager<T, C> {
 
     private static final Pattern RAP_PATTERN = Pattern
             .compile(".*rap_f\\d\\d$");
@@ -132,8 +134,8 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      * @param bandwidthDaoUtil
      */
     public EdexBandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil,
+            IBandwidthDao<T,C> bandwidthDao, RetrievalManager retrievalManager,
+            BandwidthDaoUtil<T,C> bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
@@ -235,7 +237,7 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
 
             // Schedule the next iteration of the subscription
             BandwidthSubscription dao = sr.getBandwidthSubscription();
-            Subscription subscription;
+            Subscription<T, C> subscription;
             try {
                 subscription = subscriptionHandler.getByName(dao.getName());
 
@@ -362,12 +364,12 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
         }
     }
 
-    private DataSetMetaData getDataSetMetaData(String id) {
+    private DataSetMetaData<T> getDataSetMetaData(String id) {
         return getRegistryObjectById(dataSetMetaDataHandler, id);
     }
 
-    private static <T> T getRegistryObjectById(
-            IRegistryObjectHandler<T> handler, String id) {
+    private static <M> M getRegistryObjectById(
+            IRegistryObjectHandler<M> handler, String id) {
         try {
             return handler.getById(id);
         } catch (RegistryHandlerException e) {
@@ -384,16 +386,17 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      * @param dataSetMetaData
      *            the metadadata
      */
+    @SuppressWarnings("unchecked")
     @Subscribe
     public void updateGriddedDataSetMetaData(
             GriddedDataSetMetaData dataSetMetaData) throws ParseException {
         // Daily/Hourly/Monthly datasets
         if (dataSetMetaData.getCycle() == GriddedDataSetMetaData.NO_CYCLE) {
-            updateDataSetMetaDataWithoutCycle(dataSetMetaData);
+            updateDataSetMetaDataWithoutCycle((DataSetMetaData<T>)dataSetMetaData);
         }
         // Regular cycle containing datasets
         else {
-            updateDataSetMetaDataWithCycle(dataSetMetaData);
+            updateDataSetMetaDataWithCycle((DataSetMetaData<T>)dataSetMetaData);
         }
     }
 
@@ -408,9 +411,8 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
     @Subscribe
     public void updatePointDataSetMetaData(PointDataSetMetaData dataSetMetaData)
             throws ParseException {
-        // TODO: Change PointDataSetMetaData to only be able to use PointTime
-        // objects
-        final PointTime time = (PointTime) dataSetMetaData.getTime();
+
+        final PointTime time = dataSetMetaData.getTime();
         final String providerName = dataSetMetaData.getProviderName();
         final String dataSetName = dataSetMetaData.getDataSetName();
         final Date pointTimeStart = time.getStartDate();
@@ -462,9 +464,9 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                 try {
                     // Update the retrieval times on the subscription object
                     // which goes through the retrieval process
-                    final SubscriptionRetrievalAttributes subscriptionRetrievalAttributes = bandwidthDao
+                    final SubscriptionRetrievalAttributes<T,C> subscriptionRetrievalAttributes = bandwidthDao
                             .getSubscriptionRetrievalAttributes(retrieval);
-                    final Subscription subscription = subscriptionRetrievalAttributes
+                    final Subscription<T, C> subscription = subscriptionRetrievalAttributes
                             .getSubscription();
 
                     if (subscription.getTime() instanceof PointTime) {
@@ -507,11 +509,12 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      *             on parsing errors
      */
     private void updateDataSetMetaDataWithoutCycle(
-            GriddedDataSetMetaData dataSetMetaData) throws ParseException {
+            DataSetMetaData<T> dataSetMetaData) throws ParseException {
         bandwidthDao.newBandwidthDataSetUpdate(dataSetMetaData);
 
         // Looking for active subscriptions to the dataset.
         try {
+            @SuppressWarnings("rawtypes")
             List<Subscription> subscriptions = subscriptionHandler
                     .getActiveByDataSetAndProvider(
                             dataSetMetaData.getDataSetName(),
@@ -529,12 +532,13 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                                     dataSetMetaData.getUrl()));
 
             // Create an adhoc for each one, and schedule it
-            for (Subscription subscription : subscriptions) {
-                Subscription sub = updateSubscriptionWithDataSetMetaData(
+            for (Subscription<T,C> subscription : subscriptions) {
+                @SuppressWarnings("unchecked")
+                Subscription<T,C> sub = updateSubscriptionWithDataSetMetaData(
                         subscription, dataSetMetaData);
 
                 if (sub instanceof SiteSubscription) {
-                    schedule(new AdhocSubscription((SiteSubscription) sub));
+                    schedule(new AdhocSubscription<T,C>((SiteSubscription<T,C>) sub));
                 } else {
                     statusHandler
                             .warn("Unable to create adhoc queries for shared subscriptions at this point.  This functionality should be added in the future...");
@@ -554,8 +558,9 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      * @throws ParseException
      *             on parsing errors
      */
+    @SuppressWarnings("unchecked")
     private void updateDataSetMetaDataWithCycle(
-            GriddedDataSetMetaData dataSetMetaData) throws ParseException {
+            DataSetMetaData<T> dataSetMetaData) throws ParseException {
         BandwidthDataSetUpdate dataset = bandwidthDao
                 .newBandwidthDataSetUpdate(dataSetMetaData);
 
@@ -577,10 +582,10 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                     // SubscriptionRetrieval with the current DataSetMetaData
                     // URL and time Object
 
-                    SubscriptionRetrievalAttributes attributes = bandwidthDao
+                    SubscriptionRetrievalAttributes<T,C> attributes = bandwidthDao
                             .getSubscriptionRetrievalAttributes(retrieval);
 
-                    Subscription sub;
+                    Subscription<T,C> sub;
                     try {
                         sub = updateSubscriptionWithDataSetMetaData(
                                 attributes.getSubscription(), dataSetMetaData);
@@ -642,13 +647,14 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
             }
         }
 
-        Set<Subscription> subscriptions = new HashSet<Subscription>();
+        Set<Subscription<T,C>> subscriptions = new HashSet<Subscription<T,C>>();
         for (SubscriptionRetrieval retrieval : retrievals) {
             try {
-                final SubscriptionRetrievalAttributes sra = bandwidthDao
+                final SubscriptionRetrievalAttributes<T,C> sra = bandwidthDao
                         .getSubscriptionRetrievalAttributes(retrieval);
                 if (sra != null) {
-                    Subscription sub = sra.getSubscription();
+                    @SuppressWarnings("unchecked")
+                    Subscription<T,C> sub = sra.getSubscription();
                     if (sub != null) {
                         subscriptions.add(sub);
                     }
@@ -660,7 +666,7 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
             }
         }
 
-        for (Subscription subscription : subscriptions) {
+        for (Subscription<T,C> subscription : subscriptions) {
             subscription.setUnscheduled(true);
             subscriptionUpdated(subscription);
         }
@@ -676,12 +682,13 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      *            the datasetmetadata update
      * @return the subscription
      */
+    @SuppressWarnings("rawtypes")
     private static Subscription updateSubscriptionWithDataSetMetaData(
             Subscription sub, DataSetMetaData dataSetMetaData) {
-        final Time dsmdTime = dataSetMetaData.getTime();
+        // TODO perfect candidate for the factory for time and coverage
+        Time dsmdTime = dataSetMetaData.getTime();
         final Time subTime = sub.getTime();
-        dsmdTime.setSelectedTimeIndices(subTime.getSelectedTimeIndices());
-        dsmdTime.setCycleTimes(subTime.getCycleTimes());
+        dsmdTime = handleCyclesAndSequences(subTime, dsmdTime);
         sub.setTime(dsmdTime);
         sub.setUrl(dataSetMetaData.getUrl());
 
@@ -693,7 +700,7 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
      * reinitialize operation.
      */
     private void bandwidthMapConfigurationUpdated() {
-        IBandwidthRequest request = new IBandwidthRequest();
+        IBandwidthRequest<T,C> request = new IBandwidthRequest<T,C>();
         request.setRequestType(RequestType.REINITIALIZE);
 
         try {

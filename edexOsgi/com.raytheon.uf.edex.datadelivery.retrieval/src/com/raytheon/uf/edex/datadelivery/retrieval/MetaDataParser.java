@@ -37,6 +37,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 14, 2012 1169       djohnson     Use storeOrReplaceRegistryObject.
  * Oct 03, 2012 1241       djohnson     Use registry handler, move unresolved reference handling into handlers themselves.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -129,17 +130,17 @@ public abstract class MetaDataParser implements IParseMetaData {
      *            The DataSetMetaData Object to store.
      */
     @Override
-    public void storeMetaData(final List<DataSetMetaData> metaDatas,
+    public void storeMetaData(final List<DataSetMetaData<?>> metaDatas,
             final DataSet dataSet) {
 
         IDataSetMetaDataHandler handler = DataDeliveryHandlers
                 .getDataSetMetaDataHandler();
-        Iterator<DataSetMetaData> iter = metaDatas.iterator();
+        Iterator<DataSetMetaData<?>> iter = metaDatas.iterator();
         int size = metaDatas.size();
         for (int i = 1; i <= size; i++) {
             statusHandler.info(String.format(
                     "Attempting store of DataSetMetaData[%s/%s]", i, size));
-            final DataSetMetaData dsmd = iter.next();
+            final DataSetMetaData<?> dsmd = iter.next();
             final String url = dsmd.getUrl();
 
             try {
