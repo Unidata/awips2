@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -48,6 +49,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  * Feb 07, 2013 1543       djohnson     Allow package-level overriding of methods for mocking in tests.
  * May 12, 2013 753        dhladky      Altered to be more flexible with other types
  * May 31, 2013 2038       djohnson     Rename setPdos to allocatePdoArray.
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * 
  * </pre>
  * 
@@ -76,10 +78,12 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
             ensembles = Arrays.asList((String) null);
         }
 
-        if (attXML.getTime().getSelectedTimeIndices() != null) {
+        GriddedTime time = (GriddedTime)attXML.getTime();
+        
+        if (time.getSelectedTimeIndices() != null) {
             if (levels.length > 1
-                    || attXML.getTime().getSelectedTimeIndices().size() > 1) {
-                size *= attXML.getTime().getSelectedTimeIndices().size();
+                    || time.getSelectedTimeIndices().size() > 1) {
+                size *= time.getSelectedTimeIndices().size();
             }
         }
 
@@ -93,10 +97,10 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
             throw new InstantiationException(e.getMessage());
         }
 
-        if (attXML.getTime().getSelectedTimeIndices() != null) {
+        if (time.getSelectedTimeIndices() != null) {
             int bin = 0;
             for (String ensemble : ensembles) {
-                for (int i = 0; i < attXML.getTime().getSelectedTimeIndices()
+                for (int i = 0; i < time.getSelectedTimeIndices()
                         .size(); i++) {
                     for (int j = 0; j < levels.length; j++) {
                         pdos[bin++] = populateGridRecord(attXML.getSubName(),
