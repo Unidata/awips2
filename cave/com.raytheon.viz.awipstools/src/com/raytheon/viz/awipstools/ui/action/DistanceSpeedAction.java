@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * Feb 15, 2011  7975     bkowal      Restore the DistanceSpeedLayer
  *                                    associated with the Display Pane.
  * Aug 30, 2013  2310     bsteffen    Ensure tool is used on a map editor.
+ * Sep 30, 2013  2400     njensen     Ensure tool opens on the active map editor if applicable
  * 
  * </pre>
  * 
@@ -58,11 +59,19 @@ public class DistanceSpeedAction extends
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        IEditorPart editorPart = EditorUtil.findEditor(VizMapEditor.EDITOR_ID);
-        if (editorPart == null) {
-            new NewMapEditor().execute(arg0);
-        } else {
+        IEditorPart editorPart = EditorUtil.getActiveEditor();
+        if (editorPart != null && editorPart instanceof VizMapEditor) {
+            // if the current editor is a map, use that one
             editorPart.getSite().getPage().bringToTop(editorPart);
+        } else {
+            // find any map editor that's open
+            editorPart = EditorUtil.findEditor(VizMapEditor.EDITOR_ID);
+            if (editorPart == null) {
+                // no map editor open, make a new one
+                new NewMapEditor().execute(arg0);
+            } else {
+                editorPart.getSite().getPage().bringToTop(editorPart);
+            }
         }
         return super.execute(arg0);
     }
