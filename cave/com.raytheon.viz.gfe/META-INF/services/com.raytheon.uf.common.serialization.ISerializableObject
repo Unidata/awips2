@@ -5,5 +5,3 @@ com.raytheon.viz.gfe.rsc.GFELegendResourceData
 com.raytheon.viz.gfe.rsc.GFEResourceData
 com.raytheon.uf.common.site.xml.AdjacentWfoXML
 com.raytheon.uf.common.site.xml.CwaXML
-com.raytheon.viz.gfe.textformatter.CombinationsFileUtil$ComboData
-com.raytheon.viz.gfe.textformatter.CombinationsFileUtil$ComboData$Entry
