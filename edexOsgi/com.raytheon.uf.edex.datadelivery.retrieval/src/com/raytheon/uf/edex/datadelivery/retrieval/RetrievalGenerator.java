@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
  * Jul 25, 2012 955        djohnson     Use {@link ServiceTypeFactory}.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Nov 26, 2012 1340       dhladky      Recognize type of subscriptions for statistics.
+ * Sept 30, 2013 1797      dhladky      Genericizing some of this flow
  * 
  * </pre>
  * 
@@ -89,7 +90,7 @@ public abstract class RetrievalGenerator {
      * 
      * @return
      */
-    protected abstract Subscription removeDuplicates(Subscription sub);
+    protected abstract Subscription<?, ?> removeDuplicates(Subscription<?, ?> sub);
 
     /**
      * Gets the type of subscription based on the subscription object type
@@ -97,7 +98,7 @@ public abstract class RetrievalGenerator {
      * @param sub
      * @return
      */
-    public SubscriptionType getSubscriptionType(Subscription sub) {
+    public SubscriptionType getSubscriptionType(Subscription<?, ?> sub) {
         
         if (sub instanceof AdhocSubscription) {
             return SubscriptionType.AD_HOC;
