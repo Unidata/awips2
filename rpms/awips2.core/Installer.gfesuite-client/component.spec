@@ -34,9 +34,6 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-
 %build
 # Verify that awips2-ant is installed.
 if [ ! -f /awips2/ant/bin/ant ]; then
@@ -45,14 +42,22 @@ if [ ! -f /awips2/ant/bin/ant ]; then
 fi
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 GFESUITE_PROJECT="com.raytheon.uf.tools.gfesuite"
 GFESUITE_DEPLOY_SCRIPT="%{_baseline_workspace}/${GFESUITE_PROJECT}/deploy.xml"
 
 /awips2/ant/bin/ant -f ${GFESUITE_DEPLOY_SCRIPT} \
    -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/GFESuite \
    -Dinstaller=true -Dclient.build=true
-RC=$?
-if [ ${RC} -ne 0 ]; then
+if [ $? -ne 0 ]; then
    echo "ERROR: ant failed."
    exit 1
 fi
