@@ -557,7 +557,13 @@
 	<!-- Purge rule for the TPCSurgeProb (TPCSurgeProb) model -->
 	<rule>
 		<keyValue>TPCSurgeProb</keyValue>
-		<versionsToKeep>3</versionsToKeep>
+		<versionsToKeep>1</versionsToKeep>
+		<modTimeToWait>00-00:15:00</modTimeToWait>
+	</rule>
+	<!-- Purge rule for the PHISH (PHISH) model -->
+	<rule>
+		<keyValue>PHISH</keyValue>
+		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
 	<!-- Purge rule for the HPE (HPE) model -->
