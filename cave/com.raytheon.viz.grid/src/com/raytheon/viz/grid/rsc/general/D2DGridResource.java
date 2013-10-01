@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
@@ -64,7 +65,7 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.rsc.GridResourceData;
-import com.raytheon.viz.grid.util.ConformalityUtil;
+import com.raytheon.viz.grid.util.ReprojectionUtil;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -88,6 +89,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by error
  *                                    in Maputil.rotation
  * Sep 12, 2013  2309     bsteffen    Request subgrids whenever possible.
+ * Sep 24, 2013  DR 15972 D. Friedman Make reprojection of grids configurable.
  * 
  * </pre>
  * 
@@ -102,11 +104,12 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     /*
      * Flag indicating if the resource is displaying the full unaltered data or
      * if some of the data has been modified for the descriptor(such as
-     * reprojection or subgridding). A value of false indicates no
-     * modification. If modification has occured than a reproject will require
+     * modification. If modification has occurred then a reproject will require
      * requesting the data again so it can be reformatted for the new display.
      */
     private boolean dataModified = false;
+
+    private Boolean lastInterpolationState = null;
 
     public D2DGridResource(GridResourceData resourceData,
             LoadProperties loadProperties) {
@@ -117,7 +120,11 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         for (GridRecord record : resourceData.getRecords()) {
             addDataObject(record);
         }
-
+        if (this.hasCapability(ImagingCapability.class)) {
+            lastInterpolationState = this
+                    .getCapability(ImagingCapability.class)
+                    .isInterpolationState();
+        }
     }
 
     @Override
@@ -183,22 +190,18 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         }
 
         GeneralGridData data = getData(dataRecs, gridGeometry, dataUnit);
-        /*
-         * For world wide lat lon grids we reproject, this is done to match A1,
-         * but it also makes the wind barbs look more evenly spaced near the
-         * pole.
-         */
-        if (location != null && location.getSpacingUnit().equals("degree")) {
-            if (!ConformalityUtil.testConformality(gridGeometry,
-                    descriptor.getGridGeometry())) {
-                data = reprojectData(data);
-            }
+        // For some grids, we may reproject (e.g., world-wide lat/lon grids),
+        // this is done to match A1, but it also makes the wind barbs look
+        // more evenly spaced near the pole.
+        if (ReprojectionUtil.shouldReproject(gridRecord, gridGeometry,
+                getDisplayType(), descriptor.getGridGeometry())) {
+            data = reprojectData(data);
         }
         /*
          * Wind Direction(and possibly others) can be set so that we rotate the
          * direction to be relative to the north pole instead of grid relative.
          */
-        if (stylePreferences != null
+        if ((stylePreferences != null)
                 && stylePreferences.getDisplayFlags()
                         .hasFlag("RotateVectorDir")) {
             GridEnvelope2D gridRange = gridGeometry.getGridRange2D();
@@ -209,7 +212,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                                 .getCoordinateReferenceSystem());
                 for (int i = 0; i < gridRange.width; i++) {
                     for (int j = 0; j < gridRange.height; j++) {
-                        int index = i + j * gridRange.width;
+                        int index = i + (j * gridRange.width);
                         float dir = data.getScalarData().get(index);
                         if (dir > -9999) {
                             DirectPosition2D dp = new DirectPosition2D(i, j);
@@ -338,7 +341,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
         }
 
-        if (legendParams.unit == null || legendParams.unit.isEmpty()) {
+        if ((legendParams.unit == null) || legendParams.unit.isEmpty()) {
             if (record.getParameter().getUnit().equals(Unit.ONE)) {
                 legendParams.unit = "";
             } else {
@@ -348,7 +351,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         List<DisplayType> displayTypes = FieldDisplayTypesFactory.getInstance()
                 .getDisplayTypes(record.getParameter().getAbbreviation());
         DisplayType displayType = getDisplayType();
-        if (displayTypes != null && !displayTypes.isEmpty()
+        if ((displayTypes != null) && !displayTypes.isEmpty()
                 && displayTypes.get(0).equals(displayType)) {
             // The default type does not display in the legend
             legendParams.type = "";
@@ -406,6 +409,22 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             dataModified = false;
         }
         super.project(crs);
+    }
+
+    @Override
+    protected void resourceDataChanged(ChangeType type, Object updateObject) {
+        super.resourceDataChanged(type, updateObject);
+        if (type == ChangeType.CAPABILITY) {
+            if ((updateObject instanceof ImagingCapability) && dataModified) {
+                ImagingCapability capability = (ImagingCapability) updateObject;
+                if ((lastInterpolationState == null)
+                        || (capability.isInterpolationState() != lastInterpolationState)) {
+                    lastInterpolationState = capability.isInterpolationState();
+                    clearRequestedData();
+                    dataModified = false;
+                }
+            }
+        }
     }
 
 }
