@@ -23,7 +23,7 @@ import java.text.DateFormat;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -66,6 +66,9 @@ import com.raytheon.uf.edex.core.props.PropertiesException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 06, 2013 1822       bgonzale     Initial creation
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
+ *                                      Fixed ordering of elements in maps and defaults when
+ *                                      element keys are null.
  * 
  * </pre>
  * 
@@ -99,8 +102,9 @@ public class DataDeliveryRetrievalWmoHeaderApplier implements IWmoHeaderApplier 
 
     private static Map<String, String> parseMapping(String dataMapping)
             throws PropertiesException {
-        Map<String, String> resultMap = new HashMap<String, String>();
         String[] elementPairs = dataMapping.split(",");
+        Map<String, String> resultMap = new LinkedHashMap<String, String>(
+                elementPairs.length, 1);
 
         for (String elementPair : elementPairs) {
             String[] pair = elementPair.split(":");
@@ -139,21 +143,27 @@ public class DataDeliveryRetrievalWmoHeaderApplier implements IWmoHeaderApplier 
         return new Object[] { provider, format, source, date };
     }
 
-    private static String getElement(String dataProvider,
+    /*
+     * if no element found, default to first element, or if empty, default to
+     * null.
+     */
+    private static String getElement(String elementKey,
             Map<String, String> mapping) {
-        String defaultKey = null;
+        String resultKey = null;
         
         for (String key : mapping.keySet()) {
-            if (defaultKey == null) {
-                defaultKey = key;
+            if (resultKey == null) {
+                resultKey = key;
+                if (elementKey == null) {
+                    break;
+                }
             }
-            if (key.startsWith(dataProvider)) {
-                return mapping.get(key);
+            if (key.startsWith(elementKey)) {
+                resultKey = key;
+                break;
             }
         }
-        // if no element found, default to first element, or if empty, default
-        // to null
-        return mapping.get(defaultKey);
+        return mapping.get(resultKey);
     }
 
 }
