@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -43,7 +44,7 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -91,7 +92,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SatelliteRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled {
+        IGridGeometryProvider {
 
     public static final String PLUGIN_ID = "satellite";
 
@@ -176,16 +177,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Float satSubPointLon;
 
-    /** The upper right hand latitude */
-    @Column
-    @DynamicSerializeElement
-    private Float upperRightLat;
-
-    /** The upper right hand longitude */
-    @Column
-    @DynamicSerializeElement
-    private Float upperRightLon;
-
     /** Height of the satellite in km */
     @Column
     @DynamicSerializeElement
@@ -229,8 +220,8 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     }
 
     @Override
-    public SatMapCoverage getSpatialObject() {
-        return coverage;
+    public GridGeometry2D getGridGeometry() {
+        return coverage != null ? coverage.getGridGeometry() : null;
     }
 
     public SatMapCoverage getCoverage() {
@@ -255,22 +246,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
 
     public void setSatSubPointLon(Float satSubPointLon) {
         this.satSubPointLon = satSubPointLon;
-    }
-
-    public Float getUpperRightLat() {
-        return upperRightLat;
-    }
-
-    public void setUpperRightLat(Float upperRightLat) {
-        this.upperRightLat = upperRightLat;
-    }
-
-    public Float getUpperRightLon() {
-        return upperRightLon;
-    }
-
-    public void setUpperRightLon(Float upperRightLon) {
-        this.upperRightLon = upperRightLon;
     }
 
     public Integer getNumRecords() {
