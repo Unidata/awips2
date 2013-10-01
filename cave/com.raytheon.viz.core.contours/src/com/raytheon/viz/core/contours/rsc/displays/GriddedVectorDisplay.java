@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.viz.core.contours.util.IVectorGraphicsRenderableFactory;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -53,6 +54,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 22, 2010            bsteffen     Initial creation
  * Feb 07, 2011 7948       bkowal       added a public method to get
  *                                      the direction.
+ * Aug 27, 2013 2287       randerso     Added VectorGraphicsRenderable Factory to allow
+ *                                      application specific rendering of wind barbs and 
+ *                                      arrows.
+ *                                      Added densityFactor to allow application specific 
+ *                                      adjustment of density.
+ *                                      Added gridRelative flag to indicate whether direction
+ *                                      data is relative to grid or true north
+ * Sep 9, 2013  DR16257    MPorricelli  When setDestinationGeographicPoint fails (which can
+ *                                      happen for global lat/lon grid winds displayed on
+ *                                      Equidistant Cylindrical map) try again with different
+ *                                      pixel location.
  * 
  * </pre>
  * 
@@ -69,36 +81,43 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
     private LineStyle lineStyle;
 
-    private double scale = 0.6;
-
     private IExtent lastExtent;
 
     private VectorGraphicsRenderable vectorRenderable;
+
+    private boolean gridRelative;
 
     private DisplayType displayType;
 
     private GeodeticCalculator gc;
 
+    private IVectorGraphicsRenderableFactory factory;
+
     /**
      * @param magnitude
      * @param direction
-     * @param mode
      * @param descriptor
      * @param gridGeometryOfGrid
-     * @param imageSize
-     * @param gridLocation
-     * @param forceCircle
-     * @param plotLocations
-     *            Pre-configured plot locations. If null, they will be created.
+     * @param size
+     * @param densityFactor
+     *            adjustment factor to make density match A1
+     * @param gridRelative
+     *            true if direction is grid relative, false if relative to true
+     *            north
+     * @param displayType
+     * @param factory
      */
     public GriddedVectorDisplay(FloatBuffer magnitude, FloatBuffer direction,
             IMapDescriptor descriptor, GeneralGridGeometry gridGeometryOfGrid,
-            int size, DisplayType displayType) {
-        super(descriptor, gridGeometryOfGrid, size);
+            int size, double densityFactor, boolean gridRelative,
+            DisplayType displayType, IVectorGraphicsRenderableFactory factory) {
+        super(descriptor, gridGeometryOfGrid, size, densityFactor);
         this.magnitude = magnitude;
         this.direction = direction;
+        this.gridRelative = gridRelative;
         this.displayType = displayType;
         this.gc = new GeodeticCalculator(descriptor.getCRS());
+        this.factory = factory;
     }
 
     @Override
@@ -110,8 +129,8 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             lastExtent = paintProps.getView().getExtent().clone();
         }
         if (vectorRenderable == null) {
-            vectorRenderable = new VectorGraphicsRenderable(descriptor, target,
-                    this.size, this.scale);
+            vectorRenderable = factory.createRenderable(descriptor, target,
+                    this.size);
             super.paint(target, paintProps);
         }
         vectorRenderable.setColor(this.color);
@@ -126,12 +145,13 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         super.issueRefresh();
     }
 
+    @Override
     protected void paint(Coordinate ijcoord, PaintProperties paintProps,
             Coordinate plotLoc, double adjSize) throws VizException {
         int idx = (int) (ijcoord.x + (ijcoord.y * this.gridDims[0]));
 
         float spd = this.magnitude.get(idx);
-        float dir = this.direction.get(idx) - 180;
+        float dir = this.direction.get(idx);
 
         if (dir < -999999 || dir > 9999999) {
             // perhaps this check should limit +/- 180
@@ -141,7 +161,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         if (Float.isNaN(spd) || Float.isNaN(dir)) {
             return;
         }
-
+        int tryDiffPixLoc = 0;
         try {
             ReferencedCoordinate rCoord = new ReferencedCoordinate(
                     gridGeometryOfGrid, ijcoord);
@@ -153,18 +173,35 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
             if (stationPixelLocation != null) {
                 stationPixelLocation[1]--;
-                double[] newWorldLocation = this.descriptor
-                        .pixelToWorld(stationPixelLocation);
-                this.gc.setStartingGeographicPoint(stationLocation[0],
-                        stationLocation[1]);
-                this.gc.setDestinationGeographicPoint(newWorldLocation[0],
-                        newWorldLocation[1]);
+                do {
+                   try {
+                        double[] newWorldLocation = this.descriptor
+                                .pixelToWorld(stationPixelLocation);
+                        this.gc.setStartingGeographicPoint(stationLocation[0],
+                                stationLocation[1]);
+                        this.gc.setDestinationGeographicPoint(
+                                newWorldLocation[0], newWorldLocation[1]);
+                        tryDiffPixLoc = 2; // setting of pts succeeded; do not need to try again
+
+                    } catch (Exception e2) {
+                        if (tryDiffPixLoc == 0) { // setting of points failed first time through
+                            stationPixelLocation[1] += 2; // try pixel location in opposite dir of 1st try
+                            tryDiffPixLoc++;
+                        } else
+                            throw new VizException(e2); // failed on second try; give up
+                    }
+                } while (tryDiffPixLoc < 2);
             }
 
-            dir = dir
-                    + (float) MapUtil.rotation(latLon,
-                            GridGeometry2D.wrap(gridGeometryOfGrid));
+            if (gridRelative) {
+                // rotate data from grid up to true north
+                dir += (float) MapUtil.rotation(latLon,
+                        GridGeometry2D.wrap(gridGeometryOfGrid));
+            }
+
+            // rotate dir from true north to display up
             dir -= this.gc.getAzimuth();
+
         } catch (Exception e) {
             throw new VizException(e);
         }
@@ -185,14 +222,6 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         }
     }
 
-    /**
-     * 
-     * @param color
-     */
-    public void setScale(double scale) {
-        this.scale = scale;
-    }
-
     public void setLineWidth(int lineWidth) {
         this.lineWidth = lineWidth;
     }
@@ -208,6 +237,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
      * @param density
      *            the density to set
      */
+    @Override
     public boolean setDensity(double density) {
         if (super.setDensity(density)) {
             disposeResources();
@@ -223,6 +253,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
      * @param magnification
      *            the magnification to set
      */
+    @Override
     public boolean setMagnification(double magnification) {
         if (super.setMagnification(magnification)) {
             disposeResources();
@@ -245,6 +276,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         return direction;
     }
 
+    @Override
     protected void disposeResources() {
         if (vectorRenderable != null) {
             vectorRenderable.dispose();
@@ -252,6 +284,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         }
     }
 
+    @Override
     protected Coordinate createResource(Coordinate coord) throws VizException {
         return coord;
     }
