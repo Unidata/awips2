@@ -17,7 +17,7 @@ function setupEnv() {
 
   if [[ ${logDirectory}/${logName} -ot ${logDirectory}/$( basename $0 .sh ).$(date --date='1 day ago' +%A).log ]]
   then
-    for myFile in ${logName} ${nowTimeDate}-lsof_qpid.out ${nowTimeDate}-qpid-stat.out ${nowTimeDate}-netstat.out ${nowTimeDate}-ipvsadm.out
+    for myFile in ${logName} ${nowTimeDate}-lsof_qpid.out ${nowTimeDate}-qpid-stat.out ${nowTimeDate}-netstat.out ${nowTimeDate}-ipvsadm.out ${nowTimeDate}-captureQpidHeapInfo.out
     do
       echo > ${logDirectory}/${myFile}
     done
@@ -199,6 +199,39 @@ function captureIPVS() {
   return ${returnCode}
 }
 
+function captureQpidHeapInfo() {
+
+
+	local returnCode=0
+	local logFile=${logDirectory}/${nowTimeDate}-$FUNCNAME.out
+
+	echo -ne "\n| START "  >> ${logFile} 2>&1
+	echoDate >> ${logFile} 2>&1
+	echo -e "----------------------------------------------------------------|\n" >> ${logFile} 2>&1 
+	
+	#qpidPid=$( jps -v | grep QPBRKR | awk '{print $1}' ) 
+
+	if ! ps -p ${qpidPid} > /dev/null ; then
+		echoFail "\tCan not find returned qpidd pid (${qpidPid}): $( jps -v | grep QPBRKR | awk '{print $1}' )" 
+		return 1 
+	fi
+
+	echo -e "\tFound qpidd on PID ${qpidPid}" >> ${logFile}
+
+	echo -e "\tGetting HEAP usage...........................\n\n" >> ${logFile}
+	jmap -heap ${qpidPid} | while read line ; do
+		echo -e "\t\t${line}" >> ${logFile}
+	done
+
+	echo -e "\n\n\tGetting Garbage Collection Information ..................\n\n" >> ${logFile}
+	jstat -gcutil ${qpidPid} 1000 30 | while read line ; do 
+		echo -e "\t\t${line}" >> ${logFile}
+	done
+
+	return 0 
+
+}
+
 
 
 ## main() 
@@ -238,9 +271,9 @@ else
   rm ${logDirectory}/testfile
 fi
 
-if ! qpidPid=$( jps -v | grep qpid | awk '{print $1}' )
+if ! qpidPid=$( jps -v | grep QPBRKR | awk '{print $1}' )
 then
-  echoFail "ERROR:\tCan't find qpidd on this host (run: jps -v | grep qpid failed)."
+  echoFail "ERROR:\tCan't find qpidd on this host (run: jps -v | grep QPBRKR failed)."
   exit 1
 fi
 
@@ -271,16 +304,35 @@ while ps -p ${functionPID} > /dev/null
 do
 	sleep 1
 	_cnt=$(($_cnt+1))
-	if [[ ${_cnt} -ge 20 ]] 
+	if [[ ${_cnt} -ge 30 ]] 
 	then
 	  kill -9 ${functionPID} 
-	  echoFail "ERROR: qpid-stat running for more than 20 seconds, killing" 
+	  echoFail "ERROR: qpid-stat running for more than 30 seconds, killing" 
 	fi
 done	
 
 if ! wait ${functionPID}
 then
   echoFail "ERROR: Grabbing of qpid-stat failed" 
+fi
+
+captureQpidHeapInfo &
+functionPID=$!
+_cnt=0 
+while ps -p ${functionPID} > /dev/null
+do
+	sleep 1
+	_cnt=$(($_cnt+1))
+	if [[ ${_cnt} -ge 60 ]] 
+	then
+	  kill -9 ${functionPID} 
+	  echoFail "ERROR: Getting heap infomation running for more than 60 seconds, killing" 
+	fi
+done	
+
+if ! wait ${functionPID}
+then
+  echoFail "ERROR: Grabbing of heap utilization failed" 
 fi
 
 captureNetstat &
