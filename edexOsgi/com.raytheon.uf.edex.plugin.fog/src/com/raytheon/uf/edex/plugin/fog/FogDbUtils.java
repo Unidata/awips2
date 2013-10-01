@@ -20,8 +20,6 @@
 package com.raytheon.uf.edex.plugin.fog;
 
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -30,11 +28,7 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class FogDbUtils {
 
@@ -94,67 +88,7 @@ public class FogDbUtils {
      * @return
      */
     public static GridGeometry2D getGridGeometry(SatelliteRecord rec) {
-        return MapUtil.getGridGeometry(rec.getSpatialObject());
-    }
-
-    /**
-     * Creates the Grid Geometry for the Fog Display grid
-     * 
-     * @param geo
-     * @param crs
-     * @param nx
-     * @param ny
-     * @return
-     */
-    public static GeneralEnvelope getEnvelope(Geometry geo, CoordinateReferenceSystem crs) {
-
-        GeneralEnvelope env2 = null;
-
-        try {
-            Point[] points = new Point[((Polygon) geo).getExteriorRing().getNumPoints()];
-
-            for (int i = 0; i < points.length; i++) {
-                points[i] = ((Polygon) geo).getExteriorRing().getPointN(i);
-            }
-
-            env2 = MapUtil.extractProjectedEnvelope(crs, points, MapUtil
-                    .getTransformFromLatLon(crs));
-        }
-
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return env2;
-    }
-
-    /**
-     * Used to re size raster IR sat grids to VIS size
-     * 
-     * @param inputGrid
-     * @param outputGridSize
-     * @param nx
-     * @param ny
-     * @return
-     */
-    public static float[] reSizeFloatGrid(float[] inputGrid, int outputGridSize, int nx, int ny) {
-
-        float[] outputGrid = new float[outputGridSize];
-
-        // decimate
-        // (SK) i => x j => y
-        for (int j = 0; j < ny; j++) {
-            for (int i = 0; i < nx; i++) {
-                float avValue = 0;
-                for (int y = 0; y < 4; y++) {
-                    for (int x = 0; x < 4; x++) {
-                        // average the grid values
-                        avValue += inputGrid[nx * (j * 4 + y) + i * 4 + x];
-                    }
-                }
-                outputGrid[nx * j + i] = avValue / 16;
-            }
-        }
-        return outputGrid;
+        return rec.getGridGeometry();
     }
 
     /**
