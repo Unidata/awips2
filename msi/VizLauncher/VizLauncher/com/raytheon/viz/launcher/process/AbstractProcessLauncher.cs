@@ -56,11 +56,10 @@ namespace VizLauncher.com.raytheon.viz.launcher.process
         {
             ProcessStartInfo processStartInfo = 
                 new ProcessStartInfo(this.constructProcessName(vizEnvironment.getLocation()));
-            processStartInfo.EnvironmentVariables.Remove(EnvironmentProperties.ENVIRONMENT_VARIABLE_PATH);
-            processStartInfo.EnvironmentVariables.Add(
-                EnvironmentProperties.ENVIRONMENT_VARIABLE_PATH, vizEnvironment.getPath());
-            processStartInfo.EnvironmentVariables.Add(
-                EnvironmentProperties.ENVIRONMENT_VARIABLE_PYTHON_PATH, vizEnvironment.getPythonPath());
+            processStartInfo.EnvironmentVariables[EnvironmentProperties.ENVIRONMENT_VARIABLE_PATH] =
+                vizEnvironment.getPath();
+            processStartInfo.EnvironmentVariables[EnvironmentProperties.ENVIRONMENT_VARIABLE_PYTHON_PATH] =
+                vizEnvironment.getPythonPath();
             processStartInfo.UseShellExecute = false;
             processStartInfo.Arguments = this.getCommandLineArguments();
             processStartInfo.RedirectStandardOutput = true;
