@@ -81,7 +81,6 @@ public class EnvelopeIntersection {
     public static Geometry createEnvelopeIntersection(Envelope sourceEnvelope,
             Envelope targetEnvelope, double threshold, int maxHorDivisions,
             int maxVertDivisions) throws TransformException, FactoryException {
-        long t0 = System.currentTimeMillis();
         ReferencedEnvelope sourceREnvelope = reference(sourceEnvelope);
         ReferencedEnvelope targetREnvelope = reference(targetEnvelope);
         Geometry border = null;
@@ -241,7 +240,6 @@ public class EnvelopeIntersection {
                 // intersection area with target border and combine all
                 // intersections in collection
                 Coordinate[] borderCorners = { ul, ur, lr, ll };
-
 
                 // First, world wrap correct the line strings
                 List<LineString> corrected = new ArrayList<LineString>();
@@ -507,8 +505,6 @@ public class EnvelopeIntersection {
             }
         }
 
-        System.out.println("Time to create EnvelopeIntersection: "
-                + (System.currentTimeMillis() - t0) + "ms");
         return border;
     }
 

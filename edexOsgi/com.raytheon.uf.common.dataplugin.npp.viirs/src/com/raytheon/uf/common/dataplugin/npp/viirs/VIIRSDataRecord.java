@@ -33,14 +33,14 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
-import com.raytheon.uf.common.geospatial.ISpatialEnabled;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -77,7 +77,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class VIIRSDataRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled {
+        IGridGeometryProvider {
 
     public static final String MISSING_VALUE_ID = "missing_value";
 
@@ -130,11 +130,12 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.common.geospatial.ISpatialEnabled#getSpatialObject()
+     * @see
+     * com.raytheon.uf.common.geospatial.IGridGeometryProvider#getGridGeometry()
      */
     @Override
-    public ISpatialObject getSpatialObject() {
-        return coverage;
+    public GridGeometry2D getGridGeometry() {
+        return coverage != null ? coverage.getGridGeometry() : null;
     }
 
     /**

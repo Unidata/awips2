@@ -46,7 +46,9 @@ import jep.INumpyable;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
@@ -68,6 +70,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateT
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -102,6 +105,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                      spatial
  * 08/06/13      #1571      randerso    Added hibernate annotations, javadoc cleanup, 
  *                                      made init method public for use in GFEDao
+ * 09/30/13      #2333      mschenke    Added method to construct from {@link IGridGeometryProvider}
  * 
  * 
  * </pre>
@@ -370,6 +374,36 @@ public class GridLocation extends PersistableDataObject<String> implements
         this.geometry = (Polygon) coverage.getGeometry();
         this.nx = coverage.getNx();
         this.ny = coverage.getNy();
+    }
+
+    /**
+     * @param id
+     * @param provider
+     */
+    public GridLocation(String id, IGridGeometryProvider provider) {
+        this.siteId = id;
+        GridGeometry2D gridGeometry = provider.getGridGeometry();
+        this.crsObject = gridGeometry.getCoordinateReferenceSystem();
+        this.crsWKT = this.crsObject.toWKT();
+        this.nx = gridGeometry.getGridRange().getSpan(0);
+        this.ny = gridGeometry.getGridRange().getSpan(1);
+
+        Envelope2D envelope = gridGeometry.getEnvelope2D();
+        Coordinate ul = new Coordinate(envelope.getMinX(), envelope.getMinY());
+        Coordinate ur = new Coordinate(envelope.getMaxX(), envelope.getMinY());
+        Coordinate lr = new Coordinate(envelope.getMaxX(), envelope.getMaxY());
+        Coordinate ll = new Coordinate(envelope.getMinX(), envelope.getMaxY());
+        GeometryFactory gf = new GeometryFactory();
+        Geometry crsPolygon = gf.createPolygon(
+                gf.createLinearRing(new Coordinate[] { ul, ur, lr, ll, ul }),
+                null);
+        try {
+            MathTransform crsToLL = MapUtil.getTransformToLatLon(crsObject);
+            this.geometry = (Polygon) JTS.transform(crsPolygon, crsToLL);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "GridGeometry provided does not support conversion to lat/lon");
+        }
     }
 
     /**
