@@ -1,18 +1,15 @@
 ################################################################
 ## SEVERE THUNDERSTORM WARNING TEMPLATE                       ##
 ## CREATED BY EVAN BOOKBINDER - WFO EAX                       ##
-## VERSION HISTORY --      3-24-2011 INITIAL OB11.2 REWRITE   ##
-##                         4-12-2011 OB11.4 MODIFICATIONS     ##
-##                         7-11-2011 OB11.7 MODIFICATIONS     ##
-##                         9-15-2011 OB11.8.0-8 PATHCAST/CITY ##
-##                        11-04-2011 OB11.9-3 (DRs)           ## 
-##                         2-24-2012 OB12.2.1 CLEANUP         ##
-##       BY QINGLU LIN     6-18-2012 DR 15043 use duration    ##
+## RECENT VERSION HISTORY                                     ##  
 ##       BY QINGLU LIN     8-14-2012 DR 14493 use TMLtime     ##
 ##        Mike Dangelo     9-13-2012 minor tweaks to some ${variables}## 
 ##        Mike Dangelo     2-4-2013  NWS Mets detected a svr  ## 
+##        Evan Bookbinder  9-16-2013 Fixed CTA                ##
+##        Evan Bookbinder  9-18-2013 Implemented config.vm    ##
 ################################################################
 ##
+#parse("config.vm")
 ##SET SOME INITIAL VARIABLES
 #if(${stormType} == "line")
   #set($report = "A LINE OF SEVERE THUNDERSTORMS WAS REPORTED")
@@ -247,12 +244,13 @@ THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report}${hailwind}. ${reportType2} LOCATED ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if($movementSpeed < 3 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} NEARLY STATIONARY. ${smallHail}
 #else
 ...AND MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ${smallHail}
@@ -295,10 +293,9 @@ THE CORRECT LOCATIONS BULLET SELECTED **!.
 
 #end
 ## Uncomment below pull in mile marker info
-##parse("mileMarkers.vm")
+## #parse("mileMarkers.vm")
 ## Uncomment below pull in point marker info
-##parse("pointMarkers.vm")
-## #pmarkers(${locpointsName},${locpointsGid}, "THE FOLLOWING", "VENUE", false)
+## #parse("pointMarkers.vm")
 
 ##
 ##############################################
@@ -342,7 +339,7 @@ SEVERE THUNDERSTORMS PRODUCE DAMAGING WINDS...DESTRUCTIVE HAIL...DEADLY LIGHTNIN
 ##
 #if(${list.contains(${bullets}, "canProduceTornadoesCTA")})
 #if(${stormType} == "line")
-DOPPLER RADAR HAS INDICATED SOME WEAK ROTATION WITHIN THESE STORMS. ALTHOUGH A TORNADO IS NOT IMMEDIATELY LIKELY...IF ONE IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR
+DOPPLER RADAR HAS INDICATED SOME WEAK ROTATION WITHIN THESE STORMS. ALTHOUGH A TORNADO IS NOT IMMEDIATELY LIKELY...IF ONE IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR ROOM.
 
 #else
 DOPPLER RADAR HAS INDICATED SOME WEAK ROTATION WITHIN THIS STORM. ALTHOUGH A TORNADO IS NOT IMMEDIATELY LIKELY...IF ONE IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR ROOM.
@@ -486,6 +483,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
 ## UNCOMMENT 2 LINES BELOW IF PARTICIPATING IN THE WIND/HAIL TAG EXPERIMENT
 ##
 ##<L>${windhailTag}</L>

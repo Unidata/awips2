@@ -22,6 +22,8 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.CLRBAR;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAttributesBuilder;
 import gov.noaa.nws.ncep.gempak.parameters.core.contourinterval.CINT;
 import gov.noaa.nws.ncep.gempak.parameters.infill.FINT;
 import gov.noaa.nws.ncep.gempak.parameters.infill.FLine;
@@ -32,6 +34,8 @@ import gov.noaa.nws.ncep.viz.tools.contour.ContourException;
 import gov.noaa.nws.ncep.viz.tools.contour.ContourGenerator;
 import gov.noaa.nws.ncep.viz.tools.contour.FillException;
 import gov.noaa.nws.ncep.viz.tools.contour.FillGenerator;
+import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -111,7 +115,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Apr 26, 2013			   B. Yin	   Fixed the world wrap problem for centeral line 0/180.
  *    Jun 06, 2013			   B. Yin	   fixed the half-degree grid porblem.
  *    Jul 19, 2013             B. Hebbard  Merge in RTS change of Util-->ArraysUtil
- * 
+ *    Aug 19, 2013   #743      S. Gurung   Added clrbar and corresponding getter/setter method (from Archana's branch) and
+ *                                         fix for editing clrbar related attribute changess not being applied from right click legend.
  * </pre>
  * 
  * @author chammack
@@ -233,6 +238,10 @@ public class ContourSupport {
         
         public LinearRing grid;
 
+        public CLRBAR clrbar;
+        
+        public ColorBar colorBarForGriddedFill;
+    
     }
 
     public class ContourGridData {
@@ -328,6 +337,7 @@ public class ContourSupport {
      * 
      */
     public void createContours( ) {
+    	
     	long t0 = System.currentTimeMillis();
         
         // Copy the pixel extent (deep copy required!)
@@ -1083,7 +1093,19 @@ public class ContourSupport {
     private void createColorFills () {
     	
     	long t3 = System.currentTimeMillis();
+    	
+    	//Prepare the colorbar
+    	if (type.trim().toUpperCase().contains("F") && (attr.getClrbar() != null || !"0".equals(attr.getClrbar()))){ 
+		             ColorBar tempColorBar = generateColorBarInfo();
+		             if( tempColorBar != null ){
+		            	 contourGroup.colorBarForGriddedFill = new ColorBar(tempColorBar);
+		             }
+		} else {
+			contourGroup.colorBarForGriddedFill = null;
+		}
+		
     	if (type.trim().toUpperCase().contains("F") && contourGroup.fvalues.size() > 0) {
+    		
     		try {
     		
     			// Prepare colors for color fills
@@ -1382,6 +1404,42 @@ public class ContourSupport {
             isCntrsCreated = false;
             return;
         }      
+    }
+    
+    
+    private ColorBar generateColorBarInfo(){
+    	
+    	if( attr.getClrbar() != null && !attr.getClrbar().isEmpty()){
+    	    contourGroup.clrbar = new CLRBAR(attr.getClrbar());
+    		ColorBarAttributesBuilder cBarAttrBuilder = contourGroup.clrbar.getcBarAttributesBuilder();
+    		ColorBar colorBar = new ColorBar();
+    		if ( cBarAttrBuilder.isDrawColorBar() ){
+    			colorBar.setAttributesFromColorBarAttributesBuilder(cBarAttrBuilder);
+    			colorBar.setAttributesFromColorBarAttributesBuilder(cBarAttrBuilder);
+    			colorBar.setColorDevice( NcDisplayMngr.getActiveNatlCntrsEditor().getActiveDisplayPane().getDisplay() );
+    			 FINT theFillIntervals = new FINT(fint.trim());
+    			 FLine fillColorString = new FLine(fline.trim());
+    			 if( !theFillIntervals.isFINTStringParsed() || !fillColorString.isFLineStringParsed() )
+    				 return null;
+    			 List<Double> fillIntvls = theFillIntervals.getUniqueSortedFillValuesFromAllZoomLevels();
+    			 List<Integer> fillColors = fillColorString.getFillColorList();
+    		
+    			fillIntvls.add(0, Double.NEGATIVE_INFINITY);
+    			int numFillIntervals = fillIntvls.size();
+    			fillIntvls.add(numFillIntervals, Double.POSITIVE_INFINITY);
+    			int numDecimals = 0;
+    			for (int index = 0 ; index <= numFillIntervals -1 ; index++){    				
+    			     colorBar.addColorBarInterval(fillIntvls.get(index).floatValue(), fillIntvls.get(index + 1).floatValue(), GempakColor.convertToRGB(fillColors.get(index)));
+    			     String tmp[] = fillIntvls.get(index).toString().split("\\.");
+			         if (tmp.length > 1 && tmp[1].length() > numDecimals && !"0".equals(tmp[1])) {
+			        		 numDecimals = tmp[1].length();
+			         }  
+    			}
+    			colorBar.setNumDecimals(numDecimals);
+    			return colorBar;
+    		}
+    	}
+    	return null;
     }
     
     public void genContour () {

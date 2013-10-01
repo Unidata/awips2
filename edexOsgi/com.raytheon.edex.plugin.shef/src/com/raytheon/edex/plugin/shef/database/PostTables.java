@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 02/24/2012   14535      W. Kwock    Correct the duration value.
  * 11/29/2012   15530      lbousaidi   corrected posting and production time for
  * 									   latestobsvalue table.
+ * 09/19/2013   16515      w. Kwock    Fix the excessive digits in rawpp,lake,height...tables
  * 
  * </pre>
  * 
@@ -1065,7 +1066,7 @@ public class PostTables {
             cs.setString(5, shefData.getExtremum().getCode());
             cs.setTimestamp(6, new Timestamp(shefData.getObservationTimeObj()
                     .getTime()));
-            cs.setFloat(7, Float.parseFloat(dataValue));
+            cs.setDouble(7, Double.parseDouble(dataValue));
             cs.setString(8, qualifier);
             cs.setInt(9, (int) qualityCode);
 
@@ -1184,7 +1185,7 @@ public class PostTables {
             cs.setString(5, shefData.getExtremum().getCode());
             cs.setTimestamp(6, new java.sql.Timestamp(shefData
                     .getObservationTimeObj().getTime()));
-            cs.setFloat(7, Float.parseFloat(dataValue));
+            cs.setDouble(7, Double.parseDouble(dataValue));
             cs.setString(8, qualifier);
             cs.setInt(9, (int) qualityCode);
 
@@ -1316,7 +1317,7 @@ public class PostTables {
             timeStamp = new java.sql.Timestamp(basisDate.getTime());
             cs.setTimestamp(8, timeStamp);
 
-            cs.setFloat(9, Float.parseFloat(dataValue));
+            cs.setDouble(9, Double.parseDouble(dataValue));
 
             cs.setString(10, qualifier);
 
@@ -1534,7 +1535,7 @@ public class PostTables {
             ps.setTimestamp(8, timeStamp2);
 
             // ps.setFloat(9, Float.parseFloat(shefDataValue.getStringValue()));
-            ps.setFloat(9, shefDataValue.getValue().floatValue());
+            ps.setDouble(9, shefDataValue.getValue().floatValue());
 
             if (updateFlag) {
                 ps.setString(10, lid);
