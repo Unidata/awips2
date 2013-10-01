@@ -22,15 +22,8 @@ package com.raytheon.uf.common.localization.msgs;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -44,42 +37,35 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2007            chammack    Initial Creation.
  * Aug 22, 2008  #1502     bclement    Added JAXB/Serializable annotations
+ * Oct 01, 2013   2361     njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-public class ListResponseEntry implements ISerializableObject {
 
-    @XmlAttribute
+@DynamicSerialize
+public class ListResponseEntry {
+
     @DynamicSerializeElement
     protected String fileName;
 
-    @XmlElement
     @DynamicSerializeElement
     protected LocalizationContext context;
 
-    @XmlAttribute
     @DynamicSerializeElement
     protected Date date;
 
-    @XmlAttribute
     @DynamicSerializeElement
     protected String checksum;
 
-    @XmlAttribute
     @DynamicSerializeElement
     protected boolean directory;
 
-    @XmlAttribute
     @DynamicSerializeElement
     protected LocalizationLevel protectedLevel;
 
-    @XmlAttribute
     @DynamicSerializeElement
     protected boolean existsOnServer;
 
