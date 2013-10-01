@@ -19,11 +19,6 @@
  **/
 package com.raytheon.uf.common.localization.msgs;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -38,7 +33,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 2, 2010            mpduff     Initial creation
+ * Nov 2, 2010             mpduff     Initial creation
+ * Oct 1, 2013  2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -46,12 +42,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ListContextCommand extends AbstractUtilityCommand {
 
-    @XmlAttribute
     @DynamicSerializeElement
     private LocalizationLevel requestLevel;
 
