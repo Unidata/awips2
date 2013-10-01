@@ -42,6 +42,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2013  #2224      rferrel     Initial creation
+ * Oct 02, 2013 #2147      rferrel     Allow Date to ignore hour in time stamp.
  * 
  * </pre>
  * 
@@ -160,7 +161,12 @@ public class CategoryDataSet {
             if (timeIndices.length > 0) {
                 String[] indexValues = getDateGroupIndices().split("\\s*,\\s*");
                 for (int index = 0; index < timeIndices.length; ++index) {
-                    timeIndices[index] = Integer.parseInt(indexValues[index]);
+                    if (indexValues.length > index) {
+                        timeIndices[index] = Integer
+                                .parseInt(indexValues[index]);
+                    } else {
+                        timeIndices[index] = -1;
+                    }
                 }
             }
         }
@@ -233,8 +239,15 @@ public class CategoryDataSet {
                     .group(timeIndices[CategoryDataSet.MONTH_INDEX])) - 1;
             int day = Integer.parseInt(matcher
                     .group(timeIndices[CategoryDataSet.DAY_INDEX]));
-            int hour = Integer.parseInt(matcher
-                    .group(timeIndices[CategoryDataSet.HOUR_INDEX]));
+
+            // Default to last hour of the day.
+            int hour = 23;
+
+            if (timeIndices[CategoryDataSet.HOUR_INDEX] >= 0) {
+                hour = Integer.parseInt(matcher
+                        .group(timeIndices[CategoryDataSet.HOUR_INDEX]));
+            }
+
             fileCal.set(year, month, day, hour, 0, 0);
             fileTime = fileCal.getTimeInMillis();
             break;
