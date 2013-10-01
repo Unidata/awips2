@@ -63,16 +63,10 @@ public class NcInventoryMngr {
 			fwriter.write( createInvMsg );
 			fwriter.close();
 			
-			Object createMsgObj =  SerializationUtil.jaxbUnmarshalFromXmlFile( tmpFile );
+			ManageNcInventoryMsg invCreateMsg =  SerializationUtil.jaxbUnmarshalFromXmlFile( ManageNcInventoryMsg.class, tmpFile );
 			
 			tmpFile.delete();
 			
-			if( !(createMsgObj instanceof ManageNcInventoryMsg) ) {
-				throw new Exception("NcInventoryMngr create Error: msg object is not ManageNcInventoryMsg");
-			}
-			
-			ManageNcInventoryMsg invCreateMsg = (ManageNcInventoryMsg)createMsgObj;
-						
 			NcInventory inv = NcInventory.getInventory( invCreateMsg.getInventoryName() );
 			
 			// if there is already an inventory and if it was created recently (ie. by the 
@@ -91,8 +85,7 @@ public class NcInventoryMngr {
 				}
 			}
 			
-			String stsStr = NcInventory.initInventory( invCreateMsg.getInventoryDefinition(), 
-					reload );
+			NcInventory.initInventory( invCreateMsg.getInventoryDefinition(), reload );
 			 
 		} catch ( Exception ex ) {
         	NcInventory.logError( ex.getMessage() );

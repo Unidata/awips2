@@ -35,6 +35,7 @@ import javax.xml.bind.JAXBException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.geotools.referencing.operation.transform.WarpTransform2D;
 
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -92,6 +93,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 04/10/13      #864       Greg Hull    read/save new ResourceFilters file
  * 04/24/13      #838       B. Hebbard   Allow getAllResourceParameters to handle NTRANS (paramVal2 no longer assumed numeric/km)
  * 06/05/13      #998       Greg Hull    init subTypesList when creating new RD.
+ * 08/2013       #1031      Greg Hull    retry on inventory directory request    
  *
  * </pre>
  * 
@@ -110,10 +112,6 @@ public class ResourceDefnsMngr {
     
 	private HashMap<String,ResourceDefinition> resourceDefnsMap = null;
 		
-	// a list of inventories definitions available on edex.
-	// used to set the inventoryInitialized flag.
-	private HashMap<NcInventoryDefinition,NcInventoryDefinition> invDefnsMap = null; 
-	
 	// a map from either the rscType or the rscImpl (depending on if AttrSetGroups apply)
 	// to a list of available Attribute Set Files returned from Localization.
 	private Map<String,Map<String,AttributeSet>> attrSetMap;
@@ -346,19 +344,6 @@ public class ResourceDefnsMngr {
 		
 		Collection<String> supportedPlugins = RecordFactory.getInstance().getSupportedPlugins();
 		
-		// This would read the inventoryDefns from localizations (ie what edex uses)
-		// to initialize but instead we will query edex to see what's there and 
-		// only create inventories that don't exist.	    
-//	    checkAndSaveNcInventories();
-
-		try {
-		invDefnsMap = getInventoryDefinitions( true );
-		}
-		catch (VizException ve ) {
-			System.out.println(ve.getMessage());
-			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
-		}
-		
 		// this was used to maintain the order in the resourceDefnsTable but now that 
 		// these are separate files, I don't know that this will work. Need to 
 		// find another way to get these in the right order for the GUI.
@@ -436,92 +421,11 @@ public class ResourceDefnsMngr {
 	    
 	    out.println("Time to read Attr Sets: " + (t2-t1) + " ms");
 		   
+	    List<String> errRdsList = findOrCreateInventoryForRscDefns( resourceDefnsMap.values() );
+	    
 	    // loop thru the ResourceDefns and enable those that have been initialized and
 	    // find any inventories that don't exist and create them
 	    //
-	    List<NcInventoryDefinition> createInvDefns = new ArrayList<NcInventoryDefinition>();
-	    List<NcInventoryDefinition>  errList = new ArrayList<NcInventoryDefinition>();
-	    
-	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
-	    	NcInventoryDefinition invDefn = null;
-	    	try {
-	    		invDefn = rd.createNcInventoryDefinition();
-	    	
-			if( invDefnsMap.containsKey( invDefn ) ) {
-				rd.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
-			}
-
-	    	if( rd.usesInventory() && 
-	    		rd.getInventoryEnabled() &&
-	    	   !rd.isInventoryInitialized() ) {
-	    		
-	    		createInvDefns.add( rd.createNcInventoryDefinition() );
-	    	}
-	    }
-	    	catch ( VizException e ) {
-				out.println("Error creating ResourceDefn from file: "+rd.getLocalizationFile().getName() );
-				out.println(" --->"+e.getMessage() );
-				badRscDefnsList.add( e );				
-	    	}
-	    }
-
-	    if( !createInvDefns.isEmpty() ) {
-	    	InventoryLoaderJob invLoader = new InventoryLoaderJob( createInvDefns, false );
-
-	    	invLoader.schedule();
-
-	    	// TODO : update the progress monitor
-	    	while( invLoader.getNumberOfInventoriesLeftToLoad() > 0 ) {
-	    		//			out.println("Inventories left to load = "+invLoader.getNumberOfInventoriesLeftToLoad() );
-	    		try {
-	    			Thread.sleep(400);
-	    		} catch (InterruptedException e) {				
-	    		}
-	    	}
-
-	    	errList = Arrays.asList( invLoader.getUninitializedInventoryDefns() );	    	
-	    }
-
-	    List<String> errRdsList = new ArrayList<String>();
-	    
-	    // for the rscDefns that just had an inventory created for them
-		// enable or disable based on whether there was an error.
-		//
-	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
-	    	
-	    	if( rd.usesInventory() ) {
-	    		try {
-	    		NcInventoryDefinition invDefn = rd.createNcInventoryDefinition();
-
-	    		// if created successfully set the inventoryName/Alias
-	    		if( createInvDefns.contains( invDefn ) &&
-	    		   !errList.contains( invDefn ) ) {	    			
-	    		
-	    			rd.setInventoryAlias( invDefn.getInventoryName() );
-	    		}
-	    		
-	    		// if there is an inventory and if it is enabled 
-	    		if( rd.getInventoryEnabled() &&
-	    			!errList.contains( invDefn ) ) {
-	    			
-	    			rd.enableInventoryUse(); // remove the ProductAlertObserver
-	    		}
-	    		else {
-	    			rd.disableInventoryUse(); // add the ProductAlertObserver and query types/subTypes
-	    		}
-	    	}
-		    	catch ( VizException e ) {
-//		    		rd.setInventoryEnabled(false);
-//		    		setResourceEnable( rd.getResourceDefnName(), false );
-		    		errRdsList.add( rd.getResourceDefnName() );
-		    		
-					out.println("Error creating ResourceDefn : "+rd.getResourceDefnName() );
-					out.println(" --->"+e.getMessage() );
-					badRscDefnsList.add(
-							new VizException( "Error creating ResourceDefn : "+rd.getResourceDefnName()+ " : " + e.getMessage() ));				
-		    	}
-	    	}
-	    }	 
 	    
 	    for( String rmRd : errRdsList ) {
 	    	resourceDefnsMap.remove( rmRd );
@@ -581,18 +485,18 @@ public class ResourceDefnsMngr {
     			// TODO : Change this to set the LocalizationFile or the context
     		    rscDefn.setLocalizationFile( lFile );
     		    
-    			if( rscDefn.usesInventory() ) {
-    				
-    				NcInventoryDefinition invDefn = 
-    							rscDefn.createNcInventoryDefinition();
-    				
-    				// throws exception on error creating a defn
-    				if( invDefnsMap.containsKey( invDefn ) ) {
-    					
-    					rscDefn.setInventoryAlias( 
-							invDefnsMap.get( invDefn ).getInventoryName() );
-    				}
-				}
+//    			if( rscDefn.usesInventory() ) {
+//    				
+//    				NcInventoryDefinition invDefn = 
+//    							rscDefn.createNcInventoryDefinition();
+//    				
+//    				// throws exception on error creating a defn
+//    				if( invDefnsMap.containsKey( invDefn ) ) {
+//    					
+//    					rscDefn.setInventoryAlias( 
+//							invDefnsMap.get( invDefn ).getInventoryName() );
+//    				}
+//				}
 	    	}
 		} 
 		catch (SerializationException e) {
@@ -878,11 +782,145 @@ public class ResourceDefnsMngr {
 		}
 	}
 	
-	
-	public HashMap<NcInventoryDefinition,NcInventoryDefinition> 
-					getInventoryDefinitions( boolean reload ) throws VizException {
+	public List<String> findOrCreateInventoryForRscDefns( Collection<ResourceDefinition> rscDefnsToSetup ) {
+	    // loop thru the ResourceDefns and enable those that have been initialized and
+	    // find any inventories that don't exist and create them
+	    //
+		// This would read the inventoryDefns from localizations (ie what edex uses)
+		// to initialize but instead we will query edex to see what's there and 
+		// only create inventories that don't exist.	    
+//	    checkAndSaveNcInventories();
+		Map<NcInventoryDefinition,NcInventoryDefinition> invDefnsMap = null;
 		
-		if( invDefnsMap == null || reload ) {
+		// its possible this is failing/empty on the testbed for some unknown 
+		// reason. Since this will cause 'duplicate' ID to be created we should 
+		// retry to make sure.
+		for( int tryCount=1 ; tryCount<=5 ; tryCount++ ) {
+			try {
+				invDefnsMap = getInventoryDefinitions();
+				
+				if( invDefnsMap == null || invDefnsMap.isEmpty() ) {
+					throw new VizException( "Inventory Directory is Empty?");
+				}
+				else {
+					break;
+				}
+			}
+			catch (VizException ve ) {
+				System.out.println( "Error getting NcInventory Directory" + ve.getMessage() );
+				try { Thread.sleep(1000); } catch (InterruptedException e) { }
+			}
+		}
+
+		if( invDefnsMap == null ) {
+			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
+		}
+	
+	    List<NcInventoryDefinition> createInvDefns = new ArrayList<NcInventoryDefinition>();
+	    List<NcInventoryDefinition> errList = new ArrayList<NcInventoryDefinition>();
+		
+	    for( ResourceDefinition rd : rscDefnsToSetup ) {
+	    	try {	    		
+	    		HashMap<String,RequestConstraint> rc = 
+	    				rd.getInventoryConstraintsFromParameters( 
+	    						rd.getResourceParameters( true ) );
+	    		List<String> reqParams = rd.getUnconstrainedParameters();
+	    		reqParams.add( "dataTime" );
+	    		
+	    		for( NcInventoryDefinition edexID : invDefnsMap.keySet() ) {
+	    			if( edexID.supportsQuery( rc, reqParams ) ) {
+	    				if( rd.isInventoryInitialized() ) {
+	    					System.out.println( "RD "+ rd.getResourceDefnName() + 
+	    							" has more than one supporting ID, "+ rd.getInventoryAlias()+
+	    							" and "+ edexID.getInventoryName() );
+	    				}
+	    				System.out.println("Inventory found for "+ rd.getResourceDefnName() + " is " + 
+	    								edexID.getInventoryName() );
+	    				rd.setInventoryAlias( edexID.getInventoryName() );
+//	        			break;
+	    			}
+	    		}
+
+	    		if( rd.usesInventory() && 
+	    			rd.getInventoryEnabled() &&
+	    		   !rd.isInventoryInitialized() ) {
+
+	    			createInvDefns.add( rd.createNcInventoryDefinition() );
+	    		}
+	    	}
+	    	catch ( VizException e ) {
+				out.println("Error creating ResourceDefn from file: "+rd.getLocalizationFile().getName() );
+				out.println(" --->"+e.getMessage() );
+				badRscDefnsList.add( e );				
+	    	}
+	    }
+
+	    if( !createInvDefns.isEmpty() ) {
+	    	InventoryLoaderJob invLoader = new InventoryLoaderJob( createInvDefns, false );
+
+	    	invLoader.schedule();
+
+	    	// TODO : update the progress monitor
+	    	while( invLoader.getNumberOfInventoriesLeftToLoad() > 0 ) {
+	    		//			out.println("Inventories left to load = "+invLoader.getNumberOfInventoriesLeftToLoad() );
+	    		try {
+	    			Thread.sleep(400);
+	    		} catch (InterruptedException e) {				
+	    		}
+	    	}
+
+	    	errList = Arrays.asList( invLoader.getUninitializedInventoryDefns() );	    	
+	    }
+
+	    List<String> errRdsList = new ArrayList<String>();
+	    
+	    // for the rscDefns that just had an inventory created for them
+		// enable or disable based on whether there was an error.
+		//
+	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
+	    	
+	    	if( rd.usesInventory() ) {
+	    		try {
+	    			NcInventoryDefinition invDefn = rd.createNcInventoryDefinition();
+
+	    			// if created successfully set the inventoryName/Alias
+	    			if( createInvDefns.contains( invDefn ) &&
+	    					!errList.contains( invDefn ) ) {	    			
+
+	    				rd.setInventoryAlias( invDefn.getInventoryName() );
+	    			}
+
+	    			// if there is an inventory and if it is enabled 
+	    			if( rd.getInventoryEnabled() &&
+	    					!errList.contains( invDefn ) ) {
+
+	    				rd.enableInventoryUse(); // remove the ProductAlertObserver
+	    			}
+	    			else {
+	    				rd.disableInventoryUse(); // add the ProductAlertObserver and query types/subTypes
+	    			}
+	    		}
+		    	catch ( VizException e ) {
+//		    		rd.setInventoryEnabled(false);
+//		    		setResourceEnable( rd.getResourceDefnName(), false );
+		    		errRdsList.add( rd.getResourceDefnName() );
+		    		
+					out.println("Error creating ResourceDefn : "+rd.getResourceDefnName() );
+					out.println(" --->"+e.getMessage() );
+					badRscDefnsList.add(
+							new VizException( "Error creating ResourceDefn : "+rd.getResourceDefnName()+ " : " + e.getMessage() ));				
+		    	}
+	    	}
+	    }	 
+
+	    return errRdsList;
+	}
+	
+	// a list of inventories definitions available on edex.
+	// used to set the inventoryInitialized flag.	
+	public Map<NcInventoryDefinition,NcInventoryDefinition> getInventoryDefinitions() throws VizException {
+		
+		Map<NcInventoryDefinition,NcInventoryDefinition> invDefnsMap = null; 
 			
 			// query the list of inventories that exist on edex and set the
 			// inventoryInitialized flag in the ResourceDefns 
@@ -911,7 +949,6 @@ public class ResourceDefnsMngr {
 			for( NcInventoryDefinition invDefn : invDefnsList ) {
 				invDefnsMap.put( invDefn, invDefn );
 			}
-		}
 		
 		return invDefnsMap;
 	}
@@ -961,83 +998,6 @@ public class ResourceDefnsMngr {
 		return true;
 	}
 
-	// read all of the NcInventoryDefinitions from COMMON_STATIC and
-	// If a resourceDefn doesn't have a matching Inventory then save 
-	// one for edex to use on a restart.
-	//    NOTE THIS WON"T WORK SINCE EDEX CAN"T READ FROM USER 
-	// WE COULD USE THIS AS A WAY TO KNOW WHETHER AN INVENTORY EXISTS BUT
-	// INSTEAD WE WILL QUERY THE ACTUAL INVENTORY DENFS FROM EDEX
-//	private void checkAndSaveNcInventories() throws VizException {        
-//        LocalizationContext lCntxts[] = new LocalizationContext[3]; 
-//        lCntxts[0] = pathMngr.getContext( 
-//        		LocalizationType.COMMON_STATIC, LocalizationLevel.BASE );
-////      lCntxts[1] = pathMngr.getContext( 
-////        		LocalizationType.COMMON_STATIC, LocalizationLevel.DESK );
-//        lCntxts[1] = pathMngr.getContext( 
-//        		LocalizationType.COMMON_STATIC, LocalizationLevel.SITE );
-//        lCntxts[2] = pathMngr.getContext( 
-//        		LocalizationType.COMMON_STATIC, LocalizationLevel.USER );
-//        
-//        Map<String, LocalizationFile> invDefnFilesMap =
-//        	NcPathManager.getInstance().listFiles( 
-//        			lCntxts, NcPathConstants.NCINVENTORY_DEFNS_DIR, 
-//        				new String[]{".xml"}, true, true );
-//        
-//        ArrayList<NcInventoryDefinition> invDefnsArray = 
-//        					new ArrayList<NcInventoryDefinition>();
-//        
-//        for( LocalizationFile lFile : invDefnFilesMap.values() ) {
-//        	out.println("invDefn  file is :"+ lFile.getName() );
-//        	File invDefnFile = lFile.getFile();
-//    		
-//    		Object xmlObj;
-//    		try {
-//    			xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
-//    								invDefnFile.getAbsolutePath() );
-//    			if( !(xmlObj instanceof NcInventoryDefinition) ) {    				
-//    				throw new VizException("NcInventoryDefinition .xml file is not an NcInventoryDefinition object???");
-//    			}
-//    			
-//    			invDefnsArray.add( (NcInventoryDefinition)xmlObj );    			
-//    		}
-//    		catch( Exception ex ) {
-//    			System.out.println( ex.getMessage() );
-//    		}
-//        }
-//
-//        for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-//        	if( !rscDefn.usesInventory() ) {
-//        		continue;
-//        	}
-//        	
-//        	try {
-//        		NcInventoryDefinition invDefn = rscDefn.createNcInventoryDefinition(); 
-//
-//        		if( !invDefnsArray.contains( invDefn ) ) {
-//        		
-//        			String invDefnFileName = NcPathConstants.NCINVENTORY_DEFNS_DIR+
-//        			 	 	 		File.separator + invDefn.getInventoryName()+".xml";
-//        			LocalizationFile lFile = 
-//        				NcPathManager.getInstance().getLocalizationFile( 
-//        						lCntxts[2], invDefnFileName );
-//        			               			
-//        			SerializationUtil.jaxbMarshalToXmlFile( invDefn, 
-//        									lFile.getFile().getAbsolutePath() );
-//        			lFile.save();
-//        			out.println("Localizing NcInventory, "+ invDefn.getInventoryName()+
-//        					" to LFile:"+lFile.getName() );
-//        		}
-//        		
-//        	} catch( VizException vizex ) {
-//        		out.println( vizex.getMessage() );
-//        	} catch (SerializationException e) {
-//				throw new VizException("Error Serializing NcInventory:"+e.getMessage() );
-//			} catch (LocalizationOpFailedException e) {
-//				throw new VizException("Error Localizing file:"+e.getMessage() );
-//			} 
-//        }        
-//	}
-	
 	// similar to validateResourceParameters except we are also checking for the attributes 
 //	public void verifyParametersExist( ResourceName rscName ) throws VizException {
 //		ResourceDefinition rscDefn = getResourceDefinition( rscName.getRscType() );
@@ -2435,7 +2395,6 @@ public class ResourceDefnsMngr {
     	if( createRscDefn ) {    		
     		lFile = NcPathManager.getInstance().getLocalizationFile( userContext,
     				   rscDefn.getLocalizationName() );
-    		
     	}
     	else {
     		lFile = rscDefn.getLocalizationFile();
@@ -2455,50 +2414,68 @@ public class ResourceDefnsMngr {
 			lFile.save();
 			
 
-			resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
-
+			List<ResourceDefinition> rdList = new ArrayList<ResourceDefinition>();
+			rdList.add( rscDefn );
+			
+			List<String> errList = findOrCreateInventoryForRscDefns( rdList );
+				
+			if( errList.isEmpty() ) {
+				resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );				
+			}
+			else {
+				throw new VizException( "Error finding or Creating Inventory.");
+			}
+	
 			// check to see if there is an inventory for this rscDefn or if
 			// we need to create one. 
 			// 
-			NcInventoryDefinition invDefn = rscDefn.createNcInventoryDefinition(); 
-			
-			// reload just in case they have changed.
-			invDefnsMap = getInventoryDefinitions( true );
-			
-			if( invDefnsMap.containsKey( invDefn ) ) {
-				rscDefn.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
-			}
-			
-			if( rscDefn.usesInventory() ) {				
-				InventoryLoaderJob invLoader = new InventoryLoaderJob( invDefn, false );
-				
-				invLoader.schedule();
-				
-				// update the progress monitor
-				while( invLoader.getNumberOfInventoriesLeftToLoad() > 0 ) {
-					try {
-						Thread.sleep(400);
-					} catch (InterruptedException e) {						
-					}
-				}
-								
-				if( invLoader.getUninitializedInventoryDefns().length == 1 ) {
-					rscDefn.setInventoryAlias( null ); // Initialized( false );					
-					rscDefn.disableInventoryUse();
-					
-					throw new VizException("There was an error Initializing an Inventory : Disabling Inventory Use" );
-				}
-
-				rscDefn.setInventoryAlias( invDefn.getInventoryName() );//Initialized( true );
-			}
-				
-			if( rscDefn.getInventoryEnabled() ) {
-				rscDefn.enableInventoryUse();
-			}
-			else {
-				rscDefn.disableInventoryUse();
-			}
-	
+//			NcInventoryDefinition invDefn = rscDefn.createNcInventoryDefinition(); 
+//			
+//			// reload just in case they have changed.
+//			Map<NcInventoryDefinition,NcInventoryDefinition> invDefnsMap = null;
+//			
+//			try {
+//				invDefnsMap = getInventoryDefinitions();
+//			}
+//			catch (VizException ve ) {
+//				System.out.println(ve.getMessage());
+//				invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
+//			}
+//			
+//			if( invDefnsMap.containsKey( invDefn ) ) {
+//				rscDefn.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
+//			}
+//			
+//			if( rscDefn.usesInventory() ) {				
+//				InventoryLoaderJob invLoader = new InventoryLoaderJob( invDefn, false );
+//				
+//				invLoader.schedule();
+//				
+//				// update the progress monitor
+//				while( invLoader.getNumberOfInventoriesLeftToLoad() > 0 ) {
+//					try {
+//						Thread.sleep(400);
+//					} catch (InterruptedException e) {						
+//					}
+//				}
+//								
+//				if( invLoader.getUninitializedInventoryDefns().length == 1 ) {
+//					rscDefn.setInventoryAlias( null ); // Initialized( false );					
+//					rscDefn.disableInventoryUse();
+//					
+//					throw new VizException("There was an error Initializing an Inventory : Disabling Inventory Use" );
+//				}
+//
+//				rscDefn.setInventoryAlias( invDefn.getInventoryName() );//Initialized( true );				
+//			}
+//			
+//			if( rscDefn.getInventoryEnabled() ) {
+//				rscDefn.enableInventoryUse();
+//			}
+//			else {
+//				rscDefn.disableInventoryUse();
+//			}
+//			
 		} catch (SerializationException e) {
 			throw new VizException("Error Serializing AttrSetGroup file:"+e.getMessage() );
 		} catch (LocalizationOpFailedException e) {
