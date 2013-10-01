@@ -31,13 +31,13 @@ import javax.persistence.Transient;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.hibernate.annotations.Index;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.npp.viirs.projection.VIIRSMapProjectionFactory;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -67,15 +67,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "viirs_spatial",
-		indexes = {
-				@Index(name = "viirs_spatial_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "viirs_spatial", indexes = { @Index(name = "viirs_spatial_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class VIIRSSpatialCoverage extends PersistableDataObject implements
-        ISpatialObject {
+        IGridGeometryProvider {
 
     private static final long serialVersionUID = -2532225158997059309L;
 
@@ -127,22 +123,6 @@ public class VIIRSSpatialCoverage extends PersistableDataObject implements
     @DynamicSerializeElement
     private Geometry envelope;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.geospatial.ISpatialObject#getGeometry()
-     */
-    @Override
-    public Geometry getGeometry() {
-        return envelope;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.geospatial.ISpatialObject#getCrs()
-     */
-    @Override
     public CoordinateReferenceSystem getCrs() {
         if (crs == null) {
             try {
@@ -210,22 +190,16 @@ public class VIIRSSpatialCoverage extends PersistableDataObject implements
         this.directions = directions;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.geospatial.ISpatialObject#getNx()
+    /**
+     * @return the nx
      */
-    @Override
     public Integer getNx() {
         return nx;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.geospatial.ISpatialObject#getNy()
+    /**
+     * @return the ny
      */
-    @Override
     public Integer getNy() {
         return ny;
     }
