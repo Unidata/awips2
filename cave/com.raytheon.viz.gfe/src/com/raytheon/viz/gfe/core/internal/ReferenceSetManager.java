@@ -67,7 +67,6 @@ import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -109,6 +108,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 02/26/2013        #1708  randerso    Removed no longer needed near duplicate methods
  * 06/21/2013       14983   ryu         Added method for synchronous evaluation of query.
  * 08/06/2013         1561  njensen     Use pm.listFiles() instead of pm.listStaticFiles()
+ * 09/30/2013         2361  njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -779,8 +779,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         if (lf != null) {
             try {
-                refData = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                        ReferenceData.class, lf.getFile().getPath());
+                refData = ReferenceData.getJAXBManager()
+                        .unmarshalFromXmlFile(lf.getFile().getPath());
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error reading xml file "
@@ -886,7 +886,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         // save locally and then to server
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(refData, file.getPath());
+            ReferenceData.getJAXBManager().marshalToXmlFile(refData,
+                    file.getPath());
             lf.save();
         } catch (Exception e) {
             Activator
