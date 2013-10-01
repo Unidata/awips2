@@ -27,8 +27,8 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
+import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
 import com.raytheon.uf.edex.wmo.message.WMOMessage;
-
 /**
  * Deserializes the retrieved data in a retrievalQueue.
  * 
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.wmo.message.WMOMessage;
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Mar 05, 2013 1647       djohnson     Remove WMO header.
  * Mar 19, 2013 1794       djohnson     Read from a queue rather than the file system.
+ * Oct 04, 2013 2267       bgonzale     Added WfsRetrieval to unmarshal classes.
  * 
  * </pre>
  * 
@@ -61,7 +62,8 @@ public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
         this.retrievalQueue = retrievalQueue;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
-                    OpenDapRetrievalResponse.class, Coverage.class);
+                    OpenDapRetrievalResponse.class, WfsRetrievalResponse.class,
+                    Coverage.class);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
         }

@@ -73,4 +73,5 @@ Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
    dods.dap,
    com.raytheon.uf.common.dataplugin.grid,
    com.raytheon.uf.common.dataplugin.level,
-   com.raytheon.uf.common.datadelivery.registry"
+   com.raytheon.uf.common.datadelivery.registry",
+ com.raytheon.uf.edex.datadelivery.retrieval.wfs
