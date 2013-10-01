@@ -135,7 +135,7 @@ public class VIIRSDecoder extends AbstractNPPDecoder {
                     .getStaticLocalizationFile(VIIRS_MAPPING_FILE);
             in = mappingFile.openInputStream();
             mapping = (VIIRSHeaderMapping) manager
-                    .jaxbUnmarshalFromInputStream(in);
+                    .unmarshalFromInputStream(in);
         } catch (Exception e) {
             throw new RuntimeException(
                     "Error deserializing VIIRS header mapping file", e);

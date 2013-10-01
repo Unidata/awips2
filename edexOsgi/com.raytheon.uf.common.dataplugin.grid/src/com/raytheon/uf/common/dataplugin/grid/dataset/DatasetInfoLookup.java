@@ -97,7 +97,7 @@ public class DatasetInfoLookup {
                 return;
             }
             try {
-                Object obj = manager.jaxbUnmarshalFromXmlFile(file.getFile());
+                Object obj = manager.unmarshalFromXmlFile(file.getFile());
                 DatasetInfoSet set = (DatasetInfoSet) obj;
                 for (DatasetInfo info : set.getInfos()) {
                     infoMap.put(info.getDatasetId(), info);
