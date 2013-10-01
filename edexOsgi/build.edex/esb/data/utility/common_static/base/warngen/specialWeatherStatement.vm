@@ -1,11 +1,14 @@
-#########################################################
-## SPS - SPECIAL WEATHER STATEMENT for various THREATS ##
-## WRITTEN BY:                                         ##
-## Mike Dangelo WFO CTP   1.25.2013 (BUILD 12.12.1-12) ##
-## Phil Kurimski WFO DTX  2.05.2013 (BUILD 13.2.1-5)   ##
-#########################################################
+############################################################
+## SPS - SPECIAL WEATHER STATEMENT for various THREATS    ##
+## WRITTEN BY:                                            ##
+## Mike Dangelo WFO CTP   1.25.2013 (BUILD 12.12.1-12)    ##
+## Phil Kurimski WFO DTX  2.05.2013 (BUILD 13.2.1-5)      ##
+## Phil Kurimski WFO DTX  9.16.2013 (BUILD 13.5.2-4)      ##
+## Evan Bookbinder        9.18.2013 Implemented config.vm ##
+############################################################
 ##
 ## SET SOME INITIAL VARIABLES
+#parse("config.vm")
 #set($SvsR = "RAIN")
 #foreach ($bullet in $bullets)
 #if($bullet.startsWith("snow"))
@@ -110,20 +113,25 @@
 ## HANDLE WIND POSSIBILITIES ######################
 ###################################################
 #set($windSpeed = 0)
-#if(${list.contains($bullets, "wind30")})
-  #set($windThreat = "WIND GUSTS UP TO 30 MPH") 
+#if(${list.contains(${bullets}, "wind30")})
+  #set($windThreat = "WINDS IN EXCESS OF 30 MPH") 
   #set($windSpeed = 30)
   #set($windTag = "30MPH")
 #end
-#if(${list.contains($bullets, "wind40")})
-  #set($windThreat = "WINDS GUSTS UP TO 40 MPH") 
+#if(${list.contains(${bullets}, "wind40")})
+  #set($windThreat = "WINDS IN EXCESS OF 40 MPH") 
   #set($windSpeed = 40)
   #set($windTag = "40MPH")
 #end
-#if(${list.contains($bullets, "wind50")})
-  #set($windThreat = "WINDS GUSTS UP TO 50 MPH") 
+#if(${list.contains(${bullets}, "wind50")})
+  #set($windThreat = "WIND GUSTS UP TO 50 MPH") 
   #set($windSpeed = 50)
   #set($windTag = "50MPH")
+#end
+#if(${list.contains(${bullets}, "wind55")})
+  #set($windThreat = "WIND GUSTS OF 50 TO 55 MPH") 
+  #set($windSpeed = 50)
+  #set($windTag = "55MPH")
 #end
  
 ###################################################
@@ -131,22 +139,22 @@
 ###################################################
 #set($hailSize = 0)
 #set($smallHail = "")
-#if(${list.contains($bullets, "smallHail")})
+#if(${list.contains(${bullets}, "peaHail")})
   #set($hailSize = 0.25)
-  #set($hailThreat = "SMALL") 
-  #set($hailTrail = " HAIL") 
-#end
-#if(${list.contains($bullets, "peaHail")})
-  #set($hailSize = 0.50)
   #set($hailThreat = "PEA SIZE") 
   #set($hailTrail = " HAIL") 
 #end
-#if(${list.contains($bullets, "dimeHail")})
+#if(${list.contains(${bullets}, "halfHail")})
+  #set($hailSize = 0.50)
+  #set($hailThreat = "HALF INCH") 
+  #set($hailTrail = " HAIL") 
+#end
+#if(${list.contains(${bullets}, "dimeHail")})
   #set($hailSize = 0.75)
   #set($hailThreat = "DIME SIZE") 
   #set($hailTrail = " HAIL") 
 #end
-#if(${list.contains($bullets, "nickelHail")})
+#if(${list.contains(${bullets}, "nickelHail")})
   #set($hailSize = 0.88)
   #set($hailThreat = "NICKEL SIZE") 
   #set($hailTrail = " HAIL") 
@@ -172,11 +180,14 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
  
 #end
 ${ugcline}
-#set($zoneList = "")
 #foreach (${area} in ${areas})
-#set($zoneList = "${zoneList}${area.name}-")
+${area.name}##
+#if(${sAbbreviation}==true)
+ ${area.stateabbr}##
 #end
-${zoneList}
+-##
+#end
+
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
@@ -201,12 +212,13 @@ THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...##
 ${describeMovement} WAS ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if($movementSpeed < 5 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${eventWas} NEARLY STATIONARY. 
 #else
 #if(${stormType} == "line")
@@ -339,6 +351,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
 
 $$
 
