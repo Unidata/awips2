@@ -19,16 +19,12 @@
  **/
 package com.raytheon.uf.common.localization.msgs;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * A request for protected files.
  * 
  * <pre>
  * 
@@ -36,21 +32,20 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 26, 2010            mschenke     Initial creation
+ * Oct 01, 2013  2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public class ProtectedFileCommand extends AbstractUtilityCommand {
 
-    @XmlAttribute
     @DynamicSerializeElement
     private String subPath;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private String localizedSite;
 
