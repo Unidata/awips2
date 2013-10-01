@@ -2,10 +2,10 @@
 ## AIRPORT WEATHER WARNING TEMPLATE                 ##
 ## EXAMPLE TEMPLATE USING HUNTSVILLE PRODUCT        ##
 ## CREATED BY PHIL KURIMSKI - WFO DTX               ##
-## VERSION AWIPS II 1.0 -- APR 12 2012              ##
-## VERSION AWIPS II 1.1 -- SEP 12 2012  OB12.9.1-12 ##
-######################################################
+##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm
+##################################################################
 ##
+#parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 AWW${siteId}
 #if(${productClass}=="T")
@@ -23,11 +23,14 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #end
 
 ${ugcline}
-#set($zoneList = "")
 #foreach (${area} in ${areas})
-#set($zoneList = "${zoneList}${area.name}-")
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
 #end
-${zoneList}
+-##
+#end
+
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
@@ -108,8 +111,6 @@ FOR THE FOLLOWING THREATS...
 
 #end
 
-## parse file command here is to pull in mile marker info
-## #parse("mileMarkers.vm")
 #end
 #############
 ## WATCHES ##

@@ -6,8 +6,6 @@
  importLSR2DB.sh script and create pointSource objects for
  WarnGen usage
  
-
-  
  <pointSource variable="lsr_severe">
     <pointSource>lsr_severe</pointSource>
  	<pointField>NAME</pointField>
