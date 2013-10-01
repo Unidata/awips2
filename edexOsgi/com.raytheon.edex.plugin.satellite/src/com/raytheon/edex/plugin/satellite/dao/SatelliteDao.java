@@ -46,7 +46,6 @@ import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
 import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
@@ -152,7 +151,7 @@ public class SatelliteDao extends PluginDao {
                     coverage.getNx(), coverage.getNy());
             dataSource.setFillValue(fillValue);
             GridDownscaler downScaler = new GridDownscaler(
-                    MapUtil.getGridGeometry(coverage));
+                    coverage.getGridGeometry());
 
             // How many interpolation levels do we need for this data?
             int levels = downScaler.getNumberOfDownscaleLevels();

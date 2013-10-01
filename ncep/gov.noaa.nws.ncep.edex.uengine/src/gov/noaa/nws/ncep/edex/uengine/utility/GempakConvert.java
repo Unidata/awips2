@@ -61,6 +61,7 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.PolarStere
  * 																Added getGridNavigationContent, float2File,
  * 																serialize2File, data2File, flipData
  * 09/14/2010			284				mgamazaychikov			Add addHours method
+ * 10/02/2013           2333            mschenke                Removed unused function getSatHdrContent
  * </pre>
  * 
  * @author mgamazaychikov
@@ -295,45 +296,6 @@ public class GempakConvert {
 		return inputStrings;
 	}
 
-   /*
-    * Construct the satellite header string
-    */
-	public static String getSatHdrContent(ISpatialObject obj) throws JAXBException {
-        SatMapCoverage mapCoverage = (SatMapCoverage)obj;
-        StringBuffer resultsBuf = new StringBuffer();
-        resultsBuf.append(mapCoverage.getProjection());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getNx());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getNy());
-        resultsBuf.append(";");
-        Float dummy = mapCoverage.getLa1()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLa2()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLo1()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLo2()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLatin()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLov()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getDx().intValue());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getDy().intValue());
-        
-        String content = resultsBuf.toString();
-        
-        return content;
-    }
-	
    /*
 	* Converts AWIPS2 date time string into GEMPAK DATTIM string
 	*/
