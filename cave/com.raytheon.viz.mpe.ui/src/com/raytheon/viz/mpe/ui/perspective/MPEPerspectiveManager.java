@@ -121,7 +121,7 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         try {
             // Unmarshal default bundle xml
             Object unmarshalled = SerializationUtil.getJaxbManager()
-                    .jaxbUnmarshalFromXmlFile(
+                    .unmarshalFromXmlFile(
                             PathManagerFactory.getPathManager().getStaticFile(
                                     MPE + IPathManager.SEPARATOR
                                             + "default-bundle.xml"));
