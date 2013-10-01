@@ -43,7 +43,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -68,6 +67,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11Jun2008    #1193       ebabin      Updates for toggling lat/lon for sample set.
  * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
  * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
+ * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
  * </pre>
  * 
  * @author rbell
@@ -193,19 +193,13 @@ public class SampleSetManager implements ISampleSetManager {
             }
         }
 
-        Object obj = null;
+        SampleData sampleData = null;
         try {
-            obj = SerializationUtil.jaxbUnmarshalFromXmlFile(f
-                    .getAbsolutePath());
+            sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
+                    f.getAbsolutePath());
         } catch (Exception e) {
             throw new GFEException("Unable to load sampledata: " + f, e);
         }
-        if ((obj == null) || !(obj instanceof SampleData)) {
-            throw new GFEException("Unable to load sampledata: " + f
-                    + " unmarshalled as " + obj);
-        }
-
-        SampleData sampleData = (SampleData) obj;
 
         return sampleData.getPoints();
     }
@@ -223,18 +217,13 @@ public class SampleSetManager implements ISampleSetManager {
         File f = PathManagerFactory.getPathManager().getStaticFile(
                 FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
 
-        Object obj = null;
+        SampleData sampleData = null;
         try {
-            obj = SerializationUtil.jaxbUnmarshalFromXmlFile(f.getPath());
+            sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
+                    f.getPath());
         } catch (Exception e) {
             throw new GFEException("Unable to load sampledata: " + f);
         }
-        if ((obj == null) || !(obj instanceof SampleData)) {
-            throw new GFEException("Unable to load sampledata: " + f
-                    + " unmarshalled as " + obj);
-        }
-
-        SampleData sampleData = (SampleData) obj;
 
         // set the loadedSet flag appropriately
         if ((loadMode == SampleSetLoadMode.REPLACE)
@@ -413,8 +402,8 @@ public class SampleSetManager implements ISampleSetManager {
                 FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
 
         try {
-            SerializationUtil
-                    .jaxbMarshalToXmlFile(sd, file.getFile().getPath());
+            SampleData.getJAXBManager().marshalToXmlFile(sd,
+                    file.getFile().getPath());
             file.save();
         } catch (LocalizationOpFailedException e) {
             statusHandler.handle(Priority.PROBLEM,

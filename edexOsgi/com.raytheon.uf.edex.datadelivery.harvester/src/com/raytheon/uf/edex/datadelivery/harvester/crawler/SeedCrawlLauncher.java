@@ -77,7 +77,7 @@ public class SeedCrawlLauncher extends CrawlLauncher {
             for (LocalizationFile lf : getLocalizedFiles()) {
 
                 HarvesterConfig hc = (HarvesterConfig) new JAXBManager(
-                        HarvesterConfig.class).jaxbUnmarshalFromXmlFile(
+                        HarvesterConfig.class).unmarshalFromXmlFile(
                                 lf.getFile());
 
                 if (hc.getProvider().getName().equals(providerName)) {
