@@ -87,6 +87,7 @@ import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
+import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.core.style.arrow.ArrowPreferences;
@@ -111,6 +112,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 08, 2013 1980       bsteffen    Set paint status in GridResources for
  *                                     KML.
  * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
+ * Aug 27, 2013 2287       randerso    Added new parameters required by GriddedVectorDisplay
+ *                                     and GriddedIconDisplay
  * 
  * </pre>
  * 
@@ -154,13 +157,14 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     protected AbstractGridResource(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         resourceData.addChangeListener(new IResourceDataChanged() {
+            @Override
             public void resourceChanged(ChangeType type, Object object) {
                 if (type == ChangeType.DATA_UPDATE) {
                     if (object instanceof PluginDataObject) {
                         addDataObject((PluginDataObject) object);
                     } else if (object instanceof PluginDataObject[]) {
                         for (PluginDataObject pdo : (PluginDataObject[]) object) {
-                            addDataObject((PluginDataObject) pdo);
+                            addDataObject(pdo);
                         }
                     } else if (object instanceof Object[]) {
                         for (Object obj : (Object[]) object) {
@@ -489,9 +493,10 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         case ARROW:
         case DUALARROW:
             convertData(data);
+            VectorGraphicsRenderableFactory factory = new VectorGraphicsRenderableFactory();
             GriddedVectorDisplay vectorDisplay = new GriddedVectorDisplay(
                     data.getMagnitude(), data.getDirection(), descriptor,
-                    gridGeometry, 64, displayType);
+                    gridGeometry, 64, 0.75, true, displayType, factory);
             vectorDisplay.setColor(getCapability(ColorableCapability.class)
                     .getColor());
             vectorDisplay.setLineStyle(getCapability(OutlineCapability.class)
@@ -504,14 +509,15 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     MagnificationCapability.class).getMagnification());
             if (stylePreferences != null
                     && stylePreferences instanceof ArrowPreferences) {
-                vectorDisplay.setScale(((ArrowPreferences) stylePreferences)
+                factory.setScale(((ArrowPreferences) stylePreferences)
                         .getScale());
             }
             renderable = vectorDisplay;
             break;
         case ICON:
             GriddedIconDisplay iconDisplay = new GriddedIconDisplay(data
-                    .getScalarData().array(), descriptor, gridGeometry, 80);
+                    .getScalarData().array(), descriptor, gridGeometry, 80,
+                    0.75);
             iconDisplay.setColor(getCapability(ColorableCapability.class)
                     .getColor());
             iconDisplay.setDensity(getCapability(DensityCapability.class)
