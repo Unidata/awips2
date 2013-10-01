@@ -35,7 +35,8 @@ import org.opengis.referencing.operation.TransformException;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    06/19/2012   14988       D. Friedman Initial revision
- * 
+ *    09/24/2013   DR 15972    D. Friedman Do not require contiguous mapping.
+ *
  * </pre>
  */
 public class ConformalityUtil {
@@ -96,11 +97,17 @@ public class ConformalityUtil {
         if (! evaluateNonContig(evaluatedDomain)) {
             System.out.format("%s -> %s : not contiguous?\n", sourceGG, destGG);
             return false;
+        /*
+         * This test is not necessary for AWIPS II because it can cope
+         * with non-contiguous mappings.
+         */
+        /*
         } else if (maxRatio/minRatio > maxRatioRatio ||
                 (minRatio > 0 && maxRatio/minRatio > maxRatioRatio) || // ?
                 (minRatio < 0 && minRatio/maxRatio > maxRatioRatio)) {
             System.out.format("%s -> %s : not conformal enough somehow\n", sourceGG, destGG);
             return false;
+        */
         } else {
             System.out.format("%s -> %s : conformal enough (%f, %f)\n", 
                     sourceGG, destGG, rr, maxRatio/minRatio);
