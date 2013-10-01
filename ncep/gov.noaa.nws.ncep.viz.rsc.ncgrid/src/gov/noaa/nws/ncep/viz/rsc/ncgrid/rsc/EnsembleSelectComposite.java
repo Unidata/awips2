@@ -1,14 +1,19 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 
+import static java.lang.System.out;
 import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition;
+import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.GridDBConstants;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.EnsembleComponentData.EnsComp;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,11 +36,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 /**
@@ -48,6 +55,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 12/2011      578         G. Hull     Change to Composite on the Edit Attrs Dlg
  * 12/2011      578         G. Hull     create from seld cycle time.
  * 01/10/12                 X. Guo      Updated Attrs Dlg editor
+ * 09/05/13    #1031        G. Hull     replace EnsembleComponentInventoryMngr with 
+ *                                      query using NcGridInventory.
  * 
  * </pre>
  * 
@@ -73,7 +82,6 @@ public class EnsembleSelectComposite extends Composite {
     
     private List<EnsComp> ensCompList;
     
-
     private EnsembleComponentData ensCompData;
 
     private ScrolledComposite scrolledComposite;
@@ -84,6 +92,8 @@ public class EnsembleSelectComposite extends Composite {
     //
     private RscAttrValue ensembleComponentWeightsAttr; 
         
+    private String inventoryName = "NcGridModelTimes";
+
 	private class EnsembleCompGuiData {
 //		private int cycleNumber = 4;
 		private String modelName;  // create the ensC
@@ -105,7 +115,6 @@ public class EnsembleSelectComposite extends Composite {
 		
 		Text[] weightText = new Text[MaxNumOfEnsembleCycles];
 		Button[] cycleButtons = new Button[MaxNumOfEnsembleCycles];
-		
 	}
 	    
 	public EnsembleSelectComposite( Composite parent ) {
@@ -115,11 +124,26 @@ public class EnsembleSelectComposite extends Composite {
 	public void init( NcEnsembleResourceData rscData,
 					  ResourceAttrSet editedRscAttrSet ) throws VizException {		
 		
+		// get the inventoryName to use. Assume that the inventory used 
+		// by the Ensemble Resource is the NcGridModelTimes which will have times for all
+		// the grid models. 
+		//  
+		// TODO : change thsi to make a directory request to get a list of all the 
+		// edex inventories and find a suitable one
+		//
+		ResourceDefinition rd = ResourceDefnsMngr.getInstance().
+				getResourceDefinition( rscData.getResourceName() );
+	    // TODO : change this to set from a directory request.
+	    // but for now require that the NcGridModelTimes ID is installed and running on edex
+	    if( rd != null ) {
+	    	inventoryName = rd.getInventoryAlias();
+	    }
+
 		// just the model names w/o the members.
 		List<String> compModelsList = rscData.getComponentModels();
 
 		// make sure the inventories exist for the component models.
-		EnsembleComponentInventoryMngr.initInventoriesForEnsComponents( compModelsList );
+//		EnsembleComponentInventoryMngr.initInventory();
 		
 		seldEnsCycleTime = rscData.getResourceName().getCycleTime();
 		
@@ -196,16 +220,16 @@ public class EnsembleSelectComposite extends Composite {
     			ensData2.hasMembers = false;
     			ensData2.isPrimary = false;
 
-    			ArrayList<Date> cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), ensCompModel, "" );
+    			Date[] cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), ensCompModel, "" );
     			
     			ensData2.cyclesLblStr = new String[MaxNumOfEnsembleCycles];
     			ensData2.cycleTimes = new Date[MaxNumOfEnsembleCycles];
     			
     			for (int i = 0; i < MaxNumOfEnsembleCycles ; i++ ) {
-    				if (i < cycles.size()) {
-    					ensData2.cycleTimes[i] = cycles.get(i);
+    				if (i < cycles.length) {
+    					ensData2.cycleTimes[i] = cycles[i];
     					ensData2.cyclesLblStr[i] = 
-    						EnsembleComponentData.getCycleTimeStrFromDataTime( cycles.get(i) );
+    						EnsembleComponentData.getCycleTimeStrFromDataTime( cycles[i] );
     				}
     				else {
     					ensData2.cycleTimes[i] = null;
@@ -235,16 +259,16 @@ public class EnsembleSelectComposite extends Composite {
 
     			// TODO : should we change this to specifically query for each members' cycle times instead of 
     			// assuming the cycle time of the base model?
-    			ArrayList<Date> cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), modelName, "" );
+    			Date[] cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), modelName, "" );
     			
     			ensData1.cycleTimes   = new Date[MaxNumOfEnsembleCycles];
     			ensData1.cyclesLblStr = new String[MaxNumOfEnsembleCycles];
     			
     			for( int i = 0; i < MaxNumOfEnsembleCycles ; i++ ) {
-    				if (i < cycles.size()) {
-    					ensData1.cycleTimes[i] = cycles.get(i);
+    				if( i < cycles.length ) {
+    					ensData1.cycleTimes[i] = cycles[i];
     					ensData1.cyclesLblStr[i] = 
-    						EnsembleComponentData.getCycleTimeStrFromDataTime( cycles.get(i) );
+    						EnsembleComponentData.getCycleTimeStrFromDataTime( cycles[i] );
     				}
     				else {
     					ensData1.cycleTimes[i] = null;
@@ -267,32 +291,72 @@ public class EnsembleSelectComposite extends Composite {
 		}
     }
     
+    // Use the NcGridInventory with constraints on the model/ensembleId
 	@SuppressWarnings("null")
-	public ArrayList<Date> getAvailCycleTimes( Date seldCycleTime, String modelName, String pertNum ) {
+	public Date[] getAvailCycleTimes( Date seldCycleTime, String modelName, String pertNum ) {
 		
-		ArrayList<Date> availCycleTimesList = new ArrayList<Date>();
+		HashMap<String, RequestConstraint> reqConstraints = 
+				new HashMap<String, RequestConstraint>();
+		reqConstraints.put( "pluginName", new RequestConstraint( GridDBConstants.GRID_TBL_NAME ) );
+		reqConstraints.put( GridConstants.DATASET_ID, 
+				new RequestConstraint( modelName ) );
+
+		if( !pertNum.isEmpty() ) {
+			reqConstraints.put( GridDBConstants.ENSEMBLE_ID_QUERY, 
+					new RequestConstraint( pertNum ) );
+		}
 		
+		NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();    			
+		reqMsg.setInventoryName( inventoryName );
+		reqMsg.setRequestedParams( new String[]{ GridDBConstants.DATA_TIME_QUERY } );
+		reqMsg.setReqConstraintsMap( 
+				(HashMap<String, RequestConstraint>)reqConstraints );
+		reqMsg.setUniqueValues( true );
+		
+		Object rslts;
         try {
-        	DataTime[] availableTimes = 
-        		EnsembleComponentInventoryMngr.queryEnsComponentCycleTimes(
-        						modelName, pertNum );
-        	        
-	        for( DataTime dt : availableTimes ) {
-		        // 
-		        if( seldCycleTime.getTime() >= dt.getRefTime().getTime() ) { 
-		        	if( !availCycleTimesList.contains( dt.getRefTime() ) ) {
-		        		availCycleTimesList.add( 0, dt.getRefTime() );
-		        		if( availCycleTimesList.size() == MaxNumOfEnsembleCycles ) {
-		        			break;
+			rslts = ThriftClient.sendRequest( reqMsg );
+		} catch (VizException e) {
+			System.out.println("Error querying inventory "+inventoryName+" for ensemble "+
+					" component cycle times:"+e.getMessage() );
+			return new Date[0];
 		        		}
+		
+		if( !(rslts instanceof String[]) ) {
+			out.println("Inventory Request Failed: "+rslts.toString() );
+			return new Date[0];
 		        	}
+		
+		String[] rsltsList = (String[]) rslts;
+		DataTime[] dataTimeArr = new DataTime[ rsltsList.length ];
+
+		for( int i=0 ; i<rsltsList.length ; i++ ) {
+			dataTimeArr[i] = ( rsltsList[i] == null ? 
+						  new DataTime(new Date(0)) : new DataTime( rsltsList[i] ) );
 		        }
+		
+		ArrayList<Date> refTimes = new ArrayList<Date>();
+
+		// just the cycle times.
+		// a list of all the times with a reftime < the selected time
+		//
+		for( DataTime dt : dataTimeArr ) {
+
+			Date refTime = dt.getRefTime();
+
+			if( !refTimes.contains( refTime ) &&
+				refTime.getTime() <= seldCycleTime.getTime() ) { 
+				refTimes.add( refTime );
 	        }	      
-        } catch (VizException e) {
-			System.out.println("Error querying cycle times.");
 		}
         
-		return availCycleTimesList;		
+		Date[] sortedRefTimesArr = refTimes.toArray( new Date[0] );
+		Arrays.sort( sortedRefTimesArr );
+
+		Date[] availCycleTimesArray = 
+				Arrays.copyOf( sortedRefTimesArr, MaxNumOfEnsembleCycles );
+		
+		return availCycleTimesArray;					
 	}
 
 //	private String getCycleTimeStrFromDataTime( Date dt ) {
