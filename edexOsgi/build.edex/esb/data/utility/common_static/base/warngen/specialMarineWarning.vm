@@ -1,21 +1,12 @@
 #####################################################
 ## SPECIAL MARINE WARNING TEMPLATE                 ##
 ## CREATED BY PHIL KURIMSKI - WFO DTX              ##
-## VERSION AWIPS II 1.0 -- FEB 24 2011 OB11.2      ##
-## VERSION AWIPS II 1.1 -- APR 13 2011 OB11.4      ##
-## VERSION AWIPS II 1.2 -- JUL 14 2011 OB11.7      ##
-## VERSION AWIPS II 1.3 -- SEP 23 2011 OB11.8      ##
-## Added Volcano Information for version 1.3       ##   
-## VERSION AWIPS II 1.4 -- JAN 26 2012  OB12.1.1-1 ##   
-## Cleaned up wind coding for version 1.4          ##  
-## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##           
-##        BY QINGLU LIN    8-14-2012 DR 14493 use TMLtime    ##
-##      Phil Kurimski   -- SEP 10 2012  OB12.9.1-12 ##
+## RECENT HISTORY                                             ##           
+##        BY QINGLU LIN    8-14-2012 DR 14493 use TMLtime     ##
+##      Phil Kurimski   -- SEP 10 2012  OB12.9.1-12           ##
+##      Evan Bookbinder    SEP 18 2013  Implemented config.vm ##
 ################################################################
-## Added Volcano Information in version 1.3 for sites where
-## Volcanoes affect their marine zones. If sites wish to hide
-## this information comment out the appropriate bullets in the
-## xml file.
+#parse("config.vm")
 ################################################
 ## Set null variables used in the template
 ################################################
@@ -127,47 +118,57 @@ THIS IS A TEST MESSAGE. ##
 	#set($eventType = "VOLCANO")
 #end
 #######################################################################
-## Added a Threat Section to template that includes Wind...Hail and Waterspout selections.
+## Added a Threat Section to the template that includes Wind...Hail 
+## and Waterspout selections.
 ## Strong Thunderstorm will change to Severe Thunderstorm automatically based on 
 ## selections in Wind...Hail and Waterspout sections.
 #######################################################################
 #set($windTag = "<34")
+#set($windCTA = "GUSTY WINDS")
 #if(${list.contains(${bullets}, "34ktWind")})
 	#set($windTag = ">34")
 	#set($windType = "WINDS 34 KNOTS OR GREATER")
+	#set($windCTA = "WIND GUSTS 34 KNOTS OR GREATER")
 #end
 #if(${list.contains(${bullets}, "40ktWind")})
 	#set($windTag = "40")
 	#set($windType = "WINDS TO 40 KNOTS")
+	#set($windCTA = "WIND GUSTS TO 40 KNOTS")
 #end
 #if(${list.contains(${bullets}, "40ktplusWind")})
 	#set($windTag = "40")
 	#set($windType = "WINDS TO NEARLY 50 KNOTS")
+	#set($windCTA = "WIND GUSTS TO NEARLY 50 KNOTS")
 #end
 #if(${list.contains(${bullets}, "50ktWind")})
 	#set($windTag = "50")
 	#set($windType = "DANGEROUS WINDS IN EXCESS OF 50 KNOTS")
 	#set($severeType = "SEVERE")
+	#set($windCTA = "WIND GUSTS IN EXCESS OF 50 KNOTS")
 #end
 #if(${list.contains(${bullets}, "65ktWind")})
 	#set($windTag = "65")
 	#set($windType = "DANGEROUS CAPSIZING WINDS IN EXCESS OF 65 KNOTS")
 	#set($severeType = "SEVERE")
+	#set($windCTA = "WIND GUSTS IN EXCESS OF 65 KNOTS")
 #end
 #set($hailTag = "0.00")
 #if(${list.contains(${bullets}, "smallHail")})
 	#set($hailTag = "<.75")
 	#set($hailType = "SMALL HAIL")
+	#set($hailCTA = "...${hailType}")
 #end
 #if(${list.contains(${bullets}, "largeHail")})
 	#set($hailTag = ">.75")
 	#set($hailType = "LARGE HAIL")
 	#set($severeType = "SEVERE")
+	#set($hailCTA = "...${hailType}")
 #end
 #if(${list.contains(${bullets}, "destructiveHail")})
 	#set($hailTag = ">2.0")
 	#set($hailType = "LARGE DESTRUCTIVE HAIL")
 	#set($severeType = "SEVERE")
+	#set($hailCTA = "...${hailType}")
 #end
 #if(${list.contains(${bullets}, "sightedSpout")})
 	#set($spoutType = "WATERSPOUTS")
@@ -314,13 +315,13 @@ THIS IS A TEST MESSAGE. ##
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report}LOCATED ##
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "NM", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "NM", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${eventType} == "VOLCANO")
 .
-#elseif($movementSpeed < 3 || ${stationary})
+#elseif(${movementSpeed} < ${marineStationary} || ${stationary})
 . ${reportType2} NEARLY STATIONARY.
 #else
 ...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
@@ -357,7 +358,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-EVERYONE AT !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
 
 #end
 #####################
@@ -381,12 +382,31 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ${ashfallCTA}
 
 #if(${list.contains(${bullets}, "genericCTA")})
-AS THUNDERSTORMS MOVE OVER THE WATER...BOATERS CAN EXPECT GUSTY WINDS AND HIGH WAVES. MOVE TO SAFE HARBOR OR STAY CLOSE TO SHORE UNTIL THE STORM PASSES.
+#if(${stormType} == "line")
+AS THUNDERSTORMS MOVE OVER THE WATER...BOATERS CAN EXPECT GUSTY WINDS AND HIGH WAVES. MOVE TO SAFE HARBOR OR STAY CLOSE TO SHORE UNTIL THESE STORMS PASS.
+
+#else
+AS THIS THUNDERSTORM MOVES OVER THE WATER...BOATERS CAN EXPECT GUSTY WINDS AND HIGH WAVES. MOVE TO SAFE HARBOR OR STAY CLOSE TO SHORE UNTIL THE STORM PASSES.
 
 #end
+#end
 #if(${list.contains(${bullets}, "gustyWindsCTA")})
+#if(${stormType} == "line")
+MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES...DANGEROUS LIGHTNING...AND HEAVY RAINS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THESE STORMS PASS.
+
+#else
 MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES...DANGEROUS LIGHTNING...AND HEAVY RAINS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THIS STORM PASSES.
 
+#end
+#end
+#if(${list.contains(${bullets}, "hailWindsCTA")})
+#if(${stormType} == "line")
+MARINERS CAN EXPECT ${windCTA}${hailCTA}...HIGH WAVES...DANGEROUS LIGHTNING...AND HEAVY RAINS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THESE STORMS PASS.
+
+#else
+MARINERS CAN EXPECT ${windCTA}${hailCTA}...HIGH WAVES...DANGEROUS LIGHTNING...AND HEAVY RAINS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THIS STORM PASSES.
+
+#end
 #end
 #if(${list.contains(${bullets}, "nonThunderstormCTA")})
 MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES. BOATERS...ESPECIALLY THOSE UNDER SAIL...SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THE HIGH WINDS SUBSIDE.

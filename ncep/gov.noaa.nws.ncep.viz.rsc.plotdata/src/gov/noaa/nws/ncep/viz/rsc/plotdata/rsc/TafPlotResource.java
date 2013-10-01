@@ -1,24 +1,8 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.PlotResource2.FrameData;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
+
+
 
 
 /**
