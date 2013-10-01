@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
  * Test {@link DeserializeRetrievedDataFromIngest}.
@@ -55,6 +56,7 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * Mar 19, 2013 1794       djohnson     Read from a queue rather than the file system.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  * 
  * </pre>
  * 
@@ -112,10 +114,14 @@ public class DeserializeRetrievedDataFromIngestTest {
             IOException {
         RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
+        RetrievalRequestRecord request = new RetrievalRequestRecord();
+        request.setProvider("");
+        request.setPlugin("");
+        request.setInsertTime(new Date());
 
         new SerializeRetrievedDataToDirectory(directory,
                 new AlwaysSameWmoHeader("SMYG10 LYBM 280000"))
-                .processRetrievedPluginDataObjects("", "", "", new Date(),
+                .processRetrievedPluginDataObjects(request,
                         retrievalPluginDataObjects);
 
         final List<File> files = FileUtil.listFiles(directory,
