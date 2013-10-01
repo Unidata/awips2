@@ -48,11 +48,24 @@ public class NcTextAlignment extends TextAlignment implements INcCommand {
 		//  Map/convert CGM-style text alignments to their IGraphicsTarget equivalents.
 		
 		switch (this.horizontalAlignment) {
+        case NORMAL_HORIZONTAL:
+            //TODO:  Following is sort of a hack, to deal with the way legacy 
+            // NTRANS metafiles are created by the NC driver code.  A horizontal
+            // alignment of CENTER appears to be coded (intentionally or otherwise)
+            // in the legacy generated CGM by a *vertical* alignment value of CAP.
+            // Might want to investigate, and possibly bring legacy code to CGM
+            // compliance.
+            if (this.verticalAlignment == TextAlignment.VerticalAlignment.CAP) {
+                ib.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
+            }
+            else {
+                ib.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
+            }
+            break;
 		case LEFT:
 			ib.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
 			break;
-		case NORMAL_HORIZONTAL:
-		case CONTINOUS_HORIZONTAL:  //TODO??
+        case CONTINOUS_HORIZONTAL:  //TODO??
 		case CENTRE:
 			ib.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
 			break;
@@ -69,13 +82,17 @@ public class NcTextAlignment extends TextAlignment implements INcCommand {
 		case TOP:
 		case CAP:  //TODO??
 			ib.verticalAlignment = IGraphicsTarget.VerticalAlignment.TOP;
+            ib.verticalAlignment = IGraphicsTarget.VerticalAlignment.BOTTOM;
+            break;
 		case HALF:
 			ib.verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+            break;
 		case NORMAL_VERTICAL:
 		case CONTINOUS_VERTICAL:  //TODO??
 		case BASE:  //TODO??
 		case BOTTOM:
 			ib.verticalAlignment = IGraphicsTarget.VerticalAlignment.BOTTOM;
+            break;
 		default:
 			//TODO  fail
 			ib.verticalAlignment = IGraphicsTarget.VerticalAlignment.BOTTOM;

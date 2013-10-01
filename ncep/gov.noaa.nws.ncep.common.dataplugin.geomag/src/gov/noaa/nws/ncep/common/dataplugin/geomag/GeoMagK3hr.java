@@ -4,7 +4,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,6 +16,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -32,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "geomagseq")
 @Table(name = "geomag_k3hr")
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlAccessorType(XmlAccessType.NONE)
@@ -43,11 +48,11 @@ public class GeoMagK3hr extends PersistableDataObject<Object> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+public static final String ID_GEN = "idgen";
 	
 	/** The id */
     @Id
-    @DynamicSerializeElement
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     private Integer id;
 	
 	/**
@@ -67,7 +72,7 @@ public class GeoMagK3hr extends PersistableDataObject<Object> {
     private Date refTime;
 	
     /**
-     * insert time tag
+     * insert time 
      */
     @Column
     @XmlAttribute
@@ -75,32 +80,67 @@ public class GeoMagK3hr extends PersistableDataObject<Object> {
     private Date lastUpdate;
 	
     /**
-     * H data Hour Average
+     * k_index
      */
 	@Column(length=16)
     @DynamicSerializeElement
 	private int kIndex;
    
 	/**
-     * D data Hour Average
+     * k_real
      */
 	@Column(length=16)
     @DynamicSerializeElement
     private float kReal;
 	
 	/**
-     * D data Hour Average
+     * Gamma
      */
 	@Column(length=16)
     @DynamicSerializeElement
     private float kGamma;
 	
 	/**
-     * D data Hour Average
+     * est k_index
      */
 	@Column(length=16)
     @DynamicSerializeElement
-    private float aFinalRunning;
+	private int kestIndex;
+   
+	/**
+     * est k_real
+     */
+	@Column(length=16)
+    @DynamicSerializeElement
+    private float kestReal;
+	
+	/**
+     * est gamma
+     */
+	@Column(length=16)
+    @DynamicSerializeElement
+    private float kestGamma;
+	
+	/**
+     * A Final Running
+     */
+	@Column(length=16)
+    @DynamicSerializeElement
+    private int aFinalRunning;
+	
+	/**
+     * A Running
+     */
+	@Column(length=16)
+    @DynamicSerializeElement
+    private int aRunning;
+	
+	/**
+     * forecaster manual editing
+     */
+	@Column(length=16)
+    @DynamicSerializeElement
+    private int isManual;
 	
 	
 	
@@ -146,14 +186,69 @@ public class GeoMagK3hr extends PersistableDataObject<Object> {
     }
     
     /**
+     * @return the hHrAvg
+     */
+    public int getKestIndex() {
+        return kestIndex;
+    }
+
+    public void setKestIndex(int kestIndex) {
+        this.kestIndex = kestIndex;
+    }
+    
+    /**
      * @return the dHrAvg
      */
-    public float getAFinalRunning() {
+    public float getKestReal() {
+        return kestReal;
+    }
+
+    public void setKestReal(float kestReal) {
+        this.kestReal = kestReal;
+    }
+    
+    /**
+     * @return the hHrAvg
+     */
+    public float getKestGamma() {
+        return kestGamma;
+    }
+
+    public void setKestGamma(float kestGamma) {
+        this.kestGamma = kestGamma;
+    }
+    
+    /**
+     * @return the dHrAvg
+     */
+    public int getARunning() {
+        return aRunning;
+    }
+
+    public void setARunning(int aRunning) {
+        this.aRunning = aRunning;
+    }
+    
+    /**
+     * @return the dHrAvg
+     */
+    public int getAFinalRunning() {
         return aFinalRunning;
     }
 
-    public void setAFinalRunning(float aFinalRunning) {
+    public void setAFinalRunning(int aFinalRunning) {
         this.aFinalRunning = aFinalRunning;
+    }
+    
+    /**
+     * @return the dHrAvg
+     */
+    public int getIsManual() {
+        return isManual;
+    }
+
+    public void setIsManual(int isManual) {
+        this.isManual = isManual;
     }
     
     /**
@@ -200,4 +295,3 @@ public class GeoMagK3hr extends PersistableDataObject<Object> {
         this.stationCode = stationCode;
     }
 }
-

@@ -29,7 +29,6 @@ import httplib
 import json
 import time
 from datetime import datetime
-from qmf.console import Session, Console
 from qpid.disp import Display, Header, Sorter
 
 _host = "localhost"
@@ -64,7 +63,7 @@ def Usage ():
     print
     sys.exit (1)
 
-class DisplayManager(Console):
+class DisplayManager():
 
     def displayBroker(self, jsonObjArray):
         disp = Display(prefix="  ")
@@ -230,7 +229,7 @@ class DisplayManager(Console):
         elif main == 'e': self.displayExchange(jsonObject)
         elif main == 'q': self.displayQueue(jsonObject)
 
-class RestManager(Console):
+class RestManager():
     def __init__(self):
         self._host = None
         self._port = 0
