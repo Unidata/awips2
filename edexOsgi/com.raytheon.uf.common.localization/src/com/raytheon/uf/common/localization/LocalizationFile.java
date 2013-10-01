@@ -619,7 +619,7 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
             try {
                 is = openInputStream();
                 T object = resultClass.cast(manager
-                        .jaxbUnmarshalFromInputStream(is));
+                        .unmarshalFromInputStream(is));
                 return object;
             } catch (Exception e) {
                 throw new LocalizationException("Could not unmarshal file "
