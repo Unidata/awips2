@@ -55,6 +55,7 @@ import com.raytheon.uf.common.util.LogUtil;
  * Feb 27, 2013 1644       djohnson     Now abstract, sub-classes provide specific service lookup keys.
  * Jul 18, 2013 1653       mpduff       Add getSubscriptionStatusSummary method.
  * Oct 2,  2013 1797       dhladky      Generics
+ * Oct 01, 2013 2267       bgonzale     Log error response from proposed scheduling.
  * 
  * </pre>
  * 
@@ -202,8 +203,9 @@ public abstract class BandwidthService<T extends Time, C extends Coverage> exten
             LogUtil.logIterable(
                     statusHandler,
                     Priority.PROBLEM,
-                    "Returning null response object, unable to propose scheduling the following subscriptions for bandwidth management:",
-                    subscriptions);
+                    "Returning null response object, unable to propose scheduling"
+                            + "the following subscriptions for bandwidth management:",
+                    subscriptions, e);
             return IProposeScheduleResponse.NULL_OBJECT;
         }
     }
