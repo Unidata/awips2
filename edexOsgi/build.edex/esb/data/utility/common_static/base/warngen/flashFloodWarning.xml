@@ -1,17 +1,29 @@
 <!-- Flash Flood Warning configuration for County-based products-->
-<!-- Modified by Mike Dangelo 07-12-2011 
-     Modified by Phil Kurimski 08-15-2011 for 11.8 
-     Modified by Mike Dangelo 09-22-2011 at Alaska TIM 
-     Modified by Phil Kurimski 09-23-2011 for burn scars and mud slides
-     Modified by Mike Dangelo 01-25-2012 at CRH TIM 
-     Modified by Mike Dangelo 02-23-2012
+<!-- RECENT HISTORY
                  Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
                  Evan Bookbinder 09-12-2012 Added new areaSource objects
                  Evan Bookbinder 01-07-2013 LockedGroupsOnFollowup tag
                  Phil Kurimski   02-05-2013 revised CTA selections
+                 Mike Dangelo  09-18-2013 to optionally allow <trackEnabled>=true for pathcasting, and add pointMarker.xml 'include'
+                 Mike Dangelo  09-19-2013 more flexibility on third bullet and fourth bullet wording
+                 Phil Kurimski   09-19-2013 added geospatialConfig.xml
+                 Gene Petrescu 09-20-2013 added gauge only option for event
 -->
 
 <warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -47,6 +59,11 @@
    <!-- Enable/disables the system to lock text based on various patterns -->
  <autoLockText>true</autoLockText>
  
+ <!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
+as well as fourth bullet pathcast (which are optional info) available to forecaster.   
+Must be paired with proper vm code (also commented out in flashFloodWarning.vm)! -->
+ <trackEnabled>false</trackEnabled> 
+ 
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
  	included with the warning product include torWatches and/or svrWatches, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
@@ -58,13 +75,20 @@
  <!-- durations: the list of possible durations of the warning -->
  <defaultDuration>180</defaultDuration>
  <durations>
-  <duration>30</duration>
   <duration>60</duration>
   <duration>90</duration>
   <duration>120</duration>
+  <duration>150</duration>
   <duration>180</duration>
+  <duration>210</duration>
   <duration>240</duration>
+  <duration>270</duration>
+  <duration>300</duration>
+  <duration>330</duration>
   <duration>360</duration>
+  <duration>390</duration>
+  <duration>420</duration>
+  <duration>450</duration>
   <duration>480</duration>
  </durations>
 
@@ -78,17 +102,18 @@
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
-     in your template uncomment the next few lines. -->  
-<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flash flooding occurring" bulletGroup="event" parseString="FLASH FLOODING IS ALREADY OCCURRING."/>
+<!--   <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
+-->
   <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
@@ -98,7 +123,9 @@
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast"/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast" parseSting="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+<!--   <bullet bulletName="pathcast" bulletText="Generate Pathcast " bulletGroup="pcast" parseString="THE FOLLOWING LOCATIONS..."/>
+-->
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
@@ -113,7 +140,7 @@
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT FLOODING"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="EXT" phen="FF" sig="W">
@@ -127,14 +154,16 @@
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
-     in your template uncomment the next few lines. -->  
-<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->  
+  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>  
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flash flooding occurring" bulletGroup="event" parseString="FLASH FLOODING IS ALREADY OCCURRING."/>
+<!--   <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" showString="STATIONARY" parseString="STATIONARY"/>
+  <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" showString="MOVING" parseString="MOVING"/>
+-->
   <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
@@ -144,15 +173,14 @@
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" showString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+<!--   <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/>
+-->
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
-<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
@@ -173,17 +201,19 @@
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC"/>
-  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
-     in your template uncomment the next few lines. -->  
-<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>  
+  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flash flooding occurring" bulletGroup="event" parseString="FLASH FLOODING IS ALREADY OCCURRING."/>
+<!--   <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" showString="STATIONARY" parseString="STATIONARY"/>
+  <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" showString="MOVING" parseString="MOVING"/>
+-->
   <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
@@ -193,10 +223,10 @@
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" showString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+<!--   <bullet bulletName="pathcast" bulletText="Generate Pathcast" bulletGroup="pcast" parseString="THE FOLLOWING LOCATIONS..."/>
+-->
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
@@ -216,118 +246,6 @@
 </bulletActionGroup>
 </bulletActionGroups>
 
- <!-- areaSource object to generate county-based information -->
- <areaSource variable="areas">
-   <areaSource>County</areaSource>
-   <inclusionPercent>0</inclusionPercent>
-   <inclusionAndOr>AND</inclusionAndOr>
-   <inclusionArea>0</inclusionArea>
-   <areaField>COUNTYNAME</areaField>
-   <parentAreaField>NAME</parentAreaField>
-   <areaNotationField>STATE</areaNotationField>
-   <feAreaField>FE_AREA</feAreaField>
-   <timeZoneField>TIME_ZONE</timeZoneField>
-   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-   <fipsField>FIPS</fipsField>
-   <pointField>NAME</pointField>
-   <sortBy>
-  	<sort>parent</sort>
-   </sortBy>
-   <pointFilter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1" constraintType="EQUALS" />
- 		</mapping>
-  </pointFilter>
-  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
-</areaSource>
- 
- <!-- Required, but unused in this template  -->
- <pathcastConfig>
-  <withinPolygon>true</withinPolygon>
-  <distanceThreshold>8.0</distanceThreshold>
-  <interval>5</interval>
-  <delta>5</delta>
-  <maxResults>4</maxResults>
-  <maxGroup>8</maxGroup>
-  <pointField>Name</pointField>
-  <type>AREA</type>
-  <areaField>COUNTYNAME</areaField>
-<!--  <areaField>NAME</areaField> -->
-  <parentAreaField>STATE</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <sortBy>
-  	<sort>distance</sort>
-  </sortBy>
-  <filter>
- 	<mapping key="WARNGENLEV">
- 		<constraint constraintValue="1,2,7" constraintType="IN" />
- 	</mapping>
-  	<mapping key="LANDWATER">
- 		<constraint constraintValue="L" constraintType="IN" />
- 	</mapping> 	
-  </filter>
- </pathcastConfig>
- 
- <pointSource variable="cityList">
-    <inclusionPercent>1</inclusionPercent>
- 	<pointField>NAME</pointField>
- 	<type>AREA</type>
- 	<searchMethod>POINTS</searchMethod>
- 	<withinPolygon>true</withinPolygon>
- 	<maxResults>30</maxResults>
- 	<distanceThreshold>200</distanceThreshold>
-	<filter> 	
-  	  <mapping key="WARNGENLEV">
- 		<constraint constraintValue="1,2,3,4" constraintType="IN" />
- 	  </mapping>
-  	  <mapping key="LANDWATER">
- 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
- 	  </mapping> 	  	  
- 	</filter> 
- 	<sortBy>
-  		<sort>warngenlev</sort>
-  		<sort>population</sort>
-  		<sort>distance</sort>
-  	</sortBy>
- </pointSource>
- 
- <!-- Required, but unused in this template  -->
- <pointSource variable="otherPoints">
- 	<pointField>NAME</pointField>
- 	<type>AREA</type>
- 	<searchMethod>POINTS</searchMethod>
- 	<withinPolygon>true</withinPolygon>
- 	<maxResults>50</maxResults>
- 	<distanceThreshold>10</distanceThreshold>
- 	<sortBy>
-  		<sort>distance</sort>
-  	</sortBy>
-	<filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3,4" constraintType="IN" />
- 		</mapping>
-  	    <mapping key="LANDWATER">
- 		<constraint constraintValue="L" constraintType="IN" />
- 	    </mapping> 	 		
-  	</filter>
- </pointSource>
-
-<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
-and place into this template  -->
-<include file="mileMarkers.xml"/>
-
- <trackEnabled>false</trackEnabled>
-
- <geospatialConfig>
-  <pointSource>WarnGenLoc</pointSource>  
-  <areaSource>County</areaSource>
-<!-- <areaSource>Zone</areaSource> -->
-  <parentAreaSource>States</parentAreaSource>
-  <timezoneSource>TIMEZONES</timezoneSource>
-  <timezoneField>TIME_ZONE</timezoneField>
- </geospatialConfig>
- 
  <pointSource variable="riverdrainages">
  	<pointSource>ffmp_basins</pointSource>
     <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
