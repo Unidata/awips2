@@ -39,7 +39,9 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
- * Geostationary map projection. Earth as viewed from space.
+ * Geostationary map projection. Earth as viewed from space. Based on
+ * Coordination Group for Meteorological Satellites LRIT/HRIT Global
+ * Specification
  * 
  * TODO Add support latitude of origin != 0.0
  * 
@@ -49,7 +51,8 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 27, 2013            mschenke     Initial creation
+ * Jun 27, 2013            mschenke    Initial creation
+ * Oct 02, 2013 2333       mschenke    Converted from libproj to CGMS algorithm
  * 
  * </pre>
  * 
@@ -63,17 +66,25 @@ public class Geostationary extends MapProjection {
 
     public static final String PROJECTION_NAME = "Geostationary";
 
-    public static final String PERSPECTIVE_HEIGHT = "perspective_height";
+    public static final String ORBITAL_HEIGHT = "orbital_height";
 
     public static final String SWEEP_AXIS = "sweep_axis";
 
     static final double DEFAULT_PERSPECTIVE_HEIGHT = 35800000.0;
 
-    private double perspectiveHeight = DEFAULT_PERSPECTIVE_HEIGHT;
+    private double orbitalHeight;
+
+    private double perspectiveHeight;
 
     private boolean swapAxis = false;
 
-    private double radius_g, radius_g_1, radius_p, radius_p2, radius_p_inv2, C;
+    private double rEq, rEq2;
+
+    private double rPol, rPol2;
+
+    private double height_ratio;
+
+    private double e2;
 
     /**
      * @param values
@@ -82,23 +93,18 @@ public class Geostationary extends MapProjection {
     protected Geostationary(ParameterValueGroup values)
             throws ParameterNotFoundException {
         super(values);
-        this.perspectiveHeight = Provider.getValue(Provider.PERSPECTIVE_HEIGHT,
-                values);
+        this.orbitalHeight = Provider.getValue(Provider.ORBITAL_HEIGHT, values);
+        this.perspectiveHeight = orbitalHeight + semiMajor;
         double sweepValue = Provider.getValue(Provider.SWEEP_AXIS, values);
         this.swapAxis = sweepValue == 1.0;
-        double h = perspectiveHeight;
-        double a = semiMajor;
-        double b = semiMinor;
-        double es = 1.0 - (b * b) / (a * a);
-        double one_es = 1.0 - es;
-        double rone_es = 1.0 / one_es;
 
-        radius_g_1 = h / a;
-        radius_g = 1 + radius_g_1;
-        radius_p2 = one_es;
-        radius_p_inv2 = rone_es;
-        radius_p = Math.sqrt(radius_p2);
-        C = radius_g * radius_g - 1.0;
+        this.rEq = semiMajor;
+        this.rEq2 = rEq * rEq;
+        this.rPol = semiMinor;
+        this.rPol2 = rPol * rPol;
+        this.e2 = (rEq2 - rPol2) / rEq2;
+
+        this.height_ratio = rEq / orbitalHeight;
     }
 
     /*
@@ -112,6 +118,16 @@ public class Geostationary extends MapProjection {
         return Provider.PARAMETERS;
     }
 
+    @Override
+    public ParameterValueGroup getParameterValues() {
+        ParameterValueGroup values = super.getParameterValues();
+        values.parameter(Provider.ORBITAL_HEIGHT.getName().getCode()).setValue(
+                orbitalHeight);
+        values.parameter(Provider.SWEEP_AXIS.getName().getCode()).setValue(
+                swapAxis ? 1.0 : 0.0);
+        return values;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -121,38 +137,30 @@ public class Geostationary extends MapProjection {
     @Override
     protected Point2D inverseTransformNormalized(double x, double y,
             Point2D ptDst) throws ProjectionException {
-        double lam, phi;
-        double Vx, Vy, Vz, a, b, det, k;
+        double lam = Double.NaN, phi = Double.NaN;
+        x *= height_ratio;
+        y *= height_ratio;
 
-        /* Setting three components of vector from satellite to position. */
-        Vx = -1.0;
-        if (swapAxis) {
-            Vz = Math.tan(y / radius_g_1);
-            Vy = Math.tan(x / radius_g_1) * Math.hypot(1.0, Vz);
-        } else {
-            Vy = Math.tan(x / radius_g_1);
-            Vz = Math.tan(y / radius_g_1) * Math.hypot(1.0, Vy);
-        }
-        /* Calculation of terms in cubic equation and determinant. */
-        a = Vz / radius_p;
-        a = Vy * Vy + a * a + Vx * Vx;
-        b = 2 * radius_g * Vx;
-        if ((det = (b * b) - 4 * a * C) < 0.) {
-            lam = phi = Double.NaN;
-        } else {
-            /*
-             * Calculation of three components of vector from satellite to
-             * position.
-             */
-            k = (-b - Math.sqrt(det)) / (2. * a);
-            Vx = radius_g + k * Vx;
-            Vy *= k;
-            Vz *= k;
-            /* Calculation of longitude and latitude. */
-            lam = Math.atan2(Vy, Vx);
-            phi = Math.atan(Vz * Math.cos(lam) / Vx);
-            phi = Math.atan(radius_p_inv2 * Math.tan(phi));
-        }
+        double sinX = Math.sin(x);
+        double cosX = Math.cos(x);
+
+        double sinY = Math.sin(y);
+        double cosY = Math.cos(y);
+
+        double a = sinX * sinX + cosX * cosX
+                * (cosY * cosY + (rEq2 / rPol2) * sinY * sinY);
+        double b = -2 * perspectiveHeight * cosX * cosY;
+        double c = perspectiveHeight * perspectiveHeight - rEq2;
+
+        double Vl = (-b - Math.sqrt(b * b - 4 * a * c)) / 2 * a;
+        double Vx = Vl * cosX * cosY;
+        double Vy = Vl * sinX;
+        double Vz = Vl * sinY * cosX;
+
+        double s1 = perspectiveHeight - Vx;
+
+        lam = Math.atan(Vy / s1);
+        phi = Math.atan((rEq2 / rPol2) * (Vz / Math.sqrt(s1 * s1 + Vy * Vy)));
 
         if (ptDst == null) {
             ptDst = new Point2D.Double();
@@ -170,38 +178,37 @@ public class Geostationary extends MapProjection {
     @Override
     protected Point2D transformNormalized(double lam, double phi, Point2D ptDst)
             throws ProjectionException {
-        double x, y;
-        double r, Vx, Vy, Vz, tmp;
+        double x = Double.NaN, y = Double.NaN;
 
-        /* Calculation of geocentric latitude. */
-        phi = Math.atan(radius_p2 * Math.tan(phi));
-        /*
-         * Calculation of the three components of the vector from satellite to*
-         * position on earth surface (lon,lat).
-         */
-        r = (radius_p) / Math.hypot(radius_p * Math.cos(phi), Math.sin(phi));
-        Vx = r * Math.cos(lam) * Math.cos(phi);
-        Vy = r * Math.sin(lam) * Math.cos(phi);
-        Vz = r * Math.sin(phi);
-        /* Check visibility. */
-        if (((radius_g - Vx) * Vx - Vy * Vy - Vz * Vz * radius_p_inv2) < 0.) {
+        double cPhi = Math.atan((rPol2 / rEq2) * Math.tan(phi));
+        double cosPhi = Math.cos(cPhi);
+
+        double rs = rPol / Math.sqrt(1 - e2 * cosPhi * cosPhi);
+        double rPhi = rs * cosPhi;
+
+        double Vx = perspectiveHeight - rPhi * Math.cos(lam);
+        double Vy = rPhi * Math.sin(lam);
+        double Vz = rs * Math.sin(cPhi);
+        double Vn = Math.sqrt(Vx * Vx + Vy * Vy + Vz * Vz);
+
+        if ((perspectiveHeight * (perspectiveHeight - Vx)) < (Vy * Vy + (rEq2 / rPol2)
+                * Vz * Vz)) {
             x = y = Double.NaN;
         } else {
-            /* Calculation based on view angles from satellite. */
-            tmp = radius_g - Vx;
+            // Altered for x sweeping axis
             if (swapAxis) {
-                x = radius_g_1 * Math.atan(Vy / Math.hypot(Vz, tmp));
-                y = radius_g_1 * Math.atan(Vz / tmp);
+                x = Math.atan(Vy / Vx);
+                y = Math.asin(Vz / Vn);
             } else {
-                x = radius_g_1 * Math.atan(Vy / tmp);
-                y = radius_g_1 * Math.atan(Vz / Math.hypot(Vy, tmp));
+                x = Math.asin(Vy / Vn);
+                y = Math.atan(Vz / Vx);
             }
         }
 
         if (ptDst == null) {
             ptDst = new Point2D.Double();
         }
-        ptDst.setLocation(x, y);
+        ptDst.setLocation(x / height_ratio, y / height_ratio);
         return ptDst;
     }
 
@@ -209,8 +216,8 @@ public class Geostationary extends MapProjection {
 
         private static final long serialVersionUID = 3868187206568280453L;
 
-        static final ParameterDescriptor<Double> PERSPECTIVE_HEIGHT = DefaultParameterDescriptor
-                .create(Geostationary.PERSPECTIVE_HEIGHT,
+        static final ParameterDescriptor<Double> ORBITAL_HEIGHT = DefaultParameterDescriptor
+                .create(Geostationary.ORBITAL_HEIGHT,
                         DEFAULT_PERSPECTIVE_HEIGHT, 0, Double.MAX_VALUE,
                         SI.METER);
 
@@ -218,10 +225,10 @@ public class Geostationary extends MapProjection {
                 .create(Geostationary.SWEEP_AXIS, 0.0, 0.0, 1.0, Unit.ONE);
 
         static final ParameterDescriptorGroup PARAMETERS = new DefaultParameterDescriptorGroup(
-                PROJECTION_NAME, new ParameterDescriptor[] {
-                        SEMI_MAJOR, SEMI_MINOR, CENTRAL_MERIDIAN,
-                        LATITUDE_OF_ORIGIN, FALSE_EASTING, FALSE_NORTHING,
-                        PERSPECTIVE_HEIGHT, SWEEP_AXIS });
+                PROJECTION_NAME, new ParameterDescriptor[] { SEMI_MAJOR,
+                        SEMI_MINOR, CENTRAL_MERIDIAN, LATITUDE_OF_ORIGIN,
+                        FALSE_EASTING, FALSE_NORTHING, ORBITAL_HEIGHT,
+                        SWEEP_AXIS });
 
         public Provider() {
             super(PARAMETERS);
