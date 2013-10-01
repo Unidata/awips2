@@ -12,6 +12,7 @@
  * -------		------- 	-------- 	-----------
  * 03/16/2010	229			Chin Chen	Initial coding
  * 03/11/2013   972         Greg Hull   NatlCntrsEditor
+ * 09/03/2013   1031        Greg Hull   try 5 times to initialize the inventory.
  *
  * </pre>
  * 
@@ -31,6 +32,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -382,13 +384,44 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
         NsharpGraphProperty graphConfigProperty = configStore
                 .getGraphProperty();
 		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+		
+		for( int a=1 ; a<=5 ; a++ ) {
+			if( NsharpGridInventory.getInstance().isInitialized()  ) {
+				break;
+			}
+			
 		try {
-			NsharpGridInventory.getInstance().initInventory(false);
-		} catch (VizException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				NsharpGridInventory.getInstance().initialize();			
+			} 
+			catch (VizException e) {		
+				// TODO : could call createInventory() here but for now this will be considered
+				// an error since the grid inventory should/must be on the server.
+				System.out.println("NsharpGridInventory initialize attempt #"+a+" failed");
+
+				try { Thread.sleep(a*500); } catch (InterruptedException e1) { }
+		}
 		}
 		
+		if( !NsharpGridInventory.getInstance().isInitialized() ) {
+			// TODO : change to a confirm to create an inventory.
+			MessageDialog errDlg = new MessageDialog(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null,
+					"Unable to find an Inventory to support Grid Model times. Please wait while one"+
+					" is created.", MessageDialog.ERROR,
+					new String[] { "OK" }, 0);
+			errDlg.open();
+		
+			try {
+				NsharpGridInventory.getInstance().createInventory();
+			} 
+			catch (VizException e) {			
+				errDlg = new MessageDialog(
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null,
+						"Error creating Inventory to support Grid Model times.", MessageDialog.ERROR,
+						new String[] { "OK" }, 0);
+				errDlg.open();
+			}
+		}
 	}
 
 	/**

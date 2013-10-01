@@ -27,6 +27,7 @@ import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.GetActiveTableRequest;
 import com.raytheon.uf.common.activetable.GetActiveTableResponse;
+import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -48,6 +49,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2013  2176      jsanchez     Initial creation
+ * Sep  4, 2013  2176      jsanchez     Moved EmergencyType to a public class.
  * 
  * </pre>
  * 
@@ -61,38 +63,6 @@ public class EmergencyConfirmationMsg implements IWarnGenConfirmationable {
             .getHandler(EmergencyConfirmationMsg.class);
 
     private String productMessage;
-
-    private static class EmergencyType {
-
-        private static final EmergencyType TORNADO = new EmergencyType(
-                "TORNADO EMERGENCY", "TO.W");
-
-        private static final EmergencyType FLASH_FLOOD = new EmergencyType(
-                "FLASH FLOOD EMERGENCY", "FF.W");
-
-        private final String value;
-
-        private final String phensig;
-
-        private final static EmergencyType[] values = new EmergencyType[] {
-                TORNADO, FLASH_FLOOD };
-
-        private EmergencyType(String type, String phensig) {
-            this.value = type;
-            this.phensig = phensig;
-        }
-
-        public static EmergencyType valueOf(String phensig) {
-            EmergencyType type = null;
-            for (EmergencyType t : values) {
-                if (t.phensig.equals(phensig)) {
-                    type = t;
-                    break;
-                }
-            }
-            return type;
-        }
-    };
 
     /**
      * Orders the ActiveTableRecord based on the issue time (ascending)
@@ -126,11 +96,11 @@ public class EmergencyConfirmationMsg implements IWarnGenConfirmationable {
 
         // Check if the warning product is a valid EmergencyType.
         if (type != null) {
-            boolean currentEmergency = body.contains("EMERGENCY");
+            boolean currentEmergency = EmergencyType.isEmergency(body);
             if (action == WarningAction.NEW && currentEmergency) {
                 // Only occurs when the warning is first issued and not any
                 // other action
-                productMessage = "This is a " + type.value;
+                productMessage = "This is a " + type.getValue();
             } else if (action == WarningAction.CON
                     || action == WarningAction.EXT
                     || action == WarningAction.CANCON) {
@@ -159,14 +129,14 @@ public class EmergencyConfirmationMsg implements IWarnGenConfirmationable {
                                 new ActiveTableRecordComparator());
                         ActiveTableRecord record = records
                                 .get(records.size() - 1);
-                        boolean wasEmergency = record.getRawmessage().contains(
-                                "EMERGENCY");
+                        boolean wasEmergency = EmergencyType.isEmergency(record
+                                .getRawmessage());
                         if (!wasEmergency && currentEmergency) {
                             productMessage = "This is an upgrade of a "
-                                    + type.value;
+                                    + type.getValue();
                         } else if (wasEmergency && !currentEmergency) {
                             productMessage = "This is a downgrade of a "
-                                    + type.value;
+                                    + type.getValue();
                         }
                     }
                 } catch (VizException e) {
