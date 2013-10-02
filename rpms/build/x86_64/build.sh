@@ -124,8 +124,8 @@ if [ "${1}" = "-64bit" ]; then
 fi
 
 if [ "${1}" = "-rh6" ]; then
-   buildRPM "awips2-notification"
    buildRPM "awips2-common-base"
+   buildRPM "awips2-notification"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
