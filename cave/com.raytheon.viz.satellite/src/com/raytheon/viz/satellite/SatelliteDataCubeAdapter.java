@@ -44,6 +44,7 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -246,16 +247,15 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
          * used in derived parameter
          */
         GridGeometry2D geo = null;
-        if (!records.get(0).getSpatialObject().getNx()
-                .equals(records.get(1).getSpatialObject().getNx())
-                || !records.get(0).getSpatialObject().getNy()
-                        .equals(records.get(1).getSpatialObject().getNy())) {
+        if (!records.get(0).getCoverage().getNx()
+                .equals(records.get(1).getCoverage().getNx())
+                || !records.get(0).getCoverage().getNy()
+                        .equals(records.get(1).getCoverage().getNy())) {
             interpolate = true;
-            geo = MapUtil.getGridGeometry(records.get(largestRecIdx)
-                    .getSpatialObject());
-            targetWidth = records.get(largestRecIdx).getSpatialObject().getNx();
-            targetHeight = records.get(largestRecIdx).getSpatialObject()
-                    .getNy();
+            SatMapCoverage coverage = records.get(largestRecIdx).getCoverage();
+            geo = coverage.getGridGeometry();
+            targetWidth = coverage.getNx();
+            targetHeight = coverage.getNy();
         }
 
         try {

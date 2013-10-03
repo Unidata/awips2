@@ -185,7 +185,7 @@ public class RegistryReplicationManager {
             return;
         }
         servers = (NotificationServers) jaxbManager
-                .jaxbUnmarshalFromXmlFile(notificationServerConfigFile);
+                .unmarshalFromXmlFile(notificationServerConfigFile);
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
