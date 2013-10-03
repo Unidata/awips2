@@ -23,44 +23,41 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * This class holds the Source Item XML data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2010 #4517      lvenable     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFFGSourceItemXML implements ISerializableObject
-{
+public class FFFGSourceItemXML {
+
     @XmlAttribute(name = "type")
     private String type;
-    
+
     @XmlAttribute(name = "name")
     private String name;
-    
+
     @XmlAttribute(name = "id")
     private Long id;
 
     @XmlAttribute(name = "value")
     private String value;
-    
-    public FFFGSourceItemXML()
-    {        
+
+    public FFFGSourceItemXML() {
     }
-    
+
     public String getType() {
         return type;
     }
