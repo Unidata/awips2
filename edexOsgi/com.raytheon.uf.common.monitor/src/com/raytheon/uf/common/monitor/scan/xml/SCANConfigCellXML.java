@@ -27,12 +27,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "ScanConfigCellTable")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANConfigCellXML extends SCANAbstractXML implements
-        ISerializableObject {
+public class SCANConfigCellXML extends SCANAbstractXML {
+
     @XmlElement(name = "LinkToFrame")
     private boolean linkToFrame;
 
