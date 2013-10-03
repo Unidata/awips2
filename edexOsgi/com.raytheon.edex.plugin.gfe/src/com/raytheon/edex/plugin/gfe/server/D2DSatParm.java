@@ -238,7 +238,7 @@ public class D2DSatParm {
                     physicalElement, timeRanges);
             for (int i = 0; i < satRecords.size(); i++) {
                 GridLocation satGridLoc = new GridLocation(this.pid.toString(),
-                        satRecords.get(i).getCoverage());
+                        satRecords.get(i));
                 ByteDataRecord hdf5Record = (ByteDataRecord) satRecords.get(i)
                         .getMessageData();
                 Grid2DByte rawData = new Grid2DByte(
