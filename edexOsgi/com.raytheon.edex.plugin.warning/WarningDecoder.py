@@ -28,14 +28,20 @@
 # 
 # SOFTWARE HISTORY
 #  
-#  Date         Ticket#    Engineer    Description
-#  ------------ ---------- ----------- --------------------------
-#                                      Initial creation
-#  Feb 19, 2013 1636       rferrel     Use TimeTools to get file timestamp.
-#  May 07, 2013 1973       rferrel     Adjust Issue and Purge times to be relative to start time.
-#  Jun 24, 2013 DR 16317   D. Friedman If no storm line, parse storm motion from event text.
-#  Aug 21, 2013 DR16501 m.gamazaychikov    Adjusted calculation of Purge time in NoVTECWarningDecoder.
-#  Sep 12, 2013 DR2249     rferrel     When incoming file from warngen adjust start time from file's timestamp.
+# Date          Ticket#  Engineer       Description
+# ------------- -------- -------------- --------------------------
+#                                       Initial creation
+# Feb 19, 2013  1636     rferrel        Use TimeTools to get file timestamp.
+# May 07, 2013  1973     rferrel        Adjust Issue and Purge times to be
+#                                       relative to start time.
+# Jun 24, 2013  16317    D. Friedman    If no storm line, parse storm motion
+#                                       from event text.
+# Aug 21, 2013  16501    mgamazaychikov Adjusted calculation of Purge time in
+#                                       NoVTECWarningDecoder.
+# Sep 12, 2013  2249     rferrel        When incoming file from warngen adjust
+#                                       start time from file's timestamp.
+# Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
+
 # </pre>
 #
 # @author rferrel
@@ -1068,7 +1074,12 @@ class WarningDecoder():
         self._badVtecRE = r'^\s?/.*/\s?$'
         
         self._stdWarningDecode = None
-        self._command = command
+        if str == type(command):
+             command = command.split()
+        if command and str == type(command[0]) and command[0].startswith('-'):
+            self._command = [''] + command
+        else:
+            self._command = command
 
     def decode(self):
         #discover which type of warning to decode
@@ -1082,15 +1093,7 @@ class WarningDecoder():
         else:
             #print "using no vtec warning decoder"
             decoder = NoVTECWarningDecoder(self.text, self.filePath, self._command)
-            return decoder.decode()
-
-    def setCommand(self, args):
-        if str == type(args):
-            args = args.split()
-        if args and str == type(args[0]) and args[0].startswith('-'):
-            args = [''] + args
-        self._command = args
-            
+            return decoder.decode()        
                 
     def _checkForVTEC(self):
         contents = ""
