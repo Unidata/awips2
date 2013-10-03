@@ -345,21 +345,11 @@ public class SatelliteDecoder {
                 // get the scanning mode
                 scanMode = byteBuffer.get(37);
 
-                // Get latitude of upper right hand corner
-                byteBuffer.position(55);
-                byteBuffer.get(threeBytesArray, 0, 3);
-                record.setUpperRightLat(transformLatitude(threeBytesArray));
-
-                // Get longitude of upper right hand corner
-                byteBuffer.position(58);
-                byteBuffer.get(threeBytesArray, 0, 3);
-                record.setUpperRightLon(transformLongitude(threeBytesArray));
-
                 float dx = 0.0f, dy = 0.0f, lov = 0.0f, lo2 = 0.0f, la2 = 0.0f;
                 // Do specialized decoding and retrieve spatial data for Lambert
                 // Conformal and Polar Stereographic projections
-                if ((mapProjection == SatMapCoverage.PROJ_LAMBERT)
-                        || (mapProjection == SatMapCoverage.PROJ_POLAR_STEREO)) {
+                if ((mapProjection == SatSpatialFactory.PROJ_LAMBERT)
+                        || (mapProjection == SatSpatialFactory.PROJ_POLAR)) {
                     byteBuffer.position(30);
                     byteBuffer.get(threeBytesArray, 0, 3);
                     dx = byteArrayToFloat(threeBytesArray) / 10;
@@ -372,11 +362,9 @@ public class SatelliteDecoder {
                     byteBuffer.get(threeBytesArray, 0, 3);
                     lov = transformLongitude(threeBytesArray);
                 }
-
                 // Do specialized decoding and retrieve spatial data for
-                // Mercator
-                // projection
-                else if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
+                // Mercator projection
+                else if (mapProjection == SatSpatialFactory.PROJ_MERCATOR) {
                     dx = byteBuffer.getShort(33);
                     dy = byteBuffer.getShort(35);
 
@@ -400,7 +388,7 @@ public class SatelliteDecoder {
                      * This is a temporary workaround for DR14724, hopefully to
                      * be removed after NESDIS changes the product header
                      */
-                    if ((mapProjection == SatMapCoverage.PROJ_LAMBERT)
+                    if ((mapProjection == SatSpatialFactory.PROJ_LAMBERT)
                             && (record.getPhysicalElement()
                                     .equalsIgnoreCase("Imager 13 micron (IR)"))
                             && (record.getSectorID()
