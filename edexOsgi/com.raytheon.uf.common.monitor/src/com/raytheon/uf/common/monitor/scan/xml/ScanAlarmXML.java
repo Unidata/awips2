@@ -24,41 +24,37 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Scan Alarm XML class.
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 21, 2010            lvenable     Initial creation
- *
+ * 
+ * Date Ticket# Engineer Description ------------ ---------- -----------
+ * -------------------------- Nov 21, 2010 lvenable Initial creation
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlRootElement(name = "ScanAlarms")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ScanAlarmXML implements ISerializableObject
-{
+public class ScanAlarmXML {
+
     @XmlElement(name = "CELL")
     private int cellAlarmTime;
-    
+
     @XmlElement(name = "DMD")
     private int dmdAlarmTime;
-    
+
     @XmlElement(name = "MESO")
     private int mesoAlarmTime;
-    
+
     @XmlElement(name = "TVS")
     private int tvsAlarmTime;
-    
-    public ScanAlarmXML()
-    {        
+
+    public ScanAlarmXML() {
     }
 
     public int getCellAlarmTime() {
@@ -91,5 +87,5 @@ public class ScanAlarmXML implements ISerializableObject
 
     public void setTvsAlarmTime(int tvsArlarmTime) {
         this.tvsAlarmTime = tvsArlarmTime;
-    }   
+    }
 }
