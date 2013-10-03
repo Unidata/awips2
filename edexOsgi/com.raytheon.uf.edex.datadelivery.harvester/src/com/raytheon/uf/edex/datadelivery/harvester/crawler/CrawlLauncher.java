@@ -145,7 +145,7 @@ public abstract class CrawlLauncher implements Job {
                     for (LocalizationFile lf : files) {
 
                         HarvesterConfig hc = (HarvesterConfig) jaxbMan
-                                .jaxbUnmarshalFromXmlFile(lf.getFile());
+                                .unmarshalFromXmlFile(lf.getFile());
                         if (hc.getAgent() != null) {
                             // we only want crawler types for CrawlerMetadata
                             Agent agent = hc.getAgent();
