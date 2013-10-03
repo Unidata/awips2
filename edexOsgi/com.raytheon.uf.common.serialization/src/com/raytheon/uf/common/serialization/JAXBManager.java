@@ -127,7 +127,10 @@ public class JAXBManager {
      * @throws JAXBException
      */
     public JAXBManager(Class<?>... clazz) throws JAXBException {
+        long t0 = System.currentTimeMillis();
         jaxbContext = JAXBContext.newInstance(clazz);
+        System.out.println("JAXB context with " + clazz.length
+                + " classes inited in: " + (System.currentTimeMillis() - t0));
     }
 
     /**
