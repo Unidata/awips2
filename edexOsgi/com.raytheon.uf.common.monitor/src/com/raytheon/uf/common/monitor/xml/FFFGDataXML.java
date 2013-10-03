@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.monitor.config.ValueNameIdData;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * 
@@ -51,7 +50,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "FFFGData")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFFGDataXML implements ISerializableObject {
+public class FFFGDataXML {
     @XmlElement(name = "ExpDateTimeInMillis")
     private Long expTimeInMillis;
 
