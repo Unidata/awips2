@@ -20,6 +20,6 @@
     -->
 <DerivedParameter abbreviation="TPCSG-40" name="Probabilistic Storm Surge height w/40% chance of being exceeded" unit="ft">
     <Method models="TPCSurgeProb" name="Alias">
-        <Field abbreviation="Surge40Pct"/>
+        <Field abbreviation="Surge40pctRun"/>
     </Method>
 </DerivedParameter>
