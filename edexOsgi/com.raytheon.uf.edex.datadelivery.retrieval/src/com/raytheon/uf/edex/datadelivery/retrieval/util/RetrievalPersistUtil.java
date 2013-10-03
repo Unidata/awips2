@@ -163,7 +163,7 @@ public final class RetrievalPersistUtil {
 
                 try {
                     prl = (PluginRouteList) getJaxbManager()
-                            .jaxbUnmarshalFromXmlFile(file);
+                            .unmarshalFromXmlFile(file);
                 } catch (Exception e) {
                     statusHandler.error(
                             "[Data Delivery] Configuration for plugin routes failed to load: File: "
