@@ -142,7 +142,10 @@
 		<mail mailhost="localhost" mailport="25" subject="Unit Test Failures">
 			<from address="jenkins@halfmaen.omaha.us.ray.com" />
 			<replyto address="steven_l_harris@raytheon.com" />
-            <to address="omaha_awips@raytheon.com" />
+            <to address="michael.duff@raytheon.com" />
+            <to address="david_j_hladky@raytheon.com" />
+            <to address="bradley_l_gonzales@raytheon.com" />
+            <to address="benjamin_d_phillippe@raytheon.com" />
 			<message>Nightly build has unit test failures.  http://awipscm/junit/</message>
 		</mail>
 	</target>
