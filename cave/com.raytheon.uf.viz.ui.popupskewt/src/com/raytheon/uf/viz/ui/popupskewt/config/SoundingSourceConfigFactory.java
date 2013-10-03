@@ -69,7 +69,7 @@ public class SoundingSourceConfigFactory {
                             "Could not find skewt sources file: " + filePath);
                 }
                 SoundingSourceConfig config = (SoundingSourceConfig) mgr
-                        .jaxbUnmarshalFromInputStream(file.openInputStream());
+                        .unmarshalFromInputStream(file.openInputStream());
                 if (config == null) {
                     throw new SerializationException(
                             "SkewT Config file could not be deserialized");
