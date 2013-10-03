@@ -8,10 +8,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANSiteXML implements ISerializableObject {
+public class SCANSiteXML {
 
     @XmlElement(name = "scanSite")
     private String scanSite;
