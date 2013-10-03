@@ -34,13 +34,15 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.sounding.WxMath;
 import com.raytheon.uf.common.sounding.adapter.IVerticalSoundingProvider;
@@ -76,7 +78,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 18, 2011       2190 mschenke     Initial creation
+ * Jul 18, 2011       2190 mschenke    Initial creation
+ * Oct  2, 2013       2333 mschenke    Converted to use IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -417,12 +420,15 @@ public class CloudHeightResource extends
                         .interrogate(new ReferencedCoordinate(location));
                 if (interMap != null
                         && interMap.get(SATELLITE_DATA_INTERROGATE_ID) instanceof Measure
-                        && interMap
-                                .containsKey(ISpatialObject.class.toString())) {
+                        && interMap.containsKey(IGridGeometryProvider.class
+                                .toString())) {
                     // Extract temperature values from the resource
-                    float[] rscTemps = extractTemps(location, resource,
-                            (ISpatialObject) interMap.get(ISpatialObject.class
-                                    .toString()));
+                    float[] rscTemps = extractTemps(
+                            location,
+                            resource,
+                            ((IGridGeometryProvider) interMap
+                                    .get(IGridGeometryProvider.class.toString()))
+                                    .getGridGeometry());
                     boolean good = true;
                     for (int i = 0; i < rscTemps.length; ++i) {
                         if (Float.isNaN(rscTemps[i])) {
@@ -441,14 +447,39 @@ public class CloudHeightResource extends
         return temps;
     }
 
+    private Coordinate convert(MathTransform mt, double[] point) {
+        try {
+            double[] out = new double[point.length];
+            mt.transform(point, 0, out, 0, 1);
+            return new Coordinate(out[0], out[1]);
+        } catch (Exception e) {
+            // Ingore and return null
+        }
+        return null;
+    }
+
     private float[] extractTemps(Coordinate latLon,
-            AbstractVizResource<?, ?> rsc, ISpatialObject spatialObject) {
+            AbstractVizResource<?, ?> rsc, GridGeometry2D gridGeometry) {
         // Method loosely ported from SatPVImageDepict.C::interogate
         float[] temps = new float[] { Float.NaN, Float.NaN, Float.NaN,
                 Float.NaN };
 
-        Coordinate c = MapUtil.latLonToGridCoordinate(latLon,
-                PixelOrientation.CENTER, spatialObject);
+        MathTransform gridToLatLon, latLonToGrid;
+        try {
+            gridToLatLon = TransformFactory.gridToLatLon(gridGeometry,
+                    PixelInCell.CELL_CENTER);
+            latLonToGrid = gridToLatLon.inverse();
+        } catch (Exception e) {
+            // Ignore and return early
+            return temps;
+        }
+
+        Coordinate c = convert(latLonToGrid,
+                new double[] { latLon.x, latLon.y });
+
+        if (c == null) {
+            return temps;
+        }
 
         int x = (int) c.x;
         int y = (int) c.y;
@@ -471,8 +502,8 @@ public class CloudHeightResource extends
             jj = y + j;
             for (i = xStart; i < xEnd; i++) {
                 ii = x + i;
-                elements[numElements++] = getTemperature(rsc, spatialObject,
-                        ii, jj);
+                elements[numElements++] = getTemperature(rsc, gridToLatLon, ii,
+                        jj);
             }
         }
 
@@ -490,21 +521,20 @@ public class CloudHeightResource extends
     }
 
     /**
-     * Interrogates the resource at the spatial object's gridX,gridY location
-     * and reads out the temperature value converting to
+     * Interrogates the resource at the gridToLatLon transform, gridX,gridY
+     * location and reads out the temperature value converting to
      * {@link CloudHeightCalculatorPorted#ALGORITHM_UNIT}
      * 
      * @param resource
-     * @param spatialObject
+     * @param gridToLatLon
      * @param gridX
      * @param gridY
      * @return
      */
     private double getTemperature(AbstractVizResource<?, ?> resource,
-            ISpatialObject spatialObject, int gridX, int gridY) {
-        Coordinate latLon = MapUtil.gridCoordinateToLatLon(new Coordinate(
-                gridX, gridY), PixelOrientation.CENTER, spatialObject);
-        return getTemperature(resource, latLon);
+            MathTransform gridToLatLon, int gridX, int gridY) {
+        return getTemperature(resource,
+                convert(gridToLatLon, new double[] { gridX, gridY }));
     }
 
     /**
@@ -521,16 +551,18 @@ public class CloudHeightResource extends
     private double getTemperature(AbstractVizResource<?, ?> resource,
             Coordinate latLon) {
         double temperature = Double.NaN;
-        try {
-            Map<String, Object> dataMap = resource
-                    .interrogate(new ReferencedCoordinate(latLon));
-            Object obj = dataMap.get(SATELLITE_DATA_INTERROGATE_ID);
-            if (obj instanceof Measure) {
-                temperature = getDataValue((Measure<?, ?>) obj,
-                        CloudHeightCalculatorPorted.ALGORITHM_UNIT);
+        if (latLon != null) {
+            try {
+                Map<String, Object> dataMap = resource
+                        .interrogate(new ReferencedCoordinate(latLon));
+                Object obj = dataMap.get(SATELLITE_DATA_INTERROGATE_ID);
+                if (obj instanceof Measure) {
+                    temperature = getDataValue((Measure<?, ?>) obj,
+                            CloudHeightCalculatorPorted.ALGORITHM_UNIT);
+                }
+            } catch (VizException e) {
+                // Ignore
             }
-        } catch (VizException e) {
-            // Ignore
         }
         return temperature;
     }
