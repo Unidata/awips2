@@ -58,7 +58,7 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
     public SatTileSetRenderable(AbstractVizResource<?, ?> resource,
             SatelliteRecord record) {
         // Total levels = Number of interpolation levels + base level
-        super(resource, record, record.getSpatialObject(), record
+        super(resource, record, record.getGridGeometry(), record
                 .getInterpolationLevels() + 1);
         this.resource = resource;
     }
@@ -68,8 +68,6 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
         return new SatDataRetriever((SatelliteRecord) record, tile.tileLevel,
                 tile.getRectangle()).getColorMapData();
     }
-    
-    
 
     @Override
     protected void issueRefresh(IGraphicsTarget target) {
