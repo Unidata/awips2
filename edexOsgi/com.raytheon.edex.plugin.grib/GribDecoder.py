@@ -228,7 +228,7 @@ class GribDecoder():
         
         # Extracts data from the ID section
         idSectionValues = self._decodeIdSection(dataResults['idSection'])
-        self.id = dataResults['idSection']
+        refTime = idSectionValues['refTime']
         
         # Extracts data from the Local section
         if 'localSection' in dataResults:
@@ -236,24 +236,21 @@ class GribDecoder():
         
         # Extracts data from the gds template
         gdsSectionValues = self._decodeGdsSection(metadata, dataResults['gdsTemplate'])
-        
-        self.gds = dataResults['gdsTemplate']
-        
+                
         # Extracts data from the pds template
-        pdsSectionValues = self._decodePdsSection(metadata, dataResults['idSection'], dataResults['pdsTemplate'])
-        self.pds = dataResults['pdsTemplate']
+        pdsSectionValues = self._decodePdsSection(metadata, refTime, dataResults['idSection'], dataResults['pdsTemplate'])
         
         if 'bitmap' in dataResults:
             bitMap = dataResults['bitmap']
         
         # Construct the DataTime object
         if pdsSectionValues['endTime'] is None:
-            dataTime = DataTime(idSectionValues['refTime'], pdsSectionValues['forecastTime'])
+            dataTime = DataTime(refTime, pdsSectionValues['forecastTime'])
         else:
             # endTime defines forecast time based on the difference to refTime since forecastTime is the start of the valid period
-            timeRange = TimeRange(idSectionValues['refTime'].getTimeInMillis() + (pdsSectionValues['forecastTime'] * 1000), pdsSectionValues['endTime'].getTimeInMillis())
-            forecastTime = int(float(pdsSectionValues['endTime'].getTimeInMillis() - idSectionValues['refTime'].getTimeInMillis()) / 1000)
-            dataTime = DataTime(idSectionValues['refTime'], forecastTime, timeRange)
+            timeRange = TimeRange(refTime.getTimeInMillis() + (pdsSectionValues['forecastTime'] * 1000), pdsSectionValues['endTime'].getTimeInMillis())
+            forecastTime = int(float(pdsSectionValues['endTime'].getTimeInMillis() - refTime.getTimeInMillis()) / 1000)
+            dataTime = DataTime(refTime, forecastTime, timeRange)
                                      
         hybridCoordList = None
         if 'coordList' in dataResults:
@@ -484,12 +481,13 @@ class GribDecoder():
     # Decodes the values in the PDS template
     #
     # @param metadata: The metadata information
+    # @param refTime: The reference time, java Calendar object
     # @param idSection: The ID section values
     # @param pdsTemplate: The PDS template values 
     # @return: Dictionary of PDS information
     # @rtype: Dictionary
     ##  
-    def _decodePdsSection(self, metadata, idSection, pdsTemplate):    
+    def _decodePdsSection(self, metadata, refTime, idSection, pdsTemplate):    
         
         # Dictionary to hold information extracted from PDS template
         pdsFields = {}
@@ -586,7 +584,9 @@ class GribDecoder():
             if levelName=='EATM':
                 levelOneValue=float(0)
                 levelTwoValue=float(Level.getInvalidLevelValue())
-                
+              
+            durationSecs = None
+              
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
                 typeEnsemble = Integer(pdsTemplate[15]).intValue()
@@ -644,17 +644,17 @@ class GribDecoder():
                     numTimeRanges = pdsTemplate[28]
                     numMissingValues = pdsTemplate[29]
                     statisticalProcess = pdsTemplate[30]
+                    
+                    durationSecs = self._convertToSeconds(pdsTemplate[33], pdsTemplate[32])
+                            
                 
+                scaledValue = None 
                 if(probabilityType == 1 or probabilityType ==2):
-                    if(scaleFactorUL == 0):
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueUL)
-                    else:
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueUL)+"E"+str(scaleFactorUL)
-                elif(probabilityType == 0):
-                    if(scaleFactorLL == 0):
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueLL)
-                    else:
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueLL)+"E"+str(scaleFactorLL)
+                    scaledValue = self._convertScaledValue(scaledValueUL, scaleFactorUL)
+                else:
+                    scaledValue = self._convertScaledValue(scaledValueLL, scaleFactorLL)
+                parameterAbbreviation = parameterAbbreviation + str(scaledValue) + "m"
+
                 
             elif pdsTemplateNumber == 8:
                 endTime = GregorianCalendar(pdsTemplate[15], pdsTemplate[16] - 1, pdsTemplate[17], pdsTemplate[18], pdsTemplate[19], pdsTemplate[20])
@@ -664,11 +664,29 @@ class GribDecoder():
                 statisticalProcess = pdsTemplate[23]
 
             elif pdsTemplateNumber == 10:
+                parameterAbbreviation = parameterAbbreviation + str(pdsTemplate[15]) + "pct"
                 endTime = GregorianCalendar(pdsTemplate[16], pdsTemplate[17] - 1, pdsTemplate[18], pdsTemplate[19], pdsTemplate[20], pdsTemplate[21])
 
                 numTimeRanges = pdsTemplate[22]
                 numMissingValues = pdsTemplate[23]
                 statisticalProcess = pdsTemplate[24]
+                
+                durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
+                
+            if durationSecs is not None:
+                # This only applies for templates 9 and 10 which are not
+                # commonly used templates. For all other data the duration is
+                # ignored and it is assumed that reftime, forecast time, and 
+                # endtime will define the duration. For Template 9 and 10 this
+                # will cause forecast time to be ignored so duration is correct.
+
+                # The decoder assumes reftime + forecastTime equals 
+                # endTime - duration, however for some models 
+                # reftime + forecasttime instead equals endTime. This reassigns
+                # forecastTime as endTime - refTime - duration so that
+                # duration is correctly calculated.
+                refToEndSecs = (endTime.getTimeInMillis() - refTime.getTimeInMillis())/ 1000
+                forecastTime = refToEndSecs - durationSecs
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
