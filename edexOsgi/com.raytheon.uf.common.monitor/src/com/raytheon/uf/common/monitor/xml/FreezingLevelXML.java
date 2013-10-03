@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -16,7 +15,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class FreezingLevelXML implements ISerializableObject {
+public class FreezingLevelXML {
 
     @DynamicSerializeElement
     @XmlElement(name = "forecastHour")
