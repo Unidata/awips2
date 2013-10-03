@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlElements;
 
 import com.raytheon.uf.common.monitor.config.FFFGConfig.GuidSectType;
 import com.raytheon.uf.common.monitor.config.ValueNameIdData;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * 
@@ -50,7 +49,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFFGSourceXML implements ISerializableObject {
+public class FFFGSourceXML {
     @XmlElement(name = "SourceName")
     private String sourceName;
 
