@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 17, 2013 1672        djohnson    No longer cares about notification protocol.
  * 5/21/2013    2022        bphillip    Cleaned up unused method parameters and batching of notifications
  * 9/11/2013    2354        bphillip    Added logic to ensure delete events get included in notifications
+ * 9/30/2013    2191        bphillip    Fixing federated replication
  * </pre>
  * 
  * @author bphillip
@@ -120,10 +121,6 @@ public class RegistryNotificationManager {
         return notification;
     }
 
-    protected void saveNotification(NotificationType notification) {
-        notificationDao.createOrUpdate(notification);
-    }
-
     protected void sendNotification(NotificationListenerWrapper listener,
             NotificationType notification, String address) {
 
@@ -137,8 +134,6 @@ public class RegistryNotificationManager {
         // the target
         auditableEventDao.persistSendDate(notification.getEvent(),
                 notification.getSubscription(), address);
-        // Persist the notification
-        notificationDao.createOrUpdate(notification);
     }
 
     /**
