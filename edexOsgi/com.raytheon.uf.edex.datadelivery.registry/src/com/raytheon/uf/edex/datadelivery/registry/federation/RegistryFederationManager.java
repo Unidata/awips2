@@ -162,7 +162,7 @@ public abstract class RegistryFederationManager {
                 this.federationEnabled = false;
             } else {
                 federationProperties = (FederationProperties) jaxbManager
-                        .jaxbUnmarshalFromXmlFile(federationPropertiesFile);
+                        .unmarshalFromXmlFile(federationPropertiesFile);
             }
         }
 
