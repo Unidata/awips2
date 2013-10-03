@@ -38,11 +38,12 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -133,7 +134,7 @@ public class SatResource extends
 
     private class SatRenderable implements IRenderable {
 
-        private Map<ISpatialObject, SatTileSetRenderable> tileMap = new HashMap<ISpatialObject, SatTileSetRenderable>();
+        private Map<SatMapCoverage, SatTileSetRenderable> tileMap = new HashMap<SatMapCoverage, SatTileSetRenderable>();
 
         private DataTime renderableTime;
 
@@ -167,8 +168,8 @@ public class SatResource extends
 
         public void addRecord(SatelliteRecord record) {
             synchronized (tileMap) {
-                SatTileSetRenderable tileSet = tileMap.get(record
-                        .getSpatialObject());
+                SatTileSetRenderable tileSet = tileMap
+                        .get(record.getCoverage());
                 if (tileSet != null) {
                     SatelliteRecord existingRecord = tileSet
                             .getSatelliteRecord();
@@ -192,7 +193,7 @@ public class SatResource extends
                 if (tileSet == null) {
                     tileSet = new SatTileSetRenderable(SatResource.this, record);
                     tileSet.project(descriptor.getGridGeometry());
-                    tileMap.put(record.getSpatialObject(), tileSet);
+                    tileMap.put(record.getCoverage(), tileSet);
                 }
             }
         }
@@ -394,8 +395,8 @@ public class SatResource extends
                         .asLatLon());
                 if (result != null) {
                     dataValue = result.getValue();
-                    dataMap.put(ISpatialObject.class.toString(), result
-                            .getRecord().getSpatialObject());
+                    dataMap.put(IGridGeometryProvider.class.toString(), result
+                            .getRecord().getCoverage());
                 }
             } catch (Exception e) {
                 throw new VizException("Error interrogating raw data", e);

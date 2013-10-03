@@ -80,7 +80,7 @@ public class GiniAreaProviderFactory implements INcAreaProviderFactory {
 
 				if( proj == 1 || proj == 3 || proj == 5 ) { // MER, LCC or STR 
 	                // for remapped projections such as MER, LCC, STR
-					gridGeom = MapUtil.getGridGeometry( satRec.getSpatialObject() );
+					gridGeom = satRec.getGridGeometry();
 				}
 				else {
 					System.out.println("Unable to get Coverage for projection "+ proj+ "." );							

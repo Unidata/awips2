@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -47,9 +48,8 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
@@ -68,6 +68,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * Sep 05, 2013     #2329  randerso    Moved genereateAutoCombinationsFile here
  *                                     Cleaned up error handling
+ * Sep 30, 2013      2361  njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -83,9 +84,11 @@ public class CombinationsFileUtil {
 
     public static String SAVED_COMBO_DIR = FileUtil.join("gfe", "comboData");
 
+    private static final SingleTypeJAXBManager<ComboData> jaxb = initializeJAXB();
+
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.NONE)
-    public static class ComboData implements ISerializableObject {
+    public static class ComboData {
 
         @XmlRootElement
         @XmlAccessorType(XmlAccessType.NONE)
@@ -119,6 +122,23 @@ public class CombinationsFileUtil {
                 this.combos.add(new Entry(entry.getKey(), entry.getValue()));
             }
         }
+    }
+
+    /**
+     * Initializes the JAXB manager for reading/writing ComboData to/from XML.
+     * 
+     * @return the JAXBManager
+     */
+    private static SingleTypeJAXBManager<ComboData> initializeJAXB() {
+        SingleTypeJAXBManager<ComboData> retVal = null;
+        try {
+            retVal = new SingleTypeJAXBManager<ComboData>(ComboData.class);
+        } catch (JAXBException e) {
+            statusHandler
+                    .error("Error initializing ComboData JAXBManager, combinations files will not work",
+                            e);
+        }
+        return retVal;
     }
 
     /**
@@ -158,7 +178,7 @@ public class CombinationsFileUtil {
         LocalizationFile lf = idToFile(id);
         File file = lf.getFile(false);
         ComboData comboData = new ComboData(combos);
-        SerializationUtil.jaxbMarshalToXmlFile(comboData, file.getPath());
+        jaxb.marshalToXmlFile(comboData, file.getPath());
         lf.save();
     }
 
@@ -196,8 +216,7 @@ public class CombinationsFileUtil {
             throws SerializationException {
         LocalizationFile lf = idToFile(id);
         File file = lf.getFile();
-        ComboData comboData = (ComboData) SerializationUtil
-                .jaxbUnmarshalFromXmlFile(file);
+        ComboData comboData = jaxb.unmarshalFromXmlFile(file);
 
         Map<String, Integer> comboDict = new HashMap<String, Integer>(
                 comboData.combos.size());
