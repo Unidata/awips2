@@ -28,6 +28,7 @@ package com.raytheon.uf.common.monitor.xml;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2010            dhladky     Initial creation
+ * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -43,11 +44,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "FFMPSourceConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFMPSourceConfigXML implements ISerializableObject {
+public class FFMPSourceConfigXML {
 
     @XmlElements({ @XmlElement(name = "source", type = SourceXML.class) })
     private ArrayList<SourceXML> source;
