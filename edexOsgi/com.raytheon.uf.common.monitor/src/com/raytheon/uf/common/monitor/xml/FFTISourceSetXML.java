@@ -4,10 +4,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFTISourceSetXML implements ISerializableObject {
+public class FFTISourceSetXML {
+
     @XmlElement(name = "sourceType")
     private String sourceType;
 

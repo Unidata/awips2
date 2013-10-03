@@ -9,11 +9,10 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "SCANSiteRunConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANSiteRunConfigXML implements ISerializableObject {
+public class SCANSiteRunConfigXML {
 
     @XmlElements({ @XmlElement(name = "site") })
     private ArrayList<SCANSiteXML> sites;
