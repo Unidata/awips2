@@ -224,7 +224,7 @@ public class AutoUpdatingLocalizationFile {
             return null;
         }
         try {
-            return type.cast(manager.jaxbUnmarshalFromInputStream(internalFile
+            return type.cast(manager.unmarshalFromInputStream(internalFile
                     .openInputStream()));
         } catch (LocalizationException e) {
             throw new SerializationException(

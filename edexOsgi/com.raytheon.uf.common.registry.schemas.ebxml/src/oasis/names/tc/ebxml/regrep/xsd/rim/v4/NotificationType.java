@@ -36,6 +36,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 
 import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -77,7 +78,8 @@ public class NotificationType extends RegistryObjectType {
 
     @XmlElement(name = "Event", required = true)
     @DynamicSerializeElement
-    @ManyToMany(cascade = {})
+    @ManyToMany
+    @Cascade({})
     @JoinTable(schema = "ebxml")
     protected List<AuditableEventType> event;
 
