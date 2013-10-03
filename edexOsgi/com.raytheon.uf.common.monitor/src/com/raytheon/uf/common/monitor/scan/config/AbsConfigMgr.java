@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -34,7 +36,13 @@ import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanThresholdColor;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAbstractXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigCellXML;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigMesoXML;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigTvsXML;
+import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Abstract class used for common configuration data for the CELL, DMD, MESO,
@@ -45,8 +53,9 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 21, 2009 3039       lvenable     Initial creation
- * Apr 25, 2013   1926     njensen      Improved initialization speed
+ * Oct 21, 2009 3039       lvenable    Initial creation
+ * Apr 25, 2013 1926       njensen     Improved initialization speed
+ * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -54,6 +63,12 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * @version 1.0
  */
 public abstract class AbsConfigMgr {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbsConfigMgr.class);
+
+    protected static final JAXBManager jaxb = initializeJAXB();
+
     /**
      * Map of attribute names and SCANAttributesXML.
      */
@@ -69,6 +84,19 @@ public abstract class AbsConfigMgr {
      */
     // protected String defaultConfigXml = null;
     protected String currentConfigFileName = null;
+
+    private static JAXBManager initializeJAXB() {
+        JAXBManager retVal = null;
+        try {
+            retVal = new JAXBManager(SCANConfigCellXML.class,
+                    SCANConfigDmdXML.class, SCANConfigMesoXML.class,
+                    SCANConfigTvsXML.class);
+        } catch (JAXBException e) {
+            statusHandler.error(
+                    "Error initializing JAXBManager for SCAN configs", e);
+        }
+        return retVal;
+    }
 
     /**
      * Constructor.
@@ -121,8 +149,8 @@ public abstract class AbsConfigMgr {
                         LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
                         getFullDefaultConfigName());
             }
-            cfgXML = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    SCANAbstractXML.class, lfile.getFile());
+            cfgXML = jaxb.unmarshalFromXmlFile(SCANAbstractXML.class,
+                    lfile.getFile());
             return cfgXML;
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,8 +178,8 @@ public abstract class AbsConfigMgr {
             IPathManager pm = PathManagerFactory.getPathManager();
             String path = pm.getStaticFile(newConfigFile).getAbsolutePath();
 
-            cfgXML = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    SCANAbstractXML.class, path.toString());
+            cfgXML = jaxb.unmarshalFromXmlFile(SCANAbstractXML.class,
+                    path.toString());
 
             return cfgXML;
         } catch (Exception e) {
