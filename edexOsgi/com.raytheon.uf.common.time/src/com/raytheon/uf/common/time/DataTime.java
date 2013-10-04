@@ -125,7 +125,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
 
     private static final Comparator<DataTime> DEFAULT_COMPARATOR = new DataTimeComparator(
             SortKey.VALID_TIME, SortKey.FORECAST_TIME, false);
-    
+
     /** The reference time */
     @Column(name = "refTime")
     @DynamicSerializeElement
@@ -438,7 +438,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         } else {
             return (rt1.equals(rt2) && fcstTime == rhs.fcstTime
                     && validPeriod.equals(rhs.validPeriod) && levelValue
-                    .equals(rhs.levelValue));
+                        .equals(rhs.levelValue));
         }
     }
 
@@ -611,6 +611,88 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         this.visible = visible;
     }
 
+    private String getReftimeString() {
+        if (refTime != null) {
+            Calendar cal = Calendar.getInstance(TimeUtil.GMT_TIME_ZONE);
+            cal.setTime(this.refTime);
+            return TimeUtil.formatCalendar(cal);
+        }
+        return null;
+    }
+
+    private String getForecastString() {
+        if (utilityFlags.contains(FLAG.FCST_USED)) {
+            int hrs = fcstTime / 3600;
+            int mins = (fcstTime - hrs * 3600) / 60;
+            if (fcstTime % 3600 == 0) {
+                return "(" + hrs + ")";
+            } else {
+                return "(" + hrs + ":" + mins + ")";
+            }
+        }
+        return null;
+    }
+
+    private String getValidPeriodString() {
+        if (utilityFlags.contains(FLAG.PERIOD_USED)) {
+            return "[" + TimeUtil.formatDate(validPeriod.getStart()) + "--"
+                    + TimeUtil.formatDate(validPeriod.getEnd()) + "]";
+        }
+        return null;
+    }
+
+    /**
+     * Returns the DataTime in a URI formatted way
+     * 
+     * @return
+     */
+    public String getURIString() {
+        StringBuilder builder = new StringBuilder();
+
+        String refTimeStr = getReftimeString();
+        if (refTimeStr != null) {
+            builder.append(refTimeStr);
+        }
+
+        String forecastString = getForecastString();
+        if (forecastString != null) {
+            builder.append("_").append(forecastString);
+        }
+
+        String validPeriodString = getValidPeriodString();
+        if (validPeriodString != null) {
+            builder.append(validPeriodString);
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Returns the DataTime in a display friendly format
+     * 
+     * @return
+     */
+    public String getDisplayString() {
+        StringBuilder builder = new StringBuilder();
+
+        String refTimeStr = getReftimeString();
+        if (refTimeStr != null) {
+            builder.append(refTimeStr.replaceAll("_", " "));
+        }
+
+        String forecastString = getForecastString();
+        if (forecastString != null) {
+            builder.append(" ").append(forecastString);
+        }
+
+        String validPeriodString = getValidPeriodString();
+        if (validPeriodString != null) {
+            builder.append(validPeriodString.replaceAll("_", " "));
+        }
+
+        return builder.toString();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -618,34 +700,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      */
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
-
-        if (refTime != null) {
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.setTime(this.refTime);
-            buffer.append(TimeUtil.formatCalendar(cal).replaceAll("_", " "));
-        }
-        if (utilityFlags.contains(FLAG.FCST_USED)) {
-            int hrs = fcstTime / 3600;
-            int mins = (fcstTime - hrs * 3600) / 60;
-            if (fcstTime % 3600 == 0) {
-                buffer.append(" (").append(hrs).append(")");
-            } else {
-                buffer.append(" (").append(hrs).append(":").append(mins)
-                        .append(")");
-            }
-        }
-        if (utilityFlags.contains(FLAG.PERIOD_USED)) {
-            buffer.append("[");
-            buffer.append(TimeUtil.formatDate(validPeriod.getStart())
-                    .replaceAll("_", " "));
-            buffer.append("--");
-            buffer.append(TimeUtil.formatDate(validPeriod.getEnd()).replaceAll(
-                    "_", " "));
-            buffer.append("]");
-
-        }
-        return buffer.toString();
+        return getDisplayString();
     }
 
     /*
