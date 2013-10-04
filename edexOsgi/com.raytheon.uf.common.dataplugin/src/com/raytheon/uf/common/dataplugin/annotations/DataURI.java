@@ -42,6 +42,22 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface DataURI {
 
+    /** Class used to specify non-implemented default converter */
+    public static final class NotImplementedFieldConverter implements
+            DataURIFieldConverter {
+        @Override
+        public String toString(Object field) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object fromString(String string) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static final Class<NotImplementedFieldConverter> NO_CONVERTER = NotImplementedFieldConverter.class;
+
     public static final String SEPARATOR = "/";
 
     /**
@@ -53,9 +69,18 @@ public @interface DataURI {
 
     /**
      * Denotes if this is an embedded dataURI meaning that the actual dataURI
-     * elements are defined by this field class
+     * elements are defined by this field class. This field is mutualy exclusive
+     * with {@link #converter()}
      * 
      * @return True if embedded, else false
      */
     boolean embedded() default false;
+
+    /**
+     * {@link DataURIFieldConverter} to be used to convert to/from uri string.
+     * Mutually exclusive with {@link #embedded()}
+     * 
+     * @return
+     */
+    Class<? extends DataURIFieldConverter> converter() default NotImplementedFieldConverter.class;
 }
