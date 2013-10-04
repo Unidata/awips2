@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.annotations.DataURIConfig;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -57,6 +56,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 1/08/09      1674       bphillip    Initial creation
  * 04/08/13     1293       bkowal      Removed references to hdffileid.
  * 04/30/13     1861       bkowal      Added constant for hdf5 file suffix.
+ * 10/04/13     2081       mschenke    Removed unused annotation logic
  * </pre>
  * 
  * @author bphillip
@@ -65,7 +65,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 public class DefaultPathProvider implements IHDFFilePathProvider {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefaultPathProvider.class);
-    
+
     public static final String HDF5_SUFFIX = ".h5";
 
     public static final ThreadLocal<SimpleDateFormat> fileNameFormat = new ThreadLocal<SimpleDateFormat>() {
@@ -241,32 +241,16 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                             + persistable.toString());
         }
 
+        StringBuffer sb = new StringBuffer();
+        sb.append(pluginName);
+
         if (persistable instanceof PluginDataObject) {
-            PluginDataObject pdo = (PluginDataObject) persistable;
-            DataURIConfig config = pdo.getClass().getAnnotation(
-                    DataURIConfig.class);
-            int idx = 0;
-
-            if (config != null) {
-                idx = config.persistentIndex();
-            }
-
-            String[] dataURIParts = pdo.getDataURI().split("/");
-            StringBuffer sb = new StringBuffer();
-            sb.append(pluginName);
-
-            for (int i = 0; i < idx; i++) {
-                sb.append("-");
-                sb.append(dataURIParts[i]);
-            }
-
             Date refTime = ((PluginDataObject) persistable).getDataTime()
                     .getRefTime();
             sb.append(fileNameFormat.get().format(refTime));
-            sb.append(".h5");
-            return sb.toString();
         }
 
-        return pluginName + ".h5";
+        sb.append(".h5");
+        return sb.toString();
     }
 }
