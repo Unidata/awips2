@@ -858,10 +858,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                 // Keep only the specified number of rows
                 if (messageLoad.isNumMessages()) {
                     int numRecs = filteredTableList.getDataArray().size();
+                    List<NotificationRowData> removeList = new ArrayList<NotificationRowData>();
                     if (numRecs > loadLast) {
-                        for (int i = loadLast - 1; i < numRecs; i++) {
-                            filteredTableList.removeDataRow(i);
+                        for (int i = loadLast; i < numRecs; i++) {
+                            removeList.add(filteredTableList.getDataRow(i));
                         }
+                    }
+                    if (!removeList.isEmpty()) {
+                        filteredTableList.removeAll(removeList);
                     }
                 } else {
                     long backTime = loadLast * TimeUtil.MILLIS_PER_HOUR;
