@@ -30,6 +30,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/09/2013          #1571     randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
+#    10/03/2013          #2418     dgilling       Update for new pSurge 2.0 data.
 #
 ########################################################################
 
@@ -1006,6 +1007,8 @@ D2DDBVERSIONS = {
       "Satellite": 6,
       "HPCERP": 5,
       "TPCProb": 30,
+      "TPCStormSurge": 1,
+      "PHISH": 1,
       "CRMTopo": 1,
       "NED": 1,
       }
@@ -1112,6 +1115,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLERL',
                  'WNAWAVE238',
                  ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'PHISH',
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1161,6 +1165,7 @@ else:   #######DCS3501 WEST_CONUS
                  'GLERL',
                  'WNAWAVE238',
                  ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'PHISH',
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
