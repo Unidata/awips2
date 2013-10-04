@@ -16,7 +16,7 @@
 	<bean id="geomagDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="geomagPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.GeoMag"/>
 	</bean>
 
     <bean id="geomagCamelRegistered" factory-bean="contextManager"
@@ -39,12 +39,12 @@
 			<setHeader headerName="pluginName">
 				<constant>geomag</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.GeoMag" />
+			<to uri="jms-durable:queue:Ingest.GeoMag" />
 		</route>
 		
 		<!-- Begin GeoMag routes -->
 		<route id="geomagIngestRoute">
-			<from uri="jms-generic:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.GeoMag"/>
 			<setHeader headerName="pluginName">
 				<constant>geomag</constant>
 			</setHeader>
