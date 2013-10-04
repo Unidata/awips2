@@ -62,6 +62,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Sep 25, 2013  2408      mpduff     Added sort to subscription lists.
  * Sep 27, 2013  #2419     lvenable   Update code to reflect changes made in
  *                                    the dual list.
+ * Oct 03, 2013  2375      mpduff     Add an apply button.
  * 
  * </pre>
  * 
@@ -403,22 +404,36 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
      */
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(6, false);
+        GridLayout gl = new GridLayout(3, false);
 
         Composite bottomComp = new Composite(shell, SWT.NONE);
         bottomComp.setLayout(gl);
         bottomComp.setLayoutData(gd);
 
-        // OK button
         int buttonWidth = 75;
+
+        // Apply Button
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
+        Button applyBtn = new Button(bottomComp, SWT.PUSH);
+        applyBtn.setText("Apply");
+        applyBtn.setLayoutData(btnData);
+        applyBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                applyAction();
+            }
+        });
+
+        // OK button
+        btnData = new GridData(buttonWidth, SWT.DEFAULT);
         Button okBtn = new Button(bottomComp, SWT.PUSH);
         okBtn.setText("OK");
         okBtn.setLayoutData(btnData);
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                handleOK();
+                applyAction();
+                close();
             }
         });
 
@@ -436,10 +451,10 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
     }
 
     /**
-     * Handle the OK button action.
+     * Apply the changes.
      * 
      */
-    private void handleOK() {
+    private void applyAction() {
 
         setReturnValue(true);
 
@@ -491,7 +506,6 @@ public class NotificationFilterDlg extends CaveSWTDialogBase {
         configManager.saveXml();
 
         callback.tableChanged();
-        close();
     }
 
     /**
