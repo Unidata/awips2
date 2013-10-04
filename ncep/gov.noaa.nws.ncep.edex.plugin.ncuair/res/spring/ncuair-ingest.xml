@@ -36,13 +36,13 @@
 			<setHeader headerName="pluginName">
 				<constant>ncuair</constant>
 			</setHeader>
-			<!-- chin to uri="jms-generic:queue:Ingest.AlphaNumeric" /-->
-			<to uri="jms-generic:queue:Ingest.ncuair" />
+			<!-- chin to uri="jms-durable:queue:Ingest.AlphaNumeric" /-->
+			<to uri="jms-durable:queue:Ingest.ncuair" />
 		</route>
 		<!-- Chin, decodes and persist one batch of records at one time for better performance -->
 		<route id="ncuairIngestRoute">
 			
-			<from uri="jms-generic:queue:Ingest.ncuair" />
+			<from uri="jms-durable:queue:Ingest.ncuair" />
 			<setHeader headerName="pluginName">
 				<constant>ncuair</constant>
 			</setHeader>
