@@ -29,16 +29,28 @@ package com.raytheon.uf.common.serialization;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 11, 2008				njensen	    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 11, 2008             njensen     Initial creation
+ * Oct 02, 2013 2361        njensen     Deprecated
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
+ * @deprecated This interface is deprecated but may still be required until it
+ *             is completely removed from the system. DynamicSerialize no longer
+ *             requires ISerializableObjects, just use the DynamicSerialize
+ *             annotations. JAXB/XML only requires it if you use the global JAXB
+ *             context through {@link SerializationUtil}, however that is a
+ *             performance hit and deprecated and you should instead create your
+ *             own {@link JAXBManager}. Hibernate still requires
+ *             ISerializableObject but an alternative will be provided in the
+ *             near future.
+ * 
  */
 
+@Deprecated
 public interface ISerializableObject {
 
 }
