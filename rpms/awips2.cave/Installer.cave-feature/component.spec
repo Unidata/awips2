@@ -186,6 +186,33 @@ cleanupUnzip
 # Remove the backup.
 rm -rf /awips2/cave.bak
 
+# move localization files in unpacked plugins to the
+# cave etc directory.
+if [ ! -d /awips2/cave/etc ]; then
+   mkdir -p /awips2/cave/etc
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+pushd . > /dev/null 2>&1
+cd /awips2/cave/plugins
+for localizationDirectory in `find . -maxdepth 2 -name localization -type d`;
+do
+   # copy the contents of the localization directory to the
+   # etc directory.
+   cp -r ${localizationDirectory}/* /awips2/cave/etc
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   
+   # remove the localization directory.
+   rm -rf ${localizationDirectory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
+popd > /dev/null 2>&1
+
 %preun
 # Do not use p2 to remove the feature if this is an upgrade.
 if [ "${1}" = "1" ]; then
