@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.edex.database.dao.ISessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
@@ -33,19 +35,20 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttr
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2013 2106       djohnson     Initial creation
+ * Oct 2   2012  1797      dhladky      Generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-interface ISubscriptionRetrievalAttributesDao extends
-        ISessionManagedDao<Long, SubscriptionRetrievalAttributes> {
+interface ISubscriptionRetrievalAttributesDao<T extends Time, C extends Coverage> extends
+        ISessionManagedDao<Long, SubscriptionRetrievalAttributes<T, C>> {
 
     /**
      * @param retrieval
      * @return
      */
-    SubscriptionRetrievalAttributes getBySubscriptionRetrieval(
+    SubscriptionRetrievalAttributes<T, C> getBySubscriptionRetrieval(
             SubscriptionRetrieval retrieval);
 }

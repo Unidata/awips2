@@ -36,6 +36,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 05, 2013 2038      djohnson     Initial creation
+ * Oct 3, 2013  1797      dhladky      generics
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ public class PointDataSetMetaDataFixture extends
         obj.setDataSetDescription("description" + seedValue);
         obj.setDataSetName(dataSet.getDataSetName());
         try {
-            obj.setDate(new ImmutableDate(TimeFixture.INSTANCE.get(seedValue)
+            obj.setDate(new ImmutableDate(GriddedTimeFixture.INSTANCE.get(seedValue)
                     .getStartDate()));
         } catch (ParseException e) {
             throw new RuntimeException(e);
