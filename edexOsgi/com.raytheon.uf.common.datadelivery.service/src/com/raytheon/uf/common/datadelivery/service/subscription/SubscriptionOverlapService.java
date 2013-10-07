@@ -25,8 +25,10 @@ import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -58,7 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class SubscriptionOverlapService implements ISubscriptionOverlapService {
+public class SubscriptionOverlapService<T extends Time, C extends Coverage> implements ISubscriptionOverlapService<T, C> {
 
     /**
      * Base response object implementing {@link ISubscriptionOverlapResponse}.
@@ -110,7 +112,7 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
     
     private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = "datadelivery/";
 
-    private final ISubscriptionDuplicateChecker duplicateChecker;
+    private final ISubscriptionDuplicateChecker<T, C> duplicateChecker;
 
     private final JAXBManager jaxbManager;
 
@@ -120,7 +122,7 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
      * @param duplicateChecker
      */
     public SubscriptionOverlapService(
-            ISubscriptionDuplicateChecker duplicateChecker) {
+            ISubscriptionDuplicateChecker<T,C> duplicateChecker) {
         this.duplicateChecker = duplicateChecker;
 
         try {
@@ -138,8 +140,8 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
      * {@inheritDoc}
      */
     @Override
-    public ISubscriptionOverlapResponse isOverlapping(Subscription sub1,
-            Subscription sub2) {
+    public ISubscriptionOverlapResponse isOverlapping(Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
         // Ignore requests to compare with itself
         if (sub1.getName().equals(sub2.getName())) {
             return new SubscriptionOverlapResponse(false, false);
@@ -210,7 +212,7 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
      * @param sub2
      * @return
      */
-    private SubscriptionOverlapResponse processGriddedSubscriptionOverlap(GridSubscriptionOverlapConfig config, Subscription sub1, Subscription sub2) {
+    private SubscriptionOverlapResponse processGriddedSubscriptionOverlap(GridSubscriptionOverlapConfig config, Subscription<T, C> sub1, Subscription<T, C> sub2) {
        
         final int parameterDuplicationPercent = duplicateChecker
                 .getParameterDuplicationPercent(sub1, sub2);
@@ -240,7 +242,7 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
      * @param sub2
      * @return
      */
-    private SubscriptionOverlapResponse processPointSubscriptionOverlap(PointSubscriptionOverlapConfig config, Subscription sub1, Subscription sub2) {
+    private SubscriptionOverlapResponse processPointSubscriptionOverlap(PointSubscriptionOverlapConfig config, Subscription<T, C> sub1, Subscription<T, C> sub2) {
         
         final int parameterDuplicationPercent = duplicateChecker
                 .getParameterDuplicationPercent(sub1, sub2);
@@ -310,7 +312,7 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
      * @param sub2
      * @return
      */
-    private SubscriptionOverlapResponse getOverlap(SubscriptionOverlapConfig config, Subscription sub1, Subscription sub2) {
+    private SubscriptionOverlapResponse getOverlap(SubscriptionOverlapConfig config, Subscription<T, C> sub1, Subscription<T,C> sub2) {
         
         SubscriptionOverlapResponse response = null;
         DataType type = sub1.getDataSetType();
