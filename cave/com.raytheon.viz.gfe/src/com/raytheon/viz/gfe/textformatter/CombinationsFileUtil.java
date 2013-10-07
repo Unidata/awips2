@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -84,7 +83,8 @@ public class CombinationsFileUtil {
 
     public static String SAVED_COMBO_DIR = FileUtil.join("gfe", "comboData");
 
-    private static final SingleTypeJAXBManager<ComboData> jaxb = initializeJAXB();
+    private static final SingleTypeJAXBManager<ComboData> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ComboData.class);
 
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.NONE)
@@ -122,23 +122,6 @@ public class CombinationsFileUtil {
                 this.combos.add(new Entry(entry.getKey(), entry.getValue()));
             }
         }
-    }
-
-    /**
-     * Initializes the JAXB manager for reading/writing ComboData to/from XML.
-     * 
-     * @return the JAXBManager
-     */
-    private static SingleTypeJAXBManager<ComboData> initializeJAXB() {
-        SingleTypeJAXBManager<ComboData> retVal = null;
-        try {
-            retVal = new SingleTypeJAXBManager<ComboData>(ComboData.class);
-        } catch (JAXBException e) {
-            statusHandler
-                    .error("Error initializing ComboData JAXBManager, combinations files will not work",
-                            e);
-        }
-        return retVal;
     }
 
     /**
