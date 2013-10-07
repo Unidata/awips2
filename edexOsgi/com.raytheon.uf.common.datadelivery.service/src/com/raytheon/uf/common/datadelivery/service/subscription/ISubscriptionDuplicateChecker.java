@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 
 /**
  * Checks for duplication among subscriptions.
@@ -32,13 +34,14 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013 2000       djohnson     Initial creation
  * Sept 24, 2013 2386      dhladky      Added a method
+ * Oct 2, 2013   1797      dhladky      More Generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public interface ISubscriptionDuplicateChecker {
+public interface ISubscriptionDuplicateChecker<T extends Time, C extends Coverage> {
 
     /**
      * Returns the percent, 0-100, of how many parameters from sub2 are
@@ -49,7 +52,7 @@ public interface ISubscriptionDuplicateChecker {
      * 
      * @return 0-100
      */
-    int getParameterDuplicationPercent(Subscription sub1, Subscription sub2);
+    int getParameterDuplicationPercent(Subscription<T, C> sub1, Subscription<T, C> sub2);
 
     /**
      * Returns the percent, 0-100, of how many forecast hours from sub2 are
@@ -60,7 +63,7 @@ public interface ISubscriptionDuplicateChecker {
      * 
      * @return 0-100
      */
-    int getForecastHourDuplicationPercent(Subscription sub1, Subscription sub2);
+    int getForecastHourDuplicationPercent(Subscription<T, C> sub1, Subscription<T, C> sub2);
     
     /**
      * Returns the percent, 0-100, of how similar the time is from sub2 to sub1.
@@ -70,7 +73,7 @@ public interface ISubscriptionDuplicateChecker {
      * 
      * @return 0-100
      */
-    int getTimeDuplicationPercent(Subscription sub1, Subscription sub2);
+    int getTimeDuplicationPercent(Subscription<T, C> sub1, Subscription<T, C> sub2);
 
     /**
      * Returns the percent, 0-100, of how many cycle hours from sub2 are
@@ -81,7 +84,7 @@ public interface ISubscriptionDuplicateChecker {
      * 
      * @return 0-100
      */
-    int getCycleDuplicationPercent(Subscription sub2, Subscription sub1);
+    int getCycleDuplicationPercent(Subscription<T, C> sub2, Subscription<T, C> sub1);
 
     /**
      * Returns the percent, 0-100, of how much spatial coverage from sub2 is
@@ -92,5 +95,5 @@ public interface ISubscriptionDuplicateChecker {
      * 
      * @return 0-100
      */
-    int getSpatialDuplicationPercent(Subscription sub1, Subscription sub2);
+    int getSpatialDuplicationPercent(Subscription<T, C> sub1, Subscription<T, C> sub2);
 }
