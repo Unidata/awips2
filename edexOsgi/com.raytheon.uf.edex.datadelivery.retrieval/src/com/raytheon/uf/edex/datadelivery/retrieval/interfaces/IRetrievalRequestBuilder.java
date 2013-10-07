@@ -20,6 +20,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
  * further licensing information
  * */
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
  * Jan 16, 2011            dhladky     Initial creation
  * Aug 14, 2012 1022       djohnson    Remove redundant public modifiers.
  * May 12, 2013 753        dhladky     Madis additions
+ * Oct 1, 2013  1797       dhladky     Generics
  * 
  * </pre>
  * 
@@ -42,14 +44,14 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
  * @author dhladky
  * @version 1.0
  */
-public interface IRetrievalRequestBuilder {
+public interface IRetrievalRequestBuilder<T extends Time, C extends Coverage> {
 
-    String processTime(Time prtXML);
+    String processTime(T prtXML);
 
-    String processCoverage();
+    String processCoverage(C Coverage);
 
     String getRequest();
 
-    RetrievalAttribute getAttribute();
+    RetrievalAttribute<T, C> getAttribute();
 
 }
