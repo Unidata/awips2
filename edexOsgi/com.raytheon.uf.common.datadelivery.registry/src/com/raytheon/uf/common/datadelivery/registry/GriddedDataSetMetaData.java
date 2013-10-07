@@ -26,6 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 24, 2012    955      djohnson    Add {@link RegistryObject}.
  * Aug 20, 2012   0743      djohnson    Store cycle in a slot.
  * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
+ * Sept 30, 2013 1797       dhladky     Generics
  * 
  * </pre>
  * 
@@ -35,7 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso(OpenDapGriddedDataSetMetaData.class)
 public abstract class GriddedDataSetMetaData extends
-        DataSetMetaData {
+        DataSetMetaData<GriddedTime> {
 
     public static final String CYCLE_SLOT = "cycle";
 
