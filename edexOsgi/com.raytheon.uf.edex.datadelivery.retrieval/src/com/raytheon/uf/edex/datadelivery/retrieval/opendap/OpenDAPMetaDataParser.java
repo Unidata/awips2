@@ -38,6 +38,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
@@ -91,6 +92,7 @@ import dods.dap.DAS;
  * Jan 08, 2013            dhladky      Performance enhancements, specific model fixes.
  * Jan 18, 2013 1513       dhladky      Level look up improvements.
  * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * 
  * </pre>
  * 
@@ -237,7 +239,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         if (das.getAttributeTable(timecon) != null) {
             try {
                 AttributeTable at = das.getAttributeTable(timecon);
-                Time time = new Time();
+                GriddedTime time = new GriddedTime();
                 // number of times
                 time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance()
                         .trim(at.getAttribute(size).getValueAt(0))).intValue());
@@ -635,10 +637,10 @@ class OpenDAPMetaDataParser extends MetaDataParser {
     }
 
     @Override
-    public List<DataSetMetaData> parseMetaData(Provider provider,
+    public List<DataSetMetaData<?>> parseMetaData(Provider provider,
             LinkStore store, Collection collection, String dataDateFormat) {
 
-        final Map<OpenDapGriddedDataSet, List<DataSetMetaData>> metaDatas = new HashMap<OpenDapGriddedDataSet, List<DataSetMetaData>>();
+        final Map<OpenDapGriddedDataSet, List<DataSetMetaData<?>>> metaDatas = new HashMap<OpenDapGriddedDataSet, List<DataSetMetaData<?>>>();
 
         Set<String> linkKeys = new TreeSet<String>(store.getLinkKeys());
 
@@ -685,7 +687,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     serviceConfig.getConstantValue("BLANK")));
             dataSet.setParameters(getParameters(das, dataSet, gdsmd, link,
                     collection, dataDateFormat));
-            Time dataSetTime = gdsmd.getTime();
+            GriddedTime dataSetTime = gdsmd.getTime();
             if (dataSetTime == null) {
                 throw new IllegalStateException(
                         "The time cannot be null for a DataSetMetaData object!");
@@ -742,17 +744,17 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                         "The time cannot be null for a DataSet object!");
             }
 
-            List<DataSetMetaData> toStore = metaDatas.get(dataSet);
+            List<DataSetMetaData<?>> toStore = metaDatas.get(dataSet);
             if (toStore == null) {
-                toStore = new ArrayList<DataSetMetaData>();
+                toStore = new ArrayList<DataSetMetaData<?>>();
                 metaDatas.put(dataSet, toStore);
             }
             toStore.add(gdsmd);
         }
 
-        List<DataSetMetaData> parsedMetadatas = new ArrayList<DataSetMetaData>();
-        for (DataSet dataSet : metaDatas.keySet()) {
-            List<DataSetMetaData> dataSetMetaDatas = metaDatas.get(dataSet);
+        List<DataSetMetaData<?>> parsedMetadatas = new ArrayList<DataSetMetaData<?>>();
+        for (DataSet<GriddedTime, GriddedCoverage> dataSet : metaDatas.keySet()) {
+            List<DataSetMetaData<?>> dataSetMetaDatas = metaDatas.get(dataSet);
 
             storeDataSet(dataSet);
             storeMetaData(dataSetMetaDatas, dataSet);

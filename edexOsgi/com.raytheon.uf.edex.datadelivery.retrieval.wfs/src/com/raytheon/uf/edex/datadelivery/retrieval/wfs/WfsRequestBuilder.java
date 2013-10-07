@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sept 11, 2013 2351      dhladky      Fixed adhoc request times
  * Sept 17, 2013 2383      bgonzale     Removed exceptional code for point start and
  *                                      end since the times will be correct now.
+ * Oct 1, 2013   1797      dhladky      Generics                                    
  * 
  * </pre>
  * 
@@ -42,7 +43,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class WfsRequestBuilder extends RequestBuilder {
+public class WfsRequestBuilder<T extends Time, C extends Coverage> extends RequestBuilder<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsRequestBuilder.class);
@@ -120,7 +121,7 @@ public class WfsRequestBuilder extends RequestBuilder {
     private String typeName = null;
         
     public WfsRequestBuilder(WfsRetrievalAdapter adapter,
-            RetrievalAttribute attXML) {
+            RetrievalAttribute<T, C> attXML) {
         super(attXML);
         // Create XML doc
         this.typeName = attXML.getPlugin();
@@ -132,7 +133,7 @@ public class WfsRequestBuilder extends RequestBuilder {
             buffer.append(AND_OPEN).append(NEW_LINE);
         }
         
-        buffer.append(processTime(attXML.getTime())).append(processCoverage());
+        buffer.append(processTime(attXML.getTime())).append(processCoverage(attXML.getCoverage()));
   
         if (attXML.getCoverage() != null && attXML.getTime() != null) {
             buffer.append(AND_CLOSE).append(NEW_LINE);
@@ -186,7 +187,7 @@ public class WfsRequestBuilder extends RequestBuilder {
     }
   
     @Override
-    public String processTime(Time inTime) {
+    public String processTime(T inTime) {
 
         try {
 
@@ -223,9 +224,7 @@ public class WfsRequestBuilder extends RequestBuilder {
     }
 
     @Override
-    public String processCoverage() {
-
-        Coverage coverage = getRetrievalAttribute().getCoverage();
+    public String processCoverage(C coverage) {
 
         if (coverage != null) {
             try {
@@ -273,7 +272,7 @@ public class WfsRequestBuilder extends RequestBuilder {
     }
 
     @Override
-    public RetrievalAttribute getAttribute() {
+    public RetrievalAttribute<T, C> getAttribute() {
         return getRetrievalAttribute();
     }
     
