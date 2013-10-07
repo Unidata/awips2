@@ -4,10 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFTIAttributeXML implements ISerializableObject {
+public class FFTIAttributeXML {
     @XmlElement(name = "Name")
     protected String attribName;
 
