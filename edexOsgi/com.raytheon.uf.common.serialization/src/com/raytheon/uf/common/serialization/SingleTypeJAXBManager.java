@@ -23,6 +23,9 @@ import java.io.File;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+
 /**
  * A JAXBManager that only supports a single class (including any classes that
  * are contained within that class). Useful when dealing specifically with an
@@ -46,6 +49,9 @@ import javax.xml.bind.JAXBException;
  */
 
 public class SingleTypeJAXBManager<T extends Object> extends JAXBManager {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SingleTypeJAXBManager.class);
 
     protected Class<T> type;
 
@@ -84,6 +90,31 @@ public class SingleTypeJAXBManager<T extends Object> extends JAXBManager {
     public T unmarshalFromXmlFile(String filePath)
             throws SerializationException {
         return super.unmarshalFromXmlFile(type, new File(filePath));
+    }
+
+    /**
+     * Creates a SingleTypeJAXBManager for a specified type, but catches any
+     * JAXBExceptions thrown and logs them. If an exception does occur, returns
+     * null.
+     * 
+     * @param clazz
+     *            the class of the object to read/write XML for
+     * @return the SingleTypeJAXBManager or null if an exception occurred
+     */
+    public static <A> SingleTypeJAXBManager<A> createWithoutException(
+            Class<A> clazz) {
+        SingleTypeJAXBManager<A> retVal = null;
+        try {
+            retVal = new SingleTypeJAXBManager<A>(clazz);
+        } catch (JAXBException e) {
+            // technically this should only ever happen if a developer messes
+            // up, so we're going to print the stacktrace too as extra warning
+            e.printStackTrace();
+            statusHandler.error("Error initializing SingleTypeJAXBManager for "
+                    + clazz.getName(), e);
+        }
+
+        return retVal;
     }
 
 }
