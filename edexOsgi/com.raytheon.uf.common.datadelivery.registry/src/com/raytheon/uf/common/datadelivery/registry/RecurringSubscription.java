@@ -60,6 +60,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Changed to use Set for office id.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Sept 30,2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
@@ -70,8 +71,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlSeeAlso({ PendingSiteSubscription.class, PendingSharedSubscription.class,
         AdhocSubscription.class, SiteSubscription.class,
         SharedSubscription.class })
-public abstract class RecurringSubscription implements ISerializableObject,
-        Serializable, Subscription {
+public abstract class RecurringSubscription<T extends Time, C extends Coverage> implements ISerializableObject,
+        Serializable, Subscription<T, C> {
 
     private static final long serialVersionUID = -6422673887457060034L;
 
@@ -90,7 +91,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @param name
      *            New subscription name
      */
-    public RecurringSubscription(Subscription sub, String name) {
+    public RecurringSubscription(Subscription<T, C> sub, String name) {
         this.setActive(sub.isActive());
         this.setActivePeriodEnd(sub.getActivePeriodEnd());
         this.setActivePeriodStart(sub.getActivePeriodStart());
@@ -126,7 +127,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @param sub
      *            Subscription object
      */
-    public RecurringSubscription(Subscription sub) {
+    public RecurringSubscription(Subscription<T, C> sub) {
         this(sub, sub.getName());
     }
 
@@ -186,13 +187,13 @@ public abstract class RecurringSubscription implements ISerializableObject,
 
     @XmlElement(name = "coverage")
     @DynamicSerializeElement
-    private Coverage coverage;
+    private C coverage;
 
     @XmlElement
     @DynamicSerializeElement
     @SlotAttribute
     @SlotAttributeConverter(TimeSlotConverter.class)
-    private Time time;
+    private T time;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -483,7 +484,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @return coverage
      */
     @Override
-    public Coverage getCoverage() {
+    public C getCoverage() {
         return coverage;
     }
 
@@ -494,7 +495,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      *            coverage area
      */
     @Override
-    public void setCoverage(Coverage coverage) {
+    public void setCoverage(C coverage) {
         this.coverage = coverage;
     }
 
@@ -504,7 +505,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @return subscription time
      */
     @Override
-    public Time getTime() {
+    public T getTime() {
         return time;
     }
 
@@ -515,7 +516,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      *            time stamp
      */
     @Override
-    public void setTime(Time time) {
+    public void setTime(T time) {
         this.time = time;
     }
 
@@ -775,7 +776,8 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Subscription) {
-            Subscription other = (Subscription) obj;
+            @SuppressWarnings("unchecked")
+            Subscription<T, C> other = (Subscription<T, C>) obj;
 
             EqualsBuilder builder = new EqualsBuilder();
             builder.append(getProvider(), other.getProvider());

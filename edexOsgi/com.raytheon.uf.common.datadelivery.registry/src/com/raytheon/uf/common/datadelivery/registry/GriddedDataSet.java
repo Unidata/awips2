@@ -41,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2012 1022       djohnson     Initial creation
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public abstract class GriddedDataSet extends DataSet {
+public abstract class GriddedDataSet extends DataSet<GriddedTime, GriddedCoverage> {
 
     @XmlElement
     @DynamicSerializeElement
@@ -106,7 +107,7 @@ public abstract class GriddedDataSet extends DataSet {
      * {@inheritDoc}
      */
     @Override
-    public void combine(DataSet toCombine) {
+    public void combine(DataSet<GriddedTime, GriddedCoverage> toCombine) {
         super.combine(toCombine);
 
         if (toCombine instanceof GriddedDataSet) {
