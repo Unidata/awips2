@@ -24,26 +24,22 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "ScanMonitorConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANMonitorConfigXML implements ISerializableObject
-{
+public class SCANMonitorConfigXML {
     @XmlElement(name = "CellTilt")
     private double cellTilt;
-    
+
     @XmlElement(name = "DmdTilt")
     private double dmdTilt;
-    
+
     @XmlElement(name = "Interval")
     private int interval;
-    
+
     @XmlElement(name = "Plugins")
     private String plugins;
-    
-    public SCANMonitorConfigXML()
-    {        
+
+    public SCANMonitorConfigXML() {
     }
 
     public double getCellTilt() {
@@ -68,13 +64,13 @@ public class SCANMonitorConfigXML implements ISerializableObject
 
     public void setInterval(int interval) {
         this.interval = interval;
-    } 
-    
+    }
+
     public String getPlugins() {
         return plugins;
     }
 
     public void setPlugins(String plugins) {
         this.plugins = plugins;
-    }    
+    }
 }
