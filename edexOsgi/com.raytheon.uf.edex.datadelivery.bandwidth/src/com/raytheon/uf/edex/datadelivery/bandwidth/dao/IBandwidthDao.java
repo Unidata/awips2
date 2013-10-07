@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.SortedSet;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
@@ -56,7 +58,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * @version 1.0
  */
 
-public interface IBandwidthDao {
+public interface IBandwidthDao<T extends Time, C extends Coverage> {
 
     /**
      * Get BandwidthAllocations.
@@ -160,7 +162,7 @@ public interface IBandwidthDao {
      *         provider, name and dataSetName and the specified subscription.
      */
     List<BandwidthSubscription> getBandwidthSubscription(
-            Subscription subscription);
+            Subscription<T, C> subscription);
 
     /**
      * Get a BandwidthSubscriptions.
@@ -307,7 +309,7 @@ public interface IBandwidthDao {
      * @return A newly created and persisted BandwidthDataSetUpdate Object.
      */
     BandwidthDataSetUpdate newBandwidthDataSetUpdate(
-            DataSetMetaData dataSetMetaData);
+            DataSetMetaData<T> dataSetMetaData);
 
     /**
      * Create a new BandwidthSubscription Object based on the Subscription and
@@ -323,7 +325,7 @@ public interface IBandwidthDao {
      * 
      * @return A newly created and persisted BandwidthSubscription Object.
      */
-    BandwidthSubscription newBandwidthSubscription(Subscription subscription,
+    BandwidthSubscription newBandwidthSubscription(Subscription<T, C> subscription,
             Calendar baseReferenceTime);
 
     /**
@@ -371,7 +373,7 @@ public interface IBandwidthDao {
      * @param attributes
      *            The SubscriptionRetrievalAttributes to store.
      */
-    void store(SubscriptionRetrievalAttributes attributes);
+    void store(SubscriptionRetrievalAttributes<T, C> attributes);
 
     /**
      * Persist a List of SubscriptionRetrievals to the database.
@@ -388,7 +390,7 @@ public interface IBandwidthDao {
      *            The entities to store.
      */
     void storeSubscriptionRetrievalAttributes(
-            List<SubscriptionRetrievalAttributes> retrievalAttributes);
+            List<SubscriptionRetrievalAttributes<T, C>> list);
 
     /**
      * Persist a {@link BandwidthSubscription} to the database.
@@ -464,7 +466,7 @@ public interface IBandwidthDao {
     /**
      * @param attributes
      */
-    void update(SubscriptionRetrievalAttributes attributes);
+    void update(SubscriptionRetrievalAttributes<T,C> attributes);
 
     /**
      * Get the {@link SubscriptionRetrievalAttributes} for the
@@ -473,7 +475,7 @@ public interface IBandwidthDao {
      * @param retrieval
      * @return the attributes
      */
-    SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
+    SubscriptionRetrievalAttributes<T, C> getSubscriptionRetrievalAttributes(
             SubscriptionRetrieval retrieval);
 
     /**
@@ -484,5 +486,5 @@ public interface IBandwidthDao {
      * 
      * @return the SubscriptionStatusSummary
      */
-    SubscriptionStatusSummary getSubscriptionStatusSummary(Subscription sub);
+    SubscriptionStatusSummary getSubscriptionStatusSummary(Subscription<T, C> sub);
 }
