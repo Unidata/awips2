@@ -41,11 +41,10 @@ import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.SourceOverrideXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-
 
 /**
  * FFMPRunConfigurationManager
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 2012-09-04   DR 14404   gzhang      Fixing ConcurrentModificationException
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Aug 13, 2013 1742       dhladky     Concurrent mod exception on update fixed
+ * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -67,8 +67,13 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "ffmp"
-            + IPathManager.SEPARATOR
-            + "FFMPRunConfig.xml";
+            + IPathManager.SEPARATOR + "FFMPRunConfig.xml";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPRunConfigurationManager.class);
+
+    private static final SingleTypeJAXBManager<FFMPRunConfigXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(FFMPRunConfigXML.class);
 
     /**
      * FFMP Run Configuration XML object.
@@ -78,12 +83,9 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
     protected boolean isPopulated;
 
     private LocalizationFile lf = null;
-    
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FFMPRunConfigurationManager.class);
-    
+
     private CopyOnWriteArrayList<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
-    
+
     /** Singleton instance of this class */
     private static FFMPRunConfigurationManager instance = new FFMPRunConfigurationManager();
 
@@ -146,7 +148,7 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
         FFMPRunConfigXML configXmltmp = null;
 
-        configXmltmp = SerializationUtil.jaxbUnmarshalFromXmlFile(FFMPRunConfigXML.class, file.getAbsolutePath());
+        configXmltmp = jaxb.unmarshalFromXmlFile(file.getAbsolutePath());
 
         configXml = configXmltmp;
         isPopulated = true;
@@ -176,14 +178,14 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
         try {
             // System.out.println("Saving -- "
             // + newXmlFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
 
             lf = newXmlFile;
         } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.ERROR, "Couldn't save config file.", e);
+            statusHandler.handle(Priority.ERROR, "Couldn't save config file.",
+                    e);
         }
     }
 
@@ -282,10 +284,8 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
                 }
 
             } catch (SerializationException e) {
-                statusHandler.handle(
-                        Priority.WARN,
-                        "FFMPRunConfigurationManager: "
-                                + message.getFileName()
+                statusHandler.handle(Priority.WARN,
+                        "FFMPRunConfigurationManager: " + message.getFileName()
                                 + " couldn't be updated.", e);
             }
         }
