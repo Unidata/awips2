@@ -26,11 +26,11 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.Time;
 
 /**
  * Test {@link OpenDAPRetrievalGenerator}.
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
  * Sep 24, 2012 1209       djohnson     Test for NO_CYCLE metadatas and subscriptions.
  * Oct 17, 2012 0726       djohnson     Remove unused code.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * 
  * </pre>
  * 
@@ -55,12 +56,13 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
  */
 public class OpenDAPRetrievalGeneratorTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSatisfiesSubscriptionCriteriaReturnsFalseWhenMetaDataIsForNonSubscribedCycle() {
-        Time time = new Time();
+        GriddedTime time = new GriddedTime();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        SiteSubscription subscription = new SiteSubscription();
+        SiteSubscription<GriddedTime, GriddedCoverage> subscription = new SiteSubscription<GriddedTime, GriddedCoverage>();
         subscription.setTime(time);
         
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -71,12 +73,13 @@ public class OpenDAPRetrievalGeneratorTest {
                 subscription, metaData));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSatisfiesSubscriptionCriteriaReturnsFalseWhenMetaDataDoesNotSpecifyCycle() {
-        Time time = new Time();
+        GriddedTime time = new GriddedTime();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        SiteSubscription subscription = new SiteSubscription();
+        SiteSubscription<GriddedTime, GriddedCoverage> subscription = new SiteSubscription<GriddedTime, GriddedCoverage>();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -87,12 +90,13 @@ public class OpenDAPRetrievalGeneratorTest {
                 subscription, metaData));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSatisfiesSubscriptionCriteriaReturnsTrueWhenMetaDataIsForSubscribedCycle() {
-        Time time = new Time();
+        GriddedTime time = new GriddedTime();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        Subscription subscription = new SiteSubscription();
+        SiteSubscription<GriddedTime, GriddedCoverage> subscription = new SiteSubscription<GriddedTime, GriddedCoverage>();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -103,13 +107,14 @@ public class OpenDAPRetrievalGeneratorTest {
                 subscription, metaData));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSatisfiesSubscriptionCriteriaReturnsTrueWhenMetaDataIsForDailyModel() {
-        Time time = new Time();
+        GriddedTime time = new GriddedTime();
         time.setCycleTimes(Arrays
                 .<Integer> asList(GriddedDataSetMetaData.NO_CYCLE));
 
-        Subscription subscription = new SiteSubscription();
+        SiteSubscription<GriddedTime, GriddedCoverage> subscription = new SiteSubscription<GriddedTime, GriddedCoverage>();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
