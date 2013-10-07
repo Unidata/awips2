@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Sep 24, 2012 1157      mpduff     Changed to extend IniitialPendingSubscription.
  * Nov 19, 2012 1166      djohnson   Clean up JAXB representation of registry objects.
  * Mar 29, 2013 1841      djohnson   Subscription is now UserSubscription.
+ * Oct 1, 2013  1797      dhladky    Added some start for generics
  * 
  * </pre>
  * 
@@ -59,8 +60,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = AssociationTypes.RELATED_TO, keyFields = {
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = SiteSubscription.class) })
-public class PendingSiteSubscription extends InitialPendingSiteSubscription
-        implements PendingSubscription, ISerializableObject {
+public class PendingSiteSubscription<T extends Time, C extends Coverage> extends InitialPendingSiteSubscription<T, C>
+        implements PendingSubscription<T, C>, ISerializableObject {
 
     private static final long serialVersionUID = 7607153845750089310L;
 
@@ -68,7 +69,7 @@ public class PendingSiteSubscription extends InitialPendingSiteSubscription
 
     }
 
-    public PendingSiteSubscription(SiteSubscription subscription,
+    public PendingSiteSubscription(SiteSubscription<T, C> subscription,
             String currentUser) {
         super(subscription, currentUser);
     }

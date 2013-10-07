@@ -32,6 +32,7 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
  * ------------ ---------- ----------- --------------------------
  * May 15, 2012 455        jspinks     Initial creation
  * May 29, 2013 753        dhladky     Updated the way point datasets are sent.
+ * Sept 25, 2013 1797      dhladky     separated time and gridded time
  *
  * </pre>
  *
@@ -80,10 +81,10 @@ public class TimeSlotConverter implements SlotConverter {
                 }
             }
 
-        // This will convert to GriddedTime when I execute DR to
-        } else if (slotValue instanceof Time) {
+        // Handle Gridded Times
+        } else if (slotValue instanceof GriddedTime) {
             
-            Time t = (Time)slotValue;
+            GriddedTime t = (GriddedTime)slotValue;
             SimpleDateFormat df = new SimpleDateFormat(CalendarAttribute.DATE_TIME_FORMAT);
             Calendar current = Calendar.getInstance();
             Calendar end = Calendar.getInstance();

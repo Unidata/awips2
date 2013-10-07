@@ -48,9 +48,12 @@ import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSumm
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -83,18 +86,19 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 25, 2013 2106       djohnson     BandwidthBucket is a big boy class now.
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Jul 18, 2013 1653       mpduff       Added test for sub status summary.
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest {
+public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends AbstractWfoBandwidthManagerIntTest<T, C> {
 
     private static final int ONE_HUNDRED = 100;
 
-    private final BandwidthService service = new WfoBandwidthService() {
+    private final BandwidthService<T, C> service = new WfoBandwidthService<T, C>() {
         @Override
-        protected Object getResponseFromServer(IBandwidthRequest request)
+        protected Object getResponseFromServer(IBandwidthRequest<T, C> request)
                 throws Exception {
             // Serialize and deserialize each call, this makes sure the dynamic
             // serialize annotations are correct as well
@@ -118,8 +122,8 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws RegistryHandlerException {
 
         // Two subscriptions that will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
         final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
                 .getSubscriptionHandler();
@@ -144,8 +148,8 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws RegistryHandlerException {
 
         // Two subscriptions that will fill up only a third of a bucket
-        Subscription subscription = createSubscriptionThatFillsAThirdOfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsAThirdOfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsAThirdOfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsAThirdOfABucket();
 
         ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
                 .getSubscriptionHandler();
@@ -208,15 +212,16 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testScheduleTwoSubscriptionsThatFitReturnsEmptyList() {
         // Two subscriptions, the sum of which will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
 
+        @SuppressWarnings("unchecked")
         Set<String> unscheduledSubscriptions = service.schedule(Arrays.asList(
                 subscription, subscription2));
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -224,17 +229,18 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     @Test
     public void testScheduleTwoSubscriptionsSecondDoesNotFitReturnsSecondsName() {
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
         // Requires its own full bucket, so cycle hour 3 will succeed and cycle
         // hour 8 will not
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
+        @SuppressWarnings("unchecked")
         Set<String> unscheduledSubscriptions = service.schedule(Arrays.asList(
                 subscription, subscription2));
         verifySubscriptionWasNotAbleToBeFullyScheduled(
@@ -244,13 +250,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testScheduleSubscriptionReturnsNamesOfUnscheduledSubscriptions() {
 
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
@@ -265,15 +271,16 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testProposeScheduleTwoSubscriptionsThatFitReturnsEmptyList() {
 
         // Two subscriptions, the sum of which will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
 
+        @SuppressWarnings("unchecked")
         IProposeScheduleResponse response = service.proposeSchedule(Arrays
                 .asList(subscription, subscription2));
         Set<String> unscheduledSubscriptions = response
@@ -285,14 +292,15 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testProposeScheduleTwoSubscriptionsThatFitReturnsNotSetRequiredLatency() {
 
         // Two subscriptions, the sum of which will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
 
+        @SuppressWarnings("unchecked")
         IProposeScheduleResponse response = service.proposeSchedule(Arrays
                 .asList(subscription, subscription2));
         assertEquals(
@@ -305,14 +313,15 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testProposeScheduleTwoSubscriptionsThatFitReturnsNotSetRequiredDataSetSize() {
 
         // Two subscriptions, the sum of which will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
 
+        @SuppressWarnings("unchecked")
         IProposeScheduleResponse response = service.proposeSchedule(Arrays
                 .asList(subscription, subscription2));
         assertEquals(
@@ -325,17 +334,18 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testProposeScheduleTwoSubscriptionsSecondDoesNotFitReturnsSecondsName() {
 
         // Two subscriptions, the sum of which will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
         // Requires its own full bucket, so cycle hour 3 will succeed and cycle
         // hour 8 will not
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
+        @SuppressWarnings("unchecked")
         Set<String> unscheduledSubscriptions = service.proposeSchedule(
                 Arrays.asList(subscription, subscription2))
                 .getUnscheduledSubscriptions();
@@ -346,13 +356,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testProposeScheduleSubscriptionReturnsNamesOfUnscheduledSubscriptions() {
 
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
@@ -368,13 +378,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testProposeScheduleSubscriptionsSecondDoesntFitReturnsRequiredLatency() {
 
         // Two subscriptions that will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
@@ -390,13 +400,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testProposeScheduleSubscriptionsSecondDoesntFitReturnsRequiredSize() {
 
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpTenBuckets();
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpTenBuckets();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
@@ -415,8 +425,8 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testProposeScheduleSubscriptionsSecondDoesntFitReturnsRequiredSizeForSubscriptionUpdate() {
 
-        Subscription subscription = createSubscriptionThatFillsHalfABucket();
-        subscription.getTime().setCycleTimes(
+        Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
@@ -440,13 +450,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testDetermineRequiredSizeReturnsZeroIfUnableToFitAtAll() {
 
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
+        ((GriddedTime)subscription2.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
@@ -463,7 +473,7 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     @Test
     public void testReinitializeStartsNewBandwidthManager() {
-        BandwidthManager originalBandwidthManager = BandwidthServiceIntTest.this.bandwidthManager;
+        BandwidthManager<T, C> originalBandwidthManager = BandwidthServiceIntTest.this.bandwidthManager;
 
         service.reinitialize();
 
@@ -476,9 +486,10 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testGetEstimatedCompletionTimeReturnsLastBucketTimeForSubscription() {
 
-        AdhocSubscription subscription = AdhocSubscriptionFixture.INSTANCE
+        @SuppressWarnings("unchecked")
+        AdhocSubscription<T, C> subscription = (AdhocSubscription<T, C>) AdhocSubscriptionFixture.INSTANCE
                 .get();
-        subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
+        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(Integer.valueOf(0)));
         subscription.setDataSetSize(createSubscriptionThatFillsUpABucket()
                 .getDataSetSize());
 
@@ -496,13 +507,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testGetBandwidthGraphDataReturnsCorrectNumberOfSubscriptionNames() {
 
         // Two subscriptions that will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime()
+        ((GriddedTime)subscription2.getTime())
                 .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
@@ -518,13 +529,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testGetBandwidthGraphDataReturnsCorrectBinMinutes() {
 
         // Two subscriptions that will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime()
+        ((GriddedTime)subscription2.getTime())
                 .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
@@ -548,7 +559,7 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testGetBandwidthGraphDataForFragmentedSubscription() {
 
-        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpTwoBuckets();
         subscription.setLatencyInMinutes(6);
         subscription.setPriority(SubscriptionPriority.HIGH);
 
@@ -629,13 +640,13 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testGetBandwidthGraphDataReturnsCorrectTimeWindowsForSubscriptions() {
 
         // Two subscriptions that will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime()
+        ((GriddedTime)subscription2.getTime())
                 .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
@@ -662,15 +673,15 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testGetBandwidthGraphDataReturnsCorrectPrioritiesForSubscriptions() {
 
         // Two subscriptions that will fill up a bucket exactly
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpABucket();
         subscription.setPriority(SubscriptionPriority.NORMAL);
-        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+        Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
         subscription.setPriority(SubscriptionPriority.HIGH);
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime()
+        ((GriddedTime)subscription2.getTime())
                 .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
@@ -689,9 +700,9 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     @Test
     public void testProposeScheduleSubscriptionsReturnsStatusSummary() {
-        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpTwoBuckets();
 
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
         subscription.setLatencyInMinutes(3);
 
@@ -719,7 +730,7 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     @Test
     public void testProposeScheduleFragmentedSubscriptionReturnsStatusSummary() {
-        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+        Subscription<T, C> subscription = createSubscriptionThatFillsUpTwoBuckets();
         subscription.setLatencyInMinutes(6);
         subscription.setPriority(SubscriptionPriority.HIGH);
 
@@ -766,7 +777,7 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
      * @return the allocation
      */
     private BandwidthAllocation createAllocationToReserveMiddleBucket(
-            Subscription subscription) {
+            Subscription<T, C> subscription) {
         Calendar cal = TimeUtil.newCalendar();
         cal.set(Calendar.YEAR, 1970);
         cal.set(Calendar.MONTH, Calendar.JANUARY);
@@ -809,7 +820,7 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
      *            the subscription
      */
     private static void verifySubscriptionWasNotAbleToBeFullyScheduled(
-            Set<String> unscheduledSubscriptions, Subscription subscription) {
+            Set<String> unscheduledSubscriptions, @SuppressWarnings("rawtypes") Subscription subscription) {
         assertEquals(
                 "One and only one subscription should not have been able to fully schedule",
                 1, unscheduledSubscriptions.size());

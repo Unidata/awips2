@@ -77,6 +77,7 @@ import dods.dap.parser.ParseException;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Feb 06, 2013 1543       djohnson     Remove test setup methods no longer necessary.
  * Jun 24, 2013 2106       djohnson     Use in-memory registry object handlers.
+ * Spt 30, 2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
@@ -135,7 +136,7 @@ public class OpenDAPMetaDataParserRAPTest {
          * {@inheritDoc}
          */
         @Override
-        public void storeMetaData(List<DataSetMetaData> metaDatas,
+        public void storeMetaData(List<DataSetMetaData<?>> metaDatas,
                 DataSet dataSet) {
             metadatas = metaDatas;
         }
@@ -143,7 +144,7 @@ public class OpenDAPMetaDataParserRAPTest {
 
     private OpenDapGriddedDataSet dataSet;
 
-    private List<DataSetMetaData> metadatas;
+    private List<DataSetMetaData<?>> metadatas;
 
     private void performParse() {
         Link link = new Link(COLLECTION_NAME, LINK_URL);
@@ -315,7 +316,7 @@ public class OpenDAPMetaDataParserRAPTest {
         Collection coll = new Collection(COLLECTION_NAME, "rap", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
-        List<DataSetMetaData> results = parser.parseMetaData(provider,
+        List<DataSetMetaData<?>> results = parser.parseMetaData(provider,
                 linkStore, coll, DateFormat);
 
         assertEquals("Expected two DataSetMetaData objects to be parsed!", 2,

@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 02, 2013 1841       djohnson    Initial creation
+ * Sept 30, 2013 1797      dhladky     Generics
  * 
  * </pre>
  * 
@@ -53,8 +54,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
-public class InitialPendingSharedSubscription extends SharedSubscription
-        implements InitialPendingSubscription {
+public class InitialPendingSharedSubscription<T extends Time, C extends Coverage> extends SharedSubscription<T, C>
+        implements InitialPendingSubscription<T, C> {
     private static final long serialVersionUID = 2779084460608459754L;
 
     /** ID of the user requesting the change */
@@ -83,7 +84,7 @@ public class InitialPendingSharedSubscription extends SharedSubscription
      * @param user
      *            user
      */
-    public InitialPendingSharedSubscription(SharedSubscription subscription,
+    public InitialPendingSharedSubscription(SharedSubscription<T, C> subscription,
             String user) {
         super(subscription);
 
@@ -130,7 +131,7 @@ public class InitialPendingSharedSubscription extends SharedSubscription
      * {@inheritDoc}
      */
     @Override
-    public Subscription subscription() {
-        return new SharedSubscription(this);
+    public Subscription<T, C> subscription() {
+        return new SharedSubscription<T, C>(this);
     }
 }
