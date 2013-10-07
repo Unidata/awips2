@@ -33,6 +33,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Aug 27, 2012 0743       djohnson     Initial creation
  * Sep 28, 2012 1187       djohnson     Move reusable code to {@link BaseSubscriptionFixture}.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Oct 2,  2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
@@ -55,7 +56,7 @@ public class SiteSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected SiteSubscription getSubscription() {
-        return new SiteSubscription();
+    protected SiteSubscription<Time, Coverage> getSubscription() {
+        return new SiteSubscription<Time, Coverage>();
     }
 }
