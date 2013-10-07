@@ -19,11 +19,7 @@
  **/
 package com.raytheon.uf.common.monitor.scan.xml;
 
-//import com.raytheon.uf.common.serialization.ISerializableObject;
-
-public abstract class SCANAbstractXML
-{
-    public SCANAbstractXML()
-    {        
+public abstract class SCANAbstractXML {
+    public SCANAbstractXML() {
     }
 }
