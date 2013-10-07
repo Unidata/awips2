@@ -38,7 +38,7 @@ package com.raytheon.uf.common.datadelivery.registry;
  */
 
 public class SharedSubscriptionFixture extends
-        BaseSharedSubscriptionFixture<SharedSubscription> {
+        BaseSharedSubscriptionFixture<SharedSubscription<Time, Coverage>> {
 
     public static final SharedSubscriptionFixture INSTANCE = new SharedSubscriptionFixture();
 
@@ -53,8 +53,8 @@ public class SharedSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected SharedSubscription getSubscription() {
-        return new SharedSubscription();
+    protected SharedSubscription<Time, Coverage> getSubscription() {
+        return new SharedSubscription<Time, Coverage>();
     }
 
 }
