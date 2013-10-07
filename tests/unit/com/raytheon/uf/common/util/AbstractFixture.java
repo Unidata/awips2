@@ -21,6 +21,8 @@ package com.raytheon.uf.common.util;
 
 import java.util.Random;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+
 /**
  * A fixture class creates a domain object based on a seed value. Provided the
  * same seed value, two instances retrieved from the fixture will be
@@ -33,6 +35,7 @@ import java.util.Random;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2012 0743       djohnson     Initial creation
+ * Sept 25, 2013 1797      dhladky      Separated Time from GriddedTime
  * 
  * </pre>
  * 
