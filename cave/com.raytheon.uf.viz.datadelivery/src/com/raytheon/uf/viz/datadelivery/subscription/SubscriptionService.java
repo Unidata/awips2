@@ -44,9 +44,12 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -87,7 +90,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * May 23, 2013 1650       djohnson     Move out some presentation logic to DisplayForceApplyPromptDialog.
  * Jun 12, 2013 2038       djohnson     Launch subscription manager on the UI thread.
  * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary.
- * Jul 26, 2031 2232       mpduff       Refactored Data Delivery permissions.
+ * Jul 26, 2013 2232       mpduff       Refactored Data Delivery permissions.
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * 
  * </pre>
  * 
@@ -775,11 +779,7 @@ public class SubscriptionService implements ISubscriptionService {
 
         if (singleSubscription) {
             Subscription subscription = subscriptions.get(0);
-            final int maximumLatencyFromRules = SystemRuleManager.getInstance()
-                    .getLatency(
-                            subscription,
-                            Sets.newTreeSet(subscription.getTime()
-                                    .getCycleTimes()));
+            final int maximumLatencyFromRules = getMaximumAllowableLatency(subscription);
 
             return new ForceApplyPromptConfiguration(TITLE, msg.toString(),
                     proposeScheduleResponse.getRequiredLatency(),
@@ -852,5 +852,28 @@ public class SubscriptionService implements ISubscriptionService {
             unscheduledSub.setUnscheduled(true);
             subscriptionHandler.update(unscheduledSub);
         }
+    }
+
+    /**
+     * Gets the max allowed latency for this subscription from rules for it's
+     * type
+     * 
+     * @param subscription
+     * @return
+     */
+    private int getMaximumAllowableLatency(Subscription subscription) {
+
+        Time subTime = subscription.getTime();
+
+        if (subTime instanceof GriddedTime) {
+            return SystemRuleManager.getInstance().getLatency(subscription,
+                    Sets.newTreeSet(((GriddedTime) subTime).getCycleTimes()));
+        } else if (subTime instanceof PointTime) {
+            return ((PointTime) subTime).getInterval();
+        } else {
+            throw new IllegalArgumentException(subTime.getClass()
+                    + " Not yet implemented!");
+        }
+
     }
 }
