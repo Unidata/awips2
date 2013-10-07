@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2012 754       dhladky     Initial creation
+ * Sept 30, 2013 1797     dhladky     Generics
  * 
  * </pre>
  * 
@@ -45,7 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso(WFSPointDataSet.class)
 @DynamicSerialize
-public abstract class PointDataSet extends DataSet {
+public abstract class PointDataSet extends DataSet<PointTime, Coverage> {
 
     public PointDataSet() {
         this.dataSetType = DataType.POINT;
