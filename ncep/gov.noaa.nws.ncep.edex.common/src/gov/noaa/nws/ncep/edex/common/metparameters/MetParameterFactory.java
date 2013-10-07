@@ -21,6 +21,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 // TODO : this class can be enhanced to read AbstractNcParameter objects either from an extension point or to read
 // jaxb files from a directory. Till then the AbstractNcParameter's are just created here.
 //
+// njensen comment: If you end up deciding to read jaxb files, please make your own JAXBManager instead of using
+// SerializationUtil.  It will perform faster and you can remove the deprecated ISerializableObject from these
+// classes.
+//
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
