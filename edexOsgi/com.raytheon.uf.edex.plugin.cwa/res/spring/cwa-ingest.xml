@@ -24,7 +24,7 @@
         autoStartup="false">
 
         <route id="cwaIngestRoute">
-            <from uri="jms-generic:queue:Ingest.cwa?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.cwa"/>
             <setHeader headerName="pluginName">
                 <constant>cwa</constant>
             </setHeader>
