@@ -30,9 +30,9 @@
 	        <!-- technically with qpid should be able to make this a durable subscription and not need to forward to another queue -->
 	        <doTry>
                 <multicast>
-                    <to uri="jms-generic:queue:cpgsrvFiltering"/>
-                    <to uri="jms-generic:queue:scanCpgsrvFiltering"/>
-                    <to uri="jms-generic:queue:ffmpCpgsrvFiltering"/>
+                    <to uri="jms-durable:queue:cpgsrvFiltering"/>
+                    <to uri="jms-durable:queue:scanCpgsrvFiltering"/>
+                    <to uri="jms-durable:queue:ffmpCpgsrvFiltering"/>
                 </multicast>
 		        <doCatch>
 		            <exception>java.lang.Throwable</exception>
@@ -42,7 +42,7 @@
 	    </route>
 	    <route id="cpgsrvListenerRoute">
 	        <!-- technically with qpid should be able to make this a durable subscription and not need to forward to another queue -->
-            <from uri="jms-generic:queue:cpgsrvFiltering?concurrentConsumers=5&amp;destinationResolver=#qpidDurableResolver"/>
+            <from uri="jms-durable:queue:cpgsrvFiltering?concurrentConsumers=5"/>
 	        <doTry>
 		          <pipeline>
 		          	<bean ref="serializationUtil" method="transformFromThrift" />
