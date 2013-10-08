@@ -54,14 +54,25 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @Embeddable
 @XmlRootElement(name = "VersionInfo")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class VersionInfoType implements Serializable,
-        IPersistableDataObject<String> {
+        IPersistableDataObject<String>, Comparable<VersionInfoType> {
 
     private static final long serialVersionUID = -2869857115641981790L;
 
@@ -133,6 +144,54 @@ public class VersionInfoType implements Serializable,
     @Override
     public String getIdentifier() {
         return versionName;
+    }
+
+    @Override
+    public int compareTo(VersionInfoType obj) {
+
+        if (this.versionName == null && obj.getVersionName() == null) {
+            return 0;
+        } else if (this.versionName == null) {
+            return -1;
+        } else if (obj.getVersionName() == null) {
+            return 1;
+        }
+
+        String[] versionParts1 = this.versionName.split("\\.");
+        String[] versionParts2 = obj.versionName.split("\\.");
+
+        for (int i = 0; i < versionParts1.length; i++) {
+            int part1 = Integer.parseInt(versionParts1[i]);
+            if (i >= versionParts2.length) {
+                return 1;
+            }
+            int part2 = Integer.parseInt(versionParts2[i]);
+            if (part1 > part2) {
+                return 1;
+            } else if (part1 < part2) {
+                return -1;
+            } else if (i >= versionParts1.length - 1
+                    && versionParts2.length > i) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    public boolean greaterThan(VersionInfoType obj) {
+        return this.compareTo(obj) > 0 ? true : false;
+    }
+
+    public boolean greaterThanEquals(VersionInfoType obj) {
+        return this.compareTo(obj) >= 0 ? true : false;
+    }
+
+    public boolean lessThan(VersionInfoType obj) {
+        return this.compareTo(obj) < 0 ? true : false;
+    }
+
+    public boolean lessThanEquals(VersionInfoType obj) {
+        return this.compareTo(obj) <= 0 ? true : false;
     }
 
 }
