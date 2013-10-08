@@ -42,6 +42,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -69,19 +70,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "ObjectRefList")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ObjectRefListType", propOrder = { "objectRef" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "ObjectRefList")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ObjectRefList")
 public class ObjectRefListType {
 
     @Id
-    @SequenceGenerator(name = "ObjectRefListTypeGenerator", schema = "ebxml", sequenceName = "ebxml.ObjectRefList_sequence")
+    @SequenceGenerator(name = "ObjectRefListTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".ObjectRefList_sequence")
     @GeneratedValue(generator = "ObjectRefListTypeGenerator")
     @XmlTransient
     private Integer key;
@@ -90,7 +103,7 @@ public class ObjectRefListType {
     @DynamicSerializeElement
     @ManyToMany
     @Cascade({ CascadeType.SAVE_UPDATE })
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<ObjectRefType> objectRef;
 
     public Integer getKey() {

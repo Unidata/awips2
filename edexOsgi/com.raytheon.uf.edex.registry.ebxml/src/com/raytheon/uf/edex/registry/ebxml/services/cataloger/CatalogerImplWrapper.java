@@ -30,6 +30,8 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * 
  * Wrapper for the cataloger service to be used with the SOAP interface.
@@ -60,10 +62,10 @@ public class CatalogerImplWrapper implements Cataloger {
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:spi:bindings:4.0:Cataloger#catalogObjects")
-    @WebResult(name = "CatalogObjectsResponse", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0", partName = "partCatalogObjectsResponse")
+    @WebMethod(action = CATALOG_OBJECTS_ACTION)
+    @WebResult(name = "CatalogObjectsResponse", targetNamespace = EbxmlNamespaces.SPI_URI, partName = "partCatalogObjectsResponse")
     public CatalogObjectsResponse catalogObjects(
-            @WebParam(name = "CatalogObjectsRequest", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0", partName = "partCatalogObjectsRequest") CatalogObjectsRequest partCatalogObjectsRequest)
+            @WebParam(name = "CatalogObjectsRequest", targetNamespace = EbxmlNamespaces.SPI_URI, partName = "partCatalogObjectsRequest") CatalogObjectsRequest partCatalogObjectsRequest)
             throws MsgRegistryException {
         return cataloger.catalogObjects(partCatalogObjectsRequest);
     }

@@ -20,14 +20,15 @@
 
 package oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Logger;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceFeature;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 
 /**
  * 
@@ -38,40 +39,11 @@ import javax.xml.ws.WebServiceFeature;
  * source version: 2.1
  * 
  */
-@WebServiceClient(name = "LifecycleManagerSOAPService", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0",
-                  wsdlLocation = "file:/common/bphillip/DataDelivery_FILES/ebXML/regrep/wsdl/1.1/regrep-server-service.wsdl")
+@WebServiceClient(name = "LifecycleManagerSOAPService", targetNamespace = EbxmlNamespaces.RR_INT_URI)
 public class LifecycleManagerSOAPService extends Service {
-
-    private final static URL LIFECYCLEMANAGERSOAPSERVICE_WSDL_LOCATION;
-
-    private final static Logger logger = Logger
-            .getLogger(oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManagerSOAPService.class
-                    .getName());
-
-    static {
-        URL url = null;
-        try {
-            URL baseUrl;
-            baseUrl = oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManagerSOAPService.class
-                    .getResource(".");
-            url = new URL(
-                    baseUrl,
-                    "file:/common/bphillip/DataDelivery_FILES/ebXML/regrep/wsdl/1.1/regrep-server-service.wsdl");
-        } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'file:/common/bphillip/DataDelivery_FILES/ebXML/regrep/wsdl/1.1/regrep-server-service.wsdl', retrying as a local file");
-            logger.warning(e.getMessage());
-        }
-        LIFECYCLEMANAGERSOAPSERVICE_WSDL_LOCATION = url;
-    }
 
     public LifecycleManagerSOAPService(URL wsdlLocation, QName serviceName) {
         super(wsdlLocation, serviceName);
-    }
-
-    public LifecycleManagerSOAPService() {
-        super(LIFECYCLEMANAGERSOAPSERVICE_WSDL_LOCATION, new QName(
-                "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
-                "LifecycleManagerSOAPService"));
     }
 
     /**
@@ -83,8 +55,7 @@ public class LifecycleManagerSOAPService extends Service {
      */
     @WebEndpoint(name = "LifecycleManagerPort")
     public LifecycleManager getLifecycleManagerPort() {
-        return super.getPort(new QName(
-                "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0",
+        return super.getPort(new QName(EbxmlNamespaces.RR_INT_URI,
                 "LifecycleManagerPort"), LifecycleManager.class);
     }
 
@@ -103,8 +74,7 @@ public class LifecycleManagerSOAPService extends Service {
     @WebEndpoint(name = "LifecycleManagerPort")
     public LifecycleManager getLifecycleManagerPort(
             WebServiceFeature... features) {
-        return super.getPort(new QName(
-                "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0",
+        return super.getPort(new QName(EbxmlNamespaces.RR_INT_URI,
                 "LifecycleManagerPort"), LifecycleManager.class, features);
     }
 

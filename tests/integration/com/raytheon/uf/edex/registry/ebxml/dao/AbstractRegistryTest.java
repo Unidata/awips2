@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +55,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -64,7 +66,6 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -80,6 +81,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 18, 2013 1693       djohnson     Consolidate reusable methods.
  * Apr 23, 2013 1910       djohnson     Allow sub-classes to pass callables and monitor for fault exceptions.
  * Jun 05, 2013 2038       djohnson     Use TestUtil constant for transactionManager.
+ * 10/8/2013    1682       bphillip     Added submitRegistryObjectsToRegistry
  * 
  * </pre>
  * 
@@ -115,6 +117,7 @@ public class AbstractRegistryTest {
     protected LifecycleManager lifecycleManager;
 
     @Autowired
+    @Qualifier("queryServiceImpl")
     protected QueryManager queryManager;
 
     @BeforeClass
@@ -145,6 +148,22 @@ public class AbstractRegistryTest {
         final RegistryResponseType submitResponse = lifecycleManager
                 .submitObjects(submitRequest);
         assertSuccessfulResponse(submitResponse);
+    }
+
+    /**
+     * Submits objects to the registry
+     * 
+     * @param registryObjects
+     *            The registry objects to submit
+     * @throws MsgRegistryException
+     *             If errors occur during submission
+     */
+    protected void submitRegistryObjectsToRegistry(
+            final Collection<RegistryObjectType> registryObjects)
+            throws MsgRegistryException {
+        for (RegistryObjectType registryObject : registryObjects) {
+            submitRegistryObjectToRegistry(registryObject);
+        }
     }
 
     /**
@@ -185,7 +204,9 @@ public class AbstractRegistryTest {
             String registryObjectId) {
         final ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
                 .createResponseOptionType();
-        responseOption.setReturnType(RETURN_TYPE.RegistryObject.toString());
+        responseOption
+                .setReturnType(ResponseOptionType.RETURN_TYPE.RegistryObject
+                        .toString());
         responseOption.setReturnComposedObjects(false);
 
         final QueryType queryType = new QueryType();
