@@ -13,7 +13,7 @@
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=FFG-TIR-HiRes
+GDFILE=FFG-TIR
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
