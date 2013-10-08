@@ -43,7 +43,6 @@ import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.ebxml.slots.SetSlotConverter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -71,7 +70,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlSeeAlso({ PendingSiteSubscription.class, PendingSharedSubscription.class,
         AdhocSubscription.class, SiteSubscription.class,
         SharedSubscription.class })
-public abstract class RecurringSubscription<T extends Time, C extends Coverage> implements ISerializableObject,
+public abstract class RecurringSubscription<T extends Time, C extends Coverage> implements 
         Serializable, Subscription<T, C> {
 
     private static final long serialVersionUID = -6422673887457060034L;
