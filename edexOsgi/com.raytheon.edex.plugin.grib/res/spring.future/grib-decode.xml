@@ -9,8 +9,10 @@
 		<constructor-arg ref="jmsGribConfig" />
 		<property name="taskExecutor" ref="gribThreadPool" />
 	</bean>
+
     <bean id="jmsGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
             factory-bean="jmsDurableConfig" factory-method="copy"/>
+
 	<bean id="gribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${grib-decode.count.threads}" />
@@ -19,10 +21,8 @@
 
 	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
 
-	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter">
-		<constructor-arg value="${edex.home}/data/tmp/"/>
-	</bean>
-
+	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
+	
 	<bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
 
 	<bean id="largeFileLockRelease" class="com.raytheon.edex.plugin.grib.GribLockRelease" />
@@ -54,7 +54,9 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		<endpoint id="gribJmsEndpoint" uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=${grib-decode.count.threads}"/>
+		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=2"/>
+		<endpoint id="gribDecodeJmsEndpoint" uri="ingest-grib:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
+
 		
 	 	<route id="gribFileConsumerRoute">
 	 		<from ref="gribFileEndpoint" />
@@ -63,46 +65,50 @@
 	 			<setHeader headerName="pluginName">
 	 				<constant>grid</constant> 
 				</setHeader>
-				<to uri="ingest-grib:queue:Ingest.Grib" />
+				<to uri="jms-durable:queue:Ingest.GribSplit" />
 		</route>
 	
 		<!-- Begin Grib Decode Route -->
-		<route id="gribIngestRoute">
-			<from ref="gribJmsEndpoint" />
-			<setHeader headerName="pluginName">
-				<constant>grid</constant>
-			</setHeader>
-			<!--  strategyRef is needed because of camel bug https://issues.apache.org/activemq/browse/CAMEL-3333,
-			 without the strategy it uses the original message in the multicast and it loses the largeFileLock header -->
-			<split strategyRef="useLatestAggregationStrategy">
-				<method bean="gribSplitter" method="split" />
-				<choice>
-					<when>
-						<simple>${header.CamelSplitSize} == 1</simple>
-						<doTry>
-							<pipeline>
-								<bean ref="stringToFile" />
-								<bean ref="largeFileChecker" />
-								<bean ref="gribDecoder" />
-								<!-- send for processing -->
-								<bean ref="gribPostProcessor" method="process" />
-								<to uri="direct-vm:persistIndexAlert" />
-							</pipeline>
-							<doCatch>
-								<exception>java.lang.Throwable</exception>
-								<to uri="log:grib?level=ERROR"/>
-							</doCatch>
-							<doFinally>
-								<bean ref="gribSplitter" method="clean" />
-								<bean ref="largeFileLockRelease" />
-							</doFinally>
-						</doTry>
-					</when>
-					<otherwise>
-						<to uri="ingest-grib:queue:Ingest.Grib" />
-					</otherwise>
-				</choice>
-			</split>
+		<route id="gribSplitIngestRoute">
+			<from ref="gribSplitJmsEndpoint" />
+			<doTry>
+				<pipeline>
+					<setHeader headerName="pluginName">
+						<constant>grid</constant>
+					</setHeader>
+					<bean ref="stringToFile" />
+					<!--  strategyRef is needed because of camel bug https://issues.apache.org/activemq/browse/CAMEL-3333,
+					 without the strategy it uses the original message in the multicast and it loses the largeFileLock header -->
+					<split strategyRef="useLatestAggregationStrategy">
+						<method bean="gribSplitter" method="split" />
+						<to uri="jms-durable:queue:Ingest.GribDecode" />
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:grib?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+		
+		<route id="gribDecodeIngestRoute">
+			<from ref="gribDecodeJmsEndpoint" />
+			<doTry>
+				<pipeline>
+					<bean ref="largeFileChecker" />
+					<bean ref="gribDecoder" />
+					<!-- send for processing -->
+					<bean ref="gribPostProcessor" method="process" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:grib?level=ERROR"/>
+				</doCatch>
+				<doFinally>
+					<bean ref="largeFileLockRelease" />
+				</doFinally>
+			</doTry>
 		</route>
 
 	</camelContext>
