@@ -326,10 +326,16 @@ public class D2DParmIdCache {
                             try {
                                 D2DGridDatabase db = (D2DGridDatabase) GridParmManager
                                         .getDb(dbIds.get(i));
-                                ServerResponse<List<ParmID>> sr = db
-                                        .getParmList();
-                                if (sr.isOkay()) {
-                                    parmIds.addAll(sr.getPayload());
+                                if (db == null) {
+                                    statusHandler
+                                            .error("Unable to get parm list for: "
+                                                    + dbIds.get(i));
+                                } else {
+                                    ServerResponse<List<ParmID>> sr = db
+                                            .getParmList();
+                                    if (sr.isOkay()) {
+                                        parmIds.addAll(sr.getPayload());
+                                    }
                                 }
                             } catch (GfeException e) {
                                 throw new PluginException(
