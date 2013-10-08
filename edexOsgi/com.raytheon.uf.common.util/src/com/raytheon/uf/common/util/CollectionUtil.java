@@ -38,6 +38,7 @@ import java.util.Set;
  * ------------ ---------- ----------- --------------------------
  * Jul 13, 2012 740        djohnson     Initial creation
  * Feb 12, 2013 1543       djohnson     Add combining of arrays.
+ * 10/8/2013    1682       bphillip     Added subList, removeNulls, and removeAllInstancesOfObject methods
  * 
  * </pre>
  * 
@@ -137,5 +138,55 @@ public final class CollectionUtil {
             }
         }
         return retVal;
+    }
+
+    /**
+     * Extracts a sub-list of the given from the given list starting at
+     * startIndex.
+     * 
+     * @param list
+     *            The list to get the sub-list from
+     * @param startIndex
+     *            The index to start at for extracting the sub-list
+     * @param size
+     *            The desired size of the sublist
+     * @return The sublist
+     */
+    public static <T extends Object> List<T> subList(List<T> list,
+            int startIndex, int size) {
+        int endIndex = startIndex + size;
+        if (startIndex + size > list.size()) {
+            endIndex = list.size();
+        }
+        return list.subList(startIndex, endIndex);
+    }
+
+    /**
+     * Removes null values from the given collection
+     * 
+     * @param collection
+     *            The collection to remove nulls from
+     * @return The updated collection
+     */
+    public static <T extends Object> Collection<T> removeNulls(
+            Collection<T> collection) {
+        return removeAllInstancesOfObject(collection, null);
+    }
+
+    /**
+     * Removes all values equal to the given object from the collection
+     * 
+     * @param collection
+     *            The collection to remove the values from
+     * @param objToRemove
+     *            The object to remove from the collection
+     * @return The updated collection
+     */
+    public static <T extends Object> Collection<T> removeAllInstancesOfObject(
+            Collection<T> collection, Object objToRemove) {
+        while (collection.remove(objToRemove)) {
+
+        }
+        return collection;
     }
 }

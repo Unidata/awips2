@@ -39,12 +39,15 @@ import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResp
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
  * 9/20/2013    2385        bphillip    Added subscription backup functions
+ * 10/8/2013    1682        bphillip    Added rest functions for use with the query web interface
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 public interface IRegistryDataAccessService {
+
+    public static final String DATA_ACCESS_PATH_PREFIX = "/rest/dataAccess/";
 
     /**
      * Gets the ids of registry objects of the given object type
@@ -54,9 +57,29 @@ public interface IRegistryDataAccessService {
      * @return List of ids for registry objects of the given type
      */
     @GET
-    @Path("/rest/dataAccess/getRegistryObjectIds/{objectType}")
+    @Path(DATA_ACCESS_PATH_PREFIX + "getRegistryObjectIds/{objectType}")
     public RestCollectionResponse<String> getRegistryObjectIdsOfType(
             @PathParam("objectType") String objectType);
+
+    /**
+     * Gets the list of query definitions currently contained in the registry
+     * 
+     * @return The query definitions currently contained in the registry
+     */
+    @GET
+    @Path(DATA_ACCESS_PATH_PREFIX + "getQueries")
+    public String getValidQueries();
+
+    /**
+     * Gets the valid parameters for a given query definition
+     * 
+     * @param queryId
+     *            The id of the query definition
+     * @return The parameters for a given query definition
+     */
+    @GET
+    @Path(DATA_ACCESS_PATH_PREFIX + "getParametersForQuery/{queryId}")
+    public String getParametersForQuery(@PathParam("queryId") String queryId);
 
     /**
      * Removes any subscriptions for the given site
@@ -67,7 +90,7 @@ public interface IRegistryDataAccessService {
      *             If errors occur while removing the subscriptions
      */
     @GET
-    @Path("/rest/dataAccess/removeSubscriptionsFor/{siteId}")
+    @Path(DATA_ACCESS_PATH_PREFIX + "removeSubscriptionsFor/{siteId}")
     public void removeSubscriptionsForSite(@PathParam("siteId") String siteId)
             throws RegistryException;
 
@@ -78,7 +101,7 @@ public interface IRegistryDataAccessService {
      * @return The page containing the subscriptions
      */
     @GET
-    @Path("/rest/dataAccess/getSubscriptions")
+    @Path(DATA_ACCESS_PATH_PREFIX + "getSubscriptions")
     public String getSubscriptions();
 
     /**
@@ -92,7 +115,7 @@ public interface IRegistryDataAccessService {
      *             If marshalling/unmarshalling errors are encountered
      */
     @GET
-    @Path("/rest/dataAccess/backupSubscription/{subscriptionName}")
+    @Path(DATA_ACCESS_PATH_PREFIX + "backupSubscription/{subscriptionName}")
     public String backupSubscription(
             @PathParam("subscriptionName") String subscriptionName)
             throws JAXBException;
@@ -105,7 +128,7 @@ public interface IRegistryDataAccessService {
      *             If marshalling/unmarshalling errors are encountered
      */
     @GET
-    @Path("/rest/dataAccess/backupAllSubscriptions/")
+    @Path(DATA_ACCESS_PATH_PREFIX + "backupAllSubscriptions/")
     public String backupAllSubscriptions() throws JAXBException;
 
     /**
@@ -117,7 +140,7 @@ public interface IRegistryDataAccessService {
      * @throws JAXBException
      */
     @GET
-    @Path("/rest/dataAccess/restoreSubscription/{subscriptionName}")
+    @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscription/{subscriptionName}")
     public String restoreSubscription(
             @PathParam("subscriptionName") String subscriptionName)
             throws JAXBException;
@@ -128,7 +151,7 @@ public interface IRegistryDataAccessService {
      * @return Status messages relating to the success or failure of the restore
      */
     @GET
-    @Path("/rest/dataAccess/restoreSubscriptions/")
+    @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscriptions/")
     public String restoreSubscriptions();
 
     /**
@@ -137,7 +160,7 @@ public interface IRegistryDataAccessService {
      * @return Status message
      */
     @GET
-    @Path("/rest/dataAccess/clearSubscriptionBackupFiles/")
+    @Path(DATA_ACCESS_PATH_PREFIX + "clearSubscriptionBackupFiles/")
     public String clearSubscriptionBackupFiles();
 
 }

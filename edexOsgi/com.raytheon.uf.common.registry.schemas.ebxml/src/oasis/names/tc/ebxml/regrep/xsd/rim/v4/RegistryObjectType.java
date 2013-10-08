@@ -46,6 +46,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -84,7 +85,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "RegistryObject")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -102,9 +114,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         RoleType.class })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Table(schema = "ebxml", name = "RegistryObject")
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RegistryObject")
 public class RegistryObjectType extends IdentifiableType {
     @XmlElement(name = "Name")
     @DynamicSerializeElement
@@ -127,19 +139,19 @@ public class RegistryObjectType extends IdentifiableType {
             org.hibernate.annotations.CascadeType.DETACH,
             org.hibernate.annotations.CascadeType.MERGE })
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected Set<ClassificationType> classification;
 
     @XmlElement(name = "ExternalIdentifier")
     @DynamicSerializeElement
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected Set<ExternalIdentifierType> externalIdentifier;
 
     @XmlElement(name = "ExternalLink")
     @DynamicSerializeElement
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected Set<ExternalLinkType> externalLink;
 
     @XmlAttribute
@@ -440,6 +452,10 @@ public class RegistryObjectType extends IdentifiableType {
      */
     public void setStatus(String value) {
         this.status = value;
+    }
+
+    public String toString() {
+        return this.id;
     }
 
 }

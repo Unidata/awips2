@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.common.registry;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -48,49 +46,6 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 public class RegistryNamespaceMapper extends NamespacePrefixMapper implements
         NamespaceContext {
 
-    /** Map which maps namespaceURIs to prefixes */
-    public static final Map<String, String> NAMESPACE_PREFIX_MAP = new HashMap<String, String>(
-            7);
-
-    /** Map which maps prefixes to namespaceURIs */
-    public static final Map<String, String> PREFIX_NAMESPACE_MAP = new HashMap<String, String>(
-            7);
-
-    static {
-        NAMESPACE_PREFIX_MAP.put("urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0",
-                "rim");
-        PREFIX_NAMESPACE_MAP.put("rim",
-                "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0");
-
-        NAMESPACE_PREFIX_MAP.put("urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0",
-                "lcm");
-        PREFIX_NAMESPACE_MAP.put("lcm",
-                "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0");
-
-        NAMESPACE_PREFIX_MAP.put("urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0",
-                "spi");
-        PREFIX_NAMESPACE_MAP.put("spi",
-                "urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0");
-
-        NAMESPACE_PREFIX_MAP.put(
-                "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0", "query");
-        PREFIX_NAMESPACE_MAP.put("query",
-                "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0");
-
-        NAMESPACE_PREFIX_MAP.put("urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0",
-                "rs");
-        PREFIX_NAMESPACE_MAP.put("rs",
-                "urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0");
-
-        NAMESPACE_PREFIX_MAP.put("http://www.w3.org/2005/08/addressing",
-                "addressing");
-        PREFIX_NAMESPACE_MAP.put("addressing",
-                "http://www.w3.org/2005/08/addressing");
-
-        NAMESPACE_PREFIX_MAP.put("http://www.w3.org/1999/xlink", "xlink");
-        PREFIX_NAMESPACE_MAP.put("xlink", "http://www.w3.org/1999/xlink");
-    }
-
     /**
      * Creates a new RegistryNamespaceMapper
      */
@@ -101,14 +56,14 @@ public class RegistryNamespaceMapper extends NamespacePrefixMapper implements
     @Override
     public String getPreferredPrefix(String namespaceURI, String suggestion,
             boolean requirePrefix) {
-        String prefix = NAMESPACE_PREFIX_MAP.get(namespaceURI);
+        String prefix = EbxmlNamespaces.NAMESPACE_PREFIX_MAP.get(namespaceURI);
         return prefix == null ? suggestion : prefix;
 
     }
 
     @Override
     public String getNamespaceURI(String prefix) {
-        String namespaceURI = PREFIX_NAMESPACE_MAP.get(prefix);
+        String namespaceURI = EbxmlNamespaces.PREFIX_NAMESPACE_MAP.get(prefix);
         return namespaceURI == null ? XMLConstants.NULL_NS_URI : namespaceURI;
     }
 
