@@ -212,6 +212,5 @@ g2int g2_unpack3(unsigned char *cgrib,g2int *iofst,g2int **igds,g2int **igdstmpl
          *idefnum=0;
          *ideflist=0;    // NULL
       }
-      free(ligds);
       return(ierr);    // End of Section 3 processing
 }
