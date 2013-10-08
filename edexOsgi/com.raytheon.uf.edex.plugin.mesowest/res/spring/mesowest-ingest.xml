@@ -49,13 +49,13 @@
             <setHeader headerName="pluginName">
                 <constant>mesowest</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.Mesowest" />
+            <to uri="jms-durable:queue:Ingest.Mesowest" />
         </route>
         -->
 
         <!-- Begin MESOWest routes -->
         <route id="mesowestIngestRoute">
-            <from uri="jms-generic:queue:Ingest.Mesowest?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.Mesowest"/>
             <doTry>
 				<pipeline>
 		            <bean ref="stringToFile" />
