@@ -33,6 +33,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * 
  * Wrapper for the lifecyclemanager service to be used with the SOAP interface.
@@ -63,28 +65,28 @@ public class LifecycleManagerImplWrapper implements LifecycleManager {
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:LifecycleManager#removeObjects")
-    @WebResult(name = "RegistryResponse", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0", partName = "partRegistryResponse")
+    @WebMethod(action = REMOVE_OBJECTS_ACTION)
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
     public RegistryResponseType removeObjects(
-            @WebParam(name = "RemoveObjectsRequest", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0", partName = "partRemoveObjectsRequest") RemoveObjectsRequest partRemoveObjectsRequest)
+            @WebParam(name = "RemoveObjectsRequest", targetNamespace = EbxmlNamespaces.LCM_URI, partName = "partRemoveObjectsRequest") RemoveObjectsRequest partRemoveObjectsRequest)
             throws MsgRegistryException {
         return lifecycleManager.removeObjects(partRemoveObjectsRequest);
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:LifecycleManager#submitObjects")
-    @WebResult(name = "RegistryResponse", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0", partName = "partRegistryResponse")
+    @WebMethod(action = SUBMIT_OBJECTS_ACTION)
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
     public RegistryResponseType submitObjects(
-            @WebParam(name = "SubmitObjectsRequest", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0", partName = "partSubmitObjectsRequest") SubmitObjectsRequest partSubmitObjectsRequest)
+            @WebParam(name = "SubmitObjectsRequest", targetNamespace = EbxmlNamespaces.LCM_URI, partName = "partSubmitObjectsRequest") SubmitObjectsRequest partSubmitObjectsRequest)
             throws MsgRegistryException {
         return lifecycleManager.submitObjects(partSubmitObjectsRequest);
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:LifecycleManager#updateObjects")
-    @WebResult(name = "RegistryResponse", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0", partName = "partRegistryResponse")
+    @WebMethod(action = UPDATE_OBJECTS_ACTION)
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
     public RegistryResponseType updateObjects(
-            @WebParam(name = "UpdateObjectsRequest", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0", partName = "partUpdateObjectsRequest") UpdateObjectsRequest partUpdateObjectsRequest)
+            @WebParam(name = "UpdateObjectsRequest", targetNamespace = EbxmlNamespaces.LCM_URI, partName = "partUpdateObjectsRequest") UpdateObjectsRequest partUpdateObjectsRequest)
             throws MsgRegistryException {
         return lifecycleManager.updateObjects(partUpdateObjectsRequest);
     }

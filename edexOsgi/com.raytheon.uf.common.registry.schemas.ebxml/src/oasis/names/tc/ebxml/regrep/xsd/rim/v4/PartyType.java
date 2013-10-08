@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -61,7 +62,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "Party")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -75,19 +87,19 @@ public abstract class PartyType extends RegistryObjectType {
     @XmlElement(name = "PostalAddress")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<PostalAddressType> postalAddress;
 
     @XmlElement(name = "TelephoneNumber")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<TelephoneNumberType> telephoneNumber;
 
     @XmlElement(name = "EmailAddress")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<EmailAddressType> emailAddress;
 
     /**
