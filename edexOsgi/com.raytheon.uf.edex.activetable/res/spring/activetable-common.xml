@@ -30,7 +30,7 @@
 		<property name="pluginName" value="warning" />
 		<property name="pluginFQN" value="com.raytheon.edex.plugin.warning" />
 		<property name="moduleName" value="WarningDecoder" />
-		<property name="cache" value="true"/>
+		<property name="cache" value="false"/>
 		<property name="recordClassname"
 			value="com.raytheon.uf.common.dataplugin.warning.WarningRecord" />
 	</bean>
