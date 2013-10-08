@@ -53,15 +53,16 @@ import com.raytheon.uf.common.util.TestUtil;
  */
 public class DataSetMetaDataTest {
 
-    private final DataSetMetaData objectUnderTest = getDataSetMetaData(3L,
+    private final DataSetMetaData<Time> objectUnderTest = getDataSetMetaData(3L,
             "someUrl");
 
-    private final DataSetMetaData equal = getDataSetMetaData(objectUnderTest
+    private final DataSetMetaData<Time> equal = getDataSetMetaData(objectUnderTest
             .getDate().getTime(), objectUnderTest.getUrl());
 
-    private final DataSetMetaData notEqual = getDataSetMetaData(4L,
+    private final DataSetMetaData<Time> notEqual = getDataSetMetaData(4L,
             "someOtherUrl");
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEqualsAndHashCodeContract() {
         TestUtil.assertEqualsAndHashcodeContract(objectUnderTest,
@@ -70,8 +71,8 @@ public class DataSetMetaDataTest {
 
     @Test
     public void testDateComparator() {
-        final DataSetMetaData lessThan = getDataSetMetaData(1L, "someUrl");
-        final DataSetMetaData greaterThanObject = notEqual;
+        final DataSetMetaData<Time> lessThan = getDataSetMetaData(1L, "someUrl");
+        final DataSetMetaData<Time> greaterThanObject = notEqual;
 
         assertTrue(DataSetMetaData.DATE_COMPARATOR.compare(objectUnderTest,
                 lessThan) > 0);
@@ -103,9 +104,9 @@ public class DataSetMetaDataTest {
      *            the url to use
      * @return the instance
      */
-    private static DataSetMetaData getDataSetMetaData(long dateAsTime,
+    private static DataSetMetaData<Time> getDataSetMetaData(long dateAsTime,
             String url) {
-        final DataSetMetaData object = new DataSetMetaData() {
+        final DataSetMetaData<Time> object = new DataSetMetaData<Time>() {
             @Override
             public void accept(IDataSetMetaDataVisitor visitor) {
             }
