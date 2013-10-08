@@ -54,6 +54,7 @@ import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
 import com.raytheon.uf.common.registry.constants.Format;
 import com.raytheon.uf.common.registry.constants.Languages;
+import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -292,7 +293,7 @@ public class NotificationListenerImpl implements NotificationListener {
         responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
 
         SlotType queryLanguageSlot = new SlotType("queryLanguage",
-                new StringValueType("HQL"));
+                new StringValueType(QueryLanguages.HQL));
         SlotType queryExpressionSlot = new SlotType("queryExpression",
                 new StringValueType(queryExpression.toString()));
         QueryType selectorQuery = new QueryType(

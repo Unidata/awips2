@@ -59,13 +59,52 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "ResponseOption")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ResponseOptionType")
 @DynamicSerialize
 public class ResponseOptionType {
+
+    /**
+     * ObjectRef - This option specifies that the QueryResponse MUST contain a
+     * <rim:ObjectRefList> element. The purpose of this option is to return
+     * references to objects rather than the actual objects.
+     * 
+     * RegistryObject - This option specifies that the QueryResponse MUST
+     * contain a <rim:RegistryObjectList> element containing
+     * <rim:RegistryObject> elements with xsi:type=rim:RegistryObjectType.
+     * 
+     * LeafClass - This option specifies that the QueryResponse MUST contain a
+     * collection of <rim:RegistryObjectList> element containing
+     * <rim:RegistryObject> elements that have an xsi:type attribute that
+     * corresponds to leaf classes as defined in [regrep-xsd-v4.0]. No
+     * RepositoryItems SHOULD be included for any rim:ExtrinsicObjectType
+     * instance in the <rim:RegistryObjectList> element.
+     * 
+     * LeafClassWithRepositoryItem - This option is the same as the LeafClass
+     * option with the additional requirement that the response include the
+     * RepositoryItems, if any, for every rim:ExtrinsicObjectType instance in
+     * the <rim:RegistryObjectList> element.
+     */
+    public enum RETURN_TYPE {
+        ObjectRef, RegistryObject, LeafClass, LeafClassWithRepositoryItem
+    }
+
+    /** The default return type */
+    public static final RETURN_TYPE DEFAULT_RETURN_TYPE = RETURN_TYPE.LeafClassWithRepositoryItem;
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -93,10 +132,14 @@ public class ResponseOptionType {
      */
     public String getReturnType() {
         if (returnType == null) {
-            return "LeafClassWithRepositoryItem";
+            return DEFAULT_RETURN_TYPE.toString();
         } else {
             return returnType;
         }
+    }
+
+    public RETURN_TYPE getReturnTypeEnum() {
+        return RETURN_TYPE.valueOf(getReturnType());
     }
 
     /**

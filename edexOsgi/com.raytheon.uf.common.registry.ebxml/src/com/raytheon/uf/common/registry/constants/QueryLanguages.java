@@ -39,13 +39,8 @@ package com.raytheon.uf.common.registry.constants;
  */
 public class QueryLanguages {
 
-    public static final String EJBQL = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:EJBQL";
-
-    public static final String SPARQL = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:SPARQL";
-
-    public static final String SQL_92 = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:SQL-92";
+    public static final String HQL = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:HQL";
 
     public static final String XPATH = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:XPath";
 
-    public static final String XQUERY = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:XQuery";
 }
