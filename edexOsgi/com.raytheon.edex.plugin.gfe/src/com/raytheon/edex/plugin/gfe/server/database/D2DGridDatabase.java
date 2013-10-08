@@ -196,6 +196,9 @@ public class D2DGridDatabase extends VGridDatabase {
     }
 
     /**
+    }
+
+    /**
      * Retrieves DatabaseIDs for the n most recent model runs of a given
      * d2dModelName
      * 

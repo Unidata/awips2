@@ -121,7 +121,7 @@ class MasterInterface(object):
         if self.isInstantiated(moduleName):
             self.__instanceMap.__delitem__(moduleName)
         if sys.modules.has_key(moduleName):
-            self.self.clearModuleAttributes(moduleName)
+            self.clearModuleAttributes(moduleName)
             sys.modules.pop(moduleName)
         if moduleName in self.scripts:
             self.scripts.remove(moduleName)
