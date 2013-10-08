@@ -16,14 +16,13 @@
 	<bean name="RegistryNotificationManager"
 		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistryNotificationManager">
 		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
-		<property name="notificationDao" ref="notificationTypeDao" />
+		<property name="queryManager" ref="queryServiceImpl" />
 	</bean>
 
 	<bean name="RegistrySubscriptionManager"
 		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager">
 		<constructor-arg ref="ebxmlSubscriptionsEnabled" /> 
 		<property name="subscriptionDao" ref="subscriptionTypeDao" />
-		<property name="queryManager" ref="queryServiceImpl" />
 		<property name="notificationManager" ref="RegistryNotificationManager" />
         <property name="notificationListenerFactory" ref="notificationListenerFactory" />
 	</bean>

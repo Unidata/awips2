@@ -44,8 +44,10 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilterObjectsResponse;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Base type for all ebXML Registry responses
@@ -73,6 +75,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  * 
  */
 @XmlRootElement(name = "RegistryResponse")
@@ -88,11 +102,11 @@ public class RegistryResponseType extends ExtensibleObjectType {
     @DynamicSerializeElement
     protected List<RegistryExceptionType> exception;
 
-    @XmlElement(name = "RegistryObjectList", namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0")
+    @XmlElement(name = "RegistryObjectList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
     protected RegistryObjectListType registryObjectList;
 
-    @XmlElement(name = "ObjectRefList", namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0")
+    @XmlElement(name = "ObjectRefList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
     protected ObjectRefListType objectRefList;
 
@@ -111,7 +125,7 @@ public class RegistryResponseType extends ExtensibleObjectType {
 
     public List<RegistryObjectType> getRegistryObjects() {
         if (registryObjectList == null) {
-            return Collections.emptyList();
+            this.registryObjectList = new RegistryObjectListType();
         }
         return registryObjectList.getRegistryObject();
     }
@@ -134,13 +148,20 @@ public class RegistryResponseType extends ExtensibleObjectType {
     }
 
     public void addObjectRefs(Collection<ObjectRefType> objRefs) {
-        if (objRefs == null || objRefs.isEmpty()) {
+        if (CollectionUtil.isNullOrEmpty(objRefs)) {
             return;
         }
         if (objectRefList == null) {
             objectRefList = new ObjectRefListType();
         }
         objectRefList.getObjectRef().addAll(objRefs);
+    }
+
+    public void addObjectRef(ObjectRefType objRef) {
+        if (objectRefList == null) {
+            objectRefList = new ObjectRefListType();
+        }
+        objectRefList.getObjectRef().add(objRef);
     }
 
     /**
