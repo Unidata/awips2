@@ -28,11 +28,12 @@ from java.util import ArrayList
 #   
 #
 #    
-#     SOFTWARE HISTORY
+# SOFTWARE HISTORY
 #    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    09/22/08                      njensen       Initial Creation.
+# Date          Ticket#  Engineer    Description
+# ------------- -------- ----------- --------------------------
+# Sep 22, 2008           njensen     Initial Creation.
+# Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
 #    
 # 
 #
@@ -43,11 +44,9 @@ def loadModule(pluginDir, pluginFQN, moduleName):
         jar = zipimport.zipimporter(jarname)
         jar.load_module(moduleName)
 
-def decode(moduleName, fileToDecode, commandArgs=None):
+def decode(moduleName, **kwargs):
     mod = sys.modules[moduleName]
-    exec 'dec = mod.' + moduleName + '(filePath=fileToDecode)'
-    if commandArgs is not None:
-        dec.setCommand(commandArgs)
+    exec 'dec = mod.' + moduleName + '(**kwargs)'
     result = dec.decode()
     resultList = ArrayList()
     if result is not None:
