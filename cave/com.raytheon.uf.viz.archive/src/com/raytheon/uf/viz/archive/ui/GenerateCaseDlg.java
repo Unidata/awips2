@@ -80,6 +80,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Aug 16, 2013 2225       rferrel     Change structure of copy to include
  *                                     archive and category directory and 
  *                                     implementation of compression.
+ * Oct 08, 2013 2442       rferrel     Remove category directory.
  * 
  * </pre>
  * 
@@ -495,8 +496,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
     }
 
     /**
-     * This class copies selected files/directories to a
-     * case-directory/archive/category.
+     * This class copies selected files/directories to a case-directory/archive.
      */
     private static class CopyMove implements ICaseCopy {
         /**
@@ -563,10 +563,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             this.shutdown = shutdown;
             String archiveDirName = ArchiveConstants
                     .convertToFileName(displayData.getArchiveName());
-            String catgegoryDirName = ArchiveConstants
-                    .convertToFileName(displayData.getCategoryName());
-            destDir = new File(caseDir, archiveDirName + File.separator
-                    + catgegoryDirName);
+            destDir = new File(caseDir, archiveDirName);
             destDir.mkdirs();
             startRelativePath = displayData.getRootDir().length();
         }
@@ -584,7 +581,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
      */
     private static class CompressCopy implements ICaseCopy {
         /**
-         * Flag to indicate user canceled case geneation.
+         * Flag to indicate user canceled case generation.
          */
         private AtomicBoolean shutdown;
 
@@ -619,11 +616,6 @@ public class GenerateCaseDlg extends CaveSWTDialog {
         private final HashSet<File> tarDirFile = new HashSet<File>();
 
         /**
-         * Category directory name; may be different from the category name.
-         */
-        private String categoryDirName;
-
-        /**
          * Buffer to use for reading in a file.
          */
         private final byte[] buffer = new byte[(int) (32 * FileUtils.ONE_KB)];
@@ -649,8 +641,8 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 if (shutdown.get()) {
                     return;
                 }
-                String name = categoryDirName + File.separator
-                        + file.getAbsolutePath().substring(startRelativePath);
+                String name = file.getAbsolutePath().substring(
+                        startRelativePath);
                 if (file.isDirectory()) {
                     if (!tarDirFile.contains(file)) {
                         TarArchiveEntry entry = new TarArchiveEntry(file, name);
@@ -702,10 +694,11 @@ public class GenerateCaseDlg extends CaveSWTDialog {
          */
         private void addParentDir(File file) throws IOException {
             File parent = file.getParentFile();
-            if (parent != null && !tarDirFile.contains(parent)) {
+            if (parent != null && !tarDirFile.contains(parent)
+                    && (parent.getAbsolutePath().length() > startRelativePath)) {
                 addParentDir(parent);
-                String name = categoryDirName + File.separator
-                        + parent.getAbsolutePath().substring(startRelativePath);
+                String name = parent.getAbsolutePath().substring(
+                        startRelativePath);
                 TarArchiveEntry entry = new TarArchiveEntry(parent, name);
                 tarStream.putArchiveEntry(entry);
                 tarStream.closeArchiveEntry();
@@ -720,13 +713,12 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 this.shutdown = shutdown;
                 String archiveDirName = ArchiveConstants
                         .convertToFileName(displayData.getArchiveName());
-                categoryDirName = ArchiveConstants
+                String categoryDirName = ArchiveConstants
                         .convertToFileName(displayData.getCategoryName());
                 destDir = new File(caseDir, archiveDirName);
                 destDir.mkdirs();
                 tarDirFile.clear();
                 startRelativePath = displayData.getRootDir().length();
-                File sourceRootDir = new File(displayData.getRootDir());
                 File tarFile = new File(destDir, categoryDirName
                         + ArchiveConstants.TAR_EXTENSION);
                 fileStream = new FileOutputStream(tarFile);
@@ -738,11 +730,6 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                     ((TarArchiveOutputStream) tarStream)
                             .setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
                 }
-                TarArchiveEntry entry = new TarArchiveEntry(sourceRootDir,
-                        categoryDirName);
-                tarStream.putArchiveEntry(entry);
-                tarStream.closeArchiveEntry();
-                tarDirFile.add(sourceRootDir);
             } catch (Exception e) {
                 throw new CaseCreateException("CompressCopy.startCase: ", e);
             }
