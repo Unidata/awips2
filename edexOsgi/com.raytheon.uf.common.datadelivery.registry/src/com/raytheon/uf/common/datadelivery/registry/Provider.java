@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.domain.Durations;
@@ -43,7 +42,7 @@ import com.raytheon.uf.common.time.domain.api.IDuration;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "name" })
-public class Provider implements ISerializableObject {
+public class Provider {
 
     /**
      * Service Type
