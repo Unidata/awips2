@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -40,7 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DataLevelType implements ISerializableObject, Serializable {
+public class DataLevelType implements Serializable {
 
     private static final long serialVersionUID = -6953092339309118122L;
 
