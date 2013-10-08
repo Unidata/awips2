@@ -40,7 +40,6 @@ import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpParcelDialog;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
-import java.sql.Timestamp;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TimeZone;
 
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
@@ -355,12 +353,15 @@ public class NsharpResourceHandler {
 				int stnIndex = stnElementList.indexOf(elm);
 				NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(stnIndex).get(currentTimeElementListIndex).get(currentSndElementListIndex);
 				if(stnTmElm!=null){
-					stnTmElm.setCompColorIndex(colorIndex++);
+					stnTmElm.setCompColorIndex(colorIndex);
+					//if(colorIndex > NsharpConstants.LINE_COMP10)
+					//	colorIndex =  NsharpConstants.LINE_COMP1;
+				}
+				colorIndex++;
 					if(colorIndex > NsharpConstants.LINE_COMP10)
 						colorIndex =  NsharpConstants.LINE_COMP1;
 				}
 			}
-		}
 		setCurSndProfileProp();
 		setCurrentSoundingLayerInfo();
 		resetData(); 
@@ -391,12 +392,15 @@ public class NsharpResourceHandler {
 				int sndIndex = sndElementList.indexOf(elm);
 				NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(currentStnElementListIndex).get(currentTimeElementListIndex).get(sndIndex);
 				if(stnTmElm!=null){
-					stnTmElm.setCompColorIndex(colorIndex++);
+					stnTmElm.setCompColorIndex(colorIndex);
+					//if(colorIndex > NsharpConstants.LINE_COMP10)
+					//	colorIndex =  NsharpConstants.LINE_COMP1;
+				}
+				colorIndex++;
 					if(colorIndex > NsharpConstants.LINE_COMP10)
 						colorIndex =  NsharpConstants.LINE_COMP1;
 				}
 			}
-		}
 		setCurSndProfileProp();
 		setCurrentSoundingLayerInfo();
 		resetData(); 		
@@ -429,12 +433,15 @@ public class NsharpResourceHandler {
 				int tmIndex = timeElementList.indexOf(elm);
 				NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(currentStnElementListIndex).get(tmIndex).get(currentSndElementListIndex);
 				if(stnTmElm!=null){
-					stnTmElm.setCompColorIndex(colorIndex++);
+					stnTmElm.setCompColorIndex(colorIndex);
+					//if(colorIndex > NsharpConstants.LINE_COMP10)
+					//	colorIndex =  NsharpConstants.LINE_COMP1;
+				}
+				colorIndex++;
 					if(colorIndex > NsharpConstants.LINE_COMP10)
 						colorIndex =  NsharpConstants.LINE_COMP1;
 				}
 			}
-		}
 		setCurSndProfileProp();
 		setCurrentSoundingLayerInfo();
 		resetData(); 		
@@ -1205,6 +1212,9 @@ public class NsharpResourceHandler {
     	currentInsetPage = 1;
     	currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
     	currentParcelLayerPressure = NsharpNativeConstants.MU_LAYER;
+		currentTimeElementListIndex = -1;
+		currentStnElementListIndex = -1;
+		currentSndElementListIndex = -1;
     	resetData();
 	}
 	
@@ -1413,12 +1423,12 @@ public class NsharpResourceHandler {
 			Set<String> keyset= new HashSet<String>(soundMap.keySet());
 			for(String key: keyset) {
 				List<NcSoundingLayer> sndLy = soundMap.remove(key);
-				String newkey= key.replace("NAMS", "GOOGLE");
+				String newkey= key.replace("NCUAIR", "gpduair");
 				//String newkey= key.replace("GFSS", "NAMS");
-				//newkey = newkey.replace("KSLN", "KFSD");
+				//String newkey = key.replace("OAK", "KFSD");
 				soundMap.put(newkey, sndLy);  
 			}
-			stnInfo.setSndType(stnInfo.getSndType().replace("NAMS", "GOOGLE"));
+			stnInfo.setSndType(stnInfo.getSndType().replace("NCUAIR", "gpduair"));
 			//stnInfo.setSndType(stnInfo.getSndType().replace("GFSS", "NAMS"));
 		}//*/
 		
@@ -1807,6 +1817,9 @@ public class NsharpResourceHandler {
  			case FIRST: //the oldest time, set to dataTimelineList.length, so in while loop, it starts from dataTimelineList.length-1
  				targetIndex = timeElementList.size(); 
  				break;
+			default:
+				break;
+			
  			}
 
  			int counter=0;
@@ -1828,6 +1841,8 @@ public class NsharpResourceHandler {
  					targetIndex--;
  					targetIndex = targetIndex % this.timeElementList.size();	
  					break;
+				default:
+					break;
  				}
  				counter++;
  				if(counter >= timeElementList.size())
@@ -1864,12 +1879,15 @@ public class NsharpResourceHandler {
  								int stnIndex = stnElementList.indexOf(elm);
  								NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(stnIndex).get(targetIndex).get(currentSndElementListIndex);
  								if(stnTmElm != null){
- 									stnTmElm.setCompColorIndex(colorIndex++);
+									stnTmElm.setCompColorIndex(colorIndex);
+									//if(colorIndex > NsharpConstants.LINE_COMP10)
+									//	colorIndex =  NsharpConstants.LINE_COMP1;
+								}
+								colorIndex++;
  									if(colorIndex > NsharpConstants.LINE_COMP10)
  										colorIndex =  NsharpConstants.LINE_COMP1;
  								}
  							}
- 						}
  						//no matter we find current stn or not
  						//we should get out of here
  						break;						
@@ -1901,12 +1919,12 @@ public class NsharpResourceHandler {
  									continue;
  								int sndIndex = sndElementList.indexOf(elm);
  								NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(currentStnElementListIndex).get(targetIndex).get(sndIndex);
- 								if(stnTmElm !=null){
- 									stnTmElm.setCompColorIndex(colorIndex++);
+								if(stnTmElm!=null){
+									stnTmElm.setCompColorIndex(colorIndex);
+								}
+								colorIndex++;
  									if(colorIndex > NsharpConstants.LINE_COMP10)
  										colorIndex =  NsharpConstants.LINE_COMP1;
-
- 								}
  							}
  						}
  						//no matter we find current snd type for this stn or not
@@ -1947,6 +1965,9 @@ public class NsharpResourceHandler {
  					currentStnElementListIndex++;
  					currentStnElementListIndex = currentStnElementListIndex % this.stnElementList.size(); 
  					break;
+				default:
+					break;
+				
  				}
  				counter++;
  				//System.out.println("counter = "+ counter);
@@ -1985,14 +2006,15 @@ public class NsharpResourceHandler {
  									continue;
  								int tmIndex = timeElementList.indexOf(elm);
  								NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(currentStnElementListIndex).get(tmIndex).get(currentSndElementListIndex);
- 								if(stnTmElm != null){
- 									stnTmElm.setCompColorIndex(colorIndex++);
+								if(stnTmElm!=null){
+									stnTmElm.setCompColorIndex(colorIndex);
+								}
+								colorIndex++;
  									if(colorIndex > NsharpConstants.LINE_COMP10)
  										colorIndex =  NsharpConstants.LINE_COMP1;
 
  								}
  							}
- 						}
  						//no matter we find current time line  for this stn or not
  						//we should get out of here
  						break;				
@@ -2024,12 +2046,12 @@ public class NsharpResourceHandler {
  									continue;
  								int sndIndex = sndElementList.indexOf(elm);
  								NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(currentStnElementListIndex).get(currentTimeElementListIndex).get(sndIndex);
- 								if(stnTmElm !=null){
- 									stnTmElm.setCompColorIndex(colorIndex++);
+								if(stnTmElm!=null){
+									stnTmElm.setCompColorIndex(colorIndex);
+								}
+								colorIndex++;
  									if(colorIndex > NsharpConstants.LINE_COMP10)
  										colorIndex =  NsharpConstants.LINE_COMP1;
-
- 								}
  							}
  						}
  						//no matter we find current snd type for this stn or not
@@ -2069,6 +2091,9 @@ public class NsharpResourceHandler {
  					currentSndElementListIndex++;
  					currentSndElementListIndex = currentSndElementListIndex % this.sndElementList.size(); 
  					break;
+				default:
+					break;
+				
  				}
  				counter++;
  				//System.out.println("counter = "+ counter);
@@ -2107,12 +2132,12 @@ public class NsharpResourceHandler {
  									continue;
  								int tmIndex = timeElementList.indexOf(elm);
  								NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(currentStnElementListIndex).get(tmIndex).get(currentSndElementListIndex);
- 								if(stnTmElm != null){
- 									stnTmElm.setCompColorIndex(colorIndex++);
+								if(stnTmElm!=null){
+									stnTmElm.setCompColorIndex(colorIndex);
+								}
+								colorIndex++;
  									if(colorIndex > NsharpConstants.LINE_COMP10)
  										colorIndex =  NsharpConstants.LINE_COMP1;
-
- 								}
  							}
  						}
  						//no matter we find current time line  for this stn or not
@@ -2144,11 +2169,13 @@ public class NsharpResourceHandler {
  							for(NsharpOperationElement elm: stnElementList) {
  								int stnIndex = stnElementList.indexOf(elm);
  								NsharpSoundingElementStateProperty stnTmElm = stnTimeSndTable.get(stnIndex).get(currentTimeElementListIndex).get(currentSndElementListIndex);
- 								if(stnTmElm != null){
- 									stnTmElm.setCompColorIndex(colorIndex++);
+								if(stnTmElm!=null){
+									stnTmElm.setCompColorIndex(colorIndex);
+								}
+								colorIndex++;
  									if(colorIndex > NsharpConstants.LINE_COMP10)
  										colorIndex =  NsharpConstants.LINE_COMP1;
- 								}
+
  							}
  						}
  						//no matter we find current stn or not
