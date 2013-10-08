@@ -3,7 +3,6 @@ package com.raytheon.uf.common.datadelivery.registry;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -27,7 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class SubscriptionBundle implements ISerializableObject {
+public class SubscriptionBundle {
 
     public SubscriptionBundle() {
 
