@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
@@ -60,6 +61,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 4/9/2013     1802       bphillip    Modified how arguments are passed in to query methods
  * May 01, 2013 1967       njensen     Fixed autoboxing for Eclipse 3.8
  * Jun 24, 2013 2106       djohnson    Use IDENTIFIER generic for method signature.
+ * 10/8/2013    1682       bphillip    Added the createCriteria method
  * 
  * </pre>
  * 
@@ -406,6 +408,16 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     public void executeWork(Work work) {
         this.getSessionFactory().getCurrentSession().doWork(work);
+    }
+
+    /**
+     * Creates and returns a criteria instance
+     * 
+     * @return The criteria instance
+     */
+    protected Criteria createCriteria() {
+        return template.getSessionFactory().getCurrentSession()
+                .createCriteria(getEntityClass());
     }
 
     /**
