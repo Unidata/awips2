@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -55,8 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "AdhocSubscription")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class AdhocSubscription<T extends Time, C extends Coverage> extends SiteSubscription<T, C> implements
-        ISerializableObject {
+public class AdhocSubscription<T extends Time, C extends Coverage> extends SiteSubscription<T, C>  {
 
     private static final long serialVersionUID = -2200080380095632486L;
 
