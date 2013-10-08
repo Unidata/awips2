@@ -24,7 +24,8 @@
  * Date         Ticket#    Engineer    Description
  * ============ ========== =========== ==========================
  * Jun 20, 2013 1966       rferrel     Initial creation
- * Aug 05, 2012 2224       rferrel     Changes to add dataSet tags.
+ * Aug 05, 2013 2224       rferrel     Changes to add dataSet tags.
+ * Oct 01, 2013 2147       rfrrel      Date time stamp no longer requires an hour field.
  * 
  * @author rferrel
  * @version 1.0
@@ -69,7 +70,8 @@
                               EpochMS - The time stamp has one group in the patterns which is the epoch time in milliseconds.
                               File - No group is used to get the time stamp. Instead use the files date of last modification.
         <dateGroupIndicies> - Required tag when <timeType> has any value but File. 
-                              Date - A comma separated list of 4 numbers which are in order the index for year, month, day and hour.
+                              Date - A comma separated list of 3 or 4 numbers which are in order the index for year, month, day and hour.
+                                     When only 3 numbers the hour is value is 23.
                               EpochSec - A number which is the index for the epoch in seconds.
                               EpochMS - A number which is the index for the epoch in milliseconds.
                               File - Not needed since no group is used to get the time stamp.
@@ -143,11 +145,15 @@
         <name>GFE</name>
          <extRetentionHours>168</extRetentionHours>
          <dataSet>
-            <dirPattern>(gfe)/(.*)/.*</dirPattern>
-            <dirPattern>(gfe)/(.*)</dirPattern>
-            <filePattern>.*_(\d{4})(\d{2})(\d{2})_(\d{2}).*</filePattern>
-            <displayLabel>{2}</displayLabel>
+            <dirPattern>gfe/(.*)/(.*)/(\d{4})_(\d{2})_(\d{2})_(\d{2})\d{2}</dirPattern>
+            <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
+         </dataSet>
+         <dataSet>
+            <dirPattern>gfe/(.*)/(Fcst|Official)</dirPattern>
+            <filePattern>.*_(\d{4})(\d{2})(\d{2})_.*</filePattern>
+            <displayLabel>{1} - {2}</displayLabel>
+            <dateGroupIndices>3,4,5</dateGroupIndices>
          </dataSet>
     </category>
     <category>
