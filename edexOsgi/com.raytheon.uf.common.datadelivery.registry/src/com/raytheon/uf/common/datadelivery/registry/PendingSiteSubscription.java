@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.registry.annotations.AssociationMapping;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -61,7 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = SiteSubscription.class) })
 public class PendingSiteSubscription<T extends Time, C extends Coverage> extends InitialPendingSiteSubscription<T, C>
-        implements PendingSubscription<T, C>, ISerializableObject {
+        implements PendingSubscription<T, C> {
 
     private static final long serialVersionUID = 7607153845750089310L;
 
