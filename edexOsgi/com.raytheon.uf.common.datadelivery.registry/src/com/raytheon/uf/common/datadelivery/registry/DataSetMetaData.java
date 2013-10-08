@@ -20,7 +20,6 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 
@@ -50,7 +49,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({ GriddedDataSetMetaData.class, OpenDapGriddedDataSetMetaData.class, PointDataSetMetaData.class })
 @RegistryObject({ "url" })
-public abstract class DataSetMetaData<T extends Time> implements ISerializableObject {
+public abstract class DataSetMetaData<T extends Time> {
     public static final String DATE_SLOT = "date";
 
     public static final String DATA_SET_NAME_SLOT = "dataSetName";
