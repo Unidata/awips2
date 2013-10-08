@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
@@ -38,12 +39,24 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRegistry
 public class ObjectFactory implements ISerializableObject {
 
     private final static QName _ResponseOption_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0", "ResponseOption");
+            EbxmlNamespaces.QUERY_URI, "ResponseOption");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of
@@ -91,7 +104,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@link ResponseOptionType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0", name = "ResponseOption")
+    @XmlElementDecl(namespace = EbxmlNamespaces.QUERY_URI, name = "ResponseOption")
     public JAXBElement<ResponseOptionType> createResponseOption(
             ResponseOptionType value) {
         return new JAXBElement<ResponseOptionType>(_ResponseOption_QNAME,

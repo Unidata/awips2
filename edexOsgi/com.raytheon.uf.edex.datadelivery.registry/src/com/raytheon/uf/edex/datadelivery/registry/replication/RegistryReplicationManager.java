@@ -61,10 +61,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
-import com.raytheon.uf.common.registry.constants.Namespaces;
 import com.raytheon.uf.common.registry.constants.NotificationOptionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
@@ -519,11 +519,11 @@ public class RegistryReplicationManager {
         ref.writeTo(dom);
         Document doc = (Document) dom.getNode();
         NodeList nodes = doc.getElementsByTagNameNS(
-                Namespaces.ADDRESSING_NAMESPACE, "Address");
+                EbxmlNamespaces.ADDRESSING_URI, "Address");
         for (int i = 0; i < nodes.getLength(); i++) {
             Node addressNode = nodes.item(i);
             Attr endpointTypeAttr = doc.createAttributeNS(
-                    Namespaces.EBXML_RIM_NAMESPACE_URI, "endpointType");
+                    EbxmlNamespaces.RIM_URI, "endpointType");
             endpointTypeAttr.setValue(endpointType);
             addressNode.getAttributes().setNamedItemNS(endpointTypeAttr);
         }

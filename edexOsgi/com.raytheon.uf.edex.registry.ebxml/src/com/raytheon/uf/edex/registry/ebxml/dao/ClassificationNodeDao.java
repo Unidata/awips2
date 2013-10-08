@@ -59,11 +59,7 @@ public class ClassificationNodeDao extends
     }
 
     public boolean isValidNode(String id) {
-        long result = (Long) this
-                .executeHQLQuery(
-                        "select count(node) from ClassificationNodeType node where node.id=:id",
-                        "id", id).get(0);
-        return result != 0;
+        return getById(id) != null;
     }
 
     /**

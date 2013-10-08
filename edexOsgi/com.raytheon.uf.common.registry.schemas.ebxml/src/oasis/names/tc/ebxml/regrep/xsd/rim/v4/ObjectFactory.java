@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
@@ -38,27 +39,40 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
  * 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRegistry
 public class ObjectFactory implements ISerializableObject {
 
     private final static QName _IdentifiableList_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", "IdentifiableList");
+            EbxmlNamespaces.RIM_URI, "IdentifiableList");
 
     private final static QName _ObjectRefList_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", "ObjectRefList");
+            EbxmlNamespaces.RIM_URI, "ObjectRefList");
 
     private final static QName _Notification_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", "Notification");
+            EbxmlNamespaces.RIM_URI, "Notification");
 
     private final static QName _RegistryObject_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", "RegistryObject");
+            EbxmlNamespaces.RIM_URI, "RegistryObject");
 
     private final static QName _RegistryObjectList_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", "RegistryObjectList");
+            EbxmlNamespaces.RIM_URI, "RegistryObjectList");
 
     private final static QName _ObjectRef_QNAME = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", "ObjectRef");
+            EbxmlNamespaces.RIM_URI, "ObjectRef");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of
@@ -546,7 +560,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@link IdentifiableListType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", name = "IdentifiableList")
+    @XmlElementDecl(namespace = EbxmlNamespaces.RIM_URI, name = "IdentifiableList")
     public JAXBElement<IdentifiableListType> createIdentifiableList(
             IdentifiableListType value) {
         return new JAXBElement<IdentifiableListType>(_IdentifiableList_QNAME,
@@ -558,7 +572,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@link ObjectRefListType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", name = "ObjectRefList")
+    @XmlElementDecl(namespace = EbxmlNamespaces.RIM_URI, name = "ObjectRefList")
     public JAXBElement<ObjectRefListType> createObjectRefList(
             ObjectRefListType value) {
         return new JAXBElement<ObjectRefListType>(_ObjectRefList_QNAME,
@@ -570,7 +584,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@link NotificationType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", name = "Notification")
+    @XmlElementDecl(namespace = EbxmlNamespaces.RIM_URI, name = "Notification")
     public JAXBElement<NotificationType> createNotification(
             NotificationType value) {
         return new JAXBElement<NotificationType>(_Notification_QNAME,
@@ -582,7 +596,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@link RegistryObjectType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", name = "RegistryObject")
+    @XmlElementDecl(namespace = EbxmlNamespaces.RIM_URI, name = "RegistryObject")
     public JAXBElement<RegistryObjectType> createRegistryObject(
             RegistryObjectType value) {
         return new JAXBElement<RegistryObjectType>(_RegistryObject_QNAME,
@@ -594,7 +608,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@link RegistryObjectListType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", name = "RegistryObjectList")
+    @XmlElementDecl(namespace = EbxmlNamespaces.RIM_URI, name = "RegistryObjectList")
     public JAXBElement<RegistryObjectListType> createRegistryObjectList(
             RegistryObjectListType value) {
         return new JAXBElement<RegistryObjectListType>(
@@ -607,7 +621,7 @@ public class ObjectFactory implements ISerializableObject {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", name = "ObjectRef")
+    @XmlElementDecl(namespace = EbxmlNamespaces.RIM_URI, name = "ObjectRef")
     public JAXBElement<ObjectRefType> createObjectRef(ObjectRefType value) {
         return new JAXBElement<ObjectRefType>(_ObjectRef_QNAME,
                 ObjectRefType.class, null, value);
