@@ -39,6 +39,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -70,19 +71,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "DeliveryInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DeliveryInfoType")
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "DeliveryInfo")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "DeliveryInfo")
 public class DeliveryInfoType extends ExtensibleObjectType {
 
     @Id
-    @SequenceGenerator(name = "DeliveryInfoTypeGenerator", schema = "ebxml", sequenceName = "ebxml.DeliveryInfo_sequence")
+    @SequenceGenerator(name = "DeliveryInfoTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".DeliveryInfo_sequence")
     @GeneratedValue(generator = "DeliveryInfoTypeGenerator")
     @XmlTransient
     private Integer key;
