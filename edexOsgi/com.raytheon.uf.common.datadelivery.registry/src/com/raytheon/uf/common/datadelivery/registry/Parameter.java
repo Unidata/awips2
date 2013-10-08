@@ -22,7 +22,6 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -52,7 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "name", "dataType" })
-public class Parameter implements ISerializableObject, Serializable {
+public class Parameter implements Serializable {
 
     private static final long serialVersionUID = -2332611624661834210L;
 

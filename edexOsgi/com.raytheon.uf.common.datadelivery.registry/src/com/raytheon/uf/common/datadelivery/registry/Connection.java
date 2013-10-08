@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -55,7 +54,7 @@ import com.raytheon.uf.common.status.UFStatus;
 @XmlRootElement(name = "connection")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Connection implements ISerializableObject, Serializable {
+public class Connection implements Serializable {
 
     private static final long serialVersionUID = 8223819912383198409L;
 
