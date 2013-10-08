@@ -28,6 +28,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * 
  * Wrapper for the notificationlistener service to be used with the SOAP
@@ -60,10 +62,10 @@ public class NotificationListenerImplWrapper implements NotificationListener {
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:bindings:4.0:NotificationListener:onNotification")
+    @WebMethod(action = ON_NOTIFICATION_ACTION)
     @Oneway
     public void onNotification(
-            @WebParam(name = "Notification", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", partName = "Notification") NotificationType notification) {
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification) {
         notificationListener.onNotification(notification);
     }
 

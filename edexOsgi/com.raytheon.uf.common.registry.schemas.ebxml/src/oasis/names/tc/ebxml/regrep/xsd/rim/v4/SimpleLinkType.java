@@ -39,6 +39,8 @@ import org.w3.v1999.xlink.ActuateType;
 import org.w3.v1999.xlink.ShowType;
 import org.w3.v1999.xlink.TypeType;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -66,19 +68,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "SimpleLink")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SimpleLinkType")
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "SimpleLink")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "SimpleLink")
 public class SimpleLinkType {
 
     @Id
-    @SequenceGenerator(name = "SimpleLinkTypeGenerator", schema = "ebxml", sequenceName = "ebxml.SimpleLink_sequence")
+    @SequenceGenerator(name = "SimpleLinkTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + "SimpleLink_sequence")
     @GeneratedValue(generator = "SimpleLinkTypeGenerator")
     @XmlTransient
     private Integer key;
@@ -87,31 +101,31 @@ public class SimpleLinkType {
         return key;
     }
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @Transient
     protected TypeType type;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String href;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String role;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String arcrole;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String title;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @Transient
     protected ShowType show;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @Transient
     protected ActuateType actuate;
 
