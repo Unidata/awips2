@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -66,7 +67,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "QueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -74,13 +86,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlSeeAlso({ StringQueryExpressionType.class, XMLQueryExpressionType.class })
 @DynamicSerialize
 @Entity
-@Table(schema = "ebxml", name = "QueryExpression")
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "QueryExpression")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class QueryExpressionType extends ExtensibleObjectType {
 
     @Id
-    @SequenceGenerator(name = "QueryExpressionTypeGenerator", schema = "ebxml", sequenceName = "ebxml.QueryExpression_sequence")
+    @SequenceGenerator(name = "QueryExpressionTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".QueryExpression_sequence")
     @GeneratedValue(generator = "QueryExpressionTypeGenerator")
     @XmlTransient
     protected Integer key;

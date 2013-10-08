@@ -6,8 +6,12 @@
 	<!-- Define concrete implementation of the service -->
 	<bean id="queryServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
-		<property name="queryTypeMgr" ref="queryTypeManager" />
 		<property name="federationDao" ref="federationDao"/>
+		<property name="referenceResolver" ref="objectReferenceResolver"/>
+		<property name="queryDefinitionDao" ref="queryDefinitionDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao"/>
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+		<property name="sessionFactory" ref="metadataSessionFactory"/>
 	</bean>
 
 	<!-- NOTIFICATION LISTENER -->
@@ -75,6 +79,7 @@
 	<bean id="registryDataAccessService" class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryDataAccessService">
 		<property name="registryObjectDao" ref="registryObjectDao"/>
 		<property name="lcm" ref="lcmServiceImpl"/>
+		<property name="queryDefinitionDao" ref="queryDefinitionDao"/>
 	</bean>
 
 	<bean id="registryAvailabilityService"
@@ -93,6 +98,7 @@
 	<bean id="queryProtocolRestService"
 		class="com.raytheon.uf.edex.registry.ebxml.services.rest.QueryProtocolRestService">
 		<property name="queryManager" ref="queryServiceImpl" />
+		<property name="queryDefinitionDao" ref="queryDefinitionDao" />
 	</bean>
 
 	<bean id="RegistryWebUtil" class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebUtil">
