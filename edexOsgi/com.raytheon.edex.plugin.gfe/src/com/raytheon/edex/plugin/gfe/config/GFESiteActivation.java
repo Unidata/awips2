@@ -72,6 +72,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
  * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
  * Jun 13, 2013  #2044    randerso    Refactored to use IFPServer
+ * Sep 13, 2013  2368     rjpeter     Used durable jms settings.
  * </pre>
  * 
  * @author njensen
