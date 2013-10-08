@@ -283,7 +283,8 @@ import org.apache.log4j.Logger;
 	 //This method is much faster comparing to doBatchSeparate1. Only several header search is needed.
 	 private void doBatchSeparate(byte[] data ) {
 		 /* Regex used for separate the bulletins */
-		 System.out.println("Ncuair doBatchSeparate: input file size is " + data.length);
+		 int dataLen =  data.length;
+		 //System.out.println("Ncuair doBatchSeparate: input file size is " + dataLen);
 		 final String BULLSEPARATOR = "\\x01\\r\\r\\n\\d{3} \\r\\r\\n"+ WMO_HEADER;
 		 Pattern bullPattern;	
 		 bullPattern = Pattern.compile(BULLSEPARATOR);	
@@ -292,40 +293,58 @@ import org.apache.log4j.Logger;
 		 String msg ;
 		 int batchSize = 230000; //separate data to batch size around 230000
 		 String batchStr;
-		 while(charCount < data.length){
+		 //int count=0;
+		 while(charCount < dataLen){
 			 lastCharCount = charCount;
 			 charCount = charCount+ batchSize;
-			 if(charCount < data.length){
+			 //count++;
+			 if(charCount < dataLen){
+				 //System.out.println("1st substring begin @"+charCount);
 				 msg = message.substring(charCount);
+				 
 				 try {
 					 // data bulletin is not ended at exactly 2300000 bytes for each batch
 					 // therefore, find the next header of bulletin and chop batch data at there
 					 Matcher bullMatcher = bullPattern.matcher(msg);
 					 if (bullMatcher.find()) {
+						 
 						 int start = bullMatcher.start();
 						 charCount = charCount+ start;
 						 batchStr= new String();
+						 //System.out.println("2nd substring begin @"+lastCharCount+ " end @"+charCount);
 						 batchStr = message.substring(lastCharCount,charCount);
 						 records.add(batchStr);
+						 
 					 }
 					 else{
 						 // no header find, should be the end of the data
 						 batchStr= new String();
-						 batchStr = message.substring(lastCharCount,data.length);
+						 //System.out.println("3rd substring begin @"+lastCharCount+ " end @"+(dataLen-1));
+						 batchStr = message.substring(lastCharCount,dataLen-1);
 						 records.add(batchStr);
 						 break;
 					 }
 				 }
 				 catch (Exception e) {
 					 if ( log.isInfoEnabled()) {
-						 log.info ("doBatchSeparate exception !");
+						 log.info ("doBatchSeparate exception !" + e);
 					 }
+					 break;
 				 }
+				 
 			 }
 			 else{
 				 //  should be the last batch of the data, just add them without search next header
-				 msg = message.substring(lastCharCount,data.length);
+				 try{
+					 //System.out.println("4th substring begin @"+lastCharCount+ " end @"+(dataLen-1));
+					 msg = message.substring(lastCharCount,dataLen-1);
 				 records.add(msg);
+				 }
+				 catch (Exception e) {
+					 if ( log.isInfoEnabled()) {
+						 log.info ("doBatchSeparate last batch exception !"+e);
+					 }
+				 }
 				 break;
 			 }
 		 }
