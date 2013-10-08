@@ -47,9 +47,11 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2011            bsteffen    Initial creation
- * Dec 06, 2012 1396  njensen Added      setting VizServers
+ * Dec 06, 2012 1396       njensen     Added setting VizServers
  * Jan 14, 2013 1469       bkowal      Removed setting the hdf5 data directory
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Aug 27, 2013   2295     bkowal      The entire jms connection string is
+ *                                     now provided by EDEX.
  * 
  * </pre>
  * 
@@ -90,7 +92,7 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
             if (!disableJMS) {
                 GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
                         servicesProxy, false);
-                VizApp.setJmsServer(resp.getJmsServer());
+                VizApp.setJmsConnectionString(resp.getJmsConnectionString());
             }
             VizApp.setHttpServer(servicesProxy);
             VizApp.setPypiesServer(store
@@ -100,12 +102,13 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
             HttpClient.getInstance().setCompressRequests(compressRequests);
 
             // use the proxy for all servers in VizServers
+            @SuppressWarnings("unchecked")
             Map<String, String> serversMap = new DefaultedMap(servicesProxy);
             VizServers.getInstance().setServerLocations(serversMap);
         } else {
             processGetServers();
             if (disableJMS) {
-                VizApp.setJmsServer(null);
+                VizApp.setJmsConnectionString(null);
             }
         }
     }
