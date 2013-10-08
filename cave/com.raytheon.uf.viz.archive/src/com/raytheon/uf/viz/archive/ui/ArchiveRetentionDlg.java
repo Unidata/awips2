@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Archive retention dialog.
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * Jul 24, 2013 #2220      rferrel      Add recompute size button.
  * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
  * Aug 26, 2013 #2225      rferrel      Make dialog perspective independent.
+ * Oct 01, 2013 #2147      rferrel      Change getEnd() to pick up files with future time stamps.
  * 
  * </pre>
  * 
@@ -305,7 +307,10 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
     @Override
     protected Calendar getEnd() {
         // display all elements so no end bound
-        return null;
+        Calendar endCal = TimeUtil.newCalendar();
+        // Back off an hour so latter rounding doesn't cause overflow.
+        endCal.setTimeInMillis(Long.MAX_VALUE - TimeUtil.MILLIS_PER_HOUR);
+        return endCal;
     }
 
     /*
