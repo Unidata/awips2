@@ -16,7 +16,7 @@
 	<bean id="ldadprofilerDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadprofiler" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadprofiler?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.ldadprofiler"/>
 	</bean>
     
     <bean id="ldadprofilerCamelRegistered" factory-bean="contextManager"
@@ -37,13 +37,13 @@
             <setHeader headerName="pluginName">
                 <constant>ldadprofiler</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.ldadprofiler" />
+            <to uri="jms-durable:queue:Ingest.ldadprofiler" />
         </route>
  		-->
 
         <!-- Begin ldadprofiler routes -->
         <route id="ldadprofilerIngestRoute">
-            <from uri="jms-generic:queue:Ingest.ldadprofiler?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.ldadprofiler"/>
             <doTry>
 	            <pipeline>
                     <bean ref="stringToFile" />
