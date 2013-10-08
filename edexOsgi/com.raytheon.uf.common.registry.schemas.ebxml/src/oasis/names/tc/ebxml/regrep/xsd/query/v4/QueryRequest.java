@@ -67,7 +67,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "responseOption", "query" })
@@ -101,6 +112,24 @@ public class QueryRequest extends RegistryRequestType {
 
     /** The maxResults canonical query parameter name */
     public static final String MAX_RESULTS = "maxResults";
+
+    /** The responseOption query parameter name */
+    public static final String RESPONSE_OPTION = "responseOption";
+
+    /** The returnRequest query parameter */
+    public static final String RETURN_REQUEST = "returnRequest";
+
+    /** The default format for query responses */
+    public static final String DEFAULT_RESPONSE_FORMAT = "application/ebrim+xml";
+
+    public static final BigInteger DEFAULT_MAX_RESULTS = new BigInteger("-1");
+
+    public static final BigInteger DEFAULT_START_INDEX = new BigInteger("0");
+
+    public static final BigInteger DEFAULT_DEPTH = new BigInteger("0");
+
+    public static final Boolean DEFAULT_MATCH_OLDER_VERSIONS = new Boolean(
+            false);
 
     @XmlElement(name = "ResponseOption", required = true)
     @DynamicSerializeElement
@@ -297,7 +326,7 @@ public class QueryRequest extends RegistryRequestType {
      */
     public String getFormat() {
         if (format == null) {
-            return "application/ebrim+xml";
+            return DEFAULT_RESPONSE_FORMAT;
         } else {
             return format;
         }
@@ -343,7 +372,7 @@ public class QueryRequest extends RegistryRequestType {
      */
     public BigInteger getStartIndex() {
         if (startIndex == null) {
-            return new BigInteger("0");
+            return DEFAULT_START_INDEX;
         } else {
             return startIndex;
         }
@@ -368,7 +397,7 @@ public class QueryRequest extends RegistryRequestType {
      */
     public BigInteger getMaxResults() {
         if (maxResults == null) {
-            return new BigInteger("-1");
+            return DEFAULT_MAX_RESULTS;
         } else {
             return maxResults;
         }
@@ -393,7 +422,7 @@ public class QueryRequest extends RegistryRequestType {
      */
     public BigInteger getDepth() {
         if (depth == null) {
-            return new BigInteger("0");
+            return DEFAULT_DEPTH;
         } else {
             return depth;
         }
@@ -418,7 +447,7 @@ public class QueryRequest extends RegistryRequestType {
      */
     public boolean isMatchOlderVersions() {
         if (matchOlderVersions == null) {
-            return false;
+            return DEFAULT_MATCH_OLDER_VERSIONS;
         } else {
             return matchOlderVersions;
         }
