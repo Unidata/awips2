@@ -20,10 +20,12 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +50,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -77,7 +80,18 @@ import com.raytheon.uf.common.status.UFStatus;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "ExtensibleObject")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -90,7 +104,7 @@ import com.raytheon.uf.common.status.UFStatus;
         RegistryResponseType.class, RegistryRequestType.class })
 @DynamicSerialize
 @MappedSuperclass
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 public abstract class ExtensibleObjectType {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -98,7 +112,7 @@ public abstract class ExtensibleObjectType {
 
     @BatchSize(size = 500)
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA, inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
     protected Set<SlotType> slot;
@@ -220,6 +234,28 @@ public abstract class ExtensibleObjectType {
             }
         }
         return (T) retVal;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getSlotValueAsList(String slotName) {
+        List<T> retVal = new ArrayList<T>();
+        for (SlotType slot : getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                retVal.add((T) slot.getSlotValue().getValue());
+            }
+        }
+        return retVal;
+    }
+
+    public Map<String, Object> getSlotNameValues() {
+        if (this.getSlot().isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<String, Object> map = new HashMap<String, Object>(slot.size());
+        for (SlotType slot : this.getSlot()) {
+            map.put(slot.getName(), slot.getSlotValue().getValue());
+        }
+        return map;
     }
 
     /*
