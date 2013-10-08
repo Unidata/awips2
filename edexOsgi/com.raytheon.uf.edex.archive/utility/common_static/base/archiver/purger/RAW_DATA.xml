@@ -24,7 +24,8 @@
  * Date         Ticket#    Engineer    Description
  * ============ ========== =========== ==========================
  * Jun 20, 2013 1966       rferrel     Initial creation
- * Aug 05, 2012 2224       rferrel     Changes to add dataSet tags.
+ * Aug 05, 2013 2224       rferrel     Changes to add dataSet tags.
+ * Oct 01, 2013 2147       rfrrel      Date time stamp no longer requires an hour field.
  * 
  * @author rferrel
  * @version 1.0
@@ -45,7 +46,7 @@
         <dataSet>           - Required to have a least one. Each one contains a set of tags explained below.
         <selectedDisplayNames>  - A directory matching <dirPattern>. These are selected directories from the Retention GUI. The purger
                                   will used the category's <extRetentionHours> instead of the Arhivie's <minRetentionHours>.
-                                  An optional tag; may have more then one.(NOTE these are set internally when a selection configuration
+                                  An optional tag; may have more then one. (NOTE these are set internally when a selection configuration
                                   file is loaded. They should not appear in the configuration file.)
      The <dataSet> contains ? types of tags:
         <dirPattern>        - Required to have at least one. A regex pattern for finding directories for this category.
@@ -69,7 +70,8 @@
                               EpochMS - The time stamp has one group in the patterns which is the epoch time in milliseconds.
                               File - No group is used to get the time stamp. Instead use the files date of last modification.
         <dateGroupIndicies> - Required tag when <timeType> has any value but File. 
-                              Date - A comma separated list of 4 numbers which are in order the index for year, month, day and hour.
+                              Date - A comma separated list of 3 or 4 numbers which are in order the index for year, month, day and hour.
+                                     When only 3 numbers the hour is value is 23.
                               EpochSec - A number which is the index for the epoch in seconds.
                               EpochMS - A number which is the index for the epoch in milliseconds.
                               File - Not needed since no group is used to get the time stamp.
@@ -107,18 +109,12 @@
         <name>Observation</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-           <dirPattern>(airep|airmet|taf)</dirPattern>
+           <dirPattern>(acars|airep|airmet|taf)</dirPattern>
            <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
            <displayLabel>{1}</displayLabel>
            <timeType>Date</timeType>
            <dateGroupIndices>2,3,4,5</dateGroupIndices>
            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
-        </dataSet>
-        <dataSet>
-            <dirPattern>(acars)/(.*)</dirPattern>
-            <displayLabel>{1}</displayLabel>
-            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
-            finish this
         </dataSet>
      </category>
      The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.
