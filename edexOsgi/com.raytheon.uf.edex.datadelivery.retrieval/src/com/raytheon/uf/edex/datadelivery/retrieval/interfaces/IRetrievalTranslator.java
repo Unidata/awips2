@@ -20,6 +20,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
  * further licensing information.
  **/
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
@@ -32,6 +34,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2011            dhladky     Initial creation
+ * Oct 7,  2013            dhladky     More generics
  * 
  * </pre>
  * 
@@ -39,11 +42,11 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * @version 1.0
  */
 
-public interface IRetrievalTranslator {
+public interface IRetrievalTranslator<T extends Time, C extends Coverage> {
 
-    public void setAttribute(RetrievalAttribute attribute);
+    public void setAttribute(RetrievalAttribute<T, C> attribute);
 
-    public RetrievalAttribute getAttribute();
+    public RetrievalAttribute<T, C> getAttribute();
 
     public Class<?> getPdoClass();
 

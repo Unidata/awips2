@@ -152,5 +152,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.wxmath"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jface_3.8.0.v20120912-135020.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.configuration"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval.wfs"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

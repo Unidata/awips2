@@ -27,26 +27,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "TrendSets")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANTrendSetsXML implements ISerializableObject
-{
-    @XmlElements( { @XmlElement(name = "TrendSet", type = SCANTrendSetXML.class) })
+public class SCANTrendSetsXML {
+
+    @XmlElements({ @XmlElement(name = "TrendSet", type = SCANTrendSetXML.class) })
     private ArrayList<SCANTrendSetXML> trendSets;
-    
-    public SCANTrendSetsXML()
-    {        
+
+    public SCANTrendSetsXML() {
     }
 
-    public ArrayList<SCANTrendSetXML> getTrendSets()
-    {
+    public ArrayList<SCANTrendSetXML> getTrendSets() {
         return trendSets;
     }
 
-    public void setTrendSets(ArrayList<SCANTrendSetXML> trendSets)
-    {
+    public void setTrendSets(ArrayList<SCANTrendSetXML> trendSets) {
         this.trendSets = trendSets;
     }
 }

@@ -22,6 +22,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import org.junit.Ignore;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.util.SpringFiles;
 
 /**
@@ -44,6 +46,6 @@ import com.raytheon.uf.common.util.SpringFiles;
         SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
 @Ignore
-public abstract class AbstractWfoBandwidthManagerIntTest extends
-        AbstractBandwidthManagerIntTest {
+public abstract class AbstractWfoBandwidthManagerIntTest<T extends Time, C extends Coverage> extends
+        AbstractBandwidthManagerIntTest<T, C> {
 }

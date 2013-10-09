@@ -34,7 +34,6 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.google.common.collect.Sets;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sept 11, 2013  2351      dhladky     Added more point intervals
  * Sept 17, 2013  2383      bgonzale    Use end or start time when times are
  *                                      null because times are not always set.
+ * Sept 30, 2013  1797      dhladky     separation of gridded time from time
  * 
  * </pre>
  * 
@@ -60,8 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PointTime extends Time implements ISerializableObject,
-        Serializable {
+public class PointTime extends Time implements Serializable {
 
     private static final long serialVersionUID = 234624356321L;
 
@@ -83,6 +82,23 @@ public class PointTime extends Time implements ISerializableObject,
      */
     public PointTime() {
 
+    }
+    
+    /**
+     * Clone constructor.
+     * 
+     * @param the
+     *            {@link PointTime} to clone
+     */
+    public PointTime(PointTime toCopy) {
+        this.end = toCopy.end;
+        this.format = toCopy.format;
+        this.numTimes = toCopy.numTimes;
+        this.requestEnd = toCopy.requestEnd;
+        this.requestStart = toCopy.requestStart;
+        this.start = toCopy.start;
+        this.times = toCopy.times;
+        this.interval = toCopy.interval;
     }
 
     public void setTimes(List<Date> times) {

@@ -20,7 +20,7 @@ import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
 import com.raytheon.uf.common.monitor.xml.SCANSiteRunConfigXML;
 import com.raytheon.uf.common.monitor.xml.SCANSiteXML;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -34,9 +34,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/07/2009   2037       dhladky    Initial Creation.
+ * 02/07/2009   2037       dhladky     Initial Creation.
  * 02/25/13     1660       dhladky     Fixed configuration bug in scan.
  * Aug 13, 2013 1742       dhladky     Concurrent mod exception on update fixed
+ * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -44,24 +45,30 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-
 public class SCANRunSiteConfigurationManager implements
         ILocalizationFileObserver {
 
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "scan" + File.separatorChar
             + "SCANRunSiteConfig.xml";
-    
+
     private static final IUFStatusHandler statusHandler = UFStatus
-    .getHandler(SCANRunSiteConfigurationManager.class);
+            .getHandler(SCANRunSiteConfigurationManager.class);
+
+    // This needs to initialize before the instance since the constructor will
+    // makes use of JAXB. JVM spec 12.4.2 step 9 indicates this will
+    // initialize ahead of the instance since it is earlier in
+    // in the text source.
+    private static final SingleTypeJAXBManager<SCANSiteRunConfigXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(SCANSiteRunConfigXML.class);
+
+    /** Singleton instance of this class */
+    private static SCANRunSiteConfigurationManager instance = new SCANRunSiteConfigurationManager();
 
     /**
      * SCAN Configuration XML object.
      */
     protected SCANSiteRunConfigXML configXml;
-
-    /** Singleton instance of this class */
-    private static SCANRunSiteConfigurationManager instance = new SCANRunSiteConfigurationManager();
 
     private LocalizationFile lf = null;
 
@@ -76,7 +83,8 @@ public class SCANRunSiteConfigurationManager implements
         try {
             readConfigXml();
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, "Can not read the SCAN configuration", e);
+            statusHandler.handle(Priority.ERROR,
+                    "Can not read the SCAN configuration", e);
         }
     }
 
@@ -103,19 +111,22 @@ public class SCANRunSiteConfigurationManager implements
         File file = lf.getFile();
         // System.out.println("Reading -- " + file.getAbsolutePath());
         if (!file.exists()) {
-            statusHandler.handle(Priority.WARN, "SCANRunSiteConfigurationManager: "
+            statusHandler.handle(
+                    Priority.WARN,
+                    "SCANRunSiteConfigurationManager: "
                             + file.getAbsolutePath() + " does not exist.");
             try {
                 createValidConfig();
             } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR,"SCANRunSiteConfigurationManager: Couldn't create valid runnable configuration");
+                statusHandler
+                        .handle(Priority.ERROR,
+                                "SCANRunSiteConfigurationManager: Couldn't create valid runnable configuration");
             }
         }
 
         SCANSiteRunConfigXML configXmltmp = null;
 
-        configXmltmp = SerializationUtil
-                .jaxbUnmarshalFromXmlFile(SCANSiteRunConfigXML.class, file.getAbsolutePath());
+        configXmltmp = jaxb.unmarshalFromXmlFile(file.getAbsolutePath());
 
         configXml = configXmltmp;
         isPopulated = true;
@@ -152,15 +163,16 @@ public class SCANRunSiteConfigurationManager implements
         try {
             // System.out.println("Saving -- "
             // + newXmlFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
             setPopulated(true);
 
             lf = newXmlFile;
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN, "SCANRunSiteConfigurationManager: "
-                    + newXmlFile.getName() + " couldn't be saved.", e);
+            statusHandler.handle(Priority.WARN,
+                    "SCANRunSiteConfigurationManager: " + newXmlFile.getName()
+                            + " couldn't be saved.", e);
         }
     }
 

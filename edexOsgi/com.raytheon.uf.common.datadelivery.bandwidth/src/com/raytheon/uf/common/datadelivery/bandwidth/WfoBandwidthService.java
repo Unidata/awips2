@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.bandwidth;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 
 /**
@@ -32,13 +34,14 @@ import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2013 1644       djohnson     Initial creation
+ * Oct 3   2013 1797       dhladky      Updating generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class WfoBandwidthService extends BandwidthService {
+public class WfoBandwidthService<T extends Time, C extends Coverage> extends BandwidthService<T, C> {
 
     /**
      * Constructor.
