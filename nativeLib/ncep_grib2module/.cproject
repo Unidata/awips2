@@ -725,9 +725,4 @@
 			</profile>
 		</scannerConfigBuildInfo>
 	</storageModule>
-		</cconfiguration>
-	</storageModule>
-	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="grib2.cdt.managedbuild.target.gnu.so.655859878" name="Shared Library" projectType="cdt.managedbuild.target.gnu.so"/>
-	</storageModule>
 </cproject>
