@@ -14,14 +14,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @XmlRootElement(name = "nwsRoleData")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class NwsRoleData implements ISerializableObject {
+public class NwsRoleData {
     @DynamicSerializeElement
     @XmlElement(name = "application")
     private String application;
@@ -107,7 +106,7 @@ public class NwsRoleData implements ISerializableObject {
             perms.add(p.getId());
         }
         Collections.sort(perms);
-        
+
         return perms.toArray(new String[perms.size()]);
     }
 
@@ -117,7 +116,7 @@ public class NwsRoleData implements ISerializableObject {
             roles.add(r.getRoleId());
         }
         Collections.sort(roles);
-        
+
         return roles.toArray(new String[roles.size()]);
     }
 
@@ -127,7 +126,7 @@ public class NwsRoleData implements ISerializableObject {
             users.add(r.getUserId());
         }
         Collections.sort(users);
-        
+
         return users.toArray(new String[users.size()]);
     }
 
@@ -140,18 +139,18 @@ public class NwsRoleData implements ISerializableObject {
     }
 
     public void addRole(String role, String description) {
-        if (role != null && description != null && role.length() > 0 && description.length() > 0) {
+        if (role != null && description != null && role.length() > 0
+                && description.length() > 0) {
             RoleXML roleXml = new RoleXML();
             roleXml.setRoleDescription(description);
             roleXml.setRoleId(role);
             this.roleList.add(roleXml);
         }
     }
-    
+
     /**
-     * Add a permission.  This should only be used for 
-     * Localization permissions, which are directory access
-     * permissions.
+     * Add a permission. This should only be used for Localization permissions,
+     * which are directory access permissions.
      * 
      * @param permission
      */
@@ -159,14 +158,15 @@ public class NwsRoleData implements ISerializableObject {
         if (permission != null && permission.length() > 0) {
             PermissionXML pXml = new PermissionXML();
             pXml.setId(permission);
-            this.permissionList.add(pXml);            
+            this.permissionList.add(pXml);
         }
     }
 
     /**
      * Get the user's permissions
      * 
-     * @param userId id of the user
+     * @param userId
+     *            id of the user
      * @return String[] of permissions
      */
     public String[] getUserPermissions(String userId) {
@@ -181,10 +181,10 @@ public class NwsRoleData implements ISerializableObject {
             }
         }
         Collections.sort(userPermissions);
-        
+
         return userPermissions.toArray(new String[userPermissions.size()]);
     }
-    
+
     /**
      * Get an array of all defined permissions
      * 
@@ -192,13 +192,13 @@ public class NwsRoleData implements ISerializableObject {
      */
     public String[] getAllDefinedPermissions() {
         ArrayList<String> permissions = new ArrayList<String>();
-        for (PermissionXML p: this.permissionList) {
+        for (PermissionXML p : this.permissionList) {
             permissions.add(p.getId());
         }
-        
+
         return permissions.toArray(new String[permissions.size()]);
     }
-    
+
     public String[] getRolePermissions(String roleId) {
         ArrayList<String> rolePermissions = new ArrayList<String>();
 
@@ -211,7 +211,7 @@ public class NwsRoleData implements ISerializableObject {
             }
         }
         Collections.sort(rolePermissions);
-        
+
         return rolePermissions.toArray(new String[rolePermissions.size()]);
     }
 
@@ -227,7 +227,7 @@ public class NwsRoleData implements ISerializableObject {
             }
         }
         Collections.sort(userRoles);
-        
+
         return userRoles.toArray(new String[userRoles.size()]);
     }
 
@@ -237,7 +237,7 @@ public class NwsRoleData implements ISerializableObject {
             roleIdList.add(rx.getRoleId());
         }
         Collections.sort(roleIdList);
-        
+
         return roleIdList.toArray(new String[roleIdList.size()]);
     }
 
@@ -262,7 +262,7 @@ public class NwsRoleData implements ISerializableObject {
             for (RoleXML roleXml : roleList) {
                 for (String role : roles) {
                     if (roleXml.getRoleId().equals(role)) {
-                        for (String p: roleXml.getPermissionList()) {
+                        for (String p : roleXml.getPermissionList()) {
                             permSet.add(p);
                         }
                     }
@@ -286,20 +286,21 @@ public class NwsRoleData implements ISerializableObject {
      */
     public boolean isAuthorized(String permission, String user) {
         Set<String> authorizedPermissions = this.getAuthorizedPermissions(user);
-        Set<String> allAuthorizedPermissions = this.getAuthorizedPermissions("ALL");
-        
-        for (String perm: authorizedPermissions) {
+        Set<String> allAuthorizedPermissions = this
+                .getAuthorizedPermissions("ALL");
+
+        for (String perm : authorizedPermissions) {
             if (perm.equalsIgnoreCase(permission)) {
                 return true;
             }
         }
-        
-        for (String perm: allAuthorizedPermissions) {
+
+        for (String perm : allAuthorizedPermissions) {
             if (perm.equalsIgnoreCase(permission)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
