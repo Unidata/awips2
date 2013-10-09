@@ -56,10 +56,12 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Oct 15, 2010 6644        bphillip    Initial Creation
- * Jul 18, 2013 2194        bsteffen    Fix site override.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 15, 2010  6644     bphillip    Initial Creation
+ * Jul 18, 2013  2194     bsteffen    Fix site override.
+ * Oct 07, 2013  2042     bsteffen    Decode GribDecodeMessage instead of
+ *                                    files.
  * 
  * </pre>
  * 
@@ -111,7 +113,9 @@ public class GribLargeFileChecker implements Processor {
         if (basePatterns == null) {
             loadPatterns();
         }
-        File gribFile = (File) exchange.getIn().getBody();
+        GribDecodeMessage message = (GribDecodeMessage) exchange.getIn()
+                .getBody();
+        File gribFile = new File(message.getFileName());
         String header = (String) exchange.getIn().getHeader("header");
         if (header == null) {
             // No header entry so will try and use the filename instead
@@ -157,6 +161,8 @@ public class GribLargeFileChecker implements Processor {
         } else {
             exchange.getIn().setHeader(LARGE_FILE_HEADER, false);
         }
+        exchange.getIn().setHeader("dequeueTime", System.currentTimeMillis());
+
     }
 
     /**
