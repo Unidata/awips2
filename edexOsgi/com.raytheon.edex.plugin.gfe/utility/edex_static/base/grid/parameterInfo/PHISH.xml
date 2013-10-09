@@ -409,7 +409,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge10pct</short_name>
+    <short_name>Surge10pct6hr</short_name>
     <long_name>10% Exceedance Height</long_name>
     <units>feet</units>
     <udunits>feet</udunits>
@@ -428,7 +428,7 @@
     <long_name>20% Exceedance Height</long_name>
     <units>feet</units>
     <udunits>feet</udunits>
-    <uiname>SURGE20pct</uiname>
+    <uiname>SURGE20pct6hr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>25.0</valid_range>
     <fillValue>-9999.0</fillValue>
