@@ -22,11 +22,10 @@ package com.raytheon.edex.plugin.goessounding.dao;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.goessounding.GOESSounding;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -134,7 +133,7 @@ public class GOESSoundingDAO extends PointDataPluginDao<GOESSounding> {
     public GOESSounding newObject() {
         return new GOESSounding();
     }
-    
+
     @Override
     public PointDataDescription getPointDataDescription(Map<String, Object> obj) {
         if (hdf5DataDescription == null) {
@@ -142,12 +141,12 @@ public class GOESSoundingDAO extends PointDataPluginDao<GOESSounding> {
                 hdf5DataDescription = PointDataDescription.fromStream(this
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/goes.xml"));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Unable to load " + pluginName
                         + " Point Data Description", e);
             }
         }
         return hdf5DataDescription;
     }
-    
+
 }

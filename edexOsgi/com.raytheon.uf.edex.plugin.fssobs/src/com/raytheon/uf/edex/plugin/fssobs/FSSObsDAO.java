@@ -1,6 +1,5 @@
 package com.raytheon.uf.edex.plugin.fssobs;
 
-
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,19 +15,17 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
-
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
-
 public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
-    
 
-	public FSSObsDAO(String pluginName) throws PluginException {
-		super(pluginName);
-	}
-	
+    public FSSObsDAO(String pluginName) throws PluginException {
+        super(pluginName);
+    }
+
     public FSSObsDAO() throws PluginException, SQLException {
         this("fssobs");
     }
@@ -46,7 +43,7 @@ public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
         }
         return report;
     }
-	
+
     public Object[] queryDataUriColumn(final String dataUri) {
 
         String sql = "select datauri from awips.fssobs where datauri='"
@@ -56,7 +53,7 @@ public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
 
         return results;
     }
-    
+
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
@@ -77,8 +74,8 @@ public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
                     record = getDataStore((IPersistable) obj).retrieve(
                             obj.getDataURI());
                 } catch (Exception e) {
-                    throw new PluginException("Error retrieving FSSObs HDF5 data",
-                            e);
+                    throw new PluginException(
+                            "Error retrieving FSSObs HDF5 data", e);
                 }
                 retVal.add(record);
             }
@@ -96,12 +93,11 @@ public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
         return new FSSObsRecord();
     }
 
-
     @Override
     public String getPointDataFileName(FSSObsRecord p) {
         return "fssobs.h5";
     }
-    
+
     @Override
     public PointDataDescription getPointDataDescription(Map<String, Object> obj) {
         if (hdf5DataDescription == null) {
@@ -109,15 +105,19 @@ public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
                 hdf5DataDescription = PointDataDescription.fromStream(this
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/fssobs.xml"));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Unable to load fssobs Point Data Description", e);
             }
         }
         return hdf5DataDescription;
     }
-    
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.edex.pointdata.PointDataPluginDao#getPointDataDbDescription()
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.pointdata.PointDataPluginDao#getPointDataDbDescription
+     * ()
      */
     @Override
     public PointDataDbDescription getPointDataDbDescription() {
@@ -136,5 +136,5 @@ public class FSSObsDAO extends PointDataPluginDao<FSSObsRecord> {
         }
         return dbDataDescription;
     }
-    	
+
 }
