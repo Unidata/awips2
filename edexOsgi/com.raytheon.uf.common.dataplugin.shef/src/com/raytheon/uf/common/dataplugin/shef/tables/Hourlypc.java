@@ -41,6 +41,7 @@ import javax.persistence.Transient;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
  * 
  * </pre>
  * 
@@ -49,121 +50,91 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "hourlypc")
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
 public class Hourlypc extends
         com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements
-        java.io.Serializable,
-        com.raytheon.uf.common.serialization.ISerializableObject, IHourlyTS {
+        java.io.Serializable, IHourlyTS {
 
     private static final long serialVersionUID = 1L;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private HourlypcId id;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String minuteOffset;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String hourlyQc;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour1;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour2;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour3;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour4;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour5;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour6;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour7;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour8;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour9;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour10;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour11;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour12;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour13;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour14;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour15;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour16;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour17;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour18;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour19;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour20;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour21;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour22;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour23;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short hour24;
 

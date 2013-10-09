@@ -45,11 +45,12 @@ import com.vividsolutions.jts.io.WKTReader;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 22, 2008            njensen     Initial creation
- * Nov 24, 2008            chammack    Camel Refactor
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 22, 2008           njensen     Initial creation
+ * Nov 24, 2008           chammack    Camel Refactor
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
  * </pre>
  * 
  * @author njensen
@@ -79,6 +80,12 @@ public class PythonDecoder extends AbstractDecoder {
     }
 
     public PluginDataObject[] decode(File file) throws Exception {
+        Map<String, Object> argMap = new HashMap<String, Object>(4);
+        argMap.put("filePath", file.getPath());
+        return decode(argMap);
+    }
+
+    public PluginDataObject[] decode(Map<String, Object> args) throws Exception {
 
         List<PluginDataObject> decodedObjects = new ArrayList<PluginDataObject>(
                 0);
@@ -92,10 +99,8 @@ public class PythonDecoder extends AbstractDecoder {
             } else {
                 py = cachedInterpreters.get(id);
             }
-            HashMap<String, Object> argMap = new HashMap<String, Object>();
-            argMap.put("moduleName", moduleName);
-            argMap.put("fileToDecode", file.getPath());
-            List<?> result = (List<?>) py.execute("decode", argMap);
+            args.put("moduleName", moduleName);
+            List<?> result = (List<?>) py.execute("decode", args);
 
             decodedObjects = asPluginDataObjects(result);
         } catch (JepException e) {
@@ -113,9 +118,6 @@ public class PythonDecoder extends AbstractDecoder {
             }
         }
 
-        for (PluginDataObject pdo : decodedObjects) {
-            pdo.constructDataURI();
-        }
         return decodedObjects.toArray(new PluginDataObject[decodedObjects
                 .size()]);
     }

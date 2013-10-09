@@ -46,6 +46,7 @@ import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResp
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
 /**
@@ -60,6 +61,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
  * 9/20/2013    2385        bphillip    Added subscription backup functions
+ * 10/2/2013    2385        bphillip    Fixed subscription backup queries
  * </pre>
  * 
  * @author bphillip
@@ -76,7 +78,14 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
             System.getProperty("edex.home")
                     + "/data/registrySubscriptionBackup");
 
-    private static final String GET_SUBSCRIPTIONS_QUERY = "FROM RegistryObjectType obj where lower(obj.objectType) like '%subscription%' order by obj.id asc";
+    private static final String GET_SINGLE_SUBSCRIPTIONS_QUERY = "FROM RegistryObjectType obj "
+            + "where (obj.objectType like '%SiteSubscription' "
+            + "OR obj.objectType like '%SharedSubscription') "
+            + "AND obj.id=:id";
+
+    private static final String GET_SUBSCRIPTIONS_QUERY = "FROM RegistryObjectType obj "
+            + "where obj.objectType like '%SiteSubscription' "
+            + "OR obj.objectType like '%SharedSubscription' order by obj.id asc";
 
     /** Data access object for registry objects */
     private RegistryObjectDao registryObjectDao;
@@ -191,12 +200,14 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
             @PathParam("subscriptionName") String subscriptionName)
             throws JAXBException {
         StringBuilder response = new StringBuilder();
-        RegistryObjectType sub = registryObjectDao.getById(subscriptionName);
+        List<RegistryObjectType> result = registryObjectDao.executeHQLQuery(
+                GET_SINGLE_SUBSCRIPTIONS_QUERY, "id", subscriptionName);
 
-        if (sub == null) {
+        if (CollectionUtil.isNullOrEmpty(result)) {
             response.append("Subscription with ID [").append(subscriptionName)
                     .append("] not found in registry");
         } else {
+            RegistryObjectType sub = result.get(0);
             if (!SUBSCRIPTION_BACKUP_DIR.exists()) {
                 SUBSCRIPTION_BACKUP_DIR.mkdirs();
             }

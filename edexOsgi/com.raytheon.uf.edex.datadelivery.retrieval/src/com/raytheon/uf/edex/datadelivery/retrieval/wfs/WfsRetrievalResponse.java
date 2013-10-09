@@ -20,6 +20,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
  * ------------ ---------- ----------- --------------------------
  * May 12, 2013 753        dhladky     Initial creation
  * May 31, 2013 2038       djohnson    Move to correct repo.
+ * Oct 04, 2013 2267       bgonzale    Added default constructor.
  * 
  * </pre>
  * 
@@ -34,9 +35,19 @@ public class WfsRetrievalResponse extends RetrievalResponse {
 
     @XmlElement
     private String payload;
+
+    /**
+     * Default constructor.
+     */
+    public WfsRetrievalResponse() {
+    }
     
+    /**
+     * Initialization constructor.
+     * 
+     * @param attribute
+     */
     public WfsRetrievalResponse(RetrievalAttribute attribute) {
-        
     }
 
     @Override

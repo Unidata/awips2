@@ -14,7 +14,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -37,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2013 2106       djohnson    Initial creation
+ * Oct 2,  2013 1797       dhladky     Applied some generics
  * 
  * </pre>
  * 
@@ -46,9 +49,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Table(name = "bandwidth_subscription_retrieval_attributes")
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
 @DynamicSerialize
-public class SubscriptionRetrievalAttributes implements
+public class SubscriptionRetrievalAttributes<T extends Time, C extends Coverage> implements
         IPersistableDataObject<Long>, Serializable, ISerializableObject,
-        IDeepCopyable<SubscriptionRetrievalAttributes> {
+        IDeepCopyable<SubscriptionRetrievalAttributes<T, C>> {
 
     private static final long serialVersionUID = 4563049024191145668L;
 
@@ -67,7 +70,7 @@ public class SubscriptionRetrievalAttributes implements
     private byte[] subSubscription;
 
     @Transient
-    private transient Subscription subscription;
+    private transient Subscription<T, C> subscription;
 
     @DynamicSerializeElement
     @OneToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.PERSIST)
@@ -85,7 +88,7 @@ public class SubscriptionRetrievalAttributes implements
      * @param from
      *            the instance to copy from
      */
-    public SubscriptionRetrievalAttributes(SubscriptionRetrievalAttributes from) {
+    public SubscriptionRetrievalAttributes(SubscriptionRetrievalAttributes<T, C> from) {
         if (from.subSubscription != null) {
             final int srcLength = from.subSubscription.length;
             this.subSubscription = new byte[srcLength];
@@ -98,15 +101,15 @@ public class SubscriptionRetrievalAttributes implements
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionRetrievalAttributes copy() {
-        return new SubscriptionRetrievalAttributes(this);
+    public SubscriptionRetrievalAttributes<T, C> copy() {
+        return new SubscriptionRetrievalAttributes<T, C>(this);
     }
 
     /**
      * @return the subSubscription
      * @throws SerializationException
      */
-    public Subscription getSubscription() throws SerializationException {
+    public Subscription<T, C> getSubscription() throws SerializationException {
         if (subscription == null) {
             if (subSubscription != null) {
                 subscription = SerializationUtil.transformFromThrift(
@@ -124,7 +127,7 @@ public class SubscriptionRetrievalAttributes implements
      * @param sub
      * @throws SerializationException
      */
-    public void setSubscription(Subscription sub) throws SerializationException {
+    public void setSubscription(Subscription<T, C> sub) throws SerializationException {
         // Set the transient field subscription so that we don't
         // have to deserialize the subscription if it was set
         // already.

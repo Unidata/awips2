@@ -31,6 +31,7 @@ import org.junit.Test;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
  * Test {@link SerializeRetrievedDataToDirectory}.
@@ -45,6 +46,8 @@ import com.raytheon.uf.common.util.TestUtil;
  * Feb 15, 2013 1543       djohnson     Class renames.
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
+ *                                      Add test for wfs retrieval.
  * 
  * </pre>
  * 
@@ -70,9 +73,32 @@ public class SerializeRetrievedDataToDirectoryTest {
 
         RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
+        RetrievalRequestRecord request = new RetrievalRequestRecord();
+        request.setProvider("NOMADS");
+        request.setPlugin("grid");
+        // "Model"
+        request.setInsertTime(new Date());
 
-        service.processRetrievedPluginDataObjects("NOMADS", "GRID", "Model",
-                new Date(), retrievalPluginDataObjects);
+        service.processRetrievedPluginDataObjects(request,
+                retrievalPluginDataObjects);
+
+        assertThat(directory, hasNumberOfFiles(1));
+    }
+
+    @Test
+    public void serializesWfsRetrievedDataToAFileInTheTargetDirectory()
+            throws SerializationException {
+
+        RetrievalResponseXml retrievalPluginDataObjects = WfsRetrievalPluginDataObjectsFixture.INSTANCE
+                .get();
+        RetrievalRequestRecord request = new RetrievalRequestRecord();
+        request.setProvider("MADIS");
+        request.setPlugin("MADIS");
+        // "Model"
+        request.setInsertTime(new Date());
+
+        service.processRetrievedPluginDataObjects(request,
+                retrievalPluginDataObjects);
 
         assertThat(directory, hasNumberOfFiles(1));
     }
