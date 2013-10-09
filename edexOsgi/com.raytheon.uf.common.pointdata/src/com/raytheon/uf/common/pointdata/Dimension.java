@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Provides metadata (primarily the size) of a named dimension
  * 
@@ -41,7 +39,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class Dimension implements ISerializableObject {
+public class Dimension {
 
     @XmlAttribute(name = "name")
     private String dimensionName;
