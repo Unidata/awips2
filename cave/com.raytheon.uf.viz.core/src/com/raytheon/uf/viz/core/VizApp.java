@@ -50,6 +50,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    7/1/06                    chammack    Initial Creation.
  *    Sep 12, 2012  1167        djohnson    Add datadelivery servers.
  *    Jan 14, 2013  1469        bkowal      Removed the hdf5 data directory.
+ *    Aug 27, 2013  2295        bkowal      Removed the jms server property; added
+ *                                          jms connection string
  * 
  * </pre>
  * 
@@ -70,15 +72,9 @@ public final class VizApp {
 
     private static String httpServer;
 
-    private static String jmsServer;
+    private static String jmsConnectionString;
 
     private static String pypiesServer;
-
-    private static String dataDeliveryServer;
-
-    private static String dataDeliveryLcmServer;
-
-    private static String dataDeliveryQueryServer;
 
     static {
         ManagementFactory.getRuntimeMXBean().getName();
@@ -240,12 +236,12 @@ public final class VizApp {
         VizApp.httpServer = System.getProperty("awips.httpServer", httpServer);
     }
 
-    public static String getJmsServer() {
-        return jmsServer;
+    public static String getJmsConnectionString() {
+        return jmsConnectionString;
     }
 
-    public static void setJmsServer(String jmsServer) {
-        VizApp.jmsServer = jmsServer;
+    public static void setJmsConnectionString(String jmsConnectionString) {
+        VizApp.jmsConnectionString = jmsConnectionString;
     }
 
     public static String getPypiesServer() {

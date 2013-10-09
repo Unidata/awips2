@@ -19,38 +19,41 @@
  **/
 package com.raytheon.uf.common.dataplugin.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Provides configuration parameters at a class level for data uris
+ * Interface classes can register for converting {@link DataURI} annotated
+ * fields to and from {@link String}s
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 2, 2009             chammack    Initial creation
+ * Oct 3, 2013  2081      mschenke     Initial creation
  * 
  * </pre>
  * 
- * @author chammack
+ * @author mschenke
  * @version 1.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface DataURIConfig {
+
+public interface DataURIFieldConverter {
 
     /**
-     * Configures the index in the datauri which is used inside of the
-     * persistent file vs. in the file structure
+     * Converts field object to a String for the DataURI
      * 
-     * Elements before this index will be represented in the file structure,
-     * elements after will be represented inside the file metadata
-     * 
-     * @return the index
+     * @param field
+     * @return
      */
-    public int persistentIndex() default 0;
+    public String toString(Object field);
+
+    /**
+     * Converts String returned from {@link #toString()} back into a field
+     * object
+     * 
+     * @param string
+     * @return
+     */
+    public Object fromString(String string);
+
 }

@@ -31,10 +31,11 @@ import org.junit.Test;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -49,6 +50,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013 2000       djohnson     Initial creation
+ * Sept 25, 2013 1979      dhladky      separated time from gridded time
  * 
  * </pre>
  * 
@@ -57,18 +59,18 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public class SubscriptionDuplicateCheckerTest {
 
-    private static final ISubscriptionDuplicateChecker dupeChecker = new SubscriptionDuplicateChecker();
+    private static final ISubscriptionDuplicateChecker<GriddedTime, GriddedCoverage> dupeChecker = new SubscriptionDuplicateChecker<GriddedTime, GriddedCoverage>();
 
     @Test
     public void returnsPercentOfParametersThatAreTheSame() {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
         sub1.getParameter().clear();
         sub1.addParameter(ParameterFixture.INSTANCE.get(1));
 
         sub2.getParameter().clear();
-        sub2.addParameter(sub1.getParameter().iterator().next());
+        sub2.addParameter((Parameter)sub1.getParameter().iterator().next());
         sub2.addParameter(ParameterFixture.INSTANCE.get(2));
 
         assertThat(dupeChecker.getParameterDuplicationPercent(sub1, sub2),
@@ -77,6 +79,7 @@ public class SubscriptionDuplicateCheckerTest {
                 is(100));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void returnsZeroPercentOfParametersForNullsOrEmpties() {
         final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
@@ -105,31 +108,31 @@ public class SubscriptionDuplicateCheckerTest {
         final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
         final List<Integer> sub1SelectedTimes = Arrays.asList(0, 1);
-        sub1.getTime().setSelectedTimeIndices(sub1SelectedTimes);
+        ((GriddedTime)sub1.getTime()).setSelectedTimeIndices(sub1SelectedTimes);
         final List<Integer> sub2SelectedTimes = Arrays.asList(0, 3, 4);
-        sub2.getTime().setSelectedTimeIndices(sub2SelectedTimes);
+        ((GriddedTime)sub2.getTime()).setSelectedTimeIndices(sub2SelectedTimes);
 
-        assertThat(dupeChecker.getForecastHourDuplicationPercent(sub1, sub2),
+        assertThat(dupeChecker.getTimeDuplicationPercent(sub1, sub2),
                 is(33));
-        assertThat(dupeChecker.getForecastHourDuplicationPercent(sub2, sub1),
+        assertThat(dupeChecker.getTimeDuplicationPercent(sub2, sub1),
                 is(50));
     }
 
     @Test
     public void returnsZeroPercentOfForecastHoursForNullsOrEmpties() {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
-        sub1.getTime().setSelectedTimeIndices(null);
+        ((GriddedTime)sub1.getTime()).setSelectedTimeIndices(null);
         final List<Integer> sub2SelectedTimes = Arrays.asList(0, 3, 4);
-        sub2.getTime().setSelectedTimeIndices(sub2SelectedTimes);
+        ((GriddedTime)sub2.getTime()).setSelectedTimeIndices(sub2SelectedTimes);
 
         assertThat(dupeChecker.getForecastHourDuplicationPercent(sub1, sub2),
                 is(0));
         assertThat(dupeChecker.getForecastHourDuplicationPercent(sub2, sub1),
                 is(0));
 
-        sub1.getTime()
+        ((GriddedTime)sub1.getTime())
                 .setSelectedTimeIndices(Collections.<Integer> emptyList());
         assertThat(dupeChecker.getForecastHourDuplicationPercent(sub1, sub2),
                 is(0));
@@ -139,13 +142,13 @@ public class SubscriptionDuplicateCheckerTest {
 
     @Test
     public void returnsPercentOfCyclesThatAreTheSame() {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
         final List<Integer> sub1CycleTimes = Arrays.asList(0, 6);
-        sub1.getTime().setCycleTimes(sub1CycleTimes);
+        ((GriddedTime)sub1.getTime()).setCycleTimes(sub1CycleTimes);
         final List<Integer> sub2CycleTimes = Arrays.asList(0, 12, 18);
-        sub2.getTime().setCycleTimes(sub2CycleTimes);
+        ((GriddedTime)sub2.getTime()).setCycleTimes(sub2CycleTimes);
 
         assertThat(dupeChecker.getCycleDuplicationPercent(sub1, sub2),
                 is(33));
@@ -155,17 +158,17 @@ public class SubscriptionDuplicateCheckerTest {
 
     @Test
     public void returnsZeroPercentOfCyclesForNullsOrEmpties() {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
-        sub1.getTime().setCycleTimes(null);
+        ((GriddedTime)sub1.getTime()).setCycleTimes(null);
         final List<Integer> cycleTimes = Arrays.asList(0, 3, 4);
-        sub2.getTime().setCycleTimes(cycleTimes);
+        ((GriddedTime)sub2.getTime()).setCycleTimes(cycleTimes);
 
         assertThat(dupeChecker.getCycleDuplicationPercent(sub1, sub2), is(0));
         assertThat(dupeChecker.getCycleDuplicationPercent(sub2, sub1), is(0));
 
-        sub1.getTime().setCycleTimes(Collections.<Integer> emptyList());
+        ((GriddedTime)sub1.getTime()).setCycleTimes(Collections.<Integer> emptyList());
         assertThat(dupeChecker.getCycleDuplicationPercent(sub1, sub2), is(0));
         assertThat(dupeChecker.getCycleDuplicationPercent(sub2, sub1), is(0));
     }
@@ -173,8 +176,8 @@ public class SubscriptionDuplicateCheckerTest {
     @Test
     public void returnsPercentOfSpatialThatIsTheSame()
             throws TransformException {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
         ReferencedEnvelope envelope1 = new ReferencedEnvelope(new Envelope(
                 new Coordinate(-5, 0), new Coordinate(0, 5)),
@@ -198,8 +201,8 @@ public class SubscriptionDuplicateCheckerTest {
     @Test
     public void returnsZeroPercentOfSpatialWhenNoOverlap()
             throws TransformException {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
         ReferencedEnvelope envelope1 = new ReferencedEnvelope(new Envelope(
                 new Coordinate(-5, 0), new Coordinate(0, 5)),
@@ -217,8 +220,8 @@ public class SubscriptionDuplicateCheckerTest {
 
     @Test
     public void returnsZeroPercentOfSpatialForNulls() throws TransformException {
-        final SiteSubscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
-        final SiteSubscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+        final SiteSubscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
         sub1.setCoverage(null);
 

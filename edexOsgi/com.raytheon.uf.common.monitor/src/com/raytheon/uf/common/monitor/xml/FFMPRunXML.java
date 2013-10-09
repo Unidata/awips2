@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * VGB's
  * 
@@ -44,7 +42,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFMPRunXML implements ISerializableObject {
+public class FFMPRunXML {
 
     @XmlElements({ @XmlElement(name = "sourceIngestConfig", type = SourceIngestConfigXML.class) })
     private ArrayList<SourceIngestConfigXML> sourceIngests;
@@ -57,7 +55,7 @@ public class FFMPRunXML implements ISerializableObject {
 
     @XmlElements({ @XmlElement(name = "domain", type = DomainXML.class) })
     private ArrayList<DomainXML> domains;
-    
+
     @XmlElement(name = "cacheDir")
     private String cacheDir;
 
@@ -214,12 +212,12 @@ public class FFMPRunXML implements ISerializableObject {
         }
     }
 
-	public void setCacheDir(String cacheDir) {
-		this.cacheDir = cacheDir;
-	}
+    public void setCacheDir(String cacheDir) {
+        this.cacheDir = cacheDir;
+    }
 
-	public String getCacheDir() {
-		return cacheDir;
-	}
+    public String getCacheDir() {
+        return cacheDir;
+    }
 
 }

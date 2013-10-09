@@ -4168,15 +4168,16 @@
 	-->
 	<styleRule>
 		<paramLevelMatches>
-			<parameter>TPCSG</parameter>
-			<parameter>TPCSG-20</parameter>	
-			<parameter>TPCSG-30</parameter>			
-			<parameter>TPCSG-40</parameter>			
-			<parameter>TPCSG-50</parameter>			
-			<parameter>TPCSG-60</parameter>			
-			<parameter>TPCSG-70</parameter>			
-			<parameter>TPCSG-80</parameter>			
-			<parameter>TPCSG-90</parameter>
+			<parameter>Surge10pct6hr</parameter>
+			<parameter>Surge10pctRun</parameter>
+			<parameter>Surge20pct6hr</parameter>
+			<parameter>Surge20pctRun</parameter>
+			<parameter>Surge30pct6hr</parameter>
+			<parameter>Surge30pctRun</parameter>
+			<parameter>Surge40pct6hr</parameter>
+			<parameter>Surge40pctRun</parameter>
+			<parameter>Surge50pct6hr</parameter>
+			<parameter>Surge50pctRun</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>ft</displayUnits>
@@ -4196,30 +4197,53 @@
 	-->
 	<styleRule>
 		<paramLevelMatches>
-			<parameter>TPCSG-61E2</parameter>
-			<parameter>TPCSG-91E2</parameter>
-			<parameter>TPCSG-122E2</parameter>
-			<parameter>TPCSG-152E2</parameter>
-			<parameter>TPCSG-183E2</parameter>
-			<parameter>TPCSG-213E2</parameter>
-			<parameter>TPCSG-244E2</parameter>
-			<parameter>TPCSG-274E2</parameter>						
-			<parameter>TPCSG-305E2</parameter>
-			<parameter>TPCSG-335E2</parameter>			
-			<parameter>TPCSG-366E2</parameter>
-			<parameter>TPCSG-396E2</parameter>
-			<parameter>TPCSG-457E2</parameter>			
-			<parameter>TPCSG-427E2</parameter>
-			<parameter>TPCSG-488E2</parameter>
-			<parameter>TPCSG-518E2</parameter>
-			<parameter>TPCSG-549E2</parameter>
-			<parameter>TPCSG-579E2</parameter>
-			<parameter>TPCSG-610E2</parameter>
-			<parameter>TPCSG-640E2</parameter>
-			<parameter>TPCSG-671E2</parameter>
-			<parameter>TPCSG-701E2</parameter>
-			<parameter>TPCSG-732E2</parameter>
-			<parameter>TPCSG-762E2</parameter>			
+			<parameter>PSurge0ft6hr</parameter>
+			<parameter>PSurge0ftRun</parameter>
+			<parameter>PSurge10ft6hr</parameter>
+			<parameter>PSurge10ftRun</parameter>
+			<parameter>PSurge11ft6hr</parameter>
+			<parameter>PSurge11ftRun</parameter>
+			<parameter>PSurge12ft6hr</parameter>
+			<parameter>PSurge12ftRun</parameter>
+			<parameter>PSurge13ft6hr</parameter>
+			<parameter>PSurge13ftRun</parameter>
+			<parameter>PSurge14ft6hr</parameter>
+			<parameter>PSurge14ftRun</parameter>
+			<parameter>PSurge15ft6hr</parameter>
+			<parameter>PSurge15ftRun</parameter>
+			<parameter>PSurge16ft6hr</parameter>
+			<parameter>PSurge16ftRun</parameter>
+			<parameter>PSurge17ft6hr</parameter>
+			<parameter>PSurge17ftRun</parameter>
+			<parameter>PSurge18ft6hr</parameter>
+			<parameter>PSurge18ftRun</parameter>
+			<parameter>PSurge19ft6hr</parameter>
+			<parameter>PSurge19ftRun</parameter>
+			<parameter>PSurge1ft6hr</parameter>
+			<parameter>PSurge1ftRun</parameter>
+			<parameter>PSurge20ft6hr</parameter>
+			<parameter>PSurge20ftRun</parameter>
+			<parameter>PSurge21ftRun</parameter>
+			<parameter>PSurge22ftRun</parameter>
+			<parameter>PSurge23ftRun</parameter>
+			<parameter>PSurge24ftRun</parameter>
+			<parameter>PSurge25ftRun</parameter>
+			<parameter>PSurge2ft6hr</parameter>
+			<parameter>PSurge2ftRun</parameter>
+			<parameter>PSurge3ft6hr</parameter>
+			<parameter>PSurge3ftRun</parameter>
+			<parameter>PSurge4ft6hr</parameter>
+			<parameter>PSurge4ftRun</parameter>
+			<parameter>PSurge5ft6hr</parameter>
+			<parameter>PSurge5ftRun</parameter>
+			<parameter>PSurge6ft6hr</parameter>
+			<parameter>PSurge6ftRun</parameter>
+			<parameter>PSurge7ft6hr</parameter>
+			<parameter>PSurge7ftRun</parameter>
+			<parameter>PSurge8ft6hr</parameter>
+			<parameter>PSurge8ftRun</parameter>
+			<parameter>PSurge9ft6hr</parameter>
+			<parameter>PSurge9ftRun</parameter>			
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>%</displayUnits>
