@@ -101,6 +101,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 08/08/13     DR16485    ryu         Remove call to getDatabaseId() from getMaxInsertTimeByDbId()
  *                                     so new GFE databases aren't accidentally created.
  * 08/05/13     #1571      randerso    Added support for storing GridLocation and ParmStorageInfo in database
+ * 09/30/2013   #2147      rferrel     Changes to archive hdf5 files.
  * 
  * </pre>
  * 
@@ -119,6 +120,7 @@ public class GFEDao extends DefaultPluginDao {
      */
     public GFEDao() throws PluginException {
         super("gfe");
+        this.pathProvider = new GFEPathProvider();
     }
 
     /**
@@ -130,6 +132,7 @@ public class GFEDao extends DefaultPluginDao {
      */
     public GFEDao(String pluginName) throws PluginException {
         super(pluginName);
+        this.pathProvider = new GFEPathProvider();
     }
 
     /**

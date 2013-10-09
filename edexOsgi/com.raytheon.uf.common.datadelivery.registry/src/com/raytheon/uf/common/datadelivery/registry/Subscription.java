@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Changed officeId to a set.
  * Jul 11, 2013 2106       djohnson     SubscriptionPriority allows comparison.
+ * Sept 30,2013 1797       dhladky      Abstracted and genericized.
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * @version 1.0
  */
 
-public interface Subscription {
+public interface Subscription<T extends Time, C extends Coverage> {
 
     /** Enumeration to use for subscription priorities */
     @XmlEnum
@@ -318,7 +319,7 @@ public interface Subscription {
      * 
      * @return coverage
      */
-    Coverage getCoverage();
+    C getCoverage();
 
     /**
      * Set the coverage area for the subscription.
@@ -326,14 +327,14 @@ public interface Subscription {
      * @param coverage
      *            coverage area
      */
-    void setCoverage(Coverage coverage);
+    void setCoverage(C coverage);
 
     /**
      * Get subscription submission time.
      * 
      * @return subscription time
      */
-    Time getTime();
+    T getTime();
 
     /**
      * Set the subscription submission time.
@@ -341,7 +342,7 @@ public interface Subscription {
      * @param time
      *            time stamp
      */
-    void setTime(Time time);
+    void setTime(T time);
 
     /**
      * Set the subscription parameters.
@@ -585,26 +586,26 @@ public interface Subscription {
      * 
      * @return the copy
      */
-    Subscription copy();
+    Subscription<T, C> copy();
 
     /**
      * Copy the subscription.
      * 
      * @return the copy with the new name
      */
-    Subscription copy(String newName);
+    Subscription<T, C> copy(String newName);
 
     /**
      * @param currentUser
      * @return
      */
-    InitialPendingSubscription initialPending(String currentUser);
+    InitialPendingSubscription<T, C> initialPending(String currentUser);
 
     /**
      * @param currentUser
      * @return
      */
-    PendingSubscription pending(String currentUser);
+    PendingSubscription<T, C> pending(String currentUser);
 
     /**
      * Add an office Id to the list.

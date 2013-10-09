@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -44,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Dec 12, 2012 1433       bgonzale     Use new Subscription copy ctor.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Oct 2,  2013 1797       dhladky      Generics start
  * 
  * </pre>
  * 
@@ -54,8 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "AdhocSubscription")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class AdhocSubscription extends SiteSubscription implements
-        ISerializableObject {
+public class AdhocSubscription<T extends Time, C extends Coverage> extends SiteSubscription<T, C>  {
 
     private static final long serialVersionUID = -2200080380095632486L;
 
@@ -63,7 +62,7 @@ public class AdhocSubscription extends SiteSubscription implements
         setGroupName("Adhoc");
     }
 
-    public AdhocSubscription(SiteSubscription subscription) {
+    public AdhocSubscription(SiteSubscription<T, C> subscription) {
         super(subscription);
         setGroupName("Adhoc");
     }
