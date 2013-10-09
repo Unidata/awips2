@@ -10,12 +10,11 @@ import gov.noaa.nws.ncep.common.dataplugin.airep.AirepRecord;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -95,43 +94,37 @@ public class AirepDao extends PointDataPluginDao<AirepRecord> {
         return results;
     }
 
-	@Override
-	public String[] getKeysRequiredForFileName() {
-		return new String[] { "dataTime.refTime" };
-	}
-
-	@Override
-	public AirepRecord newObject() {
-		return new AirepRecord();
-	}
-
-	@Override
-	public String getPointDataFileName(AirepRecord p) {
-        return "airep.h5";
-	}
-	
-	/*
     @Override
-    public String[] getParameters(File file) throws StorageException,
-            FileNotFoundException {
-    	
-        try {
-            // This should be faster than hitting the datastore.
-            return getPointDataDescription().getParameterNames();
-        } catch (Exception e) {
-            // let super handle it
-            return super.getParameters(file);
-        }
+    public String[] getKeysRequiredForFileName() {
+        return new String[] { "dataTime.refTime" };
     }
-    */
 
-    public PointDataDescription getPointDataDescription() throws JAXBException {
+    @Override
+    public AirepRecord newObject() {
+        return new AirepRecord();
+    }
+
+    @Override
+    public String getPointDataFileName(AirepRecord p) {
+        return "airep.h5";
+    }
+
+    /*
+     * @Override public String[] getParameters(File file) throws
+     * StorageException, FileNotFoundException {
+     * 
+     * try { // This should be faster than hitting the datastore. return
+     * getPointDataDescription().getParameterNames(); } catch (Exception e) { //
+     * let super handle it return super.getParameters(file); } }
+     */
+
+    public PointDataDescription getPointDataDescription()
+            throws SerializationException {
         if (pdd == null) {
-        	
+
             pdd = PointDataDescription.fromStream(this.getClass()
                     .getResourceAsStream("/res/pointdata/airep.xml"));
         }
         return pdd;
     }
 }
-
