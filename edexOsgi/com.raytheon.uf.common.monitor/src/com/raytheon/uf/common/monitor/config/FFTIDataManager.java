@@ -33,20 +33,45 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.xml.FFTIDataXML;
 import com.raytheon.uf.common.monitor.xml.FFTISettingXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
+/**
+ * Singleton data manager for FFTI.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * --/--/----                          Initial creation
+ * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
 public class FFTIDataManager implements ILocalizationFileObserver {
+
     /** Path to FFTI config. */
     private static final String CONFIG_FILE_NAME = "ffmp" + File.separatorChar
             + "FFTIData.xml";
+
+    // This needs to initialize before the instance since the constructor will
+    // makes use of JAXB. JVM spec 12.4.2 step 9 indicates this will
+    // initialize ahead of the instance since it is earlier in
+    // in the text source.
+    private static final SingleTypeJAXBManager<FFTIDataXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(FFTIDataXML.class);
+
+    /** Singleton instance of this class */
+    private static FFTIDataManager instance = new FFTIDataManager();
 
     /**
      * FFTI Source Configuration XML object.
      */
     protected FFTIDataXML configXml;
-
-    /** Singleton instance of this class */
-    private static FFTIDataManager instance = new FFTIDataManager();
 
     private LocalizationFile lf = null;
 
@@ -78,15 +103,13 @@ public class FFTIDataManager implements ILocalizationFileObserver {
 
             File file = lf.getFile();
 
-            SerializationUtil.jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
-            FFTIDataXML configXmltmp = (FFTIDataXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+            FFTIDataXML configXmltmp = jaxb.unmarshalFromXmlFile(file
+                    .getAbsolutePath());
 
             configXml = configXmltmp;
 
         } catch (Exception e) {
-            System.err
-                    .println("No SITE FFTI Source configuration file found.");
+            System.err.println("No SITE FFTI Source configuration file found.");
         }
     }
 
@@ -112,8 +135,8 @@ public class FFTIDataManager implements ILocalizationFileObserver {
         try {
             // System.out.println("Saving -- "
             // + newXmlFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
 
             lf = newXmlFile;
@@ -130,7 +153,7 @@ public class FFTIDataManager implements ILocalizationFileObserver {
     public void setCwaList(ArrayList<String> cwaList) {
         this.configXml.getCwa().setCwaList(cwaList);
     }
-    
+
     public void addCwa(String cwa) {
         this.configXml.getCwa().addCwa(cwa);
     }
@@ -142,7 +165,7 @@ public class FFTIDataManager implements ILocalizationFileObserver {
     public ArrayList<FFTISettingXML> getSettingList() {
         return this.configXml.getSettingList();
     }
-    
+
     public void addSetting(FFTISettingXML setting) {
         this.configXml.addSetting(setting);
     }
@@ -158,7 +181,7 @@ public class FFTIDataManager implements ILocalizationFileObserver {
             e.printStackTrace();
         }
     }
-    
+
     public void clear() {
         configXml = new FFTIDataXML();
     }

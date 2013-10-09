@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 
 /**
@@ -34,13 +36,14 @@ import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2013 1644       djohnson     Initial creation
+ * OCt 2,  2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class NcfBandwidthService extends BandwidthService {
+public class NcfBandwidthService<T extends Time, C extends Coverage> extends BandwidthService<T, C> {
 
     /**
      * Constructor.
