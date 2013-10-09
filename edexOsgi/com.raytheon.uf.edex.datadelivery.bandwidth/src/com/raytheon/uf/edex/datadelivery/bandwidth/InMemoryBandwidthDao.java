@@ -34,9 +34,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
@@ -65,13 +67,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 09, 2013 2106       djohnson     Rather than copy all elements and remove unnecessary, just copy the ones that apply.
  * Jul 11, 2013 2106       djohnson     Use BandwidthSubscription instead of Subscription.
  * Jul 18, 2013 1653       mpduff       Implemented method.
+ * Oct 2,  2013 1797       dhladky      generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class InMemoryBandwidthDao implements IBandwidthDao {
+class InMemoryBandwidthDao<T extends Time, C extends Coverage> implements IBandwidthDao<T,C> {
 
     private static final AtomicLong idSequence = new AtomicLong(1);
 
@@ -228,7 +231,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      */
     @Override
     public List<BandwidthSubscription> getBandwidthSubscription(
-            Subscription subscription) {
+            Subscription<T,C> subscription) {
         return getBandwidthSubscriptionByRegistryId(subscription.getId());
     }
 
@@ -349,7 +352,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthDataSetUpdate newBandwidthDataSetUpdate(
-            DataSetMetaData dataSetMetaData) {
+            DataSetMetaData<T> dataSetMetaData) {
         BandwidthDataSetUpdate entity = BandwidthUtil
                 .newDataSetMetaDataDao(dataSetMetaData);
         entity.setIdentifier(getNextId());
@@ -364,7 +367,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthSubscription newBandwidthSubscription(
-            Subscription subscription, Calendar baseReferenceTime) {
+            Subscription<T,C> subscription, Calendar baseReferenceTime) {
         BandwidthSubscription entity = BandwidthUtil
                 .getSubscriptionDaoForSubscription(subscription,
                         baseReferenceTime);
@@ -479,8 +482,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
         replaceOldOrAddToCollection(bandwidthAllocations, allocation);
     }
 
-    private <T extends IPersistableDataObject<Long>> void replaceOldOrAddToCollection(
-            ConcurrentLinkedQueue<T> collection, T obj) {
+    private <M extends IPersistableDataObject<Long>> void replaceOldOrAddToCollection(
+            ConcurrentLinkedQueue<M> collection, M obj) {
         if (obj.getIdentifier() == BandwidthUtil.DEFAULT_IDENTIFIER) {
             // Have to reflectively set the identifier since it's not part of
             // the interface
@@ -497,10 +500,10 @@ class InMemoryBandwidthDao implements IBandwidthDao {
         collection.add(obj);
     }
 
-    private <T extends IPersistableDataObject<Long>> void removeFromCollection(
-            ConcurrentLinkedQueue<T> collection, T obj) {
-        for (Iterator<T> iter = collection.iterator(); iter.hasNext();) {
-            T old = iter.next();
+    private <M extends IPersistableDataObject<Long>> void removeFromCollection(
+            ConcurrentLinkedQueue<M> collection, M obj) {
+        for (Iterator<M> iter = collection.iterator(); iter.hasNext();) {
+            M old = iter.next();
             if (old.getIdentifier().equals(obj.getIdentifier())) {
                 iter.remove();
                 break;
@@ -628,7 +631,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void store(SubscriptionRetrievalAttributes attributes) {
+    public void store(SubscriptionRetrievalAttributes<T,C> attributes) {
         // Does nothing
     }
 
@@ -637,7 +640,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      */
     @Override
     public void storeSubscriptionRetrievalAttributes(
-            List<SubscriptionRetrievalAttributes> retrievalAttributes) {
+            List<SubscriptionRetrievalAttributes<T,C>> retrievalAttributes) {
         // Does nothing
     }
 
@@ -645,7 +648,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void update(SubscriptionRetrievalAttributes attributes) {
+    public void update(SubscriptionRetrievalAttributes<T,C> attributes) {
         // Does nothing
     }
 
@@ -653,14 +656,14 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
+    public SubscriptionRetrievalAttributes<T,C> getSubscriptionRetrievalAttributes(
             SubscriptionRetrieval retrieval) {
         return null;
     }
 
     @Override
     public SubscriptionStatusSummary getSubscriptionStatusSummary(
-            Subscription sub) {
+            Subscription<T,C> sub) {
         // Does nothing
         return null;
     }

@@ -40,6 +40,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Sep 28, 2012 1187       djohnson     Initial creation
  * Oct 16, 2012 0726       djohnson     Use {@link TimeUtil}.
  * Feb 07, 2013 1543       djohnson     Set request start/end dates.
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -47,14 +48,14 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public class TimeFixture extends AbstractFixture<Time> {
+public class GriddedTimeFixture extends AbstractFixture<GriddedTime> {
 
-    public static final TimeFixture INSTANCE = new TimeFixture();
+    public static final GriddedTimeFixture INSTANCE = new GriddedTimeFixture();
 
     /**
      * Disabled.
      */
-    private TimeFixture() {
+    private GriddedTimeFixture() {
 
     }
 
@@ -62,8 +63,8 @@ public class TimeFixture extends AbstractFixture<Time> {
      * {@inheritDoc}
      */
     @Override
-    public Time getInstance(long seedValue, Random random) {
-        Time time = new Time();
+    public GriddedTime getInstance(long seedValue, Random random) {
+        GriddedTime time = new GriddedTime();
         time.setFormat("HHddMMMyyyy");
         time.setCycleTimes(Arrays.<Integer> asList(getCycleForSeed(seedValue)));
         time.setStep((double) (seedValue + 1));
