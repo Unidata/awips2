@@ -42,6 +42,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Office Ids are now a list.
+ * Oct 2   2013 1797       dhladky      subscription and time generics
  * 
  * </pre>
  * 
@@ -49,15 +50,15 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public abstract class BaseSubscriptionFixture<T extends Subscription> extends
-        AbstractFixture<T> {
+public abstract class BaseSubscriptionFixture<M extends Subscription> extends
+        AbstractFixture<M> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public T getInstance(long seedValue, Random random) {
-        T subscription = getSubscription();
+    public M getInstance(long seedValue, Random random) {
+        M subscription = getSubscription();
         subscription.setActive(random.nextBoolean());
         subscription.setActivePeriodStart(TimeUtil.newDate());
         subscription.setActivePeriodEnd(new Date(subscription
@@ -84,7 +85,7 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
         subscription.setSubscriptionStart(subscription.getActivePeriodStart());
         subscription.setSubscriptionEnd(null);
         subscription.setSubscriptionId("subscriptionId" + random.nextInt());
-        subscription.setTime(TimeFixture.INSTANCE.get(seedValue));
+        subscription.setTime(GriddedTimeFixture.INSTANCE.get(seedValue));
         subscription.setUrl("http://someurl/" + random.nextInt());
 
         subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
@@ -95,5 +96,5 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
     /**
      * @return
      */
-    protected abstract T getSubscription();
+    protected abstract M getSubscription();
 }

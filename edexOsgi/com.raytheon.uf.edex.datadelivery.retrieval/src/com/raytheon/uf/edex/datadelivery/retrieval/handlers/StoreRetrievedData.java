@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
  * Feb 15, 2013 1543       djohnson     Retrieve the retrieval attributes from the database.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * Aug 06, 2013 1654       bgonzale     Added AdhocDataRetrievalEvent.
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  * 
  * </pre>
  * 
@@ -95,8 +95,8 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      * {@inheritDoc}
      */
     @Override
-    public void processRetrievedPluginDataObjects(String dataProvider,
-            String dataFormat, String sourceType, Date date,
+    public void processRetrievedPluginDataObjects(
+            RetrievalRequestRecord request,
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException, TranslationException {
         Map<String, PluginDataObject[]> pluginDataObjects = Maps.newHashMap();

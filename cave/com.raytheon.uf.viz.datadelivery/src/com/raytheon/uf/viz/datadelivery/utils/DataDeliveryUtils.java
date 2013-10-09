@@ -37,7 +37,9 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -78,6 +80,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
  * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
  * Aug 30, 2013 2288       bgonzale     Added latency to details display.
+ * Sept 30, 2013 1797      dhladky      Time GriddedTime separation
  * </pre>
  * 
  * @author mpduff
@@ -617,7 +620,7 @@ public class DataDeliveryUtils {
      * 
      * @return The formated details string
      */
-    public static String formatDetails(Subscription sub) {
+    public static String formatDetails(Subscription<Time, Coverage> sub) {
         final String newline = StringUtil.NEWLINE;
         final String space = " ";
         final String comma = ", ";
@@ -677,28 +680,35 @@ public class DataDeliveryUtils {
                     .append(newline);
         }
 
-        // Get forecast hours
         final Time subTime = sub.getTime();
-        final List<String> fcstHours = subTime.getFcstHours();
-        if (!CollectionUtil.isNullOrEmpty(fcstHours)) {
-            fmtStr.append("Forecast Hours: ").append(newline);
-            fmtStr.append("------ ");
-            for (int idx : subTime.getSelectedTimeIndices()) {
-                fmtStr.append(fcstHours.get(idx)).append(space);
-            }
+        
+        if (subTime instanceof GriddedTime) {
+            
+            GriddedTime gtime = (GriddedTime)subTime;
+            
+            final List<String> fcstHours = gtime.getFcstHours();
+            if (!CollectionUtil.isNullOrEmpty(fcstHours)) {
+                fmtStr.append("Forecast Hours: ").append(newline);
+                fmtStr.append("------ ");
+                for (int idx : gtime.getSelectedTimeIndices()) {
+                    fmtStr.append(fcstHours.get(idx)).append(space);
+                }
 
-            fmtStr.append(newline);
-        }
-        final List<Integer> cycles = subTime.getCycleTimes();
-        if (cycles != null && !cycles.isEmpty()) {
-            fmtStr.append("Cycles: ").append(newline);
-            fmtStr.append("------ ");
-            for (int cycle : cycles) {
-                fmtStr.append(cycle).append(space);
+                fmtStr.append(newline);
             }
+            final List<Integer> cycles = gtime.getCycleTimes();
+            if (cycles != null && !cycles.isEmpty()) {
+                fmtStr.append("Cycles: ").append(newline);
+                fmtStr.append("------ ");
+                for (int cycle : cycles) {
+                    fmtStr.append(cycle).append(space);
+                }
 
-            fmtStr.append(newline);
-        }
+                fmtStr.append(newline);
+            }
+        } else if (subTime instanceof PointTime) {
+            // Nothing done for Point at this time
+        } 
 
         List<Parameter> parmArray = sub.getParameter();
         if (!CollectionUtil.isNullOrEmpty(parmArray)) {
@@ -751,8 +761,20 @@ public class DataDeliveryUtils {
      *            The subscription
      * @return the maximum latency in minutes
      */
-    public static int getMaxLatency(Subscription subscription) {
-        return getMaxLatency(subscription.getTime().getCycleTimes());
+    public static int getMaxLatency(Subscription<Time, Coverage> subscription) {
+        
+        //TODO  I am going to create a factory for Time so we don't have to do so much casting.
+        // Getting the generics on subscription was part one of that project.
+        
+        Time time = subscription.getTime();
+
+        if (time instanceof PointTime) {
+            return subscription.getLatencyInMinutes();
+        } else if (time instanceof GriddedTime) {
+            return getMaxLatency(((GriddedTime)subscription.getTime()).getCycleTimes());
+        } else {
+            throw new IllegalArgumentException("Invalid Time object!");
+        }
     }
 
     /**

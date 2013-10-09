@@ -29,8 +29,10 @@ import java.util.TreeSet;
 
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -65,6 +67,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Sept 10, 2013 2351      dhladky      Made adhoc queries for pointdata work
  * Sept 17, 2013 2383      bgonzale     setAdhocMostRecentUrlAndTime returns null if grid and
  *                                      no metadata found.
+ * Sept 24, 2013 1797      dhladky      separated time from GriddedTime                                    
  * 
  * </pre>
  * 
@@ -72,12 +75,12 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * @version 1.0
  */
 
-public class BandwidthDaoUtil {
+public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthDaoUtil.class);
 
-    private final IBandwidthDao bandwidthDao;
+    private final IBandwidthDao<T,C> bandwidthDao;
 
     private final RetrievalManager retrievalManager;
 
@@ -89,7 +92,7 @@ public class BandwidthDaoUtil {
      * @param retrievalManager
      *            the retrieval manager
      */
-    public BandwidthDaoUtil(IBandwidthDao bandwidthDao,
+    public BandwidthDaoUtil(IBandwidthDao<T,C> bandwidthDao,
             RetrievalManager retrievalManager) {
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
@@ -103,7 +106,7 @@ public class BandwidthDaoUtil {
      * @param cycles
      * @return
      */
-    public SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
+    public SortedSet<Calendar> getRetrievalTimes(Subscription<T,C> subscription,
             SortedSet<Integer> cycles) {
         return getRetrievalTimes(subscription, cycles,
                 Sets.newTreeSet(Arrays.asList(0)));
@@ -118,7 +121,7 @@ public class BandwidthDaoUtil {
      *            the retrieval interval
      * @return the retrieval times
      */
-    public SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
+    public SortedSet<Calendar> getRetrievalTimes(Subscription<T,C> subscription,
             int retrievalInterval) {
         // Add all hours of the days
         final SortedSet<Integer> hours = Sets.newTreeSet();
@@ -145,7 +148,7 @@ public class BandwidthDaoUtil {
      * @param minutes
      * @return
      */
-    private SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
+    private SortedSet<Calendar> getRetrievalTimes(Subscription<T,C> subscription,
             SortedSet<Integer> hours, SortedSet<Integer> minutes) {
 
         SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
@@ -311,9 +314,9 @@ public class BandwidthDaoUtil {
      * @return the adhoc subscription, or null if no matching metadata could be
      *         found
      */
-    public AdhocSubscription setAdhocMostRecentUrlAndTime(
-            AdhocSubscription adhoc, boolean mostRecent) {
-        AdhocSubscription retVal = null;
+    public AdhocSubscription<T,C> setAdhocMostRecentUrlAndTime(
+            AdhocSubscription<T,C> adhoc, boolean mostRecent) {
+        AdhocSubscription<T,C> retVal = null;
 
         if (adhoc.getDataSetType() == DataType.POINT) {
 
@@ -355,7 +358,7 @@ public class BandwidthDaoUtil {
                     Time adhocTime = adhoc.getTime();
                     for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
                         if (mostRecent
-                                || adhocTime.getCycleTimes().contains(
+                                || ((GriddedTime)adhocTime).getCycleTimes().contains(
                                         current.getDataSetBaseTime().get(
                                                 Calendar.HOUR_OF_DAY))) {
                             daoToUse = current;

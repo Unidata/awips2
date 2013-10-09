@@ -40,11 +40,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -79,9 +82,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @version 1.0
  */
 @Ignore
-public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
+public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverage, M extends IBandwidthDao<T, C>> {
 
-    private T dao;
+    private M dao;
 
     @Before
     public void setUp() {
@@ -94,7 +97,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
      * 
      * @return the dao
      */
-    protected abstract T getDao();
+    protected abstract M getDao();
 
     @Test
     public void testGetBandwidthAllocationForNetworkReturnsThoseWithSameNetwork() {
@@ -177,6 +180,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(ret2, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetDataSetMetaDataDaoReturnsThoseWithSameDataSet() {
         OpenDapGriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -184,8 +188,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         OpenDapGriddedDataSetMetaData metaData2 = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                 .get(2);
         BandwidthDataSetUpdate metaDataDao = dao
-                .newBandwidthDataSetUpdate(metaData);
-        dao.newBandwidthDataSetUpdate(metaData2);
+                .newBandwidthDataSetUpdate((DataSetMetaData<T>) metaData);
+        dao.newBandwidthDataSetUpdate((DataSetMetaData<T>) metaData2);
 
         final List<BandwidthDataSetUpdate> results = dao
                 .getBandwidthDataSetUpdate(metaData.getProviderName(),
@@ -196,6 +200,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(metaDataDao, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetDataSetMetaDataDaoReturnsThoseWithSameDataSetAndBaseTime() {
         OpenDapGriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -205,8 +210,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         metaData2.setDate(new ImmutableDate(metaData.getDate().getTime()
                 + TimeUtil.MILLIS_PER_YEAR));
         BandwidthDataSetUpdate metaDataDao = dao
-                .newBandwidthDataSetUpdate(metaData);
-        dao.newBandwidthDataSetUpdate(metaData2);
+                .newBandwidthDataSetUpdate((DataSetMetaData<T>) metaData);
+        dao.newBandwidthDataSetUpdate((DataSetMetaData<T>) metaData2);
 
         final ImmutableDate date1 = metaData.getDate();
         Calendar cal = Calendar.getInstance();
@@ -314,6 +319,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(alloc1, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetSubscriptionDaoReturnsById()
             throws SerializationException {
@@ -334,6 +340,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(entity2, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetSubscriptionDaoByRegistryIdAndBaseTime()
             throws SerializationException {
@@ -374,17 +381,18 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(entity2, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetSubscriptionRetrievalsByProviderAndDataSet()
             throws SerializationException {
 
         // These two have the same dataset name and provider
-        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
         dao.storeBandwidthSubscriptions(Arrays.asList(entity1
@@ -398,7 +406,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         dao.storeSubscriptionRetrievalAttributes(Arrays.asList(entity1,
                 entity2, entity3));
 
-        final Subscription subscription = entity1.getSubscription();
+        final Subscription<T, C> subscription = entity1.getSubscription();
         final String expectedProvider = subscription.getProvider();
         final String expectedDataSetName = subscription.getDataSetName();
         final List<SubscriptionRetrieval> results = dao
@@ -419,16 +427,17 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetSubscriptionRetrievalsByProviderDataSetAndBaseReferenceTime()
             throws SerializationException {
         // These two have the same dataset name and provider
-        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
         final BandwidthSubscription subDao1 = entity1
@@ -460,7 +469,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         dao.storeSubscriptionRetrievalAttributes(Arrays.asList(entity1,
                 entity2, entity3));
 
-        final Subscription subscription = entity1.getSubscription();
+        final Subscription<T, C> subscription = entity1.getSubscription();
         final String expectedProvider = subscription.getProvider();
         final String expectedDataSetName = subscription.getDataSetName();
         final List<SubscriptionRetrieval> results = dao
@@ -482,6 +491,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 result.getBandwidthSubscription().getBaseReferenceTime());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetSubscriptionsReturnsClones()
             throws SerializationException {
@@ -494,6 +504,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(entity, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetSubscriptionsByProviderDataSetAndBaseReferenceTime()
             throws SerializationException {
@@ -527,16 +538,18 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(entity3, result);
     }
 
+
+    @SuppressWarnings("unchecked")
     @Test
     public void testQuerySubscriptionRetrievalsBySubscriptionId()
             throws SerializationException {
         // These two have the same dataset name and provider
-        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
         dao.storeBandwidthSubscriptions(Arrays.asList(entity1
@@ -564,16 +577,17 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(entity2, result);
     }
 
+    @SuppressWarnings({ "unchecked" })
     @Test
     public void testQuerySubscriptionRetrievalsBySubscription()
             throws SerializationException {
         // These two have the same dataset name and provider
-        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
+        SubscriptionRetrievalAttributes<T, C> entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
         // Still have to persist the actual subscription daos
@@ -609,6 +623,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         assertNotSame(entity2, result);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testRemoveSubscriptionDao() throws SerializationException {
         final Calendar now = BandwidthUtil.now();
@@ -675,6 +690,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .getEstimatedSize());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUpdateSubscriptionDao() throws SerializationException {
         final long estimatedSize = 25L;

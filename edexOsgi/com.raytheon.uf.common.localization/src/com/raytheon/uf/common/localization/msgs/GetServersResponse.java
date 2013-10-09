@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 6, 2009            mschenke     Initial creation
  * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * Jan 14, 2013 1469      bkowal       Removed the hdf5 data directory
+ * Aug 27, 2013 2995      bkowal       Removed jms server; added jms connection string
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ public class GetServersResponse {
     private String httpServer;
 
     @DynamicSerializeElement
-    private String jmsServer;
+    private String jmsConnectionString;
 
     @DynamicSerializeElement
     private String pypiesServer;
@@ -65,12 +66,12 @@ public class GetServersResponse {
         this.httpServer = httpServer;
     }
 
-    public String getJmsServer() {
-        return jmsServer;
+    public String getJmsConnectionString() {
+        return jmsConnectionString;
     }
 
-    public void setJmsServer(String jmsServer) {
-        this.jmsServer = jmsServer;
+    public void setJmsConnectionString(String jmsConnectionString) {
+        this.jmsConnectionString = jmsConnectionString;
     }
 
     public String getPypiesServer() {

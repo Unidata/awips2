@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Projection.ProjectionType;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -43,7 +42,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlRootElement(name = "collection")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Collection implements ISerializableObject {
+public class Collection {
 
     /**
      * Periodicity

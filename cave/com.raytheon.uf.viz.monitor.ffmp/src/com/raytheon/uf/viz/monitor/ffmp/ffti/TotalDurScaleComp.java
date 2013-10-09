@@ -43,37 +43,82 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 
+/**
+ * 
+ * Total duration scale for the FFTI display.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ????                                Initial creation
+ * Oct 7, 2013  #2437      lvenable     Fixed color memory leak
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
 public class TotalDurScaleComp extends Composite {
+
+    /** Parent composite. */
     private Composite parent;
 
+    /** Scale value canvas. */
     private Canvas scaleValueCanvas;
 
+    /** Scale range canvas. */
     private Canvas scaleRangeCanvas;
 
+    /** Time duration scale control. */
     private Scale timeDurScale;
 
+    /** Font for the canvas. */
     private Font canvasFont;
 
+    /** Time duration hours. */
     private double timeDurHours = 0.0;
 
+    /** Canvas height. */
     private final int CANVAS_HEIGHT = 20;
 
+    /** Canvas width. */
     private int CANVAS_WIDTH = 650;
 
+    /** X coordinate offset in pixels. */
     private int xCoordOffset = 5;
 
+    /** Low value. */
     private double lowerVal = 0.00;
 
+    /** Default retention time. */
     private final int DEFAULT_RETENTION_TIME = 24;
 
+    /** Retention time. */
     private int retentiontime = DEFAULT_RETENTION_TIME;
 
+    /** Range value. */
     private double rangeVal = 12;
 
+    /** Array of display numbers. */
     private double[] displayNumbers;
 
+    /** Duration interface. */
     private DurationInterface owner = null;
 
+    /** Color yellow. */
+    private Color yellowClr;
+
+    /** Color grey. */
+    private Color greyClr;
+
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     */
     public TotalDurScaleComp(Composite parent) {
         super(parent, 0);
 
@@ -90,7 +135,10 @@ public class TotalDurScaleComp extends Composite {
         for (int i = 0; i < displayNumbers.length; i++)
             displayNumbers[i] = lowerVal + i * 2;
 
+        // Set the font and colors.
         canvasFont = new Font(parent.getDisplay(), "Monospace", 8, SWT.NORMAL);
+        yellowClr = new Color(parent.getDisplay(), 255, 255, 224);
+        greyClr = new Color(parent.getDisplay(), 239, 239, 239);
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true);
         GridLayout gl = new GridLayout(1, false);
@@ -106,6 +154,8 @@ public class TotalDurScaleComp extends Composite {
         this.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent arg0) {
                 canvasFont.dispose();
+                yellowClr.dispose();
+                greyClr.dispose();
             }
         });
     }
@@ -168,17 +218,13 @@ public class TotalDurScaleComp extends Composite {
     }
 
     public void setScaleToYellow() {
-        Color yellow = new Color(timeDurScale.getForeground().getDevice(), 255,
-                255, 224);
-        timeDurScale.setForeground(yellow);
-        timeDurScale.setBackground(yellow);
+        timeDurScale.setForeground(yellowClr);
+        timeDurScale.setBackground(yellowClr);
     }
 
     public void setScaleToGrey() {
-        Color grey = new Color(timeDurScale.getForeground().getDevice(), 239,
-                239, 239);
-        timeDurScale.setForeground(grey);
-        timeDurScale.setBackground(grey);
+        timeDurScale.setForeground(greyClr);
+        timeDurScale.setBackground(greyClr);
     }
 
     private void drawScaleValueCanvas(GC gc) {
@@ -256,6 +302,11 @@ public class TotalDurScaleComp extends Composite {
         scaleValueCanvas.redraw();
     }
 
+    /**
+     * Get the selected value.
+     * 
+     * @return The selected value.
+     */
     public double getSelectedValue() {
         return timeDurHours;
     }
@@ -286,6 +337,12 @@ public class TotalDurScaleComp extends Composite {
         return DEFAULT_RETENTION_TIME;
     }
 
+    /**
+     * Set the owner.
+     * 
+     * @param owner
+     *            The owner.
+     */
     public void setOwner(DurationInterface owner) {
         this.owner = owner;
     }

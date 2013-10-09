@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mock;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +87,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Mar 19, 2013 1794       djohnson     RetrievalTasks integrate at a queue.
  * Apr 29, 2013 1910       djohnson     Unregister from EventBus after each test.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  * 
  * </pre>
  * 
@@ -110,8 +110,8 @@ public class RetrievalTaskTest {
          * {@inheritDoc}
          */
         @Override
-        public void processRetrievedPluginDataObjects(String dataProvider,
-                String dataFormat, String sourceType, Date date,
+        public void processRetrievedPluginDataObjects(
+                RetrievalRequestRecord request,
                 RetrievalResponseXml retrievalPluginDataObjects)
                 throws SerializationException, TranslationException {
             final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
