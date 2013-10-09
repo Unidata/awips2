@@ -57,6 +57,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract and removed setPluginName.
  * Sep 24, 2013 2081       mschenke    Removed special handling of spaces and only handle 
  *                                     {@link DataURI#SEPARATOR} specially
+ * Oct  4, 2013 2081       mschenke    Refactored for custom uri field conversion
  * 
  * </pre>
  * 
@@ -90,26 +91,12 @@ public class DataURIUtil {
     private static final Pattern DATAURI_SEPARATOR_CHAR_ENCODED_PATTERN = Pattern
             .compile(DATAURI_SEPARATOR_CHAR_ENCODED);
 
-    /*
-     * Compares two fields with the DataURI annotations based off the position.
-     */
-    private static final Comparator<Field> dataURIAnnotationComparator = new Comparator<Field>() {
-
-        @Override
-        public int compare(Field f1, Field f2) {
-            int i1 = f1.getAnnotation(DataURI.class).position();
-            int i2 = f2.getAnnotation(DataURI.class).position();
-            return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
-        }
-
-    };
-
     private static IPluginClassMapper classMapper;
 
     /*
      * Internal cache to avoid constant reflection
      */
-    private static Map<Class<?>, DataURIFieldAccess[]> uriFieldMap = new ConcurrentHashMap<Class<?>, DataURIFieldAccess[]>();
+    private static Map<Class<?>, DataURIFieldAccessCache> uriFieldMap = new ConcurrentHashMap<Class<?>, DataURIFieldAccessCache>();
 
     /**
      * The classMapper needs to be injected to allow this class to create new
@@ -130,10 +117,11 @@ public class DataURIUtil {
      */
     public static String createDataURI(PluginDataObject pdo)
             throws PluginException {
+        DataURIFieldAccessCache cache = getAccessCache(pdo.getClass());
         StringBuilder uri = new StringBuilder(160);
         addToDataURI(uri, pdo.getPluginName());
-        for (DataURIFieldAccess access : getAccess(pdo.getClass())) {
-            addToDataURI(uri, access.getFieldValue(pdo));
+        for (DataURIFieldAccess access : cache.getDataURIFields()) {
+            addToDataURI(uri, access.getFieldString(pdo));
         }
         return uri.toString();
     }
@@ -147,11 +135,13 @@ public class DataURIUtil {
      */
     public static String createDataURI(Map<String, Object> dataMap)
             throws PluginException {
-        String pluginName = dataMap.get(PLUGIN_NAME_KEY).toString();
+        String pluginName = (String) dataMap.get(PLUGIN_NAME_KEY);
+        DataURIFieldAccessCache cache = getAccessCache(pluginName);
         StringBuilder uri = new StringBuilder(160);
         addToDataURI(uri, pluginName);
-        for (DataURIFieldAccess access : getAccess(pluginName)) {
-            addToDataURI(uri, dataMap.get(access.getFieldName()));
+        for (DataURIFieldAccess access : cache.getDataURIFields()) {
+            addToDataURI(uri,
+                    access.toFieldString(dataMap.get(access.getFieldName())));
         }
         return uri.toString();
     }
@@ -159,20 +149,12 @@ public class DataURIUtil {
     /*
      * Properly formats an arbitrary object into a dataURI.
      */
-    private static void addToDataURI(StringBuilder uri, Object property) {
-        String propertyString;
-        if (property instanceof Calendar) {
-            propertyString = TimeUtil.formatCalendar((Calendar) property);
-        } else {
-            propertyString = String.valueOf(property);
-        }
-
+    private static void addToDataURI(StringBuilder uri, String property) {
         // This is done so if the property actually contained '%2F' that
         // wouldn't get converted to '/' when tokenized. %2F becomes %252F
         // because the '%' is replaced with '%25'
         String escapeCharEscaped = DATAURI_SEPARATED_ESCAPE_CHAR_PATTERN
-                .matcher(propertyString).replaceAll(
-                        DATAURI_SEPARATOR_CHAR_ENCODED);
+                .matcher(property).replaceAll(DATAURI_SEPARATOR_CHAR_ENCODED);
         // Now replace any '/' with %2F to escape slashes in the property
         String fullyEscapedProperty = DATAURI_SEPARATOR_PATTERN.matcher(
                 escapeCharEscaped).replaceAll(DATAURI_SEPARATOR_ENCODED);
@@ -189,16 +171,18 @@ public class DataURIUtil {
      */
     public static Map<String, Object> createDataURIMap(String dataURI)
             throws PluginException {
-        List<String> tokens = tokenizeURI(dataURI);
+        String[] tokens = tokenizeURI(dataURI);
         Map<String, Object> dataMap = new HashMap<String, Object>(
-                (int) ((tokens.size() / 0.75f) + 1), 0.75f);
-        String pluginName = tokens.get(0);
-        tokens = tokens.subList(1, tokens.size());
+                tokens.length, 1.0f);
+        String pluginName = tokens[0];
         dataMap.put(PLUGIN_NAME_KEY, pluginName);
-        DataURIFieldAccess[] access = getAccess(pluginName);
+
+        DataURIFieldAccessCache cache = getAccessCache(pluginName);
+        DataURIFieldAccess[] access = cache.getDataURIFields();
         for (int i = 0; i < access.length; i += 1) {
+            // Offset tokens by 1 as [0] is plugin name
             dataMap.put(access[i].getFieldName(),
-                    access[i].getFieldValue(tokens.get(i)));
+                    access[i].getFieldValue(tokens[i + 1]));
         }
         return dataMap;
     }
@@ -216,6 +200,29 @@ public class DataURIUtil {
     }
 
     /**
+     * Create a dataURIMap from any object with dataURI annotations.
+     * 
+     * @param object
+     * @return
+     * @throws PluginException
+     */
+    public static Map<String, Object> createDataURIMap(Object object)
+            throws PluginException {
+        DataURIFieldAccessCache cache = getAccessCache(object.getClass());
+        DataURIFieldAccess[] accessArray = cache.getDataURIFields();
+        Map<String, Object> dataMap = new HashMap<String, Object>(
+                accessArray.length, 1.0f);
+        if (object instanceof PluginDataObject) {
+            dataMap.put(PLUGIN_NAME_KEY,
+                    ((PluginDataObject) object).getPluginName());
+        }
+        for (DataURIFieldAccess access : accessArray) {
+            dataMap.put(access.getFieldName(), access.getFieldValue(object));
+        }
+        return dataMap;
+    }
+
+    /**
      * Create a new PluginDataObject based off the dataURI. THe class of the
      * result object is based off the pluginName in the dataURI and all fields
      * present in the DataURI are set into the PDO.
@@ -227,8 +234,8 @@ public class DataURIUtil {
     public static PluginDataObject createPluginDataObject(String dataURI)
             throws PluginException {
         PluginDataObject pdo = null;
-        List<String> tokens = tokenizeURI(dataURI);
-        Class<PluginDataObject> clazz = getPluginRecordClass(tokens.get(0));
+        String[] tokens = tokenizeURI(dataURI);
+        Class<PluginDataObject> clazz = getPluginRecordClass(tokens[0]);
         try {
             pdo = clazz.newInstance();
         } catch (Exception e) {
@@ -263,19 +270,6 @@ public class DataURIUtil {
     }
 
     /**
-     * Populate an existing PluginDataObjects with the DataURI fields from the
-     * dataMap.
-     * 
-     * @param pdo
-     * @param dataMap
-     * @throws PluginException
-     */
-    public static void populatePluginDataObject(PluginDataObject pdo,
-            Map<String, Object> dataMap) throws PluginException {
-        populateObject(pdo, dataMap);
-    }
-
-    /**
      * Populate an existing PluginDataObject using fields parsed from the
      * dataURI.
      * 
@@ -290,25 +284,29 @@ public class DataURIUtil {
     }
 
     /**
-     * Create a dataURIMap from any object with dataURI annotations.
+     * Populate an existing PluginDataObjects with the DataURI fields from the
+     * dataMap.
      * 
-     * @param object
-     * @return
+     * @param pdo
+     * @param dataMap
      * @throws PluginException
      */
-    public static Map<String, Object> createDataURIMap(Object object)
-            throws PluginException {
-        DataURIFieldAccess[] accessArray = getAccess(object.getClass());
-        Map<String, Object> dataMap = new HashMap<String, Object>(
-                (int) ((accessArray.length / 0.75f) + 2), 0.75f);
-        if (object instanceof PluginDataObject) {
-            dataMap.put(PLUGIN_NAME_KEY,
-                    ((PluginDataObject) object).getPluginName());
+    public static void populatePluginDataObject(PluginDataObject pdo,
+            Map<String, Object> dataMap) throws PluginException {
+        populateObject(pdo, dataMap);
+    }
+
+    /*
+     * Populate a PDO with the tokens from a parsed DataURI
+     */
+    private static void populatePluginDataObject(PluginDataObject pdo,
+            String[] uriTokens) throws PluginException {
+        DataURIFieldAccessCache cache = getAccessCache(pdo.getClass());
+        DataURIFieldAccess[] access = cache.getDataURIFields();
+        for (int i = 0; i < access.length; i += 1) {
+            access[i].setFieldValue(pdo,
+                    access[i].getFieldValue(uriTokens[i + 1]));
         }
-        for (DataURIFieldAccess access : accessArray) {
-            dataMap.put(access.getFieldName(), access.getFieldValue(object));
-        }
-        return dataMap;
     }
 
     /**
@@ -320,44 +318,22 @@ public class DataURIUtil {
      */
     public static void populateObject(Object object, Map<String, Object> dataMap)
             throws PluginException {
-        Map<String, DataURIFieldAccess> accessMap = new HashMap<String, DataURIFieldAccess>();
-        for (DataURIFieldAccess access : getAccess(object.getClass())) {
-            accessMap.put(access.getFieldName(), access);
-        }
+        DataURIFieldAccessCache cache = getAccessCache(object.getClass());
         for (String dataKey : dataMap.keySet()) {
             if (!PLUGIN_NAME_KEY.equals(dataKey)) {
                 Object data = dataMap.get(dataKey);
-                DataURIFieldAccess access = accessMap.get(dataKey);
-                if (access == null) {
-
-                    access = new DataURIFieldAccess(
-                            Arrays.asList(FIELD_SEPARATOR_PATTERN
-                                    .split(dataKey)),
-                            object != null ? object.getClass() : null);
+                DataURIFieldAccess access = cache.getFieldAccess(dataKey, data);
+                if (access != null) {
+                    access.setFieldValue(object, data);
                 }
-
-                access.setFieldValue(object, data);
             }
-        }
-    }
-
-    /*
-     * Populate a PDO with the tokens from a parsed DataURI
-     */
-    private static void populatePluginDataObject(PluginDataObject pdo,
-            List<String> uriTokens) throws PluginException {
-        uriTokens = uriTokens.subList(1, uriTokens.size());
-        DataURIFieldAccess[] access = getAccess(pdo.getClass());
-        for (int i = 0; i < access.length; i += 1) {
-            access[i].setFieldValue(pdo,
-                    access[i].getFieldValue(uriTokens.get(i)));
         }
     }
 
     /*
      * Split a URI on the seperator and remove empty first element.
      */
-    private static List<String> tokenizeURI(String dataURI) {
+    private static String[] tokenizeURI(String dataURI) {
         String[] tokens = DATAURI_SEPARATOR_PATTERN.split(dataURI);
         for (int i = 0; i < tokens.length; ++i) {
             // Replace %2F with '/'
@@ -367,54 +343,29 @@ public class DataURIUtil {
             tokens[i] = DATAURI_SEPARATOR_CHAR_ENCODED_PATTERN.matcher(
                     tokens[i]).replaceAll(DATAURI_SEPARATOR_ESCAPE_CHAR);
         }
-        return Arrays.asList(tokens).subList(1, tokens.length);
+        // Removes empty string in [0] due to starting with '/'
+        return Arrays.copyOfRange(tokens, 1, tokens.length);
     }
 
-    private static DataURIFieldAccess[] getAccess(String pluginName)
+    private static DataURIFieldAccessCache getAccessCache(String pluginName)
             throws PluginException {
-        return getAccess(getPluginRecordClass(pluginName));
+        return getAccessCache(getPluginRecordClass(pluginName));
     }
 
-    private static DataURIFieldAccess[] getAccess(Class<?> clazz) {
-        DataURIFieldAccess[] result = uriFieldMap.get(clazz);
-        if (result == null) {
-            result = getAccess(clazz, Collections.<String> emptyList())
-                    .toArray(new DataURIFieldAccess[0]);
-            uriFieldMap.put(clazz, result);
+    private static DataURIFieldAccessCache getAccessCache(Class<?> clazz)
+            throws PluginException {
+        if (clazz == null) {
+            throw new PluginException(
+                    "Cannot retrieve field access for null class");
         }
-        return result;
-    }
-
-    private static List<DataURIFieldAccess> getAccess(Class<?> clazz,
-            List<String> parents) {
-        List<Field> fields = getOrderedDataURIFields(clazz);
-        List<DataURIFieldAccess> accessors = new ArrayList<DataURIFieldAccess>();
-        for (Field field : fields) {
-            List<String> names = new ArrayList<String>(parents);
-            names.add(field.getName());
-            Class<?> type = field.getType();
-            if (field.getAnnotation(DataURI.class).embedded()) {
-                accessors.addAll(getAccess(type, names));
-            } else {
-                accessors.add(new DataURIFieldAccess(names, type));
+        synchronized (clazz) {
+            DataURIFieldAccessCache cache = uriFieldMap.get(clazz);
+            if (cache == null) {
+                cache = new DataURIFieldAccessCache(clazz);
+                uriFieldMap.put(clazz, cache);
             }
+            return cache;
         }
-        return accessors;
-    }
-
-    private static List<Field> getOrderedDataURIFields(Class<?> clazz) {
-        List<Field> fields = new ArrayList<Field>();
-        Class<?> currentClass = clazz;
-        while (currentClass != null) {
-            for (Field field : currentClass.getDeclaredFields()) {
-                if (field.getAnnotation(DataURI.class) != null) {
-                    fields.add(field);
-                }
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-        Collections.sort(fields, dataURIAnnotationComparator);
-        return fields;
     }
 
     public static Class<PluginDataObject> getPluginRecordClass(String pluginName)
@@ -424,6 +375,112 @@ public class DataURIUtil {
                     "No PluginClassMapper is registered with DataURIUtil.");
         }
         return classMapper.getPluginRecordClass(pluginName);
+    }
+
+    private static class DataURIFieldAccessCache {
+
+        /*
+         * Compares two fields with the DataURI annotations based off the
+         * position.
+         */
+        private static final Comparator<Field> dataURIAnnotationComparator = new Comparator<Field>() {
+
+            @Override
+            public int compare(Field f1, Field f2) {
+                int i1 = f1.getAnnotation(DataURI.class).position();
+                int i2 = f2.getAnnotation(DataURI.class).position();
+                return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
+            }
+
+        };
+
+        private final DataURIFieldAccess[] dataURIFields;
+
+        private Map<String, DataURIFieldAccess> fieldMap;
+
+        public DataURIFieldAccessCache(Class<?> type) throws PluginException {
+            this.fieldMap = new HashMap<String, DataURIFieldAccess>();
+            this.dataURIFields = getDataURIAccessFields(type);
+            for (DataURIFieldAccess access : dataURIFields) {
+                fieldMap.put(access.getFieldName(), access);
+            }
+        }
+
+        public DataURIFieldAccess[] getDataURIFields() {
+            return dataURIFields;
+        }
+
+        public DataURIFieldAccess getFieldAccess(String fieldName, Object object) {
+            DataURIFieldAccess access = fieldMap.get(fieldName);
+            if (access == null && object != null) {
+                synchronized (this) {
+                    Map<String, DataURIFieldAccess> newFieldMap = new HashMap<String, DataURIFieldAccess>(
+                            fieldMap);
+
+                    access = new DataURIFieldAccess(
+                            Arrays.asList(FIELD_SEPARATOR_PATTERN
+                                    .split(fieldName)), object.getClass(), null);
+                    newFieldMap.put(fieldName, access);
+                    fieldMap = newFieldMap;
+                }
+            }
+            return access;
+        }
+
+        /**
+         * @param clazz
+         * @return
+         * @throws PluginException
+         */
+        private static DataURIFieldAccess[] getDataURIAccessFields(
+                Class<?> clazz) throws PluginException {
+            return getAccess(clazz, Collections.<String> emptyList()).toArray(
+                    new DataURIFieldAccess[0]);
+        }
+
+        private static List<DataURIFieldAccess> getAccess(Class<?> clazz,
+                List<String> parents) throws PluginException {
+            List<Field> fields = getOrderedDataURIFields(clazz);
+            List<DataURIFieldAccess> accessors = new ArrayList<DataURIFieldAccess>();
+            for (Field field : fields) {
+                List<String> names = new ArrayList<String>(parents);
+                names.add(field.getName());
+                Class<?> type = field.getType();
+                DataURI dataURI = field.getAnnotation(DataURI.class);
+                if (dataURI.embedded()) {
+                    accessors.addAll(getAccess(type, names));
+                } else {
+                    DataURIFieldConverter converter = null;
+                    if (dataURI.converter() != DataURI.NO_CONVERTER) {
+                        try {
+                            converter = dataURI.converter().newInstance();
+                        } catch (Exception e) {
+                            throw new PluginException(
+                                    "Error creating field convert: "
+                                            + dataURI.converter(), e);
+                        }
+                    }
+                    accessors
+                            .add(new DataURIFieldAccess(names, type, converter));
+                }
+            }
+            return accessors;
+        }
+
+        private static List<Field> getOrderedDataURIFields(Class<?> clazz) {
+            List<Field> fields = new ArrayList<Field>();
+            Class<?> currentClass = clazz;
+            while (currentClass != null) {
+                for (Field field : currentClass.getDeclaredFields()) {
+                    if (field.getAnnotation(DataURI.class) != null) {
+                        fields.add(field);
+                    }
+                }
+                currentClass = currentClass.getSuperclass();
+            }
+            Collections.sort(fields, dataURIAnnotationComparator);
+            return fields;
+        }
     }
 
     /*
@@ -444,12 +501,14 @@ public class DataURIUtil {
          */
         private final String fieldName;
 
-        /**
-         * Class of the oibject that is in the dataURI.
-         */
+        /** Class of the oibject that is in the dataURI. */
         private final Class<?> fieldClass;
 
-        public DataURIFieldAccess(List<String> fieldNames, Class<?> fieldClass) {
+        /** URI field converter */
+        private DataURIFieldConverter fieldConverter;
+
+        public DataURIFieldAccess(List<String> fieldNames, Class<?> fieldClass,
+                DataURIFieldConverter fieldConverter) {
             this.fieldNames = fieldNames.toArray(new String[0]);
             StringBuilder fieldName = new StringBuilder(this.fieldNames[0]);
             for (int i = 1; i < this.fieldNames.length; i += 1) {
@@ -457,22 +516,62 @@ public class DataURIUtil {
             }
             this.fieldName = fieldName.toString();
             this.fieldClass = fieldClass;
+            this.fieldConverter = fieldConverter;
         }
 
+        /**
+         * Returns the fully qualified name of the field
+         * 
+         * @return
+         */
         public String getFieldName() {
             return fieldName;
         }
 
         /**
-         * Extract the field value from a PDO.
+         * Extract the field value designated by this field access object from
+         * the field container Object and converts it to a URI string
          * 
-         * @param pdo
+         * @param fieldContainer
          * @return
          * @throws PluginException
          */
-        public Object getFieldValue(Object pdo) throws PluginException {
+        public String getFieldString(Object fieldContainer)
+                throws PluginException {
+            return toFieldString(getFieldValue(fieldContainer));
+        }
+
+        /**
+         * Converts the field value represented by this field access to a uri
+         * string
+         * 
+         * @param fieldValue
+         * @return
+         */
+        public String toFieldString(Object fieldValue) {
+            String string;
+            if (fieldConverter != null) {
+                string = fieldConverter.toString(fieldValue);
+            } else if (fieldValue instanceof Calendar) {
+                string = TimeUtil.formatCalendar((Calendar) fieldValue);
+            } else {
+                string = String.valueOf(fieldValue);
+            }
+            return string;
+        }
+
+        /**
+         * Extract the field value designated by this field access object from
+         * the field container Object
+         * 
+         * @param fieldContainer
+         * @return
+         * @throws PluginException
+         */
+        public Object getFieldValue(Object fieldContainer)
+                throws PluginException {
             try {
-                Object object = pdo;
+                Object object = fieldContainer;
                 for (String fieldName : fieldNames) {
                     object = PropertyUtils.getProperty(object, fieldName);
                     if (object == null) {
@@ -493,19 +592,22 @@ public class DataURIUtil {
          * @throws PluginException
          */
         public Object getFieldValue(String stringValue) throws PluginException {
+            if (fieldConverter != null) {
+                return fieldConverter.fromString(stringValue);
+            }
             return ConvertUtil.convertObject(stringValue, fieldClass);
         }
 
         /**
-         * Set the fieldValue into the PDO.
+         * Set the fieldValue Object into the fieldContainer Object.
          * 
-         * @param pdo
+         * @param fieldContainer
          * @param fieldValue
          * @throws PluginException
          */
-        public void setFieldValue(Object pdo, Object fieldValue)
+        public void setFieldValue(Object fieldContainer, Object fieldValue)
                 throws PluginException {
-            Object source = pdo;
+            Object source = fieldContainer;
             try {
                 for (int i = 0; i < (fieldNames.length - 1); i += 1) {
                     Object obj = PropertyUtils.getProperty(source,

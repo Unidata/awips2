@@ -28,6 +28,7 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2013    2108    mpduff      Initial creation.
+ * Sept 25, 2013  1797     dhladky     separated time from gridded time
  * 
  * </pre>
  * 
@@ -176,9 +178,10 @@ public class GriddedDataSizeUtils extends DataSizeUtils<GriddedDataSet> {
         final Ensemble ensemble = subscription.getEnsemble();
         int numEnsemble = (ensemble == null) ? 1 : ensemble.getMemberCount();
 
-        return getDataSetSizeInBytes(subscription.getParameter(), subscription
-                .getTime().getSelectedTimeIndices().size(), numEnsemble,
-                subscription.getCoverage().getRequestEnvelope());
+        return getDataSetSizeInBytes(subscription.getParameter(),
+                ((GriddedTime) subscription.getTime()).getSelectedTimeIndices()
+                        .size(), numEnsemble, subscription.getCoverage()
+                        .getRequestEnvelope());
     }
 
     /**

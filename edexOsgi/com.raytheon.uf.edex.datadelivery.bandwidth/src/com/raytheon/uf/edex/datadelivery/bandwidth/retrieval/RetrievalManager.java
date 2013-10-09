@@ -38,6 +38,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jun 13, 2013 2095       djohnson     Can schedule any subclass of BandwidthAllocation.
  * Jun 25, 2013 2106       djohnson     Copy state from another instance, add ability to check for proposed bandwidth throughput changes.
  * Jul 09, 2013 2106       djohnson     Only needs to unregister from the EventBus when used in an EDEX instance, so handled in EdexBandwidthManager.
+ * Oct 03, 2013 2267       bgonzale     Added check for no retrieval plan matching in the proposed retrieval plans.
  * 
  * </pre>
  * 
@@ -269,10 +270,22 @@ public class RetrievalManager {
                 .entrySet()) {
             final RetrievalPlan proposedRetrievalPlan = proposedRetrievalManager.retrievalPlans
                     .get(entry.getKey());
-            if (proposedRetrievalPlan.getDefaultBandwidth() != entry.getValue()
-                    .getDefaultBandwidth()) {
-                proposingBandwidthChanges = true;
-                break;
+            if (proposedRetrievalPlan != null && entry.getValue() != null) {
+                if (proposedRetrievalPlan.getDefaultBandwidth() != entry
+                        .getValue().getDefaultBandwidth()) {
+                    proposingBandwidthChanges = true;
+                    break;
+                }
+            } else {
+                StringBuilder sb = new StringBuilder(
+                        "The ProposedRetrievalPlan, ");
+                sb.append(proposedRetrievalPlan);
+                sb.append(", or the Existing RetrievalPlan, ");
+                sb.append(entry.getKey());
+                sb.append(" : ");
+                sb.append(entry.getValue());
+                sb.append(", is null.  Skipping this check.");
+                statusHandler.info(sb.toString());
             }
         }
 
