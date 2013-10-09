@@ -30,7 +30,9 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
+import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
 
 /**
  * Serializes the retrieved data to a directory.
@@ -46,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalRespo
  * Mar 05, 2013 1647       djohnson     Apply WMO header.
  * Mar 07, 2013 1647       djohnson     Write out as hidden file, then rename.
  * Aug 09, 2013 1822       bgonzale     Added parameters to IWmoHeaderApplier.applyWmoHeader().
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  * 
  * </pre>
  * 
@@ -70,7 +73,8 @@ public class SerializeRetrievedDataToDirectory implements
         this.wmoHeaderWrapper = wmoHeaderWrapper;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
-                    OpenDapRetrievalResponse.class, Coverage.class);
+                    OpenDapRetrievalResponse.class, WfsRetrievalResponse.class,
+                    Coverage.class);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -80,8 +84,8 @@ public class SerializeRetrievedDataToDirectory implements
      * {@inheritDoc}
      */
     @Override
-    public void processRetrievedPluginDataObjects(String dataType,
-            String dataFormat, String sourceType, Date date,
+    public void processRetrievedPluginDataObjects(
+            RetrievalRequestRecord request,
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException {
         retrievalPluginDataObjects.prepareForSerialization();
@@ -94,8 +98,10 @@ public class SerializeRetrievedDataToDirectory implements
 
             final String xml = jaxbManager
                     .marshalToXml(retrievalPluginDataObjects);
-            final String textForFile = wmoHeaderWrapper.applyWmoHeader(
-                    dataType, dataFormat, sourceType, date, xml);
+            final Date date = request.getInsertTime();
+            final String textForFile = wmoHeaderWrapper
+                    .applyWmoHeader(request.getProvider(), request.getPlugin(),
+                    getSourceType(request), date, xml);
 
             // Write as hidden file, this is OS specific, but there is no
             // platform-neutral way to do this with Java
@@ -110,5 +116,19 @@ public class SerializeRetrievedDataToDirectory implements
         } catch (Exception e) {
             throw new SerializationException(e);
         }
+    }
+
+    /**
+     * Determine source type from the request.
+     * 
+     * TODO Simple method that is adequate for now. It will need to be updated
+     * for new data from NOMADS, MADIS, and PDA.
+     * 
+     * @return source type string ("MODEL", "OBSERVATION", or "SATELLITE")
+     */
+    private String getSourceType(RetrievalRequestRecord request) {
+        String provider = request.getProvider();
+        return (provider == null || !provider.equalsIgnoreCase("MADIS") ? "MODEL"
+                : "OBSERVATION");
     }
 }

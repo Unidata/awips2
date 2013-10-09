@@ -45,6 +45,7 @@ import com.raytheon.uf.common.datadelivery.registry.Encryption;
 import com.raytheon.uf.common.datadelivery.registry.Encryption.Algorithim;
 import com.raytheon.uf.common.datadelivery.registry.Encryption.Padding;
 import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Projection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
@@ -68,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 17, 2013   2106     djohnson     Use unencrypted password getter.
  * July15, 2103   2180     dhladky      Updated encryption
  * Aug 08, 2013   2097     dhladky      updated for WFS 2.0 and HTTP POST
+ * Sept 30, 2013  1797     dhladky      separated gridded time from time
  * 
  * </pre>
  * 
@@ -244,7 +246,7 @@ public class HttpProxiedValidClientCredentialsTest {
         String startDateString = "2013-08-30T12:40:00.000";
         String endDateString = "2013-08-30T14:15:00.000";
                 
-        Time time = new Time();
+        PointTime time = new PointTime();
         time.setFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         time.setRequestStart(startDateString);
         time.setStart(startDateString);

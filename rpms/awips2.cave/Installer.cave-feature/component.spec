@@ -1,5 +1,4 @@
-%define _component_zip_file_name  %{_component_feature}-linux.%{_build_arch}.zip
-%define _component_repo_zip_file_name  %{_component_feature}-repo-linux.%{_build_arch}.zip
+%define _component_zip_file_name  %{_component_feature}-repo-linux.%{_build_arch}.zip
 #
 # awips2-cave Spec File
 #
@@ -52,8 +51,8 @@ if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
    exit 1
 fi
 
-unzip ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
-   -d ${RPM_BUILD_ROOT}
+cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
+   ${RPM_BUILD_ROOT}/awips2/cave/.repository
 
 %pre
 # Ensure that CAVE is available to backup and to use to
@@ -161,7 +160,7 @@ fi
 # unzip the repository
 cd /awips2/cave/.repository
 cleanupUnzip
-unzip %{_component_repo_zip_file_name} > /dev/null 2>&1
+unzip %{_component_zip_file_name} > /dev/null 2>&1
 RC=$?
 if [ ${RC} -ne 0 ]; then
    echo "ERROR: Unzip of repository FAILED."
@@ -184,6 +183,33 @@ cleanupUnzip
 
 # Remove the backup.
 rm -rf /awips2/cave.bak
+
+# move localization files in unpacked plugins to the
+# cave etc directory.
+if [ ! -d /awips2/cave/etc ]; then
+   mkdir -p /awips2/cave/etc
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+pushd . > /dev/null 2>&1
+cd /awips2/cave/plugins
+for localizationDirectory in `find . -maxdepth 2 -name localization -type d`;
+do
+   # copy the contents of the localization directory to the
+   # etc directory.
+   cp -r ${localizationDirectory}/* /awips2/cave/etc
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   
+   # remove the localization directory.
+   rm -rf ${localizationDirectory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
+popd > /dev/null 2>&1
 
 %preun
 # Do not use p2 to remove the feature if this is an upgrade.
@@ -247,7 +273,5 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2/cave/
-/awips2/cave/*
 %dir /awips2/cave/.repository
 /awips2/cave/.repository/*

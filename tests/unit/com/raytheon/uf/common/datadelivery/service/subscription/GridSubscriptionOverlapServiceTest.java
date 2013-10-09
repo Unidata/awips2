@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
@@ -45,6 +47,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 07, 2013 2000       djohnson     Initial creation
+ * Oct 2,  2013  1797      dhladky      Some generics
  * 
  * </pre>
  * 
@@ -60,14 +63,14 @@ public class GridSubscriptionOverlapServiceTest {
     private static final SubscriptionOverlapConfig ALL_MUST_EXCEED_65_PERCENT = new GridSubscriptionOverlapConfig(
             65, 65, 65, 65, MATCH_ALL);
 
-    private final ISubscriptionDuplicateChecker duplicateChecker = mock(ISubscriptionDuplicateChecker.class);
+    private final ISubscriptionDuplicateChecker<GriddedTime, GriddedCoverage> duplicateChecker = mock(ISubscriptionDuplicateChecker.class);
 
-    private final SubscriptionOverlapService service = new SubscriptionOverlapService(
+    private final SubscriptionOverlapService<GriddedTime, GriddedCoverage> service = new SubscriptionOverlapService<GriddedTime, GriddedCoverage>(
             duplicateChecker);
 
-    private final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+    private final Subscription<GriddedTime, GriddedCoverage> sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
 
-    private final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+    private final Subscription<GriddedTime, GriddedCoverage> sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
     @Before
     public void setUp() {

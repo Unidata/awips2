@@ -31,7 +31,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.site.xml.AdjacentWfoXML;
 import com.raytheon.uf.common.site.xml.CwaXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -50,6 +50,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * ------------ ---------- ----------- --------------------------
  * Dec 22, 2009            mpduff      Initial creation
  * Jul 24, 2013   2219     mpduff      Improve error handling.
+ * Oct 02, 2013   2361     njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -58,8 +59,15 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class AdjacentWfoMgr {
-    private final IUFStatusHandler statusHandler = UFStatus
+
+    /** Path to Adjacent WFO XML. */
+    private static final String fileName = "allAdjacentWFOs.xml";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AdjacentWfoMgr.class);
+
+    private static final SingleTypeJAXBManager<AdjacentWfoXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(AdjacentWfoXML.class);
 
     /** Configuration XML. */
     private AdjacentWfoXML adjXML = null;
@@ -69,9 +77,6 @@ public class AdjacentWfoMgr {
     private final String currentSite;
 
     private ArrayList<String> idList = null;
-
-    /** Path to Adjacent WFO XML. */
-    private static final String fileName = "allAdjacentWFOs.xml";
 
     /** Adjacent area geometry */
     private Geometry geoAdjAreas = null;
@@ -105,8 +110,7 @@ public class AdjacentWfoMgr {
 
             statusHandler.debug("**** path = " + path);
 
-            adjXML = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    AdjacentWfoXML.class, path);
+            adjXML = jaxb.unmarshalFromXmlFile(path);
 
             ArrayList<CwaXML> list = adjXML.getAreaIds();
             for (CwaXML cx : list) {
