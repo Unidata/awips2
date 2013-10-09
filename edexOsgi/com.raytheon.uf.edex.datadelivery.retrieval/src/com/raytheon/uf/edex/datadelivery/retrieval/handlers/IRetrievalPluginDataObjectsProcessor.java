@@ -19,10 +19,9 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import java.util.Date;
-
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.TranslationException;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
  * Processes {@link RetrievalResponseXml} that were generated from a retrieval.
@@ -35,6 +34,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.Tra
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  * 
  * </pre>
  * 
@@ -46,24 +46,17 @@ public interface IRetrievalPluginDataObjectsProcessor {
 
     /**
      * Process plugin data objects that were created as a result of a data
-     * delivery retrieval.
+     * delivery retrieval request.
      * 
-     * @param dataProvider
-     *            NOMADS, MADIS, or PDA
-     * @param dataFormat
-     *            Binary Grid(OPENDAP), POINT(MADIS), NetCDF4
-     * @param sourceType
-     *            Model, Observation, Satellite
-     * @param date
-     *            the date
+     * @param request
+     *            the request
      * @param retrievalPluginDataObjects
      *            the retrieval plugin data objects
      * @throws SerializationException
      *             on error with serialization
      * @throws TranslationException
      */
-    void processRetrievedPluginDataObjects(String dataProvider,
-            String dataFormat, String sourceType, Date date,
+    void processRetrievedPluginDataObjects(RetrievalRequestRecord request,
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException, TranslationException;
 }
