@@ -20,7 +20,6 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 
@@ -41,6 +40,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Sep 06, 2012 1102       djohnson     Implement comparable.
  * Oct 16, 2012 0726       djohnson     Override {@link #toString()}.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Sept, 30 2013 1797      dhladky      Made generic based on Time
  * </pre>
  * 
  * @author dhladky
@@ -49,7 +49,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({ GriddedDataSetMetaData.class, OpenDapGriddedDataSetMetaData.class, PointDataSetMetaData.class })
 @RegistryObject({ "url" })
-public abstract class DataSetMetaData implements ISerializableObject {
+public abstract class DataSetMetaData<T extends Time> {
     public static final String DATE_SLOT = "date";
 
     public static final String DATA_SET_NAME_SLOT = "dataSetName";
@@ -60,10 +60,10 @@ public abstract class DataSetMetaData implements ISerializableObject {
      * Compares the two instances of {@link DataSetMetaData} by their applicable
      * date fields.
      */
-    public static Comparator<? super DataSetMetaData> DATE_COMPARATOR = new Comparator<DataSetMetaData>()
+    public static Comparator<? super DataSetMetaData<?>> DATE_COMPARATOR = new Comparator<DataSetMetaData<?>>()
     {
         @Override
-        public int compare(DataSetMetaData o1, DataSetMetaData o2) {
+        public int compare(DataSetMetaData<?> o1, DataSetMetaData<?> o2) {
 
             checkNotNull(o1, "Cannot compare this object with null!");
             checkNotNull(o2, "Cannot compare this object with null!");
@@ -91,7 +91,7 @@ public abstract class DataSetMetaData implements ISerializableObject {
     @DynamicSerializeElement
     @SlotAttribute
     @SlotAttributeConverter(TimeSlotConverter.class)
-    protected Time time;
+    protected T time;
 
     @XmlAttribute
     @SlotAttribute(DATA_SET_NAME_SLOT)
@@ -121,11 +121,11 @@ public abstract class DataSetMetaData implements ISerializableObject {
         this.url = url;
     }
 
-    public void setTime(Time time) {
+    public void setTime(T time) {
         this.time = time;
     }
 
-    public Time getTime() {
+    public T getTime() {
         return time;
     }
 
@@ -185,7 +185,7 @@ public abstract class DataSetMetaData implements ISerializableObject {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DataSetMetaData) {
-            DataSetMetaData other = (DataSetMetaData) obj;
+            DataSetMetaData<?> other = (DataSetMetaData<?>) obj;
             EqualsBuilder eqBuilder = new EqualsBuilder();
             eqBuilder.append(this.getUrl(), other.getUrl());
             return eqBuilder.isEquals();

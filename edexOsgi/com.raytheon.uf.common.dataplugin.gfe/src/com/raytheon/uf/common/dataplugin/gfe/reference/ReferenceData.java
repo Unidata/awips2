@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.gfe.reference;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -86,7 +85,8 @@ public class ReferenceData {
 
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
-    private static final SingleTypeJAXBManager<ReferenceData> jaxb = initializeJAXB();
+    private static final SingleTypeJAXBManager<ReferenceData> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ReferenceData.class);
 
     public enum RefType {
         NONE, QUERY, POLYGON, QUERY_POLYGON
@@ -111,25 +111,6 @@ public class ReferenceData {
     private Grid2DBit grid;
 
     private CoordinateType coordType;
-
-    /**
-     * Initializes the JAXB manager for reading/writing ReferenceData to/from
-     * XML.
-     * 
-     * @return the JAXBManager
-     */
-    private static SingleTypeJAXBManager<ReferenceData> initializeJAXB() {
-        SingleTypeJAXBManager<ReferenceData> retVal = null;
-        try {
-            retVal = new SingleTypeJAXBManager<ReferenceData>(
-                    ReferenceData.class);
-        } catch (JAXBException e) {
-            statusHandler
-                    .error("Error initializing ReferenceData JAXBManager, edit areas will not work",
-                            e);
-        }
-        return retVal;
-    }
 
     /**
      * Returns the JAXBManager that handles ReferenceData

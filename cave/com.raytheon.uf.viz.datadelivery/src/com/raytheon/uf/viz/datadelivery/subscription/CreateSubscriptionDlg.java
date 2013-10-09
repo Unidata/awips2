@@ -45,10 +45,12 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -106,6 +108,7 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Aug 21, 2013   1848     mpduff      Check subscription.create and shared.subscription.create.
  * Aug 30, 2013   2288     bgonzale    Added display of priority and latency rules.
  * Sep 04, 2013   2314     mpduff      Pass in the office to Shared Subscription Dialog.
+ * Sept 30, 2013  1797     dhladky     separated Time from GriddedTime
  * 
  * </pre>
  * 
@@ -170,7 +173,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     private int status = SWT.NONE;
 
     /** The subscription object */
-    private Subscription subscription;
+    private Subscription<Time, Coverage> subscription;
 
     /** Available cycle times */
     private Set<Integer> cycleTimes;
