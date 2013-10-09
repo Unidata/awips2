@@ -43,8 +43,10 @@ import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -53,6 +55,7 @@ import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
@@ -121,13 +124,14 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary and the display dialog.
  * Jul 26, 2031 2232       mpduff       Refactored Data Delivery permissions.
  * Aug 30, 2013 2288       bgonzale     Removed unneeded call to setPriority.
+ * Oct 2,  2013 1797       dhladky      Generic foundations.
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
 
-public class CreateSubscriptionDlgPresenter {
+public class CreateSubscriptionDlgPresenter<T extends Time, C extends Coverage> {
     private static final String PENDING_APPROVAL_MESSAGE = "The subscription is awaiting approval.\n\n"
             + "A notification message will be generated upon approval.";
 
@@ -157,7 +161,7 @@ public class CreateSubscriptionDlgPresenter {
     private final ICreateSubscriptionDlgView view;
 
     /** The subscription object */
-    private Subscription subscription;
+    private Subscription<T, C> subscription;
 
     /** Group combo runnable action */
     private final Runnable groupComboAction;
@@ -166,7 +170,7 @@ public class CreateSubscriptionDlgPresenter {
     private final Runnable okBtnAction;
 
     /** The dataset */
-    private final DataSet dataSet;
+    private final DataSet<T, C> dataSet;
 
     /** Group valid flag */
     boolean groupValid = false;
@@ -197,7 +201,7 @@ public class CreateSubscriptionDlgPresenter {
      *            task executor
      */
     public CreateSubscriptionDlgPresenter(ICreateSubscriptionDlgView view,
-            DataSet dataSet, boolean create,
+            DataSet<T, C> dataSet, boolean create,
             IGuiThreadTaskExecutor guiThreadTaskExecutor) {
         this.view = view;
         this.dataSet = dataSet;
@@ -269,7 +273,7 @@ public class CreateSubscriptionDlgPresenter {
      * @param sub
      *            The subscription object
      */
-    public void setSubscriptionData(Subscription sub) {
+    public void setSubscriptionData(Subscription<T, C> sub) {
         this.subscription = sub;
         this.view.setSubscription(sub);
     }
@@ -279,7 +283,7 @@ public class CreateSubscriptionDlgPresenter {
      * 
      * @return the subscription
      */
-    public Subscription getSubscription() {
+    public Subscription<T, C> getSubscription() {
         return this.subscription;
     }
 
@@ -386,7 +390,7 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         if (this.dataSet.getDataSetType() == DataType.GRID) {
-            List<Integer> cycleTimes = subscription.getTime().getCycleTimes();
+            List<Integer> cycleTimes = ((GriddedTime)subscription.getTime()).getCycleTimes();
             if (cycleTimes != null) {
                 List<String> cycleStrings = new ArrayList<String>();
 
@@ -451,7 +455,7 @@ public class CreateSubscriptionDlgPresenter {
         }
         String[] sharedSites = view.getSharedSites();
         if (sharedSites != null && sharedSites.length > 1) {
-            SharedSubscription sharedSub = new SharedSubscription(subscription);
+            SharedSubscription<T, C> sharedSub = new SharedSubscription<T, C>(subscription);
             sharedSub.setRoute(Network.SBN);
             Set<String> officeList = Sets.newHashSet(sharedSites);
             sharedSub.setOfficeIDs(officeList);
@@ -532,7 +536,7 @@ public class CreateSubscriptionDlgPresenter {
         subscription.setDescription(view.getSubscriptionDescription());
 
         if (this.dataSet.getDataSetType() == DataType.GRID) {
-            subscription.getTime().setCycleTimes(view.getCycleTimes());
+            ((GriddedTime)subscription.getTime()).setCycleTimes(view.getCycleTimes());
         }
 
         subscription.setLatencyInMinutes(view.getLatencyValue());
@@ -650,7 +654,7 @@ public class CreateSubscriptionDlgPresenter {
                 job.schedule();
                 return false;
             } else {
-                InitialPendingSubscription pendingSub = subscription
+                InitialPendingSubscription<T, C> pendingSub = subscription
                         .initialPending(currentUser);
 
                 try {
@@ -668,7 +672,7 @@ public class CreateSubscriptionDlgPresenter {
             }
         } else {
             // Check for pending subscription, can only have one pending change
-            PendingSubscription pendingSub = subscription
+            PendingSubscription<T, C> pendingSub = subscription
                     .pending(LocalizationManager.getInstance().getCurrentUser());
             pendingSub.setChangeReason(view.getChangeReason());
 
@@ -679,7 +683,8 @@ public class CreateSubscriptionDlgPresenter {
             IPendingSubscriptionHandler pendingSubHandler = RegistryObjectHandlers
                     .get(IPendingSubscriptionHandler.class);
             try {
-                InitialPendingSubscription result = pendingSubHandler
+                @SuppressWarnings("unchecked")
+                InitialPendingSubscription<T, C> result = pendingSubHandler
                         .getBySubscription(subscription);
                 if (result != null) {
                     String msg = "There is already an edited version of this subscription.\n\nPlease "
@@ -759,7 +764,7 @@ public class CreateSubscriptionDlgPresenter {
      * @return true if the dialog can be closed, false otherwise
      */
     @VisibleForTesting
-    ISubscriptionServiceResult storeSubscription(Subscription subscription,
+    ISubscriptionServiceResult storeSubscription(Subscription<T, C> subscription,
             String username) {
         ISubscriptionServiceResult result = null;
         try {
@@ -782,7 +787,7 @@ public class CreateSubscriptionDlgPresenter {
      *            the username
      */
     @VisibleForTesting
-    void sendSubscriptionNotification(Subscription subscription, String username) {
+    void sendSubscriptionNotification(Subscription<T, C> subscription, String username) {
         subscriptionNotificationService.sendCreatedSubscriptionNotification(
                 subscription, username);
     }
@@ -803,7 +808,8 @@ public class CreateSubscriptionDlgPresenter {
         // Validate the date entries
         datesValid = this.durationValidChk();
         activeDatesValid = this.activePeriodValidChk();
-        int maxLatency = DataDeliveryUtils.getMaxLatency(subscription);
+        // TODO I want to take care of this too
+        int maxLatency = DataDeliveryUtils.getMaxLatency((Subscription<Time, Coverage>) subscription);
         latencyValid = DataDeliveryGUIUtils.latencyValidChk(
                 view.getLatencyValue(), maxLatency);
         if (!latencyValid) {
@@ -1046,7 +1052,7 @@ public class CreateSubscriptionDlgPresenter {
     /**
      * Add the registry id to the subscription object.
      */
-    private void setSubscriptionId(Subscription sub) {
+    private void setSubscriptionId(Subscription<T, C> sub) {
         String id = RegistryUtil.getRegistryObjectKey(sub);
         sub.setId(id);
     }
