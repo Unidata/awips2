@@ -20,7 +20,6 @@
 
 package com.raytheon.edex.plugin.grib;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ucar.grib.NoValidGribException;
 import ucar.grib.NotSupportedException;
 import ucar.grib.grib1.Grib1BinaryDataSection;
 import ucar.grib.grib1.Grib1BitMapSection;
@@ -90,12 +90,14 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Mar 11, 2010 4758        bphillip    Initial Creation
- * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util
- *                                      into ArraysUtil
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 11, 2010  4758     bphillip     Initial Creation
+ * Feb 15, 2013  1638     mschenke     Moved array based utilities from Util
+ *                                     into ArraysUtil
+ * Aug 30, 2013  2298     rjpeter      Make getPluginName abstract
+ * Oct 07, 2013  2042     bsteffen     Decode GribDecodeMessage instead of
+ *                                     files.
  * 
  * </pre>
  * 
@@ -134,13 +136,6 @@ public class Grib1Decoder extends AbstractDecoder {
     }
 
     /**
-     * Creates a new Grib1Decoder
-     */
-    public Grib1Decoder() {
-        super();
-    }
-
-    /**
      * Decodes the grib file provided.
      * 
      * @param gribFileName
@@ -149,25 +144,16 @@ public class Grib1Decoder extends AbstractDecoder {
      * @throws GribException
      *             If decoding the file fails or encounters problems
      */
-    public GridRecord[] decode(String gribFileName) throws GribException {
-        File gribFile = new File(gribFileName);
+    public GridRecord[] decode(GribDecodeMessage message) throws GribException {
+        String fileName = message.getFileName();
         RandomAccessFile raf = null;
         try {
-            try {
-                raf = new RandomAccessFile(gribFile.getAbsolutePath(), "r");
-            } catch (IOException e) {
-                throw new GribException(
-                        "Unable to create RandomAccessFile for grib file: ["
-                                + gribFile + "]");
-            }
+            raf = new RandomAccessFile(fileName, "r");
             raf.order(RandomAccessFile.BIG_ENDIAN);
+            raf.seek(message.getStartPosition());
             Grib1Input g1i = new Grib1Input(raf);
-            try {
-                g1i.scan(false, false);
-            } catch (Exception e) {
-                throw new GribException("Error scanning grib 1 file: ["
-                        + gribFile + "]");
-            }
+            g1i.scan(false, true);
+
             ArrayList<Grib1Record> records = g1i.getRecords();
             List<GridRecord> gribRecords = new ArrayList<GridRecord>();
             for (int i = 0; i < records.size(); i++) {
@@ -177,6 +163,12 @@ public class Grib1Decoder extends AbstractDecoder {
                 }
             }
             return gribRecords.toArray(new GridRecord[] {});
+        } catch (IOException e) {
+            throw new GribException("Failed to decode grib1 file: [" + fileName
+                    + "]", e);
+        } catch (NoValidGribException e) {
+            throw new GribException(
+                    "Invalid grib1 message: [" + fileName + "]", e);
         } finally {
             if (raf != null) {
                 try {
@@ -184,7 +176,7 @@ public class Grib1Decoder extends AbstractDecoder {
                 } catch (IOException e) {
                     throw new GribException(
                             "Failed to close RandomAccessFile for grib file: ["
-                                    + gribFile + "]", e);
+                                    + fileName + "]", e);
                 }
             }
         }
