@@ -47,14 +47,16 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Feb 13, 2007             chammack    Initial Creation.
- * Aug 20, 2007             njensen     Added listColorMaps().
- * Aug 20, 2008				dglazesk    JiBX to JaXB
- * Aug 20, 2008				dglazesk    Updated for new ColorMap interface
- * Jun 10, 2013 2075        njensen     Added listColorMapFiles(subdirectory)
- * Aug 06, 2013 2210        njensen     Moved colormaps to common_static
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 13, 2007           chammack    Initial Creation.
+ * Aug 20, 2007           njensen     Added listColorMaps().
+ * Aug 20, 2008           dglazesk    JiBX to JaXB
+ * Aug 20, 2008           dglazesk    Updated for new ColorMap interface
+ * Jun 10, 2013  2075     njensen     Added listColorMapFiles(subdirectory)
+ * Aug 06, 2013  2210     njensen     Moved colormaps to common_static
+ * Sep 18, 2013  2421     bsteffen    Moved some listing capabilities into
+ *                                    ColorMapTree.
  * 
  * </pre>
  * 
@@ -64,9 +66,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 public class ColorMapLoader {
 
-    private static final String EXTENSION = ".cmap";
+    public static final String EXTENSION = ".cmap";
 
-    private static final String DIR_NAME = "colormaps";
+    public static final String DIR_NAME = "colormaps";
 
     private static final String sharedMutex = "";
 
@@ -227,15 +229,6 @@ public class ColorMapLoader {
                 + subDirectory);
     }
 
-    /**
-     * Lists all the colormaps found in the system
-     * 
-     * @return
-     */
-    public static LocalizationFile[] listColorMapFiles() {
-        return internalListColorMapFiles(DIR_NAME);
-    }
-
     public static String shortenName(LocalizationFile file) {
         String name = file.getName()
                 .replace(DIR_NAME + IPathManager.SEPARATOR, "")
@@ -258,7 +251,7 @@ public class ColorMapLoader {
      */
     public static String[] listColorMaps(
             LocalizationContext.LocalizationLevel aType) {
-        LocalizationFile[] files = listColorMapFiles();
+        LocalizationFile[] files = internalListColorMapFiles(DIR_NAME);
         String[] cmaps = new String[files.length];
         for (int i = 0; i < files.length; i++) {
             cmaps[i] = shortenName(files[i]);

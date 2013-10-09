@@ -33,9 +33,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
@@ -63,6 +65,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 24, 2013 2106       djohnson     Implement new methods.
  * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
  * Aug 28, 2013 2290       mpduff       Check for no subscriptions.
+ * Oct 2,  2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
@@ -71,7 +74,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  */
 @Transactional
 @Service
-public class HibernateBandwidthDao implements IBandwidthDao {
+public class HibernateBandwidthDao<T extends Time, C extends Coverage> implements IBandwidthDao<T, C> {
 
     private IBandwidthAllocationDao bandwidthAllocationDao;
 
@@ -81,7 +84,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
 
     private IBandwidthDataSetUpdateDao bandwidthDataSetUpdateDao;
 
-    private ISubscriptionRetrievalAttributesDao subscriptionRetrievalAttributesDao;
+    private ISubscriptionRetrievalAttributesDao<T, C> subscriptionRetrievalAttributesDao;
 
     /**
      * Constructor.
@@ -176,7 +179,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public List<BandwidthSubscription> getBandwidthSubscription(
-            Subscription subscription) {
+            Subscription<T, C> subscription) {
         return bandwidthSubscriptionDao.getBySubscription(subscription);
     }
 
@@ -262,7 +265,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthDataSetUpdate newBandwidthDataSetUpdate(
-            DataSetMetaData dataSetMetaData) {
+            DataSetMetaData<T> dataSetMetaData) {
 
         BandwidthDataSetUpdate entity = BandwidthUtil
                 .newDataSetMetaDataDao(dataSetMetaData);
@@ -276,7 +279,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthSubscription newBandwidthSubscription(
-            Subscription subscription, Calendar baseReferenceTime) {
+            Subscription<T, C> subscription, Calendar baseReferenceTime) {
         BandwidthSubscription entity = BandwidthUtil
                 .getSubscriptionDaoForSubscription(subscription,
                         baseReferenceTime);
@@ -456,7 +459,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     /**
      * @return the subscriptionRetrievalAttributesDao
      */
-    public ISubscriptionRetrievalAttributesDao getSubscriptionRetrievalAttributesDao() {
+    public ISubscriptionRetrievalAttributesDao<T, C> getSubscriptionRetrievalAttributesDao() {
         return subscriptionRetrievalAttributesDao;
     }
 
@@ -465,7 +468,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      *            the subscriptionRetrievalAttributesDao to set
      */
     public void setSubscriptionRetrievalAttributesDao(
-            ISubscriptionRetrievalAttributesDao subscriptionRetrievalAttributesDao) {
+            ISubscriptionRetrievalAttributesDao<T, C> subscriptionRetrievalAttributesDao) {
         this.subscriptionRetrievalAttributesDao = subscriptionRetrievalAttributesDao;
     }
 
@@ -491,7 +494,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void store(SubscriptionRetrievalAttributes attributes) {
+    public void store(SubscriptionRetrievalAttributes<T, C> attributes) {
         subscriptionRetrievalAttributesDao.create(attributes);
     }
 
@@ -500,12 +503,12 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public void storeSubscriptionRetrievalAttributes(
-            List<SubscriptionRetrievalAttributes> retrievalAttributes) {
+            List<SubscriptionRetrievalAttributes<T, C>> retrievalAttributes) {
         subscriptionRetrievalAttributesDao.persistAll(retrievalAttributes);
     }
 
     @Override
-    public void update(SubscriptionRetrievalAttributes attributes) {
+    public void update(SubscriptionRetrievalAttributes<T, C> attributes) {
         subscriptionRetrievalAttributesDao.update(attributes);
     }
 
@@ -513,7 +516,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
+    public SubscriptionRetrievalAttributes<T, C> getSubscriptionRetrievalAttributes(
             SubscriptionRetrieval retrieval) {
         return subscriptionRetrievalAttributesDao
                 .getBySubscriptionRetrieval(retrieval);
@@ -524,7 +527,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public SubscriptionStatusSummary getSubscriptionStatusSummary(
-            Subscription sub) {
+            Subscription<T, C> sub) {
         SubscriptionStatusSummary summary = new SubscriptionStatusSummary();
 
         List<BandwidthSubscription> bandwidthSubList = this
