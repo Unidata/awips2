@@ -39,6 +39,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -494,7 +495,7 @@ public class SfcObsPointDataTransform {
      * @throws JAXBException
      */
     private PointDataDescription getDescription(String type)
-            throws JAXBException {
+            throws SerializationException {
         InputStream is = this.getClass().getResourceAsStream(
                 "/res/pointdata/" + type + ".xml");
         if (is == null) {
