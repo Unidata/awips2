@@ -22,13 +22,9 @@ package com.raytheon.uf.common.pointdata.elements;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -40,16 +36,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            chammack     Initial creation
+ * Apr 8, 2009             chammack    Initial creation
+ * Oct 9, 2013  2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
-public abstract class AbstractPointDataObject<A> implements ISerializableObject {
+public abstract class AbstractPointDataObject<A> {
 
     static final int STORAGE_CHUNK_SIZE = 1024;
 
