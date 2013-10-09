@@ -19,15 +19,8 @@
  **/
 package com.raytheon.uf.common.monitor.scan;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-
 
 /**
  * CWA ThreatReport per SCAN grid box
@@ -37,7 +30,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 01/06/2009   2037       dhladky    Initial Creation.
+ * 01/06/2009   2037       dhladky     Initial Creation.
+ * 10/02/2013   2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -45,80 +39,77 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ThreatReport implements ISerializableObject {
-	
-    @XmlElement
+public class ThreatReport {
+
     @DynamicSerializeElement
-	private boolean threat = false;
-    @XmlElement
+    private boolean threat = false;
+
     @DynamicSerializeElement
-	private int condition = -1;
-    @XmlElement
+    private int condition = -1;
+
     @DynamicSerializeElement
-	private boolean cellWithinTenNm = false;
-    @XmlElement
+    private boolean cellWithinTenNm = false;
+
     @DynamicSerializeElement
-	private boolean highRefWithinTenNm = false;
-    @XmlElement
+    private boolean highRefWithinTenNm = false;
+
     @DynamicSerializeElement
-	private boolean coincidentVil = false;
-    @XmlElement
+    private boolean coincidentVil = false;
+
     @DynamicSerializeElement
-	private boolean vilWithinTenNm = false;
-    @XmlElement
+    private boolean vilWithinTenNm = false;
+
     @DynamicSerializeElement
-	private boolean strongVilCell = false;
-    @XmlElement
+    private boolean strongVilCell = false;
+
     @DynamicSerializeElement
-	private boolean ltgActiveCell = false;
-    @XmlElement
+    private boolean ltgActiveCell = false;
+
     @DynamicSerializeElement
-	private double ovhdVilPct = 0;
-    @XmlElement
+    private double ovhdVilPct = 0;
+
     @DynamicSerializeElement
-	private int totalCvr = 0;
-    @XmlElement
+    private int totalCvr = 0;
+
     @DynamicSerializeElement
-	private double lgtPct = 0;
-    @XmlElement
+    private double lgtPct = 0;
+
     @DynamicSerializeElement
-	private double mdtPct = 0;
-    @XmlElement
+    private double mdtPct = 0;
+
     @DynamicSerializeElement
-	private double hvyPct = 0;
-    @XmlElement
+    private double hvyPct = 0;
+
     @DynamicSerializeElement
-	private double areaPct = 0;
-    @XmlElement
+    private double areaPct = 0;
+
     @DynamicSerializeElement
-	private int cgCountThirtyNm = 0;
-    @XmlElement
+    private int cgCountThirtyNm = 0;
+
     @DynamicSerializeElement
-	private int cgNearSite = 0;
-    @XmlElement
+    private int cgNearSite = 0;
+
     @DynamicSerializeElement
-	private int cgRateTenNm = 0;
-    @XmlElement
+    private int cgRateTenNm = 0;
+
     @DynamicSerializeElement
     private String vilMessage = null;
-    @XmlElement
+
     @DynamicSerializeElement
     private String lgtMessage = null;
-    @XmlElement
+
     @DynamicSerializeElement
     private String tstormMessage = null;
-    @XmlElement
+
     @DynamicSerializeElement
     private String threatMessage = null;
-    
+
     /**
      * public constructor
      */
     public ThreatReport() {
-        
+
     }
 
     public boolean isThreat() {
@@ -288,12 +279,13 @@ public class ThreatReport implements ISerializableObject {
     public void setThreatMessage(String threatMessage) {
         this.threatMessage = threatMessage;
     }
- 	
+
     /**
      * debugger only
      */
     public String toString() {
-        return getThreatMessage()+ " "+getTstormMessage()+ " "+getLgtMessage();
+        return getThreatMessage() + " " + getTstormMessage() + " "
+                + getLgtMessage();
     }
-	
+
 }
