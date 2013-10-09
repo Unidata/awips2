@@ -25,6 +25,7 @@ package com.raytheon.uf.common.dataplugin.gfe.db.objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -47,6 +48,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
+import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -78,6 +80,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * May 13, 2013 1869        bsteffen    Remove DataURI column from GFE.
  * Jun 20, 2013 2127        rjpeter     Added OnDelete annotation.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Sep 20, 2013 2147        rferrel     Changes to archive hdf5 files.
  * 
  * </pre>
  * 
@@ -96,7 +99,7 @@ import com.raytheon.uf.common.time.TimeRange;
         "refTime", "forecastTime" }) })
 @DynamicSerialize
 @BatchSize(size = 500)
-public class GFERecord extends PluginDataObject {
+public class GFERecord extends PluginDataObject implements IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -282,5 +285,17 @@ public class GFERecord extends PluginDataObject {
     @Override
     public String getPluginName() {
         return PLUGIN_NAME;
+    }
+
+    @Override
+    public Date getPersistenceTime() {
+        return getInsertTime().getTime();
+    }
+
+    @Override
+    public void setPersistenceTime(Date persistTime) {
+        Calendar pTime = Calendar.getInstance();
+        pTime.setTime(persistTime);
+        setInsertTime(pTime);
     }
 }

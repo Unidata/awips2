@@ -21,8 +21,10 @@ package com.raytheon.uf.common.datadelivery.service.subscription;
 
 import java.util.Map;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 /**
@@ -35,6 +37,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 09, 2013 2000       djohnson     Initial creation
+ * Oct 1, 2013  1797       dhladky      More Generics
  * 
  * </pre>
  * 
@@ -42,7 +45,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * @version 1.0
  */
 
-public interface ISubscriptionOverlapService {
+public interface ISubscriptionOverlapService<T extends Time, C extends Coverage> {
 
     int ONE_HUNDRED_PERCENT = 100;
 
@@ -78,8 +81,8 @@ public interface ISubscriptionOverlapService {
      * 
      * @return the overlap check response
      */
-    ISubscriptionOverlapResponse isOverlapping(Subscription sub1,
-            Subscription sub2);
+    ISubscriptionOverlapResponse isOverlapping(Subscription<T, C> sub1,
+            Subscription<T, C> sub2);
 
     /**
      * Writes a new configuration file.

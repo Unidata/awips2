@@ -30,10 +30,13 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -55,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * Sept 25, 2013 1797      dhladky      Handle gridded times
  * 
  * </pre>
  * 
@@ -62,7 +66,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class SubscriptionDiff {
+public class SubscriptionDiff<T extends Time, C extends Coverage> {
+    
+    /** Status Handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SubscriptionDiff.class);
+    
     /** Subscription start/end date format */
     private final SimpleDateFormat format = new SimpleDateFormat(
             "MM/dd/yyyy HH");
@@ -74,9 +83,9 @@ public class SubscriptionDiff {
 
     private final String nl = "\n";
 
-    private final Subscription sub;
+    private final Subscription<T, C> sub;
 
-    private final InitialPendingSubscription pendingSub;
+    private final InitialPendingSubscription<T, C> pendingSub;
 
     private HashMap<String, Boolean> diffMap;
 
@@ -90,8 +99,8 @@ public class SubscriptionDiff {
      * @param pendingSubscription
      *            The PendingSubscription object
      */
-    public SubscriptionDiff(Subscription subscription,
-            InitialPendingSubscription pendingSubscription) {
+    public SubscriptionDiff(Subscription<T, C> subscription,
+            InitialPendingSubscription<T, C> pendingSubscription) {
         this.sub = subscription;
         this.pendingSub = pendingSubscription;
         init();
@@ -194,34 +203,46 @@ public class SubscriptionDiff {
                 }
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            statusHandler.error("Couldn't parse subscription!" +e);
         }
 
-        // Check cycle times
-        List<Integer> subCycles = subTime.getCycleTimes();
-        List<Integer> pendingCycles = pendingTime.getCycleTimes();
-
-        if (!subCycles.containsAll(pendingCycles)
-                || !pendingCycles.containsAll(subCycles)) {
-            diffMap.put("cycleTimes", true);
-        }
-
-        // Check forecast hours
-        List<String> subFcstHoursAll = subTime.getFcstHours();
-        List<String> pendingFcstHoursAll = pendingTime.getFcstHours();
+        List<Integer> subCycles = null;
+        List<Integer> pendingCycles = null;
+        List<String> subFcstHoursAll = null;
+        List<String> pendingFcstHoursAll = null;
         List<String> subFcstHours = new ArrayList<String>();
         List<String> pendingFcstHours = new ArrayList<String>();
-        for (int i : subTime.getSelectedTimeIndices()) {
-            subFcstHours.add(subFcstHoursAll.get(i));
-        }
+        
+        // handle gridded times
+        if (subTime instanceof GriddedTime) {
 
-        for (int i : pendingTime.getSelectedTimeIndices()) {
-            pendingFcstHours.add(pendingFcstHoursAll.get(i));
-        }
+            GriddedTime gtime = (GriddedTime) subTime;
+            GriddedTime pTime = (GriddedTime) pendingTime;
+            // Check cycle times
+            subCycles = gtime.getCycleTimes();
+            pendingCycles = gtime.getCycleTimes();
 
-        if (!subFcstHours.containsAll(pendingFcstHours)
-                || !pendingFcstHours.containsAll(subFcstHours)) {
-            diffMap.put("fcstHours", true);
+            if (!subCycles.containsAll(pendingCycles)
+                    || !pendingCycles.containsAll(subCycles)) {
+                diffMap.put("cycleTimes", true);
+            }
+
+            // Check forecast hours
+            subFcstHoursAll = gtime.getFcstHours();
+            pendingFcstHoursAll = gtime.getFcstHours();
+            
+            for (int i : gtime.getSelectedTimeIndices()) {
+                subFcstHours.add(subFcstHoursAll.get(i));
+            }
+
+            for (int i : pTime.getSelectedTimeIndices()) {
+                pendingFcstHours.add(pendingFcstHoursAll.get(i));
+            }
+
+            if (!subFcstHours.containsAll(pendingFcstHours)
+                    || !pendingFcstHours.containsAll(subFcstHours)) {
+                diffMap.put("fcstHours", true);
+            }
         }
 
         Coverage cov = sub.getCoverage();
@@ -448,35 +469,41 @@ public class SubscriptionDiff {
                 }
             }
         }
+        
+        // handle pending and subscription cycles
+        if (subCycles != null && pendingCycles != null) {
 
-        // TODO - diff cycle times once it is decided how we will handle
-        // cycle times in data delivery
-        if (diffMap.get("cycleTimes")) {
-            buffer.append("Cycle Times changed:").append(nl);
-            buffer.append("  New Cycle Times: ");
+            if (diffMap.get("cycleTimes")) {
+                buffer.append("Cycle Times changed:").append(nl);
+                buffer.append("  New Cycle Times: ");
 
-            for (int i : pendingCycles) {
-                buffer.append(i).append("  ");
-            }
-            buffer.append(nl);
+                for (int i : pendingCycles) {
+                    buffer.append(i).append("  ");
+                }
+                buffer.append(nl);
 
-            String s = this.getDiffs(subCycles, pendingCycles);
-            if (s != null) {
-                buffer.append(s).append(nl);
+                String s = this.getDiffs(subCycles, pendingCycles);
+                if (s != null) {
+                    buffer.append(s).append(nl);
+                }
             }
         }
 
-        if (diffMap.get("fcstHours")) {
-            buffer.append("Forecast Hours changed:").append(nl);
-            buffer.append("  New Forecast Hours: ");
-            for (String s : pendingFcstHours) {
-                buffer.append(s).append("  ");
-            }
-            buffer.append(nl);
+        // handle pending and subscription fcst hours
+        if (subFcstHours != null && pendingFcstHours != null) {
 
-            String s = this.getDiffs(subFcstHours, pendingFcstHours);
-            if (s != null) {
-                buffer.append(s).append(nl);
+            if (diffMap.get("fcstHours")) {
+                buffer.append("Forecast Hours changed:").append(nl);
+                buffer.append("  New Forecast Hours: ");
+                for (String s : pendingFcstHours) {
+                    buffer.append(s).append("  ");
+                }
+                buffer.append(nl);
+
+                String s = this.getDiffs(subFcstHours, pendingFcstHours);
+                if (s != null) {
+                    buffer.append(s).append(nl);
+                }
             }
         }
 

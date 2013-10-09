@@ -43,11 +43,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "FFTIData")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFTIDataXML implements ISerializableObject {
+public class FFTIDataXML {
 
     @XmlElement(name = "CWAs", type = FFTICWAsXML.class)
     private FFTICWAsXML cwa;
@@ -59,7 +57,7 @@ public class FFTIDataXML implements ISerializableObject {
         cwa = new FFTICWAsXML();
         settingList = new ArrayList<FFTISettingXML>();
     }
-    
+
     /**
      * @return the cwaList
      */
@@ -89,7 +87,7 @@ public class FFTIDataXML implements ISerializableObject {
     public void setSettingList(ArrayList<FFTISettingXML> settingList) {
         this.settingList = settingList;
     }
-    
+
     public void addSetting(FFTISettingXML setting) {
         if (settingList == null) {
             settingList = new ArrayList<FFTISettingXML>();
