@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.wmo.message.WMOMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 08, 2013 1822       bgonzale    Initial creation
+ * Oct 01, 2013 2267       bgonzale    Added test for null inputs.
  * 
  * </pre>
  * 
@@ -136,6 +137,19 @@ public class DataDeliveryRetrievalWmoHeaderApplierTest {
         assertThat(wmoHeader.getA1(), is(equalTo('B')));
         assertThat(wmoHeader.getA2(), is(equalTo('B')));
         assertThat(wmoHeader.getIi(), is(equalTo(93)));
+        assertThat(wmoHeader.getCccc(), is(equalTo("KWBC")));
+        assertThat(message.getMessageBody(), is(equalTo("someData".getBytes())));
+    }
+
+    @Test
+    public void createWithNullArgs() {
+        Date date = new Date();
+        setHeader(null, null, null, date);
+        assertThat(wmoHeader.getT1(), is(equalTo('L')));
+        assertThat(wmoHeader.getT2(), is(equalTo('Z')));
+        assertThat(wmoHeader.getA1(), is(equalTo('A')));
+        assertThat(wmoHeader.getA2(), is(equalTo('A')));
+        assertThat(wmoHeader.getIi(), is(equalTo(91)));
         assertThat(wmoHeader.getCccc(), is(equalTo("KWBC")));
         assertThat(message.getMessageBody(), is(equalTo("someData".getBytes())));
     }

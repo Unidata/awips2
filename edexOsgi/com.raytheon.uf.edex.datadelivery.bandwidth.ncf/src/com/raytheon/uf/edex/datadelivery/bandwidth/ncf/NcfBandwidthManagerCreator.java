@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -51,18 +53,19 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Mar 11, 2013 1645       djohnson     Add missing Spring file.
  * May 15, 2013 2000       djohnson     Include daos.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Oct 3   2013 1797       dhladky      Generics added  
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator {
+public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> implements IEdexBandwidthManagerCreator<T, C> {
 
     /**
      * NCF {@link BandwidthManager} implementation.
      */
-    static class NcfBandwidthManager extends EdexBandwidthManager {
+    static class NcfBandwidthManager<T extends Time, C extends Coverage> extends EdexBandwidthManager<T, C> {
 
         private static final String[] NCF_BANDWIDTH_MANAGER_FILES = new String[] {
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf-edex-impl.xml"),
@@ -82,8 +85,8 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          * @param bandwidthDaoUtil
          */
         public NcfBandwidthManager(IBandwidthDbInit dbInit,
-                IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-                BandwidthDaoUtil bandwidthDaoUtil,
+                IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
+                BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
@@ -100,7 +103,7 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         @Override
         protected ProposeScheduleResponse proposeScheduleSbnSubscription(
-                List<Subscription> subscriptions) throws Exception {
+                List<Subscription<T, C>> subscriptions) throws Exception {
             return proposeScheduleSubscriptions(subscriptions);
         }
 
@@ -109,7 +112,7 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         @Override
         protected Set<String> scheduleSbnSubscriptions(
-                List<Subscription> subscriptions) throws SerializationException {
+                List<Subscription<T, C>> subscriptions) throws SerializationException {
             return scheduleSubscriptions(subscriptions);
         }
     }
@@ -118,7 +121,7 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
      * {@inheritDoc}
      */
     @Override
-    public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
+    public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,

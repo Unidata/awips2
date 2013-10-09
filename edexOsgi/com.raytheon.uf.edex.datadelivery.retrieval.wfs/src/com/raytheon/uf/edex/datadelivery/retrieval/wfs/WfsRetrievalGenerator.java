@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
  * Jun 04, 2013 1763       dhladky      Readied for WFS Retrievals.
  * Jun 18, 2013 2120       dhladky      Fixed times.
  * Sep 18, 2013 2383       bgonzale     Added subscription name to log output.
+ * Oct 2, 2013  1797       dhladky      Generics time gridded time separation
  * 
  * </pre>
  * 
@@ -76,14 +77,15 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
      * @param bundle
      * @return
      */
+    @SuppressWarnings("unchecked")
     private List<Retrieval> getPointRetrievals(SubscriptionBundle bundle) {
 
         List<Retrieval> retrievals = new ArrayList<Retrieval>();
-        Subscription sub = bundle.getSubscription();
+        Subscription<PointTime, Coverage> sub = bundle.getSubscription();
 
         if (sub != null) {
 
-            PointTime subTime = (PointTime) sub.getTime();
+            PointTime subTime = sub.getTime();
 
             if (sub.getUrl() == null) {
                 statusHandler
@@ -97,7 +99,7 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
             Parameter param = null;
             
             if (sub.getParameter() != null) {
-                param = sub.getParameter().get(0);
+                param = (Parameter) sub.getParameter().get(0);
             }
                 
             Retrieval retrieval = getRetrieval(sub, bundle, param, subTime);
@@ -117,7 +119,7 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
      * @param Time
      * @return
      */
-    private Retrieval getRetrieval(Subscription sub, SubscriptionBundle bundle,
+    private Retrieval getRetrieval(Subscription<PointTime, Coverage> sub, SubscriptionBundle bundle,
             Parameter param, PointTime time) {
 
         Retrieval retrieval = new Retrieval();
@@ -144,7 +146,7 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
         final String plugin = providerType.getPlugin();
 
         // Attribute processing
-        RetrievalAttribute att = new RetrievalAttribute();
+        RetrievalAttribute<PointTime, Coverage> att = new RetrievalAttribute<PointTime, Coverage>();
         att.setCoverage(cov);
         
         if (param != null) {
@@ -172,7 +174,7 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
     }
 
     @Override
-    protected Subscription removeDuplicates(Subscription sub) {
+    protected Subscription<PointTime, Coverage> removeDuplicates(Subscription<?, ?> sub) {
         throw new UnsupportedOperationException("Not implemented for WFS");
     }
    

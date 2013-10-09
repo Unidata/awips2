@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,8 +34,6 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -69,33 +66,14 @@ public class SampleData implements Cloneable {
 
     private static final String LINE_STRING_COORDINATE_PATTERN = "\\s*(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s*";
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SampleData.class);
-
-    private static final SingleTypeJAXBManager<SampleData> jaxb = initializeJAXB();
+    private static final SingleTypeJAXBManager<SampleData> jaxb = SingleTypeJAXBManager
+            .createWithoutException(SampleData.class);
 
     private SampleId sampleId;
 
     @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private List<Coordinate> points;
-
-    /**
-     * Initializes the JAXB manager for reading/writing SampleData to/from XML.
-     * 
-     * @return the JAXBManager
-     */
-    private static SingleTypeJAXBManager<SampleData> initializeJAXB() {
-        SingleTypeJAXBManager<SampleData> retVal = null;
-        try {
-            retVal = new SingleTypeJAXBManager<SampleData>(SampleData.class);
-        } catch (JAXBException e) {
-            statusHandler
-                    .error("Error initializing SampleData JAXBManager, sample sets will not work",
-                            e);
-        }
-        return retVal;
-    }
 
     /**
      * Returns the JAXBManager that handles SampleData
