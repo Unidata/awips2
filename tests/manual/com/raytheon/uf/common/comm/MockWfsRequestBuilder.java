@@ -25,6 +25,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2013 2120       dhladky      Initial Release
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -138,10 +139,10 @@ public class MockWfsRequestBuilder  {
     public String processTime(Time inTime, String typeName) {
 
         try {
-            if (inTime.getStartDate() != null) {
+            if (inTime.getStart() != null) {
 
-                Date sDate = inTime.getRequestStartAsDate();
-                Date eDate = inTime.getRequestEndAsDate();
+                Date sDate = inTime.getRequestStart();
+                Date eDate = inTime.getRequestEnd();
                 String endDateString = getDateFormat().format(eDate);
                 String startDateString = getDateFormat().format(sDate);
                 
