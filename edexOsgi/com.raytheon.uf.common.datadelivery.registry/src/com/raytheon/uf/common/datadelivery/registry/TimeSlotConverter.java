@@ -1,6 +1,5 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,24 +17,24 @@ import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 
 /**
- * A <code>SlotConverter</code> implementation for converting a
- * Time Object into a RegistryObject slot type. A collection
- * slot type will be created and each step in the time increment
- * will be added as an element. The collection type for the slot
- * will be set to List.
+ * A <code>SlotConverter</code> implementation for converting a Time Object into
+ * a RegistryObject slot type. A collection slot type will be created and each
+ * step in the time increment will be added as an element. The collection type
+ * for the slot will be set to List.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 15, 2012 455        jspinks     Initial creation
  * May 29, 2013 753        dhladky     Updated the way point datasets are sent.
  * Sept 25, 2013 1797      dhladky     separated time and gridded time
- *
+ * Oct 10, 2013 1797       bgonzale    Refactored registry Time objects.
+ * 
  * </pre>
- *
+ * 
  * @author jspinks
  * @version 1.0
  */
@@ -88,14 +87,10 @@ public class TimeSlotConverter implements SlotConverter {
             SimpleDateFormat df = new SimpleDateFormat(CalendarAttribute.DATE_TIME_FORMAT);
             Calendar current = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
-            try {
-                current.setTime(t.getStartDate());
-                end.setTime(t.getEndDate());
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Could not format slot [" + slotName + "] with value [" +
-                        slotValue.toString() + "]", e);
-            }
-            
+
+            current.setTime(t.getStart());
+            end.setTime(t.getEnd());
+
             STEP_UNIT stepu = STEP_UNIT.valueOf(t.getStepUnit().toUpperCase());
             Double step = t.getStep();
             
