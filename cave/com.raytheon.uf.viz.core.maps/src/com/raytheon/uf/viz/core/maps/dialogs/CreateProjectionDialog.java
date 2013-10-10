@@ -63,22 +63,25 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
+import com.raytheon.uf.viz.core.maps.scales.IMapScaleDisplay;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Dialog that creates a custom geotools projection
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan. 29, 2013  15567     snaples     Remove Orthographic projection from list temporarily
+ * Jan 16, 2008 783        randerso    Initial Creation
+ * Jan 29, 2013 15567      snaples     Remove Orthographic projection from list temporarily
  * 
  * </pre>
  * 
@@ -95,6 +98,8 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
     private ParameterValueGroup parameters;
 
     private Combo projList;
+
+    private Text projNameText;
 
     private class ParamUI {
         public Label label;
@@ -226,6 +231,12 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
             }
         });
         projList.setText(projections[0]);
+
+        new Label(projComp, SWT.NONE).setText("Name:");
+        projNameText = new Text(projComp, SWT.BORDER);
+        projNameText
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        setProjectionNameText(projList.getText());
 
         paramGroup = new Group(dlgComp, SWT.BORDER);
         paramGroup.setText("Parameters");
@@ -404,6 +415,8 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
                 text.setText("" + param.getValue());
             }
 
+            setProjectionNameText(projList.getText());
+
             validateParameters();
 
         } catch (NoSuchIdentifierException e) {
@@ -413,6 +426,10 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
 
         paramGroup.layout();
         getShell().pack(true);
+    }
+
+    private void setProjectionNameText(String projection) {
+        projNameText.setText(projection.replace("_", " "));
     }
 
     private void validateParameters() {
@@ -619,10 +636,17 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
             }
         }
         for (IDisplayPane pane : container.getDisplayPanes()) {
-            IMapDescriptor oldDescriptor = (IMapDescriptor) pane
-                    .getRenderableDisplay().getDescriptor();
+            IRenderableDisplay display = pane.getRenderableDisplay();
+            IMapDescriptor oldDescriptor = (IMapDescriptor) display
+                    .getDescriptor();
             try {
+                // Reproject by setting new grid geometry
                 oldDescriptor.setGridGeometry(newMapGeom);
+                // Give projection custom name if IMapScaleDisplay
+                if (display instanceof IMapScaleDisplay) {
+                    ((IMapScaleDisplay) display).setScaleName(projNameText
+                            .getText().trim());
+                }
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error setting GridGeometry: ", e);
