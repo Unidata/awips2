@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 19, 2012            mpduff      Initial creation.
  * Oct 31, 2012   1278     mpduff      Added functionality for other datasets in NOMADS.
  * Jun 21, 2013   2132     mpduff      Convert coordinates to East/West before drawing.
+ * Oct 10, 2013   2428     skorolev    Fixed memory leak for Regions
  * 
  * </pre>
  * 
@@ -136,7 +137,9 @@ public class DrawBoxResource extends
      */
     @Override
     protected void disposeInternal() {
-
+        for (Region i : regionList) {
+            i.dispose();
+        }
     }
 
     /*
