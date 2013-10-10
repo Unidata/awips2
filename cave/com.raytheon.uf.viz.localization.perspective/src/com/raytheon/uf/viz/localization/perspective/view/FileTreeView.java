@@ -86,7 +86,6 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -134,6 +133,8 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  *                                     objects even if they weren't expanded
  * May  1, 2013  1967      njensen     Fix for pydev 2.7
  * Sep 17, 2013  2285      mschenke    Made openFile refresh items if file not found
+ * Oct  9, 2013  2104      mschenke    Fixed file delete/add refresh issue and file change message
+ *                                     found when testing scalesInfo.xml file
  * 
  * </pre>
  * 
@@ -142,8 +143,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  */
 
 public class FileTreeView extends ViewPart implements IPartListener2,
-        ILocalizationFileObserver, ILocalizationService,
-        IResourceChangeListener {
+        ILocalizationService, IResourceChangeListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FileTreeView.class);
 
@@ -195,6 +195,58 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                     }
                 } else {
                     return nameVal;
+                }
+            }
+        }
+
+    }
+
+    private class FileUpdateRefresher implements Runnable {
+
+        private final LocalizationFile file;
+
+        private final FileChangeType type;
+
+        public FileUpdateRefresher(LocalizationFile file, FileChangeType type) {
+            this.file = file;
+            this.type = type;
+        }
+
+        @Override
+        public void run() {
+            // Find and refresh file in tree
+            for (TreeItem appItem : getTree().getItems()) {
+                for (TreeItem rootItem : appItem.getItems()) {
+                    TreeItem found = find(rootItem, file.getContext(),
+                            file.getName(), false);
+                    if (found != null) {
+                        // File found. If updated, set the time stamp to that of
+                        // the file to avoid modification change discrepancies
+                        if (type == FileChangeType.UPDATED) {
+                            if (found.getData() instanceof LocalizationFileGroupData) {
+                                for (LocalizationFileEntryData data : ((LocalizationFileGroupData) found
+                                        .getData()).getChildrenData()) {
+                                    if (data.getFile().equals(file)) {
+                                        try {
+                                            data.getResource()
+                                                    .setLocalTimeStamp(
+                                                            file.getTimeStamp()
+                                                                    .getTime());
+                                        } catch (CoreException e) {
+                                            statusHandler
+                                                    .handle(Priority.INFO,
+                                                            "Could not update workspace file timestamp: "
+                                                                    + e.getLocalizedMessage(),
+                                                            e);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // ADD/DELETE, refresh the file
+                            refresh(found);
+                        }
+                    }
                 }
             }
         }
@@ -1388,23 +1440,25 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     private TreeItem find(TreeItem item, LocalizationContext ctx, String path,
             boolean populateToFind) {
         FileTreeEntryData data = (FileTreeEntryData) item.getData();
-        String itemPath = data.getPath();
-        if (path.startsWith(itemPath)) {
-            if (path.equals(itemPath)
-                    || (data.hasRequestedChildren() == false && !populateToFind)) {
-                return item;
-            } else {
-                if (data.hasRequestedChildren() == false) {
-                    populateNode(item);
-                }
-                for (TreeItem child : item.getItems()) {
-                    TreeItem rval = find(child, ctx, path, populateToFind);
-                    if (rval != null) {
-                        return rval;
+        if (data.getPathData().getType() == ctx.getLocalizationType()) {
+            String itemPath = data.getPath();
+            if (path.startsWith(itemPath)) {
+                if (path.equals(itemPath)
+                        || (data.hasRequestedChildren() == false && !populateToFind)) {
+                    return item;
+                } else {
+                    if (data.hasRequestedChildren() == false) {
+                        populateNode(item);
+                    }
+                    for (TreeItem child : item.getItems()) {
+                        TreeItem rval = find(child, ctx, path, populateToFind);
+                        if (rval != null) {
+                            return rval;
+                        }
                     }
                 }
+                return item;
             }
-            return item;
         }
         return null;
     }
@@ -1506,34 +1560,19 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         String filePath = message.getFileName();
         IPathManager pathManager = PathManagerFactory.getPathManager();
 
-        final FileChangeType type = message.getChangeType();
-        final LocalizationFile file = pathManager.getLocalizationFile(context,
+        FileChangeType type = message.getChangeType();
+        LocalizationFile file = pathManager.getLocalizationFile(context,
                 filePath);
 
-        if ((file.exists() == false && (type == FileChangeType.ADDED || type == FileChangeType.UPDATED))
-                || (file.exists() && type == FileChangeType.DELETED)) {
-            System.out.println("Got weird state in update for " + file
-                    + ": exists=" + file.exists() + ", changeType="
-                    + message.getChangeType());
-        }
-
         if (file != null) {
-            VizApp.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    // Only get closest parent if file added
-                    TreeItem toRefresh = find(file, false,
-                            type == FileChangeType.ADDED);
-                    if (toRefresh != null) {
-                        if (type == FileChangeType.DELETED) {
-                            // If deleted, we found the actual item that was
-                            // deleted, we should refresh it's parent
-                            toRefresh = toRefresh.getParentItem();
-                        }
-                        refresh(toRefresh);
-                    }
-                }
-            });
+            if ((file.exists() == false && (type == FileChangeType.ADDED || type == FileChangeType.UPDATED))
+                    || (file.exists() && type == FileChangeType.DELETED)) {
+                System.out.println("Got weird state in update for " + file
+                        + ": exists=" + file.exists() + ", changeType="
+                        + message.getChangeType());
+            }
+
+            VizApp.runAsync(new FileUpdateRefresher(file, type));
         }
     }
 
