@@ -4,33 +4,34 @@
  **/
 package gov.noaa.nws.ncep.common.dataplugin.nctaf.dao;
 
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.common.pointdata.PointDataDescription;
-import com.raytheon.uf.common.pointdata.spatial.ObStation;
 
 /**
  * Set of DAO methods for TAF data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 09/09/2011   458			sgurung	   Initial Creation from Raytheon's taf plugin
@@ -44,12 +45,13 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
 
 public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
 
-	/** The station dao */
+    /** The station dao */
     private ObStationDao obDao = new ObStationDao();
-      
+
     /**
      * Creates a new NcTafDao
-     * @throws PluginException 
+     * 
+     * @throws PluginException
      */
     public NcTafDao(String pluginName) throws PluginException {
         super(pluginName);
@@ -61,7 +63,7 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     public List<?> queryBySpatialBox(double upperLeftLat, double upperLeftLon,
             double lowerRightLat, double lowerRightLon)
             throws DataAccessLayerException {
@@ -95,8 +97,8 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
         query.addQueryParam("location.stationId", icaos,
                 QueryParam.QueryOperand.IN);
         return queryByCriteria(query);
-    } 
-    
+    }
+
     /**
      * Retrieves an nctaf report using the datauri .
      * 
@@ -105,26 +107,26 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
      * @return The report record if it exists.
      */
     public NcTafRecord queryByDataURI(String dataURI) {
-    	NcTafRecord report = null;
+        NcTafRecord report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
         } catch (DataAccessLayerException e) {
             e.printStackTrace();
         }
-        if((obs != null)&&(obs.size() > 0)) {
+        if ((obs != null) && (obs.size() > 0)) {
             report = (NcTafRecord) obs.get(0);
         }
         return report;
     }
-    
+
     /**
      * Queries for to determine if a given data uri exists on the nctaf table.
      * 
      * @param dataUri
      *            The DataURI to find.
      * @return An array of objects. If not null, there should only be a single
-     * element.
+     *         element.
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
@@ -135,7 +137,7 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
 
         return results;
     }
-    
+
     public ObStationDao getObDao() {
         return obDao;
     }
@@ -143,7 +145,7 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
     public void setObDao(ObStationDao obDao) {
         this.obDao = obDao;
     }
-    
+
     @Override
     public String[] getKeysRequiredForFileName() {
         return new String[] { "dataTime.refTime" };
@@ -159,15 +161,17 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
         return new NcTafRecord();
     }
 
-    public PointDataDescription getPointDataDescription() throws JAXBException {
+    public PointDataDescription getPointDataDescription()
+            throws SerializationException {
         if (hdf5DataDescription == null) {
-        	hdf5DataDescription = PointDataDescription.fromStream(this.getClass()
-                    .getResourceAsStream("/res/pointdata/nctaf.xml"));
-            
+            hdf5DataDescription = PointDataDescription
+                    .fromStream(this.getClass().getResourceAsStream(
+                            "/res/pointdata/nctaf.xml"));
+
         }
         return hdf5DataDescription;
     }
-    
+
     @Override
     public PointDataDbDescription getPointDataDbDescription() {
         if (dbDataDescription == null) {
@@ -185,6 +189,5 @@ public class NcTafDao extends PointDataPluginDao<NcTafRecord> {
         }
         return dbDataDescription;
     }
-    
 
 }
