@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.datadelivery.subscription.approve;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * Sept 25, 2013 1797      dhladky      Handle gridded times
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -172,38 +172,34 @@ public class SubscriptionDiff<T extends Time, C extends Coverage> {
         Time subTime = sub.getTime();
         Time pendingTime = pendingSub.getTime();
 
-        try {
-            if (subTime.getRequestStartAsDate() != null
-                    && pendingTime.getRequestStartAsDate() == null
-                    || subTime.getRequestStartAsDate() == null
-                    && pendingTime.getRequestStartAsDate() != null) {
-                diffMap.put("subscriptionStart", true);
-            } else {
-                if (subTime.getRequestStartAsDate() != null
-                        && pendingTime.getRequestStartAsDate() != null) {
-                    if (!(subTime.getRequestStartAsDate().equals(pendingTime
-                            .getRequestStartAsDate()))) {
-                        diffMap.put("subscriptionStart", true);
-                    }
+        if (subTime.getRequestStart() != null
+                && pendingTime.getRequestStart() == null
+                || subTime.getRequestStart() == null
+                && pendingTime.getRequestStart() != null) {
+            diffMap.put("subscriptionStart", true);
+        } else {
+            if (subTime.getRequestStart() != null
+                    && pendingTime.getRequestStart() != null) {
+                if (!(subTime.getRequestStart().equals(pendingTime
+                        .getRequestStart()))) {
+                    diffMap.put("subscriptionStart", true);
                 }
             }
+        }
 
-            if (subTime.getRequestEndAsDate() != null
-                    && pendingTime.getRequestEndAsDate() == null
-                    || subTime.getRequestEndAsDate() == null
-                    && pendingTime.getRequestEndAsDate() != null) {
-                diffMap.put("subscriptionEnd", true);
-            } else {
-                if (subTime.getRequestEndAsDate() != null
-                        && pendingTime.getRequestEndAsDate() != null) {
-                    if (!(subTime.getRequestEndAsDate().equals(pendingTime
-                            .getRequestEndAsDate()))) {
-                        diffMap.put("subscriptionEnd", true);
-                    }
+        if (subTime.getRequestEnd() != null
+                && pendingTime.getRequestEnd() == null
+                || subTime.getRequestEnd() == null
+                && pendingTime.getRequestEnd() != null) {
+            diffMap.put("subscriptionEnd", true);
+        } else {
+            if (subTime.getRequestEnd() != null
+                    && pendingTime.getRequestEnd() != null) {
+                if (!(subTime.getRequestEnd().equals(pendingTime
+                        .getRequestEnd()))) {
+                    diffMap.put("subscriptionEnd", true);
                 }
             }
-        } catch (ParseException e) {
-            statusHandler.error("Couldn't parse subscription!" +e);
         }
 
         List<Integer> subCycles = null;
