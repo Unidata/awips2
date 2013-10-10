@@ -21,7 +21,6 @@ package com.raytheon.uf.common.datadelivery.registry;
  **/
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sept 17, 2013  2383      bgonzale    Use end or start time when times are
  *                                      null because times are not always set.
  * Sept 30, 2013  1797      dhladky     separation of gridded time from time
+ * Oct 10, 2013   1797      bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -91,12 +91,7 @@ public class PointTime extends Time implements Serializable {
      *            {@link PointTime} to clone
      */
     public PointTime(PointTime toCopy) {
-        this.end = toCopy.end;
-        this.format = toCopy.format;
-        this.numTimes = toCopy.numTimes;
-        this.requestEnd = toCopy.requestEnd;
-        this.requestStart = toCopy.requestStart;
-        this.start = toCopy.start;
+        super(toCopy);
         this.times = toCopy.times;
         this.interval = toCopy.interval;
     }
@@ -112,41 +107,39 @@ public class PointTime extends Time implements Serializable {
     /**
      * gets the most recent date
      * 
-     * @throws ParseException
      */
     @Override
-    public Date getEndDate() throws ParseException {
+    public Date getEnd() {
         List<Date> timesList = getTimes();
         if (timesList != null) {
             for (Date time : timesList) {
-                if (endDate == null) {
-                    endDate = time;
-                } else if (endDate.before(time)) {
-                    endDate = time;
+                if (end == null) {
+                    end = time;
+                } else if (end.before(time)) {
+                    end = time;
                 }
             }
         }
-        return super.getEndDate();
+        return super.getEnd();
     }
 
     /**
      * gets the earliest date
      * 
-     * @throws ParseException
      */
     @Override
-    public Date getStartDate() throws ParseException {
+    public Date getStart() {
         List<Date> timesList = getTimes();
         if (timesList != null) {
             for (Date time : timesList) {
-                if (startDate == null) {
-                    startDate = time;
-                } else if (startDate.after(time)) {
-                    startDate = time;
+                if (start == null) {
+                    start = time;
+                } else if (start.after(time)) {
+                    start = time;
                 }
             }
         }
-        return super.getStartDate();
+        return super.getStart();
     }
 
     /**
