@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Sep 05, 2013   2335     mpduff      Fix times for adhoc point queries.
  * Sep 10, 2013   2351     dhladky     Finished adhoc queries
  * Sep 16, 2013   2383     bgonzale    Start time precedes end time.
+ * Oct 10, 2013   1797     bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -187,9 +188,9 @@ public class PointSubsetManagerDlg extends
         Calendar cal = TimeUtil.newGmtCalendar();
         newTimePoint.setInterval(interval);
 
-        newTimePoint.setEndDate(cal.getTime());
+        newTimePoint.setEnd(cal.getTime());
         cal.add(Calendar.MINUTE, interval * -1);
-        newTimePoint.setStartDate(cal.getTime());
+        newTimePoint.setStart(cal.getTime());
 
         sub.setLatencyInMinutes(interval);
         return newTimePoint;
