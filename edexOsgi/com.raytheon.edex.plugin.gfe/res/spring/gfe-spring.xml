@@ -153,7 +153,7 @@
                 </doCatch>
             </doTry>
         </route>
-
+    </camelContext>
 
     <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
         <constructor-arg ref="clusteredGfeIngestRoutes"/>
