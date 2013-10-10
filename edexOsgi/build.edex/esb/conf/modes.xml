@@ -238,7 +238,6 @@
 	<mode name="registry">
         <!-- Registry production mode -->
         <include>ebxml.*\.xml</include>
-        <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
         <exclude>.*datadelivery-ncf.*</exclude>
         <exclude>harvester-*</exclude>
@@ -247,7 +246,6 @@
     <mode name="centralRegistry">
         <!-- Central Registry production mode -->
         <include>ebxml.*\.xml</include>
-        <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
         <exclude>.*datadelivery-wfo.*</exclude>
     </mode>
@@ -305,7 +303,6 @@
 		are for DEVELOPMENT purposes only -->
     <mode name="devRegistry">
         <include>ebxml.*\.xml</include>
-        <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
         <exclude>.*datadelivery-ncf.*</exclude>
     </mode>
