@@ -27,33 +27,32 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Individual data class xml elements.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2010 4671       mpduff      Initial creation.
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class ColorDataClassXML implements ISerializableObject {
-    @XmlElements( { @XmlElement(name = "threshold", type = ColorThresholdXML.class) })
+public class ColorDataClassXML {
+
+    @XmlElements({ @XmlElement(name = "threshold", type = ColorThresholdXML.class) })
     private ArrayList<ColorThresholdXML> thresholdList = new ArrayList<ColorThresholdXML>();
-    
+
     @XmlAttribute(name = "useName")
     private String colorUseName;
-    
+
     @XmlAttribute(name = "dbUseName")
     private String dbColorUseName;
 
@@ -65,7 +64,8 @@ public class ColorDataClassXML implements ISerializableObject {
     }
 
     /**
-     * @param colorUseName the colorUseName to set
+     * @param colorUseName
+     *            the colorUseName to set
      */
     public void setColorUseName(String colorUseName) {
         this.colorUseName = colorUseName;
@@ -79,7 +79,8 @@ public class ColorDataClassXML implements ISerializableObject {
     }
 
     /**
-     * @param dbColorUseName the dbColorUseName to set
+     * @param dbColorUseName
+     *            the dbColorUseName to set
      */
     public void setDbColorUseName(String dbColorUseName) {
         this.dbColorUseName = dbColorUseName;
@@ -93,11 +94,11 @@ public class ColorDataClassXML implements ISerializableObject {
     }
 
     /**
-     * @param thresholdList the thresholdList to set
+     * @param thresholdList
+     *            the thresholdList to set
      */
     public void setThresholdList(ArrayList<ColorThresholdXML> thresholdList) {
         this.thresholdList = thresholdList;
     }
-    
 
 }
