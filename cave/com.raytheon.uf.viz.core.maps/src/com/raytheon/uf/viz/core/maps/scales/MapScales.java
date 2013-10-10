@@ -19,44 +19,23 @@
  **/
 package com.raytheon.uf.viz.core.maps.scales;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.ui.IWorkbenchWindow;
-
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.Procedure;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
-
 /**
- * Serializable object representation of map scales
+ * Serializable object representation of a group of {@link MapScale}s
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 7, 2010             mschenke    Initial creation
+ * Oct  7, 2010            mschenke    Initial creation
  * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
+ * Oct  8, 2013       2104 mschenke    Moved logic into manager class
  * 
  * </pre>
  * 
@@ -65,9 +44,7 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class MapScales implements ISerializableObject {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MapScales.class);
+public class MapScales {
 
     @XmlAccessorType(XmlAccessType.NONE)
     public static class PartId {
@@ -95,6 +72,7 @@ public class MapScales implements ISerializableObject {
 
     }
 
+    /** Serializable object representation of a single map scale */
     @XmlAccessorType(XmlAccessType.NONE)
     public static class MapScale {
 
@@ -134,97 +112,9 @@ public class MapScales implements ISerializableObject {
         public void setPartIds(PartId[] partIds) {
             this.partIds = partIds;
         }
-
-        public File getFile() {
-            return PathManagerFactory.getPathManager().getStaticFile(
-                    SCALES_DIR + fileName);
-        }
-
     }
-
-    private static final String SCALES_DIR = "bundles" + File.separator
-            + "scales" + File.separator;
-
-    public static final String FILE_NAME = SCALES_DIR + "scalesInfo.xml";
-
-    private static ILocalizationFileObserver listener = new ILocalizationFileObserver() {
-        @Override
-        public void fileUpdated(FileUpdatedMessage message) {
-            MapScales.fileUpdated();
-        }
-    };
-
-    private static LocalizationFile locFile = null;
-
-    private static MapScales instance;
 
     private MapScale[] scales;
-
-    public static synchronized MapScales getInstance() {
-        if (instance == null) {
-            loadInstance();
-        }
-        return instance;
-    }
-
-    public static void loadScales(IWorkbenchWindow window, MapScale... scales)
-            throws VizException {
-        if (scales == null || scales.length == 0) {
-            scales = getInstance().getScales();
-        }
-        Procedure procedure = new Procedure();
-        List<Bundle> bundles = new ArrayList<Bundle>();
-        for (MapScale scale : scales) {
-            String editorId = null;
-            for (PartId partId : scale.getPartIds()) {
-                if (partId.isView() == false) {
-                    editorId = partId.getId();
-                    break;
-                }
-            }
-            if (editorId != null) {
-                File file = scale.getFile();
-                try {
-                    Bundle b = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                            Bundle.class, file);
-                    b.setEditor(editorId);
-                    bundles.add(b);
-                } catch (SerializationException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Error deserializing bundle: "
-                                    + file.getAbsolutePath(), e);
-                }
-            }
-        }
-        procedure.setBundles(bundles.toArray(new Bundle[bundles.size()]));
-        LoadSerializedXml.loadProcedureToScreen(procedure, window);
-    }
-
-    private static synchronized void fileUpdated() {
-        instance = null;
-    }
-
-    private static void loadInstance() {
-        if (locFile != null) {
-            locFile.removeFileUpdatedObserver(listener);
-        }
-        locFile = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(FILE_NAME);
-        locFile.addFileUpdatedObserver(listener);
-        File file = locFile.getFile();
-        if (file == null) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not find any version of scale file: " + FILE_NAME);
-        } else {
-            try {
-                instance = JAXB.unmarshal(file, MapScales.class);
-            } catch (RuntimeException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Could not parse scale file: " + FILE_NAME, e);
-            }
-        }
-    }
 
     public MapScales() {
         scales = new MapScale[0];
@@ -236,15 +126,7 @@ public class MapScales implements ISerializableObject {
     }
 
     public void setScales(MapScale[] scales) {
-        this.scales = scales;
+        this.scales = scales != null ? scales : new MapScale[0];
     }
 
-    public MapScale getScaleByName(String name) {
-        for (MapScale scale : scales) {
-            if (scale.displayName.equals(name)) {
-                return scale;
-            }
-        }
-        return null;
-    }
 }
