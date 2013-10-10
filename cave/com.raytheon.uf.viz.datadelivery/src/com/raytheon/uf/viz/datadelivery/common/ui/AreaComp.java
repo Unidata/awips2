@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.datadelivery.common.ui;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -49,14 +48,13 @@ import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.IDataSize;
@@ -93,6 +91,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 14, 2013  2064      mpduff       Reset controls on load.
  * Jun 21, 2013  2132      mpduff       Swap target and source envelopes.
  * Jul 12, 2013  2141      mpduff       Valid envelope test happens as needed instead of when changes are made.
+ * Oct 10, 2013  2104      mschenke     Switched to use MapScalesManager
  * 
  * </pre>
  * 
@@ -266,8 +265,7 @@ public class AreaComp extends Composite implements ISubset {
      * Setup the data.
      */
     private void setupData() {
-        MapScales mapScales = MapScales.getInstance();
-        MapScale[] scales = mapScales.getScales();
+        ManagedMapScale[] scales = MapScalesManager.getInstance().getScales();
         predefinedRegions = new String[scales.length];
         for (int i = 0; i < predefinedRegions.length; i++) {
             predefinedRegions[i] = scales[i].getDisplayName();
@@ -661,13 +659,12 @@ public class AreaComp extends Composite implements ISubset {
         String name = regionCombo.getItem(regionCombo.getSelectionIndex());
 
         if (!isUserDefinedRegion()) {
-            MapScale mapScale = MapScales.getInstance().getScaleByName(name);
+            ManagedMapScale mapScale = MapScalesManager.getInstance()
+                    .getScaleByName(name);
 
             if (mapScale != null) {
-                File scaleBundle = mapScale.getFile();
                 try {
-                    Bundle b = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                            Bundle.class, scaleBundle);
+                    Bundle b = mapScale.getScaleBundle();
 
                     AbstractRenderableDisplay[] displays = b.getDisplays();
                     IMapDescriptor descriptor = (IMapDescriptor) displays[0]
