@@ -104,6 +104,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jul 09, 2013 2106       djohnson     InMemoryBandwidthManager no longer receives updates from the EventBus.
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -239,9 +240,9 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
                 .get();
         // Make the metadata for one day later than the subscription
         ImmutableDate oneDayLater = new ImmutableDate(metadata.getTime()
-                .getStartDate().getTime()
+                .getStart().getTime()
                 + TimeUtil.MILLIS_PER_DAY);
-        metadata.getTime().setStartDate(oneDayLater);
+        metadata.getTime().setStart(oneDayLater);
         metadata.setDate(oneDayLater);
 
         // Send in the update
@@ -262,7 +263,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         assertEquals(
                 "Didn't find the metadata date on the retrieval's subscription!",
                 metadata.getDate(), attributes.getSubscription().getTime()
-                        .getStartDate());
+                        .getStart());
     }
 
     @Test
@@ -279,7 +280,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         update.setUrl("http://testDailyProductSubscriptionReceivesTimeAndUrlFromUpdate");
         update.setCycle(GriddedDataSetMetaData.NO_CYCLE);
         Time dsmdTime = update.getTime();
-        dsmdTime.setStartDate(new Date(dsmdTime.getStartDate().getTime()
+        dsmdTime.setStart(new Date(dsmdTime.getStart().getTime()
                 + TimeUtil.MILLIS_PER_DAY));
 
         bandwidthManager.updateGriddedDataSetMetaData(update);
@@ -301,7 +302,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
                 update.getUrl(), retrievalSub.getUrl());
         assertEquals(
                 "The update's time doesn't seem to have been persisted to the retrieval!",
-                dsmdTime.getStartDate(), retrievalSub.getTime().getStartDate());
+                dsmdTime.getStart(), retrievalSub.getTime().getStart());
     }
 
     @Test
