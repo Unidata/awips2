@@ -22,13 +22,12 @@ package com.raytheon.edex.plugin.bufrmos;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
  * TODO Add Description
@@ -68,7 +67,7 @@ public class MOSPointDataState {
                 if (container != null) {
                     pointData.put(type, container);
                 }
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Could not create PointDataContainer for " + type
                         + " model soundings", e);
             }
@@ -78,7 +77,7 @@ public class MOSPointDataState {
     }
 
     public static synchronized PointDataDescription getDescription(String type)
-            throws JAXBException {
+            throws SerializationException {
         PointDataDescription pdd = descriptions.get(type);
         if (pdd == null) {
             String strmPath = "/res/pointdata/bufrmos" + type + ".xml";
