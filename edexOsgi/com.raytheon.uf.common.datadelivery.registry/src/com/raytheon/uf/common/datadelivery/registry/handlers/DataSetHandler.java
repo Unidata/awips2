@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Dec 10, 2012 1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jun 04, 2013  223      mpduff       Added datatype to the filter.
  * Jun 24, 2013 2106      djohnson     Now composes a registryHandler.
+ * Oct 09, 2013 2267      bgonzale     Fix Collection cast to List error.
  * 
  * </pre>
  * 
@@ -146,7 +148,8 @@ public class DataSetHandler extends
                 // referenced by
                 // their RegistryObject ids...
                 Map<String, Parameter> remap = new HashMap<String, Parameter>();
-                for (Parameter parm : (List<Parameter>) obj.getParameters().values()) {
+                for (Parameter parm : (Collection<Parameter>) obj
+                        .getParameters().values()) {
                     try {
                         remap.put(RegistryUtil.getRegistryObjectKey(parm), parm);
                     } catch (Throwable e1) {
