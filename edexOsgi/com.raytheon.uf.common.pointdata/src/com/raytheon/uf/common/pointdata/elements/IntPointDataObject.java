@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.common.pointdata.elements;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
@@ -38,7 +34,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            chammack     Initial creation
+ * Apr 8, 2009             chammack    Initial creation
+ * Oct 9, 2013  2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -46,10 +43,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
 public class IntPointDataObject extends AbstractPointDataObject<int[]> {
+
     @DynamicSerializeElement
-    @XmlElement
     protected int[] intData;
 
     public IntPointDataObject() {
