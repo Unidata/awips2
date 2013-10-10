@@ -33,14 +33,13 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -140,7 +139,7 @@ public class QCPaths {
                 }
             }
             return pdds;
-        } catch (JAXBException e) {
+        } catch (SerializationException e) {
             throw new RuntimeException(
                     "Failed to initialize QcNetCDF PointDataDescriptions.  QC Python netCDF calls will Fail!");
         } catch (UnsupportedEncodingException e) {
