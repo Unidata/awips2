@@ -34,7 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Oct 03, 2013  2041     bsteffen    Initial creation
+ * Oct 03, 2013  2402     bsteffen    Initial creation
  * 
  * </pre>
  * 
@@ -59,16 +59,20 @@ public class GribDecodeMessage implements Serializable {
     @DynamicSerializeElement
     private byte gribEdition;
 
+    @DynamicSerializeElement
+    private long gridPointCount;
+
     public GribDecodeMessage() {
 
     }
 
     public GribDecodeMessage(String str) {
-        String[] parts = str.split("::");
+        String[] parts = str.split(":", 5);
         startPosition = Long.valueOf(parts[0]);
         messageLength = Long.valueOf(parts[1]);
         gribEdition = Byte.valueOf(parts[2]);
-        fileName = parts[3];
+        gridPointCount = Byte.valueOf(parts[3]);
+        fileName = parts[4];
 
     }
 
@@ -104,8 +108,16 @@ public class GribDecodeMessage implements Serializable {
         this.gribEdition = gribEdition;
     }
 
+    public long getGridPointCount() {
+        return gridPointCount;
+    }
+
+    public void setGridPointCount(long gridPointCount) {
+        this.gridPointCount = gridPointCount;
+    }
+
     public String toString() {
-        return startPosition + "::" + messageLength + "::" + gribEdition + "::"
-                + fileName;
+        return startPosition + ":" + messageLength + ":" + gribEdition + ":"
+                + gridPointCount + ":" + fileName;
     }
 }
