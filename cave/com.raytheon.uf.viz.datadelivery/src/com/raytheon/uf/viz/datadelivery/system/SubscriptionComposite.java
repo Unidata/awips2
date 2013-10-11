@@ -19,31 +19,22 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Group;
 
 import com.raytheon.uf.common.datadelivery.registry.DataType;
-import com.raytheon.uf.common.datadelivery.service.subscription.GridSubscriptionOverlapConfig;
-import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
-import com.raytheon.uf.common.datadelivery.service.subscription.PointSubscriptionOverlapConfig;
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapConfig;
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapMatchStrategy;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.viz.ui.widgets.ApplyCancelComposite;
 import com.raytheon.viz.ui.widgets.IApplyCancelAction;
 
@@ -58,6 +49,7 @@ import com.raytheon.viz.ui.widgets.IApplyCancelAction;
  * ------------ ---------- ----------- --------------------------
  * Aug 07, 2013    2180    mpduff      Initial creation.
  * Sept 24, 2013  2386     dhladky     Started work on Multiple Type Configs
+ * Oct 03, 2013   2386     mpduff      Implemented multiple type configs
  * 
  * </pre>
  * 
@@ -65,194 +57,94 @@ import com.raytheon.viz.ui.widgets.IApplyCancelAction;
  * @version 1.0
  */
 
-public class SubscriptionComposite extends Composite implements
-        IApplyCancelAction {
-    /**
-     * Overlap Spinners enum.
-     */
-    private static enum OverlapSpinners {
-        PARAMETERS("Parameters:") {
-            @Override
-            public int getValue(SubscriptionOverlapConfig config) {
-                return config.getMaxAllowedParameterDuplication();
-            }
-
-            @Override
-            public void setValue(SubscriptionOverlapConfig config, int value) {
-                config.setMaxAllowedParameterDuplication(value);
-            }
-        },
-        FORECAST_HOURS("Forecast Hours:") {
-            @Override
-            // TODO: hard coded to Grid for now
-            public int getValue(SubscriptionOverlapConfig config) {
-                return ((GridSubscriptionOverlapConfig)config).getMaxAllowedForecastHourDuplication();
-            }
-
-            @Override
-            public void setValue(SubscriptionOverlapConfig config, int value) {
-                ((GridSubscriptionOverlapConfig)config).setMaxAllowedForecastHourDuplication(value);
-            }
-        },
-        CYCLES("Cycles:") {
-            @Override
-            // TODO: hard coded to Grid for now
-            public int getValue(SubscriptionOverlapConfig config) {
-                return ((GridSubscriptionOverlapConfig)config).getMaxAllowedCycleDuplication();
-            }
-
-            @Override
-            public void setValue(SubscriptionOverlapConfig config, int value) {
-                ((GridSubscriptionOverlapConfig)config).setMaxAllowedCycleDuplication(value);
-            }
-        },
-        SPATIAL("Spatial:") {
-            @Override
-            public int getValue(SubscriptionOverlapConfig config) {
-                return config.getMaxAllowedSpatialDuplication();
-            }
-
-            @Override
-            public void setValue(SubscriptionOverlapConfig config, int value) {
-                config.setMaxAllowedSpatialDuplication(value);
-            }
-        };
-
-        private String labelText;
-
-        private OverlapSpinners(String labelText) {
-            this.labelText = labelText;
-        }
-
-        /**
-         * Get the value from the configuration for this spinner.
-         * 
-         * @param config
-         *            the config
-         * @return the value
-         */
-        public abstract int getValue(SubscriptionOverlapConfig config);
-
-        /**
-         * Set the configuration value from the spinner.
-         * 
-         * @param config
-         *            the configuration
-         * @param value
-         *            the value
-         */
-        public abstract void setValue(SubscriptionOverlapConfig config,
-                int value);
-    }
+public abstract class SubscriptionComposite extends Composite implements
+        IApplyCancelAction, IChangeApplier {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionComposite.class);
 
-    /** Subscription overlap service */
-    private final ISubscriptionOverlapService overlapService = DataDeliveryServices
-            .getSubscriptionOverlapService();
+    /** Rules file manager */
+    protected final SystemRuleManager ruleManager = SystemRuleManager
+            .getInstance();
+
+    /** The data type */
+    protected final DataType DATA_TYPE;
 
     /** Match strategy combo. */
-    private Combo matchStrategyCombo;
-
-    /** Associates the enum spinner configuration to its spinner */
-    private final EnumMap<OverlapSpinners, Spinner> spinnerMap = new EnumMap<SubscriptionComposite.OverlapSpinners, Spinner>(
-            OverlapSpinners.class);
-
-    /** The listener that should be used to signify changes were made **/
-    private final Runnable changesWereMade = new Runnable() {
-        @Override
-        public void run() {
-            buttonComp.enableButtons(true);
-        }
-    };
+    protected Combo matchStrategyCombo;
 
     /** Button composite */
-    private ApplyCancelComposite buttonComp;
+    protected ApplyCancelComposite buttonComp;
+
+    /** Common rule attribute composite */
+    protected CommonAttributeComposite commonComp;
 
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent Composite
-     * @param style
-     *            Style bits
+     * @param dataType
+     *            Data type represented on this composite
      */
-    public SubscriptionComposite(Composite parent, int style) {
-        super(parent, style);
+    public SubscriptionComposite(Composite parent, DataType dataType) {
+        super(parent, SWT.NONE);
+        this.DATA_TYPE = dataType;
         init();
     }
 
     /**
      * Initialize class.
      */
-    private void init() {
+    protected void init() {
         GridLayout gl = new GridLayout(1, true);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         this.setLayout(gl);
         this.setLayoutData(gd);
 
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
         Composite configurationComposite = new Composite(this, SWT.NONE);
         configurationComposite.setLayout(gl);
+        configurationComposite.setLayoutData(gd);
 
-        // Label for directions
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
-        Label directionsLabel = new Label(configurationComposite, SWT.NONE);
-        directionsLabel.setLayoutData(gd);
-        directionsLabel
-                .setText("Please select a percentage of common items between two "
-                        + "\nsubscriptions that would cause the subscriptions to be "
-                        + "\nconsidered overlapping.\n");
-
-        gl = new GridLayout(2, false);
+        gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
 
-        Composite outerComp = new Composite(configurationComposite, SWT.NONE);
-        outerComp.setLayoutData(gd);
-        outerComp.setLayout(gl);
+        commonComp = new CommonAttributeComposite(configurationComposite,
+                SWT.NONE, this);
+        commonComp.setLayout(gl);
+        commonComp.setLayoutData(gd);
 
-        for (final OverlapSpinners overlapSpinner : OverlapSpinners.values()) {
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Group grp = new Group(configurationComposite, SWT.NONE);
+        grp.setLayout(gl);
+        grp.setLayoutData(gd);
 
-            gl = new GridLayout(2, false);
-            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-
-            Composite spinnerComp = new Composite(outerComp, SWT.NONE);
-            spinnerComp.setLayoutData(gd);
-            spinnerComp.setLayout(gl);
-
-            gd = new GridData(100, SWT.DEFAULT);
-            Label label = new Label(spinnerComp, SWT.NONE);
-            label.setLayoutData(gd);
-            label.setText(overlapSpinner.labelText);
-
-            gd = new GridData(100, SWT.DEFAULT);
-            final Spinner spinner = new Spinner(spinnerComp, SWT.BORDER);
-            spinner.setMinimum(0);
-            spinner.setMaximum(100);
-            spinnerMap.put(overlapSpinner, spinner);
-        }
-
-        Composite matchStrategyComposite = new Composite(outerComp, SWT.NONE);
-        gl = new GridLayout(2, false);
-        matchStrategyComposite.setLayout(gl);
-
-        gd = new GridData(100, SWT.DEFAULT);
-        Label label = new Label(matchStrategyComposite, SWT.NONE);
-        label.setLayoutData(gd);
-        label.setText("Match:");
+        initTypeSpecific(grp);
 
         // Match Strategy
-        matchStrategyCombo = new Combo(matchStrategyComposite, SWT.READ_ONLY);
+        matchStrategyCombo = new Combo(this, SWT.READ_ONLY);
         matchStrategyCombo
                 .setToolTipText("Select the manner in which the rules should consider two subscriptions to overlap");
+        matchStrategyCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                applyChange();
+            }
 
+        });
         for (SubscriptionOverlapMatchStrategy matchStrategy : SubscriptionOverlapMatchStrategy
                 .values()) {
             matchStrategyCombo.add(matchStrategy.getDisplayString());
+            matchStrategyCombo.setData(matchStrategy.getDisplayString(),
+                    matchStrategy);
         }
-
+        matchStrategyCombo.select(0);
         // Buttons
         buttonComp = new ApplyCancelComposite(this, SWT.NONE, this);
 
@@ -260,48 +152,29 @@ public class SubscriptionComposite extends Composite implements
     }
 
     /**
+     * Initialize the type specific attributes.
+     * 
+     * @param The
+     *            parent group
+     */
+    abstract void initTypeSpecific(Group grp);
+
+    /**
      * Load configuration data
      */
-    private void loadConfiguration() {
-        Map<DataType, SubscriptionOverlapConfig> config = new HashMap<DataType, SubscriptionOverlapConfig>();
-        try {
-            config = overlapService.readConfig();
-        } catch (LocalizationException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Unable to load the subscription overlap rules.  "
-                                    + "Defaulting to configuration that will never overlap.",
-                            e);
-           
-            config.put(DataType.GRID, new GridSubscriptionOverlapConfig().getNeverOverlaps());
-            config.put(DataType.POINT, new PointSubscriptionOverlapConfig().getNeverOverlaps());
+    protected void loadConfiguration() {
+        SubscriptionOverlapConfig config = ruleManager
+                .getSubscriptionOverlapRules(DATA_TYPE);
+        if (config != null) {
+            commonComp.setParameterValue(config
+                    .getMaxAllowedParameterDuplication());
+            commonComp
+                    .setSpatialValue(config.getMaxAllowedSpatialDuplication());
+
+            final int indexOfConfigValue = matchStrategyCombo.indexOf(config
+                    .getMatchStrategy().getDisplayString());
+            matchStrategyCombo.select(indexOfConfigValue);
         }
-
-        // TODO: hard coded to Grid for now
-        for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
-            final Spinner spinner = entry.getValue();
-            // Hard coded to Grid until we change front end design
-            final int initialValue = entry.getKey().getValue(config.get(DataType.GRID));
-
-            DataDeliveryGUIUtils.removeListeners(spinner, SWT.Selection,
-                    SWT.DefaultSelection);
-
-            spinner.setSelection(initialValue);
-            spinner.addSelectionListener(DataDeliveryGUIUtils
-                    .addValueChangedSelectionListener(initialValue, spinner,
-                            changesWereMade));
-        }
-
-        DataDeliveryGUIUtils.removeListeners(matchStrategyCombo, SWT.Selection,
-                SWT.DefaultSelection);
-
-        // TODO: hard coded to Grid for now
-        final int indexOfConfigValue = matchStrategyCombo.indexOf(config.get(DataType.GRID)
-                .getMatchStrategy().getDisplayString());
-        matchStrategyCombo.select(indexOfConfigValue);
-        matchStrategyCombo.addSelectionListener(DataDeliveryGUIUtils
-                .addValueChangedSelectionListener(indexOfConfigValue,
-                        matchStrategyCombo, changesWereMade));
     }
 
     /**
@@ -310,22 +183,7 @@ public class SubscriptionComposite extends Composite implements
      * @return true if saved
      * @throws LocalizationException
      */
-    private boolean saveConfiguration() throws LocalizationException {
-        // TODO: hard coded to Grid for now
-        GridSubscriptionOverlapConfig config = new GridSubscriptionOverlapConfig();
-
-        for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
-            final OverlapSpinners key = entry.getKey();
-            key.setValue(config, entry.getValue().getSelection());
-        }
-
-        config.setMatchStrategy(SubscriptionOverlapMatchStrategy.values()[matchStrategyCombo
-                .getSelectionIndex()]);
-
-        overlapService.writeConfig(config);
-
-        return true;
-    }
+    abstract boolean saveConfiguration() throws LocalizationException;
 
     /**
      * {@inheritDoc}
@@ -348,5 +206,52 @@ public class SubscriptionComposite extends Composite implements
     @Override
     public void cancel() {
         loadConfiguration();
+        buttonComp.enableButtons(false);
+    }
+
+    protected void setButtonsEnabled() {
+        buttonComp.enableButtons(true);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.datadelivery.system.IChangeApplier#applyChange()
+     */
+    @Override
+    public void applyChange() {
+        setButtonsEnabled();
+    }
+
+    /**
+     * Apply all common attributes.
+     * 
+     * @param dataType
+     *            The current data type
+     * 
+     * @return true if saved correctly
+     */
+    protected boolean applyAll(DataType dataType) {
+        SubscriptionOverlapConfig commonConfig = ruleManager
+                .getSubscriptionOverlapRules(dataType);
+        for (DataType dt : DataType.values()) {
+            if (dt == DataType.PDA) {
+                // TODO implement PDA
+                continue;
+            }
+            if (dt != dataType) {
+                SubscriptionOverlapConfig config = ruleManager
+                        .getSubscriptionOverlapRules(dt);
+                config.setMaxAllowedParameterDuplication(commonConfig
+                        .getMaxAllowedParameterDuplication());
+                config.setMaxAllowedSpatialDuplication(commonConfig
+                        .getMaxAllowedSpatialDuplication());
+                if (!ruleManager.saveOverlapRule(config, dt)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
