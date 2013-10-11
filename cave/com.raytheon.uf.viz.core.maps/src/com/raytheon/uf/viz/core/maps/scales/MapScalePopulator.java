@@ -30,7 +30,7 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
@@ -43,7 +43,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 7, 2010             mschenke    Initial creation
  * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
- * 
+ * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
  * 
  * </pre>
  * 
@@ -66,7 +66,8 @@ public class MapScalePopulator extends CompoundContributionItem {
         if ((cont != null && (cont.getActiveDisplayPane()
                 .getRenderableDisplay() instanceof IMapScaleDisplay))
                 || EditorUtil.getActiveEditor() == null) {
-            for (MapScale scale : MapScales.getInstance().getScales()) {
+            for (ManagedMapScale scale : MapScalesManager.getInstance()
+                    .getScales()) {
                 Map<String, String> parms = new HashMap<String, String>();
                 parms.put(MapScaleHandler.SCALE_NAME_ID, scale.getDisplayName());
                 CommandContributionItem item = new CommandContributionItem(
