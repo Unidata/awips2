@@ -190,11 +190,6 @@ public class SatelliteDecoder {
                 if (unit != null) {
                     record.setUnits(unit.getUnitName());
                 }
-                // read the number of records
-                record.setNumRecords((int) byteBuffer.getShort(4));
-
-                // read the size of each record
-                record.setSizeRecords((int) byteBuffer.getShort(6));
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
