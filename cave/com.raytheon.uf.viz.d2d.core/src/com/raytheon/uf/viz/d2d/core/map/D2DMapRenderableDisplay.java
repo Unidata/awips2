@@ -177,7 +177,7 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
      */
     @Override
     public String getScale() {
-        return this.scale;
+        return getScaleName();
     }
 
     /*
@@ -189,7 +189,7 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
      */
     @Override
     public void setScale(String scale) {
-        this.scale = scale;
+        setScaleName(scale);
     }
 
     /*
@@ -204,7 +204,7 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         D2DProperties props = new D2DProperties();
-        props.setScale(scale);
+        props.setScale(getScale());
         PaintProperties myProps = new PaintProperties(paintProps);
         myProps.setPerspectiveProps(props);
 
