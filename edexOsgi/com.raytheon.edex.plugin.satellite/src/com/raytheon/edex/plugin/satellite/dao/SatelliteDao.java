@@ -27,12 +27,12 @@ import java.util.Map;
 
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.util.satellite.SatelliteCreatingEntity;
-import com.raytheon.edex.util.satellite.SatellitePhysicalElement;
-import com.raytheon.edex.util.satellite.SatellitePosition;
-import com.raytheon.edex.util.satellite.SatelliteSectorId;
-import com.raytheon.edex.util.satellite.SatelliteSource;
-import com.raytheon.edex.util.satellite.SatelliteUnit;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteCreatingEntity;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePhysicalElement;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteSectorId;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteSource;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteUnit;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;

@@ -20,6 +20,8 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncscd.dao;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncscd.NcScdRecord;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,19 +35,18 @@ import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncscd.NcScdRecord;
-
 public class NcScdDao extends PointDataPluginDao<NcScdRecord> {
 
     /** The station dao */
     private ObStationDao obDao = new ObStationDao();
-    
+
     /**
      * Creates a new NcScdDao
      * 
@@ -61,6 +62,7 @@ public class NcScdDao extends PointDataPluginDao<NcScdRecord> {
         // TODO Auto-generated method stub
         return null;
     }
+
     public List<?> queryBySpatialBox(double upperLeftLat, double upperLeftLon,
             double lowerRightLat, double lowerRightLon)
             throws DataAccessLayerException {
@@ -94,7 +96,8 @@ public class NcScdDao extends PointDataPluginDao<NcScdRecord> {
         query.addQueryParam("location.stationId", icaos,
                 QueryParam.QueryOperand.IN);
         return queryByCriteria(query);
-    }   
+    }
+
     /**
      * Retrieves an ncscd report using the datauri .
      * 
@@ -141,7 +144,7 @@ public class NcScdDao extends PointDataPluginDao<NcScdRecord> {
     public void setObDao(ObStationDao obDao) {
         this.obDao = obDao;
     }
-    
+
     @Override
     public String[] getKeysRequiredForFileName() {
         return new String[] { "dataTime.refTime" };
@@ -164,7 +167,7 @@ public class NcScdDao extends PointDataPluginDao<NcScdRecord> {
                 hdf5DataDescription = PointDataDescription.fromStream(this
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/ncscd.xml"));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Unable to load ncscd Point Data Description", e);
             }
         }
@@ -195,5 +198,5 @@ public class NcScdDao extends PointDataPluginDao<NcScdRecord> {
         }
         return dbDataDescription;
     }
-    
+
 }
