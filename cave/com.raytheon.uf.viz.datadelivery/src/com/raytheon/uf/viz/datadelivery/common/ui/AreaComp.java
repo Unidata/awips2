@@ -92,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 21, 2013  2132      mpduff       Swap target and source envelopes.
  * Jul 12, 2013  2141      mpduff       Valid envelope test happens as needed instead of when changes are made.
  * Oct 10, 2013  2104      mschenke     Switched to use MapScalesManager
+ * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -570,9 +571,6 @@ public class AreaComp extends Composite implements ISubset {
         regionLbl.setEnabled(flag);
         regionCombo.setEnabled(flag);
         selectCombo.setEnabled(flag);
-        if (flag) {
-            handleRegionSelection(true);
-        }
     }
 
     /**
