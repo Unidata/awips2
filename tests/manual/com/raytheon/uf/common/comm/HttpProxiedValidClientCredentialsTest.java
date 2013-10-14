@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * July15, 2103   2180     dhladky      Updated encryption
  * Aug 08, 2013   2097     dhladky      updated for WFS 2.0 and HTTP POST
  * Sept 30, 2013  1797     dhladky      separated gridded time from time
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -213,7 +215,7 @@ public class HttpProxiedValidClientCredentialsTest {
         return provider;
     }
     
-    private RetrievalAttribute getRetrievalAttribute() {
+    private RetrievalAttribute getRetrievalAttribute() throws ParseException {
         RetrievalAttribute ra = new RetrievalAttribute();
         ra.setPlugin("madis");
         ra.setCoverage(getCoverage());
@@ -241,17 +243,17 @@ public class HttpProxiedValidClientCredentialsTest {
         return coverage;
     }
     
-    private Time getTime() {
+    private Time getTime() throws ParseException {
         
         String startDateString = "2013-08-30T12:40:00.000";
         String endDateString = "2013-08-30T14:15:00.000";
                 
         PointTime time = new PointTime();
         time.setFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        time.setRequestStart(startDateString);
-        time.setStart(startDateString);
-        time.setRequestEnd(endDateString);
-        time.setEnd(endDateString);
+        time.setRequestStartDate(startDateString);
+        time.setStartDate(startDateString);
+        time.setRequestEndDate(endDateString);
+        time.setEndDate(endDateString);
        
         return time;
     }

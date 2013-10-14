@@ -65,16 +65,15 @@ public class MapScaleHandler extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        MapScale scale = MapScales.getInstance().getScaleByName(
-                event.getParameter(SCALE_NAME_ID));
-        if (scale != null) {
+        String scaleName = event.getParameter(SCALE_NAME_ID);
+        if (scaleName != null) {
             IEditorPart part = HandlerUtil.getActiveEditor(event);
             if (part instanceof IDisplayPaneContainer) {
                 IDisplayPaneContainer container = (IDisplayPaneContainer) part;
                 for (IDisplayPane pane : container.getDisplayPanes()) {
                     IRenderableDisplay display = pane.getRenderableDisplay();
                     if (display instanceof IMapScaleDisplay) {
-                        ((IMapScaleDisplay) display).changeScale(scale);
+                        ((IMapScaleDisplay) display).changeScale(scaleName);
                     }
                 }
                 container.refresh();
