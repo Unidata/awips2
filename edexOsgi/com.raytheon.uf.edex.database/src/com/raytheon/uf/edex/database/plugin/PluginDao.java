@@ -112,7 +112,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
- * 
+ * Oct 07, 2013 2392       rjpeter     Updated to pass null productKeys as actual null instead of string null.
  * </pre>
  * 
  * @author bphillip
@@ -1234,7 +1234,11 @@ public abstract class PluginDao extends CoreDao {
                 int index = 0;
                 for (Object obj : results) {
                     distinctValues[index] = new String[1];
-                    distinctValues[index++][0] = String.valueOf(obj);
+                    if (obj != null) {
+                        distinctValues[index++][0] = String.valueOf(obj);
+                    } else {
+                        distinctValues[index++][0] = null;
+                    }
                 }
             } else {
                 List<Object[]> results = (List<Object[]>) this
@@ -1247,7 +1251,12 @@ public abstract class PluginDao extends CoreDao {
                     int cIndex = 0;
 
                     for (Object obj : result) {
-                        distinctValues[rIndex][cIndex++] = String.valueOf(obj);
+                        if (obj != null) {
+                            distinctValues[rIndex][cIndex++] = String
+                                    .valueOf(obj);
+                        } else {
+                            distinctValues[rIndex][cIndex++] = null;
+                        }
                     }
 
                     rIndex++;
