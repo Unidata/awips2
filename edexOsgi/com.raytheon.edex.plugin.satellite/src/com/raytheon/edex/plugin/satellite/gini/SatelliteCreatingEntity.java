@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.util.satellite;
+package com.raytheon.edex.plugin.satellite.gini;
 
 import java.io.Serializable;
 
@@ -28,10 +28,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * A satellite source i.e. NESDIS
+ * A satellite creating entity
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -43,59 +42,59 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @author bphillip
  * @version 1.0
  */
-
 @Entity
-@Table(name = "satellite_sources")
-public class SatelliteSource extends PersistableDataObject implements
-        Serializable, ISerializableObject {
+@Table(name = "satellite_creating_entities")
+public class SatelliteCreatingEntity extends PersistableDataObject implements
+        Serializable {
 
-    private static final long serialVersionUID = 5855029407853840979L;
+    private static final long serialVersionUID = -4678013903413236803L;
 
-    /** The source id number */
+    /** The id of the creating entity */
     @Id
-    private int sourceId;
+    private int entityId;
 
-    /** The source name */
+    /** The name of the creating entity */
     @Column(length = 64)
-    private String sourceName;
+    private String entityName;
 
     /**
-     * Constructs an empty SatelliteSource
+     * Constructs and empty SatelliteCreatingEntity
      */
-    public SatelliteSource() {
+    public SatelliteCreatingEntity() {
 
     }
 
     /**
-     * Constructs a new SatelliteSource
+     * Constructs a new creating entity
      * 
-     * @param id
-     *            The source id
-     * @param name
-     *            The source name
+     * @param entityId
+     *            The entity id
+     * @param entityName
+     *            The entity name
      */
-    public SatelliteSource(int id, String name) {
-        this.sourceId = id;
-        this.sourceName = name;
+    public SatelliteCreatingEntity(int entityId, String entityName) {
+        this.entityId = entityId;
+        this.entityName = entityName;
     }
 
-    public int getSourceId() {
-        return sourceId;
+    public int getEntityId() {
+        return entityId;
     }
 
-    public void setSourceId(int sourceId) {
-        this.sourceId = sourceId;
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
     }
 
-    public String getSourceName() {
-        return sourceName;
+    public String getEntityName() {
+        return entityName;
     }
 
-    public void setSourceName(String sourceName) {
-        this.sourceName = sourceName;
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
     }
 
     public String toString() {
-        return sourceName;
+        return entityName;
     }
+
 }

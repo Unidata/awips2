@@ -21,4 +21,4 @@
  * Contains classes mapped to tables in the subscription database
  * schema. 
  */
-package com.raytheon.edex.subscription.data;
+package com.raytheon.edex.autobldsrv.data;
