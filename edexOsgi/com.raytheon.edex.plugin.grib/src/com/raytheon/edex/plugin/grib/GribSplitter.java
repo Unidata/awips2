@@ -89,8 +89,6 @@ public class GribSplitter {
                     message.setGridPointCount(0);
                     break;
                 }
-                System.out.println("Number of points is: "
-                        + message.getGridPointCount());
                 messages.add(message);
                 raf.seek(startPosition + length);
                 /*
