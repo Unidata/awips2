@@ -167,7 +167,6 @@
 		<include>time-common.xml</include>
 		<include>auth-common.xml</include>
 		<include>nwsauth-request.xml</include>
-		<include>grib-common.xml</include>
 		<include>grib-decode.xml</include>
 		<include>grid-staticdata-process.xml</include>
 		<include>level-common.xml</include>
@@ -312,7 +311,6 @@
         <include>eventbus-common.xml</include>
     </mode>
 	<mode name="grib">
-		<include>grib-common.xml</include>
 		<include>grib-decode.xml</include>
 		<include>grid-staticdata-process.xml</include>
 		<include>grib-distribution.xml</include>
@@ -333,7 +331,6 @@
 	<mode name="gfe">
 		<include>.*gfe.*</include>
 		<include>serialize-request.xml</include>
-		<include>grib-spring.xml</include>
 		<include>level-spring.xml</include>
 		<include>distribution-spring.xml</include>
 		<include>manualIngest-spring.xml</include>
@@ -409,7 +406,6 @@
 		<include>obs-dpa-ingest.xml</include>
 		<include>obs-ogc.xml</include>-->
 		<!-- grid specific services 
-		<include>grib-common.xml</include>
 		<include>grid-staticdata-process.xml</include>
 		<include>gridcoverage-.*.xml</include>
 		<include>grib-distribution.xml</include>
