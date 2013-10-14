@@ -19,13 +19,10 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IDataTimingSubsetView;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.widgets.duallist.IUpdate;
 
 /**
@@ -49,7 +46,8 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Aug 20, 2012  0743      djohnson     Add support for doing a specific date adhoc query, sub-class for data type specific operations.
  * Aug 29, 2012  0223      mpduff       Overrode new method from interface.
  * Sep 24, 2012  1209      djohnson     Remove isValid().
- * Nov 20, 2012 1286       djohnson     Implement displayYesNoPopup.
+ * Nov 20, 2012  1286      djohnson     Implement displayYesNoPopup.
+ * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -57,8 +55,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * @version 1.0
  */
 
-public class DataTimingSubsetTab extends SubsetTab
-        implements IUpdate, IDataTimingSubsetView {
+public class DataTimingSubsetTab extends SubsetTab implements IUpdate {
 
     /** Parent composite */
     protected final Composite parentComp;
@@ -73,7 +70,7 @@ public class DataTimingSubsetTab extends SubsetTab
 
     /**
      * Constructor.
-     *
+     * 
      * @param parentComp
      * @param callback
      * @param shell
@@ -86,26 +83,20 @@ public class DataTimingSubsetTab extends SubsetTab
     }
 
     /**
-     * {@inheritDoc}
+     * Set whether the date cycle is dirty.
+     * 
+     * @param dirty
+     *            the boolean value
      */
-    @Override
-    public void init() {
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
     }
 
     /**
-     *
-     * {@inheritDoc}
+     * Check whether the date cycle is dirty.
+     * 
+     * @return true if the date cycle is dirty
      */
-    @Override
     public boolean isDirty() {
         return dirty;
     }
@@ -119,39 +110,5 @@ public class DataTimingSubsetTab extends SubsetTab
     public void selectionChanged() {
         callback.updateDataSize();
         this.dirty = true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void displayPopup(String title, String message) {
-        DataDeliveryUtils.showMessage(shell, SWT.OK, title, message);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean displayOkCancelPopup(String title, String message) {
-        return DataDeliveryUtils.showMessage(shell, SWT.CANCEL | SWT.OK, title,
-                message) == SWT.OK;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void displayErrorPopup(String title, String message) {
-        DataDeliveryUtils.showMessage(shell, SWT.ERROR,
-                title, message);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean displayYesNoPopup(String title, String message) {
-        return DataDeliveryUtils.showYesNoMessage(shell, title, message) == SWT.YES;
     }
 }
