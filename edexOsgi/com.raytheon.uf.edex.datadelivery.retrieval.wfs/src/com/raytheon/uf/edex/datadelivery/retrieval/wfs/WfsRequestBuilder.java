@@ -35,7 +35,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sept 11, 2013 2351      dhladky      Fixed adhoc request times
  * Sept 17, 2013 2383      bgonzale     Removed exceptional code for point start and
  *                                      end since the times will be correct now.
- * Oct 1, 2013   1797      dhladky      Generics                                    
+ * Oct 1, 2013   1797      dhladky      Generics
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -194,8 +195,8 @@ public class WfsRequestBuilder<T extends Time, C extends Coverage> extends Reque
             String endDateString = null;
             String startDateString = null;
 
-            endDateString = ogcDateFormat.get().format(inTime.getEndDate());
-            startDateString = ogcDateFormat.get().format(inTime.getStartDate());
+            endDateString = ogcDateFormat.get().format(inTime.getEnd());
+            startDateString = ogcDateFormat.get().format(inTime.getStart());
 
             StringBuilder sb = new StringBuilder(256);
             sb.append(PROPRERTYISGREATERTHAN_OPEN).append(NEW_LINE);
