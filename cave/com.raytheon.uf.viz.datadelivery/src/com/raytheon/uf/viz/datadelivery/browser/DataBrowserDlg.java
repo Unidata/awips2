@@ -123,6 +123,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 04, 2013   2314     mpduff       Load/save config dialog now non-blocking.
  * Sep 26, 2013   2412     mpduff       Handle auto selecting data type.
  * Sep 26, 2013   2413     mpduff       Added isDirty check to New Configuration menu selection.
+ * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -684,8 +685,8 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                     return;
                 }
 
-                SubsetManagerDlg<?, ?, ?> dlg = SubsetManagerDlg.fromDataSet(
-                        shell, data);
+                SubsetManagerDlg dlg = SubsetManagerDlg
+                        .fromDataSet(shell, data);
                 dlg.open();
             }
         } catch (AuthException e) {

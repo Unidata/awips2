@@ -83,6 +83,7 @@ import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlar
  *                                     issue on the images being blank and throwing errors.
  *                                     Also cleaned up some code.
  * Jul 24, 2013  2218      mpduff      Change method signature.
+ * Oct 11, 2013  #2471     lvenable    Fix color memory leak.
  * 
  * </pre>
  * 
@@ -862,7 +863,7 @@ public abstract class SCANTable extends Composite {
     public void updateThresholds(String colNameInd, String colNameDep) {
         int indexInd = scanCfg.getColumnIndex(scanTable, colNameInd);
         int indexDep = scanCfg.getColumnIndex(scanTable, colNameDep);
-        final Color upperColor = new Color(Display.getDefault(), 187, 34, 34);
+        Color upperColor = new Color(Display.getDefault(), 187, 34, 34);
         Color indColColor = null;
 
         ArrayList<SCANTableRowData> rowData = tableData.getTableRows();
@@ -880,6 +881,7 @@ public abstract class SCANTable extends Composite {
         }
 
         sortTableUsingConfig();
+        upperColor.dispose();
     }
 
     /**

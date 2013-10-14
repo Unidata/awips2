@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.core.props.PropertiesException;
  * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  *                                      Fixed ordering of elements in maps and defaults when
  *                                      element keys are null.
+ * Oct 09, 2013 2267       bgonzale     Fix Wmo header cr and lf formatting.
  * 
  * </pre>
  * 
@@ -132,7 +133,7 @@ public class DataDeliveryRetrievalWmoHeaderApplier implements IWmoHeaderApplier 
         final Object formatArgs = createMessageFormatArgs(dataProvider,
                 dataFormat, sourceType, date);
         final String formattedWmoHeader = wmoHeaderMessage.format(formatArgs);
-        return formattedWmoHeader + "\n" + data;
+        return formattedWmoHeader + data;
     }
 
     private Object createMessageFormatArgs(String dataProvider,

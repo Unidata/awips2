@@ -25,19 +25,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ServiceConfigurationError;
 import java.util.Set;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRegistry;
 
@@ -62,6 +56,7 @@ import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
  * Apr 24, 2013 1939        randerso    Clean up code and attempt to improve speed.
  *                                      Added initializeHibernatables flag to disable
  *                                      processing hibernatables on CAVE
+ * Oct 14, 2013 2361        njensen     Removed hibernatables
  * </pre>
  * 
  * @author njensen
@@ -71,8 +66,6 @@ import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 public class SerializableManager implements IJaxbableClassesLocator {
 
     private static SerializableManager instance;
-
-    private final Map<String, List<Class<ISerializableObject>>> hibernatables = new HashMap<String, List<Class<ISerializableObject>>>();
 
     private ArrayList<Class<ISerializableObject>> jaxbables = new ArrayList<Class<ISerializableObject>>();
 
@@ -90,7 +83,6 @@ public class SerializableManager implements IJaxbableClassesLocator {
     private synchronized void initialize() {
         // this is here in case in the future we want to re-initialize the lists
         // during runtime, i.e. hot deploy of a new plugin
-        hibernatables.clear();
         jaxbables.clear();
         long realStartTime = System.currentTimeMillis();
         Set<Class<ISerializableObject>> clazzSet = new HashSet<Class<ISerializableObject>>(
@@ -101,36 +93,19 @@ public class SerializableManager implements IJaxbableClassesLocator {
                             "META-INF/services/"
                                     + ISerializableObject.class.getName());
 
-            // doHibernate will be false in CAVE since they are not needed
-            boolean doHibernate = Boolean.getBoolean("initializeHibernatables");
-
             // In testing 1 thread is slowest, 2 threads cuts the time down
             // about 50% and 3 threads cuts down another 5% or so, 4 threads
             // shows no benefit over 2. These results are system specific.
             int numThreads = 3;
             LoadSerializableClassesThread[] threads = new LoadSerializableClassesThread[numThreads];
             for (int i = 0; i < numThreads; i++) {
-                threads[i] = new LoadSerializableClassesThread(urls,
-                        doHibernate);
+                threads[i] = new LoadSerializableClassesThread(urls);
                 threads[i].start();
             }
 
             for (LoadSerializableClassesThread thread : threads) {
                 thread.join();
                 clazzSet.addAll(thread.getClazzList());
-
-                if (doHibernate) {
-                    for (Entry<String, List<Class<ISerializableObject>>> entry : thread
-                            .getHibernatables().entrySet()) {
-                        List<Class<ISerializableObject>> list = hibernatables
-                                .get(entry.getKey());
-                        if (list == null) {
-                            list = new ArrayList<Class<ISerializableObject>>();
-                            hibernatables.put(entry.getKey(), list);
-                        }
-                        list.addAll(entry.getValue());
-                    }
-                }
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -150,28 +125,24 @@ public class SerializableManager implements IJaxbableClassesLocator {
     }
 
     private static void fail(@SuppressWarnings("rawtypes") Class service,
-            String msg, Throwable cause)
-            throws ServiceConfigurationError {
+            String msg, Throwable cause) throws ServiceConfigurationError {
         throw new ServiceConfigurationError(service.getName() + ": " + msg,
                 cause);
     }
 
     private static void fail(@SuppressWarnings("rawtypes") Class service,
-            String msg)
-            throws ServiceConfigurationError {
+            String msg) throws ServiceConfigurationError {
         throw new ServiceConfigurationError(service.getName() + ": " + msg);
     }
 
     private static void fail(@SuppressWarnings("rawtypes") Class service,
-            URL u, int line, String msg)
-            throws ServiceConfigurationError {
+            URL u, int line, String msg) throws ServiceConfigurationError {
         fail(service, u + ":" + line + ": " + msg);
     }
 
     private static int parseLine(@SuppressWarnings("rawtypes") Class service,
-            URL u, BufferedReader r,
-            int lc, List<String> names) throws IOException,
-            ServiceConfigurationError {
+            URL u, BufferedReader r, int lc, List<String> names)
+            throws IOException, ServiceConfigurationError {
         String ln = r.readLine();
         if (ln == null) {
             return -1;
@@ -217,40 +188,6 @@ public class SerializableManager implements IJaxbableClassesLocator {
     }
 
     /**
-     * Returns the list of classes at runtime that have Hibernate annotations
-     * 
-     * @return
-     */
-    public List<Class<ISerializableObject>> getHibernatablesForPluginFQN(
-            String pluginFQN) {
-        List<Class<ISerializableObject>> list = hibernatables.get(pluginFQN);
-        if (list == null) {
-            list = Collections.<Class<ISerializableObject>> emptyList();
-        }
-        return list;
-    }
-
-    /**
-     * 
-     */
-    public Set<String> getHibernatablePluginFQNs() {
-        return hibernatables.keySet();
-    }
-
-    /**
-     * Returns the list of classes at runtime that have Hibernate annotations
-     * 
-     * @return
-     */
-    public List<Class<ISerializableObject>> getHibernatables() {
-        List<Class<ISerializableObject>> rval = new ArrayList<Class<ISerializableObject>>();
-        for (List<Class<ISerializableObject>> list : hibernatables.values()) {
-            rval.addAll(list);
-        }
-        return rval;
-    }
-
-    /**
      * Returns the list of classes at runtime that have JaxB annotations
      * 
      * @return
@@ -264,26 +201,15 @@ public class SerializableManager implements IJaxbableClassesLocator {
 
         private final Enumeration<URL> urls;
 
-        private final boolean doHibernate;
-
         private final List<Class<ISerializableObject>> clazzList;
 
-        private final Map<String, List<Class<ISerializableObject>>> hibernatables;
-
-        public LoadSerializableClassesThread(Enumeration<URL> urls,
-                boolean doHibernate) {
+        public LoadSerializableClassesThread(Enumeration<URL> urls) {
             this.urls = urls;
-            this.doHibernate = doHibernate;
             this.clazzList = new ArrayList<Class<ISerializableObject>>(500);
-            this.hibernatables = new HashMap<String, List<Class<ISerializableObject>>>();
         }
 
         public List<Class<ISerializableObject>> getClazzList() {
             return clazzList;
-        }
-
-        public Map<String, List<Class<ISerializableObject>>> getHibernatables() {
-            return hibernatables;
         }
 
         @Override
@@ -291,9 +217,6 @@ public class SerializableManager implements IJaxbableClassesLocator {
             try {
                 ClassLoader cl = getClass().getClassLoader();
                 Set<Class<ISerializableObject>> pluginHibernateSet = null;
-                if (doHibernate) {
-                    pluginHibernateSet = new HashSet<Class<ISerializableObject>>();
-                }
                 List<String> names = new ArrayList<String>();
                 URL u = getNextUrl();
                 while (u != null) {
@@ -339,10 +262,6 @@ public class SerializableManager implements IJaxbableClassesLocator {
                         }
                     }
 
-                    if (doHibernate) {
-                        pluginHibernateSet.clear();
-                    }
-
                     Iterator<String> iter = names.iterator();
                     while (iter.hasNext()) {
                         String clazz = iter.next();
@@ -358,34 +277,13 @@ public class SerializableManager implements IJaxbableClassesLocator {
                                 added = true;
                             }
 
-                            if (doHibernate) {
-                                if (c.getAnnotation(Entity.class) != null
-                                        || c.getAnnotation(Embeddable.class) != null) {
-                                    pluginHibernateSet.add(c);
-                                    added = true;
-                                }
-                            }
-
                             long time = (System.currentTimeMillis() - t0);
-                            if (doHibernate && !added) {
-                                System.out
-                                        .println("Class: "
-                                                + clazz
-                                                + " should not be in ISerializableObject file, wasted "
-                                                + time + "ms processing it!");
-                            }
                         } catch (ClassNotFoundException e) {
                             System.out
                                     .println("Unable to load class "
                                             + clazz
                                             + ".  Check that class is spelled correctly in ISerializableObject file");
                         }
-                    }
-
-                    if (doHibernate && pluginHibernateSet.size() > 0) {
-                        hibernatables.put(pluginFQN,
-                                new ArrayList<Class<ISerializableObject>>(
-                                        pluginHibernateSet));
                     }
                     u = getNextUrl();
                 }
