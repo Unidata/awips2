@@ -29,6 +29,7 @@ import java.util.TimeZone;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 04, 2013  223        mpduff      Added interval field.
  * Jun 06, 2013 2038        djohnson    Remove throws ParseException.
  * Sept 26, 2013 1797       dhladky     Separated Gridded fields from this class once and for all.
+ * Oct 10, 2013 1797        bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -69,33 +71,37 @@ public abstract class Time implements Serializable {
     @DynamicSerializeElement
     protected int numTimes;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String start;
+    protected Date start;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String end;
+    protected Date end;
 
     @XmlAttribute
     @DynamicSerializeElement
     protected String format;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String requestStart;
+    protected Date requestStart;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String requestEnd;
+    protected Date requestEnd;
 
-    protected Date startDate = null;
+    public Time() {
+    }
 
-    protected Date requestEndDate = null;
-
-    protected Date endDate = null;
-
-    protected Date requestStartDate = null;
+    public Time(Time toCopy) {
+        this.numTimes = toCopy.numTimes;
+        this.start = toCopy.start;
+        this.end = toCopy.end;
+        this.format = toCopy.format;
+        this.requestEnd = toCopy.requestEnd;
+        this.requestStart = toCopy.requestStart;
+    }
 
     public int getNumTimes() {
         return numTimes;
@@ -105,97 +111,59 @@ public abstract class Time implements Serializable {
         this.numTimes = numTimes;
     }
 
-    public String getStart() {
-        return start;
-    }
-
     /**
      * Get the start date
      * 
-     * @return
-     * @throws ParseException
+     * @return start
      */
-    public Date getStartDate() throws ParseException {
-
-        if (startDate == null) {
-            if (getStart() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.startDate = dateFormat.parse(getStart());
-            }
-        }
-
-        return startDate;
-    }
-
-    public void setStart(String start) {
-        this.start = start;
+    public Date getStart() {
+        return start;
     }
 
     /**
      * Set the start date
      * 
-     * @return
-     * @throws ParseException
      */
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-        if (startDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setStart(dateFormat.format(startDate));
-        }
+    public void setStart(Date startDate) {
+        this.start = startDate;
     }
 
-    public String getEnd() {
-        return end;
+    /**
+     * Set the start date
+     * 
+     * @throws ParseException
+     */
+    public void setStartDate(String startDate) throws ParseException {
+        this.start = parseDate(startDate);
     }
 
     /**
      * Get the end date
      * 
-     * @return
-     * @throws ParseException
+     * @return end
      */
-    public Date getEndDate() throws ParseException {
-        if (endDate == null) {
-            if (getEnd() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.endDate = dateFormat.parse(getEnd());
-            }
-        }
-
-        return endDate;
-    }
-
-    public void setEnd(String end) {
-        this.end = end;
+    public Date getEnd() {
+        return this.end;
     }
 
     /**
      * Set the end date
      * 
      * @return
+     */
+    public void setEnd(Date endDate) {
+        this.end = endDate;
+    }
+
+    /**
+     * Set the end date
+     * 
      * @throws ParseException
      */
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-        if (endDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setEnd(dateFormat.format(endDate));
-        }
+    public void setEndDate(String endDate) throws ParseException {
+        this.end = parseDate(endDate);
     }
 
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-    
     /**
      * 
      * Enumeration of the duration units
@@ -247,86 +215,82 @@ public abstract class Time implements Serializable {
         return null;
     }
 
-    public String getRequestStart() {
+    /**
+     * Set the end date
+     * 
+     * @return
+     */
+    public void setRequestStart(Date requestStartDate) {
+        this.requestStart = requestStartDate;
+    }
+
+    /**
+     * Get the request start date
+     * 
+     * @return
+     */
+    public Date getRequestStart() {
         return requestStart;
     }
 
-    public void setRequestStart(String requestStart) {
-        this.requestStart = requestStart;
+    /**
+     * Set the request start date
+     * 
+     * @throws ParseException
+     */
+    public void setRequestStartDate(String requestStartDate)
+            throws ParseException {
+        this.requestStart = parseDate(requestStartDate);
     }
 
-    public String getRequestEnd() {
+    /**
+     * Set the request end date
+     * 
+     * @return
+     */
+    public void setRequestEnd(Date requestEndDate) {
+        this.requestEnd = requestEndDate;
+    }
+
+    /**
+     * Set the request end date
+     * 
+     * @throws ParseException
+     */
+    public void setRequestEndDate(String requestEndDate) throws ParseException {
+        this.requestEnd = parseDate(requestEndDate);
+    }
+
+    /**
+     * Get the request end date
+     * 
+     * @return
+     */
+    public Date getRequestEnd() {
         return requestEnd;
     }
 
-    public void setRequestEnd(String requestEnd) {
-        this.requestEnd = requestEnd;
-    };
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
 
     /**
-     * Set the end date
+     * parse the date string using format.
      * 
-     * @return
      * @throws ParseException
      */
-    public void setRequestStartAsDate(Date requestStartDate) {
-        this.requestStartDate = requestStartDate;
-        if (requestStartDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
+    private Date parseDate(String date) throws ParseException {
+        if (this.format != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(this.format);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setRequestStart(dateFormat.format(requestStartDate));
+            return dateFormat.parse(date);
+        } else {
+            throw new ParseException("No Date Format defined.", 0);
         }
-    }
-
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    public Date getRequestStartAsDate() throws ParseException {
-        if (requestStartDate == null) {
-            if (getRequestStart() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.requestStartDate = dateFormat.parse(getRequestStart());
-            }
-        }
-
-        return requestStartDate;
-    }
-
-    /**
-     * Set the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    public void setRequestEndAsDate(Date requestEndDate) {
-        this.requestEndDate = requestEndDate;
-        if (requestEndDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setRequestEnd(dateFormat.format(requestEndDate));
-        }
-    }
-
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    public Date getRequestEndAsDate() throws ParseException {
-        if (requestEndDate == null) {
-            if (getRequestEnd() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.requestEndDate = dateFormat.parse(getRequestEnd());
-            }
-        }
-
-        return requestEndDate;
     }
 
 }

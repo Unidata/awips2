@@ -67,7 +67,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Sept 10, 2013 2351      dhladky      Made adhoc queries for pointdata work
  * Sept 17, 2013 2383      bgonzale     setAdhocMostRecentUrlAndTime returns null if grid and
  *                                      no metadata found.
- * Sept 24, 2013 1797      dhladky      separated time from GriddedTime                                    
+ * Sept 24, 2013 1797      dhladky      separated time from GriddedTime
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -383,7 +384,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                         }
 
                         adhoc.setUrl(daoToUse.getUrl());
-                        adhocTime.setStartDate(daoToUse.getDataSetBaseTime()
+                        adhocTime.setStart(daoToUse.getDataSetBaseTime()
                                 .getTime());
 
                         retVal = adhoc;
