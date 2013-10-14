@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.util.satellite;
+package com.raytheon.edex.plugin.satellite.gini;
 
 import java.io.Serializable;
 
@@ -28,10 +28,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * A satellite creating entity
+ * A satellite physical element
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -44,58 +43,57 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @Entity
-@Table(name = "satellite_creating_entities")
-public class SatelliteCreatingEntity extends PersistableDataObject implements
-        Serializable, ISerializableObject {
+@Table(name = "satellite_physical_elements")
+public class SatellitePhysicalElement extends PersistableDataObject implements
+        Serializable {
 
-    private static final long serialVersionUID = -4678013903413236803L;
+    private static final long serialVersionUID = 8429844485032687146L;
 
-    /** The id of the creating entity */
+    /** The physical element id */
     @Id
-    private int entityId;
+    private int elementId;
 
-    /** The name of the creating entity */
+    /** The physical element name */
     @Column(length = 64)
-    private String entityName;
+    private String elementName;
 
     /**
-     * Constructs and empty SatelliteCreatingEntity
+     * Constructs an empty SatellitePhysicalElement
      */
-    public SatelliteCreatingEntity() {
-
+    public SatellitePhysicalElement() {
     }
 
     /**
-     * Constructs a new creating entity
+     * Constructs a new SatellitePhysicalElement
      * 
-     * @param entityId
-     *            The entity id
-     * @param entityName
-     *            The entity name
+     * @param elementId
+     *            The element id
+     * @param elementName
+     *            The element name
      */
-    public SatelliteCreatingEntity(int entityId, String entityName) {
-        this.entityId = entityId;
-        this.entityName = entityName;
+    public SatellitePhysicalElement(int elementId, String elementName) {
+        this.elementId = elementId;
+        this.elementName = elementName;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public int getElementId() {
+        return elementId;
     }
 
-    public void setEntityId(int entityId) {
-        this.entityId = entityId;
+    public void setElementId(int elementId) {
+        this.elementId = elementId;
     }
 
-    public String getEntityName() {
-        return entityName;
+    public String getElementName() {
+        return elementName;
     }
 
-    public void setEntityName(String entityName) {
-        this.entityName = entityName;
+    public void setElementName(String elementName) {
+        this.elementName = elementName;
     }
 
     public String toString() {
-        return entityName;
+        return elementName;
     }
 
 }

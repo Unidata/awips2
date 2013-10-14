@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.subscription.data;
+package com.raytheon.edex.autobldsrv.data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,123 +32,139 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * TODO Add Description
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	
+ * 
  * 
  * </pre>
- *
+ * 
  * @author mfegan
- * @version 1.0	
+ * @version 1.0
  */
 
 @Entity
-@Table(name="replacements",schema="subscription")
+@Table(name = "replacements", schema = "subscription")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ReplacementRecord extends PersistableDataObject implements ISerializableObject {
+public class ReplacementRecord extends PersistableDataObject {
 
     private static final long serialVersionUID = 1L;
 
-    
     @XmlAttribute
     @DynamicSerializeElement
     @Id
     @GeneratedValue
     private long id;
-    
+
     @ManyToOne
-    @JoinColumn(name="subscription", nullable=false)
+    @JoinColumn(name = "subscription", nullable = false)
     private SubscriptionRecord subscription;
 
     @XmlAttribute
     @DynamicSerializeElement
-    @Column(length=50)
+    @Column(length = 50)
     private String key;
 
     @XmlAttribute
     @DynamicSerializeElement
-    @Column(length=2048)
+    @Column(length = 2048)
     private String value;
+
     /**
      * Constructor.
      */
     public ReplacementRecord() {
         super();
     }
+
     /**
      * Constructor. Creates a replacement record bound to the specified
      * subscription record.
      * 
-     * @param parent the subscription record
-     * @param key the replacement key
-     * @param value the replacement value
+     * @param parent
+     *            the subscription record
+     * @param key
+     *            the replacement key
+     * @param value
+     *            the replacement value
      */
     public ReplacementRecord(SubscriptionRecord parent, String key, String value) {
         this.subscription = parent;
         this.key = key;
         this.value = value;
     }
+
     /**
      * @return the id
      */
     public long getId() {
         return id;
     }
+
     /**
-     * @param id the id to set
+     * @param id
+     *            the id to set
      */
     public void setId(long id) {
         this.id = id;
     }
+
     /**
      * @return the subscription
      */
     public SubscriptionRecord getSubscription() {
         return subscription;
     }
+
     /**
-     * @param subscription the subscription to set
+     * @param subscription
+     *            the subscription to set
      */
     public void setSubscription(SubscriptionRecord subscription) {
         this.subscription = subscription;
     }
+
     /**
      * @return the key
      */
     public String getKey() {
         return key;
     }
+
     /**
-     * @param key the key to set
+     * @param key
+     *            the key to set
      */
     public void setKey(String key) {
         this.key = key;
     }
+
     /**
      * @return the value
      */
     public String getValue() {
         return value;
     }
+
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(String value) {
         this.value = value;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -157,7 +173,7 @@ public class ReplacementRecord extends PersistableDataObject implements ISeriali
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ReplacementRecord other = (ReplacementRecord)obj;
+        ReplacementRecord other = (ReplacementRecord) obj;
         if (this.key == null) {
             if (other.key != null) {
                 return false;
@@ -174,6 +190,7 @@ public class ReplacementRecord extends PersistableDataObject implements ISeriali
         }
         return true;
     }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
