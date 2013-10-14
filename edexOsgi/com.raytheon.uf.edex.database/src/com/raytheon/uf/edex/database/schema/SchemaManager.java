@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.db.purge;
+package com.raytheon.uf.edex.database.schema;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,10 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.AnnotationException;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializableManager;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
@@ -66,12 +63,14 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 10/8/2008    1532        bphillip    Initial checkin
- * 2/9/2009     1990       bphillip     Fixed index creation
- * 03/20/09                njensen      Implemented IPluginRegistryChanged
- * Mar 29, 2013 1841       djohnson     Remove unused method, warnings, and close streams with utility method.
+ * 10/8/2008    1532       bphillip    Initial checkin
+ * 2/9/2009     1990       bphillip    Fixed index creation
+ * 03/20/09                njensen     Implemented IPluginRegistryChanged
+ * Mar 29, 2013 1841       djohnson    Remove unused method, warnings, and close streams with utility method.
  * Mar 02, 2013 1970       bgonzale    Added check for abstract entities in sql index naming.
- *                                     Removed unused private method populateSchema.
+ *                                      Removed unused private method populateSchema.
+ * Oct 14, 2013 2361       njensen     Moved to plugin uf.edex.database
+ *                                      Replaced use of SerializableManager
  * </pre>
  * 
  * @author bphillip
@@ -80,8 +79,7 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
 public class SchemaManager implements IDatabasePluginRegistryChanged {
 
     /** The logger */
-    private static final Log logger = LogFactory
-            .getLog(SchemaManager.class);
+    private static final Log logger = LogFactory.getLog(SchemaManager.class);
 
     private static final String resourceSelect = "select relname from pg_class where relname = '";
 
@@ -178,8 +176,20 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                             "Unable to execute scripts for plugin FQN "
                                     + pluginFQN);
                 } finally {
-                    Util.close(reader);
-                    Util.close(stream);
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            // ignore
+                        }
+                    }
+                    if (stream != null) {
+                        try {
+                            stream.close();
+                        } catch (IOException e) {
+                            // ignore
+                        }
+                    }
                 }
             }
         }
@@ -285,9 +295,9 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
         ArrayList<String> createSql = pluginCreateSql.get(fqn);
         if (createSql == null) {
             // need the full dependency tree to generate the sql
-            Set<Class<ISerializableObject>> hibernatables = new HashSet<Class<ISerializableObject>>();
-            getAllRequiredHibernatables(props, hibernatables);
-            String[] sqlArray = sessFactory.getCreateSql(hibernatables);
+            String[] sqlArray = sessFactory
+                    .getCreateSql(getTablesAndDependencies(props,
+                            sessFactory.getAnnotatedClasses()));
             createSql = new ArrayList<String>(sqlArray.length);
             for (String sql : sqlArray) {
                 createSql.add(sql);
@@ -330,9 +340,9 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
         ArrayList<String> dropSql = pluginDropSql.get(fqn);
         if (dropSql == null) {
             // need the full dependency tree to generate the sql
-            Set<Class<ISerializableObject>> hibernatables = new HashSet<Class<ISerializableObject>>();
-            getAllRequiredHibernatables(props, hibernatables);
-            String[] sqlArray = sessFactory.getDropSql(hibernatables);
+            String[] sqlArray = sessFactory
+                    .getDropSql(getTablesAndDependencies(props,
+                            sessFactory.getAnnotatedClasses()));
             dropSql = new ArrayList<String>(sqlArray.length);
             for (String sql : sqlArray) {
                 dropSql.add(sql);
@@ -348,10 +358,30 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
         return dropSql;
     }
 
-    protected void getAllRequiredHibernatables(DatabasePluginProperties props,
-            Set<Class<ISerializableObject>> hibernatables) {
-        hibernatables.addAll(SerializableManager.getInstance()
-                .getHibernatablesForPluginFQN(props.getPluginFQN()));
+    /**
+     * Searches the classes from the session factory to see if they match the
+     * plugin FQN. Recursively searches for the classes associated wtih
+     * dependent plugins.
+     * 
+     * @param props
+     *            the plugin to find DB classes and dependencies for
+     * @param allPossibleClasses
+     *            all the classes associated with the session factory
+     * @return
+     */
+    protected Set<Class<?>> getTablesAndDependencies(
+            DatabasePluginProperties props, Class<?>[] allPossibleClasses) {
+        Set<Class<?>> result = new HashSet<Class<?>>();
+        // add a . to the end to ensure the package name exactly matches
+        // and we don't pick up incorrect packages,
+        // e.g. common.dataplugin.cwa. vs common.dataplugin.cwat.
+        // There will always be a . since we're looking at class names.
+        Pattern p = Pattern.compile(props.getPluginFQN() + "\\.");
+        for (Class<?> clazz : allPossibleClasses) {
+            if (p.matcher(clazz.getName()).find()) {
+                result.add(clazz);
+            }
+        }
         List<String> fqns = props.getDependencyFQNs();
         if (fqns != null && fqns.size() > 0) {
             for (String fqn : fqns) {
@@ -360,9 +390,12 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
 
                 // recurse, may need to add short circuit logic by tracking
                 // plugins already processed
-                getAllRequiredHibernatables(dProps, hibernatables);
+                result.addAll(this.getTablesAndDependencies(dProps,
+                        allPossibleClasses));
             }
         }
+
+        return result;
     }
 
     protected void removeAllDependentCreateSql(DatabasePluginProperties props,
@@ -469,4 +502,5 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
             }
         }
     }
+
 }
