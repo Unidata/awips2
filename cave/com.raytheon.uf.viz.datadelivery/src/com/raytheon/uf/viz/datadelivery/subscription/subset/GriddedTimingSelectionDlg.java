@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
+import static com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.getMaxLatency;
+
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -34,16 +34,13 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IGriddedTimingSelectionDlgView;
 import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.presenter.components.ButtonConf;
-import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
-import com.raytheon.viz.ui.presenter.components.ListConf;
 
 /**
  * Gridded data/cycle selection dialog for adhoc queries.
@@ -61,6 +58,7 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * Jan 25, 2013  1528      djohnson    Subscription priority is now an enum.
  * Feb 26, 2013  1592      djohnson    When the shell is closed, don't submit the query.
  * Jun 04, 2013   223      mpduff      PriorityComp constructor changed.
+ * Oct 11, 2013  2386      mpduff      Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -68,8 +66,7 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * @version 1.0
  */
 
-public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
-        IGriddedTimingSelectionDlgView {
+public class GriddedTimingSelectionDlg extends CaveSWTDialog {
 
     /** The Main Composite */
     private Composite dateComp;
@@ -98,26 +95,35 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
     /** Cycle times */
     private final Set<Integer> cycleTimes;
 
+    private final GriddedDataSet dataset;
+
+    private final java.util.List<String> dateList;
+
     /**
      * Constructor
      * 
      * @param parentShell
-     * @param cycleTimes
+     * @param dataset
+     * @param subscription
+     * @param dateStringToDateMap
      */
-    protected GriddedTimingSelectionDlg(Shell parentShell,
-            Set<Integer> cycleTimes, Subscription subscription) {
+    public GriddedTimingSelectionDlg(Shell parentShell, GriddedDataSet dataset,
+            Subscription subscription, java.util.List<String> dateList) {
         super(parentShell);
         setText("Select Date/Cycle");
-        this.cycleTimes = cycleTimes;
+        this.cycleTimes = dataset.getCycles();
         this.subscription = subscription;
+        this.dataset = dataset;
+        this.dateList = dateList;
     }
 
     /**
-     * {@inheritDoc}
+     * Open the dialog.
+     * 
+     * @return the selection
      */
-    @Override
-    public Integer openDlg() {
-        return (Integer) this.open();
+    public GriddedTimeSelection openDlg() {
+        return (GriddedTimeSelection) this.open();
     }
 
     /**
@@ -134,14 +140,26 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
 
         useLatestChk = new Button(dateComp, SWT.CHECK);
         useLatestChk.setLayoutData(gd);
+        useLatestChk.setText("Get Latest Data");
+        useLatestChk.setSelection(true);
+        useLatestChk.setToolTipText("Use the latest time");
+        useLatestChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                dateCycleList.setEnabled(!useLatestChk.getSelection());
+            }
+        });
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.heightHint = 150;
         this.dateCycleList = new List(dateComp, SWT.SINGLE | SWT.BORDER
                 | SWT.V_SCROLL);
         dateCycleList.setLayoutData(gd);
+        dateCycleList.setEnabled(false);
 
         // Get latency value
         SystemRuleManager ruleManager = SystemRuleManager.getInstance();
+
         int latency = ruleManager.getLatency(this.subscription, cycleTimes);
         SubscriptionPriority priority = ruleManager.getPriority(
                 this.subscription, cycleTimes);
@@ -157,10 +175,28 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
         gd = new GridData(btnWidth, SWT.DEFAULT);
         okBtn = new Button(buttonComp, SWT.PUSH);
         okBtn.setLayoutData(gd);
+        okBtn.setText("OK");
+        okBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleOk();
+                close();
+            }
+        });
 
         gd = new GridData(btnWidth, SWT.DEFAULT);
         cancelBtn = new Button(buttonComp, SWT.PUSH);
         cancelBtn.setLayoutData(gd);
+        cancelBtn.setText("Cancel");
+        cancelBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                GriddedTimeSelection gts = new GriddedTimeSelection();
+                gts.setCancel(true);
+                setReturnValue(gts);
+                close();
+            }
+        });
     }
 
     /**
@@ -181,177 +217,56 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
      */
     @Override
     protected void preOpened() {
-        preOpenCallback.run();
-
+        populate();
         shell.layout();
         shell.pack();
     }
 
     /**
-     * {@inheritDoc}
+     * Check if the latest data checkbox is enabled.
+     * 
+     * @return true if enabled.
      */
-    @Override
-    public void setLatestDataCheckBox(final CheckBoxConf checkBoxConf) {
-        useLatestChk.setText(checkBoxConf.getDisplayText());
-        useLatestChk.setSelection(checkBoxConf.isInitiallyChecked());
-        useLatestChk.setToolTipText(checkBoxConf.getToolTipText());
-        useLatestChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                checkBoxConf.getOnCheckedChangeAction().run();
-            }
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setDateCycleList(ListConf dateCycleListConf) {
-        GridData gd = new GridData(dateCycleListConf.getWidth(),
-                dateCycleListConf.getHeight());
-        dateCycleList.setItems(dateCycleListConf.getItems());
-        dateCycleList.setLayoutData(gd);
-        dateCycleList.setEnabled(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setOkButton(final ButtonConf okBtnConf) {
-        okBtn.setText(okBtnConf.getDisplayText());
-        okBtn.setToolTipText(okBtnConf.getToolTipText());
-        okBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                okBtnConf.getOnClickAction().run();
-            }
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCancelButton(final ButtonConf cancelBtnConf) {
-        cancelBtn.setText(cancelBtnConf.getDisplayText());
-        cancelBtn.setToolTipText(cancelBtnConf.getToolTipText());
-        cancelBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                close();
-                cancelBtnConf.getOnClickAction().run();
-            }
-        });
-
-        shell.addShellListener(new ShellAdapter() {
-            @Override
-            public void shellClosed(ShellEvent event) {
-                cancelBtnConf.getOnClickAction().run();
-            }
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPreOpenCallback(Runnable callback) {
-        this.preOpenCallback = callback;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isLatestDataEnabled() {
         return useLatestChk.getSelection();
     }
 
     /**
-     * {@inheritDoc}
+     * Set the date/cycle list enabled.
      */
-    @Override
     public void setDateCycleListEnabled() {
         this.dateCycleList.setEnabled(!this.useLatestChk.getSelection());
     }
 
+    private void populate() {
+        for (String date : this.dateList) {
+            dateCycleList.add(date);
+        }
+    }
+
     /**
-     * {@inheritDoc}
+     * OK Button action method.
      */
-    @Override
-    public String getSelection() {
-        if (dateCycleList.isEnabled()) {
-            return dateCycleList.getItem(dateCycleList.getSelectionIndex());
+    private void handleOk() {
+        GriddedTimeSelection data = new GriddedTimeSelection();
+        if (!isLatestDataEnabled()) {
+            String selection = dateCycleList.getItem(dateCycleList
+                    .getSelectionIndex());
+            DataDeliveryGUIUtils.latencyValidChk(
+                    priorityComp.getLatencyValue(), getMaxLatency(dataset));
+
+            // parse off the date/cycle time selected
+            String[] parts = selection.split(" - ");
+            String selectedDate = parts[0];
+            String cycleStr = parts[1];
+            cycleStr = cycleStr.substring(0, cycleStr.indexOf(" Z"));
+            data.setCycle(Integer.parseInt(cycleStr));
+            data.setDate(selection);
+        } else {
+            data.setCycle(-999);
+            data.setLatest(true);
         }
 
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void init() {
-        // not used
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void displayPopup(String title, String message) {
-        DataDeliveryUtils.showMessage(getShell(), SWT.OK, title, message);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void displayErrorPopup(String title, String message) {
-        DataDeliveryUtils.showMessage(shell, SWT.ERROR, title, message);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean displayOkCancelPopup(String title, String message) {
-        return DataDeliveryUtils.showMessage(shell, SWT.CANCEL | SWT.OK, title,
-                message) == SWT.OK;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean displayYesNoPopup(String title, String message) {
-        return DataDeliveryUtils.showYesNoMessage(shell, title, message) == SWT.YES;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void closeDlg() {
-        close();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getLatency() {
-        return priorityComp.getLatencyValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SubscriptionPriority getPriority() {
-        return priorityComp.getPriority();
+        setReturnValue(data);
     }
 }
