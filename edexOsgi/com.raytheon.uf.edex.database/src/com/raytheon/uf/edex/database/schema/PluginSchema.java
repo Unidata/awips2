@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.db.purge;
+package com.raytheon.uf.edex.database.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +38,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 10/8/2008    1532        bphillip    Initial checkin
- * 2/6/2009     1990       bphillip     Modified error handling
+ * 10/8/2008    1532       bphillip    Initial checkin
+ * 2/6/2009     1990       bphillip    Modified error handling
+ * 10/14/2013   2361       njensen     Moved to plugin uf.edex.database
  * </pre>
  * 
  * @author bphillip
