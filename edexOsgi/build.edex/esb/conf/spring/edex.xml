@@ -155,11 +155,12 @@
 		<property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
 		<property name="initialRetentionTime" value="24" />
 		<property name="pathProvider" ref="defaultPathProvider"/>
-	</bean>  
+	</bean>  		
 
 	<!--  This causes database tables to be initialized when a db plugin is registered -->
-    <bean id="schemaManager" class="com.raytheon.edex.db.purge.SchemaManager"
+    <bean id="schemaManager" class="com.raytheon.uf.edex.database.schema.SchemaManager"
     	factory-method="getInstance" />
+    	
     <bean factory-bean="dbPluginRegistry" factory-method="addListener">
     	<constructor-arg><ref bean="schemaManager"/></constructor-arg>
     </bean>

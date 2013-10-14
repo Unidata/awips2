@@ -19,13 +19,14 @@
 		<property name="maxPoolSize" value="${grib-decode.count.threads}" />
 	</bean>
 
-	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
+	<bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
+		<constructor-arg value="${grib-decode.count.gridpoints}"/>
+		<constructor-arg value="${grib-decode.count.threads}"/>
+	</bean>
 
 	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
 	
 	<bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
-
-	<bean id="largeFileLockRelease" class="com.raytheon.edex.plugin.grib.GribLockRelease" />
 
     <bean id="gribDecodeCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
@@ -54,7 +55,7 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=2"/>
+		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit"/>
 		<endpoint id="gribDecodeJmsEndpoint" uri="ingest-grib:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
 
 		
@@ -95,7 +96,7 @@
 			<from ref="gribDecodeJmsEndpoint" />
 			<doTry>
 				<pipeline>
-					<bean ref="largeFileChecker" />
+					<bean ref="gribGridPointLock" method="reserve"/>
 					<bean ref="gribDecoder" />
 					<!-- send for processing -->
 					<bean ref="gribPostProcessor" method="process" />
@@ -106,7 +107,7 @@
 					<to uri="log:grib?level=ERROR"/>
 				</doCatch>
 				<doFinally>
-					<bean ref="largeFileLockRelease" />
+					<bean ref="gribGridPointLock" method="release"/>
 				</doFinally>
 			</doTry>
 		</route>
