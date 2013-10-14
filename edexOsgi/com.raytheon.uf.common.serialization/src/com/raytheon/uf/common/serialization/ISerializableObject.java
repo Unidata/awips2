@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.serialization;
 
+import javax.persistence.Embeddable;
+
 /**
  * Empty interface that should be implemented by any class that uses Hibernate,
  * JaxB, or DynamicSerialize annotations so it is detected at runtime.
@@ -44,9 +46,11 @@ package com.raytheon.uf.common.serialization;
  *             annotations. JAXB/XML only requires it if you use the global JAXB
  *             context through {@link SerializationUtil}, however that is a
  *             performance hit and deprecated and you should instead create your
- *             own {@link JAXBManager}. Hibernate still requires
- *             ISerializableObject but an alternative will be provided in the
- *             near future.
+ *             own {@link JAXBManager}. Hibernate no longer uses it, EDEX will
+ *             automatically detect classes with {@link Entity} or
+ *             {@link Embeddable} annotations if their package name starts with
+ *             the same plugin FQN that is present in the PluginProperties or
+ *             DatabasePluginProperties.
  * 
  */
 
