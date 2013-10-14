@@ -4,8 +4,10 @@
   
   	<!--  IHFS Database Configuration-->
   	<bean id="ihfsDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
+  	    <property name="classFinder" ref="dbClassFinder" />
         <property name="includes">
            <list>
+                <value>com.raytheon.uf.common.dataplugin.shef</value>
                 <value>com.raytheon.edex.plugin.shef</value>
            </list>
         </property>

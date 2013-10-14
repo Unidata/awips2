@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.subscription.data;
+package com.raytheon.edex.autobldsrv.data;
 
 import java.util.Date;
 import java.util.HashMap;
