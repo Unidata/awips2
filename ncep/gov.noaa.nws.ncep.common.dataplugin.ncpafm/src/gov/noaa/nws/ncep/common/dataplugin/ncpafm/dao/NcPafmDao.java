@@ -15,26 +15,24 @@
  **/
 package gov.noaa.nws.ncep.common.dataplugin.ncpafm.dao;
 
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
-
 import gov.noaa.nws.ncep.common.dataplugin.ncpafm.NcPafmRecord;
-import gov.noaa.nws.ncep.edex.common.dao.NcepDefaultPluginDao;
+
+import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 public class NcPafmDao extends PointDataPluginDao<NcPafmRecord> {
 
-	private PointDataDescription pdd;
+    private PointDataDescription pdd;
 
-    
     /**
      * Creates a new ReccoDao
-     * @throws PluginException 
+     * 
+     * @throws PluginException
      */
     public NcPafmDao(String pluginName) throws PluginException {
         super(pluginName);
@@ -55,19 +53,19 @@ public class NcPafmDao extends PointDataPluginDao<NcPafmRecord> {
         } catch (DataAccessLayerException e) {
             e.printStackTrace();
         }
-        if((obs != null)&&(obs.size() > 0)) {
+        if ((obs != null) && (obs.size() > 0)) {
             report = (NcPafmRecord) obs.get(0);
         }
         return report;
     }
-    
+
     /**
      * Queries for to determine if a given data uri exists on the PAFM table.
      * 
      * @param dataUri
      *            The DataURI to find.
      * @return An array of objects. If not null, there should only be a single
-     * element.
+     *         element.
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
@@ -78,15 +76,16 @@ public class NcPafmDao extends PointDataPluginDao<NcPafmRecord> {
 
         return results;
     }
-    
+
     @Override
-    public String[] getKeysRequiredForFileName() {  //TODO:  See if this is correct/complete
+    public String[] getKeysRequiredForFileName() { // TODO: See if this is
+                                                   // correct/complete
         return new String[] { "dataTime.refTime" };
     }
 
     @Override
     public String getPointDataFileName(NcPafmRecord p) {
-        return "ncpafm.h5";  //TODO:  "s"?  or no "s"?
+        return "ncpafm.h5"; // TODO: "s"? or no "s"?
     }
 
     @Override
@@ -95,20 +94,15 @@ public class NcPafmDao extends PointDataPluginDao<NcPafmRecord> {
     }
 
     /*
-    @Override
-    public String[] getParameters(File file) throws StorageException,
-            FileNotFoundException {
-        try {
-            // This should be faster than hitting the datastore.
-            return getPointDataDescription().getParameterNames();
-        } catch (Exception e) {
-            // let super handle it
-            return super.getParameters(file);
-        }
-    }
-    */
+     * @Override public String[] getParameters(File file) throws
+     * StorageException, FileNotFoundException { try { // This should be faster
+     * than hitting the datastore. return
+     * getPointDataDescription().getParameterNames(); } catch (Exception e) { //
+     * let super handle it return super.getParameters(file); } }
+     */
 
-    public PointDataDescription getPointDataDescription() throws JAXBException {
+    public PointDataDescription getPointDataDescription()
+            throws SerializationException {
         if (pdd == null) {
             pdd = PointDataDescription.fromStream(this.getClass()
                     .getResourceAsStream("/res/pointdata/ncpafm.xml"));

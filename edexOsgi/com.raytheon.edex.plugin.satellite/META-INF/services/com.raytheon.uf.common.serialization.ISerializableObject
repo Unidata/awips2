@@ -1,6 +1,0 @@
-com.raytheon.edex.util.satellite.SatelliteSource
-com.raytheon.edex.util.satellite.SatelliteCreatingEntity
-com.raytheon.edex.util.satellite.SatelliteSectorId
-com.raytheon.edex.util.satellite.SatellitePhysicalElement
-com.raytheon.edex.util.satellite.SatelliteUnit
-com.raytheon.edex.util.satellite.SatellitePosition

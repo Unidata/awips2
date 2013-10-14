@@ -20,7 +20,6 @@
 
 package com.raytheon.uf.viz.d2d.ui.map;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -53,9 +51,8 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -98,7 +95,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                              swapped to side panel
  *      Mar 21, 2013       1638     mschenke    Changed map scales not tied to d2d
  *      Aug  9, 2013   DR 16427     D. Friedman Swap additional input handlers.
- * 
+ *      Oct 10, 2013    #2104       mschenke    Switched to use MapScalesManager
+ *      
  * </pre>
  * 
  * @author chammack
@@ -143,29 +141,17 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         String myId = site.getId() + UiUtil.SECONDARY_ID_SEPARATOR
                 + site.getSecondaryId();
 
-        for (MapScale scale : MapScales.getInstance().getScales()) {
-            boolean myScale = false;
-            for (PartId partId : scale.getPartIds()) {
-                if (partId.isView() && myId.equals(partId.getId())) {
-                    myScale = true;
-                    break;
-                }
+        for (ManagedMapScale scale : MapScalesManager.getInstance()
+                .getScalesForPart(myId)) {
+            try {
+                Bundle b = scale.getScaleBundle();
+                b.setView(myId);
+                bundleToLoad = b;
+            } catch (SerializationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error deserializing bundle for scale: " + scale, e);
             }
-            if (myScale) {
-                File file = scale.getFile();
-                try {
-                    Bundle b = (Bundle) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(file);
-                    b.setView(myId);
-                    bundleToLoad = b;
-                } catch (SerializationException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Error deserializing bundle: "
-                                    + file.getAbsolutePath(), e);
-                }
-                break;
-            }
+            break;
         }
     }
 
