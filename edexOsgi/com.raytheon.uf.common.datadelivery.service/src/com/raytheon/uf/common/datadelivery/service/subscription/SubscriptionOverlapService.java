@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Checks subscriptions to see if they would be considered duplicates.
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * May 07, 2013 2000       djohnson     Initial creation
  * Jun 04, 2013  223       mpduff       Get base file if site doesn't exist.
  * Sept 23, 2013 2283      dhladky      Updated for multiple configs
+ * Oct 03, 2013  2386      mpduff       Moved the subscription overlap rules files into the rules directory.
  * 
  * </pre>
  * 
@@ -60,7 +62,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class SubscriptionOverlapService<T extends Time, C extends Coverage> implements ISubscriptionOverlapService<T, C> {
+public class SubscriptionOverlapService<T extends Time, C extends Coverage>
+        implements ISubscriptionOverlapService<T, C> {
 
     /**
      * Base response object implementing {@link ISubscriptionOverlapResponse}.
@@ -109,8 +112,9 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
             + "No subscriptions will be considered to overlap!";
 
     private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT = "SubscriptionOverlapRules.xml";
-    
-    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = "datadelivery/";
+
+    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = FileUtil
+            .join("datadelivery", "systemManagement", "rules");
 
     private final ISubscriptionDuplicateChecker<T, C> duplicateChecker;
 
@@ -122,14 +126,14 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
      * @param duplicateChecker
      */
     public SubscriptionOverlapService(
-            ISubscriptionDuplicateChecker<T,C> duplicateChecker) {
+            ISubscriptionDuplicateChecker<T, C> duplicateChecker) {
         this.duplicateChecker = duplicateChecker;
 
         try {
             @SuppressWarnings("rawtypes")
-            Class[] clazzes = new Class[]{SubscriptionOverlapConfig.class,
+            Class[] clazzes = new Class[] { SubscriptionOverlapConfig.class,
                     GridSubscriptionOverlapConfig.class,
-                    PointSubscriptionOverlapConfig.class};
+                    PointSubscriptionOverlapConfig.class };
             jaxbManager = new JAXBManager(clazzes);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
@@ -146,14 +150,14 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
         if (sub1.getName().equals(sub2.getName())) {
             return new SubscriptionOverlapResponse(false, false);
         }
-        
+
         // Ignore requests where the two subscriptions are of different types
         if (!sub1.getDataSetType().equals(sub2.getDataSetType())) {
             return new SubscriptionOverlapResponse(false, false);
         }
-        
+
         SubscriptionOverlapConfig config = getConfigFile(sub1.getDataSetType());
-        
+
         return getOverlap(config, sub1, sub2);
     }
 
@@ -166,21 +170,24 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
         final IPathManager pathManager = PathManagerFactory.getPathManager();
         LocalizationContext context = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        
+
         String fileName = null;
-        
+
         if (config instanceof PointSubscriptionOverlapConfig) {
-            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH+DataType.POINT.name()+SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
+            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH
+                    + DataType.POINT.name()
+                    + SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
         } else if (config instanceof GridSubscriptionOverlapConfig) {
-            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH+DataType.GRID.name()+SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
+            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH
+                    + DataType.GRID.name()
+                    + SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
         } else {
-            throw new IllegalArgumentException(config.getClass()+" Doesn't have any implementation in use");
+            throw new IllegalArgumentException(config.getClass()
+                    + " Doesn't have any implementation in use");
         }
-        
-        final LocalizationFile configFile = pathManager
-                .getLocalizationFile(
-                        context,
-                        fileName);
+
+        final LocalizationFile configFile = pathManager.getLocalizationFile(
+                context, fileName);
         configFile.jaxbMarshal(config, jaxbManager);
     }
 
@@ -207,13 +214,15 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
 
     /**
      * Process a set of Gridded subscriptions for duplication;
+     * 
      * @param config
      * @param sub1
      * @param sub2
      * @return
      */
-    private SubscriptionOverlapResponse processGriddedSubscriptionOverlap(GridSubscriptionOverlapConfig config, Subscription<T, C> sub1, Subscription<T, C> sub2) {
-       
+    private SubscriptionOverlapResponse processGriddedSubscriptionOverlap(
+            GridSubscriptionOverlapConfig config, Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
         final int parameterDuplicationPercent = duplicateChecker
                 .getParameterDuplicationPercent(sub1, sub2);
         final int forecastHourDuplicationPercent = duplicateChecker
@@ -234,16 +243,18 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
 
         return new SubscriptionOverlapResponse(duplicate, overlaps);
     }
-    
+
     /***
      * Process a set of Point subscriptions for duplication
+     * 
      * @param config
      * @param sub1
      * @param sub2
      * @return
      */
-    private SubscriptionOverlapResponse processPointSubscriptionOverlap(PointSubscriptionOverlapConfig config, Subscription<T, C> sub1, Subscription<T, C> sub2) {
-        
+    private SubscriptionOverlapResponse processPointSubscriptionOverlap(
+            PointSubscriptionOverlapConfig config, Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
         final int parameterDuplicationPercent = duplicateChecker
                 .getParameterDuplicationPercent(sub1, sub2);
         final int timeDuplicationPercent = duplicateChecker
@@ -252,8 +263,8 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
                 .getSpatialDuplicationPercent(sub1, sub2);
 
         final boolean overlaps = config.isOverlapping(
-                parameterDuplicationPercent, timeDuplicationPercent,
-                0, spatialDuplicationPercent);
+                parameterDuplicationPercent, timeDuplicationPercent, 0,
+                spatialDuplicationPercent);
 
         final boolean duplicate = (parameterDuplicationPercent == ONE_HUNDRED_PERCENT)
                 && (timeDuplicationPercent == ONE_HUNDRED_PERCENT)
@@ -261,25 +272,28 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
 
         return new SubscriptionOverlapResponse(duplicate, overlaps);
     }
-    
+
     /**
      * Gets the overlap config file by type
+     * 
      * @param type
      * @return
      */
     private SubscriptionOverlapConfig getConfigFile(DataType type) {
-        
+
         final IPathManager pathManager = PathManagerFactory.getPathManager();
         LocalizationFile localizationFile = null;
         SubscriptionOverlapConfig config = null;
         localizationFile = pathManager
-                .getStaticLocalizationFile(SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH+type.name()+SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT);
-       
+                .getStaticLocalizationFile(SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH
+                        + type.name() + SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT);
+
         try {
             if (!localizationFile.exists()) {
                 throw new MissingResourceException(localizationFile.getName()
                         + " does not exist.",
-                        SubscriptionOverlapConfig.class.getName(), "Not yet implemented!");
+                        SubscriptionOverlapConfig.class.getName(),
+                        "Not yet implemented!");
             }
 
             if (type == DataType.GRID) {
@@ -290,33 +304,37 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
                 config = localizationFile.jaxbUnmarshal(
                         PointSubscriptionOverlapConfig.class, jaxbManager);
 
-            } 
-            
+            }
+
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, UNABLE_TO_UNMARSHAL, e.getLocalizedMessage());
+            statusHandler.handle(Priority.PROBLEM, UNABLE_TO_UNMARSHAL,
+                    e.getLocalizedMessage());
             // this a fall back so at least some checking gets done
             if (type == DataType.GRID) {
                 config = new GridSubscriptionOverlapConfig().getNeverOverlaps();
             } else if (type == DataType.POINT) {
-                config = new PointSubscriptionOverlapConfig().getNeverOverlaps();
-            } 
+                config = new PointSubscriptionOverlapConfig()
+                        .getNeverOverlaps();
+            }
         }
-        
+
         return config;
     }
-    
+
     /**
      * Gets the SubscriptionOverlapResponse by type
+     * 
      * @param config
      * @param sub1
      * @param sub2
      * @return
      */
-    private SubscriptionOverlapResponse getOverlap(SubscriptionOverlapConfig config, Subscription<T, C> sub1, Subscription<T,C> sub2) {
-        
+    private SubscriptionOverlapResponse getOverlap(
+            SubscriptionOverlapConfig config, Subscription<T, C> sub1,
+            Subscription<T, C> sub2) {
         SubscriptionOverlapResponse response = null;
         DataType type = sub1.getDataSetType();
-        
+
         if (type == DataType.GRID) {
             response = processGriddedSubscriptionOverlap(
                     (GridSubscriptionOverlapConfig) config, sub1, sub2);
@@ -327,7 +345,7 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage> impl
             throw new IllegalArgumentException(type
                     + " Config not yet Implemented!");
         }
-        
+
         return response;
     }
 }
