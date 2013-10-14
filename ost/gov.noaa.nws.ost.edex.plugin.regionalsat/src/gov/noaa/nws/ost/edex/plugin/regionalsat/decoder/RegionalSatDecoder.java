@@ -175,11 +175,8 @@ public class RegionalSatDecoder extends AbstractDecoder {
             // read the number of records
             int numRecords = netCdfFile.findDimension("y").getLength();
 
-            record.setNumRecords(numRecords);
-
             // read the size of each record
             int recordSize = netCdfFile.findDimension("x").getLength();
-            record.setSizeRecords(recordSize);
 
             // read the valid time in seconds and store the time in milliseconds
             long time = netCdfFile.findVariable("validTime").readScalarLong(); // time
