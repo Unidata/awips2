@@ -30,9 +30,10 @@ import java.util.Comparator;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 8, 2013  2245       bsteffen    Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 08, 2013  2245     bsteffen    Initial creation
+ * Oct 14, 2013  2468     bsteffen    Use Date for validTime comparisons.
  * 
  * </pre>
  * 
@@ -109,8 +110,8 @@ public class DataTimeComparator implements Comparator<DataTime> {
         case FORECAST_TIME:
             return integerCompare(time1.getFcstTime(), time2.getFcstTime());
         case VALID_TIME:
-            return longCompare(time1.getValidTime().getTimeInMillis(), time2
-                    .getValidTime().getTimeInMillis());
+            return longCompare(time1.getValidTimeAsDate().getTime(), time2
+                    .getValidTimeAsDate().getTime());
         default:
             throw new IllegalArgumentException(String.valueOf(sortKey)
                     + " is not a recognized SortKey.");
