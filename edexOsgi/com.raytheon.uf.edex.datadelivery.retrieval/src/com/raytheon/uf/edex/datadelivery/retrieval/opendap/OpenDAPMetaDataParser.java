@@ -20,7 +20,6 @@ package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
  * further licensing information.
  **/
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -93,6 +92,7 @@ import dods.dap.DAS;
  * Jan 18, 2013 1513       dhladky      Level look up improvements.
  * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -240,17 +240,17 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(timecon);
                 GriddedTime time = new GriddedTime();
+                // format of time
+                time.setFormat(dataDateFormat);
                 // number of times
                 time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance()
                         .trim(at.getAttribute(size).getValueAt(0))).intValue());
                 // minimum time val
-                time.setStart(OpenDAPParseUtility.getInstance().parseDate(
+                time.setStartDate(OpenDAPParseUtility.getInstance().parseDate(
                         at.getAttribute(minimum).getValueAt(0)));
                 // maximum time val
-                time.setEnd(OpenDAPParseUtility.getInstance().parseDate(
+                time.setEndDate(OpenDAPParseUtility.getInstance().parseDate(
                         at.getAttribute(maximum).getValueAt(0)));
-                // format of time
-                time.setFormat(dataDateFormat);
                 // step
                 List<String> step = OpenDAPParseUtility
                         .getInstance()
@@ -693,11 +693,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                         "The time cannot be null for a DataSetMetaData object!");
             }
             dataSet.setTime(dataSetTime);
-            try {
-                gdsmd.setDate(new ImmutableDate(dataSetTime.getStartDate()));
-            } catch (ParseException e) {
-                throw new IllegalStateException("Unable to parse a date!", e);
-            }
+            gdsmd.setDate(new ImmutableDate(dataSetTime.getStart()));
 
             List<Integer> forecastHoursAsInteger = new ArrayList<Integer>();
             for (String forecastHour : gdsmd.getTime().getFcstHours()) {
