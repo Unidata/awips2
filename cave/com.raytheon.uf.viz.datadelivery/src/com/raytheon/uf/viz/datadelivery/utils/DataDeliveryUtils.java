@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -81,6 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
  * Aug 30, 2013 2288       bgonzale     Added latency to details display.
  * Sept 30, 2013 1797      dhladky      Time GriddedTime separation
+ * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * </pre>
  * 
  * @author mpduff
@@ -681,11 +683,11 @@ public class DataDeliveryUtils {
         }
 
         final Time subTime = sub.getTime();
-        
+
         if (subTime instanceof GriddedTime) {
-            
-            GriddedTime gtime = (GriddedTime)subTime;
-            
+
+            GriddedTime gtime = (GriddedTime) subTime;
+
             final List<String> fcstHours = gtime.getFcstHours();
             if (!CollectionUtil.isNullOrEmpty(fcstHours)) {
                 fmtStr.append("Forecast Hours: ").append(newline);
@@ -708,7 +710,7 @@ public class DataDeliveryUtils {
             }
         } else if (subTime instanceof PointTime) {
             // Nothing done for Point at this time
-        } 
+        }
 
         List<Parameter> parmArray = sub.getParameter();
         if (!CollectionUtil.isNullOrEmpty(parmArray)) {
@@ -762,18 +764,14 @@ public class DataDeliveryUtils {
      * @return the maximum latency in minutes
      */
     public static int getMaxLatency(Subscription<Time, Coverage> subscription) {
-        
-        //TODO  I am going to create a factory for Time so we don't have to do so much casting.
-        // Getting the generics on subscription was part one of that project.
-        
-        Time time = subscription.getTime();
-
-        if (time instanceof PointTime) {
+        if (subscription.getDataSetType() == DataType.POINT) {
             return subscription.getLatencyInMinutes();
-        } else if (time instanceof GriddedTime) {
-            return getMaxLatency(((GriddedTime)subscription.getTime()).getCycleTimes());
+        } else if (subscription.getDataSetType() == DataType.GRID) {
+            return getMaxLatency(((GriddedTime) subscription.getTime())
+                    .getCycleTimes());
         } else {
-            throw new IllegalArgumentException("Invalid Time object!");
+            throw new IllegalArgumentException("Invalid Data Type: "
+                    + subscription.getDataSetType().name());
         }
     }
 

@@ -26,6 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.MessageBox;
 
 /**
  * Composite holding the apply and cancel buttons.
@@ -36,7 +37,8 @@ import org.eclipse.swt.widgets.Composite;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2013    2180     mpduff      Initial creation.
+ * Aug 07, 2013   2180     mpduff      Initial creation.
+ * Oct 03, 2013   2386     mpduff      Added apply failed message.
  * 
  * </pre>
  * 
@@ -100,6 +102,13 @@ public class ApplyCancelComposite extends Composite implements IEnableAction {
             public void widgetSelected(SelectionEvent event) {
                 if (callback.apply()) {
                     enableButtons(false);
+                } else {
+                    MessageBox messageDialog = new MessageBox(getParent()
+                            .getShell(), SWT.ERROR);
+                    messageDialog.setText("Apply Failed");
+                    messageDialog
+                            .setMessage("The apply action failed.  See server logs for details.");
+                    messageDialog.open();
                 }
             }
         });

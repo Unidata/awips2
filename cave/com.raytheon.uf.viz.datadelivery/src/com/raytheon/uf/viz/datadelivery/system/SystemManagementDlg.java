@@ -62,6 +62,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 17, 2013 2000       djohnson    Move bandwidth configuration into its own tab, add subscription overlap rules.
  * Jul 16, 2013 1655       mpduff      Add system status tab.
  * Aug 08, 2013 2180       mpduff      Redesigned UI.
+ * Oct 03, 2013 2386       mpduff      Implemented multiple data types for overlap rules
  * 
  * </pre>
  * 
@@ -73,7 +74,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
     private enum SystemManagementSettings {
         PRIORITY_RULES("Priority Rules"), LATENCY_RULES("Latency Rules"), SUBSCRIPTION_RULES(
-                "Subscription Rules"), BANDWIDTH("Bandwidth"), DATA_PROVIDER_PASSWORD(
+                "Subscription Rules"), GRID_SUBSCRIPTION_RULES(
+                "Grid Subscription Rules"), POINT_SUBSCRIPTION_RULES(
+                "Point Subscription Rules"), BANDWIDTH("Bandwidth"), DATA_PROVIDER_PASSWORD(
                 "Data Provider Password"), REGISTRY_PROVIDER_STATUS(
                 "Registry/Provider Status");
 
@@ -92,6 +95,11 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
      * The Stack Layout.
      */
     private final StackLayout stackLayout = new StackLayout();
+
+    /**
+     * The rule stack.
+     */
+    private final StackLayout ruleStackLayout = new StackLayout();
 
     /**
      * Tree Composite
@@ -125,8 +133,17 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     /** Data Provider username password composite */
     private DataProviderPasswordComposite passwdComp;
 
-    /** Subscription rules composite */
-    private SubscriptionComposite subComp;
+    /** Subscription rules definition composite */
+    private SubscriptionRuleDefinitionComposite subComp;
+
+    /** Subscription rules composite for Gridded rules */
+    private SubscriptionComposite griddedSubRuleComp;
+
+    /** Subscription rules composite for Point rules */
+    private SubscriptionComposite pointSubRuleComp;
+
+    /** Rule stack composite */
+    private Composite ruleStack;
 
     /**
      * Constructor.
@@ -199,6 +216,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         stackComp = new Composite(c, SWT.NONE);
         stackComp.setLayout(stackLayout);
 
+        ruleStack = new Composite(c, SWT.NONE);
+        ruleStack.setLayout(ruleStackLayout);
+
         createComposites();
         createBottomButtons();
     }
@@ -223,9 +243,19 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         TreeItem latencyRule = new TreeItem(ruleNode, 1);
         latencyRule.setText(SystemManagementSettings.LATENCY_RULES.getName());
 
-        TreeItem subscriptionRule = new TreeItem(ruleNode, 2);
-        subscriptionRule.setText(SystemManagementSettings.SUBSCRIPTION_RULES
-                .getName());
+        TreeItem subscriptionRuleNode = new TreeItem(ruleNode, 2);
+        subscriptionRuleNode
+                .setText(SystemManagementSettings.SUBSCRIPTION_RULES.getName());
+
+        TreeItem gridSubscriptionRule = new TreeItem(subscriptionRuleNode, 0);
+        gridSubscriptionRule
+                .setText(SystemManagementSettings.GRID_SUBSCRIPTION_RULES
+                        .getName());
+
+        TreeItem pointSubscriptionRule = new TreeItem(subscriptionRuleNode, 1);
+        pointSubscriptionRule
+                .setText(SystemManagementSettings.POINT_SUBSCRIPTION_RULES
+                        .getName());
 
         TreeItem settingsNode = new TreeItem(tree, 1);
         settingsNode.setText("Settings");
@@ -255,6 +285,20 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
      */
     private void handleSelection(SelectionEvent event) {
         TreeItem item = (TreeItem) event.item;
+
+        if (item.getText().equals(
+                SystemManagementSettings.POINT_SUBSCRIPTION_RULES.getName())) {
+            ruleStackLayout.topControl = compMap
+                    .get(SystemManagementSettings.POINT_SUBSCRIPTION_RULES
+                            .getName());
+            ruleStack.layout();
+        } else if (item.getText().equals(
+                SystemManagementSettings.GRID_SUBSCRIPTION_RULES.getName())) {
+            ruleStackLayout.topControl = compMap
+                    .get(SystemManagementSettings.GRID_SUBSCRIPTION_RULES
+                            .getName());
+            ruleStack.layout();
+        }
 
         for (String key : compMap.keySet()) {
             if (item.getText().equals(key)) {
@@ -314,11 +358,28 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
         gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        subComp = new SubscriptionComposite(stackComp, SWT.BORDER);
+        subComp = new SubscriptionRuleDefinitionComposite(stackComp);
         subComp.setLayout(gl);
         subComp.setLayoutData(gd);
         compMap.put(SystemManagementSettings.SUBSCRIPTION_RULES.getName(),
                 subComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        pointSubRuleComp = new PointSubscriptionRuleComposite(stackComp);
+        pointSubRuleComp.setLayout(gl);
+        pointSubRuleComp.setLayoutData(gd);
+        compMap.put(
+                SystemManagementSettings.POINT_SUBSCRIPTION_RULES.getName(),
+                pointSubRuleComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        griddedSubRuleComp = new GridSubscriptionRuleComposite(stackComp);
+        griddedSubRuleComp.setLayout(gl);
+        griddedSubRuleComp.setLayoutData(gd);
+        compMap.put(SystemManagementSettings.GRID_SUBSCRIPTION_RULES.getName(),
+                griddedSubRuleComp);
 
         TreeItem ti = tree.getItem(0);
         tree.select(ti);
@@ -398,6 +459,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void update() {
         VizApp.runAsync(new Runnable() {
@@ -406,6 +470,8 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
                 if (!shell.isDisposed()) {
                     systemLatencyComp.loadList();
                     systemPriorityComp.loadList();
+                    griddedSubRuleComp.loadConfiguration();
+                    pointSubRuleComp.loadConfiguration();
                 }
             }
         });
