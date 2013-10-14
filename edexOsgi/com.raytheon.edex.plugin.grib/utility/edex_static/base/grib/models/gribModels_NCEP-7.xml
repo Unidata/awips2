@@ -2879,21 +2879,11 @@
 		<name>HPCGuide</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
-		<grid>197</grid>
 		<process>
 			<id>183</id>
 		</process>
 	</model>
 
-	<model>
-		<name>HPCGuide-2.5km</name>
-		<center>7</center>
-		<subcenter>5</subcenter>
-		<process>
-			<id>183</id>
-		</process>
-	</model>
-	
 	<model>
 		<name>HPCGuide-AK</name>
 		<center>7</center>
