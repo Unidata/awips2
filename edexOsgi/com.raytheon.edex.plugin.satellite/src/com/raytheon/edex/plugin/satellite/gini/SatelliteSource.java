@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.util.satellite;
+package com.raytheon.edex.plugin.satellite.gini;
 
 import java.io.Serializable;
 
@@ -28,10 +28,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * A satellite physical element
+ * A satellite source i.e. NESDIS
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -43,58 +42,59 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @author bphillip
  * @version 1.0
  */
+
 @Entity
-@Table(name = "satellite_physical_elements")
-public class SatellitePhysicalElement extends PersistableDataObject implements
-        Serializable, ISerializableObject {
+@Table(name = "satellite_sources")
+public class SatelliteSource extends PersistableDataObject implements
+        Serializable {
 
-    private static final long serialVersionUID = 8429844485032687146L;
+    private static final long serialVersionUID = 5855029407853840979L;
 
-    /** The physical element id */
+    /** The source id number */
     @Id
-    private int elementId;
+    private int sourceId;
 
-    /** The physical element name */
+    /** The source name */
     @Column(length = 64)
-    private String elementName;
+    private String sourceName;
 
     /**
-     * Constructs an empty SatellitePhysicalElement
+     * Constructs an empty SatelliteSource
      */
-    public SatellitePhysicalElement() {
+    public SatelliteSource() {
+
     }
 
     /**
-     * Constructs a new SatellitePhysicalElement
+     * Constructs a new SatelliteSource
      * 
-     * @param elementId
-     *            The element id
-     * @param elementName
-     *            The element name
+     * @param id
+     *            The source id
+     * @param name
+     *            The source name
      */
-    public SatellitePhysicalElement(int elementId, String elementName) {
-        this.elementId = elementId;
-        this.elementName = elementName;
+    public SatelliteSource(int id, String name) {
+        this.sourceId = id;
+        this.sourceName = name;
     }
 
-    public int getElementId() {
-        return elementId;
+    public int getSourceId() {
+        return sourceId;
     }
 
-    public void setElementId(int elementId) {
-        this.elementId = elementId;
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
     }
 
-    public String getElementName() {
-        return elementName;
+    public String getSourceName() {
+        return sourceName;
     }
 
-    public void setElementName(String elementName) {
-        this.elementName = elementName;
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public String toString() {
-        return elementName;
+        return sourceName;
     }
-
 }
