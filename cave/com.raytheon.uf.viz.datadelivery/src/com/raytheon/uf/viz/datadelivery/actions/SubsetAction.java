@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
  * Jul 26, 2013   2232     mpduff       Refactored Data Delivery permissions.
  * Sep 04, 2013   2314     mpduff       LoadSave dialog now non-blocking.
+ * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -78,7 +79,7 @@ public class SubsetAction extends AbstractHandler {
             + "subset" + File.separator;
 
     /** Dialog instance */
-    private SubsetManagerDlg<?, ?, ?> dlg = null;
+    private SubsetManagerDlg dlg = null;
 
     /** Dialog instance */
     private LoadSaveConfigDlg loadDlg = null;
@@ -106,7 +107,7 @@ public class SubsetAction extends AbstractHandler {
                         public void dialogClosed(Object returnValue) {
                             if (returnValue instanceof LocalizationFile) {
                                 LocalizationFile locFile = (LocalizationFile) returnValue;
-                                SubsetXML<?> subset = SubsetFileManager
+                                SubsetXML subset = SubsetFileManager
                                         .getInstance().loadSubset(
                                                 locFile.getFile().getName());
 
