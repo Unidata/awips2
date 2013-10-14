@@ -82,6 +82,8 @@ public class UpdateSatSpatial {
 
     private static final String SATELLITE_SPATIAL_MINY = "miny";
 
+    private static final String SATELLITE_SPATIAL_MINIMUMS = "minimums";
+
     private static final String HOST_ARGUMENT = "-host";
 
     private static final String DEFAULT_HOST = "localhost";
@@ -158,12 +160,16 @@ public class UpdateSatSpatial {
         Connection conn = openConnection();
 
         Statement query = conn.createStatement();
-        ResultSet results = query.executeQuery("SELECT "
-                + SATELLITE_SPATIAL_GID + ", " + SATELLITE_SPATIAL_CRSWKT
-                + ", " + SATELLITE_SPATIAL_NX + ", " + SATELLITE_SPATIAL_NY
-                + ", " + SATELLITE_SPATIAL_DX + ", " + SATELLITE_SPATIAL_DY
-                + ", AsBinary(" + SATELLITE_SPATIAL_GEOM + ") as "
-                + SATELLITE_SPATIAL_GEOM + " FROM " + SATELLITE_SPATIAL_TABLE);
+
+        ResultSet results = query.executeQuery("SELECT ("
+                + SATELLITE_SPATIAL_MINX + " || '_' || "
+                + SATELLITE_SPATIAL_MINY + ") as " + SATELLITE_SPATIAL_MINIMUMS
+                + ", " + SATELLITE_SPATIAL_GID + ", "
+                + SATELLITE_SPATIAL_CRSWKT + ", " + SATELLITE_SPATIAL_NX + ", "
+                + SATELLITE_SPATIAL_NY + ", " + SATELLITE_SPATIAL_DX + ", "
+                + SATELLITE_SPATIAL_DY + ", AsBinary(" + SATELLITE_SPATIAL_GEOM
+                + ") as " + SATELLITE_SPATIAL_GEOM + " FROM "
+                + SATELLITE_SPATIAL_TABLE);
 
         String updateStatement = "UPDATE " + SATELLITE_SPATIAL_TABLE + " SET ("
                 + SATELLITE_SPATIAL_MINX + ", " + SATELLITE_SPATIAL_MINY + ", "
@@ -174,45 +180,58 @@ public class UpdateSatSpatial {
 
         while (results.next()) {
             int gid = results.getInt(SATELLITE_SPATIAL_GID);
-            Geometry geometry = new WKBReader().read(results
-                    .getBytes(SATELLITE_SPATIAL_GEOM));
-            CoordinateReferenceSystem crs = CRS.parseWKT(results
-                    .getString(SATELLITE_SPATIAL_CRSWKT));
-            int nx = results.getInt(SATELLITE_SPATIAL_NX);
-            int ny = results.getInt(SATELLITE_SPATIAL_NY);
-            double dx = results.getDouble(SATELLITE_SPATIAL_DX);
-            double dy = results.getDouble(SATELLITE_SPATIAL_DY);
+            String mins = results.getString(SATELLITE_SPATIAL_MINIMUMS);
+            if (mins == null || mins.isEmpty()) {
+                System.out
+                        .println("Upgrading satellite_spatial record: " + gid);
+                // No minimum values set, continue with upgrade
+                Geometry geometry = new WKBReader().read(results
+                        .getBytes(SATELLITE_SPATIAL_GEOM));
+                CoordinateReferenceSystem crs = CRS.parseWKT(results
+                        .getString(SATELLITE_SPATIAL_CRSWKT));
+                int nx = results.getInt(SATELLITE_SPATIAL_NX);
+                int ny = results.getInt(SATELLITE_SPATIAL_NY);
+                double dx = results.getDouble(SATELLITE_SPATIAL_DX);
+                double dy = results.getDouble(SATELLITE_SPATIAL_DY);
 
-            ISpatialObject object = new SpatialObject(nx, ny, geometry, crs);
-            GridGeometry2D resultGeom = MapUtil.getGridGeometry(object);
+                ISpatialObject object = new SpatialObject(nx, ny, geometry, crs);
+                GridGeometry2D resultGeom = MapUtil.getGridGeometry(object);
 
-            Envelope2D env = resultGeom.getEnvelope2D();
-            GridEnvelope2D grid = resultGeom.getGridRange2D();
-            double minX = env.getMinX();
-            double minY = env.getMinY();
+                Envelope2D env = resultGeom.getEnvelope2D();
+                GridEnvelope2D grid = resultGeom.getGridRange2D();
+                double minX = env.getMinX();
+                double minY = env.getMinY();
 
-            if (dx == 0.0) {
-                dx = env.getWidth() / grid.width;
+                if (dx == 0.0) {
+                    dx = env.getWidth() / grid.width;
+                }
+                if (dy == 0.0) {
+                    dy = env.getHeight() / grid.height;
+                }
+
+                Geometry newGeom = EnvelopeIntersection
+                        .createEnvelopeIntersection(
+                                resultGeom.getEnvelope(),
+                                new Envelope2D(DefaultGeographicCRS.WGS84,
+                                        -180, -90, 360, 180), 1.0, 10, 10)
+                        .getEnvelope();
+
+                PreparedStatement update = conn
+                        .prepareStatement(updateStatement);
+                int index = 1;
+                update.setDouble(index++, minX);
+                update.setDouble(index++, minY);
+                update.setDouble(index++, dx);
+                update.setDouble(index++, dy);
+                update.setString(index++, newGeom.toText());
+                update.setInt(index++, gid);
+
+                update.execute();
+            } else {
+                System.err
+                        .println("Skipping update of satellite_spatial record: "
+                                + gid);
             }
-            if (dy == 0.0) {
-                dy = env.getHeight() / grid.height;
-            }
-
-            Geometry newGeom = EnvelopeIntersection.createEnvelopeIntersection(
-                    resultGeom.getEnvelope(),
-                    new Envelope2D(DefaultGeographicCRS.WGS84, -180, -90, 360,
-                            180), 1.0, 10, 10).getEnvelope();
-
-            PreparedStatement update = conn.prepareStatement(updateStatement);
-            int index = 1;
-            update.setDouble(index++, minX);
-            update.setDouble(index++, minY);
-            update.setDouble(index++, dx);
-            update.setDouble(index++, dy);
-            update.setString(index++, newGeom.toText());
-            update.setInt(index++, gid);
-
-            update.execute();
         }
 
         conn.close();

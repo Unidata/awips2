@@ -95,6 +95,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Sep 16, 2013 2383       bgonzale     Add exception information for no subscription found.
  *                                      Add throws to updatePointDataSetMetaData.
  * Oct 1 2013   1797       dhladky      Time and GriddedTime separation
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -415,8 +416,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage> e
         final PointTime time = dataSetMetaData.getTime();
         final String providerName = dataSetMetaData.getProviderName();
         final String dataSetName = dataSetMetaData.getDataSetName();
-        final Date pointTimeStart = time.getStartDate();
-        final Date pointTimeEnd = time.getEndDate();
+        final Date pointTimeStart = time.getStart();
+        final Date pointTimeEnd = time.getEnd();
 
         final SortedSet<Integer> allowedRefreshIntervals = PointTime
                 .getAllowedRefreshIntervals();
@@ -476,8 +477,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage> e
                         subscription.setProvider(dataSetMetaData
                                 .getProviderName());
 
-                        subTime.setRequestStartAsDate(earliestRetrievalDataTime);
-                        subTime.setRequestEndAsDate(latestRetrievalDataTime);
+                        subTime.setRequestStart(earliestRetrievalDataTime);
+                        subTime.setRequestEnd(latestRetrievalDataTime);
                         subTime.setTimes(time.getTimes());
                         subscriptionRetrievalAttributes.setSubscription(subscription);
 
@@ -613,9 +614,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage> e
                                     + "url [%s] and "
                                     + "base reference time [%s]", retrieval
                                     .getIdentifier(), sub.getName(),
-                                    dataSetMetaData.getUrl(), BandwidthUtil
-                                            .format(sub.getTime()
-                                                    .getStartDate())));
+                            dataSetMetaData.getUrl(),
+                            BandwidthUtil.format(sub.getTime().getStart())));
                 }
             }
 

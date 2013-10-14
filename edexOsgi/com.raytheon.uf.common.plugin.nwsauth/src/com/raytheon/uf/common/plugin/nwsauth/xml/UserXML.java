@@ -34,7 +34,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.auth.user.IUserId;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -56,7 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class UserXML implements IUser, ISerializableObject {
+public class UserXML implements IUser {
     @DynamicSerializeElement
     @XmlAttribute(name = "userId")
     private String userId;

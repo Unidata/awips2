@@ -27,7 +27,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.TimeZone;
+import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,14 +58,16 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                         Jim Ramer   Original Code
- * Jun 18, 2007            chammack    Partial port to Java
- * Apr 12, 2013 1857       bgonzale    Added Index annotations to getter
- *                                     methods.
- * Mar 02, 2013 1970       bgonzale    Removed Index annotations.
- * Aug 08, 2013 2245       bsteffen    Make all DataTime comparisons consistent.
+ * Date          Ticket#  Engineer    Description
+ * ------------  -------- ----------- --------------------------
+ *                        Jim Ramer   Original Code
+ * Jun 18, 2007           chammack    Partial port to Java
+ * Apr 12, 2013  1857     bgonzale    Added Index annotations to getter
+ *                                    methods.
+ * Mar 02, 2013  1970     bgonzale    Removed Index annotations.
+ * Aug 08, 2013  2245     bsteffen    Make all DataTime comparisons consistent.
+ * Oct 14, 2013  2468     bsteffen    Add getValidTimeAsDate() for comparison
+ *                                    performance.
  * 
  * </pre>
  * 
@@ -126,6 +128,19 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     private static final Comparator<DataTime> DEFAULT_COMPARATOR = new DataTimeComparator(
             SortKey.VALID_TIME, SortKey.FORECAST_TIME, false);
 
+    /** Data format flag */
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    "EEE HH:mm'Z' dd-MMM-yy");
+            sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+            return sdf;
+        }
+
+    };
+
     /** The reference time */
     @Column(name = "refTime")
     @DynamicSerializeElement
@@ -151,10 +166,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     public enum FLAG {
         NO_VALID_PERIOD, FCST_USED, PERIOD_USED
     };
-
-    /** Data format flag */
-    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-            "EEE HH:mm'Z' dd-MMM-yy");
 
     /** The set of flags set on the time */
     @Column
@@ -344,7 +355,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return the refTime
      */
     public Calendar getRefTimeAsCalendar() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = new GregorianCalendar(TimeUtil.GMT_TIME_ZONE);
         cal.setTime(this.refTime);
         return cal;
     }
@@ -368,10 +379,16 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return the valid time
      */
     public Calendar getValidTime() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTimeInMillis(refTime.getTime() + (1000 * ((long) fcstTime)));
-
+        Calendar cal = new GregorianCalendar(TimeUtil.GMT_TIME_ZONE);
+        cal.setTime(getValidTimeAsDate());
         return cal;
+    }
+
+    /**
+     * @return the valid time
+     */
+    public Date getValidTimeAsDate() {
+        return new Date(refTime.getTime() + (1000 * ((long) fcstTime)));
     }
 
     /**
@@ -496,7 +513,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         if (fcstTime > 0 || utilityFlags.contains(FLAG.FCST_USED)) {
 
             long fcstTimeInSec = fcstTime;
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar cal = new GregorianCalendar(TimeUtil.GMT_TIME_ZONE);
             cal.setTime(this.refTime);
             String day = nf.format(cal.get(Calendar.DAY_OF_MONTH));
             String hour = nf.format(cal.get(Calendar.HOUR_OF_DAY));
@@ -539,8 +556,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
                 legendBuffer.append("Incl ");
         }
 
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-        legendBuffer.append(DATE_FORMAT.format(validTime));
+        legendBuffer.append(DATE_FORMAT.get().format(validTime));
 
         this.legend = legendBuffer.toString();
         return this.legend;
