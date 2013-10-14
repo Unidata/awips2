@@ -10,12 +10,11 @@ import gov.noaa.nws.ncep.common.dataplugin.pirep.PirepRecord;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -40,20 +39,22 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 public class PirepDao extends PointDataPluginDao<PirepRecord> {
 
     private PointDataDescription pdd;
+
     /**
      * Creates a new PirepDao
-     *
+     * 
      * @throws PluginException
      */
     public PirepDao(String pluginName) throws PluginException {
         super(pluginName);
     }
+
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
         return null;
     }
-    
+
     /**
      * Retrieves an Pirep report using the datauri .
      * 
@@ -92,44 +93,39 @@ public class PirepDao extends PointDataPluginDao<PirepRecord> {
 
         return results;
     }
-	@Override
-	public String[] getKeysRequiredForFileName() {
-		return new String[] { "dataTime.refTime" };
-	}
 
-	@Override
-	public PirepRecord newObject() {
-		return new PirepRecord();
-	}
-
-	@Override
-	public String getPointDataFileName(PirepRecord p) {
-        return "pirep.h5";
-	}
-	
-	/*
     @Override
-    public String[] getParameters(File file) throws StorageException,
-            FileNotFoundException {
-    	
-        try {
-            // This should be faster than hitting the datastore.
-            return getPointDataDescription().getParameterNames();
-        } catch (Exception e) {
-            // let super handle it
-            return super.getParameters(file);
-        }
+    public String[] getKeysRequiredForFileName() {
+        return new String[] { "dataTime.refTime" };
     }
-    */
 
-    public PointDataDescription getPointDataDescription() throws JAXBException {
-    	if (pdd == null) {
+    @Override
+    public PirepRecord newObject() {
+        return new PirepRecord();
+    }
 
-    		pdd = PointDataDescription.fromStream(this.getClass()
+    @Override
+    public String getPointDataFileName(PirepRecord p) {
+        return "pirep.h5";
+    }
+
+    /*
+     * @Override public String[] getParameters(File file) throws
+     * StorageException, FileNotFoundException {
+     * 
+     * try { // This should be faster than hitting the datastore. return
+     * getPointDataDescription().getParameterNames(); } catch (Exception e) { //
+     * let super handle it return super.getParameters(file); } }
+     */
+
+    public PointDataDescription getPointDataDescription()
+            throws SerializationException {
+        if (pdd == null) {
+
+            pdd = PointDataDescription.fromStream(this.getClass()
                     .getResourceAsStream("/res/pointdata/pirep.xml"));
-    	}
-    	return pdd;
+        }
+        return pdd;
     }
 
 }
-

@@ -149,24 +149,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private String physicalElement;
 
-    /**
-     * Number of logical records in the product. See tables 4.9, 4.11, 4.12,
-     * 4.13, 4.14, 4.16 of the GINI satellite ICD
-     */
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer numRecords;
-
-    /**
-     * Size of logical records in bytes for product. See tables 4.9, 4.11, 4.12,
-     * 4.13, 4.14, 4.16 of the GINI satellite ICD
-     */
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer sizeRecords;
-
     /** The latitude directly beneath the satellite */
     @Column
     @DynamicSerializeElement
@@ -246,22 +228,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
 
     public void setSatSubPointLon(Float satSubPointLon) {
         this.satSubPointLon = satSubPointLon;
-    }
-
-    public Integer getNumRecords() {
-        return numRecords;
-    }
-
-    public void setNumRecords(Integer numRecords) {
-        this.numRecords = numRecords;
-    }
-
-    public Integer getSizeRecords() {
-        return sizeRecords;
-    }
-
-    public void setSizeRecords(Integer sizeRecords) {
-        this.sizeRecords = sizeRecords;
     }
 
     public Integer getSatHeight() {
