@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 30, 2013 2098       dhladky      Improved
  * Spet 2, 2013 2098       dhladky      Updated how times are managed.
  * Sept 30, 2013 1797      dhladky      Generics
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -248,12 +249,22 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
                 time.setFormat(dateFormat.toPattern());
                 if (!times.isEmpty()) {
                     if (previousTime == null) {
-                        time.setStart(dateFormat.format(times.get(0)));
+                        time.setStart(times.get(0));
                     } else {
-                        time.setStart(dateFormat.format(previousTime));
+                        try {
+                            time.setStartDate(dateFormat.format(previousTime));
+                        } catch (ParseException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Failed to parse date.", e);
+                        }
                     }
                     Date lastTime = times.get(times.size() - 1);
-                    time.setEnd(dateFormat.format(lastTime));
+                    try {
+                        time.setEndDate(dateFormat.format(lastTime));
+                    } catch (ParseException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Failed to parse date.", e);
+                    }
                     setPreviousTime(lastTime);
                 }
             }
@@ -371,11 +382,7 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
             setDataSetMetaData(layer);
             getDataSetMetaData().setTime(getTime());
             ImmutableDate date = null;
-            try {
-                date = new ImmutableDate(getTime().getEndDate());
-            } catch (ParseException e) {
-                statusHandler.handle(Priority.ERROR, "Date failed to parse!");
-            }
+            date = new ImmutableDate(getTime().getEnd());
             getDataSetMetaData().setDate(date);
             storeMetaData(getDataSetMetaData());
         }

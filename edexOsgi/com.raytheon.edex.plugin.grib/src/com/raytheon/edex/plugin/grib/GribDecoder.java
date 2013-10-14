@@ -43,7 +43,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                    exchange method.
  * Mar 19, 2013  1785     bgonzale    Added performance status handler and
  *                                    added status to process.
- * Oct 07, 2013  2042     bsteffen    Decode GribDecodeMessage instead of
+ * Oct 07, 2013  2402     bsteffen    Decode GribDecodeMessage instead of
  *                                    files.
  * </pre>
  * 

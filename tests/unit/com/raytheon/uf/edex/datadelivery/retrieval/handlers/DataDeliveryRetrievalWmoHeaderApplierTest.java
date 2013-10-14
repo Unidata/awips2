@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.WMOMessage;
  * ------------ ---------- ----------- --------------------------
  * Aug 08, 2013 1822       bgonzale    Initial creation
  * Oct 01, 2013 2267       bgonzale    Added test for null inputs.
+ * Oct 09, 2013 2267       bgonzale    Fix Wmo header cr and lf formatting testing.
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public class DataDeliveryRetrievalWmoHeaderApplierTest {
 
     private static DataDeliveryRetrievalWmoHeaderApplier createApplier()
             throws PropertiesException {
-        String wmoHeader = "LZ{0}{1}9{2} KWBC {3,date,ddHH00}";
+        String wmoHeader = "LZ{0}{1}9{2} KWBC {3,date,ddHH00}\r\r\n";
         String dataProviderMapping = "NOMADS:A,MADIS:B,PDA:C";
         String dataFormatMapping = "GRID:A,MADIS:B,NETCDF:C";
         String dataSourceMapping = "MODEL:1,OBSERVATION:2,SATELLITE:3";

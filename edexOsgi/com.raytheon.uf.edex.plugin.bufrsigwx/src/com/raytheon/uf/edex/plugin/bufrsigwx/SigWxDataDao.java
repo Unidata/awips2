@@ -22,13 +22,12 @@ package com.raytheon.uf.edex.plugin.bufrsigwx;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -167,7 +166,7 @@ public class SigWxDataDao extends PointDataPluginDao<SigWxData> {
             try {
                 return PointDataDescription.fromStream(this.getClass()
                         .getResourceAsStream(pddFile));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Unable to load " + pluginName
                         + " Point Data Description for " + type + "," + layer,
                         e);

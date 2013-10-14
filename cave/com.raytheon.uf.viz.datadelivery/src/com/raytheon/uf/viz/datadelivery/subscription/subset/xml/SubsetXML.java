@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * Aug 10, 2012 1022       djohnson     {@link SubsetXML} requires provider name.
  * Feb 15, 2013 1638       mschenke     Moved Util.EOL into FileUtil.
  * Jun 04, 2013  223       mpduff       Refactoring method name change.
+ * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  */
 @XmlRootElement(name = "Subset")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
+public class SubsetXML implements IDisplayXml {
     private static final String XML_FILE_EXTENSION = ".xml";
 
     @XmlElement(name = "datasetName", type = String.class)
@@ -76,7 +77,7 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     protected ArrayList<VerticalXML> verticalList = new ArrayList<VerticalXML>();
 
     @XmlElementRef
-    protected TIMEXML time;
+    protected TimeXML time;
 
     /**
      * @return the subsetName
@@ -151,7 +152,7 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     /**
      * @return the time
      */
-    public TIMEXML getTime() {
+    public TimeXML getTime() {
         return time;
     }
 
@@ -159,7 +160,7 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
      * @param time
      *            the time to set
      */
-    public void setTime(TIMEXML time) {
+    public void setTime(TimeXML time) {
         this.time = time;
     }
 

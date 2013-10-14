@@ -31,8 +31,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.subscription.data.ReplacementRecord;
-import com.raytheon.edex.subscription.data.SubscriptionRecord;
+import com.raytheon.edex.autobldsrv.data.ReplacementRecord;
+import com.raytheon.edex.autobldsrv.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.runners.ISubscribeRunner;
 import com.raytheon.edex.subscription.runners.SubscribeRunner;
 import com.raytheon.edex.subscription.util.Tools;

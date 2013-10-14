@@ -1,6 +1,5 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.util;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
@@ -53,6 +52,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Jan 30, 2013 1543       djohnson    Log exception stacktrace.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sept 25, 2013 1797      dhladky     separated time from gridded time
+ * Oct 10, 2013 1797       bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -134,13 +134,9 @@ public class ResponseProcessingUtilities {
 
             int increment = time.findForecastStepUnit() * reqStartInt;
             DataTime dataTime = null;
-            try {
-                dataTime = new DataTime(time.getStartDate(), increment);
-                dt.add(dataTime);
-                reqStartInt++;
-            } catch (ParseException e) {
-                statusHandler.error("Date failed to parse! " + e.getMessage());
-            }
+            dataTime = new DataTime(time.getStart(), increment);
+            dt.add(dataTime);
+            reqStartInt++;
         }
 
         return dt;
