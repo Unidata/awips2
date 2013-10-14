@@ -33,9 +33,9 @@ import java.util.zip.Inflater;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteUnit;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
-import com.raytheon.edex.util.satellite.SatellitePosition;
-import com.raytheon.edex.util.satellite.SatelliteUnit;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
