@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.util.satellite;
+package com.raytheon.edex.plugin.satellite.gini;
 
 import java.io.Serializable;
 
@@ -27,12 +27,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @Entity
 @Table(name = "satellite_units")
 public class SatelliteUnit extends PersistableDataObject implements
-        Serializable, ISerializableObject {
+        Serializable {
 
     private static final long serialVersionUID = 1L;
 

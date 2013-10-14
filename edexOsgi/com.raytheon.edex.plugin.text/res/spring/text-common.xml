@@ -18,6 +18,7 @@
 	</bean>
  
    	<bean id="fxaDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
+   	    <property name="classFinder" ref="dbClassFinder" />
         <property name="includes">
            <list>
                 <value>com.raytheon.uf.common.dataplugin.text</value>
