@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.hibernate.Query;
 
-import com.raytheon.edex.subscription.data.SubscriptionRecord;
+import com.raytheon.edex.autobldsrv.data.SubscriptionRecord;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.message.Property;

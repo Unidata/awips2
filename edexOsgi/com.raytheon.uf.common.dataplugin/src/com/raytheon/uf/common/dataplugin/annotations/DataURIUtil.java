@@ -549,15 +549,12 @@ public class DataURIUtil {
          * @return
          */
         public String toFieldString(Object fieldValue) {
-            String string;
             if (fieldConverter != null) {
-                string = fieldConverter.toString(fieldValue);
+                fieldValue = fieldConverter.toString(fieldValue);
             } else if (fieldValue instanceof Calendar) {
-                string = TimeUtil.formatCalendar((Calendar) fieldValue);
-            } else {
-                string = String.valueOf(fieldValue);
+                fieldValue = TimeUtil.formatCalendar((Calendar) fieldValue);
             }
-            return string;
+            return String.valueOf(fieldValue);
         }
 
         /**
