@@ -24,7 +24,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.lang"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.geotools"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin.grib"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.geospatial"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.hibernate"/>
