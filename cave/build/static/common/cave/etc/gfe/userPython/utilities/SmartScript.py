@@ -46,6 +46,7 @@
 #                                                 Cleaned up some constants
 #    Jun 21, 2013    14983         ryu            Fixed encodeEditArea() to evaluate query
 #                                                 when necessary
+#    Oct 07, 2013    2424          randerso       remove use of pytz
 #
 ########################################################################
 import types, string, time, sys
@@ -1479,14 +1480,14 @@ class SmartScript(BaseTool.BaseTool):
 
             This should be used instead of time.localtime()
         '''
-        from pytz import timezone
+        import dateutil.tz
 
         if tz is None:
             tzname = self.__dataMgr.getClient().getSiteTimeZone()
-            tz = timezone(tzname)
+            tz = dateutil.tz.gettz(tzname)
 
-        utczone = timezone('UTC')
-        gmdt = utczone.localize(self._gmtime(date))
+        utczone = dateutil.tz.gettz('UTC')
+        gmdt = self._gmtime(date).replace(tzinfo=utczone)
         tzdt = gmdt.astimezone(tz)
         return tzdt
 

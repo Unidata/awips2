@@ -24,20 +24,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * Encapsulates the query parameters for a database query
+ * Encapsulates the query parameters for a database query.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/29/08     #875       bphillip    Initial Creation
+ * May 29, 2008 875        bphillip    Initial Creation
+ * Oct 07, 2013 2392       rjpeter     Updated to auto handle passing a null value to an equal operand.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class QueryParam {
-    
+
     /** Enumeration containing the logic operands */
     public enum QueryOperand {
         EQUALS, NOTEQUALS, LESSTHAN, LESSTHANEQUALS, GREATERTHAN, GREATERTHANEQUALS, IN, LIKE, ILIKE, BETWEEN, ISNULL, ISNOTNULL
@@ -71,11 +72,12 @@ public class QueryParam {
 
     /** The query operand */
     private String operand = "=";
-    
+
     private String className;
 
     /**
-     * Creates a new QueryParam. Operand defaults to equals
+     * Creates a new QueryParam. Operand defaults to equals, unless value is
+     * null, then operand is isNull.
      * 
      * @param field
      *            The field
@@ -83,12 +85,12 @@ public class QueryParam {
      *            The value
      */
     public QueryParam(String field, Object value) {
-        this.field = field;
-        this.value = value;
+        this(field, value, "=", null);
     }
 
     /**
-     * Creates a new QueryParam.
+     * Creates a new QueryParam. If value is null and operand is =, operand is
+     * updated to isNull.
      * 
      * @param field
      *            The field
@@ -98,31 +100,66 @@ public class QueryParam {
      *            The operand
      */
     public QueryParam(String field, Object value, String operand) {
-        this.field = field;
-        this.value = value;
-        this.operand = operand;
+        this(field, value, operand, null);
     }
-    
-    public QueryParam(String field, Object value, String operand,String className) {
+
+    /**
+     * Creates a new QueryParam. If value is null and operand is =, operand is
+     * updated to isNull.
+     * 
+     * @param field
+     * @param value
+     * @param operand
+     * @param className
+     */
+    public QueryParam(String field, Object value, String operand,
+            String className) {
         this.field = field;
         this.value = value;
-        this.operand = operand;
+
+        if (value == null && "=".equals(operand)) {
+            this.operand = "isNull";
+        } else {
+            this.operand = operand;
+        }
+
         this.className = className;
     }
-    
+
+    /**
+     * Creates a new QueryParam. If value is null and operand is =, operand is
+     * updated to isNull.
+     * 
+     * @param field
+     * @param value
+     * @param operand
+     */
     public QueryParam(String field, Object value, QueryOperand operand) {
-        this.field = field;
-        this.value = value;
-        this.operand = QueryParam.reverseTranslateOperand(operand);
+        this(field, value, operand, null);
     }
-    
-    public QueryParam(String field, Object value, QueryOperand operand,String className) {
+
+    /**
+     * Creates a new QueryParam. If value is null and operand is =, operand is
+     * updated to isNull.
+     * 
+     * @param field
+     * @param value
+     * @param operand
+     * @param className
+     */
+    public QueryParam(String field, Object value, QueryOperand operand,
+            String className) {
         this.field = field;
         this.value = value;
-        this.operand = QueryParam.reverseTranslateOperand(operand);
+
+        if (value == null && QueryOperand.EQUALS.equals(operand)) {
+            this.operand = "isNull";
+        } else {
+            this.operand = QueryParam.reverseTranslateOperand(operand);
+        }
+
         this.className = className;
     }
-    
 
     /**
      * Translates the string representation of an operand to the enumeration
@@ -147,6 +184,7 @@ public class QueryParam {
         return "=";
     }
 
+    @Override
     public String toString() {
         return new StringBuffer().append(field).append(" ")
                 .append(this.operand).append(" ").append(this.value).toString();
