@@ -60,7 +60,7 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=2"/>
+		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit"/>
 		<endpoint id="gribDecodeJmsEndpoint" uri="ingest-grib:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
 
 		
