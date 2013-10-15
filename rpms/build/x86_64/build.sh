@@ -171,7 +171,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-ldm"
    buildCAVE
    if [ $? -ne 0 ]; then
-      exit 0
+      exit 1
    fi
    buildRPM "awips2-alertviz"
    buildRPM "awips2-database-server-configuration"
