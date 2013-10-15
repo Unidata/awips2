@@ -75,6 +75,7 @@ public class Activator implements BundleActivator {
      */
     @Override
     public void start(BundleContext context) throws Exception {
+        long t0 = System.currentTimeMillis();
         if (this.isInstallOperation()) {
             return;
         }
@@ -90,6 +91,8 @@ public class Activator implements BundleActivator {
         for (Bundle b : bundles) {
             createContext(bundleMap, contextMap, b, processing);
         }
+        System.out.println("Spring initialization: "
+                + (System.currentTimeMillis() - t0) + " ms");
     }
 
     private OSGIXmlApplicationContext createContext(
