@@ -34,9 +34,10 @@ import com.raytheon.uf.common.parameter.Parameter;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 4/7/2011     #6619      bphillip     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 07, 2011  6619     bphillip    Initial creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * 
  * </pre>
  * 
@@ -78,12 +79,6 @@ public class LapsPostProcessor implements IDecoderPostProcessor {
         if (modelInfoModified) {
             record.getInfo().setId(null);
             record.setDataURI(null);
-            try {
-                record.constructDataURI();
-            } catch (Exception e) {
-                throw new GribException(
-                        "Error creating new dataURI for LAPS data!", e);
-            }
         }
 
         record.setOverwriteAllowed(true);
