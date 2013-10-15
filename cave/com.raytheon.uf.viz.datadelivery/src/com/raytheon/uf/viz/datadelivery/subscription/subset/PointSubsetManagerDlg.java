@@ -86,9 +86,6 @@ public class PointSubsetManagerDlg extends SubsetManagerDlg {
     /** Point data size utility */
     private PointDataSizeUtils dataSize;
 
-    /** The data set */
-    private PointDataSet dataSet;
-
     /** The point subset tab */
     private PointTimeSubsetTab timingTabControls;
 
@@ -146,14 +143,6 @@ public class PointSubsetManagerDlg extends SubsetManagerDlg {
      * {@inheritDoc}
      */
     @Override
-    protected void setTitle() {
-        setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     void createTabs(TabFolder tabFolder) {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
@@ -186,7 +175,7 @@ public class PointSubsetManagerDlg extends SubsetManagerDlg {
         }
 
         if (dataSize == null) {
-            this.dataSize = new PointDataSizeUtils(dataSet);
+            this.dataSize = new PointDataSizeUtils((PointDataSet) dataSet);
         }
 
         ReferencedEnvelope env = spatialTabControls.getEnvelope();
@@ -260,7 +249,7 @@ public class PointSubsetManagerDlg extends SubsetManagerDlg {
         sub.setParameter(paramList);
 
         if (dataSize == null) {
-            this.dataSize = new PointDataSizeUtils(dataSet);
+            this.dataSize = new PointDataSizeUtils((PointDataSet) dataSet);
         }
 
         sub.setDataSetSize(dataSize.getDataSetSizeInKb(sub));
