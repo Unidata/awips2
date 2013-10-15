@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.status.VizStatusHandlerFactory;
+import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
 import com.raytheon.viz.alerts.jobs.MenuUpdater;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -97,6 +98,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * Apr 23, 2013   #1939    randerso     Allow serialization to complete initialization
  *                                      before connecting to JMS to avoid deadlock
  * May 23, 2013   #2005    njensen      Shutdown on spring initialization errors
+ * Oct 15, 2013    2361    njensen      Added startupTimer
  * 
  * </pre>
  * 
@@ -125,6 +127,9 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     @SuppressWarnings("restriction")
     @Override
     public final Object startComponent(String componentName) throws Exception {
+        ITimer startupTimer = TimeUtil.getTimer();
+        startupTimer.start();
+
         // This is a workaround to receive status messages because without the
         // PlatformUI initialized Eclipse throws out the status
         // messages. Once PlatformUI has started, the status handler
@@ -243,11 +248,15 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             NotificationManagerJob.connect();
 
             timer.stop();
-            System.out.println("Initialization time: " + timer.getElapsedTime()
-                    + "ms");
+            System.out.println("Internal initialization time: "
+                    + timer.getElapsedTime() + " ms");
 
             if (cave) {
                 workbenchAdvisor = getWorkbenchAdvisor();
+                if (workbenchAdvisor instanceof VizWorkbenchAdvisor) {
+                    ((VizWorkbenchAdvisor) workbenchAdvisor)
+                            .setStartupTimer(startupTimer);
+                }
             } else if (!nonui) {
                 workbenchAdvisor = new HiddenWorkbenchAdvisor(componentName,
                         this);
