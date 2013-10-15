@@ -20,32 +20,19 @@
 
 package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
-import gov.noaa.nws.ncep.edex.plugin.ncgrib.dao.NcgribDao;
-
 import java.awt.Point;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
-import com.raytheon.edex.uengine.tasks.ScriptTask;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
  * PointIn task derived from original uEngine PointIn task. Reads a file in from
@@ -58,7 +45,7 @@ import com.raytheon.uf.common.localization.IPathManager;
  * Mar 29, 2007                     njensen             Initial Creation
  * 03/28/2012                       Chin Chen   Add new APIs to support query multiple Points at one shoot and using
  * 										dataStore.retrieveGroups()
-
+ * Oct 15, 2012     2473            bsteffen            Remove unused imports
  * </PRE>
  * 
  */
