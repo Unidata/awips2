@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Oct 2,  2013 1797       dhladky      Generics start
+ * Oct 11, 2013 2460       dhladky      Restored Adhoc's to registryObject store, WFO only
  * 
  * </pre>
  * 
@@ -54,6 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "AdhocSubscription")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+@RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
+    Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT })
 public class AdhocSubscription<T extends Time, C extends Coverage> extends SiteSubscription<T, C>  {
 
     private static final long serialVersionUID = -2200080380095632486L;
