@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.ncwf;
 
-import java.util.Collection;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -30,15 +28,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -52,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Record implemtnation for National Convective Weather Forecast
  * 
  * <pre>
  * 
@@ -66,6 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 15, 2013 2361       njensen     Remove XML annotations and IDecoderGettable
  * 
  * </pre>
  * 
@@ -81,11 +74,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @org.hibernate.annotations.Table(appliesTo = "bufrncwf", indexes = { @Index(name = "bufrncwf_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class BUFRncwf extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -95,32 +86,26 @@ public class BUFRncwf extends PersistablePluginDataObject implements
 
     @Embedded
     @DataURI(position = 1, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private NCWFFeature detection;
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private NCWFFeature forecast;
 
     @Transient
-    @XmlAttribute
     @DynamicSerializeElement
     private Double stormDir;
 
     @Transient
-    @XmlAttribute
     @DynamicSerializeElement
     private Double stormSpeed;
 
     @Transient
-    @XmlAttribute
     @DynamicSerializeElement
     private Double stormTop;
 
@@ -234,33 +219,8 @@ public class BUFRncwf extends PersistablePluginDataObject implements
     }
 
     @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    @Override
     public ISpatialObject getSpatialObject() {
         return location;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
     }
 
     /**
