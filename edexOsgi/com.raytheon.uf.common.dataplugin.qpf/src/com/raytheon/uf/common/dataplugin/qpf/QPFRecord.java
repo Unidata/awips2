@@ -29,10 +29,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -40,7 +36,6 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -74,6 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361        njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -89,8 +85,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @org.hibernate.annotations.Table(appliesTo = "qpf", indexes = { @Index(name = "qpf_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class QPFRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IMonitorProcessing {
@@ -100,59 +94,48 @@ public class QPFRecord extends PersistablePluginDataObject implements
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String icao;
 
     @Column(length = 30)
     @DataURI(position = 2)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String fieldName;
 
     @ManyToOne
     @PrimaryKeyJoinColumn
-    @XmlElement
     @DynamicSerializeElement
     private RadarStation spatialInfo;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Integer nx = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Integer ny = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Integer dx = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Integer dy = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Float nsvelocity = 0.0f;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Float ewvelocity = 0.0f;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Float avgdir = 0.0f;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Float avgspd = 0.0f;
 
     @Transient
@@ -421,17 +404,6 @@ public class QPFRecord extends PersistablePluginDataObject implements
      */
     public Float getAvgdir() {
         return avgdir;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public RadarStation getSpatialInfo() {
