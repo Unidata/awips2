@@ -77,7 +77,7 @@
     <Method models="HPCGuide GWW233 SeaIce RTGSST RTGSSTHR NICICE AK-NICICE
                     HPCGuide GFSGuide LAMPTstorm TPCWindProb OPCWave180
                     OPCWave181 OPCWave182 RTMA WNAWAVE238 AKWAVE239
-                    HPCqpfNDFD HPCGuide-2.5km" name="NoDerivation" />
+                    HPCqpfNDFD" name="NoDerivation" />
     <Method models="mesoEta212" levels="2FHAG" name="Import">
         <Field level="Surface" model="mesoEta215" abbreviation="P"/>
     </Method>
