@@ -189,6 +189,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/26/2013  DR 16450    D. Friedman Fix logic errors when frame count is one.
  * 08/19/2013   2177       jsanchez    Set a GeneralGridGeometry object in the GeospatialDataList.
  * 09/17/2013  DR 16496    D. Friedman Make editable state more consistent.
+ * 10/15/2013   2463       jsanchez    Create a square polygon for frame count equal to 1.
  * </pre>
  * 
  * @author mschenke
@@ -1993,6 +1994,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 createSquare();
                 return;
             }
+        }
+
+        // Create a square polygon if time matcher basis is 1 frame.
+        if (descriptor.getFramesInfo().getFrameCount() == 1) {
+            createSquare();
+            return;
         }
 
         DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
