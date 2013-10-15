@@ -30,14 +30,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -64,6 +59,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 15, 2013 2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -79,8 +75,6 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @org.hibernate.annotations.Table(appliesTo = "tcg", indexes = { @Index(name = "tcg_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class TropicalCycloneGuidance extends PersistablePluginDataObject
         implements ISpatialEnabled, IPointData {
@@ -93,22 +87,18 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
 
     // Text of the WMO header
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String wmoHeader = "";
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     protected String stormName;
 
-    @XmlElement
     @DynamicSerializeElement
     @DataURI(position = 1)
     @Column
     protected String productType = "";
 
-    @XmlElement
     @DynamicSerializeElement
     @DataURI(position = 2)
     @Column
@@ -116,12 +106,10 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
 
     @Embedded
     @DataURI(position = 3, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     protected TCGStormType type = TCGStormType.UNKNOWN;
 
@@ -172,11 +160,6 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
     public void setDataURI(String dataURI) {
         super.setDataURI(dataURI);
         identifier = dataURI;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override

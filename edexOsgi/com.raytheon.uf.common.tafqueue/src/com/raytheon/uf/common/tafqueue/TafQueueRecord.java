@@ -34,12 +34,11 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * A record corresponding to a TAF ready to be sent
  * 
  * <pre>
  * 
@@ -59,7 +58,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "taf_queue")
 @DynamicSerialize
 public class TafQueueRecord implements IPersistableDataObject,
-        ISerializableObject, Comparable<TafQueueRecord> {
+        Comparable<TafQueueRecord> {
+
     private static final long serialVersionUID = 1L;
 
     public enum TafQueueState {
@@ -118,9 +118,9 @@ public class TafQueueRecord implements IPersistableDataObject,
     @Column
     private boolean display;
 
-	public TafQueueRecord() {
-		super();
-	}
+    public TafQueueRecord() {
+        super();
+    }
 
     /**
      * Construct a record with the desired values.
@@ -158,10 +158,13 @@ public class TafQueueRecord implements IPersistableDataObject,
      * @return info
      */
     public String getInfo() {
-    	String productTag = "TAF";
-    	if ( forecasterId == TafQueueVftConfigMgr.getInstance().getFcstid() ) { // for VFT product (DR15375)
-    		productTag = "VFT";
-    	}
+        String productTag = "TAF";
+        if (forecasterId == TafQueueVftConfigMgr.getInstance().getFcstid()) { // for
+                                                                              // VFT
+                                                                              // product
+                                                                              // (DR15375)
+            productTag = "VFT";
+        }
         return String
                 .format("%1$03d-%7$s%8$s%5$s-%6$s-%7$s-%2$ty%2$tm%2$td%2$tH%2$tM-%4$s-%9$d",
                         forecasterId, headerTime, tafText, bbb, siteId, wmoId,
