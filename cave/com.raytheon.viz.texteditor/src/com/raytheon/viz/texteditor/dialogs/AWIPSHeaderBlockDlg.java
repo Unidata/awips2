@@ -96,7 +96,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07/26/2012   15171       rferrel     Disable editor's send and clear AFOS PIL fields when
  *                                      invalid product Id and user want to edit it anyway.
  * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
- * 11/26/2012	14526		mgamazaychikov	Added traverse listener for RETURN key
+ * 11/26/2012	14526	mgamazaychikov	Added traverse listener for RETURN key
+ * 10/07/2012	16664	mgamazaychikov	Added padProdDesignatorText method
  * </pre>
  * 
  * @author lvenable
@@ -411,21 +412,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
             @Override
             public void focusLost(FocusEvent e) {
-                StringBuilder sb = new StringBuilder(prodDesignatorTF.getText()
-                        .trim());
-                if (sb.length() > 0) {
-                    // Pad field with trailing spaces.
-                    while (sb.length() < 3) {
-                        sb.append(' ');
-                    }
-
-                    // Only trigger the modification listener when there is a
-                    // real change.
-                    String value = sb.toString();
-                    if (!value.equals(prodDesignatorTF.getText())) {
-                        prodDesignatorTF.setText(value);
-                    }
-                }
+            	padProdDesignatorText(prodDesignatorTF.getText());
             }
 
             @Override
@@ -462,7 +449,23 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         }
     }
 
-    /**
+    protected void padProdDesignatorText(String prodDesignatorText) {
+		StringBuilder sb = new StringBuilder(prodDesignatorText.trim());
+		if (sb.length() > 0) {
+			// Pad field with trailing spaces.
+			while (sb.length() < 3) {
+				sb.append(' ');
+			}
+			// Only trigger the modification listener when there is a
+			// real change.
+			String value = sb.toString();
+			if (!value.equals(prodDesignatorText)) {
+				prodDesignatorTF.setText(value);
+			}
+		}
+	}
+
+	/**
      * Create the addressee control fields.
      */
     private void createAddresseeFields() {
@@ -1041,6 +1044,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             @Override
             public void keyTraversed(TraverseEvent event) {
                 if (event.detail == SWT.TRAVERSE_RETURN) {
+                	padProdDesignatorText(prodDesignatorTF.getText());
                 	enterBtnPressed();
                 }
             }
