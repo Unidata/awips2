@@ -193,7 +193,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
     private CreateSubscriptionDlg subDlg;
 
     /** The dataset */
-    private final DataSet dataSet;
+    protected DataSet dataSet;
 
     /**
      * Constructor
@@ -272,9 +272,6 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
      */
     protected abstract TimeXML getTimeXmlFromSubscription();
 
-    /** Set the title */
-    protected abstract void setTitle();
-
     /** Get the data time information */
     protected abstract TimeXML getDataTimeInfo();
 
@@ -310,6 +307,11 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         initialized = true;
         updateDataSize();
+    }
+
+    /** Set the title */
+    protected void setTitle() {
+        setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
     }
 
     /*
