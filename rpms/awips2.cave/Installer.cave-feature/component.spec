@@ -51,8 +51,15 @@ if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
    exit 1
 fi
 
+mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/.repository
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
    ${RPM_BUILD_ROOT}/awips2/cave/.repository
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %pre
 # Ensure that CAVE is available to backup and to use to
