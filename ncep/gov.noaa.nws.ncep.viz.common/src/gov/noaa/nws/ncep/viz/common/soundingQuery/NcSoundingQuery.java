@@ -1,4 +1,5 @@
 package gov.noaa.nws.ncep.viz.common.soundingQuery;
+
 /**
  * 
  * 
@@ -14,6 +15,8 @@ package gov.noaa.nws.ncep.viz.common.soundingQuery;
  * 11/1/2010	362			Chin Chen	Initial coding
  * 12/16/2010   362         Chin Chen   add support of BUFRUA observed sounding and PFC (NAM and GFS) model sounding data
  * 02/15/2012               Chin Chen   modify several sounding query algorithms for better performance
+ * Oct 15, 2012 2473        bsteffen    Remove ncgrib
+
  * </pre>
  * 
  * @author Chin Chen
@@ -24,9 +27,9 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingModel;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.MdlSndType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingStnInfoCollection;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.MdlSndType;
 
 import java.util.Calendar;
 import java.util.List;
@@ -39,7 +42,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class NcSoundingQuery {
 	public static int counter = 1;
-	public static String NCGRIB_PLUGIN_NAME = "ncgrib";
 	public static String GRIB_PLUGIN_NAME = "grid";
 	public static long convertRefTimeStr(String refTimeStr) {
 		int year, mon, date, hr;
