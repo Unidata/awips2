@@ -1,8 +1,0 @@
-# Product Discipline 10: Oceanographic products, Parameter Category 1: Currents
-0:0:Current direction:Degree true:DIRC
-1:1:Current speed:m/s:SPC
-2:2:u-component of current:m/s:UOGRD
-3:3:v-component of current:m/s:VOGRD
-# 4-191 Reserved
-#192-254 Reserved for local use
-255:255:Missing
