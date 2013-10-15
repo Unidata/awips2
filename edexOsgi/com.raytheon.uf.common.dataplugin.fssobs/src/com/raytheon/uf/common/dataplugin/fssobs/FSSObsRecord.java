@@ -27,7 +27,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Record object for observations for Fog and Safeseas.
+ * Fog, Safeseas, Snow Observation record
  * 
  * <pre>
  * 
