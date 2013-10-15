@@ -5,8 +5,12 @@ PSQL="/awips2/psql/bin/psql"
 
 SQL_COMMAND="
 delete from plugin_info where name = 'grib';
+delete from plugin_info where name = 'ncgrib';
 drop table if exists grib, grib_models;
+drop table if exists ncgrib, ncgrib1_parameter_map, ncgrib_genprocess, ncgrib_models, ncgrib_parameters, ncgrib_surfaces, ncgridcoverage;
 drop sequence if exists gribseq;
+drop sequence if exists ncgribseq;
+
 "
 
 echo "INFO: Dropping grib tables."
