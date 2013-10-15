@@ -16,70 +16,58 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
  * 03/28/2012               Chin Chen   Add new API to support query multiple Points at one shoot and using
  * 										dataStore.retrieveGroups()
+ * Oct 15, 2012 2473        bsteffen    Remove ncgrib
  *
  * </pre>
  * 
  * @author Chin Chen
  * @version 1.0
  */
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingModel;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
+
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
-import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
-import com.raytheon.edex.uengine.tasks.query.TableQuery;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
-import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
-import java.awt.Point;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralDirectPosition;
-
-import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
-
-//import org.opengis.geometry.Envelope;
-
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-
-import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.raytheon.edex.uengine.tasks.query.TableQuery;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.PointUtil;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
-import com.raytheon.uf.common.geospatial.PointUtil;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+//import org.opengis.geometry.Envelope;
 
 public class MdlSoundingQuery {
-	private static final String NCGRIB_TBL_NAME = "ncgrib";//obsoleting....
 	private static final String D2DGRIB_TBL_NAME = "grid";
 	
-	private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, OMEG, RELH";
-	//private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, DWPK, SPFH, OMEG, RELH";
 	private static String D2D_PARMS = "GH, uW, vW,T, DWPK, SPFH,OMEG, RH";
-	private enum NcParmNames {
-		HGHT, UREL, VREL, TMPK, DWPK, SPFH, OMEG, RELH
-	};
-
 
 	private enum D2DParmNames {
 		GH, uW, vW, T, DWPK, SPFH, OMEG, RH
@@ -131,8 +119,8 @@ public class MdlSoundingQuery {
 				+ mdlType
 				+ "' ORDER BY reftime DESC");
 
-		CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-		refTimeAry = (Object[]) dao.executeSQLQuery(queryStr);
+        CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+        refTimeAry = dao.executeSQLQuery(queryStr);
 		tl.setTimeLines(refTimeAry);
 		
 
@@ -415,13 +403,8 @@ public class MdlSoundingQuery {
 	public static NcSoundingModel getMdls(String pluginName) {
 		NcSoundingModel mdls = new NcSoundingModel();
 		Object[] mdlName = null;
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribModel.class));
-			String queryStr = new String("Select Distinct modelname FROM ncgrib_models ORDER BY modelname");
-			mdlName = (Object[]) dao.executeSQLQuery(queryStr);
-		}
-		else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribModel.class));
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+            CoreDao dao = new CoreDao(DaoConfig.forClass(GridInfoRecord.class));
 			String queryStr = new String("Select Distinct modelname FROM grib_models ORDER BY modelname");
 			mdlName = (Object[]) dao.executeSQLQuery(queryStr);
 		}
@@ -441,32 +424,7 @@ public class MdlSoundingQuery {
 		
 		ISpatialObject spatialArea = null;
 		MathTransform crsFromLatLon = null;
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(
-					NcgribRecord.class.getName());
-			query.setMaxResults(new Integer(1));
-			query.addQueryParam("modelName", modelName);
-			query.addQueryParam("dataTime.refTime", refTime);
-			query.addQueryParam("dataTime.validPeriod.start", validTime);
-			String spacingUnit = null;
-
-			try {
-				List<NcgribRecord> recList = ((List<NcgribRecord>) dao
-						.queryByCriteria(query));
-				if (recList.size() == 0) {
-					return false;
-				} else {
-					NcgribRecord rec = recList.get(0);
-					spatialArea = rec.getSpatialObject();
-				}
-			} catch (DataAccessLayerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-
-		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
 			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
 			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -552,32 +510,7 @@ public class MdlSoundingQuery {
 		
 		ISpatialObject spatialArea = null;
 		MathTransform crsFromLatLon = null;
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(
-					NcgribRecord.class.getName());
-			query.setMaxResults(new Integer(1));
-			query.addQueryParam("modelName", modelName);
-			query.addQueryParam("dataTime.refTime", refTime);
-			query.addQueryParam("dataTime.validPeriod.start", validTime);
-			String spacingUnit = null;
-
-			try {
-				List<NcgribRecord> recList = ((List<NcgribRecord>) dao
-						.queryByCriteria(query));
-				if (recList.size() == 0) {
-					return false;
-				} else {
-					NcgribRecord rec = recList.get(0);
-					spatialArea = rec.getSpatialObject();
-				}
-			} catch (DataAccessLayerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-
-		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
 			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
 			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -649,44 +582,7 @@ public class MdlSoundingQuery {
 	public static Float getModelSfcPressure(Point pnt, String refTime,
 			String validTime, String pluginName, String modelName) {
 
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(
-					NcgribRecord.class.getName());
-			query.addQueryParam("glevel1", 0);
-			query.addQueryParam("glevel2", -9999);
-			query.addQueryParam("parm", "PRES");
-			query.addQueryParam("vcord", "NONE");
-			query.addQueryParam("modelName", modelName);
-			query.addQueryParam("dataTime.refTime", refTime);
-			query.addQueryParam("dataTime.validPeriod.start", validTime);
-
-			NcgribRecord rec = null;
-			try {
-				List<NcgribRecord> recList = ((List<NcgribRecord>) dao
-						.queryByCriteria(query));
-				if (recList.size() == 0) {
-					return null;
-				} else {
-					rec = recList.get(0);
-					PointIn pointIn = new PointIn(pluginName, rec, pnt.x, pnt.y);
-					try {
-						float fdata = pointIn.getPointData();
-						return new Float(fdata);
-					} catch (PluginException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return null;
-					}
-				}
-
-			} catch (DataAccessLayerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-
-		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
 			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
 			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -751,133 +647,7 @@ public class MdlSoundingQuery {
 		List<NcSoundingProfile>  soundingProfileList = new ArrayList<NcSoundingProfile>();
 		List<float[]> fdataArrayList = new ArrayList<float[]>();
 		//long t01 = System.currentTimeMillis();
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			List<NcgribRecord> recList = new ArrayList<NcgribRecord>(); ;
-			TableQuery query;
-			try {
-				query = new TableQuery("metadata",
-						NcgribRecord.class.getName());
-				query.addParameter("vcord", "PRES");
-				query.addParameter("modelName", modelName);
-				query.addList("parm",NC_PARMS);//parmList.toString()); //
-				query.addParameter("dataTime.refTime", refTime);
-				query.addParameter("dataTime.validPeriod.start", validTime);
-				//query.addParameter("glevel1", level.toString());
-				query.setSortBy("glevel1", false);
-				recList = (List<NcgribRecord>) query.execute();					
-				//System.out.println("Ncgrib group query0 result size ="+ recList.size());
-
-				if (recList.size() != 0) {
-
-					PointIn pointIn = new PointIn(pluginName, recList.get(0));
-					//Chin note:
-					// We query multiple points, and for each point, query all levels (pressure) and all parameters 
-					//(at that level) with one shot.
-					// The return array list (fdataArrayList) are listed in the same order as querying list "points" 
-					// Each element (float[]) of the returned array list, represent a Point data, contains the same number of 
-					// parameters and listed in the same order as querying rec array (recList.toArray())
-					//However, returned element (float[]) does not tell you which parameter itself is.
-					//Therefore, we have to use information in query rec array to find out returned value's type (which parameter it is)
-					// Further, we have to sort and store returned values to NcSoundingLayer based on its level (pressure)
-					// Parameters in same level should be stored in one same NcSoundingLayer, 
-					// NcSoundingLayers for same Point should be stored in same NcSoundingProfile.
-					fdataArrayList = pointIn.getHDF5GroupDataPoints(recList.toArray(),points);
-				}
-			}catch (DataAccessLayerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			int index=0;
-			GridGeometry2D geom = MapUtil.getGridGeometry(spatialArea);
-			CoordinateReferenceSystem crs = geom.getCoordinateReferenceSystem();
-			Coordinate coord= new Coordinate(45,45);
-
-			for(float[]  fdataArray: fdataArrayList ){
-				//one fdataArray is for one Point or say one profile
-				NcSoundingProfile pf = new NcSoundingProfile();
-				List<NcSoundingLayer> soundLyList = new ArrayList<NcSoundingLayer>();
-				Point pnt = points.get(index);
-				Object[] recArray = recList.toArray();
-				for (Object level : levels){
-					NcSoundingLayer soundingLy = new NcSoundingLayer();
-					int pressure= (Integer)level;
-					soundingLy.setPressure( pressure);
-
-					for (int i=0; i < recArray.length; i++) {
-						NcgribRecord rec1 = (NcgribRecord)recArray[i];
-						float fdata = fdataArray[i];
-						if(rec1.getGlevel1() == pressure){
-							String prm = rec1.getParm();
-
-							//long t01 = System.currentTimeMillis();				
-							switch (NcParmNames.valueOf(prm)) {
-							case HGHT:
-								soundingLy.setGeoHeight(fdata);
-								break;
-							case UREL:
-								// HDF5 data in unit of m/s, convert to Knots 4/12/2012 
-								soundingLy.setWindU((float)metersPerSecondToKnots.convert(fdata)); 
-								break;
-							case VREL:
-								// HDF5 data in unit of m/s, convert to Knots 4/12/2012 
-								soundingLy.setWindV((float)metersPerSecondToKnots.convert(fdata));  
-								break;
-							case TMPK:
-								soundingLy.setTemperature((float) kelvinToCelsius
-										.convert(fdata)); 
-								break;
-							case DWPK:								
-								soundingLy.setDewpoint((float) kelvinToCelsius
-										.convert(fdata)); 
-								break;
-							case SPFH:
-								soundingLy.setSpecHumidity(fdata);
-								break;
-							case OMEG:
-								soundingLy.setOmega(fdata);
-								break;
-							case RELH:
-								soundingLy.setRelativeHumidity(fdata);
-								break;
-							}
-						}
-					}
-					soundLyList.add(soundingLy);
-				}
-				try {
-					coord = PointUtil.determineLatLon(pnt, crs, geom);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				//System.out.println(" point coord.y="+coord.y+ " coord.x="+ coord.x);
-				pf.setStationLatitude(coord.y);
-				pf.setStationLongitude( coord.x);
-				//Float sfcPressure = getModelSfcPressure(pnt, refTime, validTime,
-				//		pluginName, modelName);
-				//System.out.println("getModelSfcPressure took "+ (System.currentTimeMillis()-t013) + " ms");
-				//if (sfcPressure == null) {
-					pf.setSfcPress(-9999.f);
-				//}
-				//else {
-				//	pf.setSfcPress(sfcPressure);
-				//}
-				//System.out.println("surface pressure ="+pf.getSfcPress());
-				//calculate dew point if necessary
-				MergeSounding ms = new MergeSounding();
-				//ms.spfhToDewpoint(layerList);
-				ms.rhToDewpoint(soundLyList);
-				//System.out.println("MergeSounding took "+ (System.currentTimeMillis()-t014) + " ms");
-				pf.setSoundingLyLst(soundLyList);
-				soundingProfileList.add(pf);
-				index++;
-			}
-		}	
-		else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
 			List<GridRecord> recList = new ArrayList<GridRecord>(); ;
 			TableQuery query;
 			try {
@@ -1199,28 +969,7 @@ public class MdlSoundingQuery {
 			String pluginName, String modelName) {
 
 		// List<?>vals = null;
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(
-					NcgribRecord.class.getName());
-			query.addDistinctParameter("glevel1");
-			query.addQueryParam("parm", "HGHT");
-			query.addQueryParam("vcord", "PRES");
-
-			query.addQueryParam("modelName", modelName);
-			query.addQueryParam("dataTime.refTime", refTime);
-			query.addQueryParam("dataTime.validPeriod.start", validTime);
-			query.addOrder("glevel1", false);
-
-			try {
-				return (List<?>) dao.queryByCriteria(query);
-			} catch (DataAccessLayerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-
-		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
 			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
 			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 			query.addDistinctParameter(GridConstants.LEVEL_ONE);
@@ -1269,35 +1018,7 @@ public class MdlSoundingQuery {
 
 		Point pnt = null;
 
-		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(
-					NcgribRecord.class.getName());
-			query.addQueryParam("parm", "HGHT");
-			query.addQueryParam("vcord", "PRES");
-			query.addQueryParam("modelName", modelName);
-			query.addQueryParam("dataTime.refTime", refTime);
-			query.addQueryParam("dataTime.validPeriod.start", validTime);
-			query.addQueryParam("glevel1", level);
-
-			NcgribRecord rec;
-			try {
-				List<NcgribRecord> recList = ((List<NcgribRecord>) dao
-						.queryByCriteria(query));
-				if (recList.size() == 0) {
-					return null;
-				} else {
-					rec = recList.get(0);
-					spatialArea = rec.getSpatialObject();
-				}
-			} catch (DataAccessLayerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-			
-
-		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
 			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
 			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
