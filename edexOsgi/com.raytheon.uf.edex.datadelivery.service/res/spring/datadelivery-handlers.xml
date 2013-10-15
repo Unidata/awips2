@@ -57,12 +57,17 @@
         <constructor-arg ref="DataSetHandler" />
     </bean>
     
+    <bean id="registerAdhocSubscriptionHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler" />
+        <constructor-arg ref="AdhocSubscriptionHandler" />
+    </bean>
+    
     <!-- Used to consolidate the dependency clauses of beans that rely upon data delivery registry handlers -->
     <bean id="registerDataDeliveryHandlers" class="java.lang.String"
         depends-on="registerSubscriptionHandler,registerPendingSubscriptionHandler,
         registerGroupDefinitionHandler,
         registerProviderHandler,registerDataSetNameHandler,registerParameterHandler,
         registerParameterLevelHandler,registerDataSetMetaDataHandler,
-        registerGriddedDataSetMetaDataHandler,registerDataSetHandler" />
+        registerGriddedDataSetMetaDataHandler,registerDataSetHandler, registerAdhocSubscriptionHandler" />
 
 </beans>
