@@ -29,10 +29,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -40,7 +36,6 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.analysis.FogRange;
@@ -70,6 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 15, 2013 2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -85,8 +81,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @org.hibernate.annotations.Table(appliesTo = "fog", indexes = { @Index(name = "fog_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FogRecord extends PersistablePluginDataObject implements
         IPersistable {
@@ -96,53 +90,43 @@ public class FogRecord extends PersistablePluginDataObject implements
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String cwa;
 
     // Time of the observation to the nearest hour.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Calendar refHour;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public int nx = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public int ny = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public float dx = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public float dy = 0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public double satLon = 0.0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public double satHeight = 0.0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public double lon = 0.0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public double lat = 0.0;
 
     @Transient
@@ -395,17 +379,6 @@ public class FogRecord extends PersistablePluginDataObject implements
 
     public void setLon(double lon) {
         this.lon = lon;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     /**
