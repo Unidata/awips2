@@ -48,26 +48,12 @@
 		class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
 		factory-method="getInstance" depends-on="gridcoveragelookup"/>
 
-  	<bean id="ncgribFilenameProcessor" class="com.raytheon.edex.plugin.grib.filenameprocessor.NcgribFileNameProcessor" />
-
 	<camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
 		
-		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
 		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
 		<endpoint id="gribDecodeJmsEndpoint" uri="ingest-grib:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
-
-		
-	 	<route id="gribFileConsumerRoute">
-	 		<from ref="gribFileEndpoint" />
-	 			<bean ref="fileToString" />
-	 			<bean ref="ncgribFilenameProcessor" />
-	 			<setHeader headerName="pluginName">
-	 				<constant>grid</constant> 
-				</setHeader>
-				<to uri="jms-durable:queue:Ingest.GribSplit" />
-		</route>
 	
 		<!-- Begin Grib Decode Route -->
 		<route id="gribSplitIngestRoute">
