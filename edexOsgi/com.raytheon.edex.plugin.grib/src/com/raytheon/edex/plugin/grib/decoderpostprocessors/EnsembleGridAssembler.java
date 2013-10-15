@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.util.Util;
@@ -44,7 +46,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -68,13 +70,15 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Apr 09, 2010 4638        bphillip    Initial Creation
- * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
- * Mar 27, 2013 1821        bsteffen    Reduce db and pypies requests in grid
- *                                      assembler.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 09, 2010  4638     bphillip    Initial Creation
+ * Mar 14, 2013  1794     djohnson    FileUtil.listFiles now returns List.
+ * Mar 27, 2013  1821     bsteffen    Reduce db and pypies requests in grid
+ *                                    assembler.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * 
  * 
  * </pre>
  * 
@@ -116,11 +120,18 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         List<File> thinnedModelFiles = FileUtil.listFiles(commonPath, filter,
                 false);
 
+        SingleTypeJAXBManager<CompositeModel> jaxbManager;
+        try {
+            jaxbManager = new SingleTypeJAXBManager<CompositeModel>(
+                    CompositeModel.class);
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load thinned model files.", e);
+            return;
+        }
         for (File file : thinnedModelFiles) {
             try {
-                CompositeModel model = SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(CompositeModel.class,
-                                file.getPath());
+                CompositeModel model = jaxbManager.unmarshalFromXmlFile(file);
                 thinnedModels.put(model.getModelName(), model);
             } catch (SerializationException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -220,7 +231,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
     }
 
     private GridRecord createAssembledRecord(GridRecord record,
-            CompositeModel thinned) throws GribException {
+            CompositeModel thinned) {
         GridRecord newRecord = new GridRecord();
 
         GridCoverage coverage = GribSpatialCache.getInstance().getGridByName(
@@ -234,12 +245,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         newRecord.setDataTime(record.getDataTime());
         newRecord.setDataURI(null);
         newRecord.setInsertTime(Calendar.getInstance());
-        try {
-            newRecord.constructDataURI();
-        } catch (PluginException e) {
-            throw new GribException(
-                    "Error constructing DataURI for grib record", e);
-        }
+
         return newRecord;
     }
 
