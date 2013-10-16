@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.bufrquikscat;
 
 import java.util.Calendar;
-import java.util.Collection;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -31,15 +30,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -54,7 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * 
+ * Observation from QUIKScat
  * 
  * <pre>
  * 
@@ -68,6 +61,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -83,11 +77,9 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @org.hibernate.annotations.Table(appliesTo = "bufrquikscat", indexes = { @Index(name = "bufrquikscat_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class QUIKScatObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -96,49 +88,40 @@ public class QUIKScatObs extends PersistablePluginDataObject implements
     private PointDataView pointDataView;
 
     @DataURI(position = 1)
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer satId;
 
     @Embedded
     @DataURI(position = 2, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     // Text of the WMO header
     @Column(length = 32)
     @DynamicSerializeElement
-    @XmlElement
     private String wmoHeader;
 
-    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Integer orbitNumber;
 
     // The observation time.
-    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Calendar timeObs;
 
-    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Double windDir;
 
-    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Double windSpd;
 
-    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Double probRain;
 
-    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Integer rainIndex;
@@ -347,33 +330,8 @@ public class QUIKScatObs extends PersistablePluginDataObject implements
     }
 
     @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    @Override
     public ISpatialObject getSpatialObject() {
         return location;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
     }
 
     /**

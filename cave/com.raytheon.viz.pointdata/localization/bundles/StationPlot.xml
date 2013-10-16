@@ -52,7 +52,7 @@
 					<resourceData xsi:type="plotResourceData" plotSource="METAR Plot"
 						plotModelFile="stdObsDesign.svg" spiFile="basemaps/MTR.spi"
 						isUpdatingOnMetadataOnly="true" retrieveData="false"
-						isRequeryNecessaryOnTimeMatch="true" pixelSizeHint="45">
+						isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true" pixelSizeHint="45">
 						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="reportType">
