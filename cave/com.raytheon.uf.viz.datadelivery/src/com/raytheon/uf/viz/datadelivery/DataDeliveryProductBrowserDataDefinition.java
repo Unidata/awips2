@@ -28,9 +28,11 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -66,6 +68,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2013  2391      mpduff      Initial creation
  * Sept 22, 2013 2246      dhladky     Setup binoffset for time into +-5 min intervals
+ * Oct 13,  2013 2460      dhladky     Added display of Adhoc subscriptions
  * 
  * </pre>
  * 
@@ -431,6 +434,20 @@ public class DataDeliveryProductBrowserDataDefinition
             subList = handler.getActive();
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        
+        final IAdhocSubscriptionHandler adhochandler = RegistryObjectHandlers
+                .get(IAdhocSubscriptionHandler.class);
+        List<AdhocSubscription> adhocSubs = null;
+        
+        try {
+            adhocSubs = adhochandler.getAll();
+        } catch (RegistryHandlerException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        
+        if (adhocSubs != null) {
+            subList.addAll(adhocSubs);
         }
 
         return subList;
