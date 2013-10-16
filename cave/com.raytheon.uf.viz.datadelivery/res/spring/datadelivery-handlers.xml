@@ -75,6 +75,11 @@
         class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetHandler">
         <property name="registryHandler" ref="registryHandler" />
     </bean>
+    
+    <bean name="AdhocSubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.AdhocSubscriptionHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <!-- The actual registering of the handlers -->
 
@@ -151,6 +156,11 @@
             value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler" />
         <constructor-arg ref="DataSetHandler" />
     </bean>
+    
+    <bean id="registerAdhocSubscriptionHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler" />
+        <constructor-arg ref="AdhocSubscriptionHandler" />
+    </bean>
 
     <!-- Used to consolidate the dependency clauses of beans that rely upon 
         data delivery registry handlers -->
@@ -159,6 +169,6 @@
         registerGroupDefinitionHandler,
         registerProviderHandler,registerDataSetNameHandler,registerParameterHandler,
         registerParameterLevelHandler,registerDataSetMetaDataHandler,
-        registerGriddedDataSetMetaDataHandler,registerDataSetHandler" />
+        registerGriddedDataSetMetaDataHandler,registerDataSetHandler,registerAdhocSubscriptionHandler" />
 
 </beans>
