@@ -28,11 +28,26 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
+/**
+ * 
+ * A JAXBable set of {@link GridModel}s.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
+ */
 @XmlRootElement(name = "gribModelSet")
 @XmlAccessorType(XmlAccessType.NONE)
-public class GridModelSet implements ISerializableObject {
+public class GridModelSet {
 
     /**
      * List of models for/from the XML.
