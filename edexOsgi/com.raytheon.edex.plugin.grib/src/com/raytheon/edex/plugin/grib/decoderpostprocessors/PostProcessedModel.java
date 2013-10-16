@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * A container class to hold which post processors apply to a grib model
  * 
@@ -36,9 +34,11 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 7/24/12      949         bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 24, 2012  949      bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
+ * 
  * 
  * </pre>
  * 
@@ -47,7 +47,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "postProcessedModel")
 @XmlAccessorType(XmlAccessType.NONE)
-public class PostProcessedModel implements ISerializableObject {
+public class PostProcessedModel {
 
 	/**
 	 * The model name to which the processors apply. May be a regular expression
