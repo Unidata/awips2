@@ -27,15 +27,17 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.parameter.Parameter;
 
 /**
- * TODO Add Description
+ * Post processor for the MSAS model.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 18, 2011            bphillip     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 18, 2011           bphillip    Initial creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * 
  * 
  * </pre>
  * 
@@ -100,12 +102,6 @@ public class MSASPostProcessor implements IDecoderPostProcessor {
         if (modelInfoModified) {
             record.getInfo().setId(null);
             record.setDataURI(null);
-            try {
-                record.constructDataURI();
-            } catch (Exception e) {
-                throw new GribException(
-                        "Error creating new dataURI for MSAS data!", e);
-            }
         }
 
         record.setOverwriteAllowed(true);
