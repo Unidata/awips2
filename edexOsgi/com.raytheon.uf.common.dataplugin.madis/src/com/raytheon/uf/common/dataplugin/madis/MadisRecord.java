@@ -20,7 +20,6 @@ package com.raytheon.uf.common.dataplugin.madis;
  * further licensing information.
  **/
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import javax.xml.bind.annotation.XmlEnumValue;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -74,6 +72,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 12, 2013 2096       mpduff      Changed temperature unit to F.
  * Jul 14, 2013 2180       dhladky     GUI update for mouse over display
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361       njensen     Removed IDecoderGettable
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -88,7 +88,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         "refTime", "location" }), })
 @DynamicSerialize
 public class MadisRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData {
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = -2234739310998758367L;
 
@@ -370,20 +370,6 @@ public class MadisRecord extends PersistablePluginDataObject implements
 
     public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
 
-    /** Keys that map back to known decoder params **/
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put(SFC_DWPT, SFC_DWPT);
-        PARM_MAP.put(SFC_TEMP, SFC_TEMP);
-        PARM_MAP.put(SFC_WNDSPD, SFC_WNDSPD);
-        PARM_MAP.put(SFC_WNDDIR, SFC_WNDDIR);
-        PARM_MAP.put(SFC_WNDGST, SFC_WNDGST);
-        PARM_MAP.put(PRES_ALTSG, PRES_ALTSG);
-        PARM_MAP.put(PRES_STATION, PRES_STATION);
-        PARM_MAP.put(STA_LAT, STA_LAT);
-        PARM_MAP.put(STA_LON, STA_LON);
-    }
-
     /** MADIS specific parameter keys */
     public static final class ParameterKey {
 
@@ -480,80 +466,6 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    public Amount getValue(final String paramName) {
-        Amount a = null;
-
-        String pName = paramName;
-
-        if (SFC_TEMP.equals(pName)) {
-            if (temperature != -9999) {
-                a = new Amount(temperature, TEMPERATURE_UNIT);
-            }
-        } else if (SFC_DWPT.equals(pName)) {
-            if (dewpoint != -9999) {
-                a = new Amount(dewpoint, TEMPERATURE_UNIT);
-            }
-        } else if (SFC_WNDSPD.equals(pName)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDGST.equals(pName)) {
-            a = new Amount(windGust, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName)) {
-            if (getWindDirection() != -9999) {
-                Double result = (double) getWindDirection();
-                a = new Amount(result, WIND_DIR_UNIT);
-            }
-        } else if (PRES_ALTSG.equals(pName)) {
-            a = new Amount(altimeter, ALTIMETER_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(getLongitude(), LOCATION_UNIT);
-        } else if (ParameterKey.PRECIPITALWATER.equals(pName)) {
-            if (precipitalWater != -9999) {
-                a = new Amount(precipitalWater, PRECIP_UNIT);
-            }
-        } else if (ParameterKey.RELATIVEHUMIDITY.equals(pName)) {
-            if (rh != -9999) {
-                a = new Amount(rh, HUMIDITY_UNIT);
-            }
-        } else if (PRES_STATION.equals(pName)) {
-            if (pressure != -9999) {
-                a = new Amount(pressure, PRESSURE_UNIT);
-            }
-        }
-        return a;
-    }
-
-    @Override
-    public Collection<Amount> getValues(final String paramName) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getString(final String paramName) {
-        if (ParameterKey.PROVIDER.matches(paramName)) {
-            return getProvider();
-        } else if (ParameterKey.SUB_PROVIDER.matches(paramName)) {
-            return getSubProvider();
-        } else if (ParameterKey.STATIONID.matches(paramName)) {
-            return getStationId();
-        }
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(final String paramName) {
-        if (ParameterKey.PROVIDER.matches(paramName)) {
-            return new String[] { getProvider() };
-        } else if (ParameterKey.SUB_PROVIDER.matches(paramName)) {
-            return new String[] { getSubProvider() };
-        } else if (ParameterKey.STATIONID.matches(paramName)) {
-            return new String[] { getStationId() };
-        }
-        return null;
     }
 
     /**

@@ -20,31 +20,38 @@
 package com.raytheon.uf.common.dataplugin.ncwf;
 
 import java.io.Serializable;
-// import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.vividsolutions.jts.geom.Coordinate;
 
-@XmlAccessorType(XmlAccessType.NONE)
+/**
+ * Feature for NCWF
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * --/--/----              jkorman     Initial creation
+ * Oct 15, 2013 2361       njensen     Remove XML annotations
+ * 
+ * </pre>
+ * 
+ * @author jkorman
+ * @version 1.0
+ */
 @DynamicSerialize
-public class NCWFFeature implements Serializable, ISerializableObject {
+public class NCWFFeature implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @XmlElement
     @DynamicSerializeElement
     private Coordinate centroidLocation;
 
-    @XmlElement
     @DynamicSerializeElement
     List<Coordinate> featureBoundary;
 
@@ -59,7 +66,7 @@ public class NCWFFeature implements Serializable, ISerializableObject {
      *            Feature centroid longitude.
      */
     public NCWFFeature(Double lat, Double lon) {
-        centroidLocation = DecoderTools.createCoordinate(lat,lon);
+        centroidLocation = DecoderTools.createCoordinate(lat, lon);
     }
 
     /**
@@ -68,7 +75,7 @@ public class NCWFFeature implements Serializable, ISerializableObject {
     public Coordinate getCentroidLocation() {
         return centroidLocation;
     }
-    
+
     /**
      * 
      * @return
@@ -76,7 +83,7 @@ public class NCWFFeature implements Serializable, ISerializableObject {
     public double getCentroidLatitude() {
         return DecoderTools.getCoordinateLatitude(centroidLocation);
     }
-    
+
     /**
      * 
      * @return
@@ -84,7 +91,7 @@ public class NCWFFeature implements Serializable, ISerializableObject {
     public double getCentroidLongitude() {
         return DecoderTools.getCoordinateLongitude(centroidLocation);
     }
-    
+
     /**
      * @param centroidLocation
      *            the centroidLocation to set
