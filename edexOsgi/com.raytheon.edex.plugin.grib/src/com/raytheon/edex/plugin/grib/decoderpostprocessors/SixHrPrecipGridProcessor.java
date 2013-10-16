@@ -29,9 +29,6 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
@@ -44,10 +41,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 25, 2011            rgeorge     Initial creation
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 25, 2011           rgeorge     Initial creation
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 15, 2013  2473     bsteffen    Removed deprecated and unused code.
  * 
  * </pre>
  * 
@@ -55,8 +53,6 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * @version 1.0
  */
 public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SixHrPrecipGridProcessor.class);
 
     /** The number of seconds in 6 hours */
     protected static final int SECONDS_IN_6_HRS = 21600;
@@ -87,13 +83,11 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
      *            grid
      * @param precipInventory
      *            The current run accumulated grid inventory
-     * @param precip6hrInventory
-     *            The current 6hr precipitation inventory
      * @return The generated 6hr precipitation grid
      * @throws GribException
      */
     protected List<GridRecord> generate6hrPrecip(GridRecord record,
-            List<GridRecord> precipInventory, List<Integer> precip6hrInventory)
+            List<GridRecord> precipInventory)
             throws GribException {
         List<GridRecord> tp6hrRecords = new ArrayList<GridRecord>();
         int currentFcstTime = record.getDataTime().getFcstTime();
@@ -216,11 +210,5 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
         // Reset the datauri since the datauri contains the DataTime
         record.setDataTime(newDataTime);
         record.setDataURI(null);
-        try {
-            record.constructDataURI();
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error constructing dataURI!", e);
-        }
     }
 }

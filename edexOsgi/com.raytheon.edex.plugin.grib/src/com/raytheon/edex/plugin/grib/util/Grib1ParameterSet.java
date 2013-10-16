@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * The class used for unmarshalling the grib1 parameter conversion XML file.
  * grib1ParameterConvTable.xml
@@ -38,9 +36,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 3/9/10       4758        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2010  4758     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * 
  * </pre>
  * 
@@ -49,7 +48,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "grib1ParameterSet")
 @XmlAccessorType(XmlAccessType.NONE)
-public class Grib1ParameterSet implements ISerializableObject {
+public class Grib1ParameterSet {
 
     /** The unmarshalled grib 1 parameters */
     @XmlElements( { @XmlElement(name = "grib1Parameter", type = Grib1Parameter.class) })
