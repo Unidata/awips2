@@ -30,15 +30,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -78,6 +73,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                      PluginDataObject.
  * Aug 06, 2013 2228        njensen     Use deserialize(byte[])
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361        njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -94,8 +90,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @org.hibernate.annotations.Table(appliesTo = "scan", indexes = { @Index(name = "scan_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ScanRecord extends PersistablePluginDataObject {
 
@@ -110,19 +104,16 @@ public class ScanRecord extends PersistablePluginDataObject {
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String icao;
 
     @Column(length = 7)
     @DataURI(position = 2)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String type;
 
     @Column(length = 7)
     @DataURI(position = 3)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private double tilt;
 
     @Transient
@@ -130,12 +121,10 @@ public class ScanRecord extends PersistablePluginDataObject {
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     public Date volScanTime = null;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private boolean lastElevationAngle;
 
     /** table data **/
@@ -156,12 +145,6 @@ public class ScanRecord extends PersistablePluginDataObject {
 
     public ScanRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**

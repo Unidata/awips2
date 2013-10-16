@@ -21,11 +21,6 @@ package com.raytheon.uf.common.dataplugin.profiler;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080303            969 jkorman     Initial implementation.
+ * Oct 15, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -44,53 +40,41 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class ProfilerLevel implements Serializable, ISerializableObject, Comparable<ProfilerLevel> {
+public class ProfilerLevel implements Serializable, Comparable<ProfilerLevel> {
 
     private static final long serialVersionUID = 1L;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Integer modeInfo;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Integer levelQualCode;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Double peakPower;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Integer levelHeight;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Double ucWind;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Double vcWind;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Double horzStdDev;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Integer horzConsensus;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Double wcWind;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Double vertStdDev;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private Integer vertConsensus;
 
     /**
@@ -339,5 +323,5 @@ public class ProfilerLevel implements Serializable, ISerializableObject, Compara
         }
         return result;
     }
-    
+
 }
