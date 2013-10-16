@@ -55,6 +55,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
  * Aug 26, 2013 #2225      rferrel      Make dialog perspective independent.
  * Oct 01, 2013 #2147      rferrel      Change getEnd() to pick up files with future time stamps.
+ * Oct 07, 2013 #2438      rferrel      Properly save and load retention times.
  * 
  * </pre>
  * 
@@ -74,6 +75,19 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
     /** Displays the total size of selected items. */
     private Label totalSizeLbl;
+
+    /** Flag to indicate when retention hours are modified. */
+    private boolean retentionHoursAreModified = false;
+
+    /** Modification listener for the retention hours components. */
+    private final IModifyListener retentionHoursModifyListener = new IModifyListener() {
+
+        @Override
+        public void modified() {
+            saveBtn.setEnabled(true);
+            retentionHoursAreModified = true;
+        }
+    };
 
     /**
      * Constructor.
@@ -178,7 +192,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
                 return state;
             }
         };
-        minRetention.addModifyListener(this);
+        minRetention.addModifyListener(retentionHoursModifyListener);
 
         /*
          * Bottom row of controls.
@@ -208,7 +222,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
                 return state;
             }
         };
-        extRetention.addModifyListener(this);
+        extRetention.addModifyListener(retentionHoursModifyListener);
     }
 
     /**
@@ -227,9 +241,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                saveSelection(selectName);
-                saveBtn.setEnabled(false);
-                clearModified();
+                saveAction();
             }
         });
         saveBtn.setEnabled(false);
@@ -258,6 +270,18 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
                 }
             }
         });
+    }
+
+    /**
+     * Save button action.
+     */
+    private void saveAction() {
+        saveSelection(selectName);
+        saveBtn.setEnabled(false);
+        if (retentionHoursAreModified) {
+            manager.save();
+        }
+        clearModified();
     }
 
     /*
@@ -375,6 +399,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
         super.clearModified();
         minRetention.clearModified();
         extRetention.clearModified();
+        retentionHoursAreModified = false;
     }
 
     /*
@@ -384,9 +409,21 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     @Override
     protected void disposed() {
-        minRetention.removeModifyListener(this);
-        extRetention.removeModifyListener(this);
+        minRetention.removeModifyListener(retentionHoursModifyListener);
+        extRetention.removeModifyListener(retentionHoursModifyListener);
         removeModifiedListener(this);
         super.disposed();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        archiveComboSelection();
+        categoryComboSelection();
     }
 }
