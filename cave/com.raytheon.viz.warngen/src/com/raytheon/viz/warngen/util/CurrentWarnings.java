@@ -44,6 +44,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -76,6 +77,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 22, 2013 2176       jsanchez     Set the raw message for an EXT.
  * Aug 14, 2013 DR 16483   Qinglu Lin   Fixed no option issue in WarnGen dropdown menu after
  *                                      issuance of an CANCON and restart of CAVE.
+ * Oct 16, 2013 2439       rferrel      Restrict retrieval of warnings to prevent getting future warnings.
  * </pre>
  * 
  * @author mschenke
@@ -130,9 +132,9 @@ public class CurrentWarnings {
 
     }
 
-    private static Map<String, CurrentWarnings> instanceMap = new HashMap<String, CurrentWarnings>();
+    private static final Map<String, CurrentWarnings> instanceMap = new HashMap<String, CurrentWarnings>();
 
-    private static Set<IWarningsArrivedListener> listeners = Collections
+    private static final Set<IWarningsArrivedListener> listeners = Collections
             .synchronizedSet(new HashSet<IWarningsArrivedListener>());
 
     static {
@@ -208,9 +210,25 @@ public class CurrentWarnings {
         }
     };
 
+    /**
+     * Singleton constructor.
+     * 
+     * @param officeId
+     */
     private CurrentWarnings(String officeId) {
         this.officeId = officeId;
         initializeData();
+
+        // This assumes the instances stays around for the life of the JVM.
+        ISimulatedTimeChangeListener changeListener = new ISimulatedTimeChangeListener() {
+
+            @Override
+            public void timechanged() {
+                initializeData();
+            }
+        };
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(
+                changeListener);
     }
 
     /**
@@ -219,6 +237,10 @@ public class CurrentWarnings {
     private void initializeData() {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
         constraints.put("officeid", new RequestConstraint(officeId));
+        Calendar time = TimeUtil.newCalendar();
+        constraints.put("issueTime",
+                new RequestConstraint(TimeUtil.formatDate(time),
+                        ConstraintType.LESS_THAN_EQUALS));
 
         long t0 = System.currentTimeMillis();
         List<AbstractWarningRecord> warnings = requestRecords(constraints);
