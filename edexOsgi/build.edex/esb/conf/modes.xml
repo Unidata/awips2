@@ -235,6 +235,7 @@
         <!-- Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
+        <include>adhoc-datadelivery-wfo.xml</include>
         <exclude>.*datadelivery-ncf.*</exclude>
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
@@ -299,6 +300,7 @@
 		are for DEVELOPMENT purposes only -->
     <mode name="devRegistry">
         <include>ebxml.*\.xml</include>
+        <include>adhoc-datadelivery-wfo.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
         <exclude>.*datadelivery-ncf.*</exclude>
     </mode>
