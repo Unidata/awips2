@@ -92,6 +92,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary.
  * Jul 26, 2013 2232       mpduff       Refactored Data Delivery permissions.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 12, 2013 2460       dhladky      restored adhoc subscriptions to registry storage.
  * 
  * </pre>
  * 
@@ -566,9 +567,9 @@ public class SubscriptionService implements ISubscriptionService {
         final String successMessage = "The query was successfully stored.";
         final ServiceInteraction action = new ServiceInteraction() {
             @Override
-            public String call() {
-                // Adhoc subscriptions don't interact with the registry any
-                // longer, so it gets a blank implementation
+            public String call() throws RegistryHandlerException {
+                DataDeliveryHandlers.getSubscriptionHandler().store(
+                        sub);
                 return successMessage;
             }
         };
