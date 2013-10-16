@@ -130,6 +130,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
  * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Oct 15, 2013   2477     mpduff       Remove debug code.
  * </pre>
  * 
  * @author mpduff
@@ -193,7 +194,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
     private CreateSubscriptionDlg subDlg;
 
     /** The dataset */
-    private final DataSet dataSet;
+    protected DataSet dataSet;
 
     /**
      * Constructor
@@ -272,9 +273,6 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
      */
     protected abstract TimeXML getTimeXmlFromSubscription();
 
-    /** Set the title */
-    protected abstract void setTitle();
-
     /** Get the data time information */
     protected abstract TimeXML getDataTimeInfo();
 
@@ -310,6 +308,11 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         initialized = true;
         updateDataSize();
+    }
+
+    /** Set the title */
+    protected void setTitle() {
+        setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
     }
 
     /*
@@ -471,7 +474,6 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
      * Launch the Create Subscription GUI
      */
     private boolean handleOK(Subscription sub) {
-        System.out.println("SubsetManagerDlg.handleOK():  Implement Me");
         if (this.validated(true)) {
             if (subDlg != null && !subDlg.isDisposed()) {
                 subDlg.bringToTop();

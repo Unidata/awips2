@@ -30,14 +30,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -49,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
+ * A record for the CWA product
  * 
  * <pre>
  * 
@@ -63,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 15, 2013 2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -78,8 +74,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @org.hibernate.annotations.Table(appliesTo = "cwa", indexes = { @Index(name = "cwa_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class CWARecord extends PersistablePluginDataObject implements
         IPointData, IPersistable {
@@ -92,27 +86,22 @@ public class CWARecord extends PersistablePluginDataObject implements
 
     // Text of the WMO header
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String wmoHeader = "";
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private CWADimension dimension;
 
     @DataURI(position = 1, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private String eventId;
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private Coordinate[] coordinates;
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String text;
 
@@ -157,11 +146,6 @@ public class CWARecord extends PersistablePluginDataObject implements
     public void setDataURI(String dataURI) {
         super.setDataURI(dataURI);
         identifier = dataURI;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public String getText() {

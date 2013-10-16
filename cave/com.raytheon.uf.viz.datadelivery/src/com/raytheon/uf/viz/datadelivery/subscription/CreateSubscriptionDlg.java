@@ -139,7 +139,8 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Aug 30, 2013   2288     bgonzale    Added display of priority and latency rules.
  * Sep 04, 2013   2314     mpduff      Pass in the office to Shared Subscription Dialog.
  * Sept 30, 2013  1797     dhladky     separated Time from GriddedTime
- * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Oct 11, 2013   2386     mpduff      Refactor DD Front end.
+ * Oct 15, 2013   2477     mpduff      Fix bug in group settings.
  * 
  * </pre>
  * 
@@ -1382,7 +1383,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
         }
 
         // if group selected check if properties match saved group
-        if (GroupSelectComp.NONE_AVAILABLE.equals(this.groupSelectComp
+        if (!GroupDefinition.NO_GROUP.equals(this.groupSelectComp
                 .getGroupName()) && valid) {
             groupDefinition = GroupDefinitionManager
                     .getGroup(this.groupSelectComp.getGroupName());
@@ -1729,7 +1730,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                     activePeriodEndDate,
                     activePeriodStartCal.get(Calendar.YEAR), now);
 
-            setStartDate(activePeriodStartDate);
+            setActiveStartDate(activePeriodStartDate);
             setActiveEndDate(activePeriodEndDate);
             setAlwaysActive(false);
         } else {
