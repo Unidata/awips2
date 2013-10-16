@@ -7,7 +7,7 @@
 
 	<camelContext id="ncgrib-file-endpoint" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
-		autoStartup=false>
+		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
 		
