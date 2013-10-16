@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -34,7 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
  * Sep 05, 2013 2330       bgonzale     On WFO registry init, only subscribe to local site subscriptions.
  * Sep 06, 2013 2344       bgonzale     Removed attempt to add to immutable empty set.
- * Oct 07, 2013 2267       bgonzale     in executeAfterRegistryInit NCF schedules shared subs.
+ * Oct 16, 2013 2267       bgonzale     executeAfterRegistryInit subscribes to all local.  Removed is shared checks.
  * 
  * </pre>
  * 
@@ -88,22 +87,20 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
         Set<Subscription> activeSubscriptions = new HashSet<Subscription>();
         try {
             final String localOffice = SiteUtil.getSite();
-            final boolean isCentralRegistry = System.getProperty(
-                    "edex.run.mode").equals("centralRegistry");
 
             // Load active subscriptions
             for (Subscription sub : findSubscriptionsStrategy
                     .findSubscriptionsToSchedule()) {
-                boolean isShared = (sub instanceof SharedSubscription);
                 boolean isLocalOffice = sub.getOfficeIDs()
                         .contains(localOffice);
 
-                if ((isCentralRegistry && isShared)
-                        || (!isShared && isLocalOffice)) {
+                if (isLocalOffice) {
                     activeSubscriptions.add(sub);
                     statusHandler.info("Scheduling Subscription: " + sub);
                 } else {
-                    statusHandler.info("Not Scheduling Subscription: " + sub);
+                    statusHandler
+                            .info("Not Scheduling Non-local Subscription: "
+                                    + sub);
                 }
             }
         } catch (Exception e) {
