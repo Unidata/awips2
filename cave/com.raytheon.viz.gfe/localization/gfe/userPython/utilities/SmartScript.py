@@ -49,6 +49,7 @@
 #    Aug 14, 2013     1571         randerso       Fixed encodeEditArea() to return astype(numpy.bool8)
 #                                                 so mask can be used with advanced indexing
 #                                                 (e.g. grid[mask] = value)
+#    Oct 07, 2013    2424          randerso       remove use of pytz
 #
 ########################################################################
 import types, string, time, sys
@@ -1482,14 +1483,15 @@ class SmartScript(BaseTool.BaseTool):
 
             This should be used instead of time.localtime()
         '''
-        from pytz import timezone
+        import dateutil.tz
 
         if tz is None:
             tzname = self.__dataMgr.getClient().getSiteTimeZone()
-            tz = timezone(tzname)
+            tz = dateutil.tz.gettz(tzname)
 
-        utczone = timezone('UTC')
-        gmdt = utczone.localize(self._gmtime(date))
+
+        utczone = dateutil.tz.gettz('UTC')
+        gmdt = self._gmtime(date).replace(tzinfo=utczone)
         tzdt = gmdt.astimezone(tz)
         return tzdt
 

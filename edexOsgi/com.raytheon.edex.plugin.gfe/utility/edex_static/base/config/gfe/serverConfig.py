@@ -22,6 +22,8 @@
 # NOTE: THIS FILE SHOULD NOT BE USER-MODIFIED.  INSTEAD REFER TO THE
 # LOCAL CONFIG DOCUMENTATION ON HOW TO OVERRIDE SETTINGS IN THIS FILE.
 #
+# Baseline GFE server configuration 
+#
 # ----------------------------------------------------------------------------
 #
 #     SOFTWARE HISTORY
@@ -31,6 +33,8 @@
 #    08/09/2013          #1571     randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
 #    10/03/2013          #2418     dgilling       Update for new pSurge 2.0 data.
+#    10/03/2013      2424          randerso       Change localTC to use dateutil instead of pytz
+#                                                 to get correct offsets for Alaska
 #
 ########################################################################
 
@@ -874,9 +878,10 @@ Persistent = (0, 0, 0)     # special time constraint
 # seconds local time, e.g., 6*HOUR would indicate 6am.
 def localTC(start,repeat,duration,dst):
     timezone = SITES[GFESUITE_SITEID][3]
-    import pytz
-    tz = pytz.timezone(timezone)
-    delta = tz.utcoffset(0) - tz.dst(0);
+    import dateutil.tz, datetime
+    tz = dateutil.tz.gettz(timezone)
+    dt = datetime.datetime.utcnow()
+    delta = tz.utcoffset(dt) + tz.dst(dt)
     offset = delta.days*86400 + delta.seconds
     start = start - offset
     if dst == 1:
