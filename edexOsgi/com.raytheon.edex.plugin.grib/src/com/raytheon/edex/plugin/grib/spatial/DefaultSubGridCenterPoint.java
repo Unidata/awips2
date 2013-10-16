@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Default sub grid center point. If latitude/longitude may be null. This would
@@ -35,9 +34,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 25, 2012 977        rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 25, 2012  977      rjpeter     Initial creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * 
  * </pre>
  * 
@@ -46,7 +46,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class DefaultSubGridCenterPoint implements ISerializableObject {
+public class DefaultSubGridCenterPoint {
     private Double centerLatitude;
 
     private Double centerLongitude;
