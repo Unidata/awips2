@@ -37,10 +37,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -77,13 +73,13 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Jun 03, 2009 2521     D. Hladky   Initial release
+ * Jun 03, 2009 2521        D. Hladky   Initial release
  * Jan 27, 2013 1478        D. Hladky   OUN memory help
- * Feb 28, 2013 1729        dhladky    Supressed un-necessary debug loggers
+ * Feb 28, 2013 1729        dhladky     Supressed un-necessary debug loggers
  * Apr 04, 2013 1846        bkowal      Added an index on refTime and
  *                                      forecastTime
- * Apr 08, 2013 1293        bkowal     Removed references to hdffileid.
- * April, 9 2013 1890       dhladky    Moved dates to referenced map in record
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
+ * April, 9 2013 1890       dhladky     Moved dates to referenced map in record
  *                                          rather than multiple dates in
  *                                          FFMPBasin objs.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
@@ -93,6 +89,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  *                                      PluginDataObject.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361        njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -108,8 +105,6 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  */
 @org.hibernate.annotations.Table(appliesTo = "ffmp", indexes = { @Index(name = "ffmp_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFMPRecord extends PersistablePluginDataObject implements
         IPersistable {
@@ -119,25 +114,21 @@ public class FFMPRecord extends PersistablePluginDataObject implements
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String wfo;
 
     @Column(length = 32)
     @DataURI(position = 2)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String sourceName;
 
     @Column(length = 32)
     @DataURI(position = 3)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String dataKey;
 
     @Column(length = 32)
     @DataURI(position = 4)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String siteKey;
 
     @Transient

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.bufrsigwx;
 
-import java.util.Collection;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -30,15 +28,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
@@ -52,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Upper air pointdata for significant weather
  * 
  * <pre>
  * 
@@ -66,6 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
  * 
  * </pre>
  * 
@@ -82,38 +75,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @org.hibernate.annotations.Table(appliesTo = "bufrsigwx", indexes = { @Index(name = "bufrswigwx_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @DynamicSerialize
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 public class SigWxData extends PersistablePluginDataObject implements
-        IDecoderGettable, IPointData, IPersistable {
+        IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
     @Column
     @DataURI(position = 1)
-    @XmlElement
     @DynamicSerializeElement
     private SigWxLayer wxLayer;
 
     @Column
     @DataURI(position = 2)
-    @XmlElement
     @DynamicSerializeElement
     private SigWxType wxType;
 
     @Column
     @DataURI(position = 3)
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer key;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer baseHeight;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer topHeight;
 
@@ -124,12 +110,10 @@ public class SigWxData extends PersistablePluginDataObject implements
     // Text of the WMO header
     @Column(length = 32)
     @DynamicSerializeElement
-    @XmlElement
     private String wmoHeader;
 
     @Transient
     @DynamicSerializeElement
-    @XmlElement
     private TropopauseLayerData tropData;
 
     /**
@@ -254,31 +238,6 @@ public class SigWxData extends PersistablePluginDataObject implements
      */
     public void setKey(Integer key) {
         this.key = key;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
     }
 
     /**
