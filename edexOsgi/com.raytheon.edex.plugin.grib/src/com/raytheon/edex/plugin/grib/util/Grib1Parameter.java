@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -38,9 +37,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 3/9/10       4758        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2010  4758     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * 
  * </pre>
  * 
@@ -50,7 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class Grib1Parameter implements ISerializableObject {
+public class Grib1Parameter {
 
     /** The id assigned from the hashcode of this object */
     private int id;
