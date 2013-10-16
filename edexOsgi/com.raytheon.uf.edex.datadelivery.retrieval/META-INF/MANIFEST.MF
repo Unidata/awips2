@@ -44,6 +44,7 @@ Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
    com.raytheon.uf.common.serialization,
    com.raytheon.uf.common.datadelivery.registry",
  com.raytheon.uf.edex.datadelivery.retrieval.adapters;uses:="com.raytheon.uf.edex.datadelivery.retrieval.interfaces,com.raytheon.uf.common.datadelivery.retrieval.xml,com.raytheon.uf.edex.datadelivery.retrieval.response",
+ com.raytheon.uf.edex.datadelivery.retrieval.adhoc,
  com.raytheon.uf.edex.datadelivery.retrieval.db;uses:="com.raytheon.uf.common.dataplugin.persist,com.raytheon.uf.edex.database.dao,com.raytheon.uf.common.serialization",
  com.raytheon.uf.edex.datadelivery.retrieval.handlers;uses:="com.raytheon.uf.edex.datadelivery.retrieval.interfaces,com.raytheon.uf.common.datadelivery.retrieval.xml,com.raytheon.uf.edex.datadelivery.retrieval.db",
  com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
