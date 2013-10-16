@@ -34,9 +34,6 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -50,10 +47,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 25, 2011            rgeorge     Initial creation
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 25, 2011           rgeorge     Initial creation
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * 
  * </pre>
  * 
@@ -62,9 +60,6 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  */
 public class GFSProcessor extends SixHrPrecipGridProcessor {
     private static final int SECONDS_IN_12_HRS = 43200;
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GFSProcessor.class);
 
     @Override
     public GridRecord[] process(GridRecord record) throws GribException {
@@ -227,11 +222,5 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
         // Reset the datauri since the datauri contains the DataTime
         record.setDataTime(newDataTime);
         record.setDataURI(null);
-        try {
-            record.constructDataURI();
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error constructing dataURI!", e);
-        }
     }
 }
