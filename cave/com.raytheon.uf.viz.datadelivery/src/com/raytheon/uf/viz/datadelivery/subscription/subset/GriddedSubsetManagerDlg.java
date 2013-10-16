@@ -149,8 +149,6 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
     /** Gridded data size utility */
     private GriddedDataSizeUtils dataSize;
 
-    private final GriddedDataSet dataSet;
-
     private GriddedTimingSubsetTab timingTabControls;
 
     /**
@@ -166,9 +164,8 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
     public GriddedSubsetManagerDlg(Shell shell, boolean loadDataSet,
             Subscription subscription) {
         super(shell, loadDataSet, subscription);
-        this.dataSet = (GriddedDataSet) MetaDataManager.getInstance()
-                .getDataSet(subscription.getDataSetName(),
-                        subscription.getProvider());
+        this.dataSet = MetaDataManager.getInstance().getDataSet(
+                subscription.getDataSetName(), subscription.getProvider());
         setTitle();
     }
 
@@ -210,15 +207,8 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
      * {@inheritDoc}
      */
     @Override
-    protected void setTitle() {
-        setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void createTabs(TabFolder tabFolder) {
+        GriddedDataSet griddedDataSet = (GriddedDataSet) dataSet;
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
 
@@ -243,7 +233,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
         timingTab.setControl(timingComp);
         timingTabControls = new GriddedTimingSubsetTab(timingComp, this, shell);
 
-        Ensemble e = dataSet.getEnsemble();
+        Ensemble e = griddedDataSet.getEnsemble();
         if (e != null && e.getMembers() != null) {
             TabItem ensembleTabItem = new TabItem(tabFolder, SWT.NONE, 2);
             Composite ensembleComp = new Composite(tabFolder, SWT.NONE);
@@ -252,7 +242,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
                     true, false));
             ensembleTabItem.setControl(ensembleComp);
             ensembleTab = new GriddedEnsembleSubsetTab(ensembleComp,
-                    dataSet.getEnsemble());
+                    griddedDataSet.getEnsemble());
             ensembleTab.addListener(this);
             ensembleTabItem.setText(ensembleTab.getName());
         }
@@ -266,7 +256,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
         spatialTabControls = new SpatialSubsetTab(spatialComp, dataSet, this);
 
         SortedSet<Integer> forecastHours = new TreeSet<Integer>(
-                dataSet.getForecastHours());
+                griddedDataSet.getForecastHours());
 
         List<String> forecastHoursAsString = new ArrayList<String>();
         for (Integer integer : forecastHours) {
@@ -515,7 +505,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
         }
 
         if (dataSize == null) {
-            this.dataSize = new GriddedDataSizeUtils(dataSet);
+            this.dataSize = new GriddedDataSizeUtils((GriddedDataSet) dataSet);
         }
 
         // Update the data set size label text.
@@ -541,6 +531,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
     @Override
     protected GriddedTime setupDataSpecificTime(Time subTime, Subscription sub) {
         GriddedTime newTime = (GriddedTime) subTime;
+        GriddedDataSet griddedDataSet = (GriddedDataSet) dataSet;
 
         if (asString.isEmpty()) {
             SortedSet<ImmutableDate> newestToOldest = new TreeSet<ImmutableDate>(
@@ -571,7 +562,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
         }
 
         GriddedTimingSelectionDlg dlg = new GriddedTimingSelectionDlg(
-                getShell(), dataSet, sub, asString);
+                getShell(), griddedDataSet, sub, asString);
 
         GriddedTimeSelection selection = dlg.openDlg();
 
@@ -596,8 +587,8 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
         } else {
             // If use latest data is selected then add all cycle times, the
             // retrieval generator will determine which one to use.
-            time = dataSet.getTime();
-            for (Integer c : new TreeSet<Integer>(dataSet.getCycles())) {
+            time = griddedDataSet.getTime();
+            for (Integer c : new TreeSet<Integer>(griddedDataSet.getCycles())) {
                 time.addCycleTime(c);
             }
         }
@@ -646,6 +637,8 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
     @Override
     protected <T extends Subscription> T populateSubscription(T sub,
             boolean create) {
+        GriddedDataSet griddedDataSet = (GriddedDataSet) dataSet;
+
         ArrayList<Parameter> selectedParameterObjs = vTab.getParameters();
         sub.setParameter(selectedParameterObjs);
         sub.setProvider(dataSet.getProviderName());
@@ -653,7 +646,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
         sub.setDataSetType(dataSet.getDataSetType());
         sub.setDataSetName(dataSet.getDataSetName());
 
-        GriddedTime dataSetTime = dataSet.getTime();
+        GriddedTime dataSetTime = griddedDataSet.getTime();
 
         GriddedTime newTime = new GriddedTime();
 
@@ -687,7 +680,7 @@ public class GriddedSubsetManagerDlg extends SubsetManagerDlg {
             sub.setTime(newTime);
         }
 
-        GriddedCoverage cov = dataSet.getCoverage();
+        GriddedCoverage cov = griddedDataSet.getCoverage();
         cov.setModelName(dataSet.getDataSetName());
         cov.setGridName(getNameText());
         GridCoverage coverage = cov.getGridCoverage();

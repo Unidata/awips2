@@ -33,17 +33,12 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    01/17/13                      dgilling       Initial Creation.
+#    10/09/13         16614   njensen      Fixed reloadModules()
 #    
 # 
 #
 
-import os
-
 import MasterInterface
-import RollBackImporter
-
-rollbackImporter = RollBackImporter.RollBackImporter()
-
 
 class RollbackMasterInterface(MasterInterface.MasterInterface):
     
@@ -75,8 +70,6 @@ class RollbackMasterInterface(MasterInterface.MasterInterface):
     
     def reloadModules(self):
         for script in self.scripts:
-            super(RollbackMasterInterface, self).removeModule(script)       
-        rollbackImporter.rollback()
-        self.importModules()
+            super(RollbackMasterInterface, self).reloadModule(script)        
         
         
