@@ -55,7 +55,6 @@ import com.raytheon.edex.util.grib.Grib1TableMap;
 import com.raytheon.edex.util.grib.GribParamTranslator;
 import com.raytheon.edex.util.grib.GribTableLookup;
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -92,12 +91,13 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Mar 11, 2010  4758     bphillip     Initial Creation
- * Feb 15, 2013  1638     mschenke     Moved array based utilities from Util
- *                                     into ArraysUtil
- * Aug 30, 2013  2298     rjpeter      Make getPluginName abstract
- * Oct 07, 2013  2402     bsteffen     Decode GribDecodeMessage instead of
- *                                     files.
+ * Mar 11, 2010  4758     bphillip    Initial Creation
+ * Feb 15, 2013  1638     mschenke    Moved array based utilities from Util
+ *                                    into ArraysUtil
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 07, 2013  2402     bsteffen    Decode GribDecodeMessage instead of
+ *                                    files.
+ * Oct 15, 2013  2473     bsteffen    Removed deprecated and unused code.
  * 
  * </pre>
  * 
@@ -320,7 +320,7 @@ public class Grib1Decoder extends AbstractDecoder {
         // Get the level information
         float[] levelMetadata = this.convertGrib1LevelInfo(
                 pdsVars.getLevelType1(), (float) pdsVars.getLevelValue1(),
-                pdsVars.getLevelType2(), (float) pdsVars.getLevelValue2());
+                (float) pdsVars.getLevelValue2());
         retVal.setLevel(getLevelInfo(centerid, subcenterid, levelMetadata[0],
                 levelMetadata[1], levelMetadata[2], levelMetadata[3],
                 levelMetadata[4], levelMetadata[5]));
@@ -492,12 +492,6 @@ public class Grib1Decoder extends AbstractDecoder {
         // } else {
         // retVal.setResCompFlags(gridCoverage.getResolution());
         // }
-
-        try {
-            retVal.constructDataURI();
-        } catch (PluginException e) {
-            throw new GribException("Error constructing grib dataURI", e);
-        }
 
         // check if FLAG.FCST_USED needs to be removed
         checkForecastFlag(retVal.getDataTime(), centerid, subcenterid,
@@ -1018,7 +1012,7 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The value of the level
      * @return The converted level type information
      */
-    private float[] convertGrib1LevelInfo(int ltype1, float lval1, int ltype2,
+    private float[] convertGrib1LevelInfo(int ltype1, float lval1,
             float lval2) {
         float level1Type = ltype1;
         float level1Scale = 0;
