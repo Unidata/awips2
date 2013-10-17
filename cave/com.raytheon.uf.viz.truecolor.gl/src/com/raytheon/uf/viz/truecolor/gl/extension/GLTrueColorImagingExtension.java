@@ -117,7 +117,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                 GLOffscreenRenderingExtension extension = target
                         .getExtension(GLOffscreenRenderingExtension.class);
                 try {
-                    extension.renderOffscreen(trueColorImage,
+                    extension.beginOffscreenRendering(trueColorImage,
                             trueColorImage.getImageExtent());
                     boolean allPainted = true;
                     for (Channel channel : Channel.values()) {
@@ -145,7 +145,8 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                         }
                     }
                 } catch (VizException e) {
-                    extension.renderOnscreen();
+                    // Exception: end rendering now instead of postImageRender
+                    extension.endOffscreenRendering();
                     throw e;
                 }
                 renderingChannel = null;
@@ -180,7 +181,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
             AbstractGLImage image, Object data) throws VizException {
         if (image instanceof GLTrueColorImage) {
             target.getExtension(GLOffscreenRenderingExtension.class)
-                    .renderOnscreen();
+                    .endOffscreenRendering();
             target.drawRasters(paintProps, new DrawableImage(
                     ((GLTrueColorImage) image).getWrappedImage(),
                     (PixelCoverage) data));
