@@ -24,8 +24,8 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension.IMosaicImage;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.images.GLDelegateImage;
+import com.raytheon.viz.core.gl.images.GLOffscreenColormappedImage;
 
 /**
  * GL implementation of IMosaicImage, wraps an offscreen image and contains
@@ -47,7 +47,7 @@ import com.raytheon.viz.core.gl.images.GLDelegateImage;
  * @version 1.0
  */
 
-public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
+public class GLMosaicImage extends GLDelegateImage<GLOffscreenColormappedImage>
         implements IMosaicImage {
 
     private DrawableImage[] images;
@@ -63,7 +63,7 @@ public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
      * @param image
      * @param extensionClass
      */
-    public GLMosaicImage(GLColormappedImage image, int[] bounds,
+    public GLMosaicImage(GLOffscreenColormappedImage image, int[] bounds,
             IExtent imageExtent,
             Class<? extends IMosaicImageExtension> extensionClass) {
         super(image, extensionClass);
@@ -167,7 +167,7 @@ public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
         return image.getValue(x, y);
     }
 
-    public void setWrappedImage(GLColormappedImage wrappedImage) {
+    public void setWrappedImage(GLOffscreenColormappedImage wrappedImage) {
         this.image.dispose();
         this.image = wrappedImage;
     }
