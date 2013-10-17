@@ -107,18 +107,18 @@ public class GLFloatDataFormat extends AbstractGLColorMapDataFormat {
      * (int, int, com.raytheon.viz.core.gl.dataprep.GLColorMapData)
      */
     @Override
-    public Float getValue(int x, int y, GLColorMapData data) {
+    public Float getValue(int x, int y, GLColorMapData data, Buffer dataBuffer) {
         if (data.getTextureType() != GL.GL_FLOAT) {
             throw new IllegalArgumentException(
                     "Cannot process texture of type " + data.getTextureType());
-        } else if (!(data.getData() instanceof FloatBuffer)) {
+        } else if (!(dataBuffer instanceof FloatBuffer)) {
             throw new IllegalArgumentException(
                     "Expecting data to contain a FloatBuffer but instead it is a "
-                            + data.getData().getClass().getSimpleName());
+                            + dataBuffer.getClass().getSimpleName());
         }
         int width = data.getDimensionSize(0);
         int index = y * width + x;
-        FloatBuffer buffer = (FloatBuffer) data.getData();
+        FloatBuffer buffer = (FloatBuffer) dataBuffer;
         return buffer.get(index);
     }
 
