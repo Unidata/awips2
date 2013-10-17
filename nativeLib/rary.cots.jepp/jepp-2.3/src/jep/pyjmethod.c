@@ -448,7 +448,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     JNIEnv        *env        = NULL;
     int            pos        = 0;
     jvalue        *jargs      = NULL;
-    int 		   *jrelease;  // added by njensen
+    int           *jargTypes  = NULL;  // added by njensen
     int            foundArray = 0;   /* if params includes pyjarray instance */
     PyThreadState *_save;
     
@@ -478,7 +478,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     }
 
     jargs = (jvalue *) PyMem_Malloc(sizeof(jvalue) * self->lenParameters);
-	jrelease = (int *) PyMem_Malloc(sizeof(int) * self->lenParameters);
+    jargTypes = (int *) PyMem_Malloc(sizeof(int) * self->lenParameters);
     
     // ------------------------------ build jargs off python values
 
@@ -494,14 +494,14 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         param = PyTuple_GetItem(args, pos);                   /* borrowed */
         if(PyErr_Occurred()) {                                /* borrowed */
             PyMem_Free(jargs);
-            PyMem_Free(jrelease);
+            PyMem_Free(jargTypes);
             return NULL;
         }
         
         pclazz = (*env)->GetObjectClass(env, paramType);
         if(process_java_exception(env) || !pclazz) {
             PyMem_Free(jargs);
-            PyMem_Free(jrelease);
+            PyMem_Free(jargTypes);
             return NULL;
         }
         
@@ -511,38 +511,15 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         if(paramTypeId == JARRAY_ID)
             foundArray = 1;
         
-        // njensen set up the following ifs related to converting args
-        // we are creating primitive java arrays from numpy arrays,
-        // so as soon as we done passing the argument through we
-        // need to free it.  jrelease exists to track which must be released.
-        jrelease[pos] = 0;
-        if(paramTypeId == JARRAY_ID && !pyjarray_check(param))
-        {
-        	jvalue arg = convert_pynumpyarg_jvalue(env, param, paramType, paramTypeId, pos);
-        	if(arg.l != NULL)
-        	{
-        		jargs[pos] = arg;
-        		jrelease[pos] = 1;
-        	}
-
-        	if(PyErr_Occurred()) {                                /* borrowed */
-        	            PyMem_Free(jargs);
-        	            PyMem_Free(jrelease);
-        	            return NULL;
-        	}
-        }
-
-        if(jrelease[pos] != 1)
-        {
-        	jargs[pos] = convert_pyarg_jvalue(env,
+        jargTypes[pos] = paramTypeId;
+        jargs[pos] = convert_pyarg_jvalue(env,
                                           param,
                                           paramType,
                                           paramTypeId,
                                           pos);
-        }
         if(PyErr_Occurred()) {                                /* borrowed */
             PyMem_Free(jargs);
-            PyMem_Free(jrelease);
+            PyMem_Free(jargTypes);
             return NULL;
         }
 
@@ -622,7 +599,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         
         // added by njensen to keep memory down
         if(obj != NULL)
-        	(*env)->DeleteLocalRef(env, obj);
+               (*env)->DeleteLocalRef(env, obj);
 
         break;
     }
@@ -656,7 +633,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         
         // added by njensen to keep memory down
         if(obj != NULL)
-        	(*env)->DeleteLocalRef(env, obj);
+               (*env)->DeleteLocalRef(env, obj);
 
         break;
     }
@@ -690,7 +667,8 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         
         // added by njensen to keep memory down
         if(obj != NULL)
-        	(*env)->DeleteLocalRef(env, obj);
+               (*env)->DeleteLocalRef(env, obj);
+
         break;
     }
 
@@ -958,14 +936,14 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
 
     // added by njensen to keep memory usage down
     for(pos = 0; pos < self->lenParameters; pos++) {
-    	if(jrelease[pos] == 1 && jargs[pos].l != NULL)
-    	{
-    		(*env)->DeleteLocalRef(env, jargs[pos].l);
-    	}
+         if(jargs[pos].l != NULL && jargTypes[pos] != JARRAY_ID)
+         {
+            (*env)->DeleteLocalRef(env, jargs[pos].l);
+         }
     }
 
     PyMem_Free(jargs);
-    PyMem_Free(jrelease);
+    PyMem_Free(jargTypes);
     
     if(PyErr_Occurred())
         return NULL;
@@ -978,7 +956,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
                 pyjarray_pin((PyJarray_Object *) param);
         }
     }
-    
+
     if(result == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
