@@ -48,7 +48,8 @@ import com.raytheon.viz.ui.widgets.IApplyCancelAction;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 6, 2013    2180     mpduff      Initial creation
+ * Aug  6, 2013    2180     mpduff      Initial creation
+ * Oct 17, 2013    2455     skorolev    Fixed a problem with Changes Applied window.
  * 
  * </pre>
  * 
@@ -201,6 +202,7 @@ public class BandwidthComposite extends Composite implements IApplyCancelAction 
     @Override
     public boolean apply() {
         if (saveConfiguration()) {
+            DataDeliveryUtils.showChangesWereAppliedMessage(getShell());
             return true;
         }
 
