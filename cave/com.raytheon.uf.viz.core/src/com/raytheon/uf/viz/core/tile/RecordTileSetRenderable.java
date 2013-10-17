@@ -27,12 +27,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.Envelope2D;
 import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -55,6 +59,7 @@ import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * {@link TileSetRenderable} for 2D {@link PluginDataObject}s. Groups adjacent
@@ -68,7 +73,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 19, 2013       2122 mschenke     Initial creation.
+ * Jun 19, 2013       2122 mschenke    Initial creation.
+ * Oct 16, 2013       2333 mschenke    Added method for auto-unit conversion
+ *                                     interrogating
  * 
  * </pre>
  * 
@@ -199,7 +206,7 @@ public class RecordTileSetRenderable extends TileSetRenderable {
                                     BufferSlicer.slice(data.getBuffer(),
                                             tileRect, bigTileRect), new int[] {
                                             tileRect.width, tileRect.height },
-                                    data.getDataType());
+                                    data.getDataType(), data.getDataUnit());
 
                             callbacks.get(i).setRetrievedData(subData);
                             try {
@@ -351,6 +358,69 @@ public class RecordTileSetRenderable extends TileSetRenderable {
                 DataStoreFactory.createDataSetName(record.getDataURI(),
                         DataStoreFactory.DEF_DATASET_NAME, tile.tileLevel),
                 tile.getRectangle()).getColorMapData();
+    }
+
+    @Override
+    public double interrogate(Coordinate coordinate) throws VizException {
+        ColorMapParameters parameters = colormapping.getColorMapParameters();
+        return interrogate(coordinate, parameters.getNoDataValue());
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate in units of desiredUnit
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param desiredUnit
+     *            unit to convert data value to if not nanValue
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, Unit<?> desiredUnit)
+            throws VizException {
+        ColorMapParameters parameters = colormapping.getColorMapParameters();
+        return interrogate(coordinate, parameters.getNoDataValue(), desiredUnit);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate in units of desiredUnit
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @param desiredUnit
+     *            unit to convert data value to if not nanValue
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, double nanValue,
+            Unit<?> desiredUnit) throws VizException {
+        double dataValue = super.interrogate(coordinate, nanValue);
+        if (Double.isNaN(dataValue) == false) {
+            ColorMapParameters params = colormapping.getColorMapParameters();
+            Unit<?> dataUnit = params.getDataUnit();
+            if (dataUnit != null && desiredUnit != null
+                    && dataUnit != desiredUnit) {
+                if (dataUnit.isCompatible(desiredUnit)) {
+                    dataValue = dataUnit.getConverterTo(desiredUnit).convert(
+                            dataValue);
+                } else {
+                    throw new IllegalArgumentException(
+                            "Unable to interrogate tile set. "
+                                    + String.format(
+                                            "Desired unit (%s) is not compatible with data unit (%s).",
+                                            UnitFormat.getUCUMInstance()
+                                                    .format(desiredUnit),
+                                            UnitFormat.getUCUMInstance()
+                                                    .format(dataUnit)));
+                }
+            }
+        }
+        return dataValue;
     }
 
     /**
