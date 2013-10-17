@@ -189,7 +189,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/26/2013  DR 16450    D. Friedman Fix logic errors when frame count is one.
  * 08/19/2013   2177       jsanchez    Set a GeneralGridGeometry object in the GeospatialDataList.
  * 09/17/2013  DR 16496    D. Friedman Make editable state more consistent.
- * 10/15/2013   2463       jsanchez    Create a square polygon for frame count equal to 1.
+ * 10/15/2013   2463       jsanchez    Create a square polygon when time matched with a resource with no data.
  * </pre>
  * 
  * @author mschenke
@@ -836,12 +836,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
 
         // TODO: Issues with frameCount == 1? Could happen if we update on all
-        // tilts where we had multiple frames then they went away
-        if ((displayState.mode == Mode.TRACK && lastMode == Mode.DRAG_ME)
-                || (frameCount == 1 && displayState.geomChanged)) {
-            if (frameCount == 1 && displayState.geomChanged) {
-                displayState.geomChanged = false;
-            }
+        // tilts where we had multiple frames then they went away.
+        if (displayState.mode == Mode.TRACK && lastMode == Mode.DRAG_ME) {
             if (warningAction == null || warningAction == WarningAction.NEW) {
                 // Initialize box
                 redrawBoxFromTrack();
@@ -1993,13 +1989,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     && this.displayState.displayType != DisplayType.POLY) {
                 createSquare();
                 return;
+            } else if (descriptor.getFramesInfo().getFrameCount() == 1) {
+                createSquare();
+                return;
             }
-        }
-
-        // Create a square polygon if time matcher basis is 1 frame.
-        if (descriptor.getFramesInfo().getFrameCount() == 1) {
-            createSquare();
-            return;
         }
 
         DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
