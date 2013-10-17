@@ -1385,22 +1385,23 @@ PyObject* convert_jobject(JNIEnv *env, jobject val, int typeid) {
 }
 
 
-// added by njensen, had to go separate from convert_pyarg_jvalue to delete
-// the local references
+// added by njensen, this converts a numpy array to a java primitive array
+// Returns    null if the python object is a pyjarray
+//            null and error indicator if the object can't be transformed to a java primitive array
+//            a java primitive array corresponding to the numpy array
 jvalue convert_pynumpyarg_jvalue(JNIEnv *env,
                             PyObject *param,
                             jclass paramType,
                             int paramTypeId,
                             int pos) {
     jvalue ret;
-	jarray arr;
-	jclass arrclazz;
+    jarray arr;
+    jclass arrclazz;
 
     ret.l = NULL;
-	arr = NULL;
+    arr = NULL;
 
 	if(param != Py_None && !pyjarray_check(param)) {
-		// this pyarray -> jarray added by njensen
 		initUtil();
 
 		if(PyArray_Check(param))
@@ -1506,7 +1507,8 @@ jvalue convert_pyarg_jvalue(JNIEnv *env,
             ;
         else {
             PyJarray_Object *ar;
-            // njensen shifted this code
+            // njensen changed this code to try and convert it from a numpy array,
+            // it will return null if the parameter is already a pyjarray
             ret = convert_pynumpyarg_jvalue(env, param, paramType, paramTypeId, pos);
             if(ret.l != NULL)
             {
