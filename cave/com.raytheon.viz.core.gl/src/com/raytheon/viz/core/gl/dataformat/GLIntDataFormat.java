@@ -100,15 +100,15 @@ public class GLIntDataFormat extends AbstractGLColorMapDataFormat {
      * (int, int, com.raytheon.viz.core.gl.dataprep.GLColorMapData)
      */
     @Override
-    public Integer getValue(int x, int y, GLColorMapData data) {
-        if (!(data.getData() instanceof IntBuffer)) {
+    public Integer getValue(int x, int y, GLColorMapData data, Buffer dataBuffer) {
+        if (!(dataBuffer instanceof IntBuffer)) {
             throw new IllegalArgumentException(
                     "Expecting data to contain a IntBuffer but instead it is a "
-                            + data.getData().getClass().getSimpleName());
+                            + dataBuffer.getClass().getSimpleName());
         }
         int width = data.getDimensionSize(0);
         int index = y * width + x;
-        IntBuffer buffer = (IntBuffer) data.getData();
+        IntBuffer buffer = (IntBuffer) dataBuffer;
         int value = buffer.get(index);
         switch (data.getTextureType()) {
         case GL.GL_INT:

@@ -62,11 +62,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 8, 2012             mschenke     Initial creation
- * May 28, 2013 2037       njensen      Made imageMap concurrent to fix leak
- * Jun 20, 2013 2122       mschenke     Fixed null pointer in interrogate and made 
- *                                      canceling jobs safer
- *                                       
+ * Aug 8, 2012             mschenke    Initial creation
+ * May 28, 2013 2037       njensen     Made imageMap concurrent to fix leak
+ * Jun 20, 2013 2122       mschenke    Fixed null pointer in interrogate and made 
+ *                                     canceling jobs safer
+ * Oct 16, 2013 2333       mschenke    Added auto NaN checking for interrogation 
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -474,6 +475,24 @@ public class TileSetRenderable implements IRenderable {
      * @throws VizException
      */
     public double interrogate(Coordinate coordinate) throws VizException {
+        return interrogate(coordinate, Double.NaN);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate. Any values matching nanValue will return {@link Double#NaN}
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, double nanValue)
+            throws VizException {
+        double dataValue = Double.NaN;
         try {
             double[] local = new double[2];
             llToLocalProj
@@ -490,15 +509,20 @@ public class TileSetRenderable implements IRenderable {
                 if (di != null) {
                     IImage image = di.getImage();
                     if (image instanceof IColormappedImage) {
-                        return ((IColormappedImage) image).getValue(
+                        IColormappedImage cmapImage = (IColormappedImage) image;
+                        dataValue = cmapImage.getValue(
                                 (int) grid[0] % tileSize, (int) grid[1]
                                         % tileSize);
+                        if (dataValue == nanValue) {
+                            dataValue = Double.NaN;
+                        }
+
                     }
                 }
             }
         } catch (TransformException e) {
             throw new VizException("Error interrogating ", e);
         }
-        return Double.NaN;
+        return dataValue;
     }
 }
