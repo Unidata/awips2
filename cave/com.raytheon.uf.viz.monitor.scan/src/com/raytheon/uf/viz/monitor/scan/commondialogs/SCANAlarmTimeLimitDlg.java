@@ -41,7 +41,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.ScanAlarmXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -59,6 +59,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 22, 2010            lvenable     Initial creation
  * 24 Jul 2013 #2143       skorolev     Changes for non-blocking dialogs.
  * Aug 15, 2013 2143       mpduff       Remove resize.
+ * Oct 17, 2013 2361       njensen      Use JAXBManager for XML
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -66,6 +68,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         ICommonDialogAction {
+
+    private static final SingleTypeJAXBManager<ScanAlarmXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ScanAlarmXML.class);
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SCANAlarmTimeLimitDlg.class);
 
@@ -342,8 +348,7 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
             String path = pm.getStaticFile(getFullPathAndFileName())
                     .getAbsolutePath();
 
-            dataXML = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    ScanAlarmXML.class, path);
+            dataXML = jaxb.unmarshalFromXmlFile(path);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Scan Alarms not available (ScanAlarms.xml).", e);
@@ -379,8 +384,7 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         }
 
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(dataXML, locFile.getFile()
-                    .getAbsolutePath());
+            jaxb.marshalToXmlFile(dataXML, locFile.getFile().getAbsolutePath());
             locFile.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
