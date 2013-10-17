@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.notification;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -81,6 +82,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Aug 30, 2013  2314      mpduff       Sort the table data on load.
  * Sep 16, 2013  2375      mpduff       Removed initial sorting.
  * Sep 26, 2013  2417      mpduff       Fix the find all row selection.
+ * Oct 15, 2013  2451      skorolev     Get highlighted rows after message update.
  * </pre>
  * 
  * @author lvenable
@@ -200,6 +202,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     /** Count of messages receieved when the dialog is paused. */
     private int messageReceivedWhilePausedCount = 0;
 
+    /** Highlighted row ids */
+    private Set<Integer> selectedRowIds = new HashSet<Integer>();
+
     /**
      * Constructor.
      * 
@@ -231,13 +236,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      */
     private void init() {
 
-        startIndex = 0;
-        endIndex = pageConfig - 1;
-
         pImage = new PriorityImages(this.getShell());
         pImage.setPriorityDisplay(PriorityDisplay.ColorNumName);
 
         createColumns();
+
+        startIndex = 0;
+        endIndex = pageConfig - 1;
+
         createBottomPageControls();
 
     }
@@ -1150,7 +1156,6 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         if (indices != null) {
             if (indices.length > 0) {
                 for (int index : indices) {
-
                     if (index >= startIndex && index <= endIndex) {
                         if (startIndex == 0) {
                             highlightIndex = index;
@@ -1174,6 +1179,30 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                 }
 
                 table.select(indicesArr);
+            }
+        } else {
+            // Highlight the rows which was selected on the table page.
+            if (!selectedRowIds.isEmpty()) {
+                Set<Integer> ids = new HashSet<Integer>();
+                for (int i = 0; i < filteredTableList.getDataArray().size(); i++) {
+                    NotificationRowData row = filteredTableList.getDataArray()
+                            .get(i);
+                    int idx = row.getId();
+                    if (selectedRowIds.contains(idx)) {
+                        ids.add(i);
+                    }
+                }
+
+                int[] hlts = new int[ids.size()];
+                int counter = 0;
+
+                Iterator<Integer> itr = ids.iterator();
+                while (itr.hasNext()) {
+                    hlts[counter] = itr.next();
+                    ++counter;
+                }
+
+                table.select(hlts);
             }
         }
 
@@ -1204,6 +1233,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     protected void handleTableSelection(SelectionEvent e) {
         if (tableChangeCallback != null) {
             tableChangeCallback.tableSelection();
+            int[] indices = table.getSelectionIndices();
+            selectedRowIds.clear();
+            // Extract selected notification ids from the table page
+            for (int index : indices) {
+                NotificationRowData rowData = filteredTableList
+                        .getDataRow(index);
+                selectedRowIds.add(rowData.getId());
+            }
         }
     }
 
@@ -1234,6 +1271,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             String selection = pageCbo.getItem(pageCbo.getSelectionIndex());
             selectedPage = Integer.parseInt(selection);
         }
+
+        // Clean highlighted selections on the page
+        selectedRowIds.clear();
 
         // Calculate indices
         if (selectedPage >= 1) {
