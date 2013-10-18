@@ -31,7 +31,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -59,6 +65,7 @@ import java.util.zip.GZIPOutputStream;
  * Mar 11, 2013 1645       djohnson    Added file modification watcher.
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * May 16, 2013 1966       rferrel     Add sizeOfDirectory and listDirFiles method.
+ * Oct 18, 2013 2267       bgonzale    Add listPaths method.
  * 
  * </pre>
  * 
@@ -923,6 +930,38 @@ public class FileUtil {
             }
         }
         return size;
+    }
+
+    /**
+     * List files/directories that match a FileFilter.
+     * 
+     * @param directory
+     * @param filter
+     * @param recurse
+     * @return
+     * @throws IOException
+     */
+    public static List<Path> listPaths(File directory,
+            DirectoryStream.Filter<? super Path> filter, boolean recurse)
+            throws IOException {
+        // List of files / directories
+        List<Path> files = new LinkedList<Path>();
+
+        // Get files / directories in the directory accepted by the filter.
+        Path dirPath = FileSystems.getDefault().getPath(
+                directory.getAbsolutePath());
+        DirectoryStream<Path> stream = null;
+        try {
+            stream = Files.newDirectoryStream(dirPath, filter);
+            for (final Iterator<Path> it = stream.iterator(); it.hasNext();) {
+                files.add(it.next());
+            }
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+        }
+        return files;
     }
 
 }
