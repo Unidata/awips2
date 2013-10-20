@@ -19,10 +19,17 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -40,6 +47,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.listeners.WebSe
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 17, 2013 1672       djohnson     Initial creation
+ * 10/20/2013    1682       bphillip    Added synchronous notification delivery
  * 
  * </pre>
  * 
@@ -72,6 +80,17 @@ public class NotificationListenerFactory implements
         public void onNotification(NotificationType notification) {
             statusHandler.warn("Unsupported delivery type: " + endpointType
                     + ". Notification will not be delivered!");
+        }
+
+        @Override
+        @WebMethod(action = "SynchronousNotification")
+        @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+        public RegistryResponseType synchronousNotification(
+                @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+                throws MsgRegistryException {
+            statusHandler.warn("Unsupported delivery type: " + endpointType
+                    + ". Notification will not be delivered!");
+            return null;
         }
     }
 
