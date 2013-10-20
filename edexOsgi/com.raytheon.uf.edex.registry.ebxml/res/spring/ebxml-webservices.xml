@@ -20,7 +20,6 @@
 		class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImpl">
 		<property name="lcm" ref="lcmServiceImpl" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
-		<property name="classificationNodeDao" ref="classificationNodeDao" />
 		<property name="registryDao" ref="registryDao" />
 	</bean>
 
