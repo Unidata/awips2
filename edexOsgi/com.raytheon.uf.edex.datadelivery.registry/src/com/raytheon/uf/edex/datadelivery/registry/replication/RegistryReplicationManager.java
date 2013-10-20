@@ -66,6 +66,7 @@ import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.registry.constants.NotificationOptionTypes;
+import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -81,6 +82,7 @@ import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistry
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.exception.NoReplicationServersAvailableException;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -98,6 +100,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
  * 8/1/2013     1693        bphillip    Switch to use rest service instead of query manager for federation synchronization
  * 9/5/2013     1538        bphillip    Changed when the registry availability monitor is started
+ * 10/20/2013   1682        bphillip    Fixed query invocation
  * </pre>
  * 
  * @author bphillip
@@ -497,13 +500,24 @@ public class RegistryReplicationManager {
 
         sub.setStartTime(EbxmlObjectUtil.getTimeAsXMLGregorianCalendar(0));
         QueryType selectorQuery = new QueryType();
-        selectorQuery.setQueryDefinition(CanonicalQueryTypes.BASIC_QUERY);
-        SlotType slot = new SlotType();
-        StringValueType valType = new StringValueType();
-        valType.setValue(objectType);
-        slot.setName("objectType");
-        slot.setSlotValue(valType);
-        selectorQuery.getSlot().add(slot);
+        selectorQuery.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
+
+        SlotType expressionSlot = new SlotType();
+        StringValueType expressionValue = new StringValueType();
+        expressionValue
+                .setValue("FROM RegistryObjectType obj where obj.objectType='"
+                        + objectType + "'");
+        expressionSlot.setName(QueryConstants.QUERY_EXPRESSION);
+        expressionSlot.setSlotValue(expressionValue);
+        selectorQuery.getSlot().add(expressionSlot);
+
+        SlotType languageSlot = new SlotType();
+        StringValueType languageValue = new StringValueType();
+        languageValue.setValue(QueryLanguages.HQL);
+        languageSlot.setName(QueryConstants.QUERY_LANGUAGE);
+        languageSlot.setSlotValue(languageValue);
+        selectorQuery.getSlot().add(languageSlot);
+
         sub.setSelector(selectorQuery);
 
         Duration notificationInterval = DatatypeFactory.newInstance()
