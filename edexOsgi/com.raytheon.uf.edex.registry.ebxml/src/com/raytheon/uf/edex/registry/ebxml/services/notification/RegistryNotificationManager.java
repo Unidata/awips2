@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 9/11/2013    2354        bphillip    Added logic to ensure delete events get included in notifications
  * 9/30/2013    2191        bphillip    Fixing federated replication
  * 10/8/2013    1682        bphillip    Moved get objects of interest from RegistrySubscriptionManager and javadoc
+ * 10/20/2013   1682        bphillip    Added synchronous notification delivery
  * </pre>
  * 
  * @author bphillip
@@ -176,13 +177,22 @@ public class RegistryNotificationManager {
      *            The notification to send
      * @param address
      *            The address to send the notification to
+     * @throws MsgRegistryException
      */
     protected void sendNotification(NotificationListenerWrapper listener,
-            NotificationType notification, String address) {
+            NotificationType notification, String address)
+            throws MsgRegistryException {
 
         statusHandler.info("Sending notification [" + notification.getId()
                 + "] to address [" + address + "]");
-        listener.notificationListener.onNotification(notification);
+
+        try {
+            listener.notificationListener.synchronousNotification(notification);
+        } catch (MsgRegistryException e) {
+            statusHandler.error("Notification [" + notification.getId()
+                    + " failed to address [" + address + "]", e);
+            throw e;
+        }
         statusHandler.info("Notification [" + notification.getId()
                 + " successfully sent to address [" + address + "]");
 
@@ -223,30 +233,36 @@ public class RegistryNotificationManager {
                         / notificationBatchSize;
                 int lastListSize = eventsOfInterest.size()
                         % notificationBatchSize;
-                for (int i = 0; i < subListCount; i++) {
+                try {
+                    for (int i = 0; i < subListCount; i++) {
 
-                    NotificationType notification = getNotification(
-                            subscription, listener.address, objectsOfInterest,
-                            eventsOfInterest.subList(notificationBatchSize * i,
-                                    notificationBatchSize * i
-                                            + notificationBatchSize));
-                    if (!notification.getEvent().isEmpty()) {
-                        sendNotification(listener, notification,
-                                listener.address);
+                        NotificationType notification = getNotification(
+                                subscription,
+                                listener.address,
+                                objectsOfInterest,
+                                eventsOfInterest.subList(notificationBatchSize
+                                        * i, notificationBatchSize * i
+                                        + notificationBatchSize));
+                        if (!notification.getEvent().isEmpty()) {
+                            sendNotification(listener, notification,
+                                    listener.address);
+                        }
                     }
-                }
-                if (lastListSize > 0) {
-                    NotificationType notification = getNotification(
-                            subscription,
-                            listener.address,
-                            objectsOfInterest,
-                            eventsOfInterest.subList(notificationBatchSize
-                                    * subListCount, notificationBatchSize
-                                    * subListCount + lastListSize));
-                    if (!notification.getEvent().isEmpty()) {
-                        sendNotification(listener, notification,
-                                listener.address);
+                    if (lastListSize > 0) {
+                        NotificationType notification = getNotification(
+                                subscription,
+                                listener.address,
+                                objectsOfInterest,
+                                eventsOfInterest.subList(notificationBatchSize
+                                        * subListCount, notificationBatchSize
+                                        * subListCount + lastListSize));
+                        if (!notification.getEvent().isEmpty()) {
+                            sendNotification(listener, notification,
+                                    listener.address);
+                        }
                     }
+                } catch (MsgRegistryException e) {
+                    statusHandler.error("Notification delivery failed!", e);
                 }
 
             }
