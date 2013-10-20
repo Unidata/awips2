@@ -23,12 +23,14 @@ package oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.apache.cxf.annotations.GZIP;
 
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.registry.EbxmlNamespaces;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 10/20/2013    1682       bphillip    Added synchronous notification delivery
  * </pre>
  * 
  * @author bphillip
@@ -71,5 +74,11 @@ public interface NotificationListener {
     @Oneway
     public void onNotification(
             @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification);
+
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException;
 
 }

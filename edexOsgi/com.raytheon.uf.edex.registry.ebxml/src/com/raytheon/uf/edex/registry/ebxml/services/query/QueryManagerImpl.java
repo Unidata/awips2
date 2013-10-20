@@ -70,8 +70,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
-import com.raytheon.uf.common.registry.constants.Format;
-import com.raytheon.uf.common.registry.constants.Languages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
@@ -122,6 +120,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Jun 24, 2013 2106       djohnson    Transaction must already be open.
  * 9/5/2013     1538       bphillip    Removed log message
  * 10/8/2013    1682       bphillip    Refactored querying
+ * 10/201       1682       bphillip    Fixed federated query invocation
  * 
  * </pre>
  * 
@@ -729,13 +728,12 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
         QueryType query = new QueryType(
                 CanonicalQueryTypes.FIND_ASSOCIATED_OBJECTS,
                 associationTypeSlot, sourceObjectIdSlot);
-        QueryRequest queryRequest = new QueryRequest(
-                "Query for federation members",
-                "Query to get the members of the federation",
-                new ResponseOptionType(QueryReturnTypes.REGISTRY_OBJECT, true),
-                query, false, null, Format.EBRIM, Languages.EN_US, 0, 0, 0,
-                false);
-        QueryResponse response = executeQuery(queryRequest);
+        QueryRequest request = new QueryRequest();
+        request.setResponseOption(new ResponseOptionType(
+                QueryReturnTypes.REGISTRY_OBJECT, true));
+        request.setId("Get Members of Federation Query");
+        request.setQuery(query);
+        QueryResponse response = executeQuery(request);
         if (response.getRegistryObjectList() != null) {
             List<RegistryObjectType> responseObjects = response
                     .getRegistryObjectList().getRegistryObject();
