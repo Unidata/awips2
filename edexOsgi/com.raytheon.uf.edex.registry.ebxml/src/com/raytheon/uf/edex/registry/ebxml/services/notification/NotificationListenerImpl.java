@@ -24,6 +24,9 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.xml.ws.WebServiceContext;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -46,24 +49,27 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
-import com.raytheon.uf.common.registry.constants.Format;
-import com.raytheon.uf.common.registry.constants.Languages;
+import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -79,6 +85,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802       bphillip    Implemented notification handling
  * 5/21/2013    2022       bphillip    Reworked how notifications are handled
  * 9/11/2013    2254       bphillip    Cleaned up handling of notifications and removed unneccessary code
+ * 10/20/2013    1682       bphillip    Added synchronous notification delivery
  * 
  * </pre>
  * 
@@ -108,9 +115,6 @@ public class NotificationListenerImpl implements NotificationListener {
     /** Data access object for getting RegistryType objects */
     private RegistryDao registryDao;
 
-    /** The classification node data access object */
-    private ClassificationNodeDao classificationNodeDao;
-
     @Override
     public void onNotification(NotificationType notification) {
 
@@ -128,7 +132,8 @@ public class NotificationListenerImpl implements NotificationListener {
 
         List<AuditableEventType> events = notification.getEvent();
 
-        // Process the received auditable events and add them to the appropriate
+        // Process the received auditable events and add them to the
+        // appropriate
         // list based on the action performed
 
         for (AuditableEventType event : events) {
@@ -136,13 +141,6 @@ public class NotificationListenerImpl implements NotificationListener {
             for (ActionType action : actions) {
                 String eventType = action.getEventType();
                 List<String> objectIds = new ArrayList<String>();
-
-                // Verify this is a valid event type
-                if (!classificationNodeDao.isValidNode(eventType)) {
-                    statusHandler.info("Unknown event type [" + eventType
-                            + "] received in notification");
-                    continue;
-                }
 
                 if (action.getAffectedObjectRefs() != null) {
                     for (ObjectRefType ref : action.getAffectedObjectRefs()
@@ -168,10 +166,10 @@ public class NotificationListenerImpl implements NotificationListener {
                                 Mode.CREATE_OR_REPLACE);
                         lcm.submitObjects(submitRequest);
                     } catch (MsgRegistryException e) {
-                        statusHandler.error(
+                        throw new RuntimeException(
                                 "Error creating objects in registry!", e);
                     } catch (EbxmlRegistryException e) {
-                        statusHandler.error(
+                        throw new RuntimeException(
                                 "Error creating submit objects request!", e);
                     }
                 } else if (eventType.equals(ActionTypes.delete)) {
@@ -192,14 +190,33 @@ public class NotificationListenerImpl implements NotificationListener {
                     try {
                         lcm.removeObjects(request);
                     } catch (MsgRegistryException e) {
-                        statusHandler.error(
+                        throw new RuntimeException(
                                 "Error creating remove objects request!", e);
                     }
+                } else {
+                    statusHandler.info("Unknown event type [" + eventType
+                            + "] received in notification");
                 }
-
             }
         }
+    }
 
+    @Override
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException {
+        RegistryResponseType response = new RegistryResponseType();
+        response.setRequestId(notification.getId());
+        try {
+            onNotification(notification);
+            response.setStatus(RegistryResponseStatus.SUCCESS);
+            return response;
+        } catch (Throwable e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error processing notification.", e);
+        }
     }
 
     /**
@@ -287,21 +304,23 @@ public class NotificationListenerImpl implements NotificationListener {
         }
         queryExpression.append(")");
 
-        ResponseOptionType responseOption = new ResponseOptionType();
-        responseOption.setReturnComposedObjects(true);
-        responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
+        SlotType queryLanguageSlot = new SlotType(
+                QueryConstants.QUERY_LANGUAGE, new StringValueType(
+                        QueryLanguages.HQL));
+        SlotType queryExpressionSlot = new SlotType(
+                QueryConstants.QUERY_EXPRESSION, new StringValueType(
+                        queryExpression.toString()));
+        QueryType query = new QueryType();
+        query.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
+        query.getSlot().add(queryLanguageSlot);
+        query.getSlot().add(queryExpressionSlot);
 
-        SlotType queryLanguageSlot = new SlotType("queryLanguage",
-                new StringValueType("HQL"));
-        SlotType queryExpressionSlot = new SlotType("queryExpression",
-                new StringValueType(queryExpression.toString()));
-        QueryType selectorQuery = new QueryType(
-                CanonicalQueryTypes.ADHOC_QUERY, queryLanguageSlot,
-                queryExpressionSlot);
-        return new QueryRequest("NotificationListener object update",
-                "NotificationListener object Update", new ResponseOptionType(
-                        QueryReturnTypes.REGISTRY_OBJECT, true), selectorQuery,
-                false, null, Format.EBRIM, Languages.EN_US, 0, 0, 0, false);
+        QueryRequest request = new QueryRequest();
+        request.setResponseOption(new ResponseOptionType(
+                QueryReturnTypes.REGISTRY_OBJECT, true));
+        request.setId("Notification Update Query");
+        request.setQuery(query);
+        return request;
     }
 
     public void setLcm(LifecycleManagerImpl lcm) {
@@ -312,13 +331,7 @@ public class NotificationListenerImpl implements NotificationListener {
         this.registryObjectDao = registryObjectDao;
     }
 
-    public void setClassificationNodeDao(
-            ClassificationNodeDao classificationNodeDao) {
-        this.classificationNodeDao = classificationNodeDao;
-    }
-
     public void setRegistryDao(RegistryDao registryDao) {
         this.registryDao = registryDao;
     }
-
 }

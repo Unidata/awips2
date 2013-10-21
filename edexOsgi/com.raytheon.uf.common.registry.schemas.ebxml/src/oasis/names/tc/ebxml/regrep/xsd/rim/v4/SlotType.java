@@ -45,6 +45,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -77,22 +78,34 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "Slot")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SlotType", propOrder = { "slotValue" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-@Table(schema = "ebxml", name = "Slot")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Slot")
 public class SlotType extends ExtensibleObjectType implements
         IPersistableDataObject<Integer>, Serializable {
 
     private static final long serialVersionUID = -2184582316481503043L;
 
     @Id
-    @SequenceGenerator(name = "ExtensibleObjectTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Slot_sequence")
+    @SequenceGenerator(name = "ExtensibleObjectTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".Slot_sequence")
     @GeneratedValue(generator = "ExtensibleObjectTypeGenerator")
     @XmlTransient
     private Integer key;
