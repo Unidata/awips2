@@ -19,15 +19,24 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification.listeners;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.EmailSender;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
  * Email notification listener.
@@ -39,6 +48,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDes
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2013 1672       djohnson     Extracted from RegistryNotificationManager.
+ * 10/20/2013   1682       bphillip    Added synchronous notification delivery
  * 
  * </pre>
  * 
@@ -102,6 +112,24 @@ public class EmailNotificationListener implements NotificationListener {
                 throw new RuntimeException("Error sending email notification.",
                         e);
             }
+        }
+    }
+
+    @Override
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException {
+        RegistryResponseType response = new RegistryResponseType();
+        response.setRequestId(notification.getId());
+        try {
+            onNotification(notification);
+            response.setStatus(RegistryResponseStatus.SUCCESS);
+            return response;
+        } catch (Throwable e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error processing notification.", e);
         }
     }
 

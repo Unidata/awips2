@@ -24,15 +24,16 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.SOAPException;
 
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
@@ -40,16 +41,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.registry.constants.ActionTypes;
+import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
-import com.raytheon.uf.edex.registry.ebxml.dao.NotificationTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager.NotificationListenerWrapper;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager.SubscriptionNotificationListeners;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -68,6 +70,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 5/21/2013    2022        bphillip    Cleaned up unused method parameters and batching of notifications
  * 9/11/2013    2354        bphillip    Added logic to ensure delete events get included in notifications
  * 9/30/2013    2191        bphillip    Fixing federated replication
+ * 10/8/2013    1682        bphillip    Moved get objects of interest from RegistrySubscriptionManager and javadoc
+ * 10/20/2013   1682        bphillip    Added synchronous notification delivery
  * </pre>
  * 
  * @author bphillip
@@ -83,34 +87,77 @@ public class RegistryNotificationManager {
     /** Data access object for auditable events */
     private AuditableEventTypeDao auditableEventDao;
 
-    /** Data access object for notifications */
-    private NotificationTypeDao notificationDao;
+    /** The query manager implementation */
+    private QueryManagerImpl queryManager;
+
+    /** The maximum number of auditable events sent in a notification message */
+    private int notificationBatchSize = Integer.parseInt(System
+            .getProperty("ebxml-notification-batch-size"));
 
     /**
      * Creates a new RegistryNotificationManager
      * 
-     * @throws JAXBException
-     * @throws SOAPException
-     * @throws ParserConfigurationException
      */
     public RegistryNotificationManager() {
     }
 
-    protected List<AuditableEventType> getEventsOfInterest(
+    /**
+     * Gets the objects of interest for a given subscription
+     * 
+     * @param subscription
+     *            The subscription to get the objects of interest for
+     * @return The objects of interest for the given subscription
+     * @throws MsgRegistryException
+     *             If errors occur while executing the subscription's selector
+     *             query
+     */
+    public List<ObjectRefType> getObjectsOfInterest(
+            SubscriptionType subscription) throws MsgRegistryException {
+        // Get objects that match selector query
+        QueryType selectorQuery = subscription.getSelector();
+        ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
+                .createResponseOptionType();
+        responseOption.setReturnType(QueryReturnTypes.OBJECT_REF);
+        QueryResponse queryResponse = queryManager.executeQuery(responseOption,
+                selectorQuery);
+        return queryResponse.getObjectRefList().getObjectRef();
+    }
+
+    /**
+     * Gets events of interest based on a start time and end time for the given
+     * list of objects
+     * 
+     * @param startTime
+     *            The lower time boundary for the query
+     * @param endTime
+     *            The optional upper time boundary for the query
+     * @param objectsOfInterest
+     *            The objects to get events for
+     * @return The events of interest for the given set of objects
+     */
+    public List<AuditableEventType> getEventsOfInterest(
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
             List<ObjectRefType> objectsOfInterest) {
         return this.auditableEventDao.getEventsOfInterest(startTime, endTime,
                 objectsOfInterest);
     }
 
-    protected List<AuditableEventType> getEventsOfInterest(
-            SubscriptionType subscription, List<ObjectRefType> objectsOfInterest) {
-        return this.auditableEventDao.getEventsOfInterest(
-                subscription.getStartTime(), subscription.getEndTime(),
-                objectsOfInterest);
-    }
-
-    protected NotificationType getNotification(SubscriptionType subscription,
+    /**
+     * Constructs the NotificationType object for the given parameters
+     * 
+     * @param subscription
+     *            The subscription that this notification is for
+     * @param address
+     *            The address to send the notification to
+     * @param objectsOfInterest
+     *            The objects affected by the change
+     * @param eventsOfInterest
+     *            The events related to the objects of interest
+     * @return The NotificationType object for the given parameters
+     * @throws EbxmlRegistryException
+     *             If errors occur while creating or checking the notification
+     */
+    public NotificationType getNotification(SubscriptionType subscription,
             String address, List<ObjectRefType> objectsOfInterest,
             List<AuditableEventType> eventsOfInterest)
             throws EbxmlRegistryException {
@@ -121,12 +168,31 @@ public class RegistryNotificationManager {
         return notification;
     }
 
+    /**
+     * Sends a notification
+     * 
+     * @param listener
+     *            The notification listener to use to send the notification
+     * @param notification
+     *            The notification to send
+     * @param address
+     *            The address to send the notification to
+     * @throws MsgRegistryException
+     */
     protected void sendNotification(NotificationListenerWrapper listener,
-            NotificationType notification, String address) {
+            NotificationType notification, String address)
+            throws MsgRegistryException {
 
         statusHandler.info("Sending notification [" + notification.getId()
                 + "] to address [" + address + "]");
-        listener.notificationListener.onNotification(notification);
+
+        try {
+            listener.notificationListener.synchronousNotification(notification);
+        } catch (MsgRegistryException e) {
+            statusHandler.error("Notification [" + notification.getId()
+                    + " failed to address [" + address + "]", e);
+            throw e;
+        }
         statusHandler.info("Notification [" + notification.getId()
                 + " successfully sent to address [" + address + "]");
 
@@ -146,51 +212,77 @@ public class RegistryNotificationManager {
      *            The objects of interest to send notifications for
      * @throws EbxmlRegistryException
      *             If errors occur while sending the notifications
+     * @throws MsgRegistryException
      */
     protected void sendNotifications(
-            SubscriptionNotificationListeners notificationListeners,
-            final List<ObjectRefType> objectsOfInterest)
-            throws EbxmlRegistryException {
-        int SIZE_LIMIT = 10;
+            SubscriptionNotificationListeners notificationListeners)
+            throws EbxmlRegistryException, MsgRegistryException {
 
         final List<NotificationListenerWrapper> listeners = notificationListeners.listeners;
         final SubscriptionType subscription = notificationListeners.subscription;
 
+        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
+
         List<AuditableEventType> eventsOfInterest = getEventsOfInterest(
-                subscription, objectsOfInterest);
+                subscription.getStartTime(), subscription.getEndTime(),
+                objectsOfInterest);
 
         if (!eventsOfInterest.isEmpty()) {
             for (NotificationListenerWrapper listener : listeners) {
-                int subListCount = eventsOfInterest.size() / SIZE_LIMIT;
-                int lastListSize = eventsOfInterest.size() % SIZE_LIMIT;
-                for (int i = 0; i < subListCount; i++) {
+                int subListCount = eventsOfInterest.size()
+                        / notificationBatchSize;
+                int lastListSize = eventsOfInterest.size()
+                        % notificationBatchSize;
+                try {
+                    for (int i = 0; i < subListCount; i++) {
 
-                    NotificationType notification = getNotification(
-                            subscription,
-                            listener.address,
-                            objectsOfInterest,
-                            eventsOfInterest.subList(SIZE_LIMIT * i, SIZE_LIMIT
-                                    * i + SIZE_LIMIT));
-                    if (!notification.getEvent().isEmpty()) {
-                        sendNotification(listener, notification,
-                                listener.address);
+                        NotificationType notification = getNotification(
+                                subscription,
+                                listener.address,
+                                objectsOfInterest,
+                                eventsOfInterest.subList(notificationBatchSize
+                                        * i, notificationBatchSize * i
+                                        + notificationBatchSize));
+                        if (!notification.getEvent().isEmpty()) {
+                            sendNotification(listener, notification,
+                                    listener.address);
+                        }
                     }
-                }
-                if (lastListSize > 0) {
-                    NotificationType notification = getNotification(
-                            subscription, listener.address, objectsOfInterest,
-                            eventsOfInterest.subList(SIZE_LIMIT * subListCount,
-                                    SIZE_LIMIT * subListCount + lastListSize));
-                    if (!notification.getEvent().isEmpty()) {
-                        sendNotification(listener, notification,
-                                listener.address);
+                    if (lastListSize > 0) {
+                        NotificationType notification = getNotification(
+                                subscription,
+                                listener.address,
+                                objectsOfInterest,
+                                eventsOfInterest.subList(notificationBatchSize
+                                        * subListCount, notificationBatchSize
+                                        * subListCount + lastListSize));
+                        if (!notification.getEvent().isEmpty()) {
+                            sendNotification(listener, notification,
+                                    listener.address);
+                        }
                     }
+                } catch (MsgRegistryException e) {
+                    statusHandler.error("Notification delivery failed!", e);
                 }
 
             }
         }
     }
 
+    /**
+     * Checks a notification to ensure that previously transmitted events are
+     * not being sent again
+     * 
+     * @param notification
+     *            The notification to check
+     * @param objectsOfInterest
+     *            The objects affected by the change that generated the
+     *            notification
+     * @param serviceAddress
+     *            The destination address for the notification
+     * @throws EbxmlRegistryException
+     *             If errors occur while checking the notification
+     */
     protected void checkNotification(NotificationType notification,
             List<ObjectRefType> objectsOfInterest, String serviceAddress)
             throws EbxmlRegistryException {
@@ -352,8 +444,8 @@ public class RegistryNotificationManager {
         this.auditableEventDao = auditableEventDao;
     }
 
-    public void setNotificationDao(NotificationTypeDao notificationDao) {
-        this.notificationDao = notificationDao;
+    public void setQueryManager(QueryManagerImpl queryManager) {
+        this.queryManager = queryManager;
     }
 
 }
