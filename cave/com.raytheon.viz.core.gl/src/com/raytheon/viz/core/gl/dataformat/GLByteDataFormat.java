@@ -110,8 +110,7 @@ public class GLByteDataFormat extends AbstractGLColorMapDataFormat {
      * (int, int, java.nio.Buffer)
      */
     @Override
-    public Short getValue(int x, int y, GLColorMapData data) {
-        Buffer dataBuffer = data.getData();
+    public Short getValue(int x, int y, GLColorMapData data, Buffer dataBuffer) {
         if (data.getTextureType() != GL.GL_UNSIGNED_BYTE) {
             throw new IllegalArgumentException(
                     "Cannot process texture of type " + data.getTextureType());
