@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtensio
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
+import com.raytheon.viz.core.gl.images.AbstractGLColormappedImage;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
@@ -48,10 +49,11 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 18, 2011            mschenke     Initial creation
+ * Nov 18, 2011            mschenke    Initial creation
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
+ * Oct 16, 2013 2333       mschenke    Cleaned up load shader method, used isScaled
  * 
  * </pre>
  * 
@@ -94,10 +96,10 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
     public Object preImageRender(PaintProperties paintProps,
             AbstractGLImage image, PixelCoverage coverage) throws VizException {
         GLColormappedImageExtensionData data = null;
-        if (image instanceof GLColormappedImage) {
+        if (image instanceof AbstractGLColormappedImage) {
             data = new GLColormappedImageExtensionData();
             GL gl = target.getGl();
-            GLColormappedImage glImage = (GLColormappedImage) image;
+            AbstractGLColormappedImage glImage = (AbstractGLColormappedImage) image;
             // First see if the colormap has been loaded
             ColorMapParameters usedColorMapParameters = ((IColormappedImage) glImage)
                     .getColorMapParameters();
@@ -199,31 +201,30 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
     public void loadShaderData(GLShaderProgram program, IImage iimage,
             PaintProperties paintProps) throws VizException {
         // Get image as AbstractGLImage
-        GLColormappedImage image = null;
-        if (iimage instanceof GLColormappedImage == false) {
+        AbstractGLColormappedImage image = null;
+        if (iimage instanceof AbstractGLColormappedImage == false) {
             throw new VizException(
                     "Cannot apply glsl colormap raster shader to non gl colormap image");
         }
-        image = (GLColormappedImage) iimage;
+        image = (AbstractGLColormappedImage) iimage;
 
-        GLColormappedImage colormappedImg = (GLColormappedImage) image;
-        ColorMapParameters colorMapParameters = colormappedImg
-                .getColorMapParameters();
+        ColorMapParameters colorMapParameters = image.getColorMapParameters();
 
         program.setUniform("colorMapSz", colorMapParameters.getColorMap()
                 .getSize());
-        int textureType = image.getTextureType();
-        boolean isFloat = textureType == GL.GL_FLOAT
-                || textureType == GL.GL_HALF_FLOAT_ARB;
+        boolean isScaled = image.isImageFormatScaled();
         double dataMin = colorMapParameters.getDataMin();
         double dataMax = colorMapParameters.getDataMax();
-        if (isFloat == false) {
+        if (isScaled) {
             // get format from image and get data min/max from it
             dataMin = image.getDataMin();
             dataMax = image.getDataMax();
         }
 
-        program.setUniform("isFloat", isFloat);
+        double cmapMin = colorMapParameters.getColorMapMin();
+        double cmapMax = colorMapParameters.getColorMapMax();
+
+        program.setUniform("isFloat", !isScaled);
         program.setUniform("logarithmic",
                 colorMapParameters.isLogarithmic() ? 1 : 0);
         program.setUniform("logFactor", colorMapParameters.getLogFactor());
@@ -233,8 +234,8 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
 
         program.setUniform("naturalMin", dataMin);
         program.setUniform("naturalMax", dataMax);
-        program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
-        program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
+        program.setUniform("cmapMin", cmapMin);
+        program.setUniform("cmapMax", cmapMax);
 
         program.setUniform("alphaMask", 2);
         program.setUniform("colorMap", 1);
