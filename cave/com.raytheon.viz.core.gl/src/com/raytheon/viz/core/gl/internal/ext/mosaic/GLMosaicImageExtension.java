@@ -37,6 +37,7 @@ import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
+import com.raytheon.viz.core.gl.images.GLOffscreenColormappedImage;
 
 /**
  * Extension used for rendering radar mosaic images
@@ -47,9 +48,11 @@ import com.raytheon.viz.core.gl.images.GLColormappedImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2011            mschenke     Initial creation
+ * Dec 16, 2011            mschenke    Initial creation
  * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
  *                                     format for offscreen textures.
+ * Oct 16, 2013 2333       mschenke    Cleaned up render logic, switched to 
+ *                                     use GLOffscreenColormappedImage
  * 
  * </pre>
  * 
@@ -60,11 +63,12 @@ import com.raytheon.viz.core.gl.images.GLColormappedImage;
 public class GLMosaicImageExtension extends AbstractGLSLImagingExtension
         implements IMosaicImageExtension {
 
-    private GLColormappedImage writeToImage;
+    private GLOffscreenColormappedImage writeToImage;
 
     public GLMosaicImage initializeRaster(int[] imageBounds,
             IExtent imageExtent, ColorMapParameters params) throws VizException {
-        // Since byte is the most common type of mosaic start with a byte image. It might switch later if needed.
+        // Since byte is the most common type of mosaic start with a byte image.
+        // It might switch later if needed when images to mosaic are set
         return new GLMosaicImage(target.getExtension(
                 GLOffscreenRenderingExtension.class).constructOffscreenImage(
                 ColorMapDataType.BYTE, imageBounds, params), imageBounds,
@@ -80,6 +84,7 @@ public class GLMosaicImageExtension extends AbstractGLSLImagingExtension
      */
     @Override
     public String getShaderProgramName() {
+        // Default mosaicing algorithm glsl program
         return "mosaicOrdered";
     }
 
@@ -96,36 +101,47 @@ public class GLMosaicImageExtension extends AbstractGLSLImagingExtension
             AbstractGLImage image, PixelCoverage coverage) throws VizException {
         if (image instanceof GLMosaicImage) {
             GLMosaicImage mosaicImage = (GLMosaicImage) image;
+            boolean drawMosaic = true;
             if (mosaicImage.isRepaint()) {
-                writeToImage = getWriteToImage(mosaicImage);
-                GLOffscreenRenderingExtension extension = target
-                        .getExtension(GLOffscreenRenderingExtension.class);
-                try {
-                    extension.renderOffscreen(mosaicImage,
-                            mosaicImage.getImageExtent());
-                    DrawableImage[] imagesToMosaic = mosaicImage
-                            .getImagesToMosaic();
-                    // Make sure images are staged before we mosaic them
-                    ImagingSupport.prepareImages(target, imagesToMosaic);
+                DrawableImage[] imagesToMosaic = mosaicImage
+                        .getImagesToMosaic();
+                // Make sure images are staged before we mosaic them
+                ImagingSupport.prepareImages(target, imagesToMosaic);
 
-                    boolean allPainted = true;
-                    // Each image needs to draw separately due to gl issues when
-                    // zoomed in very far, rendered parts near the corners don't
-                    // show all the pixels for each image. Pushing and popping
-                    // GL_TEXTURE_BIT before/after each render fixes this issue
-                    for (DrawableImage di : imagesToMosaic) {
-                        allPainted &= drawRasters(paintProps, di);
+                writeToImage = getWriteToImage(mosaicImage);
+                if (writeToImage != null) {
+                    GLOffscreenRenderingExtension extension = target
+                            .getExtension(GLOffscreenRenderingExtension.class);
+                    try {
+                        extension.beginOffscreenRendering(mosaicImage,
+                                mosaicImage.getImageExtent());
+
+                        boolean allPainted = true;
+                        // Each image needs to draw separately due to gl issues
+                        // when zoomed in very far, rendered parts near the
+                        // corners don't show all the pixels for each image.
+                        // Pushing and popping GL_TEXTURE_BIT before/after each
+                        // render fixes this issue
+                        for (DrawableImage di : imagesToMosaic) {
+                            allPainted &= drawRasters(paintProps, di);
+                        }
+                        // Need to set repaint based on if drawing completed.
+                        mosaicImage.setRepaint(allPainted == false);
+                    } finally {
+                        extension.endOffscreenRendering();
                     }
-                    // Need to set repaint based on if drawing completed.
-                    mosaicImage.setRepaint(allPainted == false);
-                } finally {
-                    extension.renderOnscreen();
+                    writeToImage = null;
+                } else {
+                    drawMosaic = false;
+                    mosaicImage.setRepaint(true);
                 }
-                writeToImage = null;
             }
 
-            target.drawRasters(paintProps,
-                    new DrawableImage(mosaicImage.getWrappedImage(), coverage));
+            if (drawMosaic) {
+                target.drawRasters(paintProps,
+                        new DrawableImage(mosaicImage.getWrappedImage(),
+                                coverage));
+            }
             // Don't actually render this image now since we just did it
             return null;
         } else {
@@ -138,12 +154,13 @@ public class GLMosaicImageExtension extends AbstractGLSLImagingExtension
         }
     }
 
-    private GLColormappedImage getWriteToImage(GLMosaicImage mosaicImage)
-            throws VizException {
+    private GLOffscreenColormappedImage getWriteToImage(
+            GLMosaicImage mosaicImage) throws VizException {
         ColorMapDataType neededType = null;
         for (DrawableImage di : mosaicImage.getImagesToMosaic()) {
             IImage image = di.getImage();
-            if (image.getStatus() != Status.LOADED) {
+            if (image.getStatus() != Status.LOADED
+                    && image.getStatus() != Status.STAGED) {
                 continue;
             }
             if (image instanceof GLColormappedImage) {
@@ -158,11 +175,17 @@ public class GLMosaicImageExtension extends AbstractGLSLImagingExtension
                 }
             }
         }
-        GLColormappedImage writeTo = mosaicImage.getWrappedImage();
+
+        if (neededType == null) {
+            return null;
+        }
+
+        GLOffscreenColormappedImage writeTo = mosaicImage.getWrappedImage();
         if (neededType != null && neededType != writeTo.getColorMapDataType()) {
             GLOffscreenRenderingExtension offscreenExt = target
                     .getExtension(GLOffscreenRenderingExtension.class);
             int[] dimensions = { writeTo.getWidth(), writeTo.getHeight() };
+            writeTo.dispose();
             writeTo = offscreenExt.constructOffscreenImage(neededType,
                     dimensions, writeTo.getColorMapParameters());
             mosaicImage.setWrappedImage(writeTo);
