@@ -30,6 +30,8 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * 
  * Wrapper for the validator service to be used with the SOAP interface.
@@ -60,10 +62,10 @@ public class ValidatorImplWrapper implements Validator {
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:spi:bindings:4.0:Validator#validateObjects")
-    @WebResult(name = "ValidateObjectsResponse", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0", partName = "partValidateObjectsResponse")
+    @WebMethod(action = VALIDATE_OBJECTS_ACTION)
+    @WebResult(name = "ValidateObjectsResponse", targetNamespace = EbxmlNamespaces.SPI_URI, partName = "partValidateObjectsResponse")
     public ValidateObjectsResponse validateObjects(
-            @WebParam(name = "ValidateObjectsRequest", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0", partName = "partValidateObjectsRequest") ValidateObjectsRequest partValidateObjectsRequest)
+            @WebParam(name = "ValidateObjectsRequest", targetNamespace = EbxmlNamespaces.SPI_URI, partName = "partValidateObjectsRequest") ValidateObjectsRequest partValidateObjectsRequest)
             throws MsgRegistryException {
         return validator.validateObjects(partValidateObjectsRequest);
     }

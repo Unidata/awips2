@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -61,15 +62,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "Classification")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ClassificationType")
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Classification")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Classification")
 public class ClassificationType extends RegistryObjectType {
 
     @XmlAttribute
