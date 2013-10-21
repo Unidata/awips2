@@ -779,11 +779,15 @@ static PyObject* pyjobject_numpy(PyJobject_Object *obj) {
         initNumpy();
 
         resultList = PyList_New(listSize);
-
-        floatarrayclass = (*env)->FindClass(env, "[F");
-        bytearrayclass = (*env)->FindClass(env, "[B");
-        intarrayclass = (*env)->FindClass(env, "[I");
-        stringclass = (*env)->FindClass(env, "java/lang/String");
+        
+        if(floatarrayclass == NULL)
+            floatarrayclass = (*env)->FindClass(env, "[F");
+        if(bytearrayclass == NULL)
+            bytearrayclass = (*env)->FindClass(env, "[B");
+        if(intarrayclass == NULL)
+            intarrayclass = (*env)->FindClass(env, "[I");
+        if(stringclass == NULL)
+            stringclass = (*env)->FindClass(env, "java/lang/String");
 
         for(i=0; i < listSize; i=i+1)
         {
@@ -821,6 +825,7 @@ static PyObject* pyjobject_numpy(PyJobject_Object *obj) {
                }
                else
                {
+                       Py_INCREF(Py_None);
                        pyjob = Py_None;
                }
                PyList_SetItem(resultList, i, pyjob);
