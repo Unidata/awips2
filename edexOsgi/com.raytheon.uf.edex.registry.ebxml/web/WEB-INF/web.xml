@@ -76,6 +76,6 @@
 	</servlet-mapping>
 
 	<welcome-file-list>
-		<welcome-file>RegistryUserMenu.html</welcome-file>
+		<welcome-file>registry/RegistryInterface.html</welcome-file>
 	</welcome-file-list>
 </web-app>
