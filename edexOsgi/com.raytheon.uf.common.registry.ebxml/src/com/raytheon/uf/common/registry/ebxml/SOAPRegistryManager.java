@@ -10,6 +10,8 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManagerSOA
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManagerSOAPService;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * 
  * A SOAP client implementation for use with the RegistryManager Class.
@@ -32,11 +34,9 @@ public abstract class SOAPRegistryManager implements LifecycleManagerFactory,
         QueryManagerFactory {
 
     private static QName queryServiceName = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0",
-            "QueryManagerService");
+            EbxmlNamespaces.RR_INT_URI, "QueryManagerService");
 
-    private static QName lcmServiceName = new QName(
-            "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0",
+    private static QName lcmServiceName = new QName(EbxmlNamespaces.RR_INT_URI,
             "LifecycleManagerService");
 
     /**

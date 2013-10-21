@@ -35,6 +35,18 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRegistry
 public class ObjectFactory implements ISerializableObject {
