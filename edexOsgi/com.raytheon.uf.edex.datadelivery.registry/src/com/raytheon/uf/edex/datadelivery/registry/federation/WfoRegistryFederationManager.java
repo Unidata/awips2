@@ -47,9 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
-import com.raytheon.uf.common.registry.constants.Format;
-import com.raytheon.uf.common.registry.constants.Languages;
-import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -58,6 +55,7 @@ import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
 /**
  * 
@@ -71,6 +69,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * ------------ ----------  ----------- --------------------------
  * 5/22/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
+ * 10/20/2013   1682        bphillip    Fixed query invocation
  * </pre>
  * 
  * @author bphillip
@@ -187,17 +186,20 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
     protected FederationType getFederation() throws EbxmlRegistryException {
         statusHandler
                 .info("Attempting to acquire federation object from NCF...");
-        QueryType query = new QueryType(CanonicalQueryTypes.GET_OBJECT_BY_ID,
-                new SlotType("id", new StringValueType(FEDERATION_ID)));
-        QueryRequest queryRequest = new QueryRequest("Query for federation",
-                "Query to get the status of the federation",
-                new ResponseOptionType(QueryReturnTypes.REGISTRY_OBJECT, true),
-                query, false, null, Format.EBRIM, Languages.EN_US, 0, 0, 0,
-                false);
+        QueryType query = new QueryType();
+        query.setQueryDefinition(CanonicalQueryTypes.GET_OBJECT_BY_ID);
+        query.getSlot().add(
+                new SlotType(QueryConstants.ID, new StringValueType(
+                        FEDERATION_ID)));
+        QueryRequest request = new QueryRequest();
+        request.setResponseOption(new ResponseOptionType(
+                ResponseOptionType.RETURN_TYPE.RegistryObject.toString(), true));
+        request.setId("Query For Federation");
+        request.setQuery(query);
         QueryResponse response = null;
         try {
             response = RegistrySOAPServices.getQueryServiceForHost(ncfAddress)
-                    .executeQuery(queryRequest);
+                    .executeQuery(request);
         } catch (Exception e) {
             throw new EbxmlRegistryException(
                     "Error getting Federation from NCF!", e);

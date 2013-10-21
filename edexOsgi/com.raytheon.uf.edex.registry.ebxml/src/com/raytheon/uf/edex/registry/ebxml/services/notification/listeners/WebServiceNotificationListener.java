@@ -19,14 +19,24 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification.listeners;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
+import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
  * Notifies listeners via a web service.
@@ -39,6 +49,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDes
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2013 1672       djohnson     Extracted from RegistryNotificationManager.
  * 8/28/2013    1538       bphillip     Changed to catch a Throwable instead of just EbxmlRegistryException
+ * 10/20/2013   1682       bphillip     Added synchronous notification delivery
  * 
  * </pre>
  * 
@@ -74,6 +85,24 @@ public class WebServiceNotificationListener implements NotificationListener {
         }
     }
 
+    @Override
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException {
+        RegistryResponseType response = new RegistryResponseType();
+        response.setRequestId(notification.getId());
+        try {
+            onNotification(notification);
+            response.setStatus(RegistryResponseStatus.SUCCESS);
+            return response;
+        } catch (Throwable e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error processing notification.", e);
+        }
+    }
+
     /**
      * Sends the notification via SOAP
      * 
@@ -83,13 +112,16 @@ public class WebServiceNotificationListener implements NotificationListener {
      *            The address to send the notification to
      * @throws EbxmlRegistryException
      *             If errors occur while sending the notification
+     * @throws MsgRegistryException
+     * @throws RegistryServiceException
      */
     protected void sendNotificationViaSoap(NotificationType notification,
-            String serviceAddress) throws EbxmlRegistryException {
+            String serviceAddress) throws EbxmlRegistryException,
+            RegistryServiceException, MsgRegistryException {
         statusHandler.info("Sending notification [" + notification.getId()
                 + "]");
         RegistrySOAPServices.getNotificationListenerServiceForUrl(
-                serviceAddress).onNotification(notification);
+                serviceAddress).synchronousNotification(notification);
         statusHandler.info("Notification [" + notification.getId() + "] sent!");
     }
 }
