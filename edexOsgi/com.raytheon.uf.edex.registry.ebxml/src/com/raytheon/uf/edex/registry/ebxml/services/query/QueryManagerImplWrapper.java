@@ -30,6 +30,8 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * 
  * Wrapper for the query service to be used with the SOAP interface.
@@ -60,10 +62,10 @@ public class QueryManagerImplWrapper implements QueryManager {
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:QueryManager#executeQuery")
-    @WebResult(name = "QueryResponse", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0", partName = "partQueryResponse")
+    @WebMethod(action = EXECUTE_QUERY_ACTION)
+    @WebResult(name = "QueryResponse", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryResponse")
     public QueryResponse executeQuery(
-            @WebParam(name = "QueryRequest", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0", partName = "partQueryRequest") QueryRequest partQueryRequest)
+            @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest partQueryRequest)
             throws MsgRegistryException {
         return queryManager.executeQuery(partQueryRequest);
     }
