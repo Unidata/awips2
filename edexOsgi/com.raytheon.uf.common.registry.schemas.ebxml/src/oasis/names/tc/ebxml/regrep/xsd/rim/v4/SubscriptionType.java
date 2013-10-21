@@ -44,6 +44,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -73,21 +74,32 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "Subscription")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SubscriptionType", propOrder = { "deliveryInfo", "selector" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Subscription")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Subscription")
 public class SubscriptionType extends RegistryObjectType {
 
     @OneToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "DeliveryInfo")
     @DynamicSerializeElement
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<DeliveryInfoType> deliveryInfo;
 
     @OneToOne(cascade = CascadeType.ALL)

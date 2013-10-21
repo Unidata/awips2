@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -66,7 +67,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "QueryDefinition")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -74,14 +86,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         "queryExpression" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "QueryDefinition")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "QueryDefinition")
 public class QueryDefinitionType extends RegistryObjectType {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "Parameter")
     @DynamicSerializeElement
-    @JoinTable(schema = "ebxml")
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<ParameterType> parameter;
 
     @ManyToOne(cascade = CascadeType.ALL)

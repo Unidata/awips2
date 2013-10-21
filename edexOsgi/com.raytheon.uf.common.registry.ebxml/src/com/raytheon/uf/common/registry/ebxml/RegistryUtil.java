@@ -306,8 +306,8 @@ public final class RegistryUtil {
      *             on error reflectively accessing the object
      */
     public static RegistryObjectType newRegistryObject(Object object,
-            IRegistryEncoder encoderStrategy)
-            throws SerializationException, ReflectionException {
+            IRegistryEncoder encoderStrategy) throws SerializationException,
+            ReflectionException {
 
         RegistryObjectType registryObject = new RegistryObjectType();
         String registryObjectType = null;
