@@ -38,6 +38,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -61,7 +62,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement(name = "Value")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -73,13 +85,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         DurationValueType.class, CollectionValueType.class })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Value")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Value")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class ValueType implements IPersistableDataObject<Integer> {
 
     @Id
-    @SequenceGenerator(name = "ValueTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Value_sequence")
+    @SequenceGenerator(name = "ValueTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".Value_sequence")
     @GeneratedValue(generator = "ValueTypeGenerator")
     @XmlTransient
     protected Integer key;

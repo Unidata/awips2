@@ -21,7 +21,9 @@ package com.raytheon.uf.edex.registry.ebxml.services.lifecycle;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBElement;
@@ -60,6 +62,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/5/2013    2191        bphillip    Initial implementation
+ * 10/8/2013   1682        bphillip    Added getReferenced objects methods
  * </pre>
  * 
  * @author bphillip
@@ -191,6 +194,93 @@ public class ObjectReferenceResolver {
     }
 
     /**
+     * Gets all objects referenced by the given set of objects
+     * 
+     * @param objs
+     *            The set of objects to get the referenced objects for
+     * @return All objects referenced by the given set of objects
+     * @throws MsgRegistryException
+     *             If errors occur while examining properties of the given
+     *             classes
+     */
+    public Set<RegistryObjectType> getReferencedObjects(
+            Set<RegistryObjectType> objs) throws MsgRegistryException {
+        Set<RegistryObjectType> referencedObjects = new HashSet<RegistryObjectType>();
+        for (RegistryObjectType obj : objs) {
+            referencedObjects.addAll(getReferencedObjects(obj));
+        }
+        return referencedObjects;
+    }
+
+    /**
+     * Gets all objects referenced by the given object
+     * 
+     * @param obj
+     *            The object to get the referenced objects for
+     * @return All objects referenced by the given object
+     * @throws MsgRegistryException
+     *             If errors occur whuile examining the properties of the given
+     *             object
+     */
+    public Set<RegistryObjectType> getReferencedObjects(RegistryObjectType obj)
+            throws MsgRegistryException {
+        try {
+            List<String> fields = OBJECT_REFERENCE_FIELD_CACHE.get(obj
+                    .getClass());
+            Set<RegistryObjectType> referencedObjects = new HashSet<RegistryObjectType>(
+                    fields.size(), 1);
+
+            for (String field : fields) {
+                String propertyValue = (String) PropertyUtils.getProperty(obj,
+                        field);
+                if (propertyValue == null) {
+                    continue;
+                }
+                RegistryObjectType referencedObject = getReferencedObject(propertyValue);
+                if (referencedObject == null) {
+                    throw EbxmlExceptionUtil.createMsgRegistryException(
+                            "Error resolving references",
+                            new EbxmlRegistryException(
+                                    "Encountered unresolvable property ["
+                                            + propertyValue + "] on object ["
+                                            + obj.getId() + "]"));
+                } else {
+                    referencedObjects.add(referencedObject);
+                }
+            }
+
+            return referencedObjects;
+        } catch (Exception e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error getting referenced objects", e);
+        }
+
+    }
+
+    /**
+     * Gets the referenced object with the given reference
+     * 
+     * @param objRef
+     *            The reference to resolve
+     * @return The actual object referenced
+     * @throws EbxmlRegistryException
+     *             If errors occur while resolving the reference
+     * @throws MsgRegistryException
+     *             If errors occur while resolving the reference
+     */
+    public RegistryObjectType getReferencedObject(String objRef)
+            throws EbxmlRegistryException, MsgRegistryException {
+        RegistryObjectType retVal = getStaticReferencedObject(objRef);
+        if (retVal == null) {
+            retVal = getDynamicReferencedObject(objRef);
+            if (retVal == null) {
+                retVal = getRESTReferencedObject(objRef);
+            }
+        }
+        return retVal;
+    }
+
+    /**
      * Checks if the object specified by ref on the object obj is a static
      * reference
      * 
@@ -203,6 +293,13 @@ public class ObjectReferenceResolver {
         return getStaticReferencedObject(ref) != null;
     }
 
+    /**
+     * Gets the object referenced via static reference
+     * 
+     * @param ref
+     *            The object reference
+     * @return The actual object referenced by the given static reference
+     */
     public RegistryObjectType getStaticReferencedObject(String ref) {
         return registryObjectDao.getById(ref);
     }
@@ -230,6 +327,17 @@ public class ObjectReferenceResolver {
         return getDynamicReferencedObject(ref) != null;
     }
 
+    /**
+     * Gets the object referenced by the dynamic reference
+     * 
+     * @param ref
+     *            The dynamic reference
+     * @return The objec referenced by the dynamic reference
+     * @throws EbxmlRegistryException
+     *             If errors occur while resolving the reference
+     * @throws MsgRegistryException
+     *             If errors occur while resolving the reference
+     */
     public RegistryObjectType getDynamicReferencedObject(String ref)
             throws EbxmlRegistryException, MsgRegistryException {
         DynamicObjectRefType dynamicRef = dynamicRefDao.getById(ref);
@@ -264,6 +372,15 @@ public class ObjectReferenceResolver {
         return getRESTReferencedObject(ref) != null;
     }
 
+    /**
+     * Gets the object referenced by the given REST endpoint
+     * 
+     * @param ref
+     *            The REST endpoint reference
+     * @return The actual object referenced by the given REST endpoint
+     * @throws EbxmlRegistryException
+     *             If errors occur while resolving the REST endpoint
+     */
     public RegistryObjectType getRESTReferencedObject(String ref)
             throws EbxmlRegistryException {
 
@@ -292,6 +409,13 @@ public class ObjectReferenceResolver {
         return retVal;
     }
 
+    /**
+     * Checks if the given URL is valid
+     * 
+     * @param url
+     *            the URL to check
+     * @return True if the URL is valid, else false
+     */
     public boolean isValidURL(String url) {
         return urlValidator.isValid(url);
     }

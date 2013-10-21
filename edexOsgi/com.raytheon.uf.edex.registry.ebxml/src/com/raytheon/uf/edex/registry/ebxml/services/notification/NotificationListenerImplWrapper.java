@@ -22,11 +22,18 @@ package com.raytheon.uf.edex.registry.ebxml.services.notification;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
  * 
@@ -40,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/11/2013    1707        bphillip    Initial implementation
+ * 10/20/2013   1682        bphillip    Added synchronous notification delivery
  * </pre>
  * 
  * @author bphillip
@@ -60,11 +68,29 @@ public class NotificationListenerImplWrapper implements NotificationListener {
     }
 
     @Override
-    @WebMethod(action = "urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:bindings:4.0:NotificationListener:onNotification")
+    @WebMethod(action = ON_NOTIFICATION_ACTION)
     @Oneway
     public void onNotification(
-            @WebParam(name = "Notification", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0", partName = "Notification") NotificationType notification) {
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification) {
         notificationListener.onNotification(notification);
+    }
+
+    @Override
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException {
+        RegistryResponseType response = new RegistryResponseType();
+        response.setRequestId(notification.getId());
+        try {
+            notificationListener.synchronousNotification(notification);
+            response.setStatus(RegistryResponseStatus.SUCCESS);
+            return response;
+        } catch (Throwable e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error processing notification.", e);
+        }
     }
 
 }
