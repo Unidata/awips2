@@ -105,7 +105,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
         ImageCache.getInstance(CacheType.TEXTURE).remove(this);
     }
 
-    public void disposeTexture(GL gl) {
+    public void disposeTexture() {
         synchronized (this) {
             if (theTexture == null) {
                 return;
