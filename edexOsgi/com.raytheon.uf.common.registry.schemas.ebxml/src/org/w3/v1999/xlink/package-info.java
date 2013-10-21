@@ -18,6 +18,8 @@
  * further licensing information.
  **/
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.w3.org/1999/xlink", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.XLINK_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.w3.v1999.xlink;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 
