@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,14 +36,8 @@ import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
@@ -58,9 +53,8 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
-import com.raytheon.uf.common.registry.constants.Namespaces;
-import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
@@ -72,7 +66,6 @@ import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -93,6 +86,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 9/5/2013     1538        bphillip    Changed processing of each subscription to be in their own transaction. Subscriptions are now loaded on startup
  * 9/11/2013    2354        bphillip    Added handling of deleted objects
  * 9/30/2013    2191        bphillip    Fixing federated replication
+ * 10/8/2013    1682        bphillip    Moved getObjectsOfInterest into RegistryNotificationManager
  * </pre>
  * 
  * @author bphillip
@@ -161,9 +155,6 @@ public class RegistrySubscriptionManager implements
     /** The notification manager */
     private RegistryNotificationManager notificationManager;
 
-    /** The local query manager */
-    private QueryManagerImpl queryManager;
-
     /** Data access object for subscription objects */
     private SubscriptionDao subscriptionDao;
 
@@ -180,6 +171,8 @@ public class RegistrySubscriptionManager implements
     public RegistrySubscriptionManager(boolean subscriptionProcessingEnabled)
             throws JAXBException {
         this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
+        Properties props = System.getProperties();
+        System.out.println();
     }
 
     @Override
@@ -288,13 +281,13 @@ public class RegistrySubscriptionManager implements
                 endpointReference.writeTo(dom);
                 Document doc = (Document) dom.getNode();
                 NodeList nodes = doc.getElementsByTagNameNS(
-                        Namespaces.ADDRESSING_NAMESPACE,
+                        EbxmlNamespaces.ADDRESSING_URI,
                         RegistrySubscriptionManager.ADDRESS_TAG);
                 Node addressNode = nodes.item(0);
                 String serviceAddress = addressNode.getTextContent().trim();
                 String endpointType = addressNode
                         .getAttributes()
-                        .getNamedItemNS(Namespaces.EBXML_RIM_NAMESPACE_URI,
+                        .getNamedItemNS(EbxmlNamespaces.RIM_URI,
                                 RegistrySubscriptionManager.ENDPOINT_TAG)
                         .getNodeValue();
                 final NotificationDestination destination = new NotificationDestination(
@@ -459,9 +452,8 @@ public class RegistrySubscriptionManager implements
             }
             statusHandler.info("Processing subscription [" + subscriptionName
                     + "]...");
-            notificationManager.sendNotifications(
-                    listeners.get(subscriptionName),
-                    getObjectsOfInterest(subscription));
+            notificationManager.sendNotifications(listeners
+                    .get(subscriptionName));
             updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
         } catch (Throwable e) {
             statusHandler.error(
@@ -469,37 +461,6 @@ public class RegistrySubscriptionManager implements
                             + subscriptionName + "]", e);
         }
 
-    }
-
-    public NotificationType getOnDemandNotification(String address,
-            String subscriptionId, XMLGregorianCalendar startTime)
-            throws MsgRegistryException, EbxmlRegistryException {
-        SubscriptionNotificationListeners subscriptionListener = listeners
-                .get(subscriptionId);
-        SubscriptionType subscription = subscriptionDao
-                .getById(subscriptionListener.subscription.getId());
-        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
-        List<AuditableEventType> eventsOfInterest = notificationManager
-                .getEventsOfInterest(startTime, null, objectsOfInterest);
-        NotificationType notification = notificationManager.getNotification(
-                subscription, address, objectsOfInterest, eventsOfInterest);
-        return notification;
-    }
-
-    private List<ObjectRefType> getObjectsOfInterest(
-            SubscriptionType subscription) throws MsgRegistryException {
-        // Get objects that match selector query
-        QueryType selectorQuery = subscription.getSelector();
-        ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
-                .createResponseOptionType();
-        responseOption.setReturnType(QueryReturnTypes.OBJECT_REF);
-        QueryResponse queryResponse = queryManager.executeQuery(responseOption,
-                selectorQuery);
-        return queryResponse.getObjectRefList().getObjectRef();
-    }
-
-    public void setQueryManager(QueryManagerImpl queryManager) {
-        this.queryManager = queryManager;
     }
 
     public void setSubscriptionDao(SubscriptionDao subscriptionDao) {
