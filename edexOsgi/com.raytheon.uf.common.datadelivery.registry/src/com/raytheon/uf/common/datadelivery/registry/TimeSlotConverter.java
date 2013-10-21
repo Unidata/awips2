@@ -12,6 +12,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 
 import com.raytheon.uf.common.datadelivery.registry.Time.STEP_UNIT;
+import com.raytheon.uf.common.registry.constants.CollectionTypes;
 import com.raytheon.uf.common.registry.ebxml.CalendarAttribute;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
@@ -58,15 +59,15 @@ public class TimeSlotConverter implements SlotConverter {
      * @see java.util.Map
      */
     @Override
-    public List<SlotType> getSlots(String slotName, Object slotValue) throws IllegalArgumentException {
+    public List<SlotType> getSlots(String slotName, Object slotValue)
+            throws IllegalArgumentException {
         List<SlotType> slots = new ArrayList<SlotType>();
-        
-        
+
         SlotType slot = new SlotType();
         slot.setName(slotName);
         List<ValueType> collectionValues = new ArrayList<ValueType>();
         CollectionValueType cvt = new CollectionValueType();
-        
+
         // Handle times for Point types
         if (slotValue instanceof PointTime) {
 
@@ -80,11 +81,12 @@ public class TimeSlotConverter implements SlotConverter {
                 }
             }
 
-        // Handle Gridded Times
+            // Handle Gridded Times
         } else if (slotValue instanceof GriddedTime) {
-            
-            GriddedTime t = (GriddedTime)slotValue;
-            SimpleDateFormat df = new SimpleDateFormat(CalendarAttribute.DATE_TIME_FORMAT);
+
+            GriddedTime t = (GriddedTime) slotValue;
+            SimpleDateFormat df = new SimpleDateFormat(
+                    CalendarAttribute.DATE_TIME_FORMAT);
             Calendar current = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
 
@@ -93,17 +95,18 @@ public class TimeSlotConverter implements SlotConverter {
 
             STEP_UNIT stepu = STEP_UNIT.valueOf(t.getStepUnit().toUpperCase());
             Double step = t.getStep();
-            
-            // Add One millisecond to handle the case when the step of the Time Object
-            // is exactly equal to the end time. 
+
+            // Add One millisecond to handle the case when the step of the Time
+            // Object
+            // is exactly equal to the end time.
             end.add(Calendar.MILLISECOND, 1);
-            
+
             while (end.after(current)) {
 
-                collectionValues.add(newEntrySlot(df.format(current.getTime())));
+                collectionValues
+                        .add(newEntrySlot(df.format(current.getTime())));
 
-                switch (stepu)
-                {
+                switch (stepu) {
                 case SECOND:
                     current.add(Calendar.SECOND, step.intValue());
                     break;
@@ -124,29 +127,31 @@ public class TimeSlotConverter implements SlotConverter {
                     break;
                 }
             }
-            
-        }  else {
-           throw new IllegalArgumentException("Object of type " + slotValue.getClass().getName() +
-                   " cannot be converted by " + TimeSlotConverter.class.getName());
+
+        } else {
+            throw new IllegalArgumentException("Object of type "
+                    + slotValue.getClass().getName()
+                    + " cannot be converted by "
+                    + TimeSlotConverter.class.getName());
         }
-        
+
         cvt.setCollectionValue(collectionValues);
-        cvt.setCollectionType("urn:oasis:names:tc:ebxml-regrep:CollectionType:List");
+        cvt.setCollectionType(CollectionTypes.LIST);
         slot.setSlotValue(cvt);
         slots.add(slot);
         return slots;
     }
-    
+
     /**
      * Create a new value for inclusion in the collection slot values.
      * 
      * @param value
-     *        The Object to extract the slot value from. 
-     *        
+     *            The Object to extract the slot value from.
+     * 
      * @return A ValueType to add to the collection slot.
      */
     private ValueType newEntrySlot(String value) {
-        
+
         StringValueType entry = new StringValueType();
         entry.setStringValue(value);
         return entry;

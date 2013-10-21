@@ -54,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Jan 19, 2012 184        bphillip     Initial creation
  * Apr 23, 2013 1910       djohnson     Add createUnresolvedReferenceException().
  * 8/1/2013     1693       bphillip     Added methods to create exceptions
+ * 10/20/2013   1682       bphillip     createMsgRegistryException changed to accept throwable
  * 
  * </pre>
  * 
@@ -102,7 +103,7 @@ public class EbxmlExceptionUtil {
      * @return The MsgRegistryException
      */
     public static MsgRegistryException createMsgRegistryException(
-            String message, String detail, Exception exception) {
+            String message, String detail, Throwable exception) {
         StringBuilder builder = new StringBuilder();
         if (detail == null || detail.isEmpty()) {
             builder.append("Exception Encountered");
@@ -144,7 +145,7 @@ public class EbxmlExceptionUtil {
      * @return The MsgRegistryException
      */
     public static MsgRegistryException createMsgRegistryException(
-            String message, Exception exception) {
+            String message, Throwable exception) {
         return createMsgRegistryException(message, null, exception);
     }
 
