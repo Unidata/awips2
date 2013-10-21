@@ -121,18 +121,18 @@ public class GLHalfFloatDataFormat extends AbstractGLColorMapDataFormat {
      * (int, int, com.raytheon.viz.core.gl.dataprep.GLColorMapData)
      */
     @Override
-    public Float getValue(int x, int y, GLColorMapData data) {
+    public Float getValue(int x, int y, GLColorMapData data, Buffer dataBuffer) {
         if (data.getTextureType() != GL.GL_HALF_FLOAT_ARB) {
             throw new IllegalArgumentException(
                     "Cannot process texture of type " + data.getTextureType());
-        } else if (!(data.getData() instanceof ShortBuffer)) {
+        } else if (!(dataBuffer instanceof ShortBuffer)) {
             throw new IllegalArgumentException(
                     "Expecting data to contain a ShortBuffer but instead it is a "
-                            + data.getData().getClass().getSimpleName());
+                            + dataBuffer.getClass().getSimpleName());
         }
         int width = getAlignedWidth(data.getDimensionSize(0));
         int index = y * width + x;
-        ShortBuffer buffer = (ShortBuffer) data.getData();
+        ShortBuffer buffer = (ShortBuffer) dataBuffer;
         return convertFromFloat16(buffer.get(index));
     }
 
