@@ -42,7 +42,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IExtent;
@@ -59,11 +58,13 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * SOFTWARE HISTORY
  *           
- * Date          Ticket#    Engineer    Description
- * ------------	----------	-----------	--------------------------
- * 7/1/06                   chammack    Initial Creation.
- * 1/12/09                  randerso    added getMapManager
- * 10/22/09     #3348       bsteffen    Moved getter/setters for numberOfFrames down to AbstractDescriptor
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2006           chammack    Initial Creation.
+ * Jan 12, 2009           randerso    added getMapManager
+ * Dec 22, 2009  3348     bsteffen    Moved getter/setters for numberOfFrames down to AbstractDescriptor
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -73,8 +74,7 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class MapDescriptor extends AbstractDescriptor implements
-        IMapDescriptor, ISerializableObject {
+public class MapDescriptor extends AbstractDescriptor implements IMapDescriptor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MapDescriptor.class);
 

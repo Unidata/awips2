@@ -19,21 +19,19 @@
  **/
 package com.raytheon.viz.radar.rsc.mosaic;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.rsc.ResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.radar.Activator;
 
 /**
  * Use a base resource, a substitution key and a comma separated list of
@@ -49,9 +47,11 @@ import com.raytheon.viz.radar.Activator;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 29, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 29, 2010           bsteffen    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to 
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -78,20 +78,22 @@ public class RadarMosaicResourceFactory extends AbstractMosaicResourceFactory {
      */
     @Override
     public ResourceList getResourceList() {
+        ProcedureXmlManager jaxb = ProcedureXmlManager.getInstance();
+        ResourceList resourceList = new ResourceList();
+        // Put the base resource in a group so it can be serialized
+        ResourceGroup baseGroup = new ResourceGroup();
+        baseGroup.getResourceList().add(resource);
         try {
-            ResourceList resourceList = new ResourceList();
-            // Put the base resource in a group so it can be serialized
-            ResourceGroup baseGroup = new ResourceGroup();
-            baseGroup.getResourceList().add(resource);
-            String baseXml = SerializationUtil.marshalToXml(baseGroup);
+            String baseXml = jaxb.marshal(baseGroup);
             resourceList.clear();
             for (String icao : substitutionValues.split(",")) {
                 String xml = baseXml.replace(substitutionKey, icao);
-                resourceList.add(((ResourceGroup) SerializationUtil
-                        .unmarshalFromXml(xml)).getResourceList().get(0));
+                resourceList.add(jaxb
+                        .unmarshal(ResourceGroup.class, xml)
+                        .getResourceList().get(0));
             }
             return resourceList;
-        } catch (JAXBException e) {
+        } catch (SerializationException e) {
             statusHandler.handle(Priority.PROBLEM, e
                             .getLocalizedMessage(), e);
         }

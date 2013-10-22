@@ -35,10 +35,13 @@ import com.raytheon.viz.ui.panes.DrawCoordinatorJob;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 7/1/06                   chammack    Initial Creation.
- * Oct 27, 2009 #2354       bsteffen    Added preferences to ui plugin
+ * Date       	 Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2006             chammack  Initial Creation.
+ * Oct 27, 2009  2354       bsteffen  Added preferences to ui plugin
+ * Oct 24, 2012  2491       bsteffen  Do not start DrawCoordinatorJob during
+ *                                    activation to allow activation before
+ *                                    localization is set.
  * 
  * 
  * </pre>
@@ -67,7 +70,6 @@ public class UiPlugin extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        DrawCoordinatorJob.getInstance();
     }
 
     /**
