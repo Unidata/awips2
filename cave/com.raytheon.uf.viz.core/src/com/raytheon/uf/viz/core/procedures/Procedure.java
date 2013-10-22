@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.core.procedures;
 
 import java.io.File;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -32,8 +31,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.eclipse.ui.IMemento;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -46,9 +44,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Sep 5, 2007              chammack    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 05, 2007           chammack    Initial Creation.
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to 
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class Procedure implements ISerializableObject {
+public class Procedure {
 
     @XmlAttribute
     private String perspective;
@@ -110,27 +110,26 @@ public class Procedure implements ISerializableObject {
 
     public String toXML() throws VizException {
         try {
-            return SerializationUtil.marshalToXml(this);
-        } catch (JAXBException e) {
+            return ProcedureXmlManager.getInstance().marshal(this);
+        } catch (SerializationException e) {
             throw new VizException(e);
         }
     }
 
     public static Procedure loadProcedure(File fileName) throws VizException {
         try {
-            return (Procedure) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(fileName.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
+            return ProcedureXmlManager.getInstance().unmarshal(
+                    Procedure.class, fileName);
+        } catch (SerializationException e) {
             throw new VizException(e);
         }
     }
 
     public static Procedure loadProcedure(String xml) throws VizException {
         try {
-            return (Procedure) SerializationUtil.unmarshalFromXml(xml);
-        } catch (Exception e) {
-            e.printStackTrace();
+            return ProcedureXmlManager.getInstance().unmarshal(
+                    Procedure.class, xml);
+        } catch (SerializationException e) {
             throw new VizException(e);
         }
     }

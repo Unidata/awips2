@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.core.rsc.capabilities;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 
@@ -38,9 +37,11 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 2, 2009             chammack    Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 02, 2009           chammack    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractCapability implements ISerializableObject {
+public abstract class AbstractCapability {
 
     /**
      * The resource pointer. Primarily useful for communication with the

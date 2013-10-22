@@ -69,5 +69,7 @@
 		</property>
 		<property name="arguments" ref="recordFactory" />
 	</bean>
+	
+    <bean id="procedureXmlManagerInit" class="com.raytheon.uf.viz.core.procedures.ProcedureXmlManager" factory-method="inititializeAsync"/>
 
 </beans>
