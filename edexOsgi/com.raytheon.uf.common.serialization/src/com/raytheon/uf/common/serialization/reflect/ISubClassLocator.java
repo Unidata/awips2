@@ -17,41 +17,37 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.alerts;
+package com.raytheon.uf.common.serialization.reflect;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import java.util.Collection;
 
 /**
- * Interface used for parsing alert messages into custom types
+ * Interface indicating an object is capable of looking up subclassed based off
+ * of a known parent class. Generally this must be implemented using advanced
+ * reflection mechanisms that are heavily dependendant on the type of runtime
+ * and will ned to be different on edex and cave.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Sep 15, 2009           mschenke    Initial creation
- * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
+ * Oct 23, 2013  2491     bsteffen    Initial creation
  * 
  * </pre>
  * 
- * @author mschenke
+ * @author bsteffen
  * @version 1.0
  */
-@XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractAlertMessageParser {
+public interface ISubClassLocator {
 
     /**
-     * Parse the alert message object into an object expected by the Resource
+     * Determine all subclasses of a given class.
      * 
-     * @param message
-     *            the message to parse
-     * @return expected object
+     * @param base
+     *            a class
+     * @return all subclasses of base.
      */
-    public abstract Object parseAlertMessage(AlertMessage message,
-            AbstractRequestableResourceData resourceData) throws VizException;
-
+    public Collection<Class<?>> locateSubClasses(Class<?> base);
 }
