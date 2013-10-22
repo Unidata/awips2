@@ -35,7 +35,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -46,6 +45,7 @@ import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.Procedure;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.viz.ui.actions.LoadSerializedXml;
 
 /**
@@ -56,9 +56,11 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 8, 2013            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 08, 2013           mschenke    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Change from SerializationUtil to
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -119,13 +121,8 @@ public class MapScalesManager {
             this.displayName = displayName;
             this.partIds = new PartId[0];
             this.scaleFile = null;
-            try {
-                this.bundleXml = SerializationUtil.getJaxbManager()
-                        .marshalToXml(scaleBundle);
-            } catch (JAXBException e) {
-                throw new SerializationException(
-                        "Error serializing bundle for scale, " + displayName);
-            }
+            this.bundleXml = ProcedureXmlManager.getInstance().marshal(
+                    scaleBundle);
         }
 
         private void loadBundleXml() {
@@ -146,10 +143,8 @@ public class MapScalesManager {
             if (bundleXml != null) {
                 long t0 = System.currentTimeMillis();
                 try {
-                    return (Bundle) SerializationUtil.getJaxbManager()
-                            .unmarshalFromXml(bundleXml);
-                } catch (JAXBException e) {
-                    throw new SerializationException(e);
+                    return ProcedureXmlManager.getInstance().unmarshal(
+                            Bundle.class, bundleXml);
                 } finally {
                     System.out.println("Time to create Bundle: "
                             + (System.currentTimeMillis() - t0) + "ms");
