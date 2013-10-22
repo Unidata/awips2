@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Defines the progressive disclosure properties
  * 
@@ -33,9 +31,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date          Ticket#     Engineer    Description
- *    ------------	----------	-----------	--------------------------
- *    7/30/07                   randerso    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 30, 2007           randerso    Initial Creation.
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -43,7 +42,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class ProgressiveDisclosureProperties implements ISerializableObject {
+public class ProgressiveDisclosureProperties {
     /**
      * Minimum display width in meters for the associated resource to be
      * displayed

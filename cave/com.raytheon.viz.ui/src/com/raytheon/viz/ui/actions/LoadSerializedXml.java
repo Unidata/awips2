@@ -38,7 +38,6 @@ import org.eclipse.ui.internal.EditorAreaHelper;
 import org.eclipse.ui.internal.EditorReference;
 import org.eclipse.ui.internal.WorkbenchPage;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -49,6 +48,7 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.Procedure;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -60,10 +60,12 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 6, 2010             mschenke    Initial creation
- * Mar 21, 2013 1638       mschenke    Added method to load procedure to window
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 06, 2010           mschenke    Initial creation
+ * Mar 21, 2013  1638     mschenke    Added method to load procedure to window
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -113,7 +115,8 @@ public class LoadSerializedXml extends AbstractHandler {
     public static Object deserialize(File fileName) {
         Object obj = null;
         try {
-            obj = SerializationUtil.jaxbUnmarshalFromXmlFile(fileName);
+            obj = ProcedureXmlManager.getInstance().unmarshal(
+                    Object.class, fileName);
         } catch (Exception e) {
             String errMsg = "Error occurred during xml deserialization";
             statusHandler.handle(Priority.CRITICAL, errMsg, e);
