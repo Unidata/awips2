@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Jun 06, 2013 2038        djohnson    Remove throws ParseException.
  * Sept 25, 2013 1797       dhladky     separated overrides from time.
  * Oct 10, 2013 1797        bgonzale    Refactored registry Time objects.
+ * Oct 24, 2013  2454       dhladky     Trouble with general gridded cycles that don't exist being null instead of empty.
  * 
  * </pre>
  * 
@@ -65,9 +66,6 @@ public class GriddedTime extends Time implements
 
     private static final long serialVersionUID = -7032078355732493125L;
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GriddedTime.class);
-
     @XmlElement(name = "step")
     @DynamicSerializeElement
     private Double step;
@@ -82,7 +80,7 @@ public class GriddedTime extends Time implements
 
     @XmlElements({ @XmlElement(name = "cycleTimes", type = Integer.class) })
     @DynamicSerializeElement
-    private List<Integer> cycleTimes;
+    private List<Integer> cycleTimes = new ArrayList<Integer>();
 
     /**
      * Default Constructor.
