@@ -12,6 +12,8 @@
  * -------		------- 	-------- 	-----------
  * 05/02/2012	229			Chin Chen	Initial coding for multiple display panes implementation
  * 03/11/2013   972         Greg Hull   rm paneNumber
+ * 03/11/2013   2491        bsteffen    extend IDescriptor derictly for better serialization detection.
+
  *
  * </pre>
  * 
@@ -32,10 +34,12 @@ import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.graphing.GraphDescriptor;
 @XmlAccessorType(XmlAccessType.NONE)
-public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
+public class NsharpAbstractPaneDescriptor extends GraphDescriptor implements
+        IDescriptor {
 //	@XmlElement
 //	protected int paneNumber;
 	
