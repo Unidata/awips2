@@ -17,20 +17,23 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.personalities.awips;
+package com.raytheon.viz.core.gl.images;
+
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
+import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
 
 /**
- * This is the default component for CAVE that is the standard workbench with
- * all the perspectives.
+ * Colormappable image that is writeable to in GL/GLSL but is not back by a
+ * Buffer and therefore not preinitialized or inspectable
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 09, 2010            mschenke    Initial creation
- * Jul 01, 2013  2139      jsanchez    Loaded map tree at cave start up.
- * Oct 22, 2013  2361      njensen     Undid 2139 fix since 2158 fixes it more efficiently
+ * Oct 16, 2013       2333 mschenke    Initial creation
  * 
  * </pre>
  * 
@@ -38,22 +41,29 @@ package com.raytheon.viz.ui.personalities.awips;
  * @version 1.0
  */
 
-public class CAVE extends AbstractCAVEComponent {
+public class GLOffscreenColormappedImage extends AbstractGLColormappedImage {
 
-    public int getRuntimeModes() {
-        return (ALERT_VIZ | WORKBENCH);
+    /**
+     * @param data
+     * @param params
+     * @param extensionClass
+     */
+    public GLOffscreenColormappedImage(GLColorMapData data,
+            ColorMapParameters params,
+            Class<? extends IImagingExtension> extensionClass) {
+        super(new GLCMTextureData(data), params, extensionClass);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#startInternal
-     * (java.lang.String)
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getValue(int,
+     * int)
      */
     @Override
-    protected void startInternal(String componentName) throws Exception {
-
+    public double getValue(int x, int y) {
+        // TODO: Read value off of graphics card?
+        return Double.NaN;
     }
 
 }
