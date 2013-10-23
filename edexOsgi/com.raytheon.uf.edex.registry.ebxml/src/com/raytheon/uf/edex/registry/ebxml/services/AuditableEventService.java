@@ -32,8 +32,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
@@ -52,6 +50,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * May 02, 2013 1910       djohnson     Extracted subscription notification from the dao.
  * 8/1/2013     1692       bphillip    Refactored auditable event creation
  * 9/11/2013    2254       bphillip    Cleaned up creation of auditable events
+ * 10/23/2013   1538       bphillip    Removed call to subscription manager. Subscriptions will now
+ *                                     only be run on a quartz timer
  * 
  * </pre>
  * 
@@ -61,15 +61,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 public class AuditableEventService {
 
-    /** The logger */
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AuditableEventService.class);
-
     /** Data access object for accessing auditable events */
     private final AuditableEventTypeDao auditDao;
-
-    /** The subscription manager */
-    private final IRegistrySubscriptionManager subscriptionManager;
 
     /**
      * Creates a new AuditableEventService
@@ -79,10 +72,8 @@ public class AuditableEventService {
      * @param subscriptionManager
      *            The subscription manager
      */
-    public AuditableEventService(AuditableEventTypeDao auditDao,
-            IRegistrySubscriptionManager subscriptionManager) {
+    public AuditableEventService(AuditableEventTypeDao auditDao) {
         this.auditDao = auditDao;
-        this.subscriptionManager = subscriptionManager;
     }
 
     /**
@@ -104,8 +95,7 @@ public class AuditableEventService {
             AuditableEventType event = createEvent(request,
                     TimeUtil.currentTimeMillis());
             addRegistryObjectActionToEvent(event, actionType, objectsAffected);
-            auditDao.create(event);
-            notifySubscriptionManager();
+            auditDao.createOrUpdate(event);
         }
     }
 
@@ -151,8 +141,7 @@ public class AuditableEventService {
             AuditableEventType event = createEvent(request,
                     TimeUtil.currentTimeMillis());
             addObjectRefActionToEvent(event, actionType, objectsAffected);
-            auditDao.create(event);
-            notifySubscriptionManager();
+            auditDao.createOrUpdate(event);
         }
     }
 
@@ -208,21 +197,5 @@ public class AuditableEventService {
             event.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME, notificationFrom);
         }
         return event;
-
-    }
-
-    /**
-     * Notifies the subscription manager that events have occurred and they must
-     * be propagated to the federation
-     */
-    private void notifySubscriptionManager() {
-        // Notify the subscription monitor that a new event has occurred
-        try {
-            subscriptionManager.processSubscriptions();
-        } catch (Throwable t) {
-            statusHandler
-                    .error("Unexpected error ecountered while processing subscriptions!",
-                            t);
-        }
     }
 }
