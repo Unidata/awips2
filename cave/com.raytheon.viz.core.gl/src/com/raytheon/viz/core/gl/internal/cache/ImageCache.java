@@ -130,7 +130,7 @@ public class ImageCache extends LRUCache<Object, IImageCacheable> implements
             new GLDisposer() {
                 @Override
                 protected void dispose(GL gl) {
-                    i.disposeTexture(gl);
+                    i.disposeTexture();
                 }
             }.dispose();
         }

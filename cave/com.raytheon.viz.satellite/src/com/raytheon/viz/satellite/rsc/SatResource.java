@@ -220,8 +220,8 @@ public class SatResource extends
             InterrogationResult result = null;
             synchronized (tileMap) {
                 for (SatTileSetRenderable renderable : tileMap.values()) {
-                    double rValue = renderable.interrogate(latLon);
-                    if (Double.isNaN(rValue) == false && rValue != fillValue) {
+                    double rValue = renderable.interrogate(latLon, fillValue);
+                    if (Double.isNaN(rValue) == false) {
                         result = new InterrogationResult(
                                 renderable.getSatelliteRecord(), rValue);
                     }
