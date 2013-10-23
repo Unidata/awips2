@@ -10,12 +10,33 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+
+/**
+ * 
+ * Configuration for warngen dialog
+ * 
+ * <pre>
+ * 
+ *    SOFTWARE HISTORY
+ *   
+ *    Date         Ticket#     Engineer    Description
+ *    ------------ ----------  ----------- --------------------------
+ *    --/--/----                           Initial creation
+ *    10/22/2013   2361        njensen     Use JAXBManager for XML
+ * 
+ * </pre>
+ * 
+ * 
+ */
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "configuration")
-public class DialogConfiguration implements ISerializableObject {
+public class DialogConfiguration {
+
+    private static final SingleTypeJAXBManager<DialogConfiguration> jaxb = SingleTypeJAXBManager
+            .createWithoutException(DialogConfiguration.class);
+
     @XmlElement
     private String warngenOfficeShort;
 
@@ -39,14 +60,14 @@ public class DialogConfiguration implements ISerializableObject {
 
     @XmlElement
     private long followupListRefeshDelay;
-    
+
     @XmlElement
     private GridSpacing gridSpacing;
 
     public static DialogConfiguration loadDialogConfig(String localSite)
             throws FileNotFoundException, IOException, JAXBException {
         String xml = FileUtil.open("config.xml", localSite);
-        return (DialogConfiguration) SerializationUtil.unmarshalFromXml(xml);
+        return (DialogConfiguration) jaxb.unmarshalFromXml(xml);
     }
 
     public String getWarngenOfficeShort() {
@@ -120,5 +141,5 @@ public class DialogConfiguration implements ISerializableObject {
     public void setGridSpacing(GridSpacing gridSpacing) {
         this.gridSpacing = gridSpacing;
     }
-    
+
 }
