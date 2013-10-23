@@ -114,8 +114,25 @@ public class RegistrySOAPServices {
     static {
         proxyConfig = getProxyConfiguration();
         httpClientPolicy = new HTTPClientPolicy();
-        httpClientPolicy.setReceiveTimeout(15000);
-        httpClientPolicy.setConnectionTimeout(10000);
+
+        try {
+            httpClientPolicy.setReceiveTimeout(Long.parseLong(System
+                    .getProperty("ebxml-http-receive-timeout")));
+        } catch (NumberFormatException e) {
+            statusHandler
+                    .error("ebxml-http-receive-timeout not specified.  Using default value of 1 minute",
+                            e);
+            httpClientPolicy.setReceiveTimeout(60000);
+        }
+        try {
+            httpClientPolicy.setConnectionTimeout(Long.parseLong(System
+                    .getProperty("ebxml-http-connection-timeout")));
+        } catch (NumberFormatException e) {
+            statusHandler
+                    .error("ebxml-http-connection-timeout not specified.  Using default value of 10 seconds",
+                            e);
+            httpClientPolicy.setReceiveTimeout(10000);
+        }
         httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
         httpClientPolicy.setMaxRetransmits(5);
         if (proxyConfig != null) {
