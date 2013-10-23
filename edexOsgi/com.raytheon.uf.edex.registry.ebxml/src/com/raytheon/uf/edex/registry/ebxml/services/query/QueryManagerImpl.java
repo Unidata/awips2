@@ -120,7 +120,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Jun 24, 2013 2106       djohnson    Transaction must already be open.
  * 9/5/2013     1538       bphillip    Removed log message
  * 10/8/2013    1682       bphillip    Refactored querying
- * 10/201       1682       bphillip    Fixed federated query invocation
+ * 10/2013      1682       bphillip    Fixed federated query invocation
+ * 10/23/2013   1538       bphillip    Remove extra executeQuery method
  * 
  * </pre>
  * 
@@ -798,23 +799,6 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
                     registryToQuery.getBaseURL()).executeQuery(queryRequest);
 
         }
-    }
-
-    public QueryResponse executeQuery(ResponseOptionType responseOption,
-            QueryType queryType) throws MsgRegistryException {
-        statusHandler
-                .info("Received internal request for query using default values");
-        QueryRequest queryRequest = EbxmlObjectUtil.queryObjectFactory
-                .createQueryRequest();
-        queryRequest.setResponseOption(responseOption);
-        queryRequest.setQuery(queryType);
-        queryRequest.setDepth(QueryRequest.DEFAULT_DEPTH);
-        queryRequest
-                .setMatchOlderVersions(QueryRequest.DEFAULT_MATCH_OLDER_VERSIONS);
-        queryRequest.setMaxResults(QueryRequest.DEFAULT_MAX_RESULTS);
-        queryRequest.setStartIndex(QueryRequest.DEFAULT_START_INDEX);
-        QueryResponse queryResponse = executeQuery(queryRequest);
-        return queryResponse;
     }
 
     /**
