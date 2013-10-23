@@ -20,8 +20,6 @@
 package com.raytheon.uf.common.dataplugin.acarssounding;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,15 +37,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -71,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 22, 2013 2361       njensen     Remove XML annotations and IDecoderGettable
  * 
  * </pre>
  * 
@@ -86,61 +79,46 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @org.hibernate.annotations.Table(appliesTo = "acarssounding", indexes = { @Index(name = "acarssounding_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ACARSSoundingRecord extends PluginDataObject implements
-        ISpatialEnabled, IDecoderGettable {
+        ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
 
     public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
 
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-    }
-
     // Time of the observation.
     @Column
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
-    @XmlAttribute
     private Calendar timeObs;
 
     @Embedded
     @DataURI(position = 2, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     @Column(length = 32)
     @DynamicSerializeElement
-    @XmlElement
     private String tailNumber;
 
     // Flight phase (A[scending] D[escending])
     @Column(length = 1)
     @DynamicSerializeElement
-    @XmlElement
     private String phase = null;
 
     // oldest observation time in this sounding
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Long oldestTime = Long.MAX_VALUE;
 
     // newest observation time in this sounding
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Long newestTime = Long.MIN_VALUE;
 
     // The level data for this observation.
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", fetch = FetchType.EAGER)
-    @XmlElement
     @DynamicSerializeElement
     private Set<ACARSSoundingLayer> levels;
 
@@ -343,42 +321,6 @@ public class ACARSSoundingRecord extends PluginDataObject implements
                 newestTime = cTime;
             }
         }
-    }
-
-    /**
-     * This class does not implement IDecoderGettable so return null.
-     * 
-     * @return Always null for this class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String pName) {
-        Amount a = null;
-        if ("NLAT".equals(pName)) {
-            a = new Amount(getLatitude(), LOCATION_UNIT);
-        } else if ("NLON".equals(pName)) {
-            a = new Amount(getLongitude(), LOCATION_UNIT);
-        }
-        return a;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
     }
 
     @Override
