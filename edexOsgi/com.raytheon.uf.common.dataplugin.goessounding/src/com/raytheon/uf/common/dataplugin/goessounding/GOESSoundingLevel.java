@@ -22,11 +22,7 @@ package com.raytheon.uf.common.dataplugin.goessounding;
 import java.io.Serializable;
 
 import javax.persistence.Column;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,7 +33,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080414           1077 jkorman     Initial implementation.
+ * 20080414           1077 jkorman     Initial implementation.'
+ * 20132022           2361 njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -45,28 +42,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class GOESSoundingLevel implements Serializable, ISerializableObject {
+public class GOESSoundingLevel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer pressure;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Double temperature;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Double dewpoint;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer height;
 

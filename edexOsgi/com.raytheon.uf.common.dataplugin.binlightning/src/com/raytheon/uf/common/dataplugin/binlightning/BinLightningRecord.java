@@ -29,14 +29,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
@@ -83,6 +78,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *  May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ *  Oct 22, 2013 2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -98,9 +94,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  */
 @org.hibernate.annotations.Table(appliesTo = BinLightningRecord.PLUGIN_NAME, indexes = { @Index(name = "binlightning_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
 public class BinLightningRecord extends PersistablePluginDataObject implements
         IPersistable {
 
@@ -151,20 +145,17 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     @DataURI(position = 1)
     @Column
     @DynamicSerializeElement
-    @XmlAttribute
     private Calendar startTime;
 
     // Persisted value - Latest strike time in the collection.
     @DataURI(position = 2)
     @Column
     @DynamicSerializeElement
-    @XmlAttribute
     private Calendar stopTime;
 
     // JJG - source of lightning data
     @Column(length = 5)
     @DataURI(position = 3)
-    @XmlAttribute
     @DynamicSerializeElement
     private String lightSource;
 
@@ -446,17 +437,6 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      */
     public void setLightSource(String lightSource) {
         this.lightSource = lightSource;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     /**
