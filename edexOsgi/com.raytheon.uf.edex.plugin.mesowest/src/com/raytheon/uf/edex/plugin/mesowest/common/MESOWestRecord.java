@@ -39,11 +39,6 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -55,7 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * 
+ * Record for mesowest data
  * 
  * <pre>
  * 
@@ -68,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 22, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -77,8 +73,6 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "mesowestseq")
 @Table(name = "mesowest", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MESOWestRecord extends PluginDataObject implements
         ISpatialEnabled, IDecoderGettable {
@@ -117,152 +111,127 @@ public class MESOWestRecord extends PluginDataObject implements
     }
 
     @DataURI(position = 1)
-    @XmlElement
     @DynamicSerializeElement
     private String networkType;
 
     // Time of the observation.
     @DataURI(position = 2)
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar timeObs;
 
     @Embedded
     @DataURI(position = 3, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     // Observation air temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double temp;
 
     // Observation dewpoint temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double dwpt;
 
     // 24 Hour maximum temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double maxT24;
 
     // 24 Hour minimum temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double minT24;
 
     // Relative Humidity in percent.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double humidity;
 
     // Observation wind direction in angular degrees. Integer
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double windDirection;
 
     // Observation wind speed in meters per second.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double windSpeed;
 
     // Observation wind gust in meters per second.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double windGust;
 
     // Observation pressure in Pa.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double pressure;
 
     // Observation pressure in Pa.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double seaLevelPressure;
 
     // Observation pressure in Pa.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double altimeter;
 
     // Observation precip in mm.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip;
 
     // 1 minute precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_01M;
 
     // 5 minute precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_05M;
 
     // 10 minute precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_10M;
 
     // 15 minute precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_15M;
 
     // 30 minute precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_30M;
 
     // 1 hour precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_01H;
 
     // 3 hour precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_03H;
 
     // 6 hour precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_06H;
 
     // 24 hour precip in inches.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double precip_24H;
 
     // Raw observation text
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private String obsText;
 
     /**
