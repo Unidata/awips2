@@ -32,7 +32,8 @@ import javax.media.opengl.GL;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 21, 2011            mschenke     Initial creation
+ * Nov 21, 2011            mschenke    Initial creation
+ * Oct 16, 2013       2333 mschenke    Removed Buffer from GLColorMapData
  * 
  * </pre>
  * 
@@ -84,6 +85,16 @@ public abstract class AbstractGLColorMapDataFormat {
     public abstract double getDataFormatMax();
 
     /**
+     * Returns true if the data format is a signed data format (values in format
+     * can be less than 0), false otherwise
+     * 
+     * @return true if signed format
+     */
+    public boolean isSignedFormat() {
+        return getDataFormatMin() < 0;
+    }
+
+    /**
      * Create a buffer object for specified data for copying data from out of GL
      * 
      * @param data
@@ -93,8 +104,7 @@ public abstract class AbstractGLColorMapDataFormat {
 
     /**
      * Specifies if the data format type's values are scaled when copied to GL
-     * and referenced in shader. True means the values will by default be scaled
-     * to -1 to 1, false indicates shader will receive values as is
+     * and referenced in shader.
      * 
      * @return
      */
@@ -108,9 +118,11 @@ public abstract class AbstractGLColorMapDataFormat {
      * @param x
      * @param y
      * @param data
+     * @param dataBuffer
      * @return
      */
-    public abstract Number getValue(int x, int y, GLColorMapData data);
+    public abstract Number getValue(int x, int y, GLColorMapData data,
+            Buffer dataBuffer);
 
     /**
      * Get the number of bytes each pixel takes up
