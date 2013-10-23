@@ -20,7 +20,6 @@
 
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -28,7 +27,9 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 7/29/2013    2191       bphillip    Changed method to get expired events
  * 8/1/2013     1693       bphillip    Moved creation of auditable events to the auditable event service class
  * 9/11/2013    2354       bphillip    Modified queries to find deleted objects
+ * 10/23/2013   1538       bphillip    Changed send time slot to be DateTimeValue instead of integer
  * 
  * </pre>
  * 
@@ -162,7 +164,8 @@ public class AuditableEventTypeDao extends
                 buf.append("'").append(objectsOfInterest.get(i).getId())
                         .append("'");
             }
-            query = FIND_EVENTS_OF_INTEREST_QUERY.replaceAll(IDS, buf.toString());
+            query = FIND_EVENTS_OF_INTEREST_QUERY.replaceAll(IDS,
+                    buf.toString());
 
             if (endTime == null) {
                 query += ORDER_CLAUSE;
@@ -188,10 +191,20 @@ public class AuditableEventTypeDao extends
      *            to the auditable event
      */
     public void persistSendDate(List<AuditableEventType> auditableEvents,
-            String subscriptionId, String deliveryAddress) {
+            String subscriptionId, String deliveryAddress, long sentTime) {
+        String slotName = subscriptionId + deliveryAddress;
         for (AuditableEventType auditableEvent : auditableEvents) {
-            auditableEvent.updateSlot(subscriptionId + deliveryAddress,
-                    (int) TimeUtil.currentTimeMillis());
+            SlotType slot = auditableEvent.getSlotByName(subscriptionId
+                    + deliveryAddress);
+            if (slot == null) {
+                SlotType sentTimeSlot = new SlotType(slotName,
+                        new DateTimeValueType(sentTime));
+                auditableEvent.getSlot().add(sentTimeSlot);
+            } else {
+                DateTimeValueType dateValue = (DateTimeValueType) slot
+                        .getSlotValue();
+                dateValue.setTime(sentTime);
+            }
             this.createOrUpdate(auditableEvent);
         }
     }
@@ -208,9 +221,17 @@ public class AuditableEventTypeDao extends
      *            The delivery address to check
      * @return The last sent date in millis
      */
-    public BigInteger getSendTime(AuditableEventType auditableEvent,
+    public Long getSendTime(AuditableEventType auditableEvent,
             String subscriptionId, String deliveryAddress) {
-        return auditableEvent.getSlotValue(subscriptionId + deliveryAddress);
+        SlotType slot = auditableEvent.getSlotByName(subscriptionId
+                + deliveryAddress);
+        if (slot == null) {
+            return 0l;
+        } else {
+            DateTimeValueType dateValue = (DateTimeValueType) slot
+                    .getSlotValue();
+            return dateValue.getValue().toGregorianCalendar().getTimeInMillis();
+        }
     }
 
     @Override

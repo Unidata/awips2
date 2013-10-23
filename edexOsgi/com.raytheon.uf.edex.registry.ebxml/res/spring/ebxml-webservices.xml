@@ -118,7 +118,6 @@
 	<bean id="AuditableEventService"
 		class="com.raytheon.uf.edex.registry.ebxml.services.AuditableEventService">
 		<constructor-arg ref="AuditableEventTypeDao" />
-		<constructor-arg ref="registrySubscriptionManagerInvoker" />
 	</bean>
 
 </beans>
