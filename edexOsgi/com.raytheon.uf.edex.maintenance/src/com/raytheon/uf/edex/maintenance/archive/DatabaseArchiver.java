@@ -67,7 +67,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
 
 /**
- * TODO Add Description
+ * This class handles moving processed data to the archiver directory.
  * 
  * <pre>
  * 
@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            rjpeter     Initial creation
  * Jan 18, 2013 1469       bkowal      Removed the hdf5 data directory.
+ * Oct 23, 2013 2478       rferrel     Make date format thread safe.
  * 
  * </pre>
  * 
@@ -87,24 +88,37 @@ public class DatabaseArchiver implements IPluginArchiver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DatabaseArchiver.class);
 
-    private final SimpleDateFormat DATE_FORMAT;
+    /** Thread safe date format. */
+    private static final ThreadLocal<SimpleDateFormat> TL_DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
-    // Minimum time increment to archive, note based off of insertTime
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat df = new SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss.SSS");
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df;
+        }
+    };
+
+    /** Minimum time increment to archive, note based off of insertTime. */
     private static final int MIN_DURATION_MILLIS = 1000 * 60 * 30;
 
-    // Maximum time increment to archive, note based off of insertTime
+    /** Maximum time increment to archive, note based off of insertTime. */
     private static final int MAX_DURATION_MILLIS = 1000 * 60 * 60;
 
+    /** Job's name. */
     private static final String TASK_NAME = "DB Archiver";
 
+    /** Cluster time out on lock. */
     private static final int CLUSTER_LOCK_TIMEOUT = 60000;
 
+    /** Mapping for plug-in formatters. */
     private final Map<String, IPluginArchiveFileNameFormatter> pluginArchiveFormatters;
 
+    /**
+     * The constructor.
+     */
     public DatabaseArchiver() {
-        DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-
         pluginArchiveFormatters = new HashMap<String, IPluginArchiveFileNameFormatter>();
         pluginArchiveFormatters.put("default",
                 new DefaultPluginArchiveFileNameFormatter());
@@ -133,6 +147,7 @@ public class DatabaseArchiver implements IPluginArchiver {
     @SuppressWarnings("rawtypes")
     public boolean archivePluginData(String pluginName, String archivePath,
             DataArchiveConfig conf) {
+        SimpleDateFormat dateFormat = TL_DATE_FORMAT.get();
         // set archive time
         Calendar runTime = Calendar.getInstance();
         runTime.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -140,7 +155,7 @@ public class DatabaseArchiver implements IPluginArchiver {
 
         // cluster lock, grabbing time of last successful archive
         CurrentTimeClusterLockHandler lockHandler = new CurrentTimeClusterLockHandler(
-                CLUSTER_LOCK_TIMEOUT, DATE_FORMAT.format(runTime.getTime()),
+                CLUSTER_LOCK_TIMEOUT, dateFormat.format(runTime.getTime()),
                 false);
         ClusterTask ct = ClusterLockUtils.lock(TASK_NAME, pluginName,
                 lockHandler, false);
@@ -261,7 +276,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             // set last archive time to startTime
             if (startTime != null) {
                 lockHandler
-                        .setExtraInfo(DATE_FORMAT.format(startTime.getTime()));
+                        .setExtraInfo(dateFormat.format(startTime.getTime()));
             }
 
             if (recordCount > 0) {
@@ -277,7 +292,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             // previous run time needs to be reset
             if (startTime != null) {
                 lockHandler
-                        .setExtraInfo(DATE_FORMAT.format(startTime.getTime()));
+                        .setExtraInfo(dateFormat.format(startTime.getTime()));
             }
 
             statusHandler.error(pluginName + ": Error occurred archiving data",
@@ -405,15 +420,27 @@ public class DatabaseArchiver implements IPluginArchiver {
         return recordsSaved;
     }
 
+    /**
+     * Get the plug-in's start time for a query.
+     * 
+     * @param pluginName
+     * @param extraInfo
+     * @param runTime
+     * @param dao
+     * @param conf
+     * @return startTime
+     * @throws DataAccessLayerException
+     */
     protected Calendar determineStartTime(String pluginName, String extraInfo,
             Calendar runTime, PluginDao dao, DataArchiveConfig conf)
             throws DataAccessLayerException {
         Calendar startTime = null;
+        SimpleDateFormat dateFormat = TL_DATE_FORMAT.get();
 
         // get previous run time
         if ((extraInfo != null) && !extraInfo.isEmpty()) {
             try {
-                Date prevDate = DATE_FORMAT.parse(extraInfo);
+                Date prevDate = dateFormat.parse(extraInfo);
 
                 // cloning runTime as it already has the correct time zone
                 startTime = (Calendar) runTime.clone();
@@ -484,6 +511,14 @@ public class DatabaseArchiver implements IPluginArchiver {
         return endTime;
     }
 
+    /**
+     * Register archive formatter for a plug-in; and issue a warning if plug-in
+     * is already registered.
+     * 
+     * @param pluginName
+     * @param archiveFormatter
+     * @return databaseArchiver
+     */
     public Object registerPluginArchiveFormatter(String pluginName,
             IPluginArchiveFileNameFormatter archiveFormatter) {
         if (!pluginArchiveFormatters.containsKey(pluginName)) {
