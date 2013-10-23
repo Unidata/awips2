@@ -24,10 +24,6 @@ import static com.raytheon.uf.common.localization.LocalizationContext.Localizati
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -45,14 +41,15 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractObsFilter;
+import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.RectFilterElement;
 
 /**
- * 
+ * A filter for mesowest data that is configured through XML.
  * 
  * <pre>
  * 
@@ -61,6 +58,8 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.RectFilterElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2009            jkorman     Initial creation
+ * Oct 22, 2013 2361       njensen     Use JAXBManager for XML
+ * 
  * 
  * </pre>
  * 
@@ -88,22 +87,14 @@ public class MESOWestFilter extends AbstractObsFilter {
 
             File siteDir = manager.getFile(siteContext, "");
             if (siteDir.exists()) {
-                File srcFile = new File(siteDir, FILTER_CONFIG);
-
-                byte[] data = new byte[(int) srcFile.length()];
-
-                InputStream stream = getInputStream(srcFile);
                 try {
-                    stream.read(data);
-                    stream.close();
-
-                    AbstractObsFilter filter = (AbstractObsFilter) SerializationUtil
-                            .unmarshalFromXml(new String(data));
-
-                    setFilterElements(filter.getFilterElements());
-                    setFilterName(filter.getFilterName());
-                } catch (IOException e) {
-                    logger.error("Unable to read filter config", e);
+                    File srcFile = new File(siteDir, FILTER_CONFIG);
+                    JAXBManager jaxb = new JAXBManager(MESOWestFilter.class,
+                            PluginDataObjectFilter.class);
+                    AbstractObsFilter filter = jaxb.unmarshalFromXmlFile(
+                            AbstractObsFilter.class, srcFile);
+                    this.setFilterElements(filter.getFilterElements());
+                    this.setFilterName(filter.getFilterName());
                 } catch (JAXBException e) {
                     logger.error("Unable to unmarshall filter config", e);
                 }
@@ -216,22 +207,6 @@ public class MESOWestFilter extends AbstractObsFilter {
 
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 
-     * @param file
-     * @return
-     */
-    private static FileInputStream getInputStream(File file) {
-        FileInputStream fis = null;
-
-        try {
-            fis = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return fis;
     }
 
 }
