@@ -21,15 +21,18 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
@@ -70,6 +73,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 10/23/2013    1538       bphillip    Added sequence generator and unique key so refs will not be shared
+ *                                      amond multiple ref lists
  * </pre>
  * 
  * @author bphillip
@@ -88,6 +93,12 @@ public class ObjectRefType extends ExtensibleObjectType implements
         IPersistableDataObject<String> {
 
     @Id
+    @SequenceGenerator(name = "ObjectRefTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".ObjectRef_sequence")
+    @GeneratedValue(generator = "ObjectRefTypeGenerator")
+    @XmlTransient
+    private Integer key;
+
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String id;
@@ -124,6 +135,14 @@ public class ObjectRefType extends ExtensibleObjectType implements
     @Override
     public String getIdentifier() {
         return getId();
+    }
+
+    public Integer getKey() {
+        return key;
+    }
+
+    public void setKey(Integer key) {
+        this.key = key;
     }
 
 }
