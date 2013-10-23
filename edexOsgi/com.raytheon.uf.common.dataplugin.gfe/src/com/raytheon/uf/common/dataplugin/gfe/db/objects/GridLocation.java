@@ -36,11 +36,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import jep.INumpyable;
 
@@ -73,9 +68,6 @@ import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -106,6 +98,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 08/06/13      #1571      randerso    Added hibernate annotations, javadoc cleanup, 
  *                                      made init method public for use in GFEDao
  * 09/30/13      #2333      mschenke    Added method to construct from {@link IGridGeometryProvider}
+ * 10/22/13      #2361      njensen     Remove XML annotations
  * 
  * 
  * </pre>
@@ -115,10 +108,9 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  */
 @Entity
 @Table(name = "gfe_gridlocation", uniqueConstraints = { @UniqueConstraint(columnNames = { "dbId_id" }) })
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class GridLocation extends PersistableDataObject<String> implements
-        ISpatialObject, ISerializableObject {
+        ISpatialObject {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridLocation.class);
 
@@ -177,24 +169,20 @@ public class GridLocation extends PersistableDataObject<String> implements
     private DatabaseID dbId;
 
     @Column(length = 8, nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private String siteId;
 
     /** Number of points along the x-axis */
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     protected Integer nx;
 
     /** Number of points along the y-axis */
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     protected Integer ny;
 
     @Column(length = 32, nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private String timeZone;
 
@@ -202,30 +190,22 @@ public class GridLocation extends PersistableDataObject<String> implements
     private Coordinate gridCellSize;
 
     @Embedded
-    @XmlElement
     @DynamicSerializeElement
     private ProjectionData projection;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate origin;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate extent;
 
     @Transient
-    @XmlElement
-    @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Polygon geometry;
 
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String crsWKT;
 
