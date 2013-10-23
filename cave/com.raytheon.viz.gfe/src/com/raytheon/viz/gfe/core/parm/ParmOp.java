@@ -83,7 +83,10 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * 02/23/2012   1876       dgilling    Implement missing clearUndoParmList
  *                                     function.
  * 02/13/2013   #1597      randerso    Added logging to support GFE Performance metrics
- * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil 
+ * 02/15/2013   #1638      mschenke    Moved Util.getUnixTime into TimeUtil
+ * 10/15/2013   #2445      randerso    Removed expansion of publish time to span of 
+ *                                     overlapping grids since this is now done on 
+ *                                     the server side
  * 
  * </pre>
  * 
@@ -153,6 +156,9 @@ public class ParmOp {
 
     /**
      * Called when the user changes the selected VectorMode.
+     * 
+     * @param mode
+     *            the vector edit mode
      */
     public void setVectorMode(ParmState.VectorMode mode) {
         Iterator<Parm> parmIterator = new ArrayList<Parm>(
@@ -178,6 +184,12 @@ public class ParmOp {
 
     /**
      * Copies the specified grid into the copy/paste buffer.
+     * 
+     * @param parm
+     *            the destination parm
+     * @param date
+     *            the destination time
+     * @return true if successful
      */
     public boolean copyGrid(Parm parm, Date date) {
 
@@ -207,7 +219,10 @@ public class ParmOp {
      * by the GridID.
      * 
      * @param parm
+     *            the destination parm
      * @param date
+     *            the destination time
+     * @return true if successful
      */
     public boolean pasteGrid(Parm parm, Date date) {
         // is it a compatible grid?
@@ -265,7 +280,7 @@ public class ParmOp {
      */
     public boolean okToPasteGrid(Parm parm, Date date) {
         // verify we have a valid source grid
-        if (copiedGrid == null || parm == null) {
+        if ((copiedGrid == null) || (parm == null)) {
             return false;
         }
         GridParmInfo sourceGPI = copiedGrid.getParm().getGridInfo();
@@ -363,7 +378,7 @@ public class ParmOp {
 
         for (Parm parm : allParms) {
             if (parm.isMutable()) {
-                if (repeatInterval == 0 || duration == 0) {
+                if ((repeatInterval == 0) || (duration == 0)) {
                     TimeConstraints tc = parm.getGridInfo()
                             .getTimeConstraints();
                     parm.createFromScratchSelectedTR(mode,
@@ -475,32 +490,12 @@ public class ParmOp {
             return;
         }
 
-        // filter out some of the requests that are not desired
-        final ConcurrentLinkedQueue<CommitGridRequest> requests = new ConcurrentLinkedQueue<CommitGridRequest>();
-        for (CommitGridRequest curReq : req) {
-            // adjust for server's grid inventory and expand tr to include the
-            // entire grid
-            TimeRange tr = curReq.getTimeRange();
-            ParmID id = curReq.getParmId();
-            List<TimeRange> inv;
-            try {
-                inv = dataManager.serverParmInventory(id);
-                for (TimeRange invTR : inv) {
-                    if (invTR != null && tr != null && invTR.overlaps(tr)) {
-                        tr = tr.combineWith(invTR);
-                    } else if (invTR.getStart().after(tr.getEnd())) { // efficiency
-                        break;
-                    }
-                }
-            } catch (GFEServerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to get server parm inventory", e);
-                continue;
-            }
+        // expanding the publish requests to cover the span of the overlapping
+        // grids is done on the server side now
 
-            requests.add(new CommitGridRequest(id, tr, dataManager
-                    .clientISCSendStatus()));
-        }
+        // put requests in a queue to be worked of by the publish threads
+        final ConcurrentLinkedQueue<CommitGridRequest> requests = new ConcurrentLinkedQueue<CommitGridRequest>(
+                req);
 
         final ConcurrentLinkedQueue<ServerResponse<?>> okSrs = new ConcurrentLinkedQueue<ServerResponse<?>>();
         final AtomicBoolean allOk = new AtomicBoolean(true);
@@ -753,7 +748,7 @@ public class ParmOp {
                             if (source != null) {
                                 parm.copySelectedTRFrom(source);
                             }
-                            if (created && source != null) {
+                            if (created && (source != null)) {
                                 parmMgr.deleteParm(source);
                             }
                         }
@@ -829,7 +824,7 @@ public class ParmOp {
             clearUndoParmList();
             p.copyTRFrom(source, tr); // perform the copy
         }
-        if (created && source != null) {
+        if (created && (source != null)) {
             parmMgr.deleteParm(source);
         }
         // if (addedToCache)
@@ -1068,8 +1063,8 @@ public class ParmOp {
         List<SendISCRequest> requests = new ArrayList<SendISCRequest>();
 
         // check for auto - mode, single req with NULL values.
-        if (req.size() == 1 && req.get(0).getTimeRange() == null
-                && req.get(0).getParmId() == null) {
+        if ((req.size() == 1) && (req.get(0).getTimeRange() == null)
+                && (req.get(0).getParmId() == null)) {
             requests = req;
         }
 
@@ -1149,6 +1144,11 @@ public class ParmOp {
         }
     }
 
+    /**
+     * Sets the smooth size
+     * 
+     * @param smoothSize
+     */
     public void setSmoothSize(int smoothSize) {
         Parm[] allParms = this.dataManager.getParmManager().getAllParms();
 
@@ -1157,6 +1157,14 @@ public class ParmOp {
         }
     }
 
+    /**
+     * Saves all parameters
+     * 
+     * @param undisplayed
+     *            true to include undisplayed parms
+     * @param displayed
+     *            true to include displayed parms
+     */
     public void saveAllParameters(boolean undisplayed, boolean displayed) {
         if (displayed) {
             Parm[] parms = dataManager.getParmManager().getDisplayedParms();
