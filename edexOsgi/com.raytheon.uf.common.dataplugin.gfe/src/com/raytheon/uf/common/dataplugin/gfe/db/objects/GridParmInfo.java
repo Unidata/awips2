@@ -45,7 +45,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -67,6 +66,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                     added isValid method to match A1
  * 04/02/2013     #1774    randerso    Improved error message in validCheck
  * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
+ * 10/22/2013     #2361    njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -76,9 +76,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 @Embeddable
 @DynamicSerialize
-public class GridParmInfo implements Cloneable, ISerializableObject {
+public class GridParmInfo implements Cloneable {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmInfo.class);
+
     static {
         // TODO: is this the right place for these?
 
