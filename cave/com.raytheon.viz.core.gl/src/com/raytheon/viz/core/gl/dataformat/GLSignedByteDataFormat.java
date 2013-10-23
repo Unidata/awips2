@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.core.gl.dataformat;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 import javax.media.opengl.GL;
@@ -49,15 +50,15 @@ public class GLSignedByteDataFormat extends GLByteDataFormat {
      * int, com.raytheon.viz.core.gl.dataprep.GLColorMapData)
      */
     @Override
-    public Short getValue(int x, int y, GLColorMapData data) {
-        if (!(data.getData() instanceof ByteBuffer)) {
+    public Short getValue(int x, int y, GLColorMapData data, Buffer dataBuffer) {
+        if (!(dataBuffer instanceof ByteBuffer)) {
             throw new IllegalArgumentException(
                     "Expecting data to contain a ByteBuffer but instead it is a "
-                            + data.getData().getClass().getSimpleName());
+                            + dataBuffer.getClass().getSimpleName());
         }
         int width = getAlignedWidth(data.getDimensionSize(0));
         int index = y * width + x;
-        ByteBuffer buffer = (ByteBuffer) data.getData();
+        ByteBuffer buffer = (ByteBuffer) dataBuffer;
         byte value = buffer.get(index);
         switch (data.getTextureType()) {
         case GL.GL_BYTE:

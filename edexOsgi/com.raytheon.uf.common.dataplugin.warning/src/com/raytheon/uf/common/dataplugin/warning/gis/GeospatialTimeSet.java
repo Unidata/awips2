@@ -29,7 +29,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * TODO Add Description
+ * Collection of GeospatialTime representing a set of generated geospatial data
+ * for warngen configurations
  * 
  * <pre>
  * 
