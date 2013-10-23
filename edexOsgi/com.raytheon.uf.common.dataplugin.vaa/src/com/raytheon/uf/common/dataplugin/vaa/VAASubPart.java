@@ -33,71 +33,61 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * SubPart of a VAARecord
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2009            jkorman     Initial creation
- *
+ * Oct 22, 2013 2361       njensen     Remove XML annotations
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 @Entity
-@Table(name="vaa_subpart")
-@XmlAccessorType(XmlAccessType.NONE)
+@Table(name = "vaa_subpart")
 @DynamicSerialize
-public class VAASubPart implements Serializable, ISerializableObject {
+public class VAASubPart implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue
     private Integer recordId = null;
 
-    // The  record this object belongs to 
+    // The record this object belongs to
     @ManyToOne
-    @JoinColumn(name="parentId", nullable=false)
+    @JoinColumn(name = "parentId", nullable = false)
     private VAARecord parentId;
-    
+
     @Column(length = 32)
-    @XmlElement
     @DynamicSerializeElement
-    private String subText; 
-    
+    private String subText;
+
     /**
-     *  Shape of ash area
-     *     "LINE" : 
-     *     "AREA"
-     *     
+     * Shape of ash area "LINE" : "AREA"
+     * 
      */
     @Column(length = 8)
-    @XmlElement
     @DynamicSerializeElement
-    private String shapeType; 
-    
-    /** 
+    private String shapeType;
+
+    /**
      * Vertex locations
      */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentId", fetch = FetchType.EAGER)
     private Set<VAALocation> locations = new HashSet<VAALocation>();
-
 
     /**
      * @return the parentID
@@ -107,7 +97,8 @@ public class VAASubPart implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param parentID the parentID to set
+     * @param parentID
+     *            the parentID to set
      */
     public void setParentId(VAARecord parentID) {
         this.parentId = parentID;
@@ -115,21 +106,22 @@ public class VAASubPart implements Serializable, ISerializableObject {
 
     /**
      * Get the record id.
-     *
+     * 
      * @return The recordId. If not set returns null.
      */
-     public Integer getRecordId() {
+    public Integer getRecordId() {
         return recordId;
     }
 
-     /**
-      * Set the record id.
-      * @param record
-      */
+    /**
+     * Set the record id.
+     * 
+     * @param record
+     */
     public void setRecordId(Integer recordId) {
         this.recordId = recordId;
     }
-    
+
     /**
      * @return the subText
      */
@@ -138,7 +130,8 @@ public class VAASubPart implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param subText the subText to set
+     * @param subText
+     *            the subText to set
      */
     public void setSubText(String subText) {
         this.subText = subText;
@@ -152,17 +145,18 @@ public class VAASubPart implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param shapeType the shapeType to set
+     * @param shapeType
+     *            the shapeType to set
      */
     public void setShapeType(String shapeType) {
         this.shapeType = shapeType;
     }
 
     public void addVertex(double lat, double lon, int index) {
-        if(locations == null) {
+        if (locations == null) {
             locations = new HashSet<VAALocation>();
         }
-        locations.add(new VAALocation(lat,lon,index,this));
+        locations.add(new VAALocation(lat, lon, index, this));
     }
 
     /**
@@ -173,10 +167,11 @@ public class VAASubPart implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param locations the locations to set
+     * @param locations
+     *            the locations to set
      */
     public void setLocations(Set<VAALocation> locations) {
-        for(VAALocation loc : locations) {
+        for (VAALocation loc : locations) {
             loc.setParentId(this);
         }
         this.locations = locations;
