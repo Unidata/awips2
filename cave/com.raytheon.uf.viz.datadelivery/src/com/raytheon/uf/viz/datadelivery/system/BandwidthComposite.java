@@ -163,6 +163,9 @@ public class BandwidthComposite extends Composite implements IApplyCancelAction 
 
         Set<String> unscheduledSubscriptions = SystemRuleManager
                 .setAvailableBandwidth(Network.OPSNET, bandwidth);
+        if (unscheduledSubscriptions == null) {
+            return changesApplied;
+        }
         if (unscheduledSubscriptions.isEmpty()) {
             changesApplied = true;
         } else {
