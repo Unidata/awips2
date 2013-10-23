@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
+
 /**
  * Abstract implementation of the Handler Factories.
  * 
@@ -213,6 +215,38 @@ public abstract class AbstractHandlerFactory implements
     @Override
     public void update(Observable o, Object arg) {
         getSourceFilters();
+    }
+
+    public void log(Priority priority, StatusHandler statusHandler,
+            String message, Throwable throwable) {
+        String source = statusHandler.getSource();
+        String pluginId = statusHandler.getPluginId();
+        if (source == null) {
+            source = getSource(source, pluginId);
+            statusHandler.setSource(source);
+        }
+        this.log(priority, pluginId, statusHandler.getCategory(), source,
+                message, throwable);
+    }
+
+    protected void log(Priority priority, String pluginId, String category,
+            String source, String message, Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(priority).append(' ');
+        sb.append(pluginId).append(": ");
+        if (category != null) {
+            sb.append(category);
+            if (source != null) {
+                sb.append(": ");
+                sb.append(source);
+            }
+            sb.append(" - ");
+        }
+        sb.append(message);
+        System.err.println(sb.toString());
+        if (throwable != null) {
+            throwable.printStackTrace(System.err);
+        }
     }
 
     protected abstract IUFStatusHandler createMonitorInstance(String pluginId,
