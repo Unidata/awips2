@@ -27,7 +27,6 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import com.raytheon.uf.common.dataplugin.gfe.serialize.TimeConstraintsAdapter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
@@ -47,6 +46,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 03/20/2013     #1774    randerso    Added isValid method, use TimeUtil constants,
  *                                     added serialization adapter, removed setters.
  * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
+ * 10/22/2013     #2361    njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -57,7 +57,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @Embeddable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = TimeConstraintsAdapter.class)
-public class TimeConstraints implements ISerializableObject {
+public class TimeConstraints {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeConstraints.class);
 
