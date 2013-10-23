@@ -31,14 +31,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -65,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 22, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -80,8 +76,6 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @org.hibernate.annotations.Table(appliesTo = "tcs", indexes = { @Index(name = "tcs_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class TropicalCycloneSummary extends PersistablePluginDataObject
         implements ISpatialEnabled, IPointData {
@@ -94,11 +88,9 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
 
     // Text of the WMO header
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String wmoHeader = "";
 
-    @XmlElement
     @DynamicSerializeElement
     @Column
     @DataURI(position = 1)
@@ -106,36 +98,29 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
 
     @Embedded
     @DataURI(position = 2, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     protected String name;
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private boolean tropical;
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private String displayTime;
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int pressure;
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     protected int windSpeed;
 
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     protected ArrayList<Radius> radiusList;
@@ -197,11 +182,6 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
     public void setDataURI(String dataURI) {
         super.setDataURI(dataURI);
         identifier = dataURI;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override
