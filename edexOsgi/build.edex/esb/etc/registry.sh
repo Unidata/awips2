@@ -21,8 +21,11 @@
 
 export MAX_MEM=1536 # in Meg
 export MAX_PERM_SIZE=192m
-export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5012
 export EDEX_JMX_PORT=1620
 export LOG_CONF=logback-registry.xml
 export MGMT_PORT=9605
+
+export METADATA_POOL_MIN=5
+export METADATA_POOL_MAX=20
+export METADATA_POOL_TIMEOUT=60
