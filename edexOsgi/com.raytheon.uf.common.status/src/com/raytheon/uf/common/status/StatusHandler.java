@@ -22,7 +22,8 @@ package com.raytheon.uf.common.status;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Status handler for status messages. Outputs via the UFStatus configured
+ * factory.
  * 
  * <pre>
  * 
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 15, 2011            randerso     Initial creation
+ * Oct 22, 2013 2303       bgonzale     Merged VizStatusHandler and SysErrStatusHandler.
  * 
  * </pre>
  * 
@@ -38,15 +40,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class SysErrStatusHandler implements IUFStatusHandler {
+public class StatusHandler implements IUFStatusHandler {
 
     private final String pluginId;
 
     private final String category;
 
-    private final String source;
+    private String source;
 
-    public SysErrStatusHandler(String pluginId, String category, String source) {
+    public StatusHandler(String pluginId,
+            String category, String source) {
         this.pluginId = pluginId;
         this.category = category;
         this.source = source;
@@ -128,25 +131,7 @@ public class SysErrStatusHandler implements IUFStatusHandler {
     @Override
 	public void handle(Priority priority, String category, String message,
 			Throwable throwable) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(priority).append(' ');
-        sb.append(this.pluginId).append(": ");
-
-        if (this.category != null) {
-            sb.append(this.category);
-
-            if (this.source != null) {
-                sb.append(": ");
-                sb.append(this.source);
-            }
-            sb.append(" - ");
-        }
-
-        sb.append(message);
-        System.err.println(sb.toString());
-        if (throwable != null) {
-            throwable.printStackTrace(System.err);
-        }
+        UFStatus.log(priority, this, message, throwable);
     }
 
     @Override
@@ -208,5 +193,33 @@ public class SysErrStatusHandler implements IUFStatusHandler {
 	public void fatal(String category, String message, Throwable throwable) {
 		handle(Priority.FATAL, category, message, throwable);
 	}
+
+    /**
+     * @return the pluginId
+     */
+    public String getPluginId() {
+        return pluginId;
+    }
+
+    /**
+     * @return the category
+     */
+    public String getCategory() {
+        return category;
+    }
+
+    /**
+     * @return the source
+     */
+    public String getSource() {
+        return source;
+    }
+
+    /**
+     * Set the source
+     */
+    public void setSource(String source) {
+        this.source = source;
+    }
 
 }
