@@ -24,7 +24,6 @@ import java.io.File;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.plugin.obs.mesowest.MesowestSeparator;
 import com.raytheon.edex.plugin.obs.metar.MetarSeparator;
 import com.raytheon.uf.common.util.FileUtil;
 
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ate          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 4/27/07      199         bphillip    Initial creation
+ * Oct 23, 2013 2361        njensen     Removed dead mesowest code
  * 
  * </pre>
  * 
@@ -81,10 +81,6 @@ public class ObsSeparator extends AbstractRecordSeparator {
             separator = new MetarSeparator();
         }
 
-        // Load mesowest separator
-        else if (message.contains("PARM")) {
-            separator = new MesowestSeparator();
-        }
         separator.setData(data, headers);
     }
 
