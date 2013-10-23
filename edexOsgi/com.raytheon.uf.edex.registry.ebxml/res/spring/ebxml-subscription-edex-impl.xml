@@ -12,10 +12,10 @@
 	<camelContext id="ebxml-notification" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		<endpoint id="processReplicationSubscriptions"
-			uri="clusteredquartz://registry/processSubscriptions/?cron=${ebxml-subscription-process.cron}" />
+			uri="quartz://registry/processSubscriptions/?cron=${ebxml-subscription-process.cron}" />
 		<route id="processSubscriptionsFromQuartz">
 			<from uri="processReplicationSubscriptions" />
-			<bean ref="RegistrySubscriptionManager" method="processSubscriptions" />
+			<to uri="vm:processSubscriptions"/>
 		</route>
 		<route id="processSubscriptionsFromVM">
 			<from uri="vm:processSubscriptions?concurrentConsumers=2" />
