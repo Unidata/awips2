@@ -32,13 +32,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
 /**
- * TODO Add Description
+ * Container for a list of airports read from an XML file
  * 
  * <pre>
  * 
@@ -46,6 +44,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
+ * Oct 22, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -55,7 +54,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class Airports implements ISerializableObject {
+public class Airports {
 
     private Log logger = LogFactory.getLog(getClass());
 
@@ -175,13 +174,14 @@ public class Airports implements ISerializableObject {
         Airports airports = null;
 
         try {
-            airports = (Airports) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(filePath + File.separator
-                            + fileName);
+            SingleTypeJAXBManager<Airports> jaxb = new SingleTypeJAXBManager<Airports>(
+                    Airports.class);
+            airports = jaxb.unmarshalFromXmlFile(filePath + File.separator
+                    + fileName);
             logger.info(String.format("%4d airports read from config.",
                     airports.getAirport().size()));
 
-        } catch (SerializationException e) {
+        } catch (Exception e) {
             logger.error("Error unmarshaling airports ", e);
         }
         airports.createMapping();

@@ -31,8 +31,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Derived class that consolidates storage info for a Parm.
  * 
@@ -44,6 +42,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 08/05/2013   #1571      randerso    Moved to com.raytheon.uf.common.dataplugin
  *                                     Added GridParmInfo as a field.
  *                                     Added hibernate annotations
+ * 10/22/2013   #2361      njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -53,7 +52,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @Entity
 @Table(name = "gfe_parminfo", uniqueConstraints = { @UniqueConstraint(columnNames = { "parmId_id" }) })
-public class ParmStorageInfo implements ISerializableObject {
+public class ParmStorageInfo {
 
     /**
      * Auto-generated surrogate key

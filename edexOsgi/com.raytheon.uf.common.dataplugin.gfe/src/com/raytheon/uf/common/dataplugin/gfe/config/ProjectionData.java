@@ -27,11 +27,6 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -44,9 +39,6 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
-import com.raytheon.uf.common.serialization.adapters.PointAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -65,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/24/13     #1935      randerso    Fixed date line spanning issue
  * 08/06/13     #1571      randerso    Added hibernate annotations
  *                                     Removed constructor with int for ProjectionType
+ * 10/22/13     #2361      njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -72,9 +65,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 @Embeddable
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ProjectionData implements ISerializableObject {
+public class ProjectionData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProjectionData.class);
 
@@ -101,68 +93,51 @@ public class ProjectionData implements ISerializableObject {
     };
 
     @Column(length = 32, nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private String projectionID;
 
     @Column(length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
-    @XmlAttribute
     @DynamicSerializeElement
     private ProjectionType projectionType;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate latLonLL;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate latLonUR;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private Coordinate latLonOrigin;
 
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private double stdParallelOne;
 
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private double stdParallelTwo;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = PointAdapter.class)
     @DynamicSerializeElement
     private Point gridPointLL;
 
     @Column(nullable = false)
-    @XmlElement
-    @XmlJavaTypeAdapter(value = PointAdapter.class)
     @DynamicSerializeElement
     private Point gridPointUR;
 
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private double latIntersect;
 
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private double lonCenter;
 
     @Column(nullable = false)
-    @XmlAttribute
     @DynamicSerializeElement
     private double lonOrigin;
 
