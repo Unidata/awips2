@@ -448,7 +448,6 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     JNIEnv        *env        = NULL;
     int            pos        = 0;
     jvalue        *jargs      = NULL;
-    int           *jargTypes  = NULL;  // added by njensen
     int            foundArray = 0;   /* if params includes pyjarray instance */
     PyThreadState *_save;
     
@@ -478,10 +477,11 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     }
 
     jargs = (jvalue *) PyMem_Malloc(sizeof(jvalue) * self->lenParameters);
-    jargTypes = (int *) PyMem_Malloc(sizeof(int) * self->lenParameters);
     
     // ------------------------------ build jargs off python values
 
+    // added by njensen, hopefully 40 local references are enough per method call
+    (*env)->PushLocalFrame(env, 40);
     for(pos = 0; pos < self->lenParameters; pos++) {
         PyObject *param       = NULL;
         int       paramTypeId = -1;
@@ -493,16 +493,14 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
 
         param = PyTuple_GetItem(args, pos);                   /* borrowed */
         if(PyErr_Occurred()) {                                /* borrowed */
-            PyMem_Free(jargs);
-            PyMem_Free(jargTypes);
-            return NULL;
+            // changed by njensen
+            goto EXIT_ERROR;
         }
         
         pclazz = (*env)->GetObjectClass(env, paramType);
         if(process_java_exception(env) || !pclazz) {
-            PyMem_Free(jargs);
-            PyMem_Free(jargTypes);
-            return NULL;
+            // changed by njensen
+            goto EXIT_ERROR;
         }
         
         paramTypeId = get_jtype(env, paramType, pclazz);
@@ -511,16 +509,14 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         if(paramTypeId == JARRAY_ID)
             foundArray = 1;
         
-        jargTypes[pos] = paramTypeId;
         jargs[pos] = convert_pyarg_jvalue(env,
                                           param,
                                           paramType,
                                           paramTypeId,
                                           pos);
         if(PyErr_Occurred()) {                                /* borrowed */
-            PyMem_Free(jargs);
-            PyMem_Free(jargTypes);
-            return NULL;
+            // changed by njensen
+            goto EXIT_ERROR;
         }
 
         (*env)->DeleteLocalRef(env, paramType);
@@ -597,10 +593,6 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         if(!process_java_exception(env) && obj != NULL)
             result = pyjarray_new(env, obj);
         
-        // added by njensen to keep memory down
-        if(obj != NULL)
-               (*env)->DeleteLocalRef(env, obj);
-
         break;
     }
 
@@ -631,10 +623,6 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         if(!process_java_exception(env) && obj != NULL)
             result = pyjobject_new_class(env, obj);
         
-        // added by njensen to keep memory down
-        if(obj != NULL)
-               (*env)->DeleteLocalRef(env, obj);
-
         break;
     }
 
@@ -665,10 +653,6 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         if(!process_java_exception(env) && obj != NULL)
             result = pyjobject_new(env, obj);
         
-        // added by njensen to keep memory down
-        if(obj != NULL)
-               (*env)->DeleteLocalRef(env, obj);
-
         break;
     }
 
@@ -934,16 +918,8 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         process_java_exception(env);
     }
 
-    // added by njensen to keep memory usage down
-    for(pos = 0; pos < self->lenParameters; pos++) {
-         if(jargs[pos].l != NULL && jargTypes[pos] != JARRAY_ID)
-         {
-            (*env)->DeleteLocalRef(env, jargs[pos].l);
-         }
-    }
-
     PyMem_Free(jargs);
-    PyMem_Free(jargTypes);
+    (*env)->PopLocalFrame(env, NULL);  // added by njensen
     
     if(PyErr_Occurred())
         return NULL;
@@ -963,6 +939,12 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     }
     
     return result;
+
+// added by njensen
+EXIT_ERROR:
+   PyMem_Free(jargs);
+   (*env)->PopLocalFrame(env, NULL);
+   return NULL;
 }
 
 
