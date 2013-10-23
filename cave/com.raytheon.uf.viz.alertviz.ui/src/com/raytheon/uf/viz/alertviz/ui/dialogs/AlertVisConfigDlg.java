@@ -27,6 +27,8 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -97,6 +99,7 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 									   item update;	
  * 07 Feb 2013	 15490	   Xiaochuan   Past this object to LayoutControlsComp.
  * 26 Aug 2013   #2293     lvenable    Fixed color memory leak and cleaned up some code.
+ * 23 Oct 2013   2303      bgonzale    Old patch to fix tool tip layout.
  * 
  * </pre>
  * 
@@ -392,6 +395,11 @@ public class AlertVisConfigDlg extends Dialog implements
         mttLayout = new MonitorToolTip(layoutGroup, true);
         layoutControls = new LayoutControlsComp(layoutGroup, configData, this,
                 this);
+        layoutGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttLayout.open();
+            }
+        });
     }
 
     /**
@@ -409,6 +417,11 @@ public class AlertVisConfigDlg extends Dialog implements
 
         mttCommonSetting = new MonitorToolTip(commonSettingsGroup, true);
 
+        commonSettingsGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttCommonSetting.open();
+            }
+        });
         createCommonSettingsControls(commonSettingsGroup);
     }
 
@@ -616,7 +629,13 @@ public class AlertVisConfigDlg extends Dialog implements
         sourcesLbl.setData(MonitorToolTip.tooltipTextKey,
                 getSourcesToolTipText());
 
-        mttSource = new MonitorToolTip(sourcesLbl, true);
+        mttSource = new MonitorToolTip(sourcesLbl, false);
+
+        sourcesLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttSource.open();
+            }
+        });
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 125;
@@ -842,13 +861,13 @@ public class AlertVisConfigDlg extends Dialog implements
         priorityLbl.setData(MonitorToolTip.tooltipTextKey,
                 getPrioritiesToolTipText());
 
-        mttPriorities = new MonitorToolTip(priorityLbl, true);
+        mttPriorities = new MonitorToolTip(priorityLbl, false);
 
-        // priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
-        // public void mouseHover(MouseEvent e) {
-        // mttPriorities.open();
-        // }
-        // });
+        priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttPriorities.open();
+            }
+        });
 
         // ---------------------------------------------------------
         // Put the priority canvases on the display
