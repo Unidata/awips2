@@ -30,7 +30,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Geospatial data for a warngen configuration
  * 
  * <pre>
  * 
@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class GeospatialMetadata {
+
     @XmlAttribute
     @DynamicSerializeElement
     private String areaSource;
