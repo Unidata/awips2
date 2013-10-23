@@ -22,7 +22,6 @@ package com.raytheon.uf.common.registry.services.rest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
@@ -40,6 +39,7 @@ import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResp
  * 7/29/2013    2191        bphillip    Initial implementation
  * 9/20/2013    2385        bphillip    Added subscription backup functions
  * 10/8/2013    1682        bphillip    Added rest functions for use with the query web interface
+ * 10/23/2013   2385        bphillip    restoreSubscriptions throws JAXBException
  * </pre>
  * 
  * @author bphillip
@@ -111,25 +111,20 @@ public interface IRegistryDataAccessService {
      * @param subscriptionName
      *            The subscription to be backed up
      * @return Status message about whether the backup was successful
-     * @throws JAXBException
-     *             If marshalling/unmarshalling errors are encountered
      */
     @GET
     @Path(DATA_ACCESS_PATH_PREFIX + "backupSubscription/{subscriptionName}")
     public String backupSubscription(
-            @PathParam("subscriptionName") String subscriptionName)
-            throws JAXBException;
+            @PathParam("subscriptionName") String subscriptionName);
 
     /**
      * Backs up all subscriptions currently in the registry
      * 
      * @return Status message about whether the backup was successful
-     * @throws JAXBException
-     *             If marshalling/unmarshalling errors are encountered
      */
     @GET
     @Path(DATA_ACCESS_PATH_PREFIX + "backupAllSubscriptions/")
-    public String backupAllSubscriptions() throws JAXBException;
+    public String backupAllSubscriptions();
 
     /**
      * Restores the specified subscription
@@ -137,13 +132,11 @@ public interface IRegistryDataAccessService {
      * @param subscriptionName
      *            The name of the subscription to restore
      * @return Status message about whether the backup was successful
-     * @throws JAXBException
      */
     @GET
     @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscription/{subscriptionName}")
     public String restoreSubscription(
-            @PathParam("subscriptionName") String subscriptionName)
-            throws JAXBException;
+            @PathParam("subscriptionName") String subscriptionName);
 
     /**
      * Restores any subscriptions that were previously backed up
