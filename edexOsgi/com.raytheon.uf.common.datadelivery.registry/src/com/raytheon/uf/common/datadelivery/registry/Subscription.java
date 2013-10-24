@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * May 15, 2013 1040       mpduff       Changed officeId to a set.
  * Jul 11, 2013 2106       djohnson     SubscriptionPriority allows comparison.
  * Sept 30,2013 1797       dhladky      Abstracted and genericized.
+ * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
  * 
  * </pre>
  * 
@@ -141,6 +142,9 @@ public interface Subscription<T extends Time, C extends Coverage> {
 
     /** Route slot */
     String ROUTE_SLOT = "route";
+    
+    /** Originating Site slot */
+    String ORIGINATING_SITE_SLOT = "originatingSite";
 
     /**
      * Get subscription name.
@@ -614,4 +618,16 @@ public interface Subscription<T extends Time, C extends Coverage> {
      *            Office Id to add
      */
     void addOfficeID(String officeId);
+    
+    /**
+     * Gets the original site the subscription was created as
+     * @return
+     */
+    String getOriginatingSite();
+    
+    /**
+     * Sets the originating Site the subscription was created as
+     * @param originatingSite
+     */
+    void setOriginatingSite(String originatingSite);
 }
