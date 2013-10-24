@@ -63,6 +63,7 @@ import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -86,6 +87,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 5/21/2013    2022       bphillip    Reworked how notifications are handled
  * 9/11/2013    2254       bphillip    Cleaned up handling of notifications and removed unneccessary code
  * 10/20/2013    1682       bphillip    Added synchronous notification delivery
+ * 10/23/2013   1538       bphillip    Added log message denoting when processing is complete and time duration
  * 
  * </pre>
  * 
@@ -117,6 +119,7 @@ public class NotificationListenerImpl implements NotificationListener {
 
     @Override
     public void onNotification(NotificationType notification) {
+        long startTime = TimeUtil.currentTimeMillis();
 
         String clientBaseURL = EbxmlObjectUtil.getClientHost(wsContext);
         RegistryType sourceRegistry = registryDao
@@ -127,7 +130,10 @@ public class NotificationListenerImpl implements NotificationListener {
         } else {
             statusHandler
                     .info("Received notification from Registry Federation member at ["
-                            + sourceRegistry.getId() + "]");
+                            + sourceRegistry.getId()
+                            + "("
+                            + clientBaseURL
+                            + ")]");
         }
 
         List<AuditableEventType> events = notification.getEvent();
@@ -199,6 +205,9 @@ public class NotificationListenerImpl implements NotificationListener {
                 }
             }
         }
+        statusHandler.info("Processing notification id ["
+                + notification.getId() + "] completed in "
+                + (TimeUtil.currentTimeMillis() - startTime) + " ms");
     }
 
     @Override
