@@ -32,6 +32,7 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.RemoveObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.UpdateActionType;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.UpdateObjectsRequest;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
@@ -101,6 +102,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor;
  * Jun 24, 2013 2106       djohnson    Requires a transaction to already be open.
  * 8/1/2013     1693       bphillip    Added check references and refactored submit objects to conform to EBXML 4.0 spec
  * 9/11/2013    2254       bphillip    Cleaned up creation of auditable events
+ * 10/23/2013   1538       bphillip    Changed QueryRequest constructor call
  * 
  * 
  * </pre>
@@ -208,8 +210,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (query != null) {
             ResponseOptionType responseOption = new ResponseOptionType(
                     QueryReturnTypes.REGISTRY_OBJECT, true);
-            QueryResponse queryResponse = queryManager.executeQuery(
-                    responseOption, query);
+            QueryRequest queryRequest = new QueryRequest(
+                    "Remove objects query for request id[" + request.getId()
+                            + "]", query, responseOption);
+            QueryResponse queryResponse = queryManager
+                    .executeQuery(queryRequest);
             if (queryResponse.getStatus()
                     .equals(RegistryResponseStatus.SUCCESS)) {
                 statusHandler.info("Remove objects query successful");
@@ -676,8 +681,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (query != null) {
             ResponseOptionType responseOption = new ResponseOptionType(
                     QueryReturnTypes.REGISTRY_OBJECT, true);
-            QueryResponse queryResponse = queryManager.executeQuery(
-                    responseOption, query);
+            QueryRequest queryRequest = new QueryRequest(
+                    "Update objects query for request[" + request.getId() + "]",
+                    query, responseOption);
+            QueryResponse queryResponse = queryManager
+                    .executeQuery(queryRequest);
             if (queryResponse.getStatus()
                     .equals(RegistryResponseStatus.SUCCESS)) {
                 statusHandler.info("Update objects query successful");
