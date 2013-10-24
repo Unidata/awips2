@@ -141,6 +141,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Sept 30, 2013  1797     dhladky     separated Time from GriddedTime
  * Oct 11, 2013   2386     mpduff      Refactor DD Front end.
  * Oct 15, 2013   2477     mpduff      Fix bug in group settings.
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * 
  * </pre>
  * 
@@ -1545,6 +1546,10 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
      *            The subscription to get the registry id
      */
     private void setSubscriptionId(Subscription sub) {
+        if (sub.getOriginatingSite() == null) {
+            LocalizationManager lm = LocalizationManager.getInstance();
+            sub.setOriginatingSite(lm.getCurrentSite());
+        }
         String id = RegistryUtil.getRegistryObjectKey(sub);
         sub.setId(id);
     }
