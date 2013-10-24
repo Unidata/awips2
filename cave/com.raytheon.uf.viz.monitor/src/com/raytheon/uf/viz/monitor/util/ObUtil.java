@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.monitor.util;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
@@ -33,7 +32,6 @@ import com.raytheon.uf.common.monitor.data.ObConst.ThreatLevel;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.wxmath.CalcRH;
 import com.raytheon.uf.viz.monitor.data.ObReport;
-import com.raytheon.viz.aviation.model.CloudGroup;
 
 /**
  * This class contains utility methods.
@@ -47,6 +45,7 @@ import com.raytheon.viz.aviation.model.CloudGroup;
  * 2/25/2009    2047       grichard    Added SNOW report generation method.
  * Jan 19, 2010 4240       zhao        Modified generateObReportSnow method
  * Aug 14, 2013 2262       dgilling    Use new wxmath method for calcrh.
+ * Oct 23, 2013 2361       njensen     Removed two unused methods
  * 
  * </pre>
  * 
@@ -164,18 +163,6 @@ public final class ObUtil {
     }
 
     /**
-     * Method that gets the time that the fog threat level file for SAFESEAS was
-     * last modified.
-     * 
-     * @return the time when last modified
-     */
-    private static Date readFogThreatTime() {
-        // TODO Obtain the actual time that the fog threat level file for
-        // SafeSeas was last modified.
-        return getDropTime();
-    }
-
-    /**
      * This method first gets the time that the fog threat level file for
      * SAFESEAS was last modified to determine whether or not the most recent
      * fog threat level is too old. If it is not too old, the fog threat level
@@ -281,63 +268,6 @@ public final class ObUtil {
         getCeiling(obReport, skyCov, vertVis);
 
         return obReport;
-    }
-
-    /**
-     * This method builds a string representing the present sky coverage given a
-     * set of sky coverage data from an actual observation (metar). The
-     * mathematical set appears to contain elements that originally were space
-     * delimited strings. The set is of course unordered. Guidance/clues for
-     * detecting the implied order comes from NWSI(s).
-     * 
-     * @param skyCov
-     *            -- the set of sky coverage data
-     * @return -- a string representing the sky cover
-     */
-    public static String buildPresentSkyCov(Set<SkyCover> skyCov) {
-        StringBuilder sb = new StringBuilder();
-        /** Sky Conditions */
-        ArrayList<CloudGroup> cloudGroup = new ArrayList<CloudGroup>();
-        // Capture the distinct parts of the sky coverage. Then
-        // reorder these parts using guidance from an NWSI.
-        // Put the cloud group settings into the observation.
-        try {
-            for (SkyCover sc : skyCov) {
-                CloudGroup cldGp = new CloudGroup();
-                cldGp.setCldCat(CloudGroup.CloudCategory.valueOf(sc.getType()));
-                if (sc.getHeight() != null) {
-                    cldGp.setCldHgt(sc.getHeight());
-                } else {
-                    cldGp.setCldHgt(-1);
-                }
-                if (sc.getGenus() != null) {
-                    cldGp.setGenus(sc.getGenus());
-                }
-                cloudGroup.add(cldGp);
-            }
-        } catch (RuntimeException e) {
-            // ignore cloud cover that is null
-        }
-        // Initialize the present sky cover string to the empty string.
-        sb.append("");
-        // Sky Coverage
-        for (CloudGroup cg : cloudGroup) {
-            sb.append(cg.getCldCat().value());
-            if (cg.getCldHgt() > 0) {
-                int cldHgtHds = cg.getCldHgt() / 100;
-                if (cldHgtHds < 10) {
-                    sb.append("00");
-                } else if (cldHgtHds < 100) {
-                    sb.append("0");
-                }
-                sb.append(cldHgtHds);
-            }
-            if (cg.getGenus() != null) {
-                sb.append(cg.getGenus());
-            }
-            sb.append(" ");
-        }
-        return sb.toString();
     }
 
     /**
