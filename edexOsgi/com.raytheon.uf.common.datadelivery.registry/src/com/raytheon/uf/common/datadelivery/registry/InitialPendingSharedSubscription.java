@@ -41,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Apr 02, 2013 1841       djohnson    Initial creation
  * Sept 30, 2013 1797      dhladky     Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * 
  * </pre>
  * 
@@ -53,7 +54,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
+        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT})
 public class InitialPendingSharedSubscription<T extends Time, C extends Coverage> extends SharedSubscription<T, C>
         implements InitialPendingSubscription<T, C> {
     private static final long serialVersionUID = 2779084460608459754L;
