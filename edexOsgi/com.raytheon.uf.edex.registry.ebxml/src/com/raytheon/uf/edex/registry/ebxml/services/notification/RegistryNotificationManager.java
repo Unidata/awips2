@@ -20,20 +20,18 @@
 
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
@@ -47,6 +45,7 @@ import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager.NotificationListenerWrapper;
@@ -72,6 +71,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 9/30/2013    2191        bphillip    Fixing federated replication
  * 10/8/2013    1682        bphillip    Moved get objects of interest from RegistrySubscriptionManager and javadoc
  * 10/20/2013   1682        bphillip    Added synchronous notification delivery
+ * 10/23/2013   1538        bphillip    Adding log messages and changed methods to handle DateTime value on 
+ *                                      AuditableEvents instead of integer
  * </pre>
  * 
  * @author bphillip
@@ -114,13 +115,13 @@ public class RegistryNotificationManager {
     public List<ObjectRefType> getObjectsOfInterest(
             SubscriptionType subscription) throws MsgRegistryException {
         // Get objects that match selector query
-        QueryType selectorQuery = subscription.getSelector();
-        ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
-                .createResponseOptionType();
-        responseOption.setReturnType(QueryReturnTypes.OBJECT_REF);
-        QueryResponse queryResponse = queryManager.executeQuery(responseOption,
-                selectorQuery);
-        return queryResponse.getObjectRefList().getObjectRef();
+        return queryManager
+                .executeQuery(
+                        new QueryRequest("Objects of Interest Query for ["
+                                + subscription.getId() + "]", subscription
+                                .getSelector(), new ResponseOptionType(
+                                QueryReturnTypes.OBJECT_REF, false)))
+                .getObjectRefList().getObjectRef();
     }
 
     /**
@@ -186,12 +187,17 @@ public class RegistryNotificationManager {
         statusHandler.info("Sending notification [" + notification.getId()
                 + "] to address [" + address + "]");
 
+        long sentTime = TimeUtil.currentTimeMillis();
         try {
             listener.notificationListener.synchronousNotification(notification);
         } catch (MsgRegistryException e) {
             statusHandler.error("Notification [" + notification.getId()
                     + " failed to address [" + address + "]", e);
             throw e;
+        } finally {
+            statusHandler.info("Notification [" + notification.getId()
+                    + "] transmission took ["
+                    + (TimeUtil.currentTimeMillis() - sentTime) + "] ms");
         }
         statusHandler.info("Notification [" + notification.getId()
                 + " successfully sent to address [" + address + "]");
@@ -199,7 +205,7 @@ public class RegistryNotificationManager {
         // Keep a record of when the auditable event was sent to
         // the target
         auditableEventDao.persistSendDate(notification.getEvent(),
-                notification.getSubscription(), address);
+                notification.getSubscription(), address, sentTime);
     }
 
     /**
@@ -298,9 +304,9 @@ public class RegistryNotificationManager {
             }
 
             // Checks to see if this event was already sent to this destination
-            BigInteger sentDate = auditableEventDao.getSendTime(event,
+            Long sentDate = auditableEventDao.getSendTime(event,
                     notification.getSubscription(), serviceAddress);
-            if (sentDate == null) {
+            if (sentDate == 0) {
                 /*
                  * The sent date was not found. This event has not yet been sent
                  * to this destination. Iterate through the actions and make
