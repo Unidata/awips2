@@ -78,6 +78,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 10/23/2013    1538       bphillip    Changed Hibernate cascade type on objectRef field
  * </pre>
  * 
  * @author bphillip
@@ -102,7 +103,7 @@ public class ObjectRefListType {
     @XmlElement(name = "ObjectRef")
     @DynamicSerializeElement
     @ManyToMany
-    @Cascade({ CascadeType.SAVE_UPDATE })
+    @Cascade({ CascadeType.ALL })
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<ObjectRefType> objectRef;
 
