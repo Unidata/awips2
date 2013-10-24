@@ -34,6 +34,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -89,6 +90,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Apr 23, 2013 1910       djohnson     Don't allow NPE on registry object list, remove non ANSI Javadoc.
  * 5/21/2013    2022       bphillip     Set return type on call to findAssociations
  * 10/8/2013    1682       bphillip    Refactored querying
+ * 10/23/2013   1682       bphillip     Returns empty query result if no ids were found
  * 
  * </pre>
  * 
@@ -163,6 +165,9 @@ public class FindAssociatedObjects extends RegistryQueryPlugin {
         }
 
         try {
+            if (CollectionUtil.isNullOrEmpty(ids)) {
+                return new QueryResponse();
+            }
             return createResponse(registryObjectDao.getById(ids));
         } catch (EbxmlRegistryException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
