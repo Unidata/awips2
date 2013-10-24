@@ -13,7 +13,6 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.12.1153",
  com.raytheon.uf.common.dataplugin.fssobs;bundle-version="1.0.0",
  com.raytheon.edex.plugin.obs;bundle-version="1.12.1172",
  com.raytheon.uf.common.dataplugin.sfcobs;bundle-version="1.12.1174",
- com.raytheon.uf.edex.plugin.mesowest;bundle-version="1.12.1174",
  com.raytheon.uf.edex.decodertools
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.fssobs,

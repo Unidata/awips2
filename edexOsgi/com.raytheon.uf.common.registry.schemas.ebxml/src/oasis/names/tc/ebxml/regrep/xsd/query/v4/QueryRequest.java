@@ -21,7 +21,6 @@
 package oasis.names.tc.ebxml.regrep.xsd.query.v4;
 
 import java.math.BigInteger;
-import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -32,7 +31,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -75,6 +73,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 10/23/2013    1538       bphillip    Removed unused constructors
  * </pre>
  * 
  * @author bphillip
@@ -176,40 +175,11 @@ public class QueryRequest extends RegistryRequestType {
 
     }
 
-    public QueryRequest(String id, String comment, Collection<SlotType> slots,
-            ResponseOptionType responseOption, QueryType query,
-            Boolean federated, String federation, String format, String lang,
-            Integer startIndex, Integer maxResults, Integer depth,
-            Boolean matchOlderVersions) {
-        super(id, comment, slots);
-        this.responseOption = responseOption;
+    public QueryRequest(String id, QueryType query,
+            ResponseOptionType responseOption) {
+        this.id = id;
         this.query = query;
-        this.federated = federated;
-        this.federation = federation;
-        this.format = format;
-        this.lang = lang;
-        this.startIndex = BigInteger.valueOf(startIndex.longValue());
-        this.maxResults = BigInteger.valueOf(maxResults.longValue());
-        this.depth = BigInteger.valueOf(depth.longValue());
-        this.matchOlderVersions = matchOlderVersions;
-    }
-
-    public QueryRequest(String id, String comment,
-            ResponseOptionType responseOption, QueryType query,
-            Boolean federated, String federation, String format, String lang,
-            Integer startIndex, Integer maxResults, Integer depth,
-            Boolean matchOlderVersions) {
-        super(id, comment, null);
         this.responseOption = responseOption;
-        this.query = query;
-        this.federated = federated;
-        this.federation = federation;
-        this.format = format;
-        this.lang = lang;
-        this.startIndex = BigInteger.valueOf(startIndex.longValue());
-        this.maxResults = BigInteger.valueOf(maxResults.longValue());
-        this.depth = BigInteger.valueOf(depth.longValue());
-        this.matchOlderVersions = matchOlderVersions;
     }
 
     @Override
