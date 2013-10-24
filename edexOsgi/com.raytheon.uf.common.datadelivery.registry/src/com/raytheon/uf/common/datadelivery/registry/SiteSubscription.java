@@ -62,6 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 13, 2013 2095        djohnson    Duplicate 13.5.1 change so bandwidth manager deletes subscriptions correctly.
  * Jun 24, 2013 2106        djohnson    Add copy constructor.
  * Sept 30, 2013 1797       dhladky     Some Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * 
  * </pre>
  * 
@@ -72,7 +73,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
-        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT })
+        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT})
 @DynamicSerialize
 public class SiteSubscription<T extends Time, C extends Coverage> extends RecurringSubscription<T, C> {
     private static final long serialVersionUID = -6422673887457060034L;
