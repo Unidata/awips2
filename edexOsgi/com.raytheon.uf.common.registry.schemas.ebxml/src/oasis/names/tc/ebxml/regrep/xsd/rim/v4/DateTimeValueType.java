@@ -75,6 +75,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 10/23/2013    1538       bphillip    Added setTime method
  * </pre>
  * 
  * @author bphillip
@@ -107,15 +108,7 @@ public class DateTimeValueType extends ValueType {
     }
 
     public DateTimeValueType(long time) {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(time);
-        try {
-            this.dateTimeValue = DatatypeFactory.newInstance()
-                    .newXMLGregorianCalendar(cal);
-        } catch (DatatypeConfigurationException e) {
-            throw new RuntimeException("Error creating XMLGregorianCalendar!",
-                    e);
-        }
+        setTime(time);
     }
 
     @Override
@@ -129,9 +122,22 @@ public class DateTimeValueType extends ValueType {
      * @return possible object is {@link XMLGregorianCalendar }
      * 
      */
+    @SuppressWarnings("unchecked")
     @Override
     public XMLGregorianCalendar getValue() {
         return dateTimeValue;
+    }
+
+    public void setTime(long time) {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(time);
+        try {
+            this.dateTimeValue = DatatypeFactory.newInstance()
+                    .newXMLGregorianCalendar(cal);
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException("Error creating XMLGregorianCalendar!",
+                    e);
+        }
     }
 
     /**

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,6 +86,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 9/11/2013    2354        bphillip    Added handling of deleted objects
  * 9/30/2013    2191        bphillip    Fixing federated replication
  * 10/8/2013    1682        bphillip    Moved getObjectsOfInterest into RegistryNotificationManager
+ * 10/23/2013   1538        bphillip    Removed debug code and added a change to properly update subscription run time
+ *                                      to not create duplicate slots on objects
  * </pre>
  * 
  * @author bphillip
@@ -171,8 +172,6 @@ public class RegistrySubscriptionManager implements
     public RegistrySubscriptionManager(boolean subscriptionProcessingEnabled)
             throws JAXBException {
         this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
-        Properties props = System.getProperties();
-        System.out.println();
     }
 
     @Override
@@ -393,7 +392,9 @@ public class RegistrySubscriptionManager implements
                         new DateTimeValueType(time));
                 subscription.getSlot().add(lastRunTimeSlot);
             } else {
-                lastRunTimeSlot.setSlotValue(new DateTimeValueType(time));
+                DateTimeValueType dateTime = (DateTimeValueType) lastRunTimeSlot
+                        .getSlotValue();
+                dateTime.setTime(time);
             }
         } catch (Exception e) {
             throw new EbxmlRegistryException(
