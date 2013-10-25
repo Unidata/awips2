@@ -116,7 +116,6 @@ if [ "${1}" = "-64bit" ]; then
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
    buildJava
-   buildRPM "awips2"
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-notification"
 
@@ -155,7 +154,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
@@ -205,7 +203,6 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2"
    unpackHttpdPypies
    if [ $? -ne 0 ]; then
       exit 1
@@ -250,6 +247,7 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-common-base"
+   buildRPM "awips2-edex-environment"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -272,6 +270,30 @@ if [ "${1}" = "-ldm" ]; then
 
    exit 0
 fi
+
+
+if [ "${1}" = "-awips2" ]; then
+   buildRPM "awips2"
+
+   exit 0
+fi
+
+# Use the custom flag for selecting specific rpms to build
+if [ "${1}" = "-custom" ]; then
+   unpackHttpdPypies
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi  
+   buildRPM "awips2-httpd-pypies"
+   buildRPM "awips2-adapt-native"
+   buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-ant"
+   #buildRPM "awips2-java"
+   #buildRPM "awips2-tools"
+
+   exit 0
+fi
+
 
 if [ "${1}" = "-package" ]; then
    repository_directory="awips2-repository-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
