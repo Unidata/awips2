@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.aviation.advisory.adapter;
 import java.util.Collection;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.aviation.advisory.AdvisoryRecord;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 
@@ -34,17 +33,18 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 2, 2009            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 02, 2009           bsteffen    Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public abstract class AbstractAdvisoryDataAdapter implements
-        ISerializableObject {
+public abstract class AbstractAdvisoryDataAdapter {
 
     public abstract Collection<AdvisoryRecord> convertRecords(
             Collection<PluginDataObject> records);
