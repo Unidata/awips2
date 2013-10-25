@@ -105,6 +105,9 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Changed to call D2DGridDatabase.getDatabase instead of calling 
  *                                     the constructor directly to ensure the data exists before creating
  *                                     the D2DGridDatabase object
+ * 10/02/13     #2444      randerso    Fix error handling when creating IFPGridDatabases. 
+ *                                     DO NOT ATTEMPT TO MERGE THIS CHANGE INTO 14.2 as the GFE
+ *                                     server code has been significantly refactored.
  * 
  * </pre>
  * 
@@ -1262,9 +1265,15 @@ public class GridParmManager {
                     db = TopoDatabaseManager.getTopoDatabase(dbId.getSiteId());
 
                 } else {
-                    db = new IFPGridDatabase(dbId);
-                    if (db.databaseIsValid()) {
-                        ((IFPGridDatabase) db).updateDbs();
+                    try {
+                        db = new IFPGridDatabase(dbId);
+                        if (db.databaseIsValid()) {
+                            ((IFPGridDatabase) db).updateDbs();
+                        }
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Error creating IFPGridDatbase for " + dbId, e);
+                        db = null;
                     }
                 }
             }
