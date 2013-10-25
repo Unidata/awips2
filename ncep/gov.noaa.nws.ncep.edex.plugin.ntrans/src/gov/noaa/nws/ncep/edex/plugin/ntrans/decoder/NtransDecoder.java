@@ -1,3 +1,4 @@
+ * 10/2013      B. Hebbard  Modify model name inference from metafile name
 package gov.noaa.nws.ncep.edex.plugin.ntrans.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
@@ -366,6 +367,61 @@ public class NtransDecoder extends AbstractDecoder {
          */
     }
 
+	private enum Model { 
+	    //TODO - Remove this, to make decoder agnostic w.r.t. list of available models.
+	    //       We do this temporarily because we don't yet know the possible formats
+	    //       of filename strings we're going to be fed, so for now we just look for
+	    //       known model names appearing anywhere in the file name.
+	    //       NOTE:  Sequence is important only insofar as any model name must appear
+	    //              after all model names of which it is a proper substring.
+	    //              Also, OPC_ENC comes first, since its metafiles may contain other
+	    //              model substrings
+        OPC_ENS,
+	    CMCE_AVGSPR,
+	    CMCE,
+	    CMCVER,
+	    CMC,
+	    CPC,
+	    DGEX,
+	    ECENS_AVGSPR,
+	    ECENS,
+	    ECMWFVER,
+	    ECMWF_HR,
+	    ECMWF,
+	    ENSVER,
+	    FNMOCWAVE,
+	    GDAS,
+	    GEFS_AVGSPR,
+	    GEFS,
+	    GFSP,
+	    GFSVERP,
+	    GFSVER,
+	    GFS,
+	    GHM,
+	    HPCQPF,
+	    HPCVER,
+	    HWRF,
+	    ICEACCR,
+	    JMAP,
+	    JMA,
+	    MEDRT,
+	    NAEFS,
+	    NAM20,
+	    NAM44,
+	    NAMVER,
+	    NAM,
+	    NAVGEM,
+	    NOGAPS,
+	    NWW3P,
+	    NWW3,
+	    RAPP,
+	    RAP,
+	    SREFX,
+	    SST,
+	    UKMETVER,
+	    UKMET,
+	    VAFTAD };
+	
     private String inferModel(String fileName) {
 
         // Infer the model name from the file name
@@ -384,13 +440,30 @@ public class NtransDecoder extends AbstractDecoder {
         fileName.contains("_GFS")) {
             modelName = "vaftad";
         } else if (fileName.contains("_2")) {
+		
+		/*
             modelName = fileName.substring(0, fileName.indexOf("_2"));
             if (modelName.equals("jma")) {
                 modelName = "jmap";
             }
         }
-
+		
         return modelName;
+		*/
+		
+		else {
+		    for (Model model : Model.values()) {
+		        if (fileName.toLowerCase().contains(model.name().toLowerCase())) {
+		            modelName = model.name().toLowerCase();
+		            break;
+		        }
+		    }
+	        if (modelName.equals("jma")) {
+	              modelName = "jmap";
+            }
+	        return modelName;
+		}
+		return "other";  // unrecognized
     }
 
     private ByteOrder determineEndianess(ByteBuffer byteBuffer) {
