@@ -24,10 +24,12 @@ import java.io.File;
 import org.eclipse.swt.layout.FormData;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 
 /**
@@ -36,9 +38,11 @@ import com.raytheon.uf.viz.core.procedures.Bundle;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 8, 2009            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 08, 2009           mschenke    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Unmarshal with Bundle.unmarshalBundle.
+ * 
  * 
  * </pre>
  * 
@@ -58,22 +62,26 @@ public interface IInsetMapContainer {
 
     /** Utility class for loading the inset map from a bundle */
     public static class InsetMapUtil {
+
+        private static final transient IUFStatusHandler statusHandler = UFStatus
+                .getHandler(IInsetMapContainer.class);
+
         public static IRenderableDisplay loadInsetMap(
                 IRenderableDisplay parentDisplay) {
             File bundle = PathManagerFactory.getPathManager().getStaticFile(
                     "insetmap" + File.separator + "inset.xml");
             try {
-                Bundle b = (Bundle) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(bundle.getAbsolutePath());
+                Bundle b = Bundle.unmarshalBundle(bundle);
                 InsetMapRenderableDisplay display = (InsetMapRenderableDisplay) b
                         .getDisplays()[0];
-                display.getDescriptor().getResourceList().instantiateResources(
-                        display.getDescriptor(), true);
+                display.getDescriptor().getResourceList()
+                        .instantiateResources(display.getDescriptor(), true);
                 display.setExtent(new PixelExtent(0, 1000, 0, 1000));
                 display.setParentDisplay(parentDisplay);
                 return display;
-            } catch (SerializationException e) {
-                e.printStackTrace();
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
             return null;
         }
