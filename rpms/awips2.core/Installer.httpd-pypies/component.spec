@@ -8,12 +8,11 @@ Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.2.3
 # This Is Officially Release: 22%{?dist}
-Release: 30%{?dist}
+Release: 31%{?dist}
 URL: http://httpd.apache.org/
 Prefix: /awips2/httpd_pypies
 Source0: http://www.apache.org/dist/httpd/httpd-%{version}.tar.gz
 Source1: centos_index.html
-Source3: httpd-pypies.logrotate
 Source4: httpd-pypies.init
 Source5: httpd.sysconf
 Source8: centos_powered_by_rh.png
@@ -362,11 +361,11 @@ ln -s ../..%{_libdir}/httpd/modules $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/http
 mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
 install -m755 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies \
     ${RPM_BUILD_ROOT}/etc/init.d
-
-# install log rotation stuff
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-install -m644 $RPM_SOURCE_DIR/httpd-pypies.logrotate \
-	$RPM_BUILD_ROOT/etc/logrotate.d/httpd-pypies
+    
+# install cron job
+mkdir -p ${RPM_BUILD_ROOT}/etc/cron.daily
+install -m755 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/cron.daily/pypiesLogCleanup.sh \
+	${RPM_BUILD_ROOT}/etc/cron.daily
 
 # fix man page paths
 sed -e "s|/usr/local/apache2/conf/httpd.conf|/etc/httpd/conf/httpd.conf|" \
@@ -571,7 +570,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/proxy_ajp.conf
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf/magic
 
-%config(noreplace) %{_sysconfdir}/logrotate.d/httpd-pypies
+%{_sysconfdir}/cron.daily/pypiesLogCleanup.sh
 %config(noreplace) %{_sysconfdir}/init.d/httpd-pypies
 
 %dir /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d
