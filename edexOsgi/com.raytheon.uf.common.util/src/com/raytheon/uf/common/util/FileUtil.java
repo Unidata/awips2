@@ -30,12 +30,13 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Contains common file utilities. Methods are generally static to use without a
@@ -54,11 +55,13 @@ import java.util.zip.GZIPOutputStream;
  * Jun 28, 2012 0819       djohnson    Add write method.
  * Jul 06, 2012        798 jkorman     Added more robust {@link #copyFile}. Added methods
  *                                     to create temporary directories and files.
- * 02/15/2013        #1597 randerso    Fixed error when copying empty files
+ * Feb 15, 2013 1597       randerso    Fixed error when copying empty files
  * Feb 15, 2013 1638       mschenke    Moved EOL field from edex.common Util
  * Mar 11, 2013 1645       djohnson    Added file modification watcher.
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * May 16, 2013 1966       rferrel     Add sizeOfDirectory and listDirFiles method.
+ * Oct  9, 2013 2467       randerso    Change coypFile to use apache instead of FileChannel 
+ *                                     to improve memory utilization
  * 
  * </pre>
  * 
@@ -74,6 +77,9 @@ public class FileUtil {
     private static final Pattern VALID_FILENAME = Pattern
             .compile("^[A-Za-z0-9._\\- ]+$");
 
+    /**
+     * regex to match both Linux and Windows file separators
+     */
     public final static String fileSeparatorRegex = "[/\\\\]";
 
     /**
@@ -134,7 +140,7 @@ public class FileUtil {
             File entry = entries[i];
             // If there is no filter or the filter accepts the
             // file / directory, add it to the list
-            if (filter == null || filter.accept(directory, entry.getName())) {
+            if ((filter == null) || filter.accept(directory, entry.getName())) {
                 files.add(entry);
             }
 
@@ -152,9 +158,12 @@ public class FileUtil {
      * List files/directories that match a FileFilter.
      * 
      * @param directory
+     *            source directory
      * @param filter
+     *            file filter
      * @param recurse
-     * @return
+     *            true to recursively walk the directory tree
+     * @return list of files in directory matching filter
      */
     public static List<File> listDirFiles(File directory, FileFilter filter,
             boolean recurse) {
@@ -171,7 +180,7 @@ public class FileUtil {
         // Go over entries
         for (File entry : entries) {
             files.add(entry);
-            if (recurse && filter != null && entry.isDirectory()) {
+            if (recurse && (filter != null) && entry.isDirectory()) {
                 files.addAll(listDirFiles(entry, filter, recurse));
             }
         }
@@ -241,19 +250,7 @@ public class FileUtil {
                         file));
             }
         } else {
-
-            InputStream in = new FileInputStream(source);
-            OutputStream out = new FileOutputStream(destination);
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-
-            in.close();
-            out.close();
-
+            copyFile(source, destination);
         }
     }
 
@@ -361,24 +358,13 @@ public class FileUtil {
     }
 
     /**
-     * Copy a file to a another file.
+     * Read the contents of a file into a string
      * 
-     * @param fileToCopy
-     *            The source file. This file reference must exist.
-     * @param outputFile
-     *            The destination file. This file may exist, if so it will be
-     *            overwritten.
+     * @param file
+     *            file to be read
+     * @return string containing the file contents
      * @throws IOException
-     *             An error occurred while copying the data.
-     * @throws NullPointerException
-     *             Either the source or target file references are null.
      */
-    public static void copyFile(File fileToCopy, File outputFile)
-            throws IOException {
-        // Copy the entire file.
-        copyFile(fileToCopy, outputFile, 0);
-    }
-
     public static String file2String(File file) throws IOException {
         return new String(file2bytes(file));
     }
@@ -415,8 +401,9 @@ public class FileUtil {
             // Read in the bytes
             int offset = 0;
             int numRead = 0;
-            while (offset < bytes.length
-                    && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+            while ((offset < bytes.length)
+                    && ((numRead = is
+                            .read(bytes, offset, bytes.length - offset)) >= 0)) {
                 offset += numRead;
             }
 
@@ -500,9 +487,9 @@ public class FileUtil {
                 // Read in the bytes
                 int offset = 0;
                 int numRead = 0;
-                while (offset < bytes.length
-                        && (numRead = is.read(bytes, offset, bytes.length
-                                - offset)) >= 0) {
+                while ((offset < bytes.length)
+                        && ((numRead = is.read(bytes, offset, bytes.length
+                                - offset)) >= 0)) {
                     offset += numRead;
                 }
 
@@ -546,6 +533,8 @@ public class FileUtil {
      *            The data to store
      * @param outFile
      *            The file to write this data
+     * @param compress
+     *            if true file will be compressed using gzip
      * @throws IOException
      */
     public static void bytes2File(byte[] outBytes, File outFile,
@@ -564,7 +553,7 @@ public class FileUtil {
 
             // only write out buffer at a time
             for (int counter = 0; counter < outBytes.length; counter += buffer) {
-                if ((outBytes.length - counter) - buffer >= 0) {
+                if (((outBytes.length - counter) - buffer) >= 0) {
                     out.write(outBytes, counter, buffer);
                 } else {
                     out.write(outBytes, counter, (outBytes.length - counter));
@@ -627,7 +616,7 @@ public class FileUtil {
 
         String replacement = (File.separatorChar == '\\') ? "\\\\"
                 : File.separator;
-        if (aPath != null && aPath.length() > 0) {
+        if ((aPath != null) && (aPath.length() > 0)) {
             return aPath.replaceAll(fileSeparatorRegex, replacement);
         } else {
             return aPath;
@@ -643,9 +632,9 @@ public class FileUtil {
      */
     public static String edexPath(String aPath) {
 
-        if (aPath != null && aPath.length() > 0) {
+        if ((aPath != null) && (aPath.length() > 0)) {
             // Remove drive letter
-            if (aPath.length() > 1 && aPath.charAt(1) == ':') {
+            if ((aPath.length() > 1) && (aPath.charAt(1) == ':')) {
                 aPath = aPath.substring(2);
             }
             return aPath.replace("\\", "/");
@@ -683,92 +672,68 @@ public class FileUtil {
     }
 
     /**
-     * Copy a file from one location to another. The file copy may begin at some
-     * specified position within the source file.
+     * Copy a file to another file.
      * 
      * @param source
      *            The source file. This file reference must exist.
-     * @param target
+     * @param destination
      *            The destination file. This file may exist, if so it will be
      *            overwritten.
-     * @param position
-     *            The start position within the source file where the copy
-     *            operation will begin. The position must be greater than or
-     *            equal to zero, and less than the file length of the source.
-     * @return Was the required data copied to the target file.
      * @throws IOException
      *             An error occurred while copying the data.
      * @throws IllegalArgumentException
-     *             The position is less than zero or greater than the length of
-     *             the source file or either of the source, target files are
-     *             null.
+     *             Either the source or target file references are null.
      */
-    public static boolean copyFile(File source, File target, int position)
+    public static void copyFile(File source, File destination)
             throws IOException {
-        boolean status = false;
-        if (source != null) {
-            if (target != null) {
-                if ((position >= 0) && (position <= source.length())) {
 
-                    FileInputStream fis = null;
-                    FileOutputStream fos = null;
-                    try {
-                        fis = new FileInputStream(source);
-                        FileChannel fci = fis.getChannel();
-
-                        fos = new FileOutputStream(target);
-                        FileChannel fco = fos.getChannel();
-
-                        long count = source.length() - position;
-
-                        long transfered = fci.transferTo(position, count, fco);
-                        // ensure we copied all of the data.
-                        status = (transfered == count);
-                    } finally {
-                        String cause = null;
-                        try {
-                            close(fis);
-                        } catch (IOException e) {
-                            cause = String.format(
-                                    "copyFile.source.close[%s][%s]", e
-                                            .getClass().getName(), e
-                                            .getMessage());
-                        }
-                        try {
-                            close(fos);
-                        } catch (IOException e) {
-                            if (cause == null) {
-                                cause = String.format(
-                                        "copyFile.target.close[%s][%s]", e
-                                                .getClass().getName(), e
-                                                .getMessage());
-                            } else {
-                                cause = String.format(
-                                        "%s copyFile.target.close[%s][%s]",
-                                        cause, e.getClass().getName(),
-                                        e.getMessage());
-                            }
-                        }
-                        // One or more closes failed. Construct and throw an
-                        // exception.
-                        if (cause != null) {
-                            throw new IOException(cause);
-                        }
-                    }
-                } else {
-                    String msg = String.format(
-                            "position [%d] is out of range. Max is [%d]",
-                            position, source.length());
-                    throw new IllegalArgumentException(msg);
-                }
-            } else {
-                throw new IllegalArgumentException(
-                        "target file reference is null");
-            }
-        } else {
+        if (source == null) {
             throw new IllegalArgumentException("source file reference is null");
         }
-        return status;
+
+        if (destination == null) {
+            throw new IllegalArgumentException("target file reference is null");
+        }
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        IOException exception = null;
+        try {
+            fis = new FileInputStream(source);
+            fos = new FileOutputStream(destination);
+
+            IOUtils.copyLarge(fis, fos);
+
+        } catch (IOException e) {
+            // close the output stream ignoring any exceptions
+            close(fos);
+            fos = null;
+
+            // remove the invalid destination file
+            destination.delete();
+
+            exception = new IOException(String.format("Error copying %s to %s",
+                    source.getCanonicalPath(), destination.getCanonicalPath()),
+                    e);
+        } finally {
+            // close destination and source files reporting first exception
+
+            IOException e = close(fos);
+            if ((exception == null) && (e != null)) {
+                exception = new IOException(String.format("Error closing %s",
+                        destination.getCanonicalPath()), e);
+            }
+
+            e = close(fis);
+            if ((exception == null) && (e != null)) {
+                exception = new IOException(String.format("Error closing %s",
+                        source.getCanonicalPath()), e);
+            }
+
+            if (exception != null) {
+                throw exception;
+            }
+        }
     }
 
     /**
@@ -887,13 +852,17 @@ public class FileUtil {
      * 
      * @param c
      *            An object that needs to be closed.
-     * @throws IOException
-     *             An error occurred attempting to close the object.
+     * @return IOException if one occurs or null
      */
-    public static void close(Closeable c) throws IOException {
+    private static IOException close(Closeable c) {
         if (c != null) {
-            c.close();
+            try {
+                c.close();
+            } catch (IOException e) {
+                return e;
+            }
         }
+        return null;
     }
 
     /**
