@@ -24,7 +24,6 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -39,9 +38,10 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 10, 2009            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------  -------- ----------- --------------------------
+ * Feb 10, 2009           chammack    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractTimeMatcher implements ISerializableObject {
+public abstract class AbstractTimeMatcher {
 
     /**
      * Trigger the time matcher to update time information on this resource the
