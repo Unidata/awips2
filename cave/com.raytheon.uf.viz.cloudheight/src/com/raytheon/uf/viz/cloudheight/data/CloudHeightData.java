@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -39,10 +38,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 16, 2009            mschenke    Initial creation
- * Jul 25, 2013       2190 mschenke    Moved sounding configurations into popup skewt plugin
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 16, 2009           mschenke    Initial creation
+ * Jul 25, 2013  2190     mschenke    Moved sounding configurations into popup
+ *                                    skewt plugin
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class CloudHeightData implements ISerializableObject {
+public class CloudHeightData {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CloudHeightData.class);
