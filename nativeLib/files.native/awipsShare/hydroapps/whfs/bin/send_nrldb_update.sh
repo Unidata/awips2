@@ -21,19 +21,13 @@ then
 	exit 0
 fi 
 # set up SOME environment variables for NRLDB applications
-export apps_dir=/awips2/edex/data/share/hydroapps
-export EDEX_HOME=/awips2/edex
-export NRLDB_DATA=`get_apps_defaults nrldb_data`
-export NRLDB_LOG=$(get_apps_defaults nrldb_log)
-export NRLDB_CONFIG=$(get_apps_defaults nrldb_config)
-export db_name=$(get_apps_defaults db_name)
-export NRLDB_TMP=$(get_apps_defaults nrldb_tmp)
-export PGUSER=awips
 
 # get the nrldb host and wfo from the nrldb.conf file/database
 nrldb_host=`grep nrldb_host $NRLDB_CONFIG/nrldb.conf | cut -d= -f2 | sed 's/"//g' | sed 's/ //g'`
-wfo=`psql -d $db_name -c "select hsa from admin;" | tail -3 | head -1 | sed -e 's/ //g'`
+echo "DB NAME: $db_name"
+wfo=`psql -h $PGHOST -d $db_name -c "select hsa from admin;" | tail -3 | head -1 | sed -e 's/ //g'`
 echo `date`
+echo "WFO $wfo"
 
 # create the final SQL file that will be sent to the NRLDB host
 timestamp=`date +%Y%m%d%H%N`
@@ -90,7 +84,7 @@ then
 					touch $NRLDB_TMP/update.txt
 					chmod ugo+rw $NRLDB_TMP/update.txt
 					ls -l $NRLDB_TMP/update.txt
-					psql -d $db_name -c "copy (select * from $table where lid = '$lid') to '$NRLDB_TMP/update.txt' with delimiter '|';"  
+					psql -h $PGHOST -d $db_name -c "copy (select * from $table where lid = '$lid') to '$NRLDB_TMP/update.txt' with delimiter '|';"  
 					cp $NRLDB_TMP/update.txt ${NRLDB_DATA}/update.txt 
 					sed -f ${NRLDB_CONFIG}/sed_script.txt ${NRLDB_TMP}/update.txt > ${NRLDB_DATA}/update11.txt
 					sed -e "s/|/'|'/g" ${NRLDB_DATA}/update11.txt > ${NRLDB_DATA}/update1.txt
@@ -118,7 +112,7 @@ then
 						sql_stmt="update location set lid = '$lid'"
 						for col in county coe cpm detail elev hdatum hsa hu lat lon lremark lrevise name network rb rfc sbd sn state waro wfo wsfo type des det post stntype tzone
 						do
-							psql -d  $db_name -c "select $col from location where lid = '$lid' and $col is not null;" > ${NRLDB_DATA}/update.txt
+							psql -h $PGHOST -d  $db_name -c "select $col from location where lid = '$lid' and $col is not null;" > ${NRLDB_DATA}/update.txt
 							ct_zero=`grep -c "0 row" ${NRLDB_DATA}/update.txt`
 							if [ $ct_zero -eq 0 ]
 							then	
@@ -135,7 +129,7 @@ then
 						sql_stmt="update riverstat set lid = '$lid'"
 						for col in primary_pe bf cb da response_time threshold_runoff fq fs gsno level mile pool por rated lat lon remark rrevise rsource stream tide backwater vdatum action_flow wstg zd ratedat usgs_ratenum uhgdur use_latest_fcst
                                                 do
-							psql -d  $db_name -c "select $col from riverstat where lid = '$lid' and $col is not null;" > ${NRLDB_DATA}/update.txt
+							psql -h $PGHOST -d  $db_name -c "select $col from riverstat where lid = '$lid' and $col is not null;" > ${NRLDB_DATA}/update.txt
 							ct_zero=`grep -c "0 row" ${NRLDB_DATA}/update.txt`
 							if [ $ct_zero -eq 0 ]
 							then	

@@ -54,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 29, 2011 DR#8986   zhao       Read in Counties instead of Forecast Zones
  * Feb 21 2012  14413     zhao       add code handling "adjacent areas"
  * Nov 20 2012  1297      skorolev   Cleaned code
+ * Oct 17 2013  16682     zhao       fixed a bug in readConfigXml()
  * 
  * </pre>
  * 
@@ -136,7 +137,7 @@ public abstract class MonitorConfigurationManager {
             configXml = configXmltmp;
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "No mopnitor area configuration file found", e);
+                    "No monitor area configuration file found", e);
             monitorAreaFileExists = false;
         }
 
@@ -173,14 +174,14 @@ public abstract class MonitorConfigurationManager {
                 }
                 List<String> marineZones = MonitorAreaUtils
                         .getMarineZones(currentSite);
-                if (zones.isEmpty()) {
+                if (!zones.isEmpty()) {
                     for (String zone : zones) {
                         AreaIdXML zoneXml = new AreaIdXML();
                         zoneXml.setAreaId(zone);
                         zoneXml.setType(ZoneType.REGULAR);
                         List<StationIdXML> stations = MonitorAreaUtils
                                 .getZoneReportingStationXMLs(zone);
-                        if (stations.isEmpty()) {
+                        if (!stations.isEmpty()) {
                             for (StationIdXML station : stations) {
                                 zoneXml.addStationIdXml(station);
                             }
@@ -189,14 +190,14 @@ public abstract class MonitorConfigurationManager {
                     }
                 }
                 // add marine zones if any exist
-                if (marineZones.isEmpty()) {
+                if (!marineZones.isEmpty()) {
                     for (String zone : marineZones) {
                         AreaIdXML zoneXml = new AreaIdXML();
                         zoneXml.setAreaId(zone);
                         zoneXml.setType(ZoneType.MARITIME);
                         List<StationIdXML> stations = MonitorAreaUtils
                                 .getZoneReportingStationXMLs(zone);
-                        if (stations.isEmpty()) {
+                        if (!stations.isEmpty()) {
                             for (StationIdXML station : stations) {
                                 zoneXml.addStationIdXml(station);
                             }
