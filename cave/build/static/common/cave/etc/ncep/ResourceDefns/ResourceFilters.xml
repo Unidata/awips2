@@ -345,6 +345,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMVER_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM_NT">
+<filters>Forecast,NTRANS</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NOGAPS_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
@@ -355,6 +358,9 @@
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="OPC_ENS_NT">
+<filters>Forecast,NTRANS</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="OTHER_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP_NT">
