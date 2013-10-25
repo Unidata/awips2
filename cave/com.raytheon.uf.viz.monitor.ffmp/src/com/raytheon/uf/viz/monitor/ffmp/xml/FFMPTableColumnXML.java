@@ -23,10 +23,22 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
+/**
+ * Table column xml object.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
+ * </pre>
+ * 
+ */
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFMPTableColumnXML implements ISerializableObject
+public class FFMPTableColumnXML
 {
     @XmlElement(name = "ColumnName")
     private String columnName;
