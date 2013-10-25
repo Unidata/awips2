@@ -408,7 +408,13 @@ fi
 
 # Use the custom flag for selecting specific rpms to build
 if [ "${1}" = "-custom" ]; then
-   #buildRPM "awips2-ldm"
+   unpackHttpdPypies
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-httpd-pypies"
+   buildRPM "awips2-adapt-native"
+   buildRPM "awips2-hydroapps-shared"
 
    exit 0
 fi
