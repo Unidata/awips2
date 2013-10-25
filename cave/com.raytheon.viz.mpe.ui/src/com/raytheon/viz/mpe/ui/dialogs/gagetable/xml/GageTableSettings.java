@@ -37,13 +37,14 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 
 /**
- * <p>Java class for gageTableSettings complex type.
+ * <p>
+ * Java class for gageTableSettings complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="gageTableSettings">
@@ -57,14 +58,25 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
  */
 @XmlRootElement(name = "tableSettings")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "gageTableSettings", propOrder = {
     "column"
 })
-public class GageTableSettings implements ISerializableObject {
+public class GageTableSettings {
 
     @XmlElements( { @XmlElement(name = "column", type = GageTableColumnData.class) })
     protected List<GageTableColumnData> column;
