@@ -15,12 +15,11 @@ use warnings;
 use AppConfig qw(:expand :argcount);
 use DBI;
 
-$ENV{EDEX_HOME}="/awips2/edex";
-$ENV{apps_dir}="/awips2/edex/data/share/hydroapps";
-our $BIN_DIR = `get_apps_defaults.LX whfs_bin_dir`;
+our $BIN_DIR = `echo \$BIN_DIR`;
 chomp($BIN_DIR);
-our $LOG_DIR = `get_apps_defaults.LX nrldb_log`;
-chomp($LOG_DIR);
+our $NRLDB_LOG = `echo \$NRLDB_LOG`;
+chomp($NRLDB_LOG);
+
 my $lids;
 my $tables;
 
@@ -104,7 +103,6 @@ our @lid_list; # = ($wildcard);
 
 #get the data from the DB
 get_results($qhw,\@lid_list);
-#print "ct: " . @lid_list;
 
 #set up a static array with the tables that are allowed for ad-hoc updates
 #table_list is the actual name of the DB tables, while tabledesc is a friendlier description that is displayed to the user
@@ -120,27 +118,17 @@ $index=0;
 my $num_lids=scalar(@lid_list);
 while ($index < $num_lids){
         my $line = $lid_list[$index];
-#       print "line: $line\n";
         my @results = split('\|',$line);
         #my $lid = $lid_list[$index];
         my $lid_lid = $results[0];
         my $lid_name = $results[1];
         my $lid_hsa = $results[2];
-#       print "lid: $lid_lid name: $lid_name hsa: $lid_hsa\n";
         push(@liddeschsa,"$lid_hsa     |     $lid_lid     |     $lid_name");
         push(@lidsend,$lid_lid);
         $index++;
 }
 
 # Create the GUI object
-#my $mw = MainWindow->new;
-#$mw->title('Ad-Hoc NRLDB Update');
-
-#my $lst_lab= $mw->Label(-text => 'Locations List: ');
-#my $lst_rad_riv = $mw-> Radiobutton(-text=>'AHPS River Points',
-#		-value=>'river', -variable=>\$list_type);
-#my $lst_rad_precip = $mw-> Radiobutton(-text=>'Precip Points',
-#		-value=>'precip', -variable=>\$list_type);
 # Labels for the LID and table scroll boxes
 my $misc_ent = $mw->Entry();
 my $label1 = $mw->Label(-text => 'HSA|LID|Location Name');
@@ -169,13 +157,11 @@ my $update_list = $mw->Button(-text => 'Update List', -command => \&upd_list);
 # create the label and text box for the last pdate window 
 my $status_box = $mw->Text(-width=>20, -height=>3);
 my $lb_status = $mw->Label(-width=>20, -height=>3,-text=>"Last Ad-Hoc Update:");
-my $last_update = `cat $LOG_DIR/last_nrldb_update.txt`;
+my $last_update = `cat $NRLDB_LOG/last_nrldb_update.txt`;
 
 $status_box->insert('end',"$last_update");
 
 # Crate the GUI using grid to specify the physical locations of the objects
-#$lst_rad_riv->grid(-row=>1, -column=>2, -columnspan=>1);
-#$lst_rad_precip->grid(-row=>1, -column=>3, -columnspan=>1);
 $label1->grid(-row=>1, -column=>1, -columnspan=>3) ;
 $label2->grid(-row=>1, -column=>4) ;
 $lb1->grid(-row=>2, -column=>1, -columnspan=>3, -sticky=>"ew") ;#pack;
@@ -192,12 +178,6 @@ MainLoop;
 
 # End of main
 #
-#sub upd_list {
-#	$mw => 'destroy';	
-#	my $cmd = "${DIR}/update_nrldb.pl.exp $list_type\n";
-#       print "cmd: $cmd\n";
-#        system($cmd);
-#}
 
 # The Send button functionality function
 sub send_button {
@@ -226,17 +206,14 @@ sub send_button {
         	$tables .= "," . $table_list[$Tableindex[$index]];
         	$index++;
 	}
-#	print "l0: ${lid_list[$LIDindex[0]]} t0: ${table_list[$Tableindex[0]]} lids: $lids tables: $tables\n";
 	
 	# Create the call to the script and execute it using system()
-	my $cmd = "${BIN_DIR}/send_nrldb_update.sh -table $tables -lid $lids > ${LOG_DIR}/send_nrldb_update.log\n";
-#	print "cmd: $cmd\n";
+	my $cmd = "${BIN_DIR}/send_nrldb_update.sh -table $tables -lid $lids > ${NRLDB_LOG}/send_nrldb_update.log\n";
 	system($cmd);
 
 	# Create a dialog box to inform the user that their data has been sent
 	my $dsend=$mw->Dialog(-title=>'Sent NRLDB Update',-buttons=>['OK']);
 	my $text_field="NRLDB Update Sent for LIDs: $lids \n and tables: $tables\n";
-#	my $addbox=$dsend->('Label',-text=>"$text_field")->pack(-side => 'left',-fill => 'both',-expand => 1); 
 	my $box=$dsend->add('Label',-text=>"$text_field")->pack(-side => 'left',-fill => 'both',-expand => 1);
 	my $button = $dsend->Show;
 }
@@ -247,7 +224,6 @@ sub get_results
         my $array = shift;
         my $record;
 
-#print "qh: $qh\n";
         if(defined $qh) {
                 if($qh->execute(@_)) {
                         while($record = $qh->fetchrow_arrayref) {
@@ -256,7 +232,6 @@ sub get_results
                         }
                 } else {
                         warn $DBI::errstr;
-#                       print $qh->errstr;
                 }
         } else { warn "unable to prepare query \"$sql\"\n"; }
 }
@@ -265,10 +240,9 @@ sub get_results
 sub show_log
 {
 	use Tk::Dialog;
-	my $text_field=`cat ${LOG_DIR}/send_nrldb_update.log`;
+	my $text_field=`cat ${NRLDB_LOG}/send_nrldb_update.log`;
 	my $d = $mw->Dialog(-title=>'Show Log',-buttons => ['OK']);
 	my $box=$d->add('Label',-text=>"$text_field")->pack(-side => 'left',-fill => 'both',-expand => 1);
 	my $button = $d->Show;
-#	exit;
 }
 	
