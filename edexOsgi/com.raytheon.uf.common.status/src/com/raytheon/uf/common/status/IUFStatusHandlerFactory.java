@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.status;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
+
+
 /**
  * Describes a method of creating UFStatusHandlerFactory
  * 
@@ -27,6 +30,7 @@ package com.raytheon.uf.common.status;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2010 3265       rjpeter     Initial creation
+ * Oct 23, 2013 2303       bgonzale    Added method for logging.
  * </pre>
  * 
  * @author rjpeter
@@ -96,5 +100,8 @@ public interface IUFStatusHandlerFactory {
 
     public IUFStatusHandler createInstance(AbstractHandlerFactory factory,
             String pluginId, String category);
+
+    public void log(Priority priority, StatusHandler statusHandler,
+            String message, Throwable throwable);
 
 }
