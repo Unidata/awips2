@@ -247,7 +247,6 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-common-base"
-   buildRPM "awips2-edex-environment"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -287,9 +286,6 @@ if [ "${1}" = "-custom" ]; then
    buildRPM "awips2-httpd-pypies"
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-hydroapps-shared"
-   #buildRPM "awips2-ant"
-   #buildRPM "awips2-java"
-   #buildRPM "awips2-tools"
 
    exit 0
 fi
