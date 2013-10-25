@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 
 /**
@@ -35,10 +34,11 @@ import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date          Ticket#     Engineer    Description
- *    ------------	----------	-----------	--------------------------
- *    7/1/06                    chammack    Initial Creation.
- *    3/5/08			2032	jsanchez	Initialized pdProps.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2006           chammack    Initial Creation.
+ * Mar 05, 2008  2032     jsanchez    Initialized pdProps.
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -46,7 +46,7 @@ import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
  * 
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class ResourceProperties implements ISerializableObject {
+public class ResourceProperties {
 
     /** is the layer isVisible */
     @XmlAttribute
