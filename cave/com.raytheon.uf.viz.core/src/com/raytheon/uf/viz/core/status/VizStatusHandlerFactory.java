@@ -25,6 +25,8 @@ import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
 
+import org.eclipse.ui.statushandlers.StatusManager;
+
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -34,6 +36,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.AbstractHandlerFactory;
 import com.raytheon.uf.common.status.FilterPatternContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.StatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
@@ -45,6 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 25, 2010            rjpeter     Initial creation
+ * Oct 23, 2013 2303       bgonzale    Merged VizStatusHandler and SysErrStatusHandler into StatusHandler.
+ *                                     Implemented log method from base class.
  * 
  * </pre>
  * 
@@ -56,8 +62,8 @@ public class VizStatusHandlerFactory extends AbstractHandlerFactory {
 
     private static final String CATEGORY = "WORKSTATION";
 
-    private static final VizStatusHandler instance = new VizStatusHandler(
-            VizStatusHandler.class.getPackage().getName(), CATEGORY, CATEGORY);
+    private static final StatusHandler instance = new StatusHandler(
+            StatusHandler.class.getPackage().getName(), CATEGORY, CATEGORY);
 
     public VizStatusHandlerFactory() {
         super(CATEGORY);
@@ -77,13 +83,14 @@ public class VizStatusHandlerFactory extends AbstractHandlerFactory {
     @Override
     public IUFStatusHandler createInstance(String pluginId, String category,
             String source) {
-        return new VizStatusHandler(pluginId, category, source);
+        return new StatusHandler(pluginId, category, source);
     }
 
     @Override
     public IUFStatusHandler createInstance(AbstractHandlerFactory factory,
             String pluginId, String category) {
-        return new VizStatusHandler(factory, pluginId, category);
+        return new StatusHandler(pluginId, category, getSource(
+                null, pluginId));
     }
 
     @Override
@@ -103,7 +110,7 @@ public class VizStatusHandlerFactory extends AbstractHandlerFactory {
         if (locFile == null) {
             throw new MissingResourceException(
                     "Unable to retrieve the localization file",
-                    VizStatusHandler.class.getName(),
+                    VizStatusHandlerFactory.class.getName(),
                     LocalizationType.COMMON_STATIC.name() + File.separator
                             + LocalizationLevel.BASE.name() + File.separator
                             + "configuredHandlers.xml");
@@ -118,4 +125,13 @@ public class VizStatusHandlerFactory extends AbstractHandlerFactory {
         }
         return FilterPatternContainer.createDefault();
     }
+
+    @Override
+    protected void log(Priority priority, String pluginId, String category,
+            String source, String message, Throwable throwable) {
+        VizStatusInternal vizStatus = new VizStatusInternal(new UFStatus(
+                priority, message, throwable), category, source, pluginId);
+        StatusManager.getManager().handle(vizStatus);
+    }
+
 }
