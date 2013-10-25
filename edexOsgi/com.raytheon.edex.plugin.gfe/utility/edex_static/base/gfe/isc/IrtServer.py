@@ -44,12 +44,11 @@ from com.raytheon.edex.plugin.gfe.isc import IRTManager
 #                                                 to interact better with IscScript.
 #    05/22/13        1759          dgilling       Add missing import to 
 #                                                 makeISCrequest().
+#    10/16/13        2475          dgilling       Remove unneeded code to handle
+#                                                 registration with IRT.
 #    
 # 
 #
-# starts the IRT thread and registers.
-StopIRT = 0   #flag to shut down the 2nd thread
-IRTthread = None   #flag to hold the IRTthread object
 
 def logEvent(*msg):
     iscUtil.getLogger("irtServer").info(iscUtil.tupleToString(*msg))
@@ -188,51 +187,6 @@ def putVTECActiveTable(strTable, xmlPacket):
     except:
         logProblem("Error executing ingestAT: ", traceback.format_exc())
     logEvent("ingesAT command output: ", output)
-    
-def initIRT(ancfURL, bncfURL, mhsid, serverHost, serverPort, serverProtocol,
-  site, parmsWanted, gridDims, gridProj, gridBoundBox, iscWfosWanted):
-    global IRTthread
-    import threading
-    IRTthread = threading.Thread(target=irtReg, args=[ancfURL, bncfURL, mhsid,
-      serverHost, serverPort, serverProtocol, site, parmsWanted, gridDims,
-      gridProj, gridBoundBox, iscWfosWanted])
-    IRTthread.setDaemon(True)
-    IRTthread.start()
-
-# IRT registration thread
-def irtReg(ancfURL, bncfURL, mhsid, serverHost, serverPort, serverProtocol,
-  site, parmsWanted, gridDims, gridProj, gridBoundBox, iscWfosWanted):
-    import IrtAccess, threading
-    irt = IrtAccess.IrtAccess(ancfURL, bncfURL)
-
-    # do initial registration, keep trying until successful
-    while True:
-        okay = irt.register(mhsid, serverHost, serverPort, serverProtocol,
-          site, parmsWanted, gridDims, gridProj, gridBoundBox, iscWfosWanted)
-        if okay:
-            break
-        elif StopIRT:
-            return False#stop this thread
-        else:
-            return False
-
-    # if we are here, we had a successful registration, check for re-register
-    # every few seconds, check the StopIRT flag every few seconds
-    while IRTManager.getInstance().isRegistered(mhsid,site) == True:
-        time.sleep(3.0)   #wait 3 seconds
-        irt.checkForReregister()
-
-    # if we get here, we have been told to stop IRT, so we unregister.  We
-    # try only once.
-    irt.unregister()
-    return True
-
-# call from C++ to Python to tell IRT thread to shut itself down
-def irtStop():
-    global StopIRT
-    StopIRT = True   #tells irt thread to exit
-    if IRTthread:
-        IRTthread.join()  #wait till thread returns then return to caller
 
 # get servers direct call for IRT
 def irtGetServers(ancfURL, bncfURL, iscWfosWanted):
