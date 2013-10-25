@@ -2,43 +2,28 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CrossSection
 Bundle-SymbolicName: com.raytheon.uf.viz.xy.crosssection;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.xy.crosssection.Activator
+Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui,
- com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.wxmath,
- com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.xy,
- com.raytheon.uf.common.geospatial,
- com.raytheon.viz.core.contours,
- com.raytheon.viz.core.graphing,
- com.raytheon.viz.ui,
- org.geotools,
- javax.measure
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core
-Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataquery.requests,
- com.raytheon.uf.common.localization,
- com.raytheon.uf.common.status,
+Require-Bundle: com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.style,
- com.raytheon.uf.common.style.arrow,
- com.raytheon.uf.common.style.contour,
- com.raytheon.uf.common.style.graph,
- com.raytheon.uf.common.style.image,
- com.raytheon.uf.common.style.level,
- com.raytheon.uf.common.time,
  com.raytheon.uf.common.topo,
- com.raytheon.uf.viz.d2d.core.map,
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.d2d.core,
  com.raytheon.uf.viz.d2d.ui,
- com.raytheon.viz.core.imagery,
+ com.raytheon.uf.viz.xy,
+ com.raytheon.viz.core.contours,
+ com.raytheon.viz.core.graphing,
+ javax.measure,
+ org.eclipse.core.runtime,
+ org.eclipse.ui
+Import-Package: com.raytheon.viz.core.imagery,
  com.raytheon.viz.core.map,
- com.raytheon.viz.core.rsc,
- com.raytheon.viz.core.rsc.jts,
- com.raytheon.viz.core.slice.request
+ com.raytheon.viz.core.rsc.jts
 Export-Package: com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.uf.viz.xy.crosssection.adapter,
  com.raytheon.uf.viz.xy.crosssection.display,
