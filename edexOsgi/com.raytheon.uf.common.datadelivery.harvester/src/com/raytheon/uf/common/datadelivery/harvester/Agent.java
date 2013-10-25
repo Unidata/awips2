@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,7 +36,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 12 Sept, 2012   1038      dhladky     Initial creation
+ * 12 Sept, 2012   1038      dhladky   Initial creation
+ * 23 Oct,  2013   2361      njensen   Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -48,8 +48,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @XmlSeeAlso({ CrawlAgent.class, OGCAgent.class })
-public abstract class Agent implements ISerializableObject {
-    
+public abstract class Agent {
+
     @XmlElement(name = "dateFormat", required = true)
     @DynamicSerializeElement
     private String dateFormat = "HHddMMMyyyy";
@@ -57,7 +57,7 @@ public abstract class Agent implements ISerializableObject {
     public String getDateFormat() {
         return dateFormat;
     }
-    
+
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
     }
