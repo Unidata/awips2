@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,7 +32,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -46,6 +45,7 @@ import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.preferences.ColorFactory;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
@@ -63,10 +63,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 06, 2009            bgonzale     Initial creation
- * Jun 24, 2013   2140     randerso     Added paintResource method
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 06, 2009           bgonzale    Initial creation
+ * Jun 24, 2013  2140     randerso    Added paintResource method
+ * Oct 22, 2013  2491     bsteffen    Switch clone to ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -502,8 +503,9 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     @Override
     public IRenderableDisplay createNewDisplay() {
         try {
-            AbstractRenderableDisplay clonedDisplay = (AbstractRenderableDisplay) SerializationUtil
-                    .unmarshalFromXml(SerializationUtil.marshalToXml(this));
+            ProcedureXmlManager jaxb = ProcedureXmlManager.getInstance();
+            AbstractRenderableDisplay clonedDisplay = jaxb.unmarshal(
+                    AbstractRenderableDisplay.class, jaxb.marshal(this));
             List<ResourcePair> rscsToRemove = new ArrayList<ResourcePair>();
             for (ResourcePair rp : clonedDisplay.getDescriptor()
                     .getResourceList()) {
@@ -518,21 +520,23 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
             }
             clonedDisplay.setExtent(this.getExtent().clone());
             return clonedDisplay;
-        } catch (JAXBException e) {
-            e.printStackTrace();
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to create new display.", e);
         }
         return null;
     }
 
     public AbstractRenderableDisplay cloneDisplay() {
         try {
-            AbstractRenderableDisplay clonedDisplay = (AbstractRenderableDisplay) SerializationUtil
-                    .unmarshalFromXml(SerializationUtil.marshalToXml(this));
+            ProcedureXmlManager jaxb = ProcedureXmlManager.getInstance();
+            AbstractRenderableDisplay clonedDisplay = jaxb.unmarshal(
+                    AbstractRenderableDisplay.class, jaxb.marshal(this));
             if (getExtent() != null) {
                 clonedDisplay.setExtent(this.getExtent().clone());
             }
             return clonedDisplay;
-        } catch (JAXBException e) {
+        } catch (SerializationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error cloning renderable display", e);
         }

@@ -11,3 +11,5 @@ Export-Package: org.reflections,
  org.reflections.util,
  org.reflections.vfs
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.google.guava;bundle-version="1.0.0",
+ org.javassist;bundle-version="3.9.0"
