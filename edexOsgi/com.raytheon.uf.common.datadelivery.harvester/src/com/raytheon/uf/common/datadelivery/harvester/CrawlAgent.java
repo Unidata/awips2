@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Collection;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -41,7 +40,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 12 Sept, 2012   1038      dhladky     Initial creation
+ * 12 Sept, 2012   1038      dhladky   Initial creation
+ * 23 Oct,  2013   2361      njensen   Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -52,13 +52,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class CrawlAgent extends Agent implements ISerializableObject {
+public class CrawlAgent extends Agent {
 
     // These top 3 have default settings
     @XmlElement(name = "crawlDir")
     @DynamicSerializeElement
     private String crawlDir = "/awips2/crawl";
- 
+
     @XmlElement(name = "ignore")
     @DynamicSerializeElement
     private List<String> ignore;
