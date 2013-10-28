@@ -1,23 +1,15 @@
 ###############################################################################
 ## TORNADO WARNING TEMPLATE                                                  ##
-## VERSION AWIPS II 1.0                                                      ##
-## MODIFIED                                                                  ## 
-##         JAMIE FREDERICK - WFO TSA  2-24-11                                ## 
-##         EVAN BOOKBINDER - WFO EAX  3-23-11 - Initial OB11.2 ReWrite       ##
-##                                    4-13-11 - OB11.4 Modifications         ##
-##                                    7-11-11 - OB11.7 Modifications         ##
-##                                    9-16-11 - OB11.8.0-8 Pathcast/City     ##
-##         MIKE DANGELO      WFO CTP  9-22-11 - OB11.8.0-9                   ##
-##         EVAN BOOKBINDER   WFO EAX 11-04-11 - OB11.9-3 (DRs)               ##
-##         EVAN BOOKBINDER   WFO EAX  2-24-12 - OB12.2.1                     ##
-##         MIKE REGA                  5-03-12 - DR 14885 MND blank line      ##
-##         QINGLU LIN                 7-31-2012 DR 15217 use roundAndPad     ##
-##         QINGLU LIN                 8-14-2012 DR 14493 use TMLtime         ##
-##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}             ## 
-##        Mike Dangelo     2-4-2013  NWS Mets detected a svr                 ## 
+## VERSION AWIPS II         												 ##
+##    RECENT CHANGES                                                         ##                                                     
+##         Mike Dangelo 9-13-2012 minor tweaks to ${variables}               ## 
+##         Mike Dangelo     2-4-2013  NWS Mets detected a svr                ## 
 ##         PHIL KURIMSKI   2-6-2013  Put tor emergency back in as 3rd bullet ##
+##         PHIL KURIMSKI  9-17-2013  Put tor emergency as a headline         ##
+##         Evan Bookbinder 9-18-2013 Implemented config.vm                   ##
 ###############################################################################
 ## ESTABLISH SOME INITIAL VARIABLES
+#parse("config.vm")
 #set($hailSize = 0) 
 #set($hailTag = "<.75IN")
 #set($reportType = "A TORNADO WAS REPORTED")
@@ -130,12 +122,12 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #end
 
 #################################################################
-### TORNADO EMERGENCY HEADLINE...COMING SOON TO A WFO NEAR YOU! #
+### TORNADO EMERGENCY HEADLINE                                  #
 #################################################################
-###if(${list.contains(${bullets}, "torEmergency")})
-##...TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
-##
-###end
+#if(${list.contains(${bullets}, "torEmergency")})
+...TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
+
+#end
 #headline(${officeLoc}, ${backupSite})
 
 ##################
@@ -295,12 +287,13 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...${reportType} ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if(${movementSpeed} < 3 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 #if(${stormType} == "line")
 . THE LINE OF TORNADIC STORMS WAS NEARLY STATIONARY. 
 #else
@@ -314,7 +307,7 @@ THIS IS A TEST MESSAGE. ##
 ### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE GOES WITH 3RD BULLET #
 #####################################################################
 #if(${list.contains($bullets, "torEmergency")})
-#wrapText("THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE TORNADO PRECAUTIONS NOW." 2 2)
+#wrapText("THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW." 2 2)
 
 #end
 ############################
@@ -404,6 +397,8 @@ THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS S
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
+## Uncomment below pull in point marker info
+## #parse("pointMarkers.vm")
 
 #####################
 ## CALL TO ACTIONS ##
@@ -487,6 +482,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
 ## UNCOMMENT 2 LINES BELOW IF YOU ARE PARTICIPATING IN THE HAIL TAG TESTBED
 ##
 ##<L>HAIL ${hailTag}</L>

@@ -58,6 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 05/12		#769, 776	B. Yin		Added UTC time. Carry over info to WatchFormat dialog.
  * 04/13        #977        S. Gilbert  PGEN Database support
  * 08/13		TTR 795		B. Yin		Remember forecaster name, set issue time.
+ * 08/13		TTR 794		B. Yin		Load phone# and passcode from table.
+ * 08/13		TTR 796		B. Yin		Added drop down list for expiration time.
  * </pre>
  * 
  * @author B. Yin
@@ -76,10 +78,7 @@ public class WatchCoordDlg extends CaveJFACEDialog {
     private static final String[] ID_LIST = new String[] { "A", "B", "C", "D",
             "E", "F", "G", "H", "I", "J" };
 
-    // phone number list
-    private static final String[] PHONE_LIST = new String[] { "1-800-5551111",
-            "1-800-5552222", "1-800-5553333", "1-800-5554444", "1-800-5555555",
-            "1-800-5556666", "1-800-5557777", "1-800-5558888", "1-800-5559999" };
+    private SpcPhoneList phoneList;
 
     // instance of the watch box attribute dialog
     private WatchBoxAttrDlg wbDlg;
@@ -104,7 +103,7 @@ public class WatchCoordDlg extends CaveJFACEDialog {
     // expiration date and time
     private DateTime validDate;
 
-    private Text validTime;
+    private Combo validTime;
 
     // phone number combo
     private Combo phoneCombo;
@@ -143,6 +142,7 @@ public class WatchCoordDlg extends CaveJFACEDialog {
         forecasterTbl = readForecasterTbl();
         FORECASTERS = getForecasters();
 
+        phoneList = SpcPhoneList.getInstance();
     }
 
     /**
@@ -236,6 +236,8 @@ public class WatchCoordDlg extends CaveJFACEDialog {
         // validTime = new DateTime(dt, SWT.BORDER | SWT.TIME | SWT.SHORT );
 
         Calendar expTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		expTime.add(Calendar.HOUR, 8);
+
         validDate.setYear(expTime.get(Calendar.YEAR));
         validDate.setMonth(expTime.get(Calendar.MONTH));
         validDate.setDay(expTime.get(Calendar.DAY_OF_MONTH));
@@ -243,20 +245,27 @@ public class WatchCoordDlg extends CaveJFACEDialog {
         Composite c1 = new Composite(dt, SWT.NONE);
         c1.setLayout(new FormLayout());
 
-        validTime = new Text(c1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+		validTime = new Combo( c1, SWT.DROP_DOWN | SWT.MULTI );;
 
         FormData fd = new FormData();
         // fd.top = new FormAttachment(watchNumber,2, SWT.BOTTOM);
         fd.left = new FormAttachment(validDate, 5, SWT.RIGHT);
+        fd.width = 80;;
         validTime.setLayoutData(fd);
-        PgenUtil.setUTCTimeTextField(c1, validTime, expTime, wType, 5);
+
+		for ( String hrStr : WatchFormatDlg.HOURS ) {
+			validTime.add( hrStr );
+		}
+		
+		WatchFormatDlg.setUTCTimeTextField(c1, validTime,  expTime, wType, 5);
+        
         // create phone list combo
         Label phoneLbl = new Label(panel1, SWT.LEFT);
         phoneLbl.setText("Phone Number:");
 
         phoneCombo = new Combo(panel1, SWT.DROP_DOWN | SWT.READ_ONLY);
-        for (String st : PHONE_LIST) {
-            phoneCombo.add(st);
+        for (SpcPhone phone :  phoneList.getSpcPhones()){
+            phoneCombo.add(phone.getPhoneNumber());
         }
 
         phoneCombo.select(0);
@@ -498,8 +507,9 @@ public class WatchCoordDlg extends CaveJFACEDialog {
             wccText += "\n\n   " + nearbyWFOs;
         }
 
-        wccText += "\n\nPhone Number: " + phoneCombo.getText();
-        wccText += "\nPassword:     -     ";
+        SpcPhone phone =  phoneList.getSpcPhones().get(phoneCombo.getSelectionIndex());
+        wccText += "\n\nPhone Number: " + phone.getPhoneNumber();
+        wccText += "\nPassword: " + phone.getPasscode();
         wccText += "\n\nIF PASSWORD IS NOT AVAILABLE, CONTACT SPC LEAD FORECASTER.";
         wccText += "\n\nATTN..." + wfoList + "...WNAW...WNAR";
         wccText += "\n\n" + forecasterCombo.getText();

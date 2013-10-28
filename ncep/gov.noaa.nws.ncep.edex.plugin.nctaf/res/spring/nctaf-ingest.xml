@@ -12,7 +12,7 @@
 	<bean id="nctafDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="nctaf" />
-		<constructor-arg value="jms-dist:queue:Ingest.nctaf?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.nctaf"/>
 	</bean>
 
     <bean id="nctafCamelRegistered" factory-bean="contextManager"
@@ -33,13 +33,13 @@
 			<setHeader headerName="pluginName">
 				<constant>nctaf</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.nctaf" />
+			<to uri="jms-durable:queue:Ingest.nctaf" />
 		</route>
 		-->
 
 		<!-- Begin TAF routes -->
 		<route id="nctafIngestRoute">
-			<from uri="jms-generic:queue:Ingest.nctaf?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.nctaf"/>
 			<setHeader headerName="pluginName">
 				<constant>nctaf</constant>
 			</setHeader>

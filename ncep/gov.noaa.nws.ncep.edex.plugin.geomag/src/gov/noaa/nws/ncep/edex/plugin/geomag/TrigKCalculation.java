@@ -47,7 +47,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                   
  * date         Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 06/07/2013   #989        qzhou       Initial Creation
+ * 06/07/2013   #989        qzhou       Initial Creation, event driven
  * </pre>
  * 
  * @author qzhou
@@ -59,62 +59,54 @@ public class TrigKCalculation {
 	private static final String GeoMag = "geomag";
 	private static final float MISSING_VAL = 99999.99f;
 	private static final int MISSING_INT = 99999;
-	private static final int DAYS = 30;
+	
 	private static final int HOURS = 24;
 	private static final int MINUTES = 60;
-	
 	private static final int AVG_DATA_RANGE = 30;
 	private static final int HD_DATA_RANGE = 3;
 	private static final int MAX_SOURCES = 3;
 	
 	private static final int ITERATIONS = 5;
-	private static final int MAX_GAP_LENGTH = 15;
-	private static final int SMOOTH_WINDOW = 60;
-	private static final int TRANSITION_TIME = 60;
-	private static final int PHASE_POWER = 3;
-	private static final int HARM_ORDER = 5;
 	private GeoMagDao dao; //PluginDao dao;    
 	private float[] defLength = new float[HOURS]; 
 	
-	private Map<String, List<float[]>> stationMap = new HashMap<String, List<float[]>>(); //station, arrays
 	String format = "yyyy-MM-dd'_'HH:mm:ss.s";     	    		
 	SimpleDateFormat sdf = new SimpleDateFormat(format);
 	
 	
 	public TrigKCalculation() {		
-//		KStationCoefficientLookup look = KStationCoefficientLookup.getInstance();
-//		Map<String, KStationCoefficient> stationMap = look.getStationsByCodeMap();
-//		int size = 1+31;
-//		stations = new ArrayList<List>();//String[]: station, uri0, ...uri31
-//		for (Map.Entry<String, KStationCoefficient> entry : stationMap.entrySet()) {
-//			List<String> astation = new ArrayList<String>();
-//			astation.add( entry.getKey());
-//			stations.add(astation);
-////			System.out.println("***entry "+ entry.getKey());
-//		}
+
 	}
 	
+	/*
+	 * trigger
+	 */
 	public void trig1min(Object obj) throws StorageException { 
 		
 		if( !(obj instanceof DataURINotificationMessage) ){
-//			GeoMag.logError("Received msg that is not a DataURINotificationMessage? msg is "+
-//					obj.getClass().getName() );
-			logger.info("Received msg that is not a DataURINotificationMessage.");
+			//logger.info("Received msg that is not a DataURINotificationMessage.");
+			return;
 		}
 		
 		DataURINotificationMessage uriMsg = (DataURINotificationMessage)obj;
-
-		String[] dataURIs = uriMsg.getDataURIs();
-
-		//sort
-		Arrays.sort(dataURIs);
-//		for (int i=0; i<dataURIs.length; i++)
-//		System.out.println("**sort dataUri " +dataURIs[i]);
+		String[] dataUris = uriMsg.getDataURIs();
 		
-		logger.info("******** Start meganetometer calculation trig.");
-
+//		logger.info("******** Start meganetometer calculation trig.");
 //		long t0 = Calendar.getInstance().getTimeInMillis();
 //		System.out.println("*****T0 "+ t0);
+		
+		// get geomag uri
+		List<String> geomagUri = new ArrayList<String>();
+		
+		for (String dataURI : dataUris ) {
+			if (dataURI.contains("geomag"))				
+				geomagUri.add(dataURI);
+		}
+		
+		String[] dataURIs = geomagUri.toArray(new String[geomagUri.size()]);
+		
+		//sort
+		Arrays.sort(dataURIs);
 		
 		try {
 			dao = (GeoMagDao) PluginFactory.getInstance().getPluginDao(GeoMag);
@@ -123,58 +115,32 @@ public class TrigKCalculation {
 		}
 		
 		calcSimpleHourAvg(dataURIs);
-//		long t2 = Calendar.getInstance().getTimeInMillis();
-//		System.out.println("*****T2 "+ t2);
+		calcK(dataURIs);
 		
-//		calcBy3hr( dataURIs);
-//		long t3 = Calendar.getInstance().getTimeInMillis();
-//		System.out.println("*****T3 "+ t3);
-//							
-//		Map<String, List<float[]>> kIndexMap = calcBy1min(dataURIs);	
 //		long t4 = Calendar.getInstance().getTimeInMillis();
 //		System.out.println("*****T4 "+ t4);
-//		
-//		calcK3h(dataURIs, kIndexMap);
-//		long t5 = Calendar.getInstance().getTimeInMillis();
-//		System.out.println("*****T5 "+ t5);
 	 }
 	
-	/*
-	 * 
-	 */
-	public List<GeoMagAvg> retrieveSingleAvg(String dataUri, Date time) {
-		GeoMagAvgDao avgDao = new GeoMagAvgDao();
-		String station = CalcUtil.getStationFromUri(dataUri);
-		
-		DatabaseQuery query = new DatabaseQuery(GeoMagRecord.class.getName());
-		query.addReturnedField("id");
-		query.addQueryParam("avgTime", time);
-		query.addQueryParam("stationCode", station);
-		 
-		List<GeoMagAvg> resultsList = null;				
-		resultsList = avgDao.getSingleAvg(station, time);	
-			
-		return resultsList;             
-        
-	}
 	
 	/*
-	 * 
+	 * from geomag
 	 */
 	public List<?> retrieveUriForAvg(String dataUri, Date time) {
 		String station = CalcUtil.getStationFromUri(dataUri);
 		
 		DatabaseQuery query = new DatabaseQuery(GeoMagRecord.class.getName());
-		//query.addReturnedField("id");
 		query.addReturnedField("component_1");
 		query.addReturnedField("component_2");
 		query.addReturnedField("dataTime.refTime");
 		query.addReturnedField("badDataPoint");
 		query.addReturnedField("sourceId");
+		
+		// called only when time is 59min, so include it.
 		query.addQueryParam("dataTime.refTime", time, QueryParam.QueryOperand.LESSTHANEQUALS);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(time);
-		cal.add(Calendar.HOUR_OF_DAY, -1); // at least one day is needed for gt, lt
+		cal.add(Calendar.HOUR_OF_DAY, -1); 
+		
 		query.addQueryParam("dataTime.refTime", cal.getTime(), QueryParam.QueryOperand.GREATERTHAN);
 		query.addQueryParam("stationCode", station);
 		 
@@ -190,79 +156,119 @@ public class TrigKCalculation {
 	}
 	
 	/*
-	 * 
+	 * from geomag_houravg
+	 */
+	public List<GeoMagAvg> retrieveSingleAvg(String dataUri, Date time) {
+		GeoMagAvgDao avgDao = new GeoMagAvgDao();
+		String station = CalcUtil.getStationFromUri(dataUri);
+		
+		List<GeoMagAvg> resultsList = null;				
+		resultsList = avgDao.getSingleAvg(station, time);	
+			
+		return resultsList;             
+        
+	}
+	
+	/*
+	 * from geomag_houravg
 	 */
 	public List<GeoMagAvg> retrieveUriBy3hr(String dataUri, Date spTime){
 		GeoMagAvgDao avgDao = new GeoMagAvgDao();
-//		long t0 = Calendar.getInstance().getTimeInMillis();
-//    	System.out.println("*****ttt0 "+ t0);
 		String station = CalcUtil.getStationFromUri(dataUri);
 		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(spTime);
 		cal.add(Calendar.DAY_OF_YEAR, -AVG_DATA_RANGE); // at least one day is needed for gt, lt
 		
+		// since avg have min=30, cal.getTime() and spTime are not included
 		List<GeoMagAvg> resultsList = null;				
 		resultsList = avgDao.getAvgForStation(station, cal.getTime(), spTime);	//720			
 		
-//		long t1 = Calendar.getInstance().getTimeInMillis();
-//    	System.out.println("*****ttt1 "+ t1);
-    	
 		return resultsList;             		
 	}
 	
 	/*
-	 * 
+	 * from geomag
 	 */
-	public List<?> retrieveUriForK1min(String dataUri, Date epTime){
-//		long t0 = Calendar.getInstance().getTimeInMillis();
-//    	System.out.println("*****tttt0 "+ t0+" "+epTime);
-    	
+	public List<?> retrieveUriForK1min(String dataUri, Date time){
 		String station = CalcUtil.getStationFromUri(dataUri);
 		
 		DatabaseQuery query = new DatabaseQuery(GeoMagRecord.class.getName());
-		//query.addReturnedField("id");
+		
 		query.addReturnedField("component_1");
 		query.addReturnedField("component_2");
 		query.addReturnedField("dataTime.refTime");
 		query.addReturnedField("badDataPoint");
 		query.addReturnedField("sourceId");
-		query.addQueryParam("dataTime.refTime", epTime, QueryParam.QueryOperand.LESSTHANEQUALS);
+		
+		// Document uses epTime-1minute.  Consider 3 sources, we use current time
+		query.addQueryParam("dataTime.refTime", time, QueryParam.QueryOperand.LESSTHANEQUALS);
+		
+		Date epTime = CalcUtil.getEPTime(time);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(epTime);
-		cal.add(Calendar.HOUR_OF_DAY, -48); // at least one day is needed for gt, lt
-		query.addQueryParam("dataTime.refTime", cal.getTime(), QueryParam.QueryOperand.GREATERTHAN);
+		cal.add(Calendar.HOUR_OF_DAY, -48); 
+		
+		// start time is epTime-48hour.  So use GREATERTHANEQUALS
+		query.addQueryParam("dataTime.refTime", cal.getTime(), QueryParam.QueryOperand.GREATERTHANEQUALS);
 		query.addQueryParam("stationCode", station);
 		 
 		List<?> resultsList = null;
-		
 		try {
 			resultsList =  dao.queryByCriteria(query);	// 2880			
 		} catch (DataAccessLayerException e1) {
 			e1.printStackTrace();
 		}
 		
-//		long t1 = Calendar.getInstance().getTimeInMillis();
-//    	System.out.println("*****tttt1 k1min "+ t1);
-    	
 		return resultsList;             
 	}
 	
 	/*
-	 * 
+	 * from geomag_k1min
 	 */
-	public List<GeoMagK3hr> retrieveUriForK3hr(String dataUri, Date time){
+	public List<GeoMagK1min> retrieveSingleK1min(String dataUri, Date time) {
+		GeoMagK1minDao k1minDao = new GeoMagK1minDao();
+		String station = CalcUtil.getStationFromUri(dataUri);
+
+		List<GeoMagK1min> resultsList = null;				
+		resultsList = k1minDao.getSingleK1min(station, time);	
+    	
+		return resultsList;             
+        
+	}
+	
+	/*
+	 * from geomag_k3hr
+	 */
+	public List<GeoMagK3hr> retrieveUriForK3hr(String dataUri, Date epTime){
 		GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
 		String station = CalcUtil.getStationFromUri(dataUri);
 
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(epTime);
+		cal.add(Calendar.DAY_OF_YEAR, -1); 
+		
 		List<GeoMagK3hr> resultsList = null;				
-		resultsList = k3hrDao.getK3hrForStation(station, time);	//1			
+		resultsList = k3hrDao.getRangeK3hr(station, cal.getTime(), epTime);	//1			
 		
 		return resultsList;             		
 	}
 	
 	/*
-	 * 
+	 * from geomag_k3hr
+	 */
+	public List<GeoMagK3hr> retrieveSingleK3hr(String dataUri, Date epTime){
+		GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
+		String station = CalcUtil.getStationFromUri(dataUri);
+
+		List<GeoMagK3hr> resultsList = null;				
+		resultsList = k3hrDao.getSingleK3hr(station, epTime);			
+		
+		return resultsList;             		
+	}
+	
+	/*
+	 * For hdf5
 	 */
 	public IDataRecord[] getDataRecords(String uri){
 		IDataRecord[] dataRec = null;
@@ -288,6 +294,7 @@ public class TrigKCalculation {
 	/*
 	 * sort n lists
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	static void sort(List... lists) {
 	    assert lists.length > 0;
 	    
@@ -301,7 +308,7 @@ public class TrigKCalculation {
 	    }
 
 	    Arrays.sort(objects, new Comparator<Object[]>() {
-	        @SuppressWarnings("unchecked")
+	        
 			public int compare(Object[] o1, Object[] o2) {
 	            return ((Comparable)o1[0]).compareTo(o2[0]);
 	        }
@@ -318,40 +325,38 @@ public class TrigKCalculation {
 	/*
 	 * Input data of all source, output with higher priority source data
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<List> getBestObserv(List<?> dataList ) {
 		
-	    //List<Integer> idList = new ArrayList<Integer>();
 	    List<Float> comp1List = new ArrayList<Float>();
 	    List<Float> comp2List = new ArrayList<Float>();
-	    List<String> badPointList = new ArrayList<String>();
+	    List<Integer> badPointList = new ArrayList<Integer>();
 		List<Date> dateList = new ArrayList<Date>();
 		List<Integer> sourceList = new ArrayList<Integer>();
 		
 		List<List> bestList = new ArrayList<List>();
-		List<List> fullBestList = new ArrayList<List>();
 		
 		if (dataList != null ) { 
 			for (int i = 0; i < dataList.size(); i++) {  
 				
 				Object[] row = (Object[]) dataList.get(i);
 				
-				//idList.add( (Integer) row[0]);
 				comp1List.add( (Float) row[0]);
 				comp2List.add( (Float) row[1]);
 				dateList.add( (Date) row[2]);
-				badPointList.add( (String) row[3]);
+				badPointList.add( (Integer) row[3]);
 				sourceList.add( (Integer) row[4]);				
-				//System.out.println("***row "+dateList.get(i)+" "+sourceList.get(i)+" " +comp2List.get(i));
+				
 			}
 		
-			sort(dateList, sourceList, comp1List, comp2List, badPointList); //, idList); 			
+			sort(dateList, sourceList, comp1List, comp2List, badPointList); 		
 			
 			int count = 0;
 			int size = dateList.size();
 			
 			/*
 			 * tempList combine all lists for the first 4 items. size=4
-			 * newList put tempList ordered by source. size=3
+			 * newList holds tempLists ordered by source. size=3
 			 * bestList construct newList with best source
 			 * bestListFull filled time gaps
 			 */ 		
@@ -363,13 +368,13 @@ public class TrigKCalculation {
 				List tempList3 = new ArrayList();
 				
 				List<List> newList = new ArrayList<List>();   			
-				newList.add(0, new ArrayList());//init 3
+				//init 3
+				newList.add(0, new ArrayList());
 				newList.add(1, new ArrayList());
 				newList.add(2, new ArrayList());
 				
-				//tempList1.add(0, idList.get(i));
 				tempList1.add( dateList.get(i));    				
-				if (badPointList.get(i) != null && badPointList.get(i) != ""){   					
+				if (badPointList.get(i) != null && badPointList.get(i) != 0){   					
 					tempList1.add(MISSING_VAL);
 					tempList1.add(MISSING_VAL);    					
 				}
@@ -381,9 +386,9 @@ public class TrigKCalculation {
 				count++;
 				
 				if (i+1 < size && dateList.get(i).compareTo( dateList.get(i+1)) ==0) {
-					//tempList2.add(idList.get(i+1));
+					
 					tempList2.add(dateList.get(i+1));
-					if (badPointList.get(i+1) != null && badPointList.get(i+1) != ""){   					
+					if (badPointList.get(i+1) != null && badPointList.get(i+1) != 0){   					
 						tempList2.add(MISSING_VAL);
 						tempList2.add(MISSING_VAL);    					
 					}
@@ -396,9 +401,9 @@ public class TrigKCalculation {
 				}
 				
 				if (i+2 < size && dateList.get(i).compareTo( dateList.get(i+2)) ==0) {
-					//tempList3.add(idList.get(i+2));
+					
 					tempList3.add(dateList.get(i+2));
-					if (badPointList.get(i+2) != null && badPointList.get(i+2) != ""){   					
+					if (badPointList.get(i+2) != null && badPointList.get(i+2) != 0){   					
 						tempList3.add(MISSING_VAL);
 						tempList3.add(MISSING_VAL);    					
 					}
@@ -418,7 +423,7 @@ public class TrigKCalculation {
 					newList.remove(0);    				   								
 				//System.out.println("***newList "+i+" "+count+" "+newList.size()+" "+newList.get(0));  				
 				
-				//  Now only check if comp2 (...get(2)) is MISSING_VAL				
+				//  Now only check if comp2 (...get(2)) is MISSING_VAL.  Could check both				
 				if (newList.get(0).get(2) != null && (Float) newList.get(0).get(2) != MISSING_VAL ) {
 					bestList.add( newList.get(0));    					
 				}
@@ -438,16 +443,17 @@ public class TrigKCalculation {
 				}
 			}
 		}
-		//System.out.println("***bestList best "+bestList.size());
-//	
-//		long t2 = Calendar.getInstance().getTimeInMillis();
-//    	System.out.println("*****tt2 "+ t2);		
+	
 		return bestList;
 	}
 
+	/*
+	 * fill time tag gaps, return fullBestList
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<List> fillHDTimeGaps(List<List> bestList) {
 		List<List> fullBestList= new ArrayList<List>();
-		// fill time gaps, get bestListFull
+		
 		// fill missing in the beginning		
 		Date date = (Date) bestList.get(0).get(0);    //bestList.get(i) eq. newList.  	
 		int min0 = date.getMinutes();
@@ -466,6 +472,7 @@ public class TrigKCalculation {
 		
 			}			
 		}
+		
 			// fill missing in the middle
 			for (int j = 0; j < bestList.size(); j++ ) { //i=0 first non missing data		
 				
@@ -490,28 +497,18 @@ public class TrigKCalculation {
 				}	
 			}
 		
-		
-			// fill missing in the end
-			date = (Date) bestList.get(bestList.size()-1).get(0);
-			int minEnd = date.getMinutes();
-			
-			if ( minEnd < 59 ) {
-				for (int k = minEnd+1; k < 60; k++) {
-					List newList2 = new ArrayList(); // eq. newList
-					
-					Date dateNew = (Date)date.clone();					
-					dateNew.setMinutes(k);
-					
-					newList2.add(dateNew);
-					newList2.add(MISSING_VAL);
-					newList2.add(MISSING_VAL);
-					fullBestList.add( newList2);
-					
-				}
-			}
-			
-//		for (int i = 0; i < fullBestList.size(); i++) {
-//			System.out.println("***fullBestList "+fullBestList.size()+" "+fullBestList.get(i));
+//		// fill missing in the end
+//		int latest = fullBestList.size();
+//		if (latest < HOURS*MINUTES*HD_DATA_RANGE) {
+//			for (int k = latest; k < HOURS*MINUTES*HD_DATA_RANGE; k++) {
+//				List newList2 = new ArrayList();
+//				Date d = (Date)fullBestList.get(0).get(latest-1);
+//				
+//				newList2.add(new Date(d.getTime() + 60*1000*(k+1)));
+//				newList2.add(MISSING_VAL);
+//				newList2.add(MISSING_VAL);
+//				fullBestList.add( newList2);			
+//			}
 //		}
 		
 		return fullBestList;
@@ -519,7 +516,7 @@ public class TrigKCalculation {
 	
 	
 	/*
-	 * when uri time is 59 min past the hour, calculate the averages and append to db
+	 * when uri time is 59 min past the hour, calculate the averages and write to geomat_houravg
 	 */
 	public void calcSimpleHourAvg(String[] dataURIs) throws StorageException {	  
 		
@@ -534,7 +531,7 @@ public class TrigKCalculation {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//int hour = time.getHours();
+				
 				int min = time.getMinutes();	
 			
     			List<?> dataList = null;
@@ -564,11 +561,6 @@ public class TrigKCalculation {
 	    					
 	    				}
 	    			}
-//	    			else {	
-//	    				List<Integer> idList = bestList.get(bestList.size()-1); //last data id						
-//	    				recAvg.setId((int) idList.get(0));
-//	    				System.out.println("**idList "+idList);
-//	    			}	    			
 	    			
 					recAvg.setAvgTime(time);
 					recAvg.setInsertTime(Calendar.getInstance().getTime());
@@ -579,26 +571,23 @@ public class TrigKCalculation {
 					GeoMagAvgDao avgDao = new GeoMagAvgDao();
 					avgDao.persist(recAvg);
 		
-//					long t3 = Calendar.getInstance().getTimeInMillis();
-//	    	    	System.out.println("*****tt3 "+ t3);	
     			}
         	} 
 		}
 		
-		// if min=59 record=missing, look the avg table to insert missing avg
-//		time.setMinutes(30);
-//		List<GeoMagAvg> avgList = retrieveSingleAvg(dataURI, time);
     }
 
 	
 	/*
-	 * 
+	 * Write to geomag_k1min
 	 */
-	public Map<String, List<float[]>> calcBy3hr(String[] dataURIs) {
-		GeoMagAvgDao avgDao = new GeoMagAvgDao();
-		if (avgDao != null && dataURIs != null) {			
+	public void calcK(String[] dataURIs) {
+		
+		if (dataURIs != null ) {			
     		for (String dataURI : dataURIs ) {
+    			
     			String stationCode = CalcUtil.getStationFromUri(dataURI);
+    			String source = CalcUtil.getSourceFromUri(dataURI);
     			
     			Date timeBy3 = null;;
 				try {
@@ -607,23 +596,24 @@ public class TrigKCalculation {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
 				int hour = timeBy3.getHours();
 				int min = timeBy3.getMinutes();
 				
+				/*
+		    	 * Read average
+		    	 */
 				Date spTime = CalcUtil.getSPTime( timeBy3);
-//				int spHour = spTime.getHours();
 				
 				List<GeoMagAvg> dataList = null;
-				if ((hour%3 == 0 && min == 0 )
-					|| stationMap.entrySet().isEmpty() )
+
     				dataList = retrieveUriBy3hr(dataURI, CalcUtil.getSPTime(timeBy3));
-    			else
+
+				// dataList size (avg) < 24, can't calculate dB[j]
+				if (dataList.size() <= HOURS)
     				continue;
 
-    			System.out.println("**resultsListby3.size() "+dataList.size()+" "+hour);	
-
     			
-    			//List<Integer> idList = new ArrayList<Integer>();
     			List<Date> dateList = new ArrayList<Date>();
 			    List<Float> hHrAvgList = new ArrayList<Float>();
 			    List<Float> dHrAvgList = new ArrayList<Float>();
@@ -636,105 +626,82 @@ public class TrigKCalculation {
     					dateList.add( (Date) row.getAvgTime());
     					hHrAvgList.add( (Float) row.getHHrAvg());
     					dHrAvgList.add( (Float) row.getDHrAvg());    					
-	    				//System.out.println("***row "+dateList.get(i)+" "+hHrAvgList.get(i)+" " +dHrAvgList.get(i));
-    				}
-    			
-					
-	    			sort(dateList, hHrAvgList, dHrAvgList); 
 	    			
-	    			for (int i = 0; i < dateList.size(); i++) {
-	    				System.out.println("***rowsortBy3 "+dateList.size()+" "+dateList.get(i)+" "+hHrAvgList.get(i)+" " +dHrAvgList.get(i));
 	    			}
     			    	    			 
-//	    			List<List> recList = new ArrayList();
-//	    			recList.add(dateList);
-//	    			recList.add(hHrAvgList);
-//	    			recList.add(dHrAvgList);
-//	    			List<List> recListFinal = fillAvgTimeGaps(recList);
+	    			sort(dateList, hHrAvgList, dHrAvgList); 
 	    			
-	    			// fill missing
-	    			//List<Integer> idListFinal = new ArrayList<Integer>();
+	    			/*
+	    			 *  fill missing
+	    			 */
 	    			List<Date> dateListFinal = new ArrayList<Date>();
 	    		    List<Float> hHrAvgListFinal = new ArrayList<Float>();
 	    		    List<Float> dHrAvgListFinal = new ArrayList<Float>();
 	    			
 	    		    // fill missing in the beginning		
-	    			Date date = (Date) dateList.get(0);//.get(0);    //bestList.get(i) eq. newList.  	
+	    			Date date = (Date) dateList.get(0);  	
 	    			int hr0 = date.getHours();
 	    					
-	    			if ( hr0 != 0 ) {
+	    			if ( hr0 != spTime.getHours() ) {
 	    				for (int k = 0; k < hr0; k++) {
-	    					List newList2 = new ArrayList(); // eq. newList
 	    					
 	    					Date dateNew = (Date)date.clone();
 	    					dateNew.setMinutes(k);
 			
 	    					dateListFinal.add( dateNew);
 	    					hHrAvgListFinal.add( MISSING_VAL);
-							hHrAvgListFinal.add( MISSING_VAL);								
+							dHrAvgListFinal.add( MISSING_VAL);								
 	    				}			
 	    			}
-	    			//// fill missing in the middle
+	    			
+	    			// fill missing in the middle
 	    			for (int i = 0; i < dateList.size(); i++) {  
-	    				if (i+1 < dateList.size()) {
 	    					Date date0 = dateList.get(i);
 	    					dateListFinal.add(date);
 	    					hHrAvgListFinal.add( hHrAvgList.get(i));
-							hHrAvgListFinal.add( dHrAvgList.get(i));
+						dHrAvgListFinal.add( dHrAvgList.get(i));
 	    					
+						if (i+1 < dateList.size()) {	
 	    					Date date1 = (Date)dateList.get(i+1);
-	    					int diffHr = (int)(date1.getTime() - date.getTime())/ (3600*1000);
+	    					int diffHr = (int)(date1.getTime() - date0.getTime())/ (3600*1000);
 
 	    					if (diffHr != 1) {
 	    						for (int j = 0; j < diffHr-1; j++) {  
 	    							dateListFinal.add( new Date(date.getTime() + 3600*1000*(j+1))); //append after i, i+1
-	    							//idList.add( idList.get(i)+1);
 	    							hHrAvgListFinal.add( MISSING_VAL);
-	    							hHrAvgListFinal.add( MISSING_VAL);
+	    							dHrAvgListFinal.add( MISSING_VAL);
 	    								
 	    						}
 	    					}
 	    				}	
 	    			}
+				    
 	    			// fill missing in the end
-	    			date = (Date) dateList.get(dateList.size()-1);
-	    			int hrEnd = date.getMinutes();
-				    
-	    			if ( hrEnd < 59 ) {
-	    				for (int k = hrEnd+1; k < 60; k++) {
-	    					List newList2 = new ArrayList(); // eq. newList
-				    
-	    					Date dateNew = (Date)date.clone();					
-	    					dateNew.setMinutes(k);
-				    
-	    					dateListFinal.add( new Date(date.getTime() + 3600*1000*(k+1))); //append after i, i+1
-							//idList.add( idList.get(i)+1);
+	    			int latest = dateListFinal.size();
+	    			if (latest < HOURS*AVG_DATA_RANGE) {
+	    				for (int k = latest; k < HOURS*AVG_DATA_RANGE; k++) {
+	    					dateListFinal.add(new Date(dateListFinal.get(latest-1).getTime() + 3600*1000*(k+1)));
 							hHrAvgListFinal.add( MISSING_VAL);
-							hHrAvgListFinal.add( MISSING_VAL);
-	    					
+							dHrAvgListFinal.add( MISSING_VAL);
 	    				}
 	    			}
-	    			for (int i = 0; i < dateListFinal.size(); i++) {
-//	    				System.out.println("***rowsort2 "+dateListFinal.size()+" "+dateListFinal.get(i)+" "+hHrAvgListFinal.get(i));
-	    			}
     			
     			
-					float[] hHrAvgs = CalcUtil.toFloatArray(hHrAvgList);
-					float[] dHrAvgs = CalcUtil.toFloatArray(dHrAvgList);
+					float[] hHrAvgs = CalcUtil.toFloatArray(hHrAvgListFinal);
+					float[] dHrAvgs = CalcUtil.toFloatArray(dHrAvgListFinal);
+					
 	    			float[] dB = CalcEach3hr.getDisturbanceLevel(hHrAvgs, dHrAvgs);
-	//    			for ( int k = 0; k < 30; k++ )
-	//    	        	System.out.println("*****dB "+ dB[k]);
+//	    			for ( int k = 0; k < 30; k++ )
+//	    	        	System.out.print("*****dB "+ dB[k]+" ");
+//	    			System.out.println("");
+					
 	    	    	@SuppressWarnings("unchecked")
 	    			Map<Integer, Float> dBsmall = CalcEach3hr.getSmallDisturbanceLevel(dB);
 	    	    	
 	    	    	float[] quietHHrAvg = CalcEach3hr.getQuietLevelHourAvg(dBsmall, hHrAvgs);
 	    	    	float[] quietDHrAvg = CalcEach3hr.getQuietLevelHourAvg(dBsmall, dHrAvgs);  
-	//	    	    	for (int i=0; i<dHrAvgs.length; i++)
-	//			    		System.out.print("dHrAvgs "+dHrAvgs[i]);
-	//	    	    	System.out.println("**dHrAvgs.length"+dHrAvgs.length);
-			    	for (int i=0; i<quietDHrAvg.length; i++)
-			    		System.out.print("quietdHrAvg "+quietDHrAvg[i]);
-//		    	    	System.out.println("***hHrAvgs "+ CalcUtil.maxValue(hHrAvgs)+ " "+CalcUtil.minValue(hHrAvgs)+" "+hHrAvgs[0]+" "+hHrAvgs[10]);
+
+//		    	    System.out.println("***hHrAvgs "+ CalcUtil.maxValue(hHrAvgs)+ " "+CalcUtil.minValue(hHrAvgs)+" "+hHrAvgs[0]+" "+hHrAvgs[1]+" "+hHrAvgs[2]);
 //		    	    	System.out.println("***dHrAvgs "+ CalcUtil.maxValue(dHrAvgs)+ " "+CalcUtil.minValue(dHrAvgs)+" "+dHrAvgs[0]+" "+dHrAvgs[10]);
 //		    	    	System.out.println("***quietHHrAvg "+ CalcUtil.maxValue(quietHHrAvg)+ " "+CalcUtil.minValue(quietHHrAvg)+" "+quietHHrAvg[0]+" "+quietHHrAvg[10]);
 //		    	    	System.out.println("***quietdHrAvg "+ CalcUtil.maxValue(quietDHrAvg)+ " "+CalcUtil.minValue(quietDHrAvg)+" "+quietDHrAvg[0]+" "+quietDHrAvg[10]);
@@ -749,176 +716,98 @@ public class TrigKCalculation {
     	    	
 	    	    	float[] qha = CalcEach3hr.getQHA(quietHHrAvg);
 	    	    	float[] qda = CalcEach3hr.getQHA(quietDHrAvg);
-	//	    	    	System.out.println("***qha "+ CalcUtil.maxValue(qha)+ " "+CalcUtil.minValue(qha)+" "+qha[0]+" "+qha[10]);
-	//	    	    	System.out.println("***qda "+ CalcUtil.maxValue(qda)+ " "+CalcUtil.minValue(qda)+" "+qda[0]+" "+qda[10]);
+//	    	    	System.out.println("***qha "+ CalcUtil.maxValue(qha)+ " "+CalcUtil.minValue(qha)+" "+qha[0]+" "+qha[10]);
+//	    	    	System.out.println("***qda "+ CalcUtil.maxValue(qda)+ " "+CalcUtil.minValue(qda)+" "+qda[0]+" "+qda[10]);
 	    	    	
 	    	    	float[] hQdc = CalcEach1min.getHarmonicFit(qha);//[1440]
 			    	float[] dQdc = CalcEach1min.getHarmonicFit(qda);
-	//			    	for (int i=0; i<hQdc.length; i++)
-	//			    		System.out.print("hQdc "+hQdc[i]);
-			    	System.out.println("**hQdc.length"+hQdc.length);
-			    	for (int i=0; i<dQdc.length; i++)
-			    		System.out.print("dQdc "+dQdc[i]);
-	//			    	System.out.println("***hQdc "+ CalcUtil.maxValue(hQdc)+ " "+CalcUtil.minValue(hQdc)+" "+hQdc[0]+" "+hQdc[10]);
-	//			    	System.out.println("***dQdc "+ CalcUtil.maxValue(dQdc)+ " "+CalcUtil.minValue(dQdc)+" "+dQdc[0]+" "+dQdc[10]);
+//				    System.out.println("***hQdc "+ CalcUtil.maxValue(hQdc)+ " "+CalcUtil.minValue(hQdc)+" "+hQdc[0]+" "+hQdc[10]);
+//				    System.out.println("***dQdc "+ CalcUtil.maxValue(dQdc)+ " "+CalcUtil.minValue(dQdc)+" "+dQdc[0]+" "+dQdc[10]);
 			    	
 			    	float[] qhaQdc = CalcEach1min.getQHAQDC(hQdc);//[1440]
 			    	float[] qdaQdc = CalcEach1min.getQHAQDC(dQdc);
-			    	
-	//			    	System.out.println("");
-	//			    	for (int i=0; i<qdaQdc.length; i++)
-	//			    		System.out.print("qdaQdc "+qdaQdc[i]);
-	//			    	System.out.println("***qhaQdc "+ CalcUtil.maxValue(qhaQdc)+ " "+CalcUtil.minValue(qhaQdc)+" "+qhaQdc[0]+" "+qhaQdc[10]+" "+station);
-	//			    	System.out.println("***qdaQdc "+ CalcUtil.maxValue(qdaQdc)+ " "+CalcUtil.minValue(qdaQdc)+" "+qdaQdc[0]+" "+qdaQdc[10]);
-			    	
-	    			List<float[]> hdList = new ArrayList<float[]>();	
-				    hdList.add(qhaQdc);
-				    hdList.add(qdaQdc);
-				    hdList.add(hQdc);
-				    hdList.add(dQdc);
-				    hdList.add(qha);
-				    hdList.add(qda);
-				    stationMap.put(stationCode, hdList);//		
-	
-				    //init again
-				    Arrays.fill(hHrAvgs, MISSING_VAL);
-				    Arrays.fill(dHrAvgs, MISSING_VAL);
-				    
-		    		for (Map.Entry<String, List<float[]>> entry : stationMap.entrySet())
-		    			System.out.println("***themap "+ entry.getKey()+" "+entry.getValue().size()+" "+CalcUtil.maxValue(entry.getValue().get(0)) +" "+ CalcUtil.minValue(entry.getValue().get(0))+" "+CalcUtil.maxValue(entry.getValue().get(1)));
-		    		
-    			}
-			}
-		}
-
-		return stationMap;
-	}
+//			    	System.out.println("***qhaQdc "+ CalcUtil.maxValue(qhaQdc)+ " "+CalcUtil.minValue(qhaQdc)+" "+qhaQdc[0]+" "+qhaQdc[10]+" "+station);
+//			    	System.out.println("***qdaQdc "+ CalcUtil.maxValue(qdaQdc)+ " "+CalcUtil.minValue(qdaQdc)+" "+qdaQdc[0]+" "+qdaQdc[10]);
 	
 	
-	public Map<String, List<float[]>> calcBy1min( String[] dataURIs) throws StorageException {		
-		//Map<String, List<float[]>> stationMap = new HashMap<String, List<float[]>>();
+			    	/*
+			    	 * Read H and D
+			    	 */
 		Map<String, List<float[]>> kIndexMap = new HashMap<String, List<float[]>>();
 		 
-		float[] qhaQdc = new float[HOURS];
-    	float[] qdaQdc = new float[HOURS];
-    	float[] hQdc = new float[HOURS];
-    	float[] dQdc = new float[HOURS];
-    	float[] qha = new float[HOURS];
-    	float[] qda = new float[HOURS];
-		float[] hdata = new float[HD_DATA_RANGE*HOURS*MINUTES];
-		float[] ddata = new float[HD_DATA_RANGE*HOURS*MINUTES];
-	    
-	    Arrays.fill(hdata, MISSING_VAL);
-	    Arrays.fill(ddata, MISSING_VAL);
-   
-	    if (dao != null && dataURIs != null) {
-			for (String dataURI : dataURIs ) {
-    			String stationCode = CalcUtil.getStationFromUri(dataURI);
-    			
-    			Date timeBy1 = null;;
+	    			Date timeBy1 = null;
 				try {
 					timeBy1 = CalcUtil.getTimeFromUri(dataURI);
+						
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				int hour = timeBy1.getHours();
-				int min = timeBy1.getMinutes();	
-				Date epTime = CalcUtil.getEPTime(timeBy1);
+
+					Date epTime = CalcUtil.getEPTime( timeBy1);
 				int epHour = epTime.getHours();
     			
-    			List<?> dataList = retrieveUriForK1min(dataURI, epTime);
+					/*
+					 * change epTime to current time
+					 */
+	    			List<?> hdDataList = retrieveUriForK1min(dataURI, timeBy1);
+	
+	    			if (hdDataList != null && hdDataList.size() != 0) {
+	    				// if dataList <= 1440, can't calculate k-index
+	    				if (hdDataList.size() <= HOURS*MINUTES)
+	    				    continue;
 
-    			if (dataList != null && dataList.size() != 0) {
 	    			// gest best observation data
-	    			List<List> bestList = getBestObserv( dataList );
-	    			System.out.println("**dataListBy1 size"+dataList.size()+" "+bestList.size()+" "+epTime);	    				
+	    				List<List> bestList = getBestObserv( hdDataList );
+	    				    if (bestList.size() <= HOURS*MINUTES)
+	    				    	continue;
 				
+	    				List<List> bestListFull = fillHDTimeGaps( bestList);
+	    				// System.out.println("**dataListBy1 size"+dataList.size()+" "+bestList.size()+" "+bestListFull.size());	    				
 				
     			// get hdata, ddata
-					for (int i = 0; i < bestList.size(); i++) {	
-						List<Float> list = (List<Float>) bestList.get(i);
+					    float[] hdata = new float[HD_DATA_RANGE*HOURS*MINUTES];
+						float[] ddata = new float[HD_DATA_RANGE*HOURS*MINUTES];
+					    
+					    Arrays.fill(hdata, MISSING_VAL);
+					    Arrays.fill(ddata, MISSING_VAL);
+	    			   
+						for (int i = 0; i < bestListFull.size(); i++) {	
+							List<Float> list = (List<Float>) bestListFull.get(i);
 						if (list != null && !list.isEmpty()) {
 							hdata[i] = list.get(1);
 							ddata[i] = list.get(2);					
 						}			
 					}
 					
-					System.out.println("***hdata "+hdata.length+" "+hdata[0]+" "+hdata[1]+" "+hdata[2880]+" "+hdata[2879]);
-					System.out.println("***ddata "+ddata.length+" "+ddata[0]+" "+ddata[1]+" "+ddata[2880]+" "+ddata[2879]);
-					
-	    			// calculate
-		    		//System.out.println("******stationMap " + stationMap.size()+ " "+ stationMap.entrySet().size() );
-				    for (Map.Entry<String, List<float[]>> entry : stationMap.entrySet()) {
-				    	if (entry.getKey().equalsIgnoreCase(stationCode)) {
-				    		List<float[]> list = entry.getValue();
-				    		qhaQdc = list.get(0);
-				    		qdaQdc = list.get(1);
-				    		hQdc = list.get(2);
-				    		dQdc = list.get(3);
-				    		qha = list.get(4);
-				    		qda = list.get(5);
-		    			}
-		    		}
-					 
+	//					System.out.println("***hdata "+ CalcUtil.maxValue(hdata)+ " "+CalcUtil.minValue(hdata)+" "+hdata[0]+" "+hdata[2879]);
+	//			    	System.out.println("***ddata "+ CalcUtil.maxValue(ddata)+ " "+CalcUtil.minValue(ddata)+" "+ddata[0]+" "+ddata[2879]);
 
-				    System.out.println("***hdata "+ CalcUtil.maxValue(hdata)+ " "+CalcUtil.minValue(hdata)+" "+hdata[0]+" "+hdata[2879]);
-			    	System.out.println("***ddata "+ CalcUtil.maxValue(ddata)+ " "+CalcUtil.minValue(ddata)+" "+ddata[0]+" "+ddata[2879]);
 			    	defLength = CalcEach3hr.getDefLength(stationCode, epHour);
 			    	
 			    	float[] hhdata = CalcEach1min.fillGaps(hdata);
 			    	float[] dddata = CalcEach1min.fillGaps(ddata);
 			    	
-			    	System.out.println("***hhdataGaps "+ CalcUtil.maxValue(hhdata)+ " "+CalcUtil.minValue(hhdata)+" "+hhdata[0]+" "+hhdata[10]);
-			    	System.out.println("***dddataGaps "+ CalcUtil.maxValue(dddata)+ " "+CalcUtil.minValue(dddata)+" "+dddata[0]+" "+dddata[10]);		    	
-			    	System.out.println("***qhaQdc "+ CalcUtil.maxValue(qhaQdc)+ " "+CalcUtil.minValue(qhaQdc)+" "+qhaQdc[0]+" "+qhaQdc[10]);
-			    	System.out.println("***qdaQdc "+ CalcUtil.maxValue(qdaQdc)+ " "+CalcUtil.minValue(qdaQdc)+" "+qdaQdc[0]+" "+qdaQdc[10]);
-			    	System.out.println("***hQdc "+ CalcUtil.maxValue(hQdc)+ " "+CalcUtil.minValue(hQdc)+" "+hQdc[0]+" "+hQdc[10]);
-			    	System.out.println("***dQdc "+ CalcUtil.maxValue(dQdc)+ " "+CalcUtil.minValue(dQdc)+" "+dQdc[0]+" "+dQdc[10]);
-			    	
-	//		    	for (int i=0; i<qhaQdc.length; i++)
-	//		    		System.out.print("qhaQdc "+qhaQdc[i]);
-			    	System.out.println("**qhaQdc.length"+qhaQdc.length);
-	//		    	for (int i=0; i<qdaQdc.length; i++)
-	//		    		System.out.print("qdaQdc "+qdaQdc[i]);
-			    	
 			    	int currTimeIndex = CalcEach1min.getCurrTimeIndex(hour, min, epHour);
-			    	System.out.println("***index "+currTimeIndex+ " "+hour+" "+epHour+" "+min);//00:01
+				    	//System.out.println("**currTimeIndex "+currTimeIndex);
 			    	
 			    	hhdata = CalcEach1min.getExtrapolation(hhdata, qhaQdc, currTimeIndex);
 			    	dddata = CalcEach1min.getExtrapolation(dddata, qdaQdc, currTimeIndex);
-	//		    	for (int i=2880-180; i<2800; i++)
-	//		    		System.out.print("hhdate "+i +" "+hhdata[i]);
-	//		    	for (int i=2880-180; i<2800; i++)
-	//		    		System.out.print("dddata "+i +" "+dddata[i]);
-			    	System.out.println("dddata "+dddata.length);
-			    	
 	//		    	System.out.println("***hhdataExtr "+ CalcUtil.maxValue(hhdata)+ " "+CalcUtil.minValue(hhdata)+" "+hhdata[0]+" "+hhdata[10]);
 	//		    	System.out.println("***dddataExtr "+ CalcUtil.maxValue(dddata)+ " "+CalcUtil.minValue(dddata)+" "+dddata[0]+" "+dddata[10]);
-	//		    	int l=0;
-	//		    	for (l = hhdata.length-1; l >=0; l--) 
-	//			    	if (hhdata[l] != MISSING_VAL && dddata[l] != MISSING_VAL)
-	//			    		break;
-	//			    System.out.println("***lll "+l);
-			    	
 				    
 			    	float[] hDev = CalcEach1min.getDev(hhdata, hQdc);//[1440]
 			    	float[] dDev = CalcEach1min.getDev(dddata, dQdc);
-	//		    	for (int i=0; i<hDev.length; i++)
-	//		    		System.out.print("hDev "+hDev[i]);
-			    	for (int i=0; i<dDev.length; i++)
-			    		System.out.print("dDev "+dDev[i]);
-			    	System.out.println("**dDev.length"+dDev.length);
+	//			    	System.out.println("***hDev "+ CalcUtil.maxValue(hDev)+ " "+CalcUtil.minValue(hDev)+" "+hDev[0]+" "+hDev[10]);
+	//			    	System.out.println("***dDev "+ CalcUtil.maxValue(dDev)+ " "+CalcUtil.minValue(dDev)+" "+dDev[0]+" "+dDev[10]);
 			    	
-			    	System.out.println("***hDev "+ CalcUtil.maxValue(hDev)+ " "+CalcUtil.minValue(hDev)+" "+hDev[0]+" "+hDev[10]);
-			    	System.out.println("***dDev "+ CalcUtil.maxValue(dDev)+ " "+CalcUtil.minValue(dDev)+" "+dDev[0]+" "+dDev[10]);
 			    	//already considered missing in getDev
 			    	
 			    	int[] kLimit = CalcUtil.getKLimit(stationCode); 
 			    	
 			    	int missingFlag = 0;
 			    	List<float[]> kList = CalcEach1min.getKIndex(hDev, dDev, kLimit, missingFlag);//[8]
-	//		    	System.out.println("***kList "+kList.size());
+		
 			    	float[] kIndex =  kList.get(0);
 			    	float[] gamma =  kList.get(1);
 			    	
@@ -928,39 +817,44 @@ public class TrigKCalculation {
 			    	
 			    	float[] hcA = CalcEach1min.getCentHourAvg(hhdata, fitLength, kIndex);//middle [24]
 			    	float[] dcA = CalcEach1min.getCentHourAvg(dddata, fitLength, kIndex);
-			    	System.out.println("***hcA "+ CalcUtil.maxValue(hcA)+ " "+CalcUtil.minValue(hcA)+" "+hcA[0]+" "+hcA[10]+" "+stationCode);
-			    	System.out.println("***dcA "+ CalcUtil.maxValue(dcA)+ " "+CalcUtil.minValue(dcA)+" "+dcA[0]+" "+dcA[10]);
+	//			    	System.out.println("***hcA "+ CalcUtil.maxValue(hcA)+ " "+CalcUtil.minValue(hcA)+" "+hcA[0]+" "+hcA[10]+" "+stationCode);
+	//			    	System.out.println("***dcA "+ CalcUtil.maxValue(dcA)+ " "+CalcUtil.minValue(dcA)+" "+dcA[0]+" "+dcA[10]);
 			    	  
 			    	hcA = CalcEach1min.adjustHrCentAvg(hcA, qha, gamma, kLimit);
 			    	dcA = CalcEach1min.adjustHrCentAvg(dcA, qda, gamma, kLimit);
-			    	System.out.println("***hcAAdj "+ CalcUtil.maxValue(hcA)+ " "+CalcUtil.minValue(hcA)+" "+hcA[0]+" "+hcA[10]);
-			    	System.out.println("***dcAAdj "+ CalcUtil.maxValue(dcA)+ " "+CalcUtil.minValue(dcA)+" "+dcA[0]+" "+dcA[10]);
+	//			    	System.out.println("***hcAAdj "+ CalcUtil.maxValue(hcA)+ " "+CalcUtil.minValue(hcA)+" "+hcA[0]+" "+hcA[10]);
+	//			    	System.out.println("***dcAAdj "+ CalcUtil.maxValue(dcA)+ " "+CalcUtil.minValue(dcA)+" "+dcA[0]+" "+dcA[10]);
 			    	
 			    	// Harmonic Fit to derive the qdc
-			    	for (int i=0; i<hcA.length; i++)
+				    	int foundMiss = 0;
+				    	for (int i=0; i<hcA.length; i++) {
 			    		if (hcA[i] == MISSING_VAL) {
-			    			System.out.println("**MIssing1");
+				    			foundMiss = 1;
 			    			hQdc = hQdc;
 			    			break; 
 			    		}
-			    		else 
+				    	}
+				    	if (foundMiss == 0) 
 			    			hQdc = CalcEach1min.getHarmonicFit(hcA);
 	
-			    	for (int i=0; i<hcA.length; i++)
-			    		if (hcA[i] == MISSING_VAL) {
-			    			System.out.println("**MIssing2");
+				    	foundMiss = 0;
+				    	for (int i=0; i<dcA.length; i++) {
+				    		if (dcA[i] == MISSING_VAL) {
+				    			foundMiss = 1;
 			    			dQdc = dQdc;
 			    			break; 
 			    		}
-			    		else 
+				    	}
+				    	if (foundMiss == 0) 
 			    			dQdc = CalcEach1min.getHarmonicFit(dcA);
 			    	
 	//		    	System.out.println("***hQdc2 "+ CalcUtil.maxValue(hQdc)+ " "+CalcUtil.minValue(hQdc)+" "+hQdc[0]+" "+hQdc[10]);
 	//		    	System.out.println("***dQdc2 "+ CalcUtil.maxValue(dQdc)+ " "+CalcUtil.minValue(dQdc)+" "+dQdc[0]+" "+dQdc[10]);
 			    	
-			    	// Do a few iterations. check for convergence of k_index and exit loop 
-			    	// Done before ITERATIONS if you see two passes with identical values for k_index
-			    	
+				    	/*
+				    	 * Do a few iterations. check for convergence of k_index and exit loop 
+				    	 * Done before ITERATIONS if you see two passes with identical values for k_index
+				    	 */			    
 			    	float[] last_kindex = new float[8];
 			    	Arrays.fill(last_kindex, -1);
 			    	
@@ -972,10 +866,6 @@ public class TrigKCalculation {
 			    		float kchange = 0;
 			    		hDev = CalcEach1min.getDev(hhdata, hQdc);
 			        	dDev = CalcEach1min.getDev(dddata, dQdc);
-	//		        	System.out.println("***hhdataLoop "+ CalcUtil.maxValue(hhdata)+ " "+CalcUtil.minValue(hhdata)+" "+hhdata[0]+" "+hhdata[10]);
-	//			    	System.out.println("***dddataLoop "+ CalcUtil.maxValue(dddata)+ " "+CalcUtil.minValue(dddata)+" "+dddata[0]+" "+dddata[10]);		    	
-	//			    	System.out.println("***hDevLoop "+ CalcUtil.maxValue(hDev)+ " "+CalcUtil.minValue(hDev)+" "+hDev[0]+" "+hDev[10]);
-	//		        	System.out.println("***dDevLoop "+ CalcUtil.maxValue(dDev)+ " "+CalcUtil.minValue(dDev)+" "+dDev[0]+" "+dDev[10]);
 			        		
 			        	kList = CalcEach1min.getKIndex(hDev, dDev, kLimit, missingFlag);
 			        	kIndex =  kList.get(0);
@@ -991,40 +881,35 @@ public class TrigKCalculation {
 				        	break;
 	
 			        	fitLength = CalcEach1min.getFitLength(defLength, kIndex, kLength);
-			        	//System.out.println("***fitLength2 "+ fitLength.length+ " "+fitLength[6]+ " "+CalcUtil.minValue(fitLength));
 			        	
 			        	hcA = CalcEach1min.getCentHourAvg(hhdata, fitLength, kIndex);
 			        	dcA = CalcEach1min.getCentHourAvg(dddata, fitLength, kIndex);
-			        	System.out.println("***hcALoop "+ CalcUtil.maxValue(hcA)+ " "+CalcUtil.minValue(hcA)+" "+hcA[0]+" "+hcA[10]);
-			        	System.out.println("***dcALoop "+ CalcUtil.maxValue(dcA)+ " "+CalcUtil.minValue(dcA)+" "+dcA[0]+" "+dcA[10]);
 			        	
 			        	hcA = CalcEach1min.adjustHrCentAvg(hcA, qha, gamma, kLimit);
 			        	dcA = CalcEach1min.adjustHrCentAvg(dcA, qda, gamma, kLimit);
 			        	
-	//		        	hQdc = CalcEach1min.getHarmonicFit(hcA);//[1440]
-	//		        	dQdc = CalcEach1min.getHarmonicFit(dcA);
-			        	
 			        	// Harmonic Fit to derive the qdc
-				    	for (int i=0; i<hcA.length; i++)
+				        	foundMiss = 0;
+					    	for (int i=0; i<hcA.length; i++) {
 				    		if (hcA[i] == MISSING_VAL) {
-				    			System.out.println("**MIssing1");
+					    			foundMiss = 1;
 				    			hQdc = hQdc;
 				    			break; 
 				    		}
-				    		else 
+					    	}
+					    	if (foundMiss == 0) 
 				    			hQdc = CalcEach1min.getHarmonicFit(hcA);
 	
-				    	for (int i=0; i<hcA.length; i++)
-				    		if (hcA[i] == MISSING_VAL) {
-				    			System.out.println("**MIssing2");
+					    	foundMiss = 0;
+					    	for (int i=0; i<dcA.length; i++) {
+					    		if (dcA[i] == MISSING_VAL) {
+					    			foundMiss = 1;
 				    			dQdc = dQdc;
 				    			break; 
 				    		}
-				    		else 
+					    	}
+					    	if (foundMiss == 0) 
 				    			dQdc = CalcEach1min.getHarmonicFit(dcA);
-				    	
-				    	System.out.println("***hQdcLoop3 "+ CalcUtil.maxValue(hQdc)+ " "+CalcUtil.minValue(hQdc)+" "+hQdc[0]+" "+hQdc[10]);
-				    	System.out.println("***dQdcLoop3 "+ CalcUtil.maxValue(dQdc)+ " "+CalcUtil.minValue(dQdc)+" "+dQdc[0]+" "+dQdc[10]);
 				    	
 				    	last_kindex = kIndex.clone();
 			    	}
@@ -1032,12 +917,11 @@ public class TrigKCalculation {
 			    	// Now do the calculation using the original data (hdata, ddata)
 			    	hDev = CalcEach1min.getDev(hdata, hQdc);//[1440]
 			    	dDev = CalcEach1min.getDev(ddata, dQdc);
-			    	System.out.println("***hDevLast "+ CalcUtil.maxValue(hDev)+ " "+CalcUtil.minValue(hDev)+" "+hDev[0]+" "+hDev[10]);
-		        	System.out.println("***dDevLast "+ CalcUtil.maxValue(dDev)+ " "+CalcUtil.minValue(dDev)+" "+dDev[0]+" "+dDev[10]);
 		        	
 			    	kList = CalcEach1min.getKIndex(hDev, dDev, kLimit, missingFlag);		    	
 			    	kIndex =  kList.get(0);
 			    	gamma =  kList.get(1);
+				    	
 			    	float[] hkIndex =  kList.get(2);
 			    	float[] hGamma =  kList.get(3);
 			    	float[] dkIndex =  kList.get(4);
@@ -1056,28 +940,23 @@ public class TrigKCalculation {
 			    	count[0] = lastHCount;
 			    	count[1] = lastDCount;
 			    	kList.add(6, count);
-			    	kIndexMap.put(stationCode, kList);
-			    	System.out.println("**count "+lastHCount+" "+lastDCount);
+				    	kIndexMap.put(stationCode+source, kList);
+				    	
 			    	
 			    	float[] kest = CalcKp.getKest(stationCode, kList.get(0), kList.get(1));
-	//		    	for(int i=0;i<8;i++)
-	//		    		System.out.println("**kest "+kest[i]);
 			    	
 			    	float ks = 0;
 			    	try {
-						ks = CalcKp.getKs(stationCode, (int) kIndex[7], timeBy1); // 7 is last point kIndex					
+							ks = CalcKp.getKs(stationCode, (int) kIndex[7], (Date) timeBy1.clone()); // 7 is last point kIndex					
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 	
 			    	int a_est = CalcKp.getAest(stationCode, (int) kIndex[7]);
-			    	System.out.println("****ks a "+ ks+" "+a_est);
 			    	
 					
 					// 1 min
-					//int id =           (Integer)  bestList.get(bestList.size()-1).get(0);
-					Date timeTag =     (Date)  bestList.get(bestList.size()-1).get(3);
 					int kest_index =   (int) kIndex[7];
 					float kest_real =  CalcKp.getKest(stationCode, (int) kIndex[7], gamma[7]);					
 					float kest_gamma = gamma[7];					
@@ -1087,22 +966,26 @@ public class TrigKCalculation {
 					float dgamma =     dGamma[7];	
 					int hkindex =      (int) hkIndex[7];
 					int dkindex =      (int) dkIndex[7];
+						int countH = (int) count[0];
+						int countD = (int) count[1];
 					float ksArray = ks;	
 					int aestArray = a_est;
-	//				int[] kest_index = new int[HOURS/3];
-	//				float[] kest_real = new float[HOURS/3];					
-	//				float[] kest_gamma = new float[HOURS/3];					
-	//				float[] hk_real = new float[HOURS/3];
-	//				float[] hgamma = new float[HOURS/3];
-	//				float[] dk_real = new float[HOURS/3];
-	//				float[] dgamma = new float[HOURS/3];
-					
 		    		
-		    		//String newUri = dataURI.substring(0, 34)+ "100/GEOMAG";
-//					System.out.println("**recK1min store "+id+" "+timeTag +" "+timeBy1+" "+kest_index+" "+ks);
 					
 	    			GeoMagK1min recK1min = new GeoMagK1min();   			
-//	    			recK1min.setId(id);
+		    			
+		    			List<GeoMagK1min> k1minList = retrieveSingleK1min(dataURI, timeBy1);
+		    			
+		    			if (k1minList != null && k1minList.size() != 0) {//String newUri = dataURI.substring(0, 21) +":30:00.0"+ dataURI.substring(29, 34)+ "100/GEOMAG";
+		    				for (int i = 0; i < k1minList.size(); i++) {  //1 	    					
+		    					GeoMagK1min row = k1minList.get(i);
+		    					
+		    					int id = (Integer) row.getId();
+		    					if (id != 0)
+		    						recK1min.setId(id);	    					
+		    				}
+		    			}
+						
 	    			recK1min.setRefTime(timeBy1);
 	    			recK1min.setLastUpdate(Calendar.getInstance().getTime());
 	    			recK1min.setStationCode(stationCode);
@@ -1117,105 +1000,175 @@ public class TrigKCalculation {
 	    			recK1min.setDKGamma(dgamma);
 	    			recK1min.setKs(ksArray);
 	    			recK1min.setAest(aestArray);
+		    			recK1min.setHCount(countH);
+		    			recK1min.setDCount(countD);
 	    			    			
 					GeoMagK1minDao k1minDao = new GeoMagK1minDao();
 					k1minDao.persist(recK1min);
 		
-					long t3 = Calendar.getInstance().getTimeInMillis();
-	    	    	System.out.println("*****tt3 "+ t3);
+		    	    	calcK3h(dataURI, kest_index, kest_real, kest_gamma);
     	    	
 				} // end of for dataURI
 		    }
 	    }
-    	
-	    return kIndexMap;   	
+		}	  	
 	}
 		
-	public void calcK3h(String[] dataURIs, Map<String, List<float[]>> kIndexMap){
-		if (dao != null && dataURIs != null) {
-			for (String dataURI : dataURIs ) {
+	/*
+	 * write to geomag_k3hr
+	 */
+	public void calcK3h(String dataURI, int kest_index, float kest_real, float kest_gamma){
+		List<Integer> idDb = new ArrayList<Integer>();	
+		List<Date> dateDb = new ArrayList<Date>();	
+		List<Integer> kIndexDb = new ArrayList<Integer>();	
+		List<Float> kGammaDb = new ArrayList<Float>();	
+		List<Integer> kestIndexDb = new ArrayList<Integer>();	
+		
+		int aRun = 0;
+		
     			String stationCode = CalcUtil.getStationFromUri(dataURI);
     			
-    			Date time = null;;
+		Date currTime = null;
 				try {
-					time = CalcUtil.getTimeFromUri(dataURI);
+			currTime = CalcUtil.getTimeFromUri(dataURI);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				int hour = time.getHours();
-				int min = time.getMinutes();	
-				int total = hour*MINUTES +min;
 				
-				Integer[] synopticPoint = {59, 119, 179, 359, 539, 719, 899, 1079, 1259, 1439};
-				System.out.println("**stationMap "+stationMap.entrySet().isEmpty() +" "+stationMap.entrySet().size() +" "+Arrays.asList(synopticPoint).contains(total));
+		int hour = currTime.getHours();
+		int min = currTime.getMinutes();
+		Date epTime = CalcUtil.getEPTime(currTime);
 				
-    			List<?> dataList = null;
-    			if (stationMap.entrySet().isEmpty() || Arrays.asList(synopticPoint).contains(total))
-    				dataList = retrieveUriForK3hr(dataURI, time);
-    			else
-    				continue;
+		GeoMagK3hr recK3hr = new GeoMagK3hr();
 
-    			System.out.println("**resultsListfor3.size() "+dataList.size());	
 
-    			List<List> bestList = getBestObserv( dataList );
+		List<GeoMagK3hr> k3hrList = retrieveUriForK3hr(dataURI, epTime); //epTime not in the list
     			
-    			int kindexDb = 0;
-				float krealDb = 0;
-				float kgammaDb = 0;		
-    			int k_index = 0;
-				float k_real = 0;
-				float k_gamma = 0;
+		if (k3hrList != null && k3hrList.size() != 0) { 
 			      		    		
-    			if (dataList != null ) { 
-    				for (int i = 0; i < dataList.size(); i++) {  //1 extra
+	    	for (int i = 0; i < k3hrList.size(); i++) {
+				
+				GeoMagK3hr row = (GeoMagK3hr) k3hrList.get(i);
     					
-    					GeoMagK3hr row = (GeoMagK3hr) dataList.get(i);
+				dateDb.add (row.getRefTime());
+				idDb.add ( row.getId());
+				kIndexDb.add ( row.getKIndex());
+				kGammaDb.add ( row.getKGamma());	
+				kestIndexDb.add (row.getKestIndex());
     					
-    					Date date = (Date) row.getRefTime();
-    					kindexDb = (Integer) row.getKIndex();
-    					krealDb = (Float) row.getKReal();
-    					kgammaDb = (Float) row.getKGamma();				
-	    				//System.out.println("***row "+dateList.get(i)+" "+hHrAvgList.get(i)+" " +dHrAvgList.get(i));
     				}
+			
+	    	sort(dateDb, idDb, kIndexDb, kGammaDb, kestIndexDb);
+	    	
     			}
 
-    			List<float[]> list = null;
-    			for (Map.Entry<String, List<float[]>> entry : kIndexMap.entrySet()) {
-    				System.out.println("**kindex list "+entry);   			
-			    	if (entry.getKey().equalsIgnoreCase(stationCode)) 
-			    		list = entry.getValue();
-//			    		qhaQdc = list.get(0);
-//			    		qdaQdc = list.get(1);
-	    		}
-    			
-		    	if (kindexDb == MISSING_VAL || kindexDb == 0)
-		    		k_index = (int) list.get(0)[7];
-		    	if (krealDb == MISSING_VAL || krealDb == 0)
-		    		k_real = CalcKp.getKest(stationCode, (int) list.get(0)[7], list.get(1)[7]); //[7], gamma[7]);
-	        	if (kgammaDb == MISSING_VAL || kgammaDb == 0)
-		    		kgammaDb = list.get(1)[7];
+		List<GeoMagK3hr> k3hrAtPoint = retrieveSingleK3hr(dataURI, epTime);
 		    	
-    	    	GeoMagK3hr recK3hr = new GeoMagK3hr();   			
-    			//recK3hr.setId((int) l.get(0));
-    			recK3hr.setRefTime(time);
+		if (k3hrAtPoint == null || k3hrAtPoint.size() == 0) {
+
+			// calculate aRunning, aFinalRunning			
+			// only need first 7 k
+	    	int sum = 0;
+			for (int k = 0; k < kestIndexDb.size(); k++) {
+				int a_est = CalcKp.getAest(stationCode, kestIndexDb.get(k));
+				sum += a_est;
+			}
+			sum += CalcKp.getAest(stationCode, kest_index);
+			aRun = (int) sum / (kestIndexDb.size()+1);  
+			
+			recK3hr.setRefTime(epTime);
     			recK3hr.setLastUpdate(Calendar.getInstance().getTime());
     			recK3hr.setStationCode(stationCode);
-    			recK3hr.setKIndex(k_index);
-    			recK3hr.setKReal(k_real);
-    			recK3hr.setKGamma(k_gamma);
+			recK3hr.setKestIndex(kest_index);
+	    	recK3hr.setKestReal(kest_real);
+	    	recK3hr.setKestGamma(kest_gamma);
+	    	recK3hr.setARunning(aRun);
+	    	
     			GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
 				k3hrDao.persist(recK3hr);
-
-//	    		record.setKestIndex(kest_index);
-//	    		record.setKestGamma(kest_gamma);
-//	    		record.setKestReal(kest_real);
-//	    		record.setHKReal(hk_real);
-//	    		record.setHKGamma(hgamma);
-//	    		record.setDKReal(dk_real);
-//	    		record.setDKGamma(dgamma);
-			}
 		}
+
+		else {
+			GeoMagK3hr row = (GeoMagK3hr) k3hrAtPoint.get(0);				
+			int idCurr = row.getId();				
+			int kIndexCurr = row.getKIndex();
+			float kGammaCurr =  row.getKGamma();
+			float kRealCurr =  row.getKReal();
+			int aFinalRunCurr = row.getAFinalRunning();
+			int manualCurr = row.getIsManual();
+			
+			if ((hour+1)%3 == 0 && (min+1)%60 == 0) {
+						        	
+	        	// calculate aFinalRunning, aFinalRunning
+				int sumEnd = 0;					
+				for (int k = 0; k < kIndexDb.size(); k++) {
+					int a_est = CalcKp.getAest(stationCode, kIndexDb.get(k));
+					sumEnd += a_est;
+				}
+				
+//				if ((kIndexCurr == MISSING_INT || kIndexCurr == 0) &&  //manual=0
+//		        		(kGammaCurr == MISSING_INT || kGammaCurr == 0)  )
+				if (manualCurr == 0)
+					sumEnd += CalcKp.getAest(stationCode, kest_index);
+				else
+					sumEnd += CalcKp.getAest(stationCode, kIndexCurr);
+				
+				int aFinalRun = (int) sumEnd / (kIndexDb.size()+1);  
+				
+				recK3hr.setAFinalRunning(aFinalRun);
+				recK3hr.setIsManual(manualCurr);				
+//				if (kIndexCurr == MISSING_INT || kIndexCurr == 0)  //manual=0
+//					recK3hr.setKIndex(kest_index);
+//				else
+//					recK3hr.setKIndex(kIndexCurr); 
+				
+				if (manualCurr == 0) {
+					recK3hr.setKIndex(kest_index);
+					recK3hr.setKReal(kest_real);
+					recK3hr.setKGamma(kest_gamma);					
+			}
+				else {
+					
+					recK3hr.setKIndex(kIndexCurr); 
+					recK3hr.setKReal(kRealCurr);
+					recK3hr.setKGamma(kGammaCurr);
+				}
+				    
+		}
+			else {
+	        	
+        		recK3hr.setKIndex(kIndexCurr);       	
+        		recK3hr.setKReal(kRealCurr);       	
+        		recK3hr.setKGamma(kGammaCurr);        	
+        		recK3hr.setAFinalRunning(aFinalRunCurr);
+        		recK3hr.setIsManual(manualCurr);
+			}
+
+			// calculate aRunning, aFinalRunning			
+			// only need first 7 k
+	    	int sum = 0;
+			for (int k = 0; k < kestIndexDb.size(); k++) {
+				int a_est = CalcKp.getAest(stationCode, kestIndexDb.get(k));
+				sum += a_est;
+			}
+			sum += CalcKp.getAest(stationCode, kest_index);
+			aRun = (int) sum / (kestIndexDb.size()+1);  
+			
+			
+			if (idCurr != 0)
+				recK3hr.setId(idCurr);				
+			recK3hr.setRefTime(epTime);
+    		recK3hr.setLastUpdate(Calendar.getInstance().getTime());
+    		recK3hr.setStationCode(stationCode);
+			recK3hr.setKestIndex(kest_index);
+	    	recK3hr.setKestReal(kest_real);
+        	recK3hr.setKestGamma(kest_gamma);
+        	recK3hr.setARunning(aRun);
+        	
+	        GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
+			k3hrDao.persist(recK3hr);
 	}
 
+	}	
 }
