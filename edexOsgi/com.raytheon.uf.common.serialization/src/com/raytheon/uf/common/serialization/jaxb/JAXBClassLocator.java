@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -83,6 +84,9 @@ public class JAXBClassLocator {
         }
         if (clazz.isArray()) {
             processClass(clazz.getComponentType());
+            return;
+        }
+        if (clazz.isAnnotationPresent(XmlTransient.class)) {
             return;
         }
         if (clazz.getName().contains("$")
