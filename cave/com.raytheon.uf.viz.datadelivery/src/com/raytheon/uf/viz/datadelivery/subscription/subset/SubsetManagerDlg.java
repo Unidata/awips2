@@ -131,6 +131,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * Oct 15, 2013   2477     mpduff       Remove debug code.
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * </pre>
  * 
  * @author mpduff
@@ -539,6 +540,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         sub.setOwner((create) ? LocalizationManager.getInstance()
                 .getCurrentUser() : this.subscription.getOwner());
+        sub.setOriginatingSite(LocalizationManager.getInstance().getCurrentSite());
 
         return setupCommonSubscriptionAttributes(sub, defaultRoute);
     }
