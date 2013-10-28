@@ -33,11 +33,11 @@
 			<setHeader headerName="pluginName">
 				<constant>tcm</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.tcm" />
+			<to uri="jms-durable:queue:Ingest.tcm" />
 		</route>
 
 		<route id="tcmIngestRoute">
-			<from uri="jms-generic:queue:Ingest.tcm" />
+			<from uri="jms-durable:queue:Ingest.tcm" />
 			<setHeader headerName="pluginName">
 				<constant>tcm</constant>
 			</setHeader>

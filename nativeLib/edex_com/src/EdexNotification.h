@@ -56,7 +56,6 @@ typedef void CEdexNotification;
 #include "NotificationProtocol.h"
 
 using namespace qpid::messaging;
-using namespace qpid::framing;
 using namespace std;
 using apache::thrift::transport::TMemoryBuffer;
 using boost::shared_ptr;

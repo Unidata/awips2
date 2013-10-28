@@ -13,7 +13,7 @@
 	<bean id="sfcobsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="sfcobs" />
-		<constructor-arg value="jms-dist:queue:Ingest.sfcobs?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.sfcobs"/>
 	</bean>
 	
 	<bean id="sfcobsCamelRegistered" factory-bean="contextManager"
@@ -37,13 +37,13 @@
 			<setHeader headerName="pluginName">
 				<constant>sfcobs</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.sfcobs" />
+			<to uri="jms-durable:queue:Ingest.sfcobs" />
 		</route>
 		-->
 
 		<!-- Begin sfcobs routes -->
 		<route id="sfcobsIngestRoute">
-			<from uri="jms-generic:queue:Ingest.sfcobs?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.sfcobs"/>
 			<setHeader headerName="pluginName">
 				<constant>sfcobs</constant>
 			</setHeader>
