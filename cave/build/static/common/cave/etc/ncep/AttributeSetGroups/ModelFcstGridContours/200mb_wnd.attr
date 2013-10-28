@@ -18,6 +18,7 @@ FINT=70;90;110;130;150
 FLINE=0;25;24;29;7;15                                                         
 HILO=
 HLSYM=
+CLRBAR=1
 WIND=0                       !18//1                                                             
 TITLE=5/-2/~ @ ISOTACHS AND WIND (KTS)|~@ WIND!        
 COLORS=2                                                                       

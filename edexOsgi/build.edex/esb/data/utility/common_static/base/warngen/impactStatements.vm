@@ -5,6 +5,7 @@
 ## VERSION AWIPS II 1.0 -- 2-06-2013 OB13.2.1-5               ##
 ##         EDITED EVAN BOOKBINDER 2-25-13 FOR IBW 2013        ##
 ## EDITED PHIL KURIMSKI 5-20-13 FOR UPDATED IMPACT STATEMENTS ##
+## EDITED PHIL KURIMSKI 9-17-13 FOR SMW IMPACT STATEMENTS     ##
 ################################################################
 ##
 ################################################################
@@ -15,6 +16,7 @@
 ##SET SOME INITIAL VARIABLES
 #set ($svrimpact = "")
 #set ($torimpact = "")
+#set ($smwimpact = "")
 ################################################################
 ## First create the Impact Statements for the SVR template
 ################################################################
@@ -107,6 +109,10 @@
 #elseif(${phenomena}=="TO")
 #set ($svrimpact = "")
 #end
+################################################################
+## Finally create the Impact Statements for the SMW template
+################################################################
+#set($smwimpact = "OVERTURNED AND CAPSIZED BOATS.")
 ############################################################################
 ## End of File
 ############################################################################
