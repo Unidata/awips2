@@ -1,15 +1,18 @@
 #####################################################
 ## MARINE WEATHER STATEMENT STANDALONE             ##
 ## CREATED BY PHIL KURIMSKI - WFO DTX              ##
+## VERSION AWIPS II 1.0 -- FEB 24 2011  OB11.2     ##
+## VERSION AWIPS II 1.1 -- APR 14 2011  OB11.4     ##
+## VERSION AWIPS II 1.2 -- JUL 14 2011  OB11.7     ##
+## VERSION AWIPS II 1.3 -- SEP 22 2011  OB11.8     ##
+## VERSION AWIPS II 1.4 -- JAN 25 2012  OB12.1.1-1 ##
+## Added coding for no headline in Version 1.4     ##
 ## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##
 ## Added coding for dense fog in Version 1.5       ##
 ##  Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND) ##
 ## Phil Kurimski   -- SEP 10 2012  OB12.9.1-12     ##
-## Phil Kurimski   -- FEB 07 2013  OB13.2.1-5      ##
-## Phil Kurimski   -- SEP 17 2013  OB13.5.2-4      ##
-## Evan Bookbinder -- SEP 18 2013  Implemented config.vm
+## Phil Kurimski      FEB 07 2013  OB13.2.1-5      ##
 #####################################################
-#parse("config.vm")
 ## Set the visibility variable to be used for dense fog
 ## This variable can be changed by the local office and will
 ## set the visibility in the 3rd bullet and dense fog CTA
@@ -266,13 +269,12 @@ THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report} ${reportLocation} ##
-##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceCell})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
 #end
-#if(${movementSpeed} < ${marineStationary} || ${stationary})
+#if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY.
 #else
 ...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
@@ -302,7 +304,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+EVERYONE AT !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
 
 #end
 #####################
@@ -325,49 +327,24 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 
 #if(${list.contains(${bullets}, "genericCTA")})
-#if(${stormType} == "line")
-MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THESE STORMS PASS.
-
-#else
 MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THIS STORM PASSES.
 
 #end
-#end
 #if(${list.contains(${bullets}, "heavyRainCTA")})
-#if(${stormType} == "line")
-MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...LIGHTNING STRIKES...AND HEAVY DOWNPOURS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THESE STORMS PASS.
-
-#else
 MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...LIGHTNING STRIKES...AND HEAVY DOWNPOURS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THIS STORM PASSES.
 
 #end
-#end
 #if(${list.contains(${bullets}, "possibleSmwCTA")})
-#if(${stormType} == "line")
-THIS ${stormline} WILL LIKELY PRODUCE WINDS UP TO 33 KNOTS...AND COULD POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING MAY EVENTUALLY BE REQUIRED WHEN THESE STORMS REACH THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THESE STORMS ARRIVE.
-
-#else
 THIS ${stormline} WILL LIKELY PRODUCE WINDS UP TO 33 KNOTS...AND COULD POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING MAY EVENTUALLY BE REQUIRED WHEN THIS STORM REACHES THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THE STORM ARRIVES.
 
 #end
-#end
 #if(${list.contains(${bullets}, "likelySmwCTA")})
-#if(${stormType} == "line")
-THIS ${stormline} WILL LIKELY PRODUCE WINDS IN EXCESS OF 34 KNOTS...AND IS LIKELY TO POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING WILL LIKELY BE REQUIRED WHEN THESE STORMS REACH THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THESE STORMS ARRIVE.
-
-#else
 THIS ${stormline} WILL LIKELY PRODUCE WINDS IN EXCESS OF 34 KNOTS...AND IS LIKELY TO POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING WILL LIKELY BE REQUIRED WHEN THIS STORM REACHES THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THE STORM ARRIVES.
 
 #end
-#end
 #if(${list.contains(${bullets}, "lightningCTA")})
-#if(${stormType} == "line")
-INTENSE LIGHTNING IS OCCURRING WITH THESE STORMS. IF CAUGHT ON THE OPEN WATER STAY BELOW DECK IF POSSIBLE...KEEP AWAY FROM UNGROUNDED METAL OBJECTS.
-
-#else
 INTENSE LIGHTNING IS OCCURRING WITH THIS STORM. IF CAUGHT ON THE OPEN WATER STAY BELOW DECK IF POSSIBLE...KEEP AWAY FROM UNGROUNDED METAL OBJECTS.
 
-#end
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
 REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.

@@ -20,7 +20,6 @@ FINT=50;70;90
 FLINE=0;24;23;22
 HILO=0
 HLSYM=0
-CLRBAR=1
 WIND=
 TITLE=1/-1/~ 1000-440 MB RH, TEMP (BL yel,850 red), 700 Omega!0
 COLORS=2                                                                       

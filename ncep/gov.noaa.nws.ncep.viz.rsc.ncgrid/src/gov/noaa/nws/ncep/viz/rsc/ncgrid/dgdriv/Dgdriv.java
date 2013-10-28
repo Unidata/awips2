@@ -1939,10 +1939,7 @@ public class Dgdriv {
         if ( ll2 != null ) {
         	rcMap.put( GridDBConstants.LEVEL_TWO_QUERY, new RequestConstraint( ll2+".0" ) );
         }
-        
-        // request all the params stored in the inventory.
-        ArrayList<String>  rslts = NcGridInventory.getInstance().searchNcGridInventory( rcMap, 
-        		NcGridInventory.getInstance().inventoryParamNames.toArray( new String[0] ) );//GridDBConstants.LEVEL_TWO_QUERY );
+        ArrayList<String>  rslts = NcGridInventory.getInstance().searchNcGridInventory( rcMap, GridDBConstants.LEVEL_TWO_QUERY );
         
         long t11 = System.currentTimeMillis();
         if ( rslts == null || rslts.isEmpty() ) {

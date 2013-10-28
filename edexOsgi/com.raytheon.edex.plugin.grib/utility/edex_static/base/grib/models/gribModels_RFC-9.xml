@@ -1079,9 +1079,19 @@
 			<id>180</id>
 		</process>
 	</model>
-	
+
 	<model>
 		<name>FFG-TIR</name>
+		<center>9</center>
+		<subcenter>160</subcenter>
+		<grid>240160</grid>
+		<process>
+			<id>151</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>FFG-TIR-HiRes</name>
 		<center>9</center>
 		<subcenter>160</subcenter>
 		<grid>250160</grid>

@@ -8,7 +8,7 @@
 	<bean id="bufrmosDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="bufrmos" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrmos" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrmos?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
     <bean id="bufrmosCamelRegistered" factory-bean="contextManager"
@@ -30,13 +30,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrmos</constant>
             </setHeader>
-			<to uri="jms-durable:queue:Ingest.bufrmos" />
+			<to uri="jms-generic:queue:Ingest.bufrmos" />
 		</route>
 		-->
 
 		<!-- Begin bufrmos routes -->
 		<route id="bufrmosIngestRoute">
-			<from uri="jms-durable:queue:Ingest.bufrmos" />
+			<from uri="jms-generic:queue:Ingest.bufrmos?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
                 <constant>bufrmos</constant>
             </setHeader>

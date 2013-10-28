@@ -28,11 +28,10 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  * May 08, 2012   #606     Greg Hull        Renamed to NcGridInventory. Use NcInventory on Edex 
  * May 16, 2012   #606     Greg Hull        change glevel1 to modelInfo.level.levelonevalue (and glevel2)
  * Aug 27,2012             Xilin Guo        used new unified grid plugin
- * Aug 15, 2013   #1031    Greg Hull        request inventory directory to find usable inventory 
  * 
  * </pre>
  * 
- * @author ghull
+ * @author gamazaychikov
  * @version 1.0
  */
 public class NcGridInventory {
@@ -42,9 +41,9 @@ public class NcGridInventory {
 	// to tie this to the GRID Resource Definitions so we don't need to store data for models that
 	// can't be displayed (w/o a RD)
 	// 
-	public static String ncGridInventoryName = "";
+	public static final String ncGridInventoryName = "NcGridInventory";
 	
-	public static final ArrayList<String> inventoryParamNames = new ArrayList<String>(); {
+	private static final ArrayList<String> inventoryParamNames = new ArrayList<String>(); {
 		inventoryParamNames.add( GridConstants.PLUGIN_NAME );
 		inventoryParamNames.add( GridConstants.DATASET_ID ); // source
 		inventoryParamNames.add( GridConstants.SECONDARY_ID ); //
@@ -55,106 +54,29 @@ public class NcGridInventory {
 		inventoryParamNames.add( GridConstants.LEVEL_TWO );
 	}
 	
+	private boolean isInventoryInited = false;
+		
 	private static final transient IUFStatusHandler statusHandler = 
 				UFStatus.getHandler(NcGridInventory.class);
 
     private static NcGridInventory instance = null;
     
-//    private static String errMsg = "";
-    
-    private NcGridInventory() {
-    }
-
-    public void initialize( int tryCount ) throws VizException {
-    	VizException initEx=null;
-    	
-    	for( int a=1 ; a<=tryCount ; a++ ) {
-    		try {
-    			initialize();
-    			return;
-    		}
-    		catch ( VizException e ) {
-    			System.out.println("Failed on try #"+a);
-    			initEx = e;
-    			try { Thread.sleep( a*500); } catch (InterruptedException e1) { }
-    		}
-    	}
-    	if( !isInitialized() ) {
-    		throw initEx;    		
-    	}
-    }
-    
-    public void initialize() throws VizException {
-		if( isInitialized() ) {
-			return;
-		}
-
-		NcInventoryRequestMsg dirRequest = NcInventoryRequestMsg.makeDirectoryRequest();
-		HashMap<String, RequestConstraint> baseConstraints = new HashMap<String,RequestConstraint>();					
-		baseConstraints.put( "pluginName", new RequestConstraint( GridConstants.GRID ) );
-
-		NcInventoryDefinition gridInvDefn = new NcInventoryDefinition( "NcGridInventory", // name is temporary/not needed 
-																	   baseConstraints, inventoryParamNames );
-		try {
-			Object rslts = ThriftClient.sendRequest( dirRequest );
-
-			if( rslts instanceof String ) {
-				throw new VizException( rslts.toString() );
-			}
-			if( !(rslts instanceof ArrayList<?>) ) {
-				throw new VizException( "Grid Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
-			}
-			else if( ((ArrayList<?>)rslts).isEmpty() ) {
-				throw new VizException( "Grid Inventory Directory Request Warning: No Inventories found.???" );
-			}
-			else if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
-				throw new VizException( "Grid Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
-			}
-
-			// used to set the inventory initialized flag
-			ArrayList<NcInventoryDefinition> invDefnsList = (ArrayList<NcInventoryDefinition>)rslts;
-			
-			// it would be nice to use the supportsQuery() method instead of equals but we'd have to 'assume' the constraints  
-			// used for queries and I'd rather not do that.
-			for( NcInventoryDefinition id : invDefnsList ) {
-				//if( id.supportsQuery( , inventoryParamNames ))
-				if( id.equals( gridInvDefn ) ) {
-					ncGridInventoryName = id.getInventoryName();
-					System.out.println("Found Inventory, "+ ncGridInventoryName + ", to be used for the NcGridInventory class");
-					break;
-				}
-			}
-			
-			if( !isInitialized() ) {
-				throw new VizException("Unable to find suitable inventory for NcGridInventory");
-			}
-		}
-		catch( VizException e ) {
-			System.out.println( e.getMessage() );
-			throw e;
-		}	
-    }
-        
 	public static NcGridInventory getInstance() {
 		if( instance == null ) {
 			instance = new NcGridInventory();	
-		
 		}
 		return instance;
 	}
 	
 	public Boolean isInitialized() {
-		return !ncGridInventoryName.isEmpty();
+		return isInventoryInited;
 	}
 	
-	// if the inventory could not be found on the server we can create it from here. 
-	public void createInventory( ) throws VizException {
-		// query the list of inventories that exist on edex and set the
-		// inventoryInitialized flag in the ResourceDefns 
+	// 
+	public void initInventory( boolean reinit ) throws VizException {
 		
-		if( !isInitialized() ) {
+		if( !isInventoryInited || reinit) {
 
-			ncGridInventoryName = "NcGridModelParameters";
 			// TODO : limit this to only the modelNames we are interested in.
 			//
 			HashMap<String, RequestConstraint> baseConstraints = 
@@ -166,7 +88,9 @@ public class NcGridInventory {
     				new NcInventoryDefinition( ncGridInventoryName, 
     							baseConstraints, inventoryParamNames );
 
-	    	ManageNcInventoryMsg createReqMsg = ManageNcInventoryMsg.makeCreateDirective();
+	    	ManageNcInventoryMsg createReqMsg = 
+	    		( reinit ? ManageNcInventoryMsg.makeReinitDirective() :
+	    			       ManageNcInventoryMsg.makeCreateDirective() );
 	    	createReqMsg.setInventoryDefinition( invDescr );
 //	    	createReqMsg.setReInitInventory( reinit );
 
@@ -175,13 +99,14 @@ public class NcGridInventory {
 	    	Object rslts = ThriftClient.sendRequest( createReqMsg );
 
 	    	if( !(rslts instanceof String) ) {
-	    		ncGridInventoryName = "";
 	    		throw new VizException("initInventory failed: response not of type String???");	    		
 	    	}
 	    	String response = (String)rslts;
 
-	    	if( !response.equals( ManageNcInventoryMsg.CREATE_SUCCESS_RESPONSE ) ) {	    		
-	    		ncGridInventoryName = "";
+	    	if( response.equals( ManageNcInventoryMsg.CREATE_SUCCESS_RESPONSE ) ) {	    		
+	    		isInventoryInited = true;
+	    	}
+	    	else {
 	    		throw new VizException( response );
 	    	}
 
@@ -193,10 +118,9 @@ public class NcGridInventory {
 		
 	// 
 	public ArrayList<String> searchNcGridInventory( 
-				HashMap<String, RequestConstraint> searchConstraints, String[] reqParams ) {
+				HashMap<String, RequestConstraint> searchConstraints, String reqParam ) {
 		
-		if( !isInitialized() ) {
-			System.out.println("NcGridInventory.searchNcGridInventory() ; inventory not initialized");
+		if( !isInventoryInited ) {
 			return null;
 		}
 
@@ -204,7 +128,7 @@ public class NcGridInventory {
 			NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
 
 	 		reqMsg.setInventoryName( ncGridInventoryName );
-	 		reqMsg.setRequestedParams( reqParams );
+	 		reqMsg.setRequestedParam( reqParam );
 	 		reqMsg.setReqConstraintsMap( searchConstraints );
 
 	 		Object rslts;
@@ -253,7 +177,8 @@ public class NcGridInventory {
     	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeDumpRequest();
     	
 		reqMsg.setInventoryName( ncGridInventoryName );
-		reqMsg.setRequestedParams( inventoryParamNames.toArray( new String[0] ) );//get( inventoryParamNames.size()-1) );
+		reqMsg.setRequestedParam( 
+				inventoryParamNames.get( inventoryParamNames.size()-1) );
 	//	reqMsg.setDumpToFile( true );
 		
 		Object rslts;

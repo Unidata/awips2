@@ -17,11 +17,12 @@
   	</bean>
   	
   	<bean id="ingest-ncgrib" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsNcgribConfig" />
+        <constructor-arg ref="jmsIngestNcgribConfig" />
 		<property name="taskExecutor" ref="ncgribThreadPool" />		
 	</bean>
-    <bean id="jmsNcgribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
+	<bean id="jmsIngestNcgribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" >
+        </bean>
 	<bean id="ncgribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" ref="ncgribDecodeThreads" />
@@ -70,7 +71,7 @@
 
 
 		<route id="ncgribIngestRoute">
-			<from uri="ingest-ncgrib:queue:Ingest.Ncgrib?concurrentConsumers=#ncgribDecodeThreads" />
+			<from uri="ingest-ncgrib:queue:Ingest.Ncgrib?concurrentConsumers=#ncgribDecodeThreads&amp;destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>ncgrib</constant>
 			</setHeader>

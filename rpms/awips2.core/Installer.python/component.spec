@@ -1,5 +1,7 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 %define _build_arch %(uname -i)
+%define _python_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+%define _lapack_version 3.4.2
 
 #
 # AWIPS II Python Spec File
@@ -7,7 +9,7 @@
 Name: awips2-python
 Summary: AWIPS II Python Distribution
 Version: 2.7.1
-Release: 8
+Release: 8.el6
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -34,21 +36,22 @@ then
 fi
 
 rm -rf %{_build_root}
-mkdir -p %{_build_root}/build-python
 mkdir -p %{_build_root}/awips2/python
-mkdir -p %{_build_root}/etc/profile.d
+if [ -d %{_python_build_loc} ]; then
+   rm -rf %{_python_build_loc}
+fi
+mkdir -p %{_python_build_loc}
 
 %build
 PYTHON_TAR="Python-2.7.1.tgz"
 PYTHON_SRC_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.python/src"
 
-cp -v ${PYTHON_SRC_DIR}/${PYTHON_TAR} \
-   %{_build_root}/build-python
+cp -v ${PYTHON_SRC_DIR}/${PYTHON_TAR} %{_python_build_loc}
 
 pushd . > /dev/null
 
 # Untar the source.
-cd %{_build_root}/build-python
+cd %{_python_build_loc}
 tar -xf ${PYTHON_TAR}
 RC=$?
 if [ ${RC} -ne 0 ]; then
@@ -56,7 +59,18 @@ if [ ${RC} -ne 0 ]; then
 fi
 
 cd Python-2.7.1
-./configure --prefix=%{_build_root}/awips2/python \
+
+# complete the substitution for python-config
+sed -e "s,@EXENAME@,/awips2/python/bin/python," < Misc/python-config.in > Misc/python-config.in.new
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mv -f Misc/python-config.in.new Misc/python-config.in
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+./configure --prefix=/awips2/python \
    --enable-shared
 RC=$?
 if [ ${RC} -ne 0 ]; then
@@ -72,7 +86,6 @@ make
 if [ ${RC} -ne 0 ]; then
    exit 1
 fi
-
 popd > /dev/null
 
 %install
@@ -93,8 +106,8 @@ function copyLegal()
 }
 pushd . > /dev/null
 
-cd %{_build_root}/build-python/Python-2.7.1
-make install
+cd %{_python_build_loc}/Python-2.7.1
+make install prefix=%{_build_root}/awips2/python
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1
@@ -107,40 +120,8 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-pushd .
-cd %{_build_root}/awips2/python/lib/pkgconfig
-# Alter the prefix in: lib/pkgconfig/python-2.7.pc
-/bin/sed -i '1c\'"prefix=/awips2/python" python-2.7.pc
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-cd %{_build_root}/awips2/python/bin
-# Update the first line of: 2to3, idle, pydoc, python2.7-config, smtpd.py
-/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" 2to3
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" idle
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" pydoc
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" python2.7-config
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" smtpd.py
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-popd
-
 # Our profile.d scripts.
+mkdir -p %{_build_root}/etc/profile.d
 PYTHON_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.python"
 PYTHON_SRC_DIR="${PYTHON_PROJECT_DIR}/src"
 PYTHON_SCRIPTS_DIR="${PYTHON_PROJECT_DIR}/scripts"
@@ -163,12 +144,12 @@ popd > /dev/null
 
 # Copy the hdf5 tar file to our build directory.
 cp -v ${PYTHON_SRC_DIR}/%{_build_arch}/${HDF5_TAR} \
-   %{_build_root}/build-python
+   %{_python_build_loc}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 pushd . > /dev/null
-cd %{_build_root}/build-python
+cd %{_python_build_loc}
 tar -xvf ${HDF5_TAR}
 if [ $? -ne 0 ]; then
    exit 1
@@ -189,7 +170,7 @@ popd > /dev/null
 PYTHON_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.python"
 PYTHON_SRC_DIR="${PYTHON_PROJECT_DIR}/src"
 PYTHON_NATIVE_DIR="${PYTHON_PROJECT_DIR}/nativeLib"
-LAPACK_TAR="lapack-3.1.1.tgz"
+LAPACK_TAR="lapack-%{_lapack_version}.tgz"
 LAPACK_PATCH="lapack.patch1"
 
 # The Raytheon-built native (nativeLib) libraries.
@@ -218,35 +199,35 @@ fi
 
 # Copy the LAPACK tar file and patch to our build directory.
 cp -v ${PYTHON_SRC_DIR}/${LAPACK_TAR} \
-   %{_build_root}/build-python
+   %{_python_build_loc}
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 cp -v ${PYTHON_SRC_DIR}/${LAPACK_PATCH} \
-   %{_build_root}/build-python
+   %{_python_build_loc}
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 pushd . > /dev/null
-cd %{_build_root}/build-python
+cd %{_python_build_loc}
 tar -xvf ${LAPACK_TAR}
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 rm -fv ${LAPACK_TAR}
-if [ ! -d lapack-3.1.1 ]; then
-   file lapack-3.1.1
+if [ ! -d lapack-%{_lapack_version} ]; then
+   file lapack-%{_lapack_version}
    exit 1
 fi
-cd lapack-3.1.1
-patch -p1 -i ../${LAPACK_PATCH}
+patch -p1 -i ${LAPACK_PATCH}
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1
 fi
+cd lapack-%{_lapack_version}
 mv make.inc.example make.inc
 if [ $? -ne 0 ]; then
    exit 1
@@ -286,11 +267,11 @@ fi
 
 popd > /dev/null
 
-rm -rf %{_build_root}/build-python
 copyLegal "awips2/python"
 
 %clean
 rm -rf %{_build_root}
+rm -rf %{_python_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)

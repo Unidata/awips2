@@ -64,7 +64,6 @@ import com.raytheon.wes2bridge.common.configuration.Wes2BridgeConfiguration;
  * Jan 18, 2012 1490       bkowal      Pypies is now added to each
  *                                     edex-environment instance
  * Apr 18, 2013 1899       bkowal      Updates qpid 0.18 configuration now.
- * July 2, 2013 2133       bkowal      Updates for yajsw-wrapped qpid
  * 
  * </pre>
  * 
@@ -441,11 +440,23 @@ public class Wes2BridgeManager {
 		BufferedWriter bw = this.getBufferedWriter(qpidd);
 
 		final String line1 = "QPID_HOME=";
+		/*
+		 * Need to update the 'ps' command that determines if qpid is running or
+		 * not.
+		 */
+		final String line2 = "isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c \"PNAME=QPBRKR \"`";
 
 		String line = StringUtils.EMPTY;
 		while ((line = br.readLine()) != null) {
 			if (line.startsWith(line1)) {
 				line = line1 + qpidDirectory;
+			} else if (line.contains(line2)) {
+				StringBuilder stringBuilder = new StringBuilder();
+				stringBuilder
+						.append("isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep QPID_HOME=");
+				stringBuilder.append(qpidDirectory);
+				stringBuilder.append("| grep -c \"PNAME=QPBRKR \"`");
+				line = stringBuilder.toString();
 			}
 
 			bw.write(line + "\n");

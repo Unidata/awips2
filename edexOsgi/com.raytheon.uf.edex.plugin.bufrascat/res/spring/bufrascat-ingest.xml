@@ -37,13 +37,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrascat</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.bufrascat" />
+            <to uri="jms-generic:queue:Ingest.bufrascat" />
         </route>
         -->
 
         <!-- Begin bufrascat routes -->
         <route id="bufrascatIngestRoute">
-            <from uri="jms-durable:queue:Ingest.bufrascat"/>
+            <from uri="jms-generic:queue:Ingest.bufrascat?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>bufrascat</constant>
             </setHeader>
