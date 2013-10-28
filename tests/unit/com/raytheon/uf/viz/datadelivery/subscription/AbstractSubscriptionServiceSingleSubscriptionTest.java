@@ -30,7 +30,6 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandler
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 
 /**
@@ -107,8 +106,7 @@ public abstract class AbstractSubscriptionServiceSingleSubscriptionTest extends
         returnZeroSubscriptionNamesWhenScheduleCalled();
 
         String expectedMessage = getSuccessfulServiceInteractionMessage();
-        String actualMessage = performServiceInteraction()
-                .getMessageToDisplay();
+        String actualMessage = performServiceInteraction().getMessage();
 
         assertEquals("Incorrect message returned", expectedMessage,
                 actualMessage);
@@ -125,7 +123,7 @@ public abstract class AbstractSubscriptionServiceSingleSubscriptionTest extends
         whenForceApplyPromptedUserSelectsIncreaseLatency();
         returnZeroSubscriptionNamesWhenScheduleCalled();
 
-        ISubscriptionServiceResult result = performServiceInteraction();
+        SubscriptionServiceResult result = performServiceInteraction();
         assertFalse("No further edits should be requested",
                 result.isAllowFurtherEditing());
     }
@@ -134,8 +132,7 @@ public abstract class AbstractSubscriptionServiceSingleSubscriptionTest extends
      * When the force apply prompt is displayed, the user selects yes.
      */
     private void whenForceApplyPromptedUserSelectsIncreaseLatency() {
-        when(mockDisplay.getForceApplyPromptResponse())
-                .thenReturn(
+        when(mockDisplay.getForceApplyPromptResponse()).thenReturn(
                 ForceApplyPromptResponse.INCREASE_LATENCY);
     }
 

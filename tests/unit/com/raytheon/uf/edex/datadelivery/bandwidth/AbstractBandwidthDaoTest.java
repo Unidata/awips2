@@ -42,6 +42,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
@@ -75,6 +76,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2012 1286       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Add test getting retrievals by dataset, provider, and status.
+ * Oct 21, 2013 2292       mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -326,9 +328,9 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
         final Calendar now = BandwidthUtil.now();
         // Identical except for their identifier fields
         BandwidthSubscription entity1 = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(), now);
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), now);
         BandwidthSubscription entity2 = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(), now);
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), now);
 
         assertFalse("The two objects should not have the same id!",
                 entity1.getId() == entity2.getId());
@@ -346,13 +348,13 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
             throws SerializationException {
         final Calendar now = BandwidthUtil.now();
         // Identical except for their base reference times and ids
-        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(),
-                now);
+        dao.newBandwidthSubscription(
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), now);
 
         final Calendar later = BandwidthUtil.now();
         later.add(Calendar.HOUR, 1);
         BandwidthSubscription entity2 = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(), later);
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), later);
 
         final BandwidthSubscription result = dao.getBandwidthSubscription(
                 entity2.getRegistryId(), later);
@@ -422,8 +424,7 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
                             .getBandwidthSubscription().getProvider());
             assertEquals("Incorrect data set found.",
                     subscription.getDataSetName(), retrieval
-                            .getBandwidthSubscription()
-                            .getDataSetName());
+                            .getBandwidthSubscription().getDataSetName());
         }
     }
 
@@ -441,14 +442,11 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
                 .get(2);
 
         final BandwidthSubscription subDao1 = entity1
-                .getSubscriptionRetrieval()
-                .getBandwidthSubscription();
+                .getSubscriptionRetrieval().getBandwidthSubscription();
         final BandwidthSubscription subDao2 = entity2
-                .getSubscriptionRetrieval()
-                .getBandwidthSubscription();
+                .getSubscriptionRetrieval().getBandwidthSubscription();
         final BandwidthSubscription subDao3 = entity3
-                .getSubscriptionRetrieval()
-                .getBandwidthSubscription();
+                .getSubscriptionRetrieval().getBandwidthSubscription();
 
         // Give each a unique time
         final Calendar one = BandwidthUtil.now();
@@ -496,7 +494,8 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
     public void testGetSubscriptionsReturnsClones()
             throws SerializationException {
         BandwidthSubscription entity = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID),
+                BandwidthUtil.now());
 
         List<BandwidthSubscription> results = dao.getBandwidthSubscriptions();
         assertEquals(1, results.size());
@@ -515,15 +514,15 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
         three.add(Calendar.HOUR, 1);
 
         // Three entities all the same except for base reference time
-        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(),
-                one);
-        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(),
-                two);
+        dao.newBandwidthSubscription(
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), one);
+        dao.newBandwidthSubscription(
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), two);
         BandwidthSubscription entity3 = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(), three);
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID), three);
         // One with same base reference time but different provider/dataset
-        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(2),
-                three);
+        dao.newBandwidthSubscription(
+                SiteSubscriptionFixture.INSTANCE.get(2, DataType.GRID), three);
 
         List<BandwidthSubscription> results = dao.getBandwidthSubscriptions(
                 entity3.getProvider(), entity3.getDataSetName(), three);
@@ -537,7 +536,6 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
                 result.getBaseReferenceTime());
         assertNotSame(entity3, result);
     }
-
 
     @SuppressWarnings("unchecked")
     @Test
@@ -565,8 +563,7 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
 
         final List<SubscriptionRetrieval> results = dao
                 .querySubscriptionRetrievals(entity2.getSubscriptionRetrieval()
-                        .getBandwidthSubscription()
-                        .getId());
+                        .getBandwidthSubscription().getId());
         assertEquals(
                 "Should have returned one entity for the subscriptionDao id!",
                 1, results.size());
@@ -592,15 +589,11 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
 
         // Still have to persist the actual subscription daos
         final BandwidthSubscription subDao1 = entity1
-                .getSubscriptionRetrieval()
-                .getBandwidthSubscription();
+                .getSubscriptionRetrieval().getBandwidthSubscription();
         final BandwidthSubscription subDao2 = entity2
-                .getSubscriptionRetrieval()
-                .getBandwidthSubscription();
+                .getSubscriptionRetrieval().getBandwidthSubscription();
         final BandwidthSubscription subDao3 = entity3
-                .getSubscriptionRetrieval()
-                .getBandwidthSubscription();
-
+                .getSubscriptionRetrieval().getBandwidthSubscription();
 
         dao.storeBandwidthSubscriptions(Arrays
                 .asList(subDao1, subDao2, subDao3));
@@ -627,12 +620,12 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
     @Test
     public void testRemoveSubscriptionDao() throws SerializationException {
         final Calendar now = BandwidthUtil.now();
-        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(1),
-                now);
+        dao.newBandwidthSubscription(
+                SiteSubscriptionFixture.INSTANCE.get(1, DataType.GRID), now);
         final BandwidthSubscription entity2 = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(2), now);
-        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(3),
-                now);
+                SiteSubscriptionFixture.INSTANCE.get(2, DataType.GRID), now);
+        dao.newBandwidthSubscription(
+                SiteSubscriptionFixture.INSTANCE.get(3, DataType.GRID), now);
 
         assertEquals("Incorrect number of entities found!", 3, dao
                 .getBandwidthSubscriptions().size());
@@ -696,7 +689,8 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
         final long estimatedSize = 25L;
 
         BandwidthSubscription entity = dao.newBandwidthSubscription(
-                SiteSubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
+                SiteSubscriptionFixture.INSTANCE.get(DataType.GRID),
+                BandwidthUtil.now());
 
         entity.setEstimatedSize(estimatedSize);
         dao.update(entity);
