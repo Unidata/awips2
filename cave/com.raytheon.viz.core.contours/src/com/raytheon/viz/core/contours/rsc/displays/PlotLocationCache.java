@@ -44,10 +44,6 @@ import org.opengis.referencing.operation.TransformException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2011            bsteffen     Initial creation
- * Sep 10, 2013 DR 16257   MPorricelli	Eliminate values that
- *                                      fail to be tranformed,e.g.
- *                                      when too close to pole for
- *                                      mercator projections
  * 
  * </pre>
  * 
@@ -150,19 +146,7 @@ public class PlotLocationCache {
                         ConcatenatedTransform.create(grid2crs, crs2crs),
                         crs2grid);
 
-                try {
-                    grid2grid.transform(result, 0, result, 0, xDim * yDim);
-                } catch (TransformException e1) {
-                    // Set values to NaN when fail transform
-                    for (int i = 0; i < result.length; i += 2) {
-                        try {
-                            grid2grid.transform(result, i, result, i, 1);
-                        } catch (TransformException e2) {
-                            result[i] = Float.NaN;
-                            result[i + 1] = Float.NaN;
-                        }
-                    }
-                }
+                grid2grid.transform(result, 0, result, 0, xDim * yDim);
             } catch (FactoryException e) {
                 throw new RuntimeException(e);
             } catch (InvalidGridGeometryException e) {

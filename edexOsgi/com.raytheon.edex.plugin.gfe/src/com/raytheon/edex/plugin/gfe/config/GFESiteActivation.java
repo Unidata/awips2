@@ -88,7 +88,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  *                                    activation.
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
  * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
- * Sep 13, 2013  2368     rjpeter     Used durable jms settings.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -115,7 +115,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     private boolean intialized = false;
 
-    private final ExecutorService postActivationTaskExecutor = MoreExecutors
+    private ExecutorService postActivationTaskExecutor = MoreExecutors
             .getExitingExecutorService((ThreadPoolExecutor) Executors
                     .newCachedThreadPool());
 
@@ -356,7 +356,7 @@ public class GFESiteActivation implements ISiteActivationListener {
                     GridDatabase db = GridParmManager.getDb(dbid);
                     // cluster locked since IFPGridDatabase can modify the grids
                     // based on changes to grid size, etc
-                    if ((db instanceof IFPGridDatabase) && db.databaseIsValid()) {
+                    if (db instanceof IFPGridDatabase && db.databaseIsValid()) {
                         ((IFPGridDatabase) db).updateDbs();
                     }
                 }
@@ -410,7 +410,7 @@ public class GFESiteActivation implements ISiteActivationListener {
                 long startTime = System.currentTimeMillis();
                 // wait for system startup or at least 3 minutes
                 while (!EDEXUtil.isRunning()
-                        || (System.currentTimeMillis() > (startTime + 180000))) {
+                        || System.currentTimeMillis() > startTime + 180000) {
                     try {
                         Thread.sleep(15000);
                     } catch (InterruptedException e) {
@@ -420,7 +420,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
                 ClusterTask ct = ClusterLockUtils.lookupLock(TASK_NAME,
                         SMART_INIT_TASK_DETAILS + siteID);
-                if ((ct.getLastExecution() + SMART_INIT_TIMEOUT) < System
+                if (ct.getLastExecution() + SMART_INIT_TIMEOUT < System
                         .currentTimeMillis()) {
                     ct = ClusterLockUtils.lock(TASK_NAME,
                             SMART_INIT_TASK_DETAILS + siteID,
@@ -467,7 +467,7 @@ public class GFESiteActivation implements ISiteActivationListener {
                                             "Firing smartinit for " + id);
                                     try {
                                         producer.sendAsyncUri(
-                                                "jms-durable:queue:manualSmartInit",
+                                                "jms-generic:queue:manualSmartInit",
                                                 id
                                                         + ":0::"
                                                         + SmartInitRecord.SITE_ACTIVATION_INIT_PRIORITY);
@@ -499,7 +499,7 @@ public class GFESiteActivation implements ISiteActivationListener {
                     long startTime = System.currentTimeMillis();
                     // wait for system startup or at least 3 minutes
                     while (!EDEXUtil.isRunning()
-                            || (System.currentTimeMillis() > (startTime + 180000))) {
+                            || System.currentTimeMillis() > startTime + 180000) {
                         try {
                             Thread.sleep(15000);
                         } catch (InterruptedException e) {

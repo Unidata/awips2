@@ -42,11 +42,11 @@
 			<setHeader headerName="pluginName">
 				<constant>mcidas</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.mcidas" />
+			<to uri="jms-generic:queue:Ingest.mcidas" />
 		</route>
 		
 		<route id="mcidasIngestRoute">
-			<from uri="jms-durable:queue:Ingest.mcidas" />
+			<from uri="jms-generic:queue:Ingest.mcidas" />
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile" />

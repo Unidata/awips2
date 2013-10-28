@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
+
 import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
@@ -55,9 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
-    private static NcepLogger logger = NcepLoggerManager
-            .getNcepLogger(GriddedVectorDisplay.class);
-
+	private static NcepLogger logger = NcepLoggerManager.getNcepLogger(GriddedVectorDisplay.class);
     private final FloatBuffer magnitude;
 
     private final FloatBuffer direction;
@@ -65,7 +64,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     private final ISpatialObject gridLocation;
 
     private final int SIZE = 64;
-
+    
     private float lineWidth = 1;
 
     private LineStyle lineStyle = LineStyle.SOLID;
@@ -81,97 +80,93 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     private GeodeticCalculator gc;
 
     private NcFloatDataRecord data;
-
+    
     private ContourAttributes contourAttributes;
-
+    
     private Coordinate latLon;
-
+    
     private boolean isDirectional;
-
+    
     private static NcgribLogger ncgribLogger;
-
-    public GriddedVectorDisplay(NcFloatDataRecord rec, DisplayType displayType,
-            boolean directional, IMapDescriptor descriptor,
+    
+    public GriddedVectorDisplay(NcFloatDataRecord rec,
+    		DisplayType displayType, boolean directional, IMapDescriptor descriptor, 
             ISpatialObject gridLocation, ContourAttributes attrs) {
-        super(descriptor, MapUtil.getGridGeometry(gridLocation), gridLocation
-                .getNx(), gridLocation.getNy());
+        super(descriptor, MapUtil.getGridGeometry(gridLocation),gridLocation.getNx(),gridLocation.getNy());
         long t1 = System.currentTimeMillis();
         this.data = rec;
         this.contourAttributes = attrs;
         ncgribLogger = NcgribLogger.getInstance();
-
+        
         if (directional) {
-            float[] dir = rec.getXdata();
-            float[] spd = new float[dir.length];
-            for (int i = 0; i < dir.length; i++) {
-                if (dir[i] == -999999.0f) {
-                    dir[i] = -999999.0f;
-                    spd[i] = -999999.0f;
-                } else {
-                    spd[i] = 40;
-                }
-            }
-            this.magnitude = FloatBuffer.wrap(spd);
-            this.direction = FloatBuffer.wrap(dir);
-        } else {
-            float[] dirX = rec.getXdata();
-            float[] dirY = rec.getYdata();
-
-            float[] spd = new float[dirX.length];
-            float[] dir = new float[dirX.length];
-
-            for (int i = 0; i < spd.length; i++) {
-                if (dirX[i] == -999999.0f || dirY[i] == -999999.0f) {
-                    spd[i] = -999999.0f;
-                    dir[i] = -999999.0f;
-                } else {
-                    spd[i] = (float) Math.hypot(dirX[i], dirY[i]);
-                    dir[i] = (float) (Math.atan2(dirX[i], dirY[i]) * 180 / Math.PI) + 180;
-                }
-            }
-
-            this.magnitude = FloatBuffer.wrap(spd);
-            this.direction = FloatBuffer.wrap(dir);
+        	float[] dir = rec.getXdata();
+    		float[] spd = new float[dir.length];
+    		for (int i = 0; i < dir.length; i++) {
+    			if (dir[i] == -999999.0f) {
+    				dir[i] = -999999.0f;
+    				spd[i] = -999999.0f;
+    			} else {
+    				spd[i] = 40;
+    			}
+    		}
+    		this.magnitude     = FloatBuffer.wrap(spd);
+    		this.direction = FloatBuffer.wrap(dir);
+        }
+        else {
+        	float[] dirX = rec.getXdata();
+    		float[] dirY = rec.getYdata();
+    		
+        	float [] spd = new float[dirX.length];
+    		float [] dir = new float[dirX.length];
+    		
+    	
+    		for (int i = 0; i < spd.length; i++) {
+    			if (dirX[i] == -999999.0f || dirY[i] == -999999.0f) {
+    				spd[i] = -999999.0f;
+    				dir[i] = -999999.0f;
+    			}
+    			else {
+    				spd[i] = (float) Math.hypot(dirX[i], dirY[i]);
+    				dir[i] = (float) (Math.atan2(dirX[i], dirY[i]) * 180 / Math.PI) + 180;
+    			}
+    		}
+    		
+    		this.magnitude     = FloatBuffer.wrap(spd);
+    		this.direction = FloatBuffer.wrap(dir);
         }
         long t2 = System.currentTimeMillis();
-        logger.debug("GriddedVectorDisplay after check -999999 took:"
-                + (t2 - t1));
+        logger.debug("GriddedVectorDisplay after check -999999 took:" + (t2-t1));
         this.gridLocation = gridLocation;
         this.displayType = displayType;
         this.gc = new GeodeticCalculator(descriptor.getCRS());
         this.isDirectional = directional;
-
+        
         int colorIndex = 31;
         float sizeFactor = 1;
         lineWidth = 1;
         String windAttr = attrs.getWind();
         if (windAttr != null && !windAttr.isEmpty()) {
-            if (windAttr.contains("bk")) {
-                windAttr = windAttr.replace("bk", "");
-            }
-            String[] attr = windAttr.trim().split("/");
-            colorIndex = Integer.parseInt(attr[0].trim());
-            if (attr.length >= 2 && !attr[1].trim().isEmpty()) {
-                sizeFactor = Float.parseFloat(attr[1].trim());
-            }
-            if (attr.length >= 3 && !attr[2].trim().isEmpty()) {
-                lineWidth = Float.parseFloat(attr[2].trim());
-            }
-
+        	if (windAttr.contains("bk")) windAttr = windAttr.replace("bk", "");
+        	String [] attr = windAttr.trim().split("/");
+        	colorIndex = Integer.parseInt(attr[0].trim());
+        	if (attr.length >= 2 && !attr[1].trim().isEmpty()) sizeFactor = Float.parseFloat(attr[1].trim());
+        	if (attr.length >= 3 && !attr[2].trim().isEmpty()) lineWidth  = Float.parseFloat(attr[2].trim());
+        	
         }
-
+        
         setSize(sizeFactor * SIZE);
-        setColor(GempakColor.convertToRGB(colorIndex));
+        setColor(GempakColor.convertToRGB(colorIndex)); 
     }
+    
 
     @Override
-    public void paint(NcgridResourceData gridRscData, IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-
-        if (paintProps.isZooming()) {
-            return;
-        }
-
+    public void paint(NcgridResourceData gridRscData, IGraphicsTarget target, PaintProperties paintProps)
+            throws VizException {
+    	
+    	if (paintProps.isZooming()) {
+    		return;
+    	}
+    	
         if (lastExtent == null
                 || !lastExtent.equals(paintProps.getView().getExtent())) {
             disposeImages();
@@ -182,64 +177,55 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             super.paint(gridRscData, target, paintProps);
             lastShape.compile();
         }
-
+        
         target.drawWireframeShape(lastShape, color, lineWidth, lineStyle);
     }
 
-    public void createWireFrame(NcgridResourceData gridRscData,
-            IGraphicsTarget target, PaintProperties paintProps) {
+    public void createWireFrame (NcgridResourceData gridRscData, IGraphicsTarget target, PaintProperties paintProps) {
 
-        if (lastShape == null) {
-            try {
-                long t1 = System.currentTimeMillis();
-                lastShape = target.createWireframeShape(false, descriptor);
-                super.paint(gridRscData, target, paintProps);
-                lastShape.compile();
-                long t4 = System.currentTimeMillis();
-                if (ncgribLogger.enableCntrLogs()) {
-                    logger.info("--GriddedVectorDisplay: create wireframe took:"
-                            + (t4 - t1));
-                }
-            } catch (VizException e) {
-                lastShape = null;
-            }
-        }
+    	if (lastShape == null) {
+    		try {
+    			long t1 = System.currentTimeMillis();
+    			lastShape = target.createWireframeShape(false, descriptor);
+    			super.paint(gridRscData, target, paintProps);
+    			lastShape.compile();
+    			long t4 = System.currentTimeMillis();
+    			if ( ncgribLogger.enableCntrLogs() )
+    				logger.info("--GriddedVectorDisplay: create wireframe took:" + (t4-t1));
+    		}
+    		catch ( VizException e) {
+    			lastShape = null;
+    		}
+    	}
     }
-
-    @Override
-    protected void paintImage(int x, int y, PaintProperties paintProps,
-            double adjSize) throws VizException {
+    	   
+    protected void paintImage(int x, int y, PaintProperties paintProps, double adjSize) throws VizException {
         int idx = x + y * this.gridDims[0];
 
-        // System.out.println("paintImage idx==="+idx+" x=="+ijcoord.x+"  y====="+ijcoord.y);
-
-        if (idx < 0 || idx >= (gridDims[0] * gridDims[1])) {
-            return;
-        }
+//        System.out.println("paintImage idx==="+idx+" x=="+ijcoord.x+"  y====="+ijcoord.y);
+        
+        if (idx < 0 || idx >= (gridDims[0] * gridDims[1])) return;
         float spd = this.magnitude.get(idx);
-        float dir = this.direction.get(idx);
+        float dir = this.direction.get(idx) - 180;
 
         if (Float.isNaN(spd) || Float.isNaN(dir)) {
             return;
         }
-
-        if (this.isPlotted[idx]) {
-            return;
-        }
-
-        ReferencedCoordinate newrco = new ReferencedCoordinate(new Coordinate(
-                x, y), this.gridGeometryOfGrid, Type.GRID_CENTER);
+        
+        if (this.isPlotted[idx]) return;
+        
+        ReferencedCoordinate newrco = new ReferencedCoordinate(
+				new Coordinate(x, y),
+				this.gridGeometryOfGrid, Type.GRID_CENTER);
         Coordinate plotLoc = null;
 
         try {
-            plotLoc = newrco.asPixel(this.descriptor.getGridGeometry());
+        	plotLoc = newrco.asPixel(this.descriptor
+                    .getGridGeometry());
             latLon = newrco.asLatLon();
-
-            if (latLon.x > 180 || latLon.x < -180 || latLon.y < -90
-                    || latLon.y > 90) {
-                return;
-            }
-
+            
+            if (latLon.x > 180 || latLon.x < -180 || latLon.y < -90 || latLon.y > 90) return;
+            
             double[] stationLocation = { latLon.x, latLon.y };
             double[] stationPixelLocation = this.descriptor
                     .worldToPixel(stationLocation);
@@ -274,17 +260,15 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         default:
             throw new VizException("Unsupported disply type: " + displayType);
         }
-
+        
         this.isPlotted[idx] = true;
     }
 
     private void paintBarb(Coordinate plotLoc, double adjSize, double spd,
             double dir) {
-        // Don't plot missing value
-        if (spd < 0) {
-            return;
-        }
-
+    	//Don't plot missing value
+    	if ( spd < 0 ) return;
+    	
         if (spd < 2.5) {
             double[][] line = new double[9][2];
 
@@ -351,30 +335,32 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
         // PLOT LONE HALF-BARB, IF NECESSARY
         if (n50 == 0 && n10 == 0) {
-            if (latLon.y >= 0) {
-                ix2 = ix1 + dix1 * barb / 2.0; // -
-                jy2 = jy1 - djy1 * barb / 2.0; // +
-            } else {
-                ix2 = ix1 - dix1 * barb / 2.0;
-                jy2 = jy1 + djy1 * barb / 2.0;
-            }
-
-            ix1 = ix1 - dix * add;
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb / 2.0; //-
+        		jy2 = jy1 - djy1 * barb / 2.0; //+
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb / 2.0; 
+            	jy2 = jy1 + djy1 * barb / 2.0; 
+        	}
+        	
+        	ix1 = ix1 - dix * add;
             jy1 = jy1 + djy * add;
-            lastShape.addLineSegment(new double[][] { { ix2, jy2 },
+        	lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
             return;
         }
 
         // PLOT FLAGS, IF NECESSARY
         for (int i = 0; i < n50; i++) {
-            if (latLon.y >= 0) {
-                ix2 = ix1 + dix1 * barb; // +
-                jy2 = jy1 - djy1 * barb; // -
-            } else {
-                ix2 = ix1 - dix1 * barb;
-                jy2 = jy1 + djy1 * barb;
-            }
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb; //+
+                jy2 = jy1 - djy1 * barb; //-
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb; 
+        		jy2 = jy1 + djy1 * barb; 
+        	}
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
             ix1 = ix1 - dix * add * 2; // 2 space
@@ -382,7 +368,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
         }
-
+        
         if (n50 > 0) {
             ix1 = ix1 - dix * add / 2.0;
             jy1 = jy1 + djy * add / 2.0;
@@ -390,13 +376,14 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
         // PLOT BARB, IF NECESSARY
         for (int i = 0; i < n10; i++) {
-            if (latLon.y >= 0) {
-                ix2 = ix1 + dix1 * barb; // +
-                jy2 = jy1 - djy1 * barb;// -
-            } else {
-                ix2 = ix1 - dix1 * barb;
-                jy2 = jy1 + djy1 * barb;
-            }
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb; //+
+        		jy2 = jy1 - djy1 * barb;//-
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb; 
+        		jy2 = jy1 + djy1 * barb; 
+        	}           
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
             ix1 = ix1 - dix * add;
@@ -405,13 +392,14 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
         // PLOT HALF-BARB, IF NECESSARY
         if (n5 != 0) {
-            if (latLon.y >= 0) {
-                ix2 = ix1 + dix1 * barb / 2.0; // +
-                jy2 = jy1 - djy1 * barb / 2.0; // -
-            } else {
-                ix2 = ix1 - dix1 * barb / 2.0;
-                jy2 = jy1 + djy1 * barb / 2.0;
-            }
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb / 2.0; //+
+        		jy2 = jy1 - djy1 * barb / 2.0; //-
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb / 2.0; 
+        		jy2 = jy1 + djy1 * barb / 2.0; 
+        	}
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
         }
@@ -531,9 +519,8 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
     /**
      * @param filter
-     *            the filter to set. Changed from density.
+     *            the filter to set.  Changed from density.
      */
-    @Override
     public boolean setFilter(double filter) {
         if (super.setFilter(filter)) {
             disposeImages();
@@ -549,7 +536,6 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
      * @param magnification
      *            the magnification to set
      */
-    @Override
     public boolean setMagnification(double magnification) {
         if (super.setMagnification(magnification)) {
             disposeImages();
@@ -568,7 +554,6 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         return magnitude;
     }
 
-    @Override
     protected void disposeImages() {
         if (lastShape != null) {
             lastShape.dispose();
@@ -576,7 +561,6 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         }
     }
 
-    @Override
     protected Coordinate createImage(Coordinate coord) throws VizException {
         return coord;
     }
@@ -593,34 +577,29 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         return coord;
     }
 
-    public NcFloatDataRecord getData() {
-        return data;
-    }
-
-    public boolean checkAttrsChanged(DisplayType type, boolean dir, String attr) {
-        boolean isChanged = false;
-        if (this.displayType != type || this.isDirectional != dir
-                || !this.contourAttributes.getWind().equalsIgnoreCase(attr)) {
-            isChanged = true;
-        }
-        return isChanged;
-    }
-
-    public boolean isMatch(ContourAttributes attr) {
-        boolean match = false;
-        if (this.contourAttributes == null) {
-            return match;
-        }
-        if (this.contourAttributes.getGlevel().equalsIgnoreCase(
-                attr.getGlevel())
-                && this.contourAttributes.getGvcord().equalsIgnoreCase(
-                        attr.getGvcord())
-                && this.contourAttributes.getScale().equalsIgnoreCase(
-                        attr.getScale())
-                && this.contourAttributes.getGdpfun().equalsIgnoreCase(
-                        attr.getGdpfun())) {
-            match = true;
-        }
-        return match;
-    }
+	public NcFloatDataRecord getData() {
+		return data;
+	}
+    
+	public boolean checkAttrsChanged (DisplayType type, boolean dir, String attr) {
+		boolean isChanged = false;
+		if ( this.displayType != type ||
+			this.isDirectional != dir ||
+			! this.contourAttributes.getWind().equalsIgnoreCase(attr)) {
+			isChanged = true;
+		}
+		return isChanged;
+	}
+	
+	public boolean isMatch ( ContourAttributes attr) {
+		boolean match = false;
+		if ( this.contourAttributes == null ) return match;
+		if ( this.contourAttributes.getGlevel().equalsIgnoreCase(attr.getGlevel())&&
+			 this.contourAttributes.getGvcord().equalsIgnoreCase(attr.getGvcord()) &&
+			 this.contourAttributes.getScale().equalsIgnoreCase(attr.getScale()) &&
+			 this.contourAttributes.getGdpfun().equalsIgnoreCase(attr.getGdpfun()) ) {
+			match = true;
+		}
+		return match;
+	}
 }

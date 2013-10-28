@@ -20,7 +20,6 @@
 package com.raytheon.viz.gfe.textformatter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,9 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -52,9 +49,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
 
 /**
@@ -64,10 +60,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 25, 2008            mnash       Initial creation
- * Sep 05, 2013     #2329  randerso    Moved genereateAutoCombinationsFile here
- *                                     Cleaned up error handling
- * 
+ * Jul 25, 2008            mnash     Initial creation
  * </pre>
  * 
  * @author mnash
@@ -207,7 +200,7 @@ public class CombinationsFileUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<List<String>> init(String comboName) throws GfeException {
+    public static List<List<String>> init(String comboName) {
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -218,6 +211,7 @@ public class CombinationsFileUtil {
         File comboFile = new File(comboName);
         comboName = comboFile.getName();
 
+        String comboPath = GfePyIncludeUtil.getCombinationsIncludePath();
         String scriptPath = FileUtil.join(
                 GfePyIncludeUtil.getUtilitiesLF(baseContext).getFile()
                         .getPath(), "CombinationsInterface.py");
@@ -227,46 +221,18 @@ public class CombinationsFileUtil {
         map.put("comboName", comboName);
         PythonScript python = null;
         try {
-            python = new PythonScript(scriptPath, PyUtil.buildJepIncludePath(
-                    GfePyIncludeUtil.getCombinationsIncludePath(),
-                    GfePyIncludeUtil.getCommonPythonIncludePath()),
-                    CombinationsFileUtil.class.getClassLoader());
+            python = new PythonScript(scriptPath,
+                    PyUtil.buildJepIncludePath(comboPath));
             Object com = python.execute("getCombinations", map);
             combos = (List<List<String>>) com;
         } catch (JepException e) {
-            throw new GfeException("Error loading combinations file: "
-                    + comboName, e);
+            statusHandler.handle(Priority.CRITICAL,
+                    "Could not get combinations", e);
         } finally {
             if (python != null) {
                 python.dispose();
             }
         }
         return combos;
-    }
-
-    /**
-     * Generates combinations files based on just running the formatter
-     * 
-     * @param zoneGroupList
-     * @param filename
-     * @throws Exception
-     * @throws IOException
-     */
-    public static void generateAutoCombinationsFile(
-            List<List<String>> zoneGroupList, String filename) throws Exception {
-        IFPClient ifpc = DataManagerUIFactory.getCurrentInstance().getClient();
-        SaveCombinationsFileRequest req = new SaveCombinationsFileRequest();
-        req.setFileName(filename);
-        req.setCombos(zoneGroupList);
-        try {
-            statusHandler.info("Saving combinations file: " + filename);
-            ifpc.makeRequest(req);
-            statusHandler.info("Successfully saved combinations file: "
-                    + filename);
-        } catch (Exception e) {
-            statusHandler.error("Error saving combinations file: " + filename,
-                    e);
-            throw e;
-        }
     }
 }

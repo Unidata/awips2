@@ -33,13 +33,13 @@
             <setHeader headerName="pluginName">
                 <constant>intlsigmet</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.intlsigmet"/>
+            <to uri="jms-generic:queue:Ingest.intlsigmet"/>
         </route>
         -->
         
         <!-- Begin IntlSigmet routes -->
         <route id="intlsigmetIngestRoute">
-            <from uri="jms-durable:queue:Ingest.intlsigmet"/>
+            <from uri="jms-generic:queue:Ingest.intlsigmet"/>
             <setHeader headerName="pluginName">
                 <constant>intlsigmet</constant>
             </setHeader>

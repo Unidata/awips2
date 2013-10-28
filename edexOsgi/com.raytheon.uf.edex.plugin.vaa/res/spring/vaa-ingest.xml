@@ -10,7 +10,7 @@
     <bean id="vaaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="vaaPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.vaa"/>
+		<constructor-arg value="jms-dist:queue:Ingest.vaa?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
 	<bean id="vaaCamelRegistered" factory-bean="contextManager"
@@ -31,13 +31,13 @@
             <setHeader headerName="pluginName">
                 <constant>vaa</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.vaa" />
+            <to uri="jms-generic:queue:Ingest.vaa" />
         </route>
         -->
 
         <!-- Begin vaa routes -->
         <route id="vaaIngestRoute">
-            <from uri="jms-durable:queue:Ingest.vaa"/>
+            <from uri="jms-generic:queue:Ingest.vaa?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>vaa</constant>
             </setHeader>

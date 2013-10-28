@@ -39,11 +39,11 @@
 			<setHeader headerName="pluginName">
 				<constant>sgwh</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.sgwh" />
+			<to uri="jms-generic:queue:Ingest.sgwh" />
 		</route>
 
 		<route id="sgwhIngestRoute">
-			<from uri="jms-durable:queue:Ingest.sgwh"/>
+			<from uri="jms-generic:queue:Ingest.sgwh?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>sgwh</constant>
 			</setHeader>

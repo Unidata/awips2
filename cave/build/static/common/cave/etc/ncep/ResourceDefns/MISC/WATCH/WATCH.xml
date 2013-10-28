@@ -4,9 +4,7 @@
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>    
 pluginName=aww
-! There don't appear to be reports for STATUS_REPORT or THUNDERSTORM REPORT
-! SEVERE WEATHER STATEMENT and SEVERE THUNDERSTORM WATCH
-reportType=THUNDERSTORM REPORT,TORNADO REPORT,STATUS REPORT
+reportType=THUNDERSTORM_REPORT,TORNADO_REPORT,STATUS_REPORT
 color=RGB {155, 155, 155}
 legendName=WATCH
     </resourceParameters>

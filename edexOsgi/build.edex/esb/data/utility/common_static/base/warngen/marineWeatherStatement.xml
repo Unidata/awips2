@@ -3,22 +3,9 @@
                  Phil Kurimski WFO DTX 27 February 2012
                  Evan Bookbinder 09-11-2012 Added settings for locations shapefile
                                             Added new areaSource objects
-                 Phil Kurimski   09-19-2013 added geospatialConfig.xml
 -->
 <warngenConfig>
 
-<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
-ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
-PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
-<include file="geospatialConfig_MARINE.xml"/>
-
-<!-- Include Various geospatial XML files to create their objects. These are *NOT*
-turned on unless the corresponding .vm file is turned on in a given template's .vm file
--->  
-<include file="mileMarkers.xml"/>
-<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
-<include file="pointMarkers.xml"/>
-<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
 
  <!-- Config distance/speed units -->
  <unitDistance>nmi</unitDistance>
@@ -89,7 +76,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="NEW" phen="MA" sig="S">
  <bullets>
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
@@ -129,7 +116,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="COR" phen="MA" sig="S">
  <bullets>
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
@@ -152,7 +139,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
@@ -168,4 +156,147 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 </bulletActionGroup>
 </bulletActionGroups>
 
+  <!-- Default areaSource object to generate zone based information -->
+ <areaSource variable="areas">
+   <areaSource>MarineZones</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>NAME</areaNotationField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>ID</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+</areaSource>
+
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,C,LW,LC" constraintType="IN" />
+ 	  </mapping> 		
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>WARNGENLEV</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,C,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 		
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>WARNGENLEV</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pathcastConfig>
+ <!-- the withinPolygon variable set to false will bring in points
+ outside of the polygon which is necessary for the pathcast to reference
+ points that are near the water but not on the water -->
+  <inclusionPercent>1</inclusionPercent>
+  <withinPolygon>false</withinPolygon>
+  <distanceThreshold>10.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <type>AREA</type>
+  <areaField>Name</areaField>
+  <parentAreaField>Name</parentAreaField>
+  <areaNotationField>Name</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping> 	 		
+ 	</filter>  
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+ </pathcastConfig>
+ 
+   <pointSource variable="locationList">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>20</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2,3,4" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping> 	 		
+ 	</filter>    	
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>20</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3,4" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping> 	 		
+  	</filter>
+ </pointSource>
+  
+ 
+ <geospatialConfig>
+  <pointSource>WarnGenLoc</pointSource>
+  <areaSource>MarineZones</areaSource>
+  <parentAreaSource>MarineZones</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
 </warngenConfig>

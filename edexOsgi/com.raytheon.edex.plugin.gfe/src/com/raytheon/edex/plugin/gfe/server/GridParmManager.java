@@ -100,12 +100,6 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Removed inventory from DBInvChangedNotification
  * 05/03/13     #1974      randerso    Fixed error logging to include stack trace
  * 05/14/13     #2004      randerso    Added methods to synch GridParmManager across JVMs
- * 09/12/13     #2348      randerso    Added logging when database are added/removed from dbMap
- *                                     Fixed the synchronization of dbMap with the database inventory
- *                                     Changed to call D2DGridDatabase.getDatabase instead of calling 
- *                                     the constructor directly to ensure the data exists before creating
- *                                     the D2DGridDatabase object
- * 
  * </pre>
  * 
  * @author bphillip
@@ -1022,10 +1016,10 @@ public class GridParmManager {
             sr.addMessage("VersionPurge failed - couldn't get inventory");
             return sr;
         }
-        List<DatabaseID> currentInv = sr.getPayload();
+        List<DatabaseID> databases = sr.getPayload();
 
         // sort the inventory by site, type, model, time (most recent first)
-        Collections.sort(currentInv);
+        Collections.sort(databases);
 
         // process the inventory looking for "old" unwanted databases
         String model = null;
@@ -1033,7 +1027,7 @@ public class GridParmManager {
         String type = null;
         int count = 0;
         int desiredVersions = 0;
-        for (DatabaseID dbId : currentInv) {
+        for (DatabaseID dbId : databases) {
             // new series?
             if (!dbId.getSiteId().equals(site)
                     || !dbId.getDbType().equals(type)
@@ -1061,31 +1055,11 @@ public class GridParmManager {
             }
         }
 
-        List<DatabaseID> newInv = getDbInventory(siteID).getPayload();
-        List<DatabaseID> additions = new ArrayList<DatabaseID>(newInv);
-        additions.removeAll(currentInv);
-
-        List<DatabaseID> deletions = new ArrayList<DatabaseID>(currentInv);
-        deletions.removeAll(newInv);
-
         // kludge to keep dbMap in synch until GridParmManager/D2DParmICache
         // merge/refactor
-        List<DatabaseID> toRemove = new ArrayList<DatabaseID>(dbMap.keySet());
-        toRemove.removeAll(newInv);
-        for (DatabaseID dbId : toRemove) {
-            statusHandler
-                    .info("Synching GridParmManager with database inventory, removing "
-                            + dbId);
-            dbMap.remove(dbId);
+        dbMap.keySet().retainAll(databases);
 
-            // add any removals to the deletions list
-            // so notifications go to the other JVMs
-            if (!deletions.contains(dbId)) {
-                deletions.add(dbId);
-            }
-        }
-
-        createDbNotification(siteID, additions, deletions);
+        createDbNotification(siteID, databases);
 
         return sr;
     }
@@ -1246,8 +1220,8 @@ public class GridParmManager {
                         // ingested
                         String d2dModelName = serverConfig
                                 .d2dModelNameMapping(modelName);
-                        db = D2DGridDatabase.getDatabase(serverConfig,
-                                d2dModelName, dbId.getModelTimeAsDate());
+                        db = new D2DGridDatabase(serverConfig, d2dModelName,
+                                dbId.getModelTimeAsDate());
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
@@ -1270,7 +1244,6 @@ public class GridParmManager {
             }
 
             if ((db != null) && db.databaseIsValid()) {
-                statusHandler.info("getDb called, adding " + dbId);
                 dbMap.put(dbId, db);
             }
         }
@@ -1282,8 +1255,6 @@ public class GridParmManager {
         while (iter.hasNext()) {
             DatabaseID dbId = iter.next();
             if (dbId.getSiteId().equals(siteID)) {
-                statusHandler.info("purgeDbCache(" + siteID + "), removing "
-                        + dbId);
                 iter.remove();
             }
         }
@@ -1400,6 +1371,18 @@ public class GridParmManager {
     }
 
     private static void createDbNotification(String siteID,
+            List<DatabaseID> prevInventory) {
+        List<DatabaseID> newInventory = getDbInventory(siteID).getPayload();
+        List<DatabaseID> additions = new ArrayList<DatabaseID>(newInventory);
+        additions.removeAll(prevInventory);
+
+        List<DatabaseID> deletions = new ArrayList<DatabaseID>(prevInventory);
+        deletions.removeAll(newInventory);
+
+        createDbNotification(siteID, additions, deletions);
+    }
+
+    private static void createDbNotification(String siteID,
             List<DatabaseID> additions, List<DatabaseID> deletions) {
         if (!additions.isEmpty() || !deletions.isEmpty()) {
             DBInvChangeNotification notify = new DBInvChangeNotification(
@@ -1417,7 +1400,6 @@ public class GridParmManager {
                         "Unable to purge model database: " + id, e);
             }
         }
-        statusHandler.info("deallocateDb called, removing " + id);
         dbMap.remove(id);
     }
 
@@ -1447,9 +1429,6 @@ public class GridParmManager {
             }
 
             for (DatabaseID dbId : invChanged.getDeletions()) {
-                statusHandler
-                        .info("DBInvChangeNotification deletion received, removing "
-                                + dbId);
                 dbMap.remove(dbId);
             }
         }

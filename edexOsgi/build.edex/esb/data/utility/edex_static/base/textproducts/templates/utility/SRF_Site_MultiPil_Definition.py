@@ -75,7 +75,7 @@ if "<site>" == "AFG":
     elif "_<MultiPil>" == "_WCZ":
         Definition["subDomainUGCs"] = ["AKZ207","AKZ208","AKZ209","AKZ210",
                                        "AKZ211","AKZ212","AKZ213","AKZ214",
-                                       "AKZ215","AKZ216","AKZ217","AKZ227"]
+                                       "AKZ215","AKZ216","AKZ217"]
 #Definition["tempLocalEffects"] = 1   # Set to 1 to enable Temp and RH local effects AFTER
                                       # creating Inland and Coastal edit areas
 #Definition["windLocalEffects"] = 1   # Set to 1 to enable wind local effects AFTER

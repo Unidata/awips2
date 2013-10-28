@@ -8,10 +8,10 @@
 	<PlotParameterDefn  plotParamName="ALTI" metParamName="SeaLevelPressure" plotMode="text" dbParamName="altimeter"     plotUnit="inHg"   plotFormat="%5.2f" />
 	<PlotParameterDefn  plotParamName="ALTM" metParamName="SeaLevelPressure" plotMode="text" dbParamName="altimeter"     plotUnit="mb"    plotFormat="%5.2f" />
 	<PlotParameterDefn  plotParamName="PALT" metParamName="SurfacePressure"  plotMode="text"  dbParamName="stationPress"  plotUnit="mb"    plotFormat="%5.2f" />
-	<PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres" plotMode="text" dbParamName="seaLevelPress" plotUnit="mb"    plotFormat="PMSL" />
-	<PlotParameterDefn  plotParamName="SMSL" metParamName="MeanSeaLevelPres" dbParamName="seaLevelPress" plotUnit="mb" plotFormat="SMSL"/>
-	<PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr" plotMode="text" dbParamName="pressChange3Hour"  plotUnit="Pa"    plotFormat="%+3.0f"/>
-    <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol" dbParamName="pressChangeChar" plotMode="table" symbolFont="WxSymbolFont" plotLookupTable="pgen_pressure_tendency.txt"/>
+	<PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres" plotMode="text" dbParamName="seaLevelPress" plotUnit="mb"    plotFormat="%5.2f" />
+	<PlotParameterDefn  plotParamName="SMSL" metParamName="MeanSeaLevelPres" dbParamName="seaLevelPress" plotUnit="inHg" plotFormat="SMSL"/>
+	<PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr" plotMode="text" dbParamName="pressChange3Hour"  plotUnit="mb"    plotFormat="%+3.0f"/>
+    <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol" dbParamName="pressChangeChar" plotMode="table" symbolFont="WxSymbolFont" plotLookupTable="press_change_char_lookup.txt"/>
     <!--  TODO Is the dbParamName really presChange24Hour? Didn't encounter an instance in the canned data... -->
     <!-- <PlotParameterDefn  plotParamName="P24C" metParamName="PressChange24Hr" plotMode="text" dbParamName="presChange24Hour" plotUnit="mb"    plotFormat="%5.2f" plotTrim="2"/> 	 -->
     
@@ -117,9 +117,7 @@
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />
 -->
-<PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" plotMode="table" symbolFont="WxSymbolFont" 
-                    dbParamName="totCloudAmount" prioritySelectTable="cloud_select.txt" 
-                    plotLookupTable="pgen_total_cloud_amount.txt" />	   
+<PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" plotMode="table" symbolFont="WxSymbolFont" dbParamName="totCloudAmount" prioritySelectTable="cloud_select.txt" plotLookupTable="cloud_chars.txt" />	   
 
  <PlotParameterDefn  plotParamName="BRGK" metParamName="WindDirection,WindGust" 
                      plotMode="barb" symbolFont="WindSymbolFont" 
@@ -159,7 +157,7 @@
     <PlotParameterDefn  plotParamName="POWW" metParamName="WindWavePeriod" plotMode="text" dbParamName="windWavePeriod" plotUnit="s"/>
 	    
 	<!-- WEATHER -->   
-	<PlotParameterDefn  plotParamName="WSYM" metParamName="WxPresent" plotMode="table" dbParamName="wx_present" symbolFont="LargeSpecialSymbolFont" plotLookupTable="pgen_wsym.txt"/>
+	<PlotParameterDefn  plotParamName="WSYM" metParamName="WxPresent" plotMode="table" dbParamName="wx_present" symbolFont="LargeSpecialSymbolFont" transform="rotate(0,0,0)" plotLookupTable="pres_wx_symbols.txt"/>
 	
 	<!-- PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" plotMode="table" dbParamName="presWeather" symbolFont="WxSymbolFont" transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/> -->	
     <!-- <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" dbParamName="presWeather" plotMode="table" symbolFont="WxSymbolFont" arrayIndex="0" plotLookupTable="wx_symbol_trans.txt"/> -->
