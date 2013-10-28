@@ -10,7 +10,7 @@
 	<bean id="redbookDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="redbook" />
-		<constructor-arg value="jms-dist:queue:Ingest.redbook?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.redbook"/>
 	</bean>
 
 	<!-- 
@@ -38,13 +38,13 @@
 			<setHeader headerName="pluginName">
 				<constant>redbook</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.redbook" />
+			<to uri="jms-durable:queue:Ingest.redbook" />
 		</route>
 		-->
 
 		<!-- Begin Redbook routes -->
 		<route id="redbookIngestRoute">
-			<from uri="jms-generic:queue:Ingest.redbook?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.redbook"/>
 			<setHeader headerName="pluginName">
 				<constant>redbook</constant>
 			</setHeader>

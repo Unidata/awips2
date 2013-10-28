@@ -22,7 +22,7 @@
 	<bean id="mdlsndgDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="modelsoundingPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.modelsounding?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.modelsounding"/>
 	</bean>
 
     <bean id="modelsoundingCamelRegistered" factory-bean="contextManager"
@@ -45,13 +45,13 @@
             <setHeader headerName="pluginName">
                 <constant>modelsounding</constant>
             </setHeader>
-			<to uri="jms-generic:queue:Ingest.modelsounding" />
+			<to uri="jms-durable:queue:Ingest.modelsounding" />
 		</route>
         -->
  
 		<!-- Begin Model Sounding routes -->
 		<route id="modelsndgIngestRoute">
-			<from uri="jms-generic:queue:Ingest.modelsounding?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.modelsounding"/>
 			<setHeader headerName="pluginName">
                 <constant>modelsounding</constant>
             </setHeader>

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Constants:
 __ECLIPSE_="eclipse"
 __NO_SPLASH_="-nosplash"

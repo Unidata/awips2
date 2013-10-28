@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Mar 25, 2013  1605      jsanchez     Set ClosestPoint's prepGeom.
  * Apr 24, 2013  1944      jsanchez     Updated calculateLocationPortion visibility to public.
  * May  2, 2013  1963      jsanchez     Referenced calculatePortion from GisUtil if intersection less than DEFAULT_PORTION_TOLERANCE.
+ * Sep 13, 2013  DR 16601  D. Friedman  Fix from jsanchez: Allow cities outside the CWA.
  * 
  * </pre>
  * 
@@ -155,8 +156,6 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         if (filter == null) {
             filter = new HashMap<String, RequestConstraint>();
         }
-
-        filter.put(cwaField, new RequestConstraint(localizedSite));
 
         return filter;
     }
