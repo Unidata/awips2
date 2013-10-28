@@ -1,6 +1,6 @@
  # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
 #192-254 Reserved for local use
-192:192:Categorical Rain::CRAIN
+192:192:Weather::wxType
 193:193:Categorical Freezing Rain::CFRZR
 194:194:Categorical Ice Pellets::CICEP
 195:195:Categorical Snow::CSNOW

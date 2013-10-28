@@ -34,6 +34,8 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2013       2189 mschenke     Initial creation
+ * Sep 13, 2013      16581 kshrestha    Variables scaleFont and smoothing 
+ *                                      initialized to true. 
  * 
  * </pre>
  * 
@@ -45,9 +47,9 @@ public abstract class AbstractAWTFont implements IFont {
 
     protected Font font;
 
-    protected boolean scaleFont;
+    protected boolean scaleFont = true;
 
-    protected boolean smoothing;
+    protected boolean smoothing = true;
 
     protected AbstractAWTFont(String fontName, float fontSize, Style[] styles) {
         this(new Font(fontName, toAwtStyle(styles), (int) fontSize));

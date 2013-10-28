@@ -66,6 +66,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #                                                 A1, big perf improvement.
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
 #    07/25/13        2233          randerso       Improved memory utilization and performance
+#    09/20/13        2405          dgilling       Clip grids before inserting into cache.
 # 
 #
 
@@ -97,8 +98,9 @@ def logDebug(*msg):
 
 
 class WECache(object):
-    def __init__(self, we, inv):
+    def __init__(self, we, inv, clipArea):
         self._we = we
+        self._clipArea = clipArea
         self._inv = OrderedDict()
         lst = list(inv)
         while len(lst):
@@ -109,7 +111,7 @@ class WECache(object):
             gridsAndHist = self._we.get(javaTRs, True)
             for idx, tr in enumerate(i):
                 pair = gridsAndHist.get(idx)
-                g = self.__encodeGridSlice(pair.getFirst())
+                g = self.__encodeGridSlice(pair.getFirst(), clipArea)
                 h = self.__encodeGridHistory(pair.getSecond())
                 self._inv[tr] = (g, h)
             lst = lst[BATCH_WRITE_COUNT:]
@@ -122,31 +124,32 @@ class WECache(object):
         try:
             return self._inv[key]
         except KeyError:
+            logEvent("Cache miss for key:", str(key))
             grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
-            pyGrid = self.__encodeGridSlice(grid)
+            pyGrid = self.__encodeGridSlice(grid, self._clipArea)
             history = grid.getGridDataHistory()
             pyHist = self.__encodeGridHistory(history)
             return (pyGrid, pyHist)
     
-    def __encodeGridSlice(self, grid):
+    def __encodeGridSlice(self, grid, clipArea):
         gridType = grid.getGridInfo().getGridType().toString()
         if gridType == "SCALAR":
-            return grid.__numpy__[0]
+            return clipToExtrema(grid.__numpy__[0], clipArea)
         elif gridType == "VECTOR":
             vecGrids = grid.__numpy__
-            return (vecGrids[0], vecGrids[1])
+            return (clipToExtrema(vecGrids[0], clipArea), clipToExtrema(vecGrids[1], clipArea))
         elif gridType == "WEATHER":
             keys = grid.getKeys()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return (grid.__numpy__[0], keyList)
+            return (clipToExtrema(grid.__numpy__[0], clipArea), keyList)
         elif gridType =="DISCRETE":
             keys = grid.getKey()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return (grid.__numpy__[0], keyList)
+            return (clipToExtrema(grid.__numpy__[0], clipArea), keyList)
     
     def __encodeGridHistory(self, histories):
         retVal = []
@@ -524,55 +527,29 @@ def storeTopoGrid(client, file, databaseID, invMask, clipArea):
 
     logEvent("Saved Topo Grid")
 
-def historyFunc(x, y):   
-    return y[x][1]
-
 ###-------------------------------------------------------------------------###
 ###
-def storeGridDataHistory(file, we, wec, trList, timeRange):
+def storeGridDataHistory(file, we, wec, trList):
     "Stores the Grid Data history string for each grid in we."
-    
-    histories = []
-    for tr in trList:
-        histories.append(historyFunc(tr, wec))
-    #histories = map(lambda x, y=wec: y[x][1], trList)
     
     # get the maximum size of the history string 
     maxHistSize = 0
-    gridCount = 0
-    firstSlot = -1
-    lastSlot = 0
-
-    for x in xrange(len(trList)):
-        t = trList[x]
-        his = histories[x]
+    histList = []
+    for tr in trList:
+        his = wec[tr][1]
         hisString = ''
-        for i in xrange(len(his)):
-            hisString = hisString + str(his[i])
+        for i,h in enumerate(his):
+            hisString = hisString + str(h)
             if i != len(his) - 1:
                hisString = hisString + " ^"
-        if overlaps(t, timeRange):
-            if firstSlot == -1:
-                firstSlot = gridCount
-            lastSlot = gridCount
-            if len(hisString) > maxHistSize:
-                maxHistSize = len(hisString)
-        gridCount = gridCount + 1
+        histList.append(hisString)
+        maxHistSize = max(maxHistSize,len(hisString))
         
     # Make the history variable and fill it
-    histShape = (lastSlot - firstSlot + 1, maxHistSize + 1)
-    if firstSlot != -1:
-        histCube = numpy.zeros(histShape, 'c')
-        slot = 0
-        for i in xrange(firstSlot, lastSlot + 1):
-            his = histories[i]
-            hisString = ''
-            for h in range(len(his)):
-                hisString = hisString + str(his[h])
-                if h != len(his) - 1:
-                   hisString = hisString + " ^"
-            histCube[slot:] = hisString
-            slot = slot + 1
+    histShape = (len(histList), maxHistSize + 1)
+    histCube = numpy.zeros(histShape, 'c')
+    for slot, hisString in enumerate(histList):
+        histCube[slot:] = hisString
     
     # make the history variable anyway.  iscMosaic needs it.
     elemName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -582,7 +559,7 @@ def storeGridDataHistory(file, we, wec, trList, timeRange):
 
     var = file.createVariable(varName, 'c', dims)
 
-    if firstSlot != -1:
+    if len(histList) > 0:
         # store the cube in the netCDF file
         var[:] = histCube
     return
@@ -756,9 +733,9 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     
     cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
 
-    wec = WECache(we, overlappingTimes)
+    wec = WECache(we, overlappingTimes, clipArea)
     for i,t in enumerate(overlappingTimes):
-        grid = clipToExtrema(wec[t][0], clipArea)
+        grid = wec[t][0]
         #adjust for time changes
         if we.getGpi().isRateParm():
             durRatio = (float(timeList[i][1]-timeList[i][0]))/float((t[1]-t[0]))
@@ -818,7 +795,7 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, trList, timeRange)
+    storeGridDataHistory(file, we, wec, overlappingTimes)
     
     logEvent("Saved", gridCount, varName, " grids")
 
@@ -841,11 +818,11 @@ def storeVectorWE(we, trList, file, timeRange,
     magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
     dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
     
-    wec = WECache(we, overlappingTimes)
+    wec = WECache(we, overlappingTimes, clipArea)
     for i,t in enumerate(overlappingTimes):
         vecData = wec[t][0]
-        mag = clipToExtrema(vecData[0], clipArea)
-        dir = clipToExtrema(vecData[1], clipArea)
+        mag = vecData[0]
+        dir = vecData[1]
         if we.getGpi().isRateParm():
             durRatio = (float(timeList[i][1]-timeList[i][0]))/float((t[1]-t[0]))
             mag *= durRatio
@@ -947,7 +924,7 @@ def storeVectorWE(we, trList, file, timeRange,
     setattr(dirVar, "fillValue", dfillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, trList, timeRange)
+    storeGridDataHistory(file, we, wec, overlappingTimes)
     
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1001,11 +978,10 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     byteCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
 
     keyList = []
-    wec = WECache(we, overlappingTimes)
+    wec = WECache(we, overlappingTimes, clipArea)
     for i,t in enumerate(overlappingTimes):
         wx = wec[t][0]
-        grid = clipToExtrema(wx[0], clipArea)
-        byteCube[i] = grid
+        byteCube[i] = wx[0]
         keyList.append(wx[1])
 
     # make the variable name
@@ -1070,7 +1046,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, trList, timeRange)
+    storeGridDataHistory(file, we, wec, overlappingTimes)
 
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1092,11 +1068,10 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     byteCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
     
     keyList = []
-    wec = WECache(we, overlappingTimes)
+    wec = WECache(we, overlappingTimes, clipArea)
     for i,t in enumerate(overlappingTimes):
         dis = wec[t][0]
-        grid = clipToExtrema(dis[0], clipArea)
-        byteCube[i] = grid
+        byteCube[i] = dis[0]
         keyList.append(dis[1])
     
 
@@ -1160,7 +1135,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, trList, timeRange)
+    storeGridDataHistory(file, we, wec, overlappingTimes)
 
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1335,7 +1310,8 @@ def main(outputFilename, parmList, databaseID, startTime,
     try:
         timeRange = makeTimeRange(argDict['startTime'], argDict['endTime'])
     except:
-        sys.exit(1)
+        logException("Unable to create TimeRange from arguments: startTime= " + str(argDict['startTime']) + ", endTime= " + argDict['endTime'])
+        return
     
     # See if the databaseID is valid.  An exception will be tossed
     db = IFPDB(argDict['databaseID'])

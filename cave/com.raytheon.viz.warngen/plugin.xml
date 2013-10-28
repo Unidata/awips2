@@ -48,7 +48,7 @@
    <extension
 		point="org.eclipse.ui.menus">
 		<menuContribution
-			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=d2d-3">
 			<toolbar
 				id="plugins">
 				<command

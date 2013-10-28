@@ -33,7 +33,7 @@
 
         <!-- Begin loctables routes -->
         <route id="loctablesIngestRoute">
-            <from uri="jms-generic:queue:Ingest.loctables?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.loctables"/>
             <setHeader headerName="pluginName">
                 <constant>loctables</constant>
             </setHeader>

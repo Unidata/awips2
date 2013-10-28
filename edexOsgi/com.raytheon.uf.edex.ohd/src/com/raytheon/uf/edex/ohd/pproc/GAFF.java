@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 5, 2011            mpduff     Initial creation
+ * Sep 5, 2013  16437      wkwock      Fix the "HiRes" issue
  * 
  * </pre>
  * 
@@ -343,6 +344,9 @@ public class GAFF {
 
             try {
                 uri = db.getDataURI(rfc, durString, today);
+                if (uri == null) {
+                	uri = db.getDataURI(rfc+"-HiRes", durString, today);
+                }
                 if (uri == null) {
                     continue;
                 }
