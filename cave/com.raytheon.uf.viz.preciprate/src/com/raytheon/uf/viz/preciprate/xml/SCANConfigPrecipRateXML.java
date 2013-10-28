@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Precip Rate Configuration analogous to legacy dhrParams.txt
  * 
@@ -36,9 +34,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 18, 2011 6779       grichard    Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 18, 2011  6779     grichard    Initial creation
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -48,7 +47,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "ScanConfigPrecipRate")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANConfigPrecipRateXML implements ISerializableObject {
+public class SCANConfigPrecipRateXML {
 
     @XmlElements( { @XmlElement(name = "PrecipRate", type = PrecipRateXML.class) })
     private ArrayList<PrecipRateXML> precipRates;
