@@ -224,6 +224,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
  * 01/09/2013   15528       zhao        Modified saveFile() and restoreFile()
+ * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
  * 
  * </pre>
  * 
@@ -1959,7 +1960,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         configMgr.setDefaultFontAndColors(applyBtn);
         applyBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event) {
+            public void widgetSelected(SelectionEvent event) {           	            	
                 if (editorTafTabComp.getTextEditorControl().getText() != null
                         && !editorTafTabComp.getTextEditorControl().getText()
                                 .isEmpty()) {
@@ -1972,6 +1973,13 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     String toolName = toolsCbo.getItem(toolsCbo
                             .getSelectionIndex());
                     String bbb = editorTafTabComp.getBBB();
+                    
+                    // DR166478
+                    if ( toolName.equals("UseMetarForPrevailing") ) {
+                    	if ( checkBasicSyntaxError(true) ) {
+                    		return;
+                    	}
+                    }
 
                     // Setup for python request
                     AvnSmartToolRequest req = new AvnSmartToolRequest();
@@ -2037,7 +2045,106 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         return editorComp;
     }
 
-    private void syntaxCheck() {
+    /**
+     * 
+     * @param doLogMessage
+     * @return true if error found, otherwise false 
+     */
+    private boolean checkBasicSyntaxError(boolean doLogMessage) {
+
+    	String in = editorTafTabComp.getTextEditorControl().getText();
+
+        clearSyntaxErrorLevel();
+
+        st = editorTafTabComp.getTextEditorControl();
+
+        final Map<StyleRange, String> syntaxMap = new HashMap<StyleRange, String>();
+ 
+        st.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
+            public void mouseHover(MouseEvent e) {
+                st = editorTafTabComp.getTextEditorControl();
+                Point p = new Point(e.x, e.y);
+                try {
+                    int offset = st.getOffsetAtLocation(p);
+                    StyleRange[] srs = st.getStyleRanges();
+                    StyleRange sr = null;
+                    for (StyleRange range : srs) {
+                        if (offset >= range.start
+                                && offset <= (range.start + range.length)) {
+                            sr = range;
+                            break;
+                        }
+                    }
+                    if (sr != null) {
+                        if (syntaxMap != null) {
+                            st.setToolTipText(syntaxMap.get(sr));
+                        }
+                    } else {
+                        st.setToolTipText(null);
+                    }
+                } catch (Exception ex) {
+                    st.setToolTipText(null);
+                }
+            }
+        });
+
+        int tafIndex = in.indexOf("TAF"); 
+        int equalSignIndex = in.indexOf("=");
+        int lastEqualSignIndex = equalSignIndex;
+        
+        if ( tafIndex < 0 && equalSignIndex < 0 ) { // empty TAF
+        	return false;
+        }
+        
+        while (tafIndex > -1 || equalSignIndex > -1) {
+
+        	if ( tafIndex == -1 || tafIndex > equalSignIndex ) {
+        		
+        		int lineIndexOfFirstEqualSign = st.getLineAtOffset(lastEqualSignIndex);
+        		int lineIndexOfSecondEqualSign = st.getLineAtOffset(equalSignIndex);
+        		if ( lineIndexOfFirstEqualSign == lineIndexOfSecondEqualSign ) {
+            		StyleRange sr = new StyleRange(lastEqualSignIndex,1,null,qcColors[3]);
+            		String msg = "Syntax error: there is an extra '=' sign in this line";
+            		syntaxMap.put(sr, msg);
+            		st.setStyleRange(null);
+            		st.setStyleRange(sr);
+                    if (doLogMessage) {
+                        msgStatComp.setMessageText(msg, qcColors[3].getRGB());
+                    }
+                    return true;
+        		}
+        		
+        		int startIndex = lastEqualSignIndex; 
+        		
+        		while ( !in.substring(startIndex,startIndex+1).matches("[A-Z]") && !in.substring(startIndex,startIndex+1).matches("[0-9]") ) {
+        			startIndex++;
+        		}
+        		int length = 6; 
+        		if ( (equalSignIndex-startIndex) < 6 ) {
+        			length = equalSignIndex-startIndex;
+        		}
+        		StyleRange sr = new StyleRange(startIndex,length,null,qcColors[3]);
+        		String msg = "Syntax error: There is an extra '=' sign before this point, or 'TAF' is missing at beginning of TAF";
+        		syntaxMap.put(sr, msg);
+        		st.setStyleRange(null);
+        		st.setStyleRange(sr);
+                if (doLogMessage) {
+                    msgStatComp.setMessageText(msg, qcColors[3].getRGB());
+                }
+        		
+        		return true;
+        	}
+        	
+        	tafIndex = in.indexOf("TAF", tafIndex+1);
+        	lastEqualSignIndex = equalSignIndex;
+        	equalSignIndex = in.indexOf("=", equalSignIndex+1);
+        }
+        	
+		return false;
+	}
+
+	private void syntaxCheck() {
         // Assume editorTafTabComp is for the active tab.
         st = editorTafTabComp.getTextEditorControl();
         st.setText(st.getText().toUpperCase());
