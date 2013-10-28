@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.xy.hodo;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
@@ -26,22 +28,23 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 
 /**
- * TODO Add Description
+ * Descriptor for a hodograph display.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 17, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 17, 2011           bsteffen    Initial creation
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
+@XmlTransient
 public class HodographDescriptor extends AbstractDescriptor {
 
     // The max distance of the hodograph
