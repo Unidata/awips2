@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.viz.datadelivery.bandwidth.ui;
 
+import java.util.Map;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -31,7 +34,11 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.CanvasImages;
+import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.GraphSection;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Bandwidth Utilization Dialog.
@@ -44,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Nov 28, 2012    1269    mpduff      Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * 
  * </pre>
  * 
@@ -69,13 +77,19 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
     private BandwidthCanvasComp canvasComp;
 
     /** Graph data utility class */
-    private GraphDataUtil graphDataUtil;
+    private final GraphDataUtil graphDataUtil;
+
+    private MenuItem displayOpsNetMI;
+
+    private MenuItem displaySbnMI;
 
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell
+     * @param graphDataUtil
+     *            Graph data utility object
      */
     public BandwidthUtilizationDlg(Shell parent, GraphDataUtil graphDataUtil) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
@@ -193,6 +207,27 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
         Menu graphMenu = new Menu(menuBar);
         graphMenuItem.setMenu(graphMenu);
 
+        displayOpsNetMI = new MenuItem(graphMenu, SWT.RADIO);
+        displayOpsNetMI.setSelection(true);
+        displayOpsNetMI.setText("Display for OPSNET");
+        displayOpsNetMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                canvasComp.setGraphNetwork(Network.OPSNET);
+            }
+        });
+
+        displaySbnMI = new MenuItem(graphMenu, SWT.RADIO);
+        displaySbnMI.setText("Display for SBN");
+        displaySbnMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                canvasComp.setGraphNetwork(Network.SBN);
+            }
+        });
+
+        new MenuItem(graphMenu, SWT.SEPARATOR);
+
         liveUpdateMI = new MenuItem(graphMenu, SWT.CHECK);
         liveUpdateMI.setText("Live Update");
         liveUpdateMI.setSelection(true);
@@ -204,7 +239,7 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
         });
 
         colorByPriorityMI = new MenuItem(graphMenu, SWT.CHECK);
-        colorByPriorityMI.setText("Color By Priority");
+        colorByPriorityMI.setText("Color By Priority/Percentage");
         colorByPriorityMI.setSelection(true);
         colorByPriorityMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -224,7 +259,41 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
                 canvasComp.setShowSubscriptionLines(showSubLinesMI
                         .getSelection());
             }
+        });
 
+        new MenuItem(graphMenu, SWT.SEPARATOR);
+
+        MenuItem percentConfigMI = new MenuItem(graphMenu, SWT.NONE);
+        percentConfigMI.setText("Configure Bandwidth Percent...");
+        percentConfigMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                Map<GraphSection, RGB> colors = canvasComp
+                        .getBandwidthThresholdColors();
+                int[] values = canvasComp.getBandwidthThresholdValues();
+                BandwidthUsedConfigDlg dlg = new BandwidthUsedConfigDlg(
+                        getShell(), values[0], values[1], colors
+                                .get(GraphSection.LOWER), colors
+                                .get(GraphSection.MIDDLE), colors
+                                .get(GraphSection.UPPER));
+                dlg.setCloseCallback(new ICloseCallback() {
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof int[]) {
+                            int[] threshValues = (int[]) returnValue;
+                            canvasComp
+                                    .setBandwidthThresholdValues(threshValues);
+                            canvasComp
+                                    .redrawImage(CanvasImages.UTILIZATION_LABEL);
+                            canvasComp
+                                    .redrawImage(CanvasImages.UTILIZATION_HEADER);
+                            canvasComp
+                                    .redrawImage(CanvasImages.UTILIZATION_GRAPH);
+                        }
+                    }
+                });
+                dlg.open();
+            }
         });
     }
 
