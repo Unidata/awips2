@@ -60,6 +60,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 15, 2013 1040       mpduff       Changed to use Set for office id.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Sept 30,2013 1797       dhladky      Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * 
  * </pre>
  * 
@@ -115,6 +116,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
         this.setRoute(sub.getRoute());
         this.setLatencyInMinutes(sub.getLatencyInMinutes());
         this.setEnsemble(sub.getEnsemble());
+        this.setOriginatingSite(sub.getOriginatingSite());
 
         // Set the registry id
         this.setId(RegistryUtil.getRegistryObjectKey(this));
@@ -250,6 +252,11 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
     @XmlAttribute
     @DynamicSerializeElement
     private int latencyInMinutes;
+    
+    @XmlAttribute
+    @DynamicSerializeElement
+    @SlotAttribute(Subscription.ORIGINATING_SITE_SLOT)
+    private String originatingSite;
 
     /**
      * Get subscription name.
@@ -783,6 +790,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
             builder.append(getName(), other.getName());
             builder.append(getDataSetName(), other.getDataSetName());
             builder.append(getOwner(), other.getOwner());
+            builder.append(getOriginatingSite(), other.getOriginatingSite());
 
             return builder.isEquals();
         }
@@ -796,6 +804,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
         builder.append(getName());
         builder.append(getDataSetName());
         builder.append(getOwner());
+        builder.append(getOriginatingSite());
 
         return builder.toHashCode();
     }
@@ -803,7 +812,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
     @Override
     public String toString() {
         return getName() + "::" + getProvider() + "::" + getDataSetName()
-                + "::" + getOwner();
+                + "::" + getOwner()+ "::"+getOriginatingSite();
     }
 
     /**
@@ -930,5 +939,13 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
     @Override
     public void setEnsemble(Ensemble ensemble) {
         this.ensemble = ensemble;
+    }
+    
+    public void setOriginatingSite(String originatingSite) {
+        this.originatingSite = originatingSite;
+    }
+    
+    public String getOriginatingSite() {
+        return originatingSite;
     }
 }

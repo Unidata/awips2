@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.rsc;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -35,16 +37,17 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 03, 2012           njensen     Initial creation
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
+@XmlTransient
 public class CollaborationResourceData extends AbstractResourceData {
 
     private ICollaborationEditor editor;
