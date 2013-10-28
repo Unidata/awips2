@@ -32,8 +32,6 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *  02/20/12      #606       Greg Hull   Created
  *  04/20/12      #606       Greg Hull   Init using one distinct query
  *  05/28/12      #606       Greg Hull   store actual db values (w/o underscores)
- *  08/17/13     #1031       Greg Hull   check for null prm values. 
- *  08/18/13     #1031       Greg Hull   replace String paramName in node with index to paramNames list
  * 
  * </pre>
  * 
@@ -102,11 +100,7 @@ public class NcInventory {
 	}
 
 	public static List<NcInventory> getAllNcInventories() {
-		
-		synchronized ( inventoryLock ) {			
-		
 		return new ArrayList<NcInventory>( inventoriesMap.values() );
-	}
 	}
 	
 	public static NcInventory getInventory( NcInventoryDefinition invDescr ) {
@@ -140,7 +134,7 @@ public class NcInventory {
 
 		paramNames = new ArrayList<String>( inventoryDefn.getInventoryParameters() );
 		
-		treeTopNode = new InventoryNode( null, 0, inventoryDefn.getPluginName() );
+		treeTopNode = new InventoryNode( null, "pluginName", inventoryDefn.getPluginName() );
 	}
 
 	// not synchronized since we don't want to block if re are re-initializing
@@ -365,9 +359,7 @@ public class NcInventory {
 	}
 	
     public class InventoryNode {
-//    	private String paramName; 
-    	private Integer paramIndex; // specify the paramName of this node with an index
-    							    // into the NcInventory's paramList.
+    	private String paramName; 
     	private String paramValue; // straight from the DB and may contain spaces. 
     							  // when returning the value from a search or when 
     	                         // updating from a URI the spaces will be replaced by '_'s.    	
@@ -378,9 +370,9 @@ public class NcInventory {
 
 //    	private int nodeDepth;
     	
-    	public InventoryNode( InventoryNode parent, Integer pIndx, String pValue ) { 
+    	public InventoryNode( InventoryNode parent, String pName, String pValue ) { 
     		parentNode = parent;
-    		paramIndex  = pIndx;
+    		paramName  = pName;
     		
     		paramValue = pValue;
 //    		nodeCount++; // not the top node
@@ -390,17 +382,8 @@ public class NcInventory {
     		return parentNode;
     	}
 
-    	public Integer getParamIndex() {
-    		return paramIndex;
-    	}
-    	
     	public String getParamName() {
-    		if( paramIndex < 0 || paramIndex >= paramNames.size() ) {
-    			System.out.println("Sanity check: NcInventory getParamName for index "+paramIndex+
-    					" is out of range for paramNames array?????");
-    			return "";
-    		}
-    		return paramNames.get(paramIndex);
+    		return paramName;
     	}
     	
     	public String getParamValue() {
@@ -428,7 +411,7 @@ public class NcInventory {
     								parentNode.getRequestConstraintsForNode();
     	
     		// use the actual paramValue (as queried from the db) which may contain spaces
-    		nodeConstraints.put( getParamName(), new QueryParam( getParamName(), paramValue ) ); 
+    		nodeConstraints.put( paramName, new QueryParam( paramName, paramValue ) ); 
     		
     		return nodeConstraints;        		
     	}
@@ -459,22 +442,21 @@ public class NcInventory {
     	}
 
     	// 
-    	public InventoryNode createChildNode( Integer prmIndx, String prmValue ) {
+    	public InventoryNode createChildNode( String prmName, String prmValue ) {
     		
     		if( childNodes == null ) {    			
     			childNodes = new HashMap<String,InventoryNode>();
     		}
     		else { // sanity check that the prmName matches other child nodes
     			assert( !childNodes.isEmpty() );
-//    			assert( childNodes.values().iterator().next().getParamName().equals( prmName ) );
-    			assert( childNodes.values().iterator().next().getParamIndex() == prmIndx );
+    			assert( childNodes.values().iterator().next().getParamName().equals( prmName ) );
     		}
     		
     		if( childNodes.containsKey( prmValue ) ) {
     			return childNodes.get( prmValue );
     		}
     		else {
-    			InventoryNode newNode = new InventoryNode( this, prmIndx, prmValue );
+    			InventoryNode newNode = new InventoryNode( this, prmName, prmValue );
     			
     			String keyStr = newNode.getParamValue();//.replaceAll(" ","_");
     			
@@ -568,8 +550,7 @@ public class NcInventory {
     	*****************************/
     	    	
     	private void searchForNodes( 
-    			Map<String,RequestConstraint> searchConstraints, String searchPrm ) {
-    		String paramName = getParamName();
+    			HashMap<String,RequestConstraint> searchConstraints, String searchPrm ) {
     		
     		// if this node doesn't match the constraints, return without adding
     		// anything to the searchResults
@@ -610,7 +591,7 @@ public class NcInventory {
 			
 			// if there is a constraint for this node, make sure that 
 			//    the parameter passes it.  
-			if( !evaluateParameterConstraint( getParamName(), paramValues.get( getParamName() ) ) ) {
+			if( !evaluateParameterConstraint( paramName, paramValues.get( paramName ) ) ) {
 				return false;
 			}
 
@@ -629,13 +610,13 @@ public class NcInventory {
 			}			
     		
 			Object chldPrmValue = paramValues.get( chldPrmName );
-			String chldPrmStrVal = (chldPrmValue == null ? "" : chldPrmValue.toString() );
+			String chldPrmStrVal = chldPrmValue.toString();
 
     		InventoryNode chldNode = getChildNode( chldPrmName, chldPrmStrVal );
     		
     		if( chldNode == null ) {
         		
-    			chldNode = createChildNode( getNodeDepth()+1, chldPrmStrVal );
+    			chldNode = createChildNode( chldPrmName, chldPrmStrVal );
         		
         		if( !chldNode.updateNode( paramValues ) ) {
         			childNodes.remove( chldPrmStrVal );
@@ -653,8 +634,8 @@ public class NcInventory {
     // 
     // the constraints here should have had any spaces replaced with '_'s.    
     //
-	public List<String[]> search( 
-			Map<String,RequestConstraint> searchConstraints, String searchPrm ) throws Exception {
+	public String[] search( 
+			HashMap<String,RequestConstraint> searchConstraints, String searchPrm ) {
 	
 		// lock this ncInventory so that it is not updated in the middle of a search
 		//
@@ -667,47 +648,17 @@ public class NcInventory {
 				return null;
 			}
 
-			// make a copy and remove any constraints that don't have an inventory parameter
-			// but do have a baseConstraint.
-			Map<String, RequestConstraint> searchConstraints2 = 
-					new HashMap<String,RequestConstraint>( searchConstraints );
-			
-			// make sure that each constraint in the query either has an inventory param to
-			// test for or has a the same base constraint for the whole inventory.
-			for( String constrPrm : searchConstraints.keySet() ) {
-				
-				RequestConstraint baseConstr = inventoryDefn.getBaseConstraints().get( constrPrm );
-				if( baseConstr != null &&
-					searchConstraints.get(constrPrm).equals( baseConstr ) ) {
-					searchConstraints2.remove( constrPrm );
-				}
-				// 
-				if( !inventoryDefn.getInventoryParameters().contains( constrPrm ) ) {				
-					if( baseConstr == null ||
-					   !searchConstraints.get( constrPrm).equals( baseConstr ) ) {
-						
-						throw new Exception("Query not supported on NcInventory, "+
-								inventoryDefn.getInventoryName()+": The search param,"+
-								constrPrm +", is not stored in the inventory and there is no "+
-								"matching base constraint on the inventory");					
-					}
-				}
-			}
-			
-			treeTopNode.searchForNodes( searchConstraints2, searchPrm );
+			treeTopNode.searchForNodes( searchConstraints, searchPrm );
 
-//			String[] retRslts = new String[ searchResults.size() ];
-			List<String[]> retRslts = new ArrayList<String[]>( searchResults.size() );
+			String[] retRslts = new String[ searchResults.size() ];
 
 			int r=0;
 			StringBuffer sbuf = new StringBuffer( );
 
 			for( InventoryNode inode : searchResults ) {
-//				inode.getBranchValueAsString( sbuf, "/" );				
-//				retRslts[r++] = sbuf.toString();
-//				sbuf.setLength(0);
-
-				retRslts.add( inode.getBranchValue() );
+				inode.getBranchValueAsString( sbuf, "/" );
+				retRslts[r++] = sbuf.toString();
+				sbuf.setLength(0);
 			}
 
 			return retRslts;

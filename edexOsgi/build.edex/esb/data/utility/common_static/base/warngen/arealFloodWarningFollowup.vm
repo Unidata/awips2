@@ -1,16 +1,16 @@
 ###########################################################
-## AREAL FLOOD WARNING FOLLOWUP TEMPLATE
-#############################################################
-## RECENT VERSION HISTORY
+## EDITED BY MIKE DANGELO    7-12-2011 FOR OB11.7 ##
+## Edited by Phil Kurimski   8-18-2011 FOR OB11.8.0-4 ##
+## Edited by Evan Bookbinder 9-16-2011 FOR OB11.8.0-8 ##
+## EDITED BY MIKE DANGELO 9-19-2011 at Alaska TIM ##
+## EDITED BY MIKE DANGELO 1-25-2012 at CRH TIM ##
+## EDITED BY EVAN BOOKBINDER 2-24-2012  ##   
+## EDITED BY PHIL KURIMSKI   2-28-2012  ##
 ## EDITED BY MIKE REGA       5-02-2012 DR 14885 MND blank line ##
 ##           Mike Dangelo    9-13-2012 minor tweaks to ${variables} 
 ##           Phil Kurimski   2-05-2013 FOR OB13.2.1-5
 ##           Evan Bookbinder 3-1-2013 segment ending $$ issues
-##           Mike Dangelo    9-16-2013 slight modifications to urbanCTA output
-##           Mike Dangelo    9-18-2013 added initial position and pathcasting options
-##           Evan Bookbinder 9-18-2013 implemented config.vm
 #################################### SET SOME VARs ###################################
-#parse("config.vm")
 #set($hycType = "")
 #set($floodReason = "")
 #set($floodType = "FLOODING")
@@ -64,39 +64,24 @@ ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${cancelareas})
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
+${area.name} ${area.stateabbr}-##
 #end
--##
-#end
-
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
 ################### VTEC/COUNTY LINE ##################
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${cancelareas})
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
+${area.name} ${area.stateabbr}-##
 #end
--##
-#end
-
 #else
 ${ugcline}
 ################### VTEC/COUNTY LINE ##################
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
+${area.name} ${area.stateabbr}-##
 #end
--##
-#end
-
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -123,6 +108,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ################################
 #### CREATE HEADLINES ##########
 ################################
+##  <areaSource>County</areaSource>
 
 #if(${action}=="EXP" || ${action}=="CAN")
 ...THE FLOOD WARNING FOR ##
@@ -137,8 +123,6 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 <L>${hycType}</L> IN ##
 #end
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
 #end
 ############################
 ## END CAN/EXP HEADLINE ####
@@ -176,11 +160,7 @@ ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -196,11 +176,7 @@ ${ugcline}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -262,30 +238,6 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
-#if(${list.contains(${bullets},"stormPosition")})
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#if(${stormType} == "line")
-...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
-#else
-...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
-#end
-#if(${movementSpeed} < ${landStationary} || ${stationary})
-...AND IS STATIONARY. ##
-#else
-#if(${stormType} == "line")
-...AND MOVING ## 
-#else
-...MOVING ##
-#end
-#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
-#end
-${rainAmount}
-
-#else
-###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
 #set($cityListLead = "RUNOFF FROM THIS EXCESSIVE RAINFALL WILL CAUSE ${floodType} TO OCCUR. ")
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...##
 #if(${list.contains(${bullets}, "thunder")})
@@ -300,24 +252,9 @@ ${reportBy} ${floodType} ACROSS THE WARNED AREA.${rainAmount}${floodReason} !** 
 !**YOU DID NOT SELECT AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!
 #end
 
-#end
-
 ############################################
 ######## (CITY LIST) #########
 ############################################
-############# IF TRACK IS ENABLED AND trackStorm AND stormPosition BOTH SELECTED ###############################################
-#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
-#if($movementSpeed < 3 )
-#pathCast("HEAVY RAIN WILL CONTINUE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
-
-#else
-#pathCast("HEAVY RAIN WILL MOVE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
-
-#end
-#end
 #if(${list.contains(${bullets}, "listofcities")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
@@ -330,16 +267,16 @@ THIS IS A TEST MESSAGE. ##
 
 #end
 ########################################## END OF OPTIONAL FOURTH BULLET ##############################
-###############################
-###### WHERE ADD INFO GOES ####
-###############################
+######################################
+###### WHERE ADDITIONAL INFO GOES ####
+######################################
 
 #if(${list.contains(${bullets}, "addRainfall")})
 ADDITIONAL RAINFALL AMOUNTS OF !** EDIT AMOUNT **! ARE POSSIBLE IN THE WARNED AREA.
 
 #end
-#if(${list.contains(${bullets}, "specificStream")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
+#if(${list.contains(${bullets}, "particularStream")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
 #end
 #if(${list.contains(${bullets}, "drainages")})
@@ -349,8 +286,6 @@ FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**loc
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
-## Uncomment below pull in point marker info
-## #parse("pointMarkers.vm")
 
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
@@ -385,6 +320,10 @@ EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STR
 #end
 #if(${list.contains(${bullets}, "USS_CTA")})
 EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES IN URBAN AREAS. ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
+
+#end
+#if(${list.contains(${bullets}, "specificCTA")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
 #end
 #if(${list.contains(${bullets}, "nightCTA")})

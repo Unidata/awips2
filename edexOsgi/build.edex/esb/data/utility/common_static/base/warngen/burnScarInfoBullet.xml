@@ -5,9 +5,9 @@
      This process can be done for any pre-configured FFW box. -->
 <!-- 
 <damInfoBullets>
-<damInfoBullet bulletGroup="dam" bulletText="FourMile Burn Area" bulletName="FourMileBurnArea"  parseString="FOUR MILE BURN AREA" showString="FOUR MILE BURN AREA" coords="LAT...LON 4006 10542 4008 10537 4005 10535 4002 10540"/>
-<damInfoBullet bulletGroup="burnscenario" bulletName="fourmilelowimpact" bulletText="scenario - low impact" parseString="RAINFALL WILL CAUSE FLASH" showString="FOUR MILE BURN AREA"/>
-<damInfoBullet bulletGroup="burnscenario" bulletName="fourmilehighimpact" bulletText="scenario - high impact" parseString="SEVERE FLASH FLOODING OF CREEKS...STREAMS" showString="FOUR MILE BURN AREA"/>   
+<damInfoBullet bulletGroup="dam" bulletText="FourMile Burn Area" bulletName="FourMileBurnArea"  parseString="FOURMILE BURN AREA" showString="FOURMILE BURN AREA" coords="LAT...LON 4006 10542 4008 10537 4005 10535 4002 10540"/>
+<damInfoBullet bulletGroup="burnscenario" bulletName="fourmilelowimpact" bulletText="scenario - low impact" parseString="RAINFALL WILL CAUSE FLASH" showString="FOURMILE BURN AREA"/>
+<damInfoBullet bulletGroup="burnscenario" bulletName="fourmilehighimpact" bulletText="scenario - high impact" parseString="SEVERE FLASH FLOODING OF CREEKS...STREAMS" showString="FOURMILE BURN AREA"/>   
 </damInfoBullets>
 -->
 <!-- End of example. Begin your site specific information here. -->

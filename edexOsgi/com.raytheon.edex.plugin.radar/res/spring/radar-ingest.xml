@@ -6,11 +6,12 @@
 	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
 	<bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
 	<bean id="jms-radar" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsRadarConfig" />
+        <constructor-arg ref="jmsIngestRadarConfig" />
 		<property name="taskExecutor" ref="radarThreadPool" />		
 	</bean>
-    <bean id="jmsRadarConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
+	<bean id="jmsIngestRadarConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+	</bean>
 	<bean id="radarThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="2" />
@@ -53,7 +54,7 @@
 
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
-			<from uri="jms-radar:queue:Ingest.Radar"/>
+			<from uri="jms-radar:queue:Ingest.Radar?destinationResolver=#qpidDurableResolver" />
  			<setHeader headerName="dataType">
  				<constant>radar-sbn</constant>
 			</setHeader>
@@ -61,7 +62,7 @@
 		</route>
 		
 		<route id="radarRadarServerIngestRoute">
-			<from uri="jms-radar:queue:Ingest.RadarRadarServer"/>
+			<from uri="jms-radar:queue:Ingest.RadarRadarServer?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="dataType">
 				<constant>radar-local</constant>
 			</setHeader>
