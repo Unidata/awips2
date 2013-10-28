@@ -172,9 +172,9 @@ import com.vividsolutions.jts.geom.Point;
  * Jun 27, 2013  2152       njensen     More thorough disposeInternal()
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
+ * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
  * 
  * </pre>
- * 
  * @author dhladky
  * @version 1.0
  */
@@ -3157,9 +3157,9 @@ public class FFMPResource extends
                     getDataKey(), null, oldestRefTime, FFMPRecord.ALL,
                     basinPfaf);
 
-            Float qpfFloat = qpfBasin.getValue(monitor.getQpfWindow()
-                    .getBeforeTime(), monitor.getQpfWindow().getAfterTime());
-
+            //Float qpfFloat = qpfBasin.getValue(monitor.getQpfWindow()
+                    //.getBeforeTime(), monitor.getQpfWindow().getAfterTime());
+            Float qpfFloat = qpfBasin.getAverageValue(monitor.getQpfWindow().getAfterTime(),monitor.getQpfWindow().getBeforeTime() ); // DR 16151
             fgd.setQpfValue(qpfFloat);
 
             ArrayList<Double> qpfTimes = new ArrayList<Double>();
