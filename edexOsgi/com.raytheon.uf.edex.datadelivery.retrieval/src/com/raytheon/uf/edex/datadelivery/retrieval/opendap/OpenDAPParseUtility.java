@@ -49,6 +49,7 @@ import dods.dap.PrimitiveVector;
  * Nov 19, 2012    1166     djohnson    Clean up JAXB representation of registry objects.
  * Jan 08, 2013    1466     dhladky     NCOM dataset name parsing fix.
  * Jan 18, 2013    1513     dhladky     Level Lookup improvements.
+ * Oct 24, 2013    2454     dhladky     NOMADS change to ensemble configuration.
  * </pre>
  * 
  * @author dhladky
@@ -260,14 +261,28 @@ public final class OpenDAPParseUtility {
      */
     public Ensemble parseEnsemble(AttributeTable table) {
 
-        String sname = serviceConfig.getConstantValue("NAME");
         Ensemble ens = new Ensemble();
 
-        if (table.getAttribute(sname) != null) {
-            String name = trim(table.getAttribute(sname).getValueAt(0));
+        // Ensemble members used to be listed under the attribute "grads_name".
+        // Somewhere along the way, GRADS/NOMADS stopped doing that to identify it's ensembles.
+        // Both methods are listed, the original and the new as a fall back.
+        
+        if (table.getAttribute(serviceConfig.getConstantValue("NAME")) != null) {
+            String name = trim(table.getAttribute(serviceConfig.getConstantValue("NAME")).getValueAt(0));
             String[] members = COMMA_PATTERN.split(name);
             ens.setMembers(Arrays.asList(members));
+        } else if (table.getAttribute(serviceConfig.getConstantValue("SIZE")) != null) {
+            int size = Integer.parseInt(trim(table.getAttribute(serviceConfig.getConstantValue("SIZE")).getValueAt(0)));
+            List<String> members = new ArrayList<String>(size);
+            if (size > 0) {
+                for (Integer i = 0; i < size; i++) {
+                    members.add(i.toString());
+                }
+                ens.setMembers(members);
+            }
+            // empty default ensemble if no size exists
         }
+        
         return ens;
 
     }
