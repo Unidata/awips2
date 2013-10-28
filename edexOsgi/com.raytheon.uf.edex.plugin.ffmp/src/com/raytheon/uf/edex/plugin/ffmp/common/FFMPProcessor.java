@@ -99,8 +99,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 02/25/13     1660        D. Hladky   FFTI design change to help mosaic processing.
  * 05/01/2013   15684       zhao        Unlock when Exception caught
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * 09/03/2013   DR 13083    G. Zhang	Added a fix in processRADAR(ArrayList<SourceBinEntry>).
  * </pre>
- * 
  * @author dhladky
  * @version 1
  */
@@ -1107,10 +1107,10 @@ public class FFMPProcessor {
 
             for (int j = 0; j < dataVals.length; j++) {
 
-                float fval = (float) ScanUtils.getDecodedDHRValue(dataVals[j]);
+                //float fval = (float) ScanUtils.getDecodedDHRValue(dataVals[j]);
                 
 				try {
-					val += ScanUtils.getZRvalue(fval,
+					val += ScanUtils.getZRvalue2(dataVals[j],//fval,// DR 13083
 							dhrMap.get(DHRValues.ZRMULTCOEFF),
 							dhrMap.get(DHRValues.MAXPRECIPRATEALLOW),
 							dhrMap.get(DHRValues.ZRPOWERCOEFF),

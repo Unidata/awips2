@@ -2,7 +2,10 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
 import gov.noaa.nws.ncep.gempak.parameters.line.LineDataStringParser;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
+import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.contours.ContourSupport.ContourGroup;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,13 +19,14 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -44,6 +48,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Mar,01, 2012             X. Guo      Handle five zoom levels
  * Mar,13, 2012             X. Guo      Added createContours()
  * Mar,15, 2012             X. Guo      Set synchronized block in ContoutSupport
+ * Aug 19, 2019  #743       S. Gurung   Added code to display the colorbar for gridded fills (from Archana's branch) 
  * 
  * </pre>
  * 
@@ -103,6 +108,7 @@ public class ContourRenderable implements IRenderable {
     
     private double zoomLevelInterval;
 
+    private ColorBarResource cBarResource = null;
 
     /**
      * Constructor
@@ -239,12 +245,37 @@ public class ContourRenderable implements IRenderable {
     							contourGroup[i].fvalues = new ArrayList<Double>(cg.fvalues);
     							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
     							contourGroup[i].grid = cg.grid;
+    							contourGroup[i].clrbar = cg.clrbar;
     							if ( contourGroup[i].posValueShape != null )
     								contourGroup[i].posValueShape.compile();
     							if ( contourGroup[i].negValueShape != null )
     								contourGroup[i].negValueShape.compile();
     							if ( contourGroup[i].fillShapes != null )
     								contourGroup[i].fillShapes.compile();
+    								
+    						     contourGroup[i].colorBarForGriddedFill = cg.colorBarForGriddedFill;
+                                 if ( contourGroup[i].colorBarForGriddedFill != null){
+                              	    
+                              	   AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
+                              	  
+                              	   IRenderableDisplay disp = editor.getActiveDisplayPane().getRenderableDisplay();
+                              	   
+                                     if (disp != null) {
+                                         
+   							           ResourcePair rp =  ResourcePair.constructSystemResourcePair( 
+   	  							              new ColorBarResourceData( contourGroup[i].colorBarForGriddedFill ) );
+   							           cBarResource = (ColorBarResource)  rp.getResourceData().construct(rp.getLoadProperties(), disp.getDescriptor());
+   						               if(cBarResource != null ){
+   						     	               cBarResource.setColorBar(contourGroup[i].colorBarForGriddedFill);
+   						     	               cBarResource.init(target);
+   						     	
+   						               }  
+                                     }
+                                 }
+                                 else {
+                                	 cBarResource = null;
+                                 }
+    							
     						} 
     						else {
     							target.setNeedsRefresh(true);
@@ -311,6 +342,10 @@ public class ContourRenderable implements IRenderable {
     				i--;
     			}
     		}
+    		
+    		if ( cBarResource != null )
+    	    	cBarResource.paint(target, paintProps);
+    	
     }    
     public void paintContour(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
@@ -463,7 +498,35 @@ public class ContourRenderable implements IRenderable {
     								contourGroup[i].negValueShape.compile();
     							if ( contourGroup[i].fillShapes != null )
     								contourGroup[i].fillShapes.compile();
+                     
+ //   							  if(contourGroup[i].fvalues != null && !contourGroup[i].fvalues.isEmpty() ){
+    							
+    							           contourGroup[i].colorBarForGriddedFill = cg.colorBarForGriddedFill;
+                                           if ( contourGroup[i].colorBarForGriddedFill != null){
+                                        	   
+                                        	   AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
+                                        	  
+                                        	   IRenderableDisplay disp = editor.getActiveDisplayPane().getRenderableDisplay();
+                                        	   
+                                               if (disp != null) {
+	                                               
+	         							           ResourcePair rp =  ResourcePair.constructSystemResourcePair( 
+	         	  							              new ColorBarResourceData( contourGroup[i].colorBarForGriddedFill ) );
+     	    							           cBarResource = (ColorBarResource)  rp.getResourceData().construct(rp.getLoadProperties(), disp.getDescriptor());
+     	    						               if(cBarResource != null ){
+     	    						     	               cBarResource.setColorBar(contourGroup[i].colorBarForGriddedFill);
+     	    						     	               cBarResource.init(target);
+     	    						     	
     						} 
+    					}
+                                           }
+                                           else {
+                                        	   cBarResource = null;
+                                           }
+
+//    						   }       
+    						}
+    						
     					}
                         break;
     				}
