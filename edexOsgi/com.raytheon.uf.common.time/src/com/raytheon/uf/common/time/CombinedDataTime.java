@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.TimeZone;
 
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * A single DataTime object representing 2 DataTimes, useful for products which
@@ -14,16 +15,18 @@ import javax.persistence.Transient;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 10, 2011            rgeorge     Initial creation
- * Aug 08, 2013 2245       bsteffen    Make all DataTime comparisons consistent.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 10, 2011           rgeorge     Initial creation
+ * Aug 08, 2013  2245     bsteffen    Make all DataTime comparisons consistent.
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
  * 
  * </pre>
  * 
  * @author rgeorge
  * @version 1.0
  */
+@XmlTransient
 public class CombinedDataTime extends DataTime {
 
     private static final long serialVersionUID = 1L;
