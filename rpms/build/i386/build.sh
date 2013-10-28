@@ -393,7 +393,7 @@ if [ "${1}" = "-custom" ]; then
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-common-base"
-   #buildRPM "awips2-rcm"
+   buildRPM "awips2-rcm"
    #buildRPM "awips2-ant"
    #buildRPM "awips2-java"
    #buildRPM "awips2-tools"
