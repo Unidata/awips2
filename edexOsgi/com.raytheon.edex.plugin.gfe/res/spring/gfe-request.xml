@@ -65,17 +65,17 @@
         <constructor-arg ref="pythonGridDataHandler"/>
     </bean>
     <bean id="gridInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridInventoryHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
+    <bean id="getGridInventoryRequestRegister" factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridInventoryRequest"/>
         <constructor-arg ref="gridInventoryHandler"/>
     </bean>
     <bean id="gridHistoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridHistoryHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
+    <bean id="getGridHistoryRequestRegister" factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridHistoryRequest"/>
         <constructor-arg ref="gridHistoryHandler"/>
     </bean>
     <bean id="gridParmInfoHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridParmInfoHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
+    <bean id="getGridParmInfoRequestRegister" factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridParmInfoRequest"/>
         <constructor-arg ref="gridParmInfoHandler"/>
     </bean>
