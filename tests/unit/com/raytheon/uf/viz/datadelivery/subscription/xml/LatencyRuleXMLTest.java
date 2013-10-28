@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -41,6 +42,7 @@ import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2013 1286       djohnson     Initial creation
  * Jan 17, 2013 1357       mpduff       DataSizeUnits was moved.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -66,7 +68,7 @@ public class LatencyRuleXMLTest {
         ruleXml.setRuleUnit(DataSizeUnit.BYTE.getUnit());
         ruleXml.setRuleValue("10");
 
-        ruleXml.matches(SiteSubscriptionFixture.INSTANCE.get(),
+        ruleXml.matches(SiteSubscriptionFixture.INSTANCE.get(DataType.GRID),
                 CollectionUtil.asSet(1, 2));
     }
 
@@ -80,7 +82,7 @@ public class LatencyRuleXMLTest {
         ruleXml.setRuleUnit(FreqUnitOptions.MIN.getOperation());
         ruleXml.setRuleValue("10");
 
-        ruleXml.matches(SiteSubscriptionFixture.INSTANCE.get(),
+        ruleXml.matches(SiteSubscriptionFixture.INSTANCE.get(DataType.GRID),
                 CollectionUtil.asSet(1, 2));
     }
 }
