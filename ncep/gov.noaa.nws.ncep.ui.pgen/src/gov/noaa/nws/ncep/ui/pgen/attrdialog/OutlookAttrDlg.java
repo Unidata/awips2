@@ -447,7 +447,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		//text-label drop-down menu
 		txtCombo = new Combo( txtComp, SWT.DROP_DOWN | SWT.READ_ONLY );
-		txtCombo.setLayoutData(new GridData(100, SWT.DEFAULT));
+		txtCombo.setLayoutData(new GridData(108, SWT.DEFAULT));
 		
 		txtCombo.addSelectionListener(new SelectionAdapter(){
 			

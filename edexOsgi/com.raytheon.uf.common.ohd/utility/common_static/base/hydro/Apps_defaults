@@ -1844,6 +1844,11 @@ rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 # ================== end of SSHP Directory Structure tokens ========================
 
+# ========================== NRLDB Tokens===================
+nrldb_log     :  $(whfs_log_dir)/nrldb
+nrldb_data    :  $(whfs_local_data_dir)/nrldb
+nrldb_config  :  $(whfs_config_dir)/nrldb
+nrldb_tmp     :  /awips/hydroapps/whfs/local/data/output
 
 # The syntax needed in the file is:
 #
