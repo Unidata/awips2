@@ -34,13 +34,13 @@
             <setHeader headerName="pluginName">
                 <constant>nonconvsigmet</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.nonconvsigmet"/>
+            <to uri="jms-durable:queue:Ingest.nonconvsigmet"/>
         </route>
         -->
         
         <!-- Begin NonConvSigmet routes -->
         <route id="nonconvsigmetIngestRoute">
-            <from uri="jms-generic:queue:Ingest.nonconvsigmet"/>
+            <from uri="jms-durable:queue:Ingest.nonconvsigmet"/>
             <setHeader headerName="pluginName">
                 <constant>nonconvsigmet</constant>
             </setHeader>

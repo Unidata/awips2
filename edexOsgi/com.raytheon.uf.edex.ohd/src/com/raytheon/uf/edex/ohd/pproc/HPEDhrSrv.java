@@ -49,12 +49,12 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 20, 2010  4200       snaples    Initial creation
- * Mar 09, 2012  417        dgilling   Refactor to use two-stage queue
+ * Jan 20, 2010 4200       snaples     Initial creation
+ * Mar 09, 2012 417        dgilling    Refactor to use two-stage queue
  *                                     process.
  * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
  *                                     memory.
- * 
+ * Sep 13, 2013 2368       rjpeter     Updated to use durable jms settings.
  * </pre>
  * 
  * @author snaples
@@ -92,9 +92,9 @@ public class HPEDhrSrv {
 
     private static final int DT_IDX = 2;
 
-    private static final String JMS_QUEUE_URI = "jms-generic:queue:dhrProcess";
+    private static final String JMS_QUEUE_URI = "jms-durable:queue:dhrProcess";
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     /**
      * Route endpoint for "dhrIngestRoute". Takes a message, writes the file to

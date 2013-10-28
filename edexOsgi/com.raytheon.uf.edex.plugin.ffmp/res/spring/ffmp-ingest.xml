@@ -28,7 +28,7 @@
 	
 	<camelContext id="ffmp-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="FFMPGenerate">
-        	<from uri="jms-generic:queue:ffmpGenerate?destinationResolver=#qpidDurableResolver" />
+        	<from uri="jms-durable:queue:ffmpGenerate"/>
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
 	        	<bean ref="ffmpGenerator" method="generate" />
