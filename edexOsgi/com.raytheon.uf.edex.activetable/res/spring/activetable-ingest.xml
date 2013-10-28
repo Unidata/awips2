@@ -11,7 +11,7 @@
 		autoStartup="false">
 
 		<route id="activeTablePendingRoute">
-			<from uri="jms-durable:queue:activeTablePending"/>
+			<from uri="jms-generic:queue:activeTablePending?destinationResolver=#qpidDurableResolver" />
             <doTry>
     			<bean ref="activeTableSrv" method="vtecArrived" />					
                 <doCatch>

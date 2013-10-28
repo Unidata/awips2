@@ -34,12 +34,12 @@
 			a new route and use moveFileToArchive -->
 		<route id="handleoupFilePush">
 			<from
-				uri="jms-durable:queue:Ingest.handleoup"/>
+				uri="jms-generic:queue:Ingest.handleoup?destinationResolver=#qpidDurableResolver" />
 			<doTry>
 				<bean ref="stringToFile" />
 				<bean ref="manualProc" />
 				<to
-					uri="jms-durable:queue:handleoup.dropbox"/>
+					uri="jms-generic:queue:handleoup.dropbox?destinationResolver=#qpidDurableResolver" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to

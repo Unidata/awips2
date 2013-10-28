@@ -12,7 +12,7 @@
 	<bean id="airepDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="airep" />
-		<constructor-arg value="jms-dist:queue:Ingest.airep"/>
+		<constructor-arg value="jms-dist:queue:Ingest.airep" />
 	</bean>
 
     <bean id="airepCamelRegistered" factory-bean="contextManager"
@@ -33,13 +33,13 @@
 			<setHeader headerName="pluginName">
 				<constant>airep</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.airep" />
+			<to uri="jms-generic:queue:Ingest.airep" />
 		</route>
 		-->
 
 		<!-- Begin airep routes -->
 		<route id="airepIngestRoute">
-			<from uri="jms-durable:queue:Ingest.airep"/>
+			<from uri="jms-generic:queue:Ingest.airep?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>airep</constant>
 			</setHeader>

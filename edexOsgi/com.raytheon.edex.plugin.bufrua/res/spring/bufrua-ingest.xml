@@ -32,13 +32,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrua</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.bufrua"/> 
+            <to uri="jms-generic:queue:Ingest.bufrua"/> 
         </route>
         -->
 
         <!-- Begin BUFRUA routes -->
         <route id="bufruaIngestRoute">
-            <from uri="jms-durable:queue:Ingest.bufrua"/>
+            <from uri="jms-generic:queue:Ingest.bufrua?destinationResolver=#qpidDurableResolver"/>
             <setHeader headerName="pluginName">
                 <constant>bufrua</constant>
             </setHeader>

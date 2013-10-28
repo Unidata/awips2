@@ -201,6 +201,21 @@ void display_field_data_RFCW ( enum DisplayFieldData display_data ,
      idate = date.month*1000000 + date.day*10000 + date.year;
      sprintf(fname,"%s/%s%08d%02dz",dirname,cv_use_tmp,idate,date.hour); 
  }
+ else if ( display_data == display_satPrecip )
+ {
+     iyr = date.year ;
+     imo = date.month ;
+     ida = date.day ;
+     ihr = date.hour ;
+     im = 0 ;
+     is = 0 ; 
+     tdiff = -1 ;
+     tunit = 2 ;
+     TADJ ( & iyr , & imo , & ida , & ihr , & im , & is , & tdiff , & tunit ) ;
+     sprintf ( fname , "%s/%4d%02d%02d_%02d00.multi" , dirname , iyr , imo ,
+           ida , ihr ) ;
+    
+ }
  else if ( display_data == display_rfcMosaic )
  {
     sprintf(fname,"%s/%s01%sz",dirname,cv_use_tmp,date.cdate);
@@ -210,10 +225,16 @@ void display_field_data_RFCW ( enum DisplayFieldData display_data ,
      sprintf(fname,"%s/%s%sz",dirname,cv_use_tmp,date.cdate);
  }
      
- len_fname = strlen ( fname ) ;
- display_field_read_xmrg ( data_array_tmp , fname, addition_flag , rowSize, colSize );
-
-
+ if ( display_data != display_satPrecip )
+ {
+    len_fname = strlen ( fname ) ;
+    display_field_read_xmrg ( data_array_tmp , fname, addition_flag , rowSize, colSize );
+ }
+ else
+ {
+    /* Special logic to process the satellite image. */
+    display_field_read_spe ( data_array_tmp , fname, addition_flag ) ;
+ }
 
 }
  

@@ -65,11 +65,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2010            bsteffen     Initial creation
- * Aug 27, 2013     #2287  randerso     Replaced hard coded constant with densityFactor
- *                                      parameter to allow application specific density
- *                                      scaling to better match A1 displays
- * Sep 10, 2013 DR 16257   MPorricelli  Fix so that wind for global grids displays on
- *                                      mercator maps.
  * 
  * </pre>
  * 
@@ -116,8 +111,6 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
     protected final int size;
 
-    protected final double densityFactor;
-
     protected RGB color;
 
     protected double density = 1.0;
@@ -135,18 +128,16 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
      * @param descriptor
      * @param gridGeometryOfGrid
      * @param size
-     * @param densityFactor
-     *            adjustment factor to make density match A1
+     * @param plotLocations
+     *            Pre-configured plot locations. If null, they will be created.
      */
     public AbstractGriddedDisplay(IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid, int size,
-            double densityFactor) {
+            GeneralGridGeometry gridGeometryOfGrid, int size) {
         this.calculationQueue = new ConcurrentLinkedQueue<Coordinate>();
 
         this.descriptor = descriptor;
         this.gridGeometryOfGrid = gridGeometryOfGrid;
         this.size = size;
-        this.densityFactor = densityFactor;
 
         this.gridDims = new int[] {
                 this.gridGeometryOfGrid.getGridRange().getSpan(0),
@@ -217,31 +208,14 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
         // space
         // Linear distance(between (0,0) and (0,1) makes more sense but
         // looks to sparse.
-        DirectPosition2D p1 = new DirectPosition2D();
-        DirectPosition2D p2 = new DirectPosition2D();
-
-        boolean doneTryingCoords = false;
-        int i = -1;
-        // starting with coords (0,0), (1,1), try until tranform succeeds,
-        // or until have gone through a set of diagonal coords
-        do {
-            try {
-                i++;
-                if (i + 1 < gridDims[0] && i + 1 < gridDims[1]) {
-                    p1.x = p1.y = i;
-                    p2.x = p2.y = i + 1;
-                    grid2grid.transform(p1, p1);
-                    grid2grid.transform(p2, p2);
-                    doneTryingCoords = true;
-                }
-            } catch (TransformException e) {
-                if (i + 1 >= gridDims[0] || i + 1 >= gridDims[1]) {
-                    doneTryingCoords = true;
-                    throw new VizException(e);
-                }
-            }
-        } while (!doneTryingCoords);
-
+        DirectPosition2D p1 = new DirectPosition2D(0, 0);
+        DirectPosition2D p2 = new DirectPosition2D(1, 1);
+        try {
+            grid2grid.transform(p1, p1);
+            grid2grid.transform(p2, p2);
+        } catch (TransformException e) {
+            throw new VizException(e);
+        }
         pixelSize = p1.distance(p2);
 
         IExtent viewPixelExtent = paintProps.getView().getExtent();
@@ -259,8 +233,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
         List<GridCellRenderable> renderables = new ArrayList<GridCellRenderable>();
         int increment = Math.max(
-                (int) Math.ceil(adjSize * densityFactor / pixelSize / density),
-                1);
+                (int) Math.ceil(adjSize * 0.75 / pixelSize / density), 1);
         for (int x = 0; x < gridDims[0]; x += increment) {
             for (int y = 0; y < gridDims[1]; y += increment) {
 

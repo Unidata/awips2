@@ -1,11 +1,18 @@
 package gov.noaa.nws.ncep.edex.plugin.geomag.calculation;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.vividsolutions.jts.geom.Coordinate;
 /*
  * The calculation of k, 3 hour related.
  * 
@@ -30,6 +37,64 @@ public class CalcEach3hr {
 	private static int HOURS = 24;
 	private static int MINUTES = 60; 
 	
+//	public class DBLevel implements Comparable<DBLevel>{
+//		private float dB;
+//		private int index;
+//		
+//		public DBLevel(int index, float db) {
+//			super();
+//			this.index = index;
+//			this.dB = dB;
+//			
+//		}
+//		public int getIndex() {
+//			return index;
+//		}
+//		public void setIndex(int index) {
+//			this.index = index;
+//		}
+//		public float getDB() {
+//			return dB;
+//		}
+//		public void setDB(float dB) {
+//			this.dB = dB;
+//		}
+//		
+//		public class ChangeComparator implements Comparator<DBLevel> {	
+////		public int compareTo(DBLevel compareDB) {
+////			 
+////			float compareQuantity = ((DBLevel) compareDB).getDB(); 
+////	 
+////			//ascending order
+////			return this.DBLevel - compareQuantity;
+////	 
+////			//descending order
+////			//return compareQuantity - this.quantity;
+////	 
+////		}
+////	 
+////		public static Comparator<DBLevel> FruitNameComparator 
+////	                          = new Comparator<DBLevel>() {
+//	 
+//		    public int compare(DBLevel fruit1, DBLevel fruit2) {
+//	 
+//		      Float db1 = fruit1.getDB();
+//		      Float db2 = fruit2.getDB();
+//	 
+//		      //ascending order
+//		      return db1.compareTo(db2);
+//	 
+//		      //descending order
+//		      //return fruitName2.compareTo(fruitName1);
+//		    }
+//	 
+//		}
+//		@Override
+//		public int compareTo(DBLevel o) {
+//			// TODO Auto-generated method stub
+//			return 0;
+//		};
+//	}
 	
 	/*
 	 * calculate hrAvgs for this hour
@@ -43,14 +108,15 @@ public class CalcEach3hr {
 		double sum2 = 0;
 		int rec1 = 0;
 		int rec2 = 0;
-		
+		//System.out.println("***bestList sz "+bestList.size());
 		for (int i = 0; i < bestList.size(); i++) {	
-			
+			//System.out.println("***bestList avg "+bestList.size()+" "+bestList.get(i));
+			//List<List> list = (List<List>) bestList.get(i);
 			List<Float> list = (List<Float>) bestList.get(i);
-			
+			//float comp1 = (Float)list.get(0).get(2);
 			float comp1 = (Float)list.get(1);
 			float comp2 = (Float)list.get(2);
-			
+			//System.out.println("***comp12 " + comp1+" "+comp2);
 			if ( comp1 != MISSING_VAL) {
 				sum1 += comp1;	
 				rec1++;
@@ -73,7 +139,7 @@ public class CalcEach3hr {
 		
 		simpHrAvg[0] = simpHrAvg1;	
 		simpHrAvg[1] = simpHrAvg2;
-		
+		//System.out.println("***simpHrAvg " + rec1+" "+rec2+" "+simpHrAvg1 +" "+simpHrAvg2+ " "+bestList.size());
 		return simpHrAvg;
 	}
 	
@@ -82,7 +148,7 @@ public class CalcEach3hr {
 	 * @param data -- data of one day, 1440
 	 */
 	public static float[] getSimpleHourAvg(float[] data){ //data 1440
-		
+		//System.out.println("**datalength "+data.length); 
 		float[] simpHrAvg = new float[HOURS];
 		
 		for (int ihr = 0; ihr < HOURS; ihr++) {
@@ -168,7 +234,7 @@ public class CalcEach3hr {
 				dB[j] = (float) sum / (HOURS-1-missing); 
 			else
 				dB[j] = MISSING_VAL;
-			
+			System.out.print("***dB[j] "+dB[j] + " ");
 		}
 		
 		return dB;
@@ -183,13 +249,22 @@ public class CalcEach3hr {
 		//create a duplicate array dBDup. Sort it.
 		//take 5 smallest dBDup[i]. Then find its index and value from the dB. Put them to the map
 		Map<Integer, Float> dBSmall = new HashMap<Integer, Float>();
+//		Map<Float, Integer> temp = new HashMap<Float, Integer>();
+//		Map<Float, Integer> tempDup = new HashMap<Float, Integer>();
+//		for (int i = 0; i < dB.length; i++) {
+//			temp.put(dB[i], i);
+//			tempDup.put(dB[i], i);
+//			System.out.println("***temp "+dB[i] + " "+i);
+//		}
 		
 		float[] dBDup = new float[dB.length];
 		for (int i = 0; i < dBDup.length; i++) {
 			dBDup[i] = dB[i];
 		}
-		
 		Arrays.sort(dBDup);
+//		for (int i = 0; i < dBDup.length; i++) {
+//			System.out.print("***dBsort "+dBDup[i] +" ");
+//		}
 		
 		float dupIndex = (int)MISSING_VAL ;
 		float wk = 0;
@@ -205,10 +280,70 @@ public class CalcEach3hr {
 			}
 		}
 		
+//		for (int i = 0; i < 5; i++) {
+//			System.out.println("***temp.get(dB[i]) "+temp.get(dB[i]) );
+//			//previous = temp.get(dB[i]);
+//			if (previous == temp.get(dB[i])) {
+//				
+//				System.out.println("***previous) "+previous +" "+i );
+//				 tempDup.remove(dB[i]);
+//				 System.out.println("***tempDup) "+tempDup.size() +" "+tempDup.get(dB[i]) );
+//				 //put next dB[i]
+//				 dBSmall.put(tempDup.get(dB[i]), dB[i]);
+//			     
+//			}
+//			else {
+//				dBSmall.put(temp.get(dB[i]), dB[i]);
+//				previous = temp.get(dB[i]);
+//			}
+//			System.out.println("***dBSmall "+temp.get(dB[i]) + " "+dB[i]);
+//		}
 		
 		return dBSmall;
 	}
-
+//	public static Map getSmallDisturbanceLevel(float[] dB){
+//		Arrays.sort(dB);
+//		Map<Integer, Float> dBSmall = new HashMap<Integer, Float>();
+//		
+//		List<Float> dBlist = new ArrayList<Float>();
+//		for (int i = 0; i < dB.length; i++)
+//			dBlist.add(dB[i]);
+//		
+//		//float[] smaller = new float[5];// index of hrAvg that has smallest dB
+//		int index = 0;
+//		float wk;
+//		float previousId = MISSING_VAL;
+//		
+//		for (int j = 0; j < 5; j++) {
+//			float minimum = MISSING_VAL;
+//			for (int i = 0; i < dBlist.size(); i++) {
+//				
+//				if (dBlist.get(i) < minimum) {
+//					minimum = dBlist.get(i);
+//					index = i;
+//				}
+//			}
+//			
+//			if (minimum < 1)
+//				wk = 1;
+//			else
+//				wk = 1 / (minimum *minimum);
+//			
+//			// since dBlist.remove(index); index needs to refer to original index
+//			if (previousId > index) {
+//				dBSmall.put(index, wk);
+//				previousId = index;
+//			}
+//			else {
+//				dBSmall.put(index+1, wk); // +j: original dB was reduced by j
+//				previousId = index;
+//			}
+//			System.out.println("dBlist "+index+" "+wk);
+//			dBlist.remove(index);
+//		}
+//		
+//		return dBSmall;
+//	}
 	
 	/*
 	 * @param -- dBSmall, 5 set map
@@ -232,7 +367,7 @@ public class CalcEach3hr {
 			
 			index[k] = mEntry.getKey();
 			dB[k] = mEntry.getValue();
-			
+			System.out.println("***index[k] "+k+" "+index[k] + " "+ dB[k]+" "+simpHrAvg.length);
 			k++;
 		}				
 		
@@ -303,7 +438,7 @@ public class CalcEach3hr {
 		float lon = CalcUtil.getLongitude(station);
 		int UTdiff = Math.round(1440.0f * lon / 360.0f);
 		int minute0 = epHour * MINUTES;
-		
+		//System.out.println("**epHour "+epHour);
 		for (int ihr = 0; ihr < HOURS; ihr++) {
 			float sum = 0;
 			
@@ -322,9 +457,8 @@ public class CalcEach3hr {
 				else if (localMin >= 1260 && localMin < 1440)
 					sum += NIGHT_LENGTH;
 			}
-			
 			defLength[ihr] = sum / MINUTES;
-			
+			//System.out.println("**defLength "+defLength[ihr]);
 		}
 		
 		return defLength;

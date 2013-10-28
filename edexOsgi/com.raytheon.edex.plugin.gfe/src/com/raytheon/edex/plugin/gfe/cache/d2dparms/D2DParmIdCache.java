@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.gfe.cache.d2dparms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,8 +72,6 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Mar 20, 2013  #1774     randerso    Changed to use GFDD2DDao
  * Apr 01, 2013  #1774     randerso    Moved wind component checking to GfeIngestNotificaionFilter
  * May 14, 2013  #2004     randerso    Added DBInvChangeNotifications when D2D data is purged
- * Sep 12, 2013  #2348     randerso    Changed to send DBInvChangeNotifications in a batch instead
- *                                     of one at a time.
  * 
  * </pre>
  * 
@@ -326,16 +325,10 @@ public class D2DParmIdCache {
                             try {
                                 D2DGridDatabase db = (D2DGridDatabase) GridParmManager
                                         .getDb(dbIds.get(i));
-                                if (db == null) {
-                                    statusHandler
-                                            .error("Unable to get parm list for: "
-                                                    + dbIds.get(i));
-                                } else {
-                                    ServerResponse<List<ParmID>> sr = db
-                                            .getParmList();
-                                    if (sr.isOkay()) {
-                                        parmIds.addAll(sr.getPayload());
-                                    }
+                                ServerResponse<List<ParmID>> sr = db
+                                        .getParmList();
+                                if (sr.isOkay()) {
+                                    parmIds.addAll(sr.getPayload());
                                 }
                             } catch (GfeException e) {
                                 throw new PluginException(
@@ -353,8 +346,13 @@ public class D2DParmIdCache {
             putParmIDList(parmIds);
             List<DatabaseID> currentDbInventory = this.getDatabaseIDs();
             dbsToRemove.removeAll(currentDbInventory);
-            SendNotifications.send(new DBInvChangeNotification(null,
-                    dbsToRemove, siteID));
+            List<DBInvChangeNotification> invChgList = new ArrayList<DBInvChangeNotification>(
+                    dbsToRemove.size());
+            for (DatabaseID dbId : dbsToRemove) {
+                invChgList.add(new DBInvChangeNotification(null, Arrays
+                        .asList(dbId), siteID));
+            }
+            SendNotifications.send(invChgList);
 
             // inform GfeIngestNotificationFilter of removed dbs
             GfeIngestNotificationFilter.purgeDbs(dbsToRemove);

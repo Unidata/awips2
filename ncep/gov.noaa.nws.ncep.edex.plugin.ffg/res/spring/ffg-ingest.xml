@@ -34,13 +34,13 @@
             <setHeader headerName="pluginName">
                 <constant>ffg</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.ffg"/>
+            <to uri="jms-generic:queue:Ingest.ffg"/>
         </route>
         -->
         
         <!-- Begin Ffg routes -->
         <route id="ffgIngestRoute">
-            <from uri="jms-durable:queue:Ingest.ffg"/>
+            <from uri="jms-generic:queue:Ingest.ffg"/>
             <setHeader headerName="pluginName">
                 <constant>ffg</constant>
             </setHeader>

@@ -16,7 +16,6 @@ Version: %{_xmpp_software_version}
 Release: 2
 Group: AWIPSII
 BuildRoot: /tmp
-BuildArch: noarch
 URL: %{_xmpp_software_url}
 License: %{_xmpp_software_license}
 Distribution: N/A

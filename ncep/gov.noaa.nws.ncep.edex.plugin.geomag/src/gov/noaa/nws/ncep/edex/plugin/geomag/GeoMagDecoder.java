@@ -56,7 +56,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                      Removed source and sourcePreference tables.  
  *                                      Get source priority from GeoMagStaiton.xml
  *                                      Added handles for same stations but with or without header
- *                                      Fixed HAD, NGK, CNB default value
+ *                                      Fixed HAD default value
  * </pre>
  * 
  * @author sgurung, qzhou
@@ -309,7 +309,6 @@ public class GeoMagDecoder extends AbstractDecoder {
 	    	            		comp4Val = MISSING_VAL;
 	    	            }	    	            
 	            
-	    	            // process "abnormal" values
 	    	            if (unit.equalsIgnoreCase("0.01nT")) {
 	    	            	// title line defined unit, e.g. 0.01nT	    	            	
 	    	            	comp1Val = comp1Val/100;
@@ -327,28 +326,6 @@ public class GeoMagDecoder extends AbstractDecoder {
 	       	    				comp3Val = MISSING_VAL;	       	    			
 	    	            }
 	       	    				
-	    	            if (stationCode.equals("CNB")) { //HAD missing are 99999.9 and 999.999
-	    	            	if (comp1Val == 99999.90f) 
-	       	    				comp1Val = MISSING_VAL;
-	       	    			if ( comp2Val == 99999.90f) 
-	       	    				comp2Val = MISSING_VAL;
-	       	    			if (comp3Val == 99999.90f) 
-	       	    				comp3Val = MISSING_VAL;
-	       	    			if (comp4Val == 99999.90f) 
-	       	    				comp4Val = MISSING_VAL;	
-	    	            }
-	    	            
-	    	            if (stationCode.equals("NGK") || stationCode.equals("WNG") || stationCode.equals("MEA")) { //NGK missing are 99999.00
-	    	            	if (comp1Val == 99999.00f) 
-	       	    				comp1Val = MISSING_VAL;
-	       	    			if ( comp2Val == 99999.00f) 
-	       	    				comp2Val = MISSING_VAL;
-	       	    			if (comp3Val == 99999.00f) 
-	       	    				comp3Val = MISSING_VAL;	
-	       	    			if (comp4Val == 99999.00f) 
-	       	    				comp4Val = MISSING_VAL;	  
-	    	            }	
-	    	            
 	    	            if (comp1Val != null && comp1Val != MISSING_VAL && comp2Val != null && comp2Val != MISSING_VAL) {
 		    	            if (conversionRequired) {
 		    	            	/*
@@ -438,12 +415,92 @@ public class GeoMagDecoder extends AbstractDecoder {
 	    	    retData.add(record);
         	}
         }
+        //temporary here
+//        KStationCoefficient station2 = KStationCoefficientLookup.getInstance().getStationByCode("BOU");
+//        System.out.println("*****Decoder2 "+ station2.getStationCode() +" "+ station2.getKFitTime().get(0).getCoeffA());
+        
+//        String dataURI = "/geomag/2013-04-01_00:00:00.0/BOU/102/GEOMAG";
+//        
+//        GeoMagRecord rec = new GeoMagRecord(dataURI);
+//        File loc = HDF5Util.findHDF5Location(rec);
+//        IDataStore dataStore = DataStoreFactory.getDataStore(loc);
+//        long[] obsTimes  = null;
+//        float[] comp1 = new float[60];
+//        float[] comp2 = new float[60];
+//        
+//        try {
+//            IDataRecord[] dataRec = dataStore.retrieve(dataURI);
+//            for (int i = 0; i < dataRec.length; i++) {
+//            	if (dataRec[i].getName().equals(GeoMagRecord.component1)) {
+//               	    long[] obs_times = (((LongDataRecord) dataRec[i]).getLongData());
+//               	     
+//                } 
+//                if (dataRec[i].getName().equals(GeoMagRecord.component1)) {
+//                	float[] comp1_data = (((FloatDataRecord) dataRec[i]).getFloatData());
+//                	if (comp1_data.length > 1280){
+//               	    	int ihr = 0;
+//               	    	for (int j = ihr*60; j < comp1_data.length; j++) 
+//               	    		comp1 += comp1_data[j];
+//                } 
+//                if (dataRec[i].getName().equals(GeoMagRecord.component2)) {
+//               	    float[] comp2_data = (((FloatDataRecord) dataRec[i]).getFloatData());
+//                } 
+//                 
+//            }
+//
+//        } catch (Exception se) {
+//            se.printStackTrace();
+//        }
+
+//      // set component 2 data
+//  	   float[] comp2_data = new float[(comp2List.size()>0)?comp2List.size():obsTimesList.size()];
+//      for (int i = 0; i < comp2_data.length; i++) {
+//       	comp2_data[i] = (comp2List.size()>0)?comp2List.get(i):MISSING_VAL; 
+//      }
+//      // set dHrAvgs
+////      for (int j = 0; j < comp2_data.length/60; j++) {
+////   	   for (int i = 0; i < comp2_data.length; i++) {
+////       	   if (i%60 == 59)
+////       		   dHrAvgs[j] = CalcEach3hr.getSimpleHourAvg(comp2_data, j);
+////   	   }
+////      } 	
+//      record.setComp2Data(comp2_data);
+////      record.setHrAvgD(dHrAvgs);
 		    	 
         
         if (retData.isEmpty()) {
 			return new PluginDataObject[0];
 		} 
         else {
+//        	// last record
+//		    long[] obs_time = new long[(obsTimesList.size())]; //new float[(comp1List.size()>0)?comp1List.size():obsTimesList.size()];          
+//	        for (int i = 0; i < obs_time.length; i++) {
+//	        	//obs_time[i] = (obsTimesList.size()>0)?obsTimesList.get(i):99999;
+//	        	Long f = obsTimesList.get(i);	        	
+//	        	obs_time[i] = (f != null ? f : 99999); 
+//	        }
+//		    float[] comp1_data = new float[(obsTimesList.size())]; //new float[(comp1List.size()>0)?comp1List.size():obsTimesList.size()];          
+//	        for (int i = 0; i < comp1_data.length; i++) {
+//		        	comp1_data[i] = (comp1List.size()>0)?comp1List.get(i):MISSING_VAL; 
+//	        }
+//	        float[] comp2_data = new float[(obsTimesList.size())];           
+//	        for (int i = 0; i < comp2_data.length; i++) {
+//		        	comp2_data[i] = (comp2List.size()>0)?comp2List.get(i):MISSING_VAL; 
+//	        }
+//	        float[] comp3_data = new float[(obsTimesList.size())];           
+//	        for (int i = 0; i < comp3_data.length; i++) {
+//		        	comp3_data[i] = (comp3List.size()>0)?comp3List.get(i):MISSING_VAL; 
+//	        }
+//	        float[] comp4_data = new float[(obsTimesList.size())];          
+//	        for (int i = 0; i < comp4_data.length; i++) {
+//		        	comp4_data[i] = (comp4List.size()>0)?comp4List.get(i):MISSING_VAL; 
+//	        }
+//	        
+//		    record.setObsTimes(obs_time);
+//		    record.setComp1Data(comp1_data);
+//		    record.setComp2Data(comp2_data);
+//		    record.setComp3Data(comp3_data);
+//		    record.setComp4Data(comp4_data);
 	    
         	return retData.toArray(new PluginDataObject[retData.size()]);
 		}

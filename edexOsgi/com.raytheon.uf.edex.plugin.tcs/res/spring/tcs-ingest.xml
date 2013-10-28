@@ -24,7 +24,7 @@
         autoStartup="false">
 
         <route id="tcsIngestRoute">
-            <from uri="jms-durable:queue:Ingest.tcs"/>
+            <from uri="jms-generic:queue:Ingest.tcs?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>tcs</constant>
             </setHeader>

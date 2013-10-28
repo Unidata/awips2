@@ -33,13 +33,13 @@
             <setHeader headerName="pluginName">
                 <constant>airmet</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.airmet"/>
+            <to uri="jms-generic:queue:Ingest.airmet"/>
         </route>
         -->
         
         <!-- Begin Airmet routes -->
         <route id="airmetIngestRoute">
-            <from uri="jms-durable:queue:Ingest.airmet"/>
+            <from uri="jms-generic:queue:Ingest.airmet"/>
             <setHeader headerName="pluginName">
                 <constant>airmet</constant>
             </setHeader>

@@ -18,7 +18,6 @@ FINT=
 FLINE=
 HILO=!         !26;2/H#;L#///30;30/y                                                 
 HLSYM=!         !2;1.5//21//hw                                                           
-CLRBAR=1                                                        
 WIND=0
 TITLE=5/-2/~ PMSL, EST 1000-500 MB THICKNESS|~MSLP, EST 1000-500 THKN!
 COLORS=2
