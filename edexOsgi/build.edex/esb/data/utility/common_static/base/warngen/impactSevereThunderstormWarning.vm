@@ -1,20 +1,16 @@
-################################################################
-## SEVERE THUNDERSTORM WARNING TEMPLATE                       ##
-## FOR CR IMPACT BASED SVR INITIATIVE                         ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX                         ##
-## VERSION AWIPS II 1.0 -- 2-21-2012 OB12.1.1-1               ##
-## VERSION AWIPS II 1.1 -- 2-29-2012 OB12.2.1-4               ##
-## VERSION AWIPS II 1.2 -- 4-20-2012                          ##
-##          QINGLU LIN     8-14-2012 DR 14493 use TMLtime     ##
-## VERSION AWIPS II 1.3 -- 2-04-2012 OB13.2.1-5 impact stmts  ##
-## VERSION AWIPS II 1.4 -- 5-20-2012 Addl IBW Changes         ##
-################################################################
+##################################################################
+## SEVERE THUNDERSTORM WARNING TEMPLATE                         ##
+## FOR CR IMPACT BASED SVR INITIATIVE                           ## 
+## CREATED BY PHIL KURIMSKI - WFO DTX                           ##
+##        UPDATED          9-18-2013 Implement global config.vm ##
+##################################################################
 ## Commented out Impact statements Feb 2013 and created file to
 ## be parsed into the template called impactStatements.vm
 ## Changes to the impact statements can be made to this file
 ## instead of the template
 ################################################################
 ##
+#parse("config.vm")
 ##SET SOME INITIAL VARIABLES
 #set($hazard = "")
 #set($source = "")
@@ -354,12 +350,13 @@ THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${reportType3} ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if($movementSpeed < 3 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 #if(${stormType} == "line")
 ...AND ARE NEARLY STATIONARY. 
 #else
@@ -424,10 +421,10 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-EVERYONE AT !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
 
 #else
-EVERYONE AT !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
 
 #end
 #end

@@ -55,7 +55,7 @@ public class GeoMagK3hrDao extends CoreDao {
     }
     
     @SuppressWarnings("unchecked")
-    public List<GeoMagK3hr> getK3hrForStation(final String stationCode, final Date time) {
+    public List<GeoMagK3hr> getRangeK3hr(final String stationCode, final Date start, final Date end) {
         return (List<GeoMagK3hr>) txTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
@@ -64,12 +64,31 @@ public class GeoMagK3hrDao extends CoreDao {
                 Criteria crit = sess.createCriteria(GeoMagK3hr.class);
                 Criterion where1 = Restrictions.eq("stationCode", stationCode);
                 crit.add(where1);
-                Criterion where2 = Restrictions.ge("k3hrTime", time);
+	            Criterion where2 = Restrictions.gt("refTime", start);
+                crit.add(where2);
+	            Criterion where3 = Restrictions.lt("refTime", end);
+	            crit.add(where3);
+
+                return crit.list();
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<GeoMagK3hr> getSingleK3hr(final String stationCode, final Date time) {
+        return (List<GeoMagK3hr>) txTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                HibernateTemplate ht = getHibernateTemplate();
+                Session sess = ht.getSessionFactory().getCurrentSession();
+                Criteria crit = sess.createCriteria(GeoMagK3hr.class);
+                Criterion where1 = Restrictions.eq("stationCode", stationCode);
+                crit.add(where1);
+                Criterion where2 = Restrictions.eq("refTime", time);
                 crit.add(where2);
                 return crit.list();
             }
         });
     }
 }
-
 

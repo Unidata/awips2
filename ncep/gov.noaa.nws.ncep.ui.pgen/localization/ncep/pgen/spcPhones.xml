@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<spcPhoneNumbers>
+	<phone>
+		<phoneNumber>1-800-5551111</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>
+	<phone>
+		<phoneNumber>1-800-5552222</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>
+	<phone>
+		<phoneNumber>1-800-5553333</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>	
+	<phone>
+		<phoneNumber>1-800-5554444</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>	
+	<phone>
+		<phoneNumber>1-800-5555555</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>	
+	<phone>
+		<phoneNumber>1-800-5556666</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>	
+	<phone>
+		<phoneNumber>1-800-5557777</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>	
+	<phone>
+		<phoneNumber>1-800-5558888</phoneNumber>
+		<passcode>0000</passcode>
+	</phone>
+</spcPhoneNumbers>

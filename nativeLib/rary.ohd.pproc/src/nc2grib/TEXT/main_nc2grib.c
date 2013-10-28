@@ -65,6 +65,14 @@
 *
 * This is still a work in progress and code can always be improved to increase efficiency.
 *
+* Oct 2011 - PTilles - added read of new token for defining number of days of data to process
+*
+* Sep 2012 -Dan Stein - The original nc2grib program assumed the first variable in the
+* NetCDF file (variable[0]) would be the data variable to be converted to grib format. The
+* nc2grib tool was hard-coded to only look at variable[0]. In AWIPS-II, GFE began putting 
+* the history variable first and the data variable last, so nc2grib never found the data
+* variable. The fix I implemented searches through all the variables in the NetCDF file
+* to see wheter the data variable in question is present.
 **********************************************************************************************/
 #include <ctype.h>
 #include <stdlib.h>
@@ -111,7 +119,7 @@
 */
 
 typedef struct {
-   char process[11];
+   char GFEParameterName[11];
    char gfename[20];
    int processid;
    int gribnum;
@@ -204,9 +212,9 @@ int nc2grib_main (int argc, char *argv[])
 
 
    /* for reading the NetCDF file */
-   int cdfid;                /* Netcdf id */
+   int NetCDF_ID;                /* Netcdf id */
    int ndims;                /* number of dimensions */
-   int nvars;                /* number of variables */
+   int numVars;                /* number of variables */
    int ngatts;               /* number of attributes */
    int recdim;
    long start[] = {0, 0, 0}; /* start at first value */
@@ -254,13 +262,13 @@ int nc2grib_main (int argc, char *argv[])
    int *gridPointLL, *gridPointUR;
    double x1, y1, x2, y2, lat1, lon1, lat2, lon2;
    nc_type vt_type, dn_type, ll_type, d_type, g_type;
-   nc_type cdfvar_type;
+   nc_type varDataType;
    int vt_len, ll_len, d_len, g_len;
-   int cdfvar_id, *gridSize;
-   int cdfvar_ndims;
-   int cdfvar_dims[MAX_VAR_DIMS];
-   int cdfvar_natts;
-   char varname[MAX_NC_NAME]={'\0'};
+   int variableID, *gridSize;
+   int numberOfVariableDimensions;
+   int dimensionIDVector[MAX_VAR_DIMS];
+   int numAttributes;
+   char variableName[MAX_NC_NAME]={'\0'};
    char dimname[MAX_NC_NAME]={'\0'};
    char siteID[MAX_NC_NAME]={'\0'};
    char cdfunits[MAX_NC_NAME]={'\0'};
@@ -352,6 +360,8 @@ int nc2grib_main (int argc, char *argv[])
    size_t idim;
 
    output_buffer = (size_t *) malloc (sizeof(size_t)*odim);  /* output buffer used when writing GRIB message */
+
+   int variableFound = FALSE; /* Is the variable present in the NetCDF file? Stein Sep 2012 */
 
 /*   output_buffer = (int *) malloc (sizeof(int)*odim);  /* output buffer used when writing GRIB message */
 
@@ -727,9 +737,6 @@ int nc2grib_main (int argc, char *argv[])
         case '?':
            printf("Unrecognized program command line option: -%c\n", optopt);
            errflag++;
-
-
-
         }
     }
 
@@ -810,16 +817,16 @@ int nc2grib_main (int argc, char *argv[])
       if(fileline[0] != '#')   /* check for comments */
       {
 
-         sscanf(fileline,"%s%s%d%d%d%d%d",gfe2grib.process, gfe2grib.gfename, &gfe2grib.processid,
+         sscanf(fileline,"%s%s%d%d%d%d%d",gfe2grib.GFEParameterName, gfe2grib.gfename, &gfe2grib.processid,
                 &gfe2grib.gribnum,&gfe2grib.decscale, &gfe2grib.timerange, &gfe2grib.timeunit);
          if(debugflag>0)
-            printf(" DEBUG: Read in from gfe2grib.txt %s %s %d %d %d %d %d	\n",gfe2grib.process, gfe2grib.gfename, gfe2grib.processid,
+            printf(" DEBUG: Read in from gfe2grib.txt %s %s %d %d %d %d %d	\n",gfe2grib.GFEParameterName, gfe2grib.gfename, gfe2grib.processid,
                    gfe2grib.gribnum,gfe2grib.decscale, gfe2grib.timerange, gfe2grib.timeunit);
 
 
-/*         if (strstr(gfe2grib.process, process)!=NULL) */ /* found a problem using this.  try next if instead */
+/*         if (strstr(gfe2grib.GFEParameterName, process)!=NULL) */ /* found a problem using this.  try next if instead */
 
-         if (!(strcmp(gfe2grib.process, process)))
+         if (!(strcmp(gfe2grib.GFEParameterName, process)))
          {
 
             found = 1;
@@ -884,9 +891,9 @@ int nc2grib_main (int argc, char *argv[])
 
    sprintf(fn,"%s/%s",inpath,infn);
 
-   cdfid=ncopen(fn,NC_NOWRITE);
+   NetCDF_ID=ncopen(fn,NC_NOWRITE);
 
-   if (cdfid==-1)
+   if (NetCDF_ID==-1)
    {
       printf("\n ERROR: Could not open the netcdf file: %s\n", fn);
       return CDFERR;
@@ -899,7 +906,7 @@ int nc2grib_main (int argc, char *argv[])
    /* Inquire about the Netcdf file: No.of dimensions, No.of variables,
                                    No. of global attributes etc.*/
 
-   ncinquire (cdfid, &ndims, &nvars, &ngatts, &recdim);
+   ncinquire (NetCDF_ID, &ndims, &numVars, &ngatts, &recdim);
 /*************************************************************************/
 /* debug */
 
@@ -907,40 +914,92 @@ if (debugflag >0)
 {
       printf("\n Debug option on.  Debug info from reading the netcdf file follows:\n\n");
       printf (" Number of dimensions for this netcdf file is: %d\n",ndims);
-      printf (" Number of variables for this netcdf file is: %d\n",nvars);
+      printf (" Number of variables for this netcdf file is: %d\n",numVars);
       printf (" Number of global attributes for this netcdf file is: %d\n",ngatts);
 }
 /*************************************************************************/
 
+   /**************************************************************************
+    * Sep 2012 - Stein The utility that takes GFE data and converts it to
+    * NetCDF format is ifpNetCDF. To the best of my knowledge, this utility
+    * always puts exactly one variable and exactly one history variable into
+    * each NetCDF file. The section of code below originally assumed that the
+    * germane variable (i.e. the non-history variable) was always the first one
+    * in the file.  It was hard-coded to look at variableID 0.
+    *
+    * For whatever reason, this order was changed in AWIPS-II so that the
+    * history variable showed up first and the program wouldn't work. I was
+    * tasked with correcting this program to make it order independent. My
+    * solution was to loop through all the variables to see whether the
+    * variable we're looking for is in the NetCDF file.  If it is, variableID
+    * is set to it's value. If not found, the program will exit as it did
+    * before.
+    *
+    * In addition to inserting the section of code below, I also 
+    * changed a few variable names to make the code more understandable.
+    *************************************************************************/
 
-   cdfvar_id = 0;  /* this should not change for this application as the first variable will be the one
-                         that contains the QPF, Temp, etc. */
+   /* Below, I loop through all the variables, checking the name of each one
+    * against gfe2grib.gfename.
+    */
 
-   ncvarinq (cdfid, cdfvar_id, varname, &cdfvar_type, &cdfvar_ndims, cdfvar_dims, &cdfvar_natts);
+   variableID = 0;  /* Start with the 1st variable in the NetCDF file */
+   variableFound = FALSE; /* We haven't found it yet */
 
-
-   printf ("\n NetCDF variable name = %s\n",varname);
-/***********************************************************************/
-if (debugflag>0)
-{
-   printf (" Number of %s dimensions - %d\n",varname, cdfvar_ndims);
-   printf (" Number of %s attributes - %d\n\n",varname, cdfvar_natts);
-}
-/**********************************************************************/
-   if (strstr(varname,gfe2grib.gfename)==NULL)
+   while ( (variableID < numVars) && (!variableFound) )
    {
-      printf("ERROR:  The parameter name in the GFE NetCDF file, %s, doe not match the one\n" \
+           /* Get Information about each variable from its ID (NetCDF variable
+            * inquiry).
+            */
+           ncvarinq (NetCDF_ID, variableID, variableName, &varDataType, &numberOfVariableDimensions,
+                             dimensionIDVector, &numAttributes);
+
+           /***********************************************************************/
+           if (debugflag)
+           {
+              printf ("\nNetCDF variable name = %s\n",variableName);
+              printf (" Number of %s dimensions - %d\n", variableName, numberOfVariableDimensions);
+              printf (" Number of %s attributes - %d\n\n", variableName, numAttributes);
+           }
+           /**********************************************************************/
+
+           if (strcmp(variableName, gfe2grib.gfename) == 0) /* Found it! */
+           {
+                   variableFound = TRUE;
+           }
+           else /* Didn't find it - try the next variable */
+           {
+                   ++variableID; /* Increment variableID, look at the next variable */
+           }
+
+   }  /* while ( (variableID < numVars) && (!variableFound) ) */
+
+
+   if (!variableFound) /* If the variable wasn't in the NetCDF file */
+   {
+      printf("ERROR:  The parameter name in the GFE NetCDF file, %s, does not match the one\n" \
              "associated with the process id in the gfe2grib.txt file.\n" \
-	     "In gfe2grib.txt process ID %s is associated with GFE parameter name %s.\n" \
-	     "Please specify the correct process ID and try again\n\n",varname,gfe2grib.process,gfe2grib.gfename);
+                 "In gfe2grib.txt process ID %s is associated with GFE parameter name %s.\n" \
+                 "Please specify the correct process ID and try again\n\n",
+                 variableName,gfe2grib.GFEParameterName,gfe2grib.gfename);
       return CDFERR;
    }
-   if(cdfvar_ndims==3)  /* in some cases, this may not be true if file is produced from MPE/DQC */
+
+   /* Sep 2012 - Stein Aside from changing some variable names, this is the
+    * end of the section of code that I changed.
+    */
+
+
+
+
+
+
+   if(numberOfVariableDimensions==3)  /* in some cases, this may not be true if file is produced from MPE/DQC */
    {
-     for (i=0; i<cdfvar_ndims; i++)
+     for (i=0; i<numberOfVariableDimensions; i++)
      {
 
-        ncdiminq(cdfid,cdfvar_dims[i],dimname,&dim_size);
+        ncdiminq(NetCDF_ID,dimensionIDVector[i],dimname,&dim_size);
 
         if (i==1)
            y=dim_size;
@@ -950,7 +1009,7 @@ if (debugflag>0)
         {
            printf("\n Number of dimensions is %d, which is too many dimensions for variable %s.\n" \
 	          " Please ensure the NetCDF file is created properly for at most three dimensions, where\n" \
-	          " the first dimension allows the NetCDF file to contain multiple records.\n",cdfvar_ndims,varname);
+	          " the first dimension allows the NetCDF file to contain multiple records.\n",numberOfVariableDimensions,variableName);
 
 	   return CDFERR;
         }
@@ -963,14 +1022,14 @@ if (debugflag >0)
 
       }
    }
-   else if (cdfvar_ndims==2)
+   else if (numberOfVariableDimensions==2)
    {
 
 
-     for (i=0; i<cdfvar_ndims; i++)
+     for (i=0; i<numberOfVariableDimensions; i++)
      {
 
-        ncdiminq(cdfid,cdfvar_dims[i],dimname,&dim_size);
+        ncdiminq(NetCDF_ID,dimensionIDVector[i],dimname,&dim_size);
         if (i==0)
            y=dim_size;
 
@@ -990,7 +1049,7 @@ if (debugflag >0)
       printf("\n nc2grib is not coded to handle %d number of dimensions for variable %s.\n" \
              " Please ensure the NetCDF file is created properly for two or three dimensions, where\n" \
 	     " two dimensions indicates only 1 record of the variable and three dimensions allow\n" \
-	     " the NetCDF file to contain multiple records.\n",cdfvar_ndims,varname);
+	     " the NetCDF file to contain multiple records.\n",numberOfVariableDimensions,variableName);
       return CDFERR;
    }
 
@@ -1004,59 +1063,59 @@ if (debugflag >0)
    long count[]={1,y,x};
    long count1r[]={y,x};
 
-   ncattinq(cdfid,cdfvar_id,"validTimes",&vt_type,&vt_len);
+   ncattinq(NetCDF_ID,variableID,"validTimes",&vt_type,&vt_len);
 
    validTimes = (long *) malloc(vt_len * nctypelen(vt_type));
 
-   ncattget(cdfid, cdfvar_id, "validTimes", validTimes);
+   ncattget(NetCDF_ID, variableID, "validTimes", validTimes);
 
-   ncattget(cdfid, cdfvar_id, "descriptiveName", descriptName);
+   ncattget(NetCDF_ID, variableID, "descriptiveName", descriptName);
 
-   ncattget(cdfid, cdfvar_id, "siteID", siteID);
+   ncattget(NetCDF_ID, variableID, "siteID", siteID);
 
-   ncattget(cdfid, cdfvar_id, "units", cdfunits);
+   ncattget(NetCDF_ID, variableID, "units", cdfunits);
 
-   ncattget(cdfid, cdfvar_id, "projectionType", projection);
+   ncattget(NetCDF_ID, variableID, "projectionType", projection);
 
-   ncattinq(cdfid,cdfvar_id,"latLonLL",&ll_type,&ll_len);
+   ncattinq(NetCDF_ID,variableID,"latLonLL",&ll_type,&ll_len);
 
    latlonLL = (double *) malloc(ll_len * nctypelen(ll_type));
 
-   ncattget(cdfid, cdfvar_id, "latLonLL", (void *) latlonLL);
+   ncattget(NetCDF_ID, variableID, "latLonLL", (void *) latlonLL);
 
    latlonUR = (double *) malloc(ll_len * nctypelen(ll_type));
 
-   ncattget(cdfid, cdfvar_id, "latLonUR", (void *) latlonUR);
+   ncattget(NetCDF_ID, variableID, "latLonUR", (void *) latlonUR);
 
-   ncattinq(cdfid,cdfvar_id,"domainOrigin",&d_type,&d_len);
+   ncattinq(NetCDF_ID,variableID,"domainOrigin",&d_type,&d_len);
 
    domainOrigin = (double *) malloc(d_len * nctypelen(d_type));
 
-   ncattget(cdfid, cdfvar_id, "domainOrigin", (void *) domainOrigin);
+   ncattget(NetCDF_ID, variableID, "domainOrigin", (void *) domainOrigin);
 
-   ncattinq(cdfid,cdfvar_id,"domainExtent",&d_type,&d_len);
+   ncattinq(NetCDF_ID,variableID,"domainExtent",&d_type,&d_len);
 
    domainExtent = (double *) malloc(d_len * nctypelen(d_type));
 
-   ncattget(cdfid, cdfvar_id, "domainExtent", (void *) domainExtent);
+   ncattget(NetCDF_ID, variableID, "domainExtent", (void *) domainExtent);
 
-   ncattinq(cdfid,cdfvar_id,"gridSize",&g_type,&g_len);
+   ncattinq(NetCDF_ID,variableID,"gridSize",&g_type,&g_len);
 
    gridSize = (int *) malloc(g_len * nctypelen(g_type));
 
-   ncattget(cdfid, cdfvar_id, "gridSize", (void *) gridSize);
+   ncattget(NetCDF_ID, variableID, "gridSize", (void *) gridSize);
 
-   ncattinq(cdfid,cdfvar_id,"gridPointLL",&g_type,&g_len);
+   ncattinq(NetCDF_ID,variableID,"gridPointLL",&g_type,&g_len);
 
    gridPointLL = (int *) malloc(g_len * nctypelen(g_type));
 
-   ncattget(cdfid, cdfvar_id, "gridPointLL", (void *) gridPointLL);
+   ncattget(NetCDF_ID, variableID, "gridPointLL", (void *) gridPointLL);
 
-   ncattinq(cdfid,cdfvar_id,"gridPointUR",&g_type,&g_len);
+   ncattinq(NetCDF_ID,variableID,"gridPointUR",&g_type,&g_len);
 
    gridPointUR = (int *) malloc(g_len * nctypelen(g_type));
 
-   ncattget(cdfid, cdfvar_id, "gridPointUR", (void *) gridPointUR);
+   ncattget(NetCDF_ID, variableID, "gridPointUR", (void *) gridPointUR);
 
    /* initialize the array to missing value */
 
@@ -1246,7 +1305,7 @@ if (debugflag >0)
 	   grib_lbl[41]=0;
 	   grib_lbl[42]=0;
 
-           ncattget(cdfid, cdfvar_id, "lonOrigin", &lonOrigin);
+           ncattget(NetCDF_ID, variableID, "lonOrigin", &lonOrigin);
 
 	   grib_lbl[34]=lonOrigin*1000.;   /* longitude of grid point orientation */
 
@@ -1263,16 +1322,16 @@ if (debugflag >0)
            grib_lbl[29]=(int) x;
 	   grib_lbl[30]=(int) y;
 
-           ncattinq(cdfid,cdfvar_id,"latLonOrigin",&ll_type,&ll_len);
+           ncattinq(NetCDF_ID,variableID,"latLonOrigin",&ll_type,&ll_len);
 
    	   latLonOrigin = (double *) malloc(ll_len * nctypelen(ll_type));
 
-           ncattget(cdfid, cdfvar_id, "latLonOrigin", latLonOrigin);
+           ncattget(NetCDF_ID, variableID, "latLonOrigin", latLonOrigin);
 
 	   grib_lbl[34]=(*latLonOrigin)*1000.;
 
-           ncattget(cdfid, cdfvar_id, "stdParallelOne", &stdParallelOne);
-           ncattget(cdfid, cdfvar_id, "stdParallelTwo", &stdParallelTwo);
+           ncattget(NetCDF_ID, variableID, "stdParallelOne", &stdParallelOne);
+           ncattget(NetCDF_ID, variableID, "stdParallelTwo", &stdParallelTwo);
 
 
 	   grib_lbl[39]=stdParallelOne*1000;
@@ -1778,18 +1837,18 @@ if (debugflag >0)
 
       /* Get data for this time record */
 
-        if(cdfvar_ndims==3)
+        if(numberOfVariableDimensions==3)
 	{
 
            start[0]=(long) (m/2);
 
-           status = ncvarget(cdfid,cdfvar_id,start,count,cdfvargrid);
+           status = ncvarget(NetCDF_ID,variableID,start,count,cdfvargrid);
 	}
-	else if (cdfvar_ndims==2)
+	else if (numberOfVariableDimensions==2)
 	{
 	   start1r[0]=(long) (m/2);
 
-           status = ncvarget(cdfid,cdfvar_id,start1r,count1r,cdfvargrid);
+           status = ncvarget(NetCDF_ID,variableID,start1r,count1r,cdfvargrid);
 	}
 
         if (status != NC_NOERR)
@@ -1935,7 +1994,7 @@ if (debugflag >0)
    	}
 	else
 	{
-	  if(cdfvar_ndims==3)
+	  if(numberOfVariableDimensions==3)
 	     printf("\n Gribbing of data successful for record %ld\n",start[0]+1);
 	  else
 	     printf("\n Gribbing of data successful for record %ld\n",start1r[0]+1);
@@ -2625,7 +2684,7 @@ if (debugflag >0)
 
    }
 
-   ncclose(cdfid);
+   ncclose(NetCDF_ID);
 
    /* if user desires only 1 GRIB file, must combine all into one */
 

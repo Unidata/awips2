@@ -9,7 +9,7 @@
     <bean id="profilerDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="profilerPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.profiler?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.profiler"/>
 	</bean>
 
     <bean id="profilerCamelRegistered" factory-bean="contextManager"
@@ -30,13 +30,13 @@
             <setHeader headerName="pluginName">
                 <constant>profiler</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.profiler"/> 
+            <to uri="jms-durable:queue:Ingest.profiler"/> 
         </route>
         -->
         
         <!-- Begin Profiler routes -->
         <route id="profilerIngestRoute">
-            <from uri="jms-generic:queue:Ingest.profiler?destinationResolver=#qpidDurableResolver"/>
+            <from uri="jms-durable:queue:Ingest.profiler"/>
             <setHeader headerName="pluginName">
                 <constant>profiler</constant>
             </setHeader>
