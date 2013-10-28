@@ -32,13 +32,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrsigwx</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.bufrsigwx" />
+            <to uri="jms-generic:queue:Ingest.bufrsigwx" />
         </route>
         -->
 
         <!-- Begin bufrsigwx routes -->
         <route id="bufrsigwxIngestRoute">
-            <from uri="jms-durable:queue:Ingest.bufrsigwx"/>
+            <from uri="jms-generic:queue:Ingest.bufrsigwx?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>bufrsigwx</constant>
             </setHeader>

@@ -5,7 +5,7 @@
     <resourceCategory>RADAR</resourceCategory>
     <resourceParameters>
 pluginName=radar
-format=Radial,Raster
+format=Radial,Raster,Graphic
 legendColor=RGB {200, 200, 200}
 	</resourceParameters>
     <rscImplementation>LocalRadar</rscImplementation>

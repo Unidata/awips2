@@ -112,6 +112,10 @@
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="ogc.*/**"/>
                 </copy>
+                <echo message="ch.*/**"/>
+                <copy todir="${buildDirectory}/plugins">
+                    <fileset dir="${buildDirectory}/../../../" includes="ch.*/**"/>
+                </copy>
 
                 <antcall target="getBaseComponents" />
         </target>

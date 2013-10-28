@@ -21,11 +21,11 @@
 			<setHeader headerName="pluginName">
 				<constant>ldad</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.ldad" />
+			<to uri="jms-generic:queue:Ingest.ldad" />
 		</route>
 
 		<route id="ldadIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ldad" />
+			<from uri="jms-generic:queue:Ingest.ldad" />
 			<multicast>
 				<try>
 					<to uri="direct-vm:ldadmesonetIngest" />

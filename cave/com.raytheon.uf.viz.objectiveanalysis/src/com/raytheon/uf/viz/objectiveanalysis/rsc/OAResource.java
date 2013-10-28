@@ -79,7 +79,6 @@ import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
@@ -94,10 +93,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov  5, 2009            randerso    Initial creation
- * Jan  8, 2010  4205      jelkins     add equals checking for OA resources
- * Aug 27, 2013  2287      randerso    Added new parameters to GriddedVectorDisplay
- *                                     constructor
+ * Nov 5, 2009            randerso     Initial creation
+ * Jan 8, 2010  4205      jelkins      add equals checking for OA resources
  * 
  * </pre>
  * 
@@ -427,10 +424,9 @@ public class OAResource extends
                 FloatBuffer mag = data;
                 data.position(transformer.getNx() * transformer.getNy());
                 FloatBuffer dir = data.slice();
-                VectorGraphicsRenderableFactory factory = new VectorGraphicsRenderableFactory();
                 GriddedVectorDisplay vector = new GriddedVectorDisplay(mag,
-                        dir, descriptor, transformer.getGridGeom(), 80, 0.75,
-                        true, displayType, factory);
+                        dir, descriptor, transformer.getGridGeom(), 80,
+                        displayType);
 
                 renderableMap.put(dataTime, vector);
                 break;

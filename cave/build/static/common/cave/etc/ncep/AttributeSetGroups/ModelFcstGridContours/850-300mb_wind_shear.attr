@@ -21,7 +21,6 @@ FINT=5/25
 FLINE=0;24;30;29;23;22;14;15;16;17;20;5
 HILO=
 HLSYM=
-CLRBAR=1
 WIND=! 7/.4/1/221/.4 ! 6/.4/1/221/.4
 TITLE=1/-1/~ @  WIND SHEAR (850mb magenta, 300mb cyan)!0
 COLORS=2                                                                       

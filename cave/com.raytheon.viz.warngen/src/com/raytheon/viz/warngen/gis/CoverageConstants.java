@@ -29,7 +29,6 @@ package com.raytheon.viz.warngen.gis;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2013  2177       jsanchez     Initial creation
- * Sep 22, 2013 2177       jsanchez     Updated EW_MASK.
  * 
  * </pre>
  * 
@@ -157,7 +156,7 @@ public class CoverageConstants {
                 EW_MASK[i] = XEAST | EAST;
             } else if (i < 106) {
                 EW_MASK[i] = WEST;
-            } else if (i > 148) {
+            } else if (i > 145) {
                 EW_MASK[i] = EAST;
             } else if (i < 118) {
                 EW_MASK[i] = CENTRAL_EW | WEST;

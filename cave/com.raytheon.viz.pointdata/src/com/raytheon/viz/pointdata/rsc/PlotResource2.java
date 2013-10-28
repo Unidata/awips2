@@ -96,7 +96,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 06, 2013 2072       bsteffen    Fix concurrency problems when init is
  *                                     called before time matching is done.
  * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
- * Sep 04, 2013 16519      kshresth    Fix Metar Display Problem
  * 
  * </pre>
  * 
@@ -349,19 +348,6 @@ public class PlotResource2 extends
                     plots.put(normTime, list);
                 }
                 list.add(info);
-                
-                // Sort this data in "backwards" so that the most recent observation 
-                // for a particular station display correctly
-                Collections.sort(list, new Comparator<PlotInfo>() {
-                
-                @Override
-                public int compare(PlotInfo o1, PlotInfo o2) {                         	  
-                       return o1.dataTime.compareTo(o2.dataTime);
-                     }
-                });
-                
-                Collections.reverse(list);
-                
             }
         }
 
@@ -427,7 +413,7 @@ public class PlotResource2 extends
             samplePlot[0] = plot;
             List<PlotInfo[]> list = new ArrayList<PlotInfo[]>();
             list.add(samplePlot);
-            Params params = Params.PLOT_AND_SAMPLE;
+            Params params = Params.SAMPLE_ONLY;
             GetDataTask task = new GetDataTask(list, params);
             generator.queueStation(task);
             // End DR14996

@@ -50,8 +50,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2010            bsteffen     Initial creation
- * Aug 27, 2013     #2287  randerso     Added densityFactor to allow application specific 
- *                                      adjustment of density.
  * 
  * </pre>
  * 
@@ -70,17 +68,13 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
     private PointIconFactory iconFactory;
 
     /**
-     * @param values
      * @param descriptor
      * @param gridGeometryOfGrid
      * @param imageSize
-     * @param densityFactor
-     *            adjustment factor to make density match A1
      */
     public GriddedIconDisplay(float[] values, IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid, int imageSize,
-            double densityFactor) {
-        super(descriptor, gridGeometryOfGrid, imageSize, densityFactor);
+            GeneralGridGeometry gridGeometryOfGrid, int imageSize) {
+        super(descriptor, gridGeometryOfGrid, imageSize);
         this.values = values;
     }
 
@@ -132,7 +126,6 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
         return (int) values[idx];
     }
 
-    @Override
     public boolean setColor(RGB color) {
         if (super.setColor(color)) {
             iconFactory = null;
@@ -173,8 +166,8 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
             if (renderable.resource != empty) {
                 PointImage image = new PointImage(renderable.resource,
                         renderable.plotLocation);
-                image.setHeight(size * magnification);
-                image.setWidth(size * magnification);
+                image.setHeight((double) size * magnification);
+                image.setWidth((double) size * magnification);
                 images.add(image);
             }
         }

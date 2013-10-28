@@ -1,6 +1,6 @@
 diff -crB a/qpid-java.spec b/qpid-java.spec
-*** a/qpid-java.spec	2013-09-16 16:26:10.000000000 -0500
---- b/qpid-java.spec	2013-09-16 16:25:55.000000000 -0500
+*** a/qpid-java.spec	2013-05-14 20:24:21.000000000 -0500
+--- b/qpid-java.spec	2013-05-14 20:23:49.000000000 -0500
 ***************
 *** 1,6 ****
 ! Name:           qpid-java
@@ -14,13 +14,13 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! 
 ! Name:           awips2-qpid-java
   Version:        0.18
-! Release:        3%{?dist}
+! Release:        1%{?dist}
   Summary:        Java implementation of Apache Qpid
   License:        Apache Software License
   Group:          Development/Java
 ***************
 *** 12,21 ****
---- 14,32 ----
+--- 14,28 ----
   Source0:        %{qpid_src_dir}.tar.gz
   Source1:        qpid-build-deps-%{version}.tar.gz
   Source2:        %{qpid_deps_src_dir}.tar.gz
@@ -28,15 +28,11 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 + Source4:	virtualhosts.xml
 + Source5:	qpidd
 + Source6:	log4j.xml
-+ Source7:	qpid-wrapper
-+ Source8:	wrapper.conf
-+ Source9:	yajsw-distribution.tar
   
   Patch0:         mrg.patch
   Patch1:         examples.patch
   Patch2:         build.patch
 + Patch3:         awips.patch
-+ Patch4:		qpid-messageNotFound.patch
   
   BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
   BuildArch:      noarch
@@ -53,7 +49,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   Requires:	log4j >= 1.2.12
   
   %description client
---- 46,65 ----
+--- 42,61 ----
   %description common
   Java implementation of Apache Qpid - common files
   
@@ -83,7 +79,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   
   %description example
   Java implementation of Apache Qpid - example
---- 69,75 ----
+--- 65,71 ----
   Summary:        Java implementation of Apache Qpid - example
   Group:          Development/Java
   BuildArch:      noarch
@@ -93,7 +89,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   Java implementation of Apache Qpid - example
 ***************
 *** 58,67 ****
---- 78,103 ----
+--- 74,98 ----
   %setup -q -n %{qpid_src_dir}
   mkdir -p java/lib/required
   tar -xvzf %SOURCE1 -C java/lib/required
@@ -116,7 +112,6 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   %patch2 -p2
 + # apply the awips patch
 + %patch3 -p2
-+ %patch4 -p2
   
   %setup -q -T -b 2 -n %{qpid_deps_src_dir}
   
@@ -129,7 +124,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   
       # blacklisted jars are either provided by the Requires: or not needed.
       BLACKLIST="slf4j qpid-client-tests qpid-all qpid-common-tests"
---- 106,120 ----
+--- 101,115 ----
   
   (
       cd %{qpid_src_dir}/java
@@ -194,7 +189,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   
   %changelog
   * Thu Sep  6 2012 Irina Boverman <iboverma@redhat.com> - 0.18-2
---- 128,249 ----
+--- 123,234 ----
   
   cd ..
   
@@ -219,14 +214,6 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! # scripts for broker
 ! install -dm 755 %{buildroot}%{_awips2_directory}/bin
 ! install -pm 644 %{qpid_src_dir}/java/build/bin/* %{buildroot}%{_awips2_directory}/bin
-! # install the wrapper script
-! install -pm 644 %SOURCE7 %{buildroot}%{_awips2_directory}/bin
-! # add the yajsw distribution
-! tar -xf %SOURCE9 -C %{buildroot}%{_awips2_directory}/bin
-! 
-! # wrapper configuration
-! install -dm 755 %{buildroot}%{_awips2_directory}/conf
-! install -pm 644 %SOURCE8 %{buildroot}%{_awips2_directory}/conf
 ! 
 ! # service script
 ! mkdir -p %{buildroot}/etc/init.d
@@ -301,8 +288,6 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! /awips2/qpid/lib/opt/qpid-broker-plugins-firewall-%{version}.jar
 ! /awips2/qpid/lib/opt/qpid-broker-plugins-management-http-%{version}.jar
 ! %dir /awips2/qpid/log
-! %dir /awips2/qpid/conf
-! /awips2/qpid/conf/*
 ! %defattr(755,awips,fxalpha,755)
 ! %dir /awips2/qpid/bin
 ! /awips2/qpid/bin/*
