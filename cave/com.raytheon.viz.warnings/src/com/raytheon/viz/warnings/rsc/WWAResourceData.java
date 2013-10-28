@@ -20,8 +20,8 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -40,6 +40,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 3, 2011            jsanchez     Initial creation
+ * Oct 25, 2013 2249       rferrel     getAvailableTimes always returns a non-empty list.
  * 
  * </pre>
  * 
@@ -143,11 +144,19 @@ public class WWAResourceData extends AbstractRequestableResourceData {
                 && phenSig.getConstraintValue().contains(".A") ? getWatchStartTimes(warnings)
                 : getWarningStartTimes(warnings);
 
-        if (SimulatedTime.getSystemTime().isRealTime()) {
-            // Add the current time to the end of the array.
-            startTimes
-                    .add(new DataTime(SimulatedTime.getSystemTime().getTime()));
-        }
+        // DR2249
+        // When not in real time the commented code allows availableTimes to be
+        // empty. This causes Null pointer exceptions when getting frames. If
+        // always placing non-realtime causes other problems may want to add
+        // only when startTimes is empty:
+        // if (SimulatedTime.getSystemTime().isRealTime()) {
+        // // Add the current time to the end of the array.
+        // startTimes.add(new
+        // DataTime(SimulatedTime.getSystemTime().getTime()));
+        // }
+
+        // Add current configured system time.
+        startTimes.add(new DataTime(TimeUtil.newDate()));
 
         DataTime[] availableTimes = startTimes.toArray(new DataTime[startTimes
                 .size()]);
