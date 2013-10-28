@@ -23,27 +23,26 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * SCAN VCP Configuration 
+ * SCAN VCP Configuration
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 20, 2011            mpduff     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 20, 2011           mpduff      Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class ScanVcpXML implements ISerializableObject {
+public class ScanVcpXML {
     @XmlAttribute(name = "num")
     private int number;
     
