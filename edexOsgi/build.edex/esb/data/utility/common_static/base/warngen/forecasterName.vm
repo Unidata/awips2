@@ -1,6 +1,6 @@
 ##$user IS A GLOBAL VARIABLE CONTAINING THE WORKSTATION'S LOGIN USERNAME
-#if(${user}=="ebookbin")
-TEST
+#if(${user}=="yourawipslogin")
+YOURNAME
 #elseif(${user}=="hisawipslogin")
 SOMEONEELSESNAME
 #else

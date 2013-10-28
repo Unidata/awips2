@@ -32,12 +32,12 @@
 			<setHeader headerName="pluginName">
 				<constant>ncccfp</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.ncccfp" />
+			<to uri="jms-generic:queue:Ingest.ncccfp" />
 		</route>
 
 		<!-- Begin Ncccfp routes -->
 		<route id="ncccfpIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ncccfp" />
+			<from uri="jms-generic:queue:Ingest.ncccfp" />
 			<setHeader headerName="pluginName">
 				<constant>ncccfp</constant>
 			</setHeader>

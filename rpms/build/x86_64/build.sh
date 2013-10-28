@@ -85,7 +85,6 @@ if [ "${2}" = "-nobinlightning" ]; then
 fi
 
 if [ "${1}" = "-64bit" ]; then
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -119,6 +118,85 @@ if [ "${1}" = "-64bit" ]; then
    buildRPM "awips2"
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-notification"
+
+   exit 0
+fi
+
+if [ "${1}" = "-rh6" ]; then
+   buildRPM "awips2-notification"
+   buildRPM "awips2-common-base"
+   buildEDEX
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-hydroapps-shared"
+   buildJava
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-cherrypy"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-pil"
+   buildRPM "awips2-python-jimporter"
+   buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-thrift"
+   buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pupynere"
+   buildRPM "awips2-python-h5py"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-tables"
+   buildRPM "awips2-python-pmw"
+   buildRPM "awips2-python-tpg"
+   buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-pygtk"
+   buildRPM "awips2-python-shapely"
+   buildRPM "awips2-ant"
+   buildRPM "awips2-tools"
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-pgadmin3"
+   unpackHttpdPypies
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-httpd-pypies"
+   buildRPM "awips2-httpd-collaboration"
+   buildQPID
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-ldm"
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+   buildRPM "awips2-alertviz"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
+   buildRPM "awips2-adapt-native"
+   buildRPM "awips2-aviation-shared"
+   buildRPM "awips2-cli"
+   buildRPM "awips2-edex-environment"
+   buildRPM "awips2-data.gfe"
+   buildRPM "awips2-data.hdf5-gfe.climo"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-groovy"
+   buildRPM "awips2-localapps-environment"
+   buildLocalizationRPMs
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-pypies"
+   buildRPM "awips2-rcm"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2"
+   buildOpenfire
 
    exit 0
 fi
@@ -167,7 +245,7 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
-   buildRPM "awips2-common-base"
+  # buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -248,8 +326,18 @@ if [ "${1}" = "-viz" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-notification" ]; then
+   buildRPM "awips2-notification"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-common-base"
+   buildRPM "awips2"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -268,7 +356,19 @@ if [ "${1}" = "-qpid" ]; then
 fi
 
 if [ "${1}" = "-ldm" ]; then
-   buildRPM "awips2-ldm"
+   #buildRPM "awips2-httpd-collaboration"
+   buildRPM "awips2-adapt-native"
+   buildRPM "awips2-aviation-shared"
+   buildRPM "awips2-ant"
+   buildRPM "awips2-tools"
+   buildRPM "awips2-pypies"
+   buildRPM "awips2-rcm"
+   buildRPM "awips2-hydroapps-shared"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildJava
+   #buildRPM "awips2-common-base"
+   #buildRPM "awips2-ldm"
 
    exit 0
 fi

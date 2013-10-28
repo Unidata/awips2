@@ -35,8 +35,7 @@ public class DataTimesCacheEntry implements IURIRefreshCallback {
 	// TODO : picked 30 seconds out of my ?#*@!.  We can use whatever makes the most sense.
     private static final long cacheHoldTime = 30*1000; // 30 seconds
     
-    // set to true when we are added to the URICatalog.
-    // 
+    // set to true when we are added to the URICatalog
     private Boolean inUriCatalog = false; 
     
     private Map<String, RequestConstraint> resourceConstraints;
@@ -73,18 +72,13 @@ public class DataTimesCacheEntry implements IURIRefreshCallback {
 	// possibly not do the query since it may(?) take too long?)
 	//
 	public DataTime getLatestTime() {
-
-		if( latestTime.isNull() ) {
-			return ( System.currentTimeMillis()-cacheTime < cacheHoldTime ?
-					          latestTime : null );
-		}
-		else if( inUriCatalog ) {
+		if( inUriCatalog ) {
 			return latestTime;
 		}    		   
 		else if( System.currentTimeMillis()-cacheTime < cacheHoldTime ) {
     		return latestTime;    			
 		}
-		else { // TODO : should we go ahead and query the inventory now?
+		else {
 			return null;
 		}
 //		// sanity check

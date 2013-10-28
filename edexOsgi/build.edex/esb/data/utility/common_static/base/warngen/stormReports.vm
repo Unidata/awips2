@@ -11,7 +11,7 @@ stormReports.xml
 #if ($dbTable)
 #foreach($table in $dbTable)
 #set($size = ${list.size($table)})
-#if ($size > 0)
+#if ($size > 1)
 !** RECENT LOCAL STORM REPORTS:
 (COPY AND PASTE VALID REPORTS INTO 3RD BULLET THEN DELETE THIS SECTION)
 #foreach($report in $table)

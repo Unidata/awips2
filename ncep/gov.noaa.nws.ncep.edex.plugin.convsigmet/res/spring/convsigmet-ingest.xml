@@ -34,13 +34,13 @@
             <setHeader headerName="pluginName">
                 <constant>convsigmet</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.convsigmet"/>
+            <to uri="jms-generic:queue:Ingest.convsigmet"/>
         </route>
         -->
         
         <!-- Begin ConvSigmet routes -->
         <route id="convsigmetIngestRoute">
-            <from uri="jms-durable:queue:Ingest.convsigmet"/>
+            <from uri="jms-generic:queue:Ingest.convsigmet"/>
             <setHeader headerName="pluginName">
                 <constant>convsigmet</constant>
             </setHeader>
