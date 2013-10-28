@@ -861,7 +861,8 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
         Color[] colors = new Color[1];
         Color color = new Color(icolor.red, icolor.green, icolor.blue);
         colors[0]= color;
-        DisplayElementFactory df = new DisplayElementFactory (target, this.descriptor);
+        //DisplayElementFactory df = new DisplayElementFactory (target, this.descriptor);
+        NsharpDisplayElementFactory df = new NsharpDisplayElementFactory (target, this.descriptor);
         ArrayList<IDisplayable> elements = new ArrayList<IDisplayable> ();
 
         float wbSize = graphConfigProperty.getWindBarbSize();
@@ -909,7 +910,6 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
             Vector vect= new Vector();
             vect.setVectorType(VectorType.WIND_BARB);
             vect.setArrowHeadSize(1.0);
-            dir= (dir+180.0f)%360.0f;
             vect.setDirection(dir);
             vect.setSpeed(spd);
             vect.setSizeScale(curWbSize);

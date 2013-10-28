@@ -62,7 +62,7 @@ class TextProduct(GenericReport.TextProduct):
         elif "_<MultiPil>" == "_WCZ":
             Definition["subDomainUGCs"] = ["AKZ207","AKZ208","AKZ209","AKZ210",
                                            "AKZ211","AKZ212","AKZ213","AKZ214",
-                                           "AKZ215","AKZ216","AKZ217"]
+                                           "AKZ215","AKZ216","AKZ217","AKZ227"]
                                                                                 
     # product identifiers
     Definition["productName"] = "SPECIAL WEATHER STATEMENT" # product name 

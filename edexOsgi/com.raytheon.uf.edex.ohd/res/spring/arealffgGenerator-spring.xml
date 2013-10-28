@@ -31,14 +31,14 @@
 			<setHeader headerName="pluginName">
 				<constant>arealffg</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.arealffg" />
+			<to uri="jms-durable:queue:Ingest.arealffg" />
 		</route>
 		-->
 
 		<!-- Begin arealffg Routes -->
 		<!--
 		<route id="arealffgIngestRoute">
-			<from uri="jms-generic:queue:Ingest.arealffg" />
+			<from uri="jms-durable:queue:Ingest.arealffg" />
 			<doTry>
 				<pipeline>
 			        <bean ref="stringToFile"  />
