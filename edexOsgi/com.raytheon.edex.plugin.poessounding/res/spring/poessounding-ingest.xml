@@ -9,7 +9,7 @@
     <bean id="poessoundingDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="poessoundingPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.poessounding"/>
+		<constructor-arg value="jms-dist:queue:Ingest.poessounding?destinationResolver=#qpidDurableResolver" />
 	</bean>
     
     <bean id="poessoundingCamelRegistered" factory-bean="contextManager"
@@ -30,13 +30,13 @@
             <setHeader headerName="pluginName">
                 <constant>poessounding</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.poessounding"/> 
+            <to uri="jms-generic:queue:Ingest.poessounding"/> 
         </route>
         -->
 
         <!-- Begin poes Sounding routes -->
         <route id="poessndgIngestRoute">
-            <from uri="jms-durable:queue:Ingest.poessounding"/>
+            <from uri="jms-generic:queue:Ingest.poessounding?destinationResolver=#qpidDurableResolver"/>
             <setHeader headerName="pluginName">
                 <constant>poessounding</constant>
             </setHeader>

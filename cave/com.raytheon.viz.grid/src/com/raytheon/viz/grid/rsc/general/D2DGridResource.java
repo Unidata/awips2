@@ -53,7 +53,6 @@ import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
@@ -61,7 +60,7 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.rsc.GridResourceData;
-import com.raytheon.viz.grid.util.ReprojectionUtil;
+import com.raytheon.viz.grid.util.ConformalityUtil;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -80,9 +79,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     constructor to avoid duplicate data
  *                                     requests.
  * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013 2287       randerso    Removed 180 degree adjustment required by error
- *                                     in Maputil.rotation
- * Sep 24, 2013 DR 15972   D. Friedman Make reprojection of grids configurable.
  * 
  * </pre>
  * 
@@ -96,8 +92,6 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
 
     private boolean reprojectedData = false;
 
-    private Boolean lastInterpolationState = null;
-
     public D2DGridResource(GridResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -107,10 +101,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         for (GridRecord record : resourceData.getRecords()) {
             addDataObject(record);
         }
-        if (this.hasCapability(ImagingCapability.class)) {
-            lastInterpolationState = this.getCapability(ImagingCapability.class)
-                        .isInterpolationState();
-        }
+
     }
 
     @Override
@@ -150,15 +141,17 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                 return null;
             }
         }
-        // For some grids, we may reproject (e.g., world-wide lat/lon grids),
-        // this is done to match A1, but it also makes the wind barbs look
-        // more evenly spaced near the pole.
+        // For world wide lat lon grids we reproject, this is done to match A1,
+        // but it also makes the wind barbs look more evenly spaced near the
+        // pole.
         GridCoverage location = gridRecord.getLocation();
         GeneralGridData data = getData(dataRecs, location.getGridGeometry(),
                 dataUnit);
-        if (ReprojectionUtil.shouldReproject(gridRecord,
-                getDisplayType(), descriptor.getGridGeometry())) {
-            data = reprojectData(data);
+        if (location != null && location.getSpacingUnit().equals("degree")) {
+            if (!ConformalityUtil.testConformality(location.getGridGeometry(),
+                    descriptor.getGridGeometry())) {
+                data = reprojectData(data);
+            }
         }
         // Wind Direction(and possibly others) can be set so that we rotate the
         // direction to be relative to the north pole instead of grid relative.
@@ -181,7 +174,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                             crs2ll.transform(dp, dp);
                             Coordinate ll = new Coordinate(dp.x, dp.y);
                             float rot = (float) MapUtil.rotation(ll, geom);
-                            dir = (dir + rot) % 360;
+                            dir = (dir + rot + 180) % 360;
                             data.getScalarData().put(index, dir);
                         }
                     }
@@ -321,21 +314,6 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             clearRequestedData();
         }
         super.project(crs);
-    }
-
-    @Override
-    protected void resourceDataChanged(ChangeType type, Object updateObject) {
-        super.resourceDataChanged(type, updateObject);
-        if (type == ChangeType.CAPABILITY) {
-            if (updateObject instanceof ImagingCapability && reprojectedData) {
-                ImagingCapability capability = (ImagingCapability) updateObject;
-                if (lastInterpolationState == null
-                        || capability.isInterpolationState() != lastInterpolationState) {
-                    lastInterpolationState = capability.isInterpolationState();
-                    clearRequestedData();
-                }
-            }
-        }
     }
 
 }

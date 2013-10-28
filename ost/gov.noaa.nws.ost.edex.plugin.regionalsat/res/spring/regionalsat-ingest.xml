@@ -25,7 +25,7 @@
 	<bean id="regionalSatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="regionalsat" />
-		<constructor-arg value="jms-dist:queue:Ingest.regionalsat"/>
+		<constructor-arg value="jms-dist:queue:Ingest.regionalsat?destinationResolver=#qpidDurableResolver" />
 	</bean>
     
 	<!-- 	<constructor-arg value="jms-dist:queue:Ingest.Satellite" />  -->
@@ -42,7 +42,7 @@
 
         <!-- Begin regionalsat routes -->
         <route id="regionalSatIngestRoute">
-            <from uri="jms-durable:queue:Ingest.regionalsat"/>
+            <from uri="jms-generic:queue:Ingest.regionalsat?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
 				<constant>regionalsat</constant>
 			</setHeader>

@@ -251,7 +251,7 @@
       <level value="WARN"/>
    </logger>
    <logger name="org.hibernate" additivity="false">
-      <level value="FATAL"/>
+      <level value="WARN"/>
       <appender-ref ref="HibernateLog" />
    </logger>
    <logger name="org.geotools">

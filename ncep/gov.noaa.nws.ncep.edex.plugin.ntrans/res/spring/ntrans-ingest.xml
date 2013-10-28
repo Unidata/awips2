@@ -36,12 +36,12 @@
 			<setHeader headerName="pluginName">
 				<constant>ntrans</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.Ntrans" />
+			<to uri="jms-generic:queue:Ingest.Ntrans" />
 		</route>
 
 
 		<route id="ntransIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Ntrans" />
+			<from uri="jms-generic:queue:Ingest.Ntrans" />
 		<!-- 	<setHeader headerName="pluginName">
 				<constant>ntrans</constant>
 			</setHeader>-->

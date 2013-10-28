@@ -12,7 +12,7 @@
 	
 	<camelContext id="fog-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="FOGGenerate">
-        	<from uri="jms-durable:queue:fogGenerate"/>
+        	<from uri="jms-generic:queue:fogGenerate?destinationResolver=#qpidDurableResolver" />
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
 	        	<bean ref="fogGenerator" method="generate" />

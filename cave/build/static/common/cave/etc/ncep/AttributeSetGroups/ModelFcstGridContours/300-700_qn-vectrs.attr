@@ -18,7 +18,6 @@ FINT=!70;90;110;130;150;170;190!0
 FLINE=!0;24;25;30;28;14;2!0;23;22;21;17;16;2!
 HILO=!0!0!3/W;K!0
 HLSYM=
-CLRBAR=0
 WIND=27/.2/2//.5
 TITLE=1/-1/~ 300:700 Qn-VECTORS, THICKNESS AND 300mb ISOTACHS!0
 COLORS=2                                                                       

@@ -9,20 +9,20 @@
 	<bean id="dhrDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="dhr" />
-		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
+		<constructor-arg value="jms-dist:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
 	</bean>
 	
 	<bean id="dhrRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="dhr" />
-		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
+		<constructor-arg value="jms-dist:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
 	</bean>
 	
 	<camelContext id="nonClusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"
 	    errorHandlerRef="errorHandler">                
 		<!-- Begin non-clustered dhr Routes -->
 		<route id="dhrIngestFilter">
-			<from uri="jms-durable:queue:Ingest.dhr"/>
+			<from uri="jms-generic:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>dhr</constant>
 			</setHeader>
@@ -47,7 +47,7 @@
 	    errorHandlerRef="errorHandler">                
 		<!-- Begin dhr Routes -->
 		<route id="dhrIngestRoute">
-			<from uri="jms-durable:queue:dhrProcess" />
+			<from uri="jms-generic:queue:dhrProcess?destinationResolver=#qpidDurableResolver" />
 			<doTry>
 				<pipeline>
 					<bean ref="serializationUtil" method="transformFromThrift" />

@@ -21,7 +21,7 @@
 	<bean id="atcfDistRegistry" factory-bean="distributionSrv" 
 		factory-method="register">
 		<constructor-arg value="atcf" />
-		<!-- <constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />  -->
+		<!-- <constructor-arg value="jms-generic:queue:Ingest.AlphaNumeric" />  -->
 		<constructor-arg value="jms-dist:queue:Ingest.atcf" />
 	</bean>
 
@@ -42,11 +42,11 @@
 			<setHeader headerName="pluginName">
 				<constant>atcf</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.atcf" />
+			<to uri="jms-generic:queue:Ingest.atcf" />
 		</route>
 
 		<route id="atcfIngestRoute">
-			<from uri="jms-durable:queue:Ingest.atcf" />
+			<from uri="jms-generic:queue:Ingest.atcf" />
 			<setHeader headerName="pluginName">
 				<constant>atcf</constant>
 			</setHeader>
