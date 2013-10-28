@@ -19,7 +19,6 @@ FINT=70;90
 FLINE=0;23;22
 HILO=
 HLSYM=
-CLRBAR=1
 WIND=18/1/1
 TITLE=5/-1/~  @  HEIGHTS, REL HUMIDITY AND OMEGA!
 COLORS=2                                                                       

@@ -32,8 +32,6 @@ public class ContourAttributes {
 	
 	private String marker;
 
-	private String clrbar;
-
 	public String getGlevel() {
 		return glevel;
 	}
@@ -154,20 +152,6 @@ public class ContourAttributes {
 		this.marker = marker;
 	}
     
-	/**
-	 * @return the clrbar
-	 */
-	public final String getClrbar() {
-		return clrbar;
-	}
-
-	/**
-	 * @param clrbar the clrbar to set
-	 */
-	public final void setClrbar(String clrbar) {
-		this.clrbar = clrbar;
-	}
-
 	public boolean isMatch ( ContourAttributes attr) {
 		boolean match = false;
 		if ( this.glevel.trim().equalsIgnoreCase(attr.getGlevel())&&
@@ -184,8 +168,7 @@ public class ContourAttributes {
 			 this.hilo.trim().equalsIgnoreCase(attr.getHilo()) &&
 			 this.hlsym.trim().equalsIgnoreCase(attr.getHlsym()) &&
 			 this.wind.trim().equalsIgnoreCase(attr.getWind()) &&
-			 this.marker.trim().equalsIgnoreCase(attr.getMarker()) &&
-			 this.clrbar.trim().equalsIgnoreCase(attr.getClrbar())) {
+			 this.marker.trim().equalsIgnoreCase(attr.getMarker())) {
 			match = true;
 		}
 		return match;

@@ -4,7 +4,6 @@
 ## CREATED BOOKBINDER/DANGELO - 2-07-12 - Initial OB12 Write                 ##
 ##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}             ## 
 ###############################################################################
-#parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FRW${siteId}
 ${ugcline}
@@ -60,7 +59,6 @@ A FIRE WAS RACING TOWARD !** LOCATIONS **! AND COULD REACH THERE BY !** TIME **!
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
-## #parse("pointMarkers.vm")
 
 #####################
 ## CALL TO ACTIONS ##

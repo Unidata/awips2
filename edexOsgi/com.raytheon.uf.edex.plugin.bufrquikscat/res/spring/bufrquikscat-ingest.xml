@@ -16,7 +16,7 @@
     <bean id="bufrquikscatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrquikscatPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrquikscat"/>
+		<constructor-arg value="jms-dist:queue:Ingest.bufrquikscat?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
 	<bean id="bufrquikscatCamelRegistered" factory-bean="contextManager"
@@ -37,13 +37,13 @@
             <setHeader headerName="pluginName">
                 <constant>bufrquikscat</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.bufrquikscat" />
+            <to uri="jms-generic:queue:Ingest.bufrquikscat" />
         </route>
         -->
 
         <!-- Begin bufrquikscat routes -->
         <route id="bufrquikscatIngestRoute">
-            <from uri="jms-durable:queue:Ingest.bufrquikscat"/>
+            <from uri="jms-generic:queue:Ingest.bufrquikscat?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>bufrquikscat</constant>
             </setHeader>

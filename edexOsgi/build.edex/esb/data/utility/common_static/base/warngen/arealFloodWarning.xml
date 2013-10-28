@@ -8,26 +8,10 @@
                  Evan Bookbinder 09-11-2012 Added settings for locations shapefile    
                  Phil Kurimski   02-05-2013 Added additional valid duration times
                  Mike Dangelo 02-06-2013 added default bullet for ic 
-                 Mike Dangelo 05-02-2013 removed redundant specific CTA
-                 Mike Dangelo 09-16-2013 fixed specific stream error, and added 6 days to durations
-                 Mike Dangelo  09-18-2013 to optionally allow <trackEnabled>=true for pathcasting, and add pointMarker.xml 'include'
-                 Phil Kurimski   09-19-2013 added geospatialConfig.xml
+                              05-02-2013 removed redundant specific CTA
 -->
                  
 <warngenConfig>
-
-<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
-ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
-PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
-<include file="geospatialConfig_COUNTY.xml"/>
-
-<!-- Include Various geospatial XML files to create their objects. These are *NOT*
-turned on unless the corresponding .vm file is turned on in a given template's .vm file
--->  
-<include file="mileMarkers.xml"/>
-<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
-<include file="pointMarkers.xml"/>
-<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -63,11 +47,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <!-- Enable/disables the system to lock text based on various patterns -->
  <autoLockText>true</autoLockText>
  
-  <!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
-as well as fourth bullet pathcast (which are optional info) available to forecaster.   
-Must be paired with proper vm code (also commented out in arealFloodWarning.vm)! -->
- <trackEnabled>false</trackEnabled> 
-  
  <!-- durations: the list of possible durations -->
  <defaultDuration>180</defaultDuration>
  <durations>
@@ -85,7 +64,6 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <duration>4320</duration>
   <duration>5760</duration>
   <duration>7200</duration>
-  <duration>8640</duration>
   <duration>10080</duration>
  </durations>
  
@@ -122,7 +100,6 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
   <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;REPORTED FLOODING&quot;"/>
   <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event"/>
-<!--  <bullet bulletName="stormPosition" bulletText="* Thunderstorm(s): use dot to specify initial position *" bulletGroup="event" parseString="LOCATED"/> -->
   <bullet bulletText="*********** RAIN AMOUNT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS ALREADY FALLEN"/>
   <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE ALREADY FALLEN"/>
@@ -130,14 +107,13 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast"/>
-<!--  <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX is expected" parseString="ADDITIONAL RAINFALL AMOUNTS OF"/>
-  <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="specificStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (CHOOSE 1 OR MORE) ******" bulletType="title"/>
   <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS FLOODING IS OCCURRING"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS...HIGHWAYS...STREETS"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS"/>
   <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>  <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
   <bullet bulletName="nightCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
@@ -177,23 +153,23 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
   <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;REPORTED FLOODING&quot;"/>
   <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event"/>
-<!--  <bullet bulletName="stormPosition" bulletText="* Thunderstorm(s): use dot to specify initial position *" bulletGroup="event" parseString="LOCATED"/> -->
   <bullet bulletText="*********** RAIN AMOUNT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS ALREADY FALLEN"/>
   <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
-<!--  <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" showString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
-  <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (CHOOSE 1 OR MORE) ******" bulletType="title"/>
   <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS FLOODING IS OCCURRING"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS...HIGHWAYS...STREETS"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS"/>
   <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>  
   <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
   <bullet bulletName="nightCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT"/>
@@ -234,23 +210,23 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
   <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;REPORTED FLOODING&quot;"/>
   <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event"/>
-<!--  <bullet bulletName="stormPosition" bulletText="* Thunderstorm(s): use dot to specify initial position *" bulletGroup="event" parseString="LOCATED"/> -->
   <bullet bulletText="*********** RAIN AMOUNT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS ALREADY FALLEN"/>
   <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
-<!--  <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" showString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
-  <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (CHOOSE 1 OR MORE) ******" bulletType="title"/>
   <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS FLOODING IS OCCURRING"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS...HIGHWAYS...STREETS"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS"/>
   <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>
   <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
   <bullet bulletName="nightCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT"/>
@@ -263,6 +239,118 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
 </bulletActionGroup>
 </bulletActionGroups> 
 
+<trackEnabled>false</trackEnabled>
+
+ <!-- areaSource object to generate county-based information -->
+ <areaSource variable="areas">
+   <areaSource>County</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>COUNTYNAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>FIPS</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+</areaSource>
+ 
+ <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>30</maxResults>
+ 	<distanceThreshold>200</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3,4" constraintType="IN" />
+ 	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  	  
+ 	</filter>  	
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <!-- Required, but unused in this template  -->
+ <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>30</maxResults>
+ 	<distanceThreshold>200</distanceThreshold>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3,4" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L" constraintType="IN" />
+ 	  </mapping> 		
+  	</filter> 	
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template
+-->
+<include file="mileMarkers.xml"/>
+
+
+ <!-- Required, but unused in this template  -->
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <type>AREA</type>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L" constraintType="IN" />
+ 	  </mapping> 		
+  </filter>  
+ </pathcastConfig>
+ 
+ <geospatialConfig>
+  <pointSource>WarnGenLoc</pointSource>
+  <areaSource>County</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
  <pointSource variable="riverdrainages">
  	<pointSource>ffmp_basins</pointSource>
     <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
@@ -273,6 +361,6 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
  		</mapping>
  	</filter>
  	<withinPolygon>true</withinPolygon>
- </pointSource>
+ </pointSource> 
 
 </warngenConfig>

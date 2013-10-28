@@ -18,7 +18,6 @@ FINT=70;90;95
 FLINE=0;24;23;22
 HILO=0
 HLSYM=0
-CLRBAR=1
 WIND=
 TITLE=1/-1/~ @ RH, near-0 TEMPERATURES (BL yel, 850 red, 700 cyan)!0
 COLORS=2                                                                       

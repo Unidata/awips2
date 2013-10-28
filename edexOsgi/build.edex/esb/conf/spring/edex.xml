@@ -40,19 +40,8 @@
        <property name="taskExecutor" ref="genericThreadPool" />
 	</bean>
 
-    <bean id="jms-durable" class="org.apache.camel.component.jms.JmsComponent">
-       <constructor-arg ref="jmsDurableConfig" />
-       <property name="taskExecutor" ref="genericThreadPool" />
-    </bean>
-
 	<bean id="jmsGenericConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy"/>
-
-    <bean id="jmsDurableConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsConfig" factory-method="copy">
-        <property name="destinationResolver" ref="qpidDurableResolver" />
-        <property name="deliveryPersistent" value="true"/>
-    </bean>
+			factory-bean="jmsConfig" factory-method="copy" />
 
 	<bean id="qpidNoDurableResolver" class="com.raytheon.uf.edex.esb.camel.spring.QpidDestinationNameResolver">
 	    <property name="queueNamePrefix" value="direct://amq.direct/"/>
@@ -82,7 +71,6 @@
 		<property name="templateConnectionFactory" ref="jmsPooledConnectionFactory" />
 		<property name="destinationResolver" ref="qpidNoDurableResolver" />
 		<property name="disableReplyTo" value="true" />
-		<property name="deliveryPersistent" value="false"/>
 		<!--
 		<property name="transacted" value="true" />
 		<property name="acknowledgementModeName" value="TRANSACTED"/>
@@ -265,14 +253,14 @@
 		<route id="alertVizNotify">
 			<from uri="vm:edex.alertVizNotification" />
 			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:topic:edex.alerts.msg" />
+			<to uri="jms-generic:topic:edex.alerts.msg?deliveryPersistent=false" />
 		</route>
 
 		<!-- Route to send text products to alarm/alert -->
 		<route id="alarmAlertNotify">
 			<from uri="vm:edex.alarmAlertNotification" />
 			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:topic:edex.alarms.msg" />
+			<to uri="jms-generic:topic:edex.alarms.msg?deliveryPersistent=false" />
 		</route>
 
         <!-- Route to periodically close any unused jms resources that have been pooled -->
