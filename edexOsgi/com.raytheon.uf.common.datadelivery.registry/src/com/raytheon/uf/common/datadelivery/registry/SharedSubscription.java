@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 15, 2013 1040       mpduff      Added addOfficeId.
  * May 29, 2013 1650       djohnson    Add setOwner() so reflection works.
  * Sept 30, 2013 1797      dhladky     Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * 
  * </pre>
  * 
@@ -49,7 +50,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlAccessorType(XmlAccessType.NONE)
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
-        Subscription.OWNER_SLOT })
+        Subscription.OWNER_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT})
 @DynamicSerialize
 public class SharedSubscription<T extends Time, C extends Coverage> extends RecurringSubscription<T, C> {
 
