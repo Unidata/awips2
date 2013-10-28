@@ -66,7 +66,6 @@
 	<alias base="HCY">HCLY</alias>
 	<alias base="HSCLW">HTSLW</alias>
 	<alias base="HTFL">FRZH</alias> 
-	<alias base="HTFL">HTFL</alias>
 	<alias base="HTGL">HGHT</alias>
 	<alias base="HTSLW">HTSLW</alias>
 	<alias base="HYB">HYBL</alias>

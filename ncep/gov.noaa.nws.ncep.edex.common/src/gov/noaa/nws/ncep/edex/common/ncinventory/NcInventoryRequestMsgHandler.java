@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  *  04/13/12      #606       Greg Hull   add dumpInventory()
  *  05/18/12      #606       Greg Hull   add directory and summary
  *  11/15/12      #950       Greg Hull   Don't treat empty inventory as an error.
+ *  08/18/13      #1031      Greg Hull   allow for requesting specific multiple parameters
  * 
  * </pre>
  * 
@@ -73,6 +75,10 @@ public class NcInventoryRequestMsgHandler implements IRequestHandler<NcInventory
 		}
 	}
 	
+	// NOTE : This assumes that the caller has already determined that this inventory
+	// will support the requested query. Mainly that there is not a base constraint on the inventory
+	// that is stricter than a constraint in the query.
+	//
 	public String[] handleQueryRequest( NcInventoryRequestMsg queryRequest) throws Exception {
 
 		String inventoryName = queryRequest.getInventoryName();
@@ -85,10 +91,75 @@ public class NcInventoryRequestMsgHandler implements IRequestHandler<NcInventory
 			throw new Exception( errStr );
 		}
 
-		String invContents[] = inv.search( 
-				queryRequest.getReqConstraintsMap(), queryRequest.getRequestedParam() );
+		NcInventoryDefinition invDefn = inv.getInventoryDefinition();
+		ArrayList<String>     invParamNames = invDefn.getInventoryParameters();
+		
+		// determine which requested parameter is last in the list and set it as the search param
+		String searchParam = "";
+		int    searchParamIndx = -1;
+		String requestedParamsStr ="";
+		
+		String[] reqParams;
+		
+		if( queryRequest.getRequestedParams() == null ||
+			queryRequest.getRequestedParams().length == 0 ) {
+			
+			queryRequest.setRequestedParams( invParamNames.toArray( new String[0] ) );						 
+		}
+		
+		reqParams= queryRequest.getRequestedParams();
+		
+		int    numReqParams = reqParams.length;
+		Integer reqParamIndexes[] = new Integer[ numReqParams ];
 
-		return invContents;
+		// loop thru the requested parameters; validate and get the indexes used to get the value
+		// from the queried results
+		//
+		for( int r=0 ; r<numReqParams ; r++ ) {
+			String reqPrm = reqParams[r];//queryRequest.getRequestedParams()[r];
+			reqParamIndexes[r] = inv.getInventoryDefinition().getInventoryParameters().indexOf( reqPrm ); 
+			requestedParamsStr = requestedParamsStr+" "+reqPrm; 
+
+			if( reqParamIndexes[r] == -1 ) {
+				System.out.println("NcInventory: Warning Inv "+inventoryName+" requested parameter is not in the inventory");
+				continue;
+			}
+
+			if( searchParam.isEmpty() || searchParamIndx < reqParamIndexes[r] ) {
+				searchParam = reqPrm;
+				searchParamIndx = reqParamIndexes[r];
+			}
+		}
+		
+		if( searchParam.isEmpty() ) {
+			String errStr = "Error requesting NcInventory data. NcInventory "+
+				inventoryName+"doesn't doesn't store the requested params: "+ requestedParamsStr ;
+			throw new Exception( errStr );
+		}
+		
+		List<String[]> invContents = inv.search( 
+				queryRequest.getReqConstraintsMap(), searchParam ); 
+		
+		List<String> retValues = new ArrayList<String>();
+		
+		// 
+		for( String[] rslt : invContents ) {
+			// if only 1 req'd param then no delimiters 
+			StringBuffer sBuf = new StringBuffer( rslt[ reqParamIndexes[0] ] );
+			
+			for( int reqIndxIndx=1 ; reqIndxIndx<reqParamIndexes.length ; reqIndxIndx++ ) {
+				sBuf.append( File.separator + 
+						     rslt[ reqParamIndexes[ reqIndxIndx ] ] );
+			}
+			
+			if( !queryRequest.getUniqueValues() ||
+				!retValues.contains( sBuf.toString() ) ) {
+				retValues.add( sBuf.toString() );
+			}
+		}
+
+		return retValues.toArray( new String[0] );
+//		return invContents;
 	}
 
 	private Object handleDumpRequest( NcInventoryRequestMsg dumpRequest ) throws Exception {
@@ -155,14 +226,14 @@ public class NcInventoryRequestMsgHandler implements IRequestHandler<NcInventory
 		NcInventory inv = NcInventory.getInventory( inventoryName );
 
 		if( inv == null ) {
-			String errStr = "Error requesting NcInventory Summary. NcInventory "+
+			String errStr = "NcInventory: Error requesting NcInventory Summary. "+
 				inventoryName+" has not been created on "+InetAddress.getLocalHost().getHostName();
 			throw new Exception( errStr );
 		}
 		String summaryStr = inv.getInventoryDefinition().toString()+
 					"\n"+inv.getBranchCount() + " Entries stored in "+
 					inv.getNodeCount()+" Nodes\n"+
-					"Initialized at "+new Date(inv.getLastLoadTime()).toString();
+					"Initialized at "+new Date(inv.getLastLoadTime()).toString() + " On Host "+InetAddress.getLocalHost().getHostName();
 		return summaryStr;
 	}
 }

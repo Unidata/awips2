@@ -50,8 +50,8 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotificati
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -81,7 +81,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Apr 01, 2013      #1774 randerso     Moved wind component checking to GfeIngestNotificaionFilter
  * Apr 04, 2013      #1787 randerso     Added null check to prevent log spamming for parameters
  *                                      not included in the parameter info file
- * May 2, 2013       #1969 randerso     Updated for change to DBInvChangeNotification
+ * May 02, 2013      #1969 randerso     Updated for change to DBInvChangeNotification
+ * Sep 03, 2013      #2321 randerso     Fixed smartInits for D2D accumulative parameters
  * 
  * </pre>
  * 
@@ -240,9 +241,10 @@ public class GfeIngestNotificationFilter {
                         initNameBuilder.append('_');
                         initNameBuilder.append(dbId.getModelTime());
 
+                        Date validTime = grid.getDataTime().getValidTime()
+                                .getTime();
                         SmartInitRecordPK id = new SmartInitRecordPK(
-                                initNameBuilder.toString(), grid.getDataTime()
-                                        .getValidPeriod().getStart());
+                                initNameBuilder.toString(), validTime);
 
                         SmartInitRecord record = inits.get(id);
                         if (record == null) {
