@@ -9,7 +9,7 @@
 	<bean id="textlightningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="textlightning" />
-		<constructor-arg value="jms-dist:queue:Ingest.textlightning"/>
+		<constructor-arg value="jms-dist:queue:Ingest.textlightning?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
     <bean id="textlightningCamelRegistered" factory-bean="contextManager"
@@ -31,13 +31,13 @@
 			<setHeader headerName="pluginName">
 				<constant>textlightning</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.textlightning" />
+			<to uri="jms-generic:queue:Ingest.textlightning" />
 		</route>
 		-->
 
 		<!-- Begin textlightning routes -->
 		<route id="textlightningIngestRoute">
-			<from uri="jms-durable:queue:Ingest.textlightning"/>
+			<from uri="jms-generic:queue:Ingest.textlightning?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>textlightning</constant>
 			</setHeader>

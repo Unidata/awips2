@@ -446,15 +446,12 @@ public class TileSetRenderable implements IRenderable {
             TileLevel level = tileSet.getTileLevel(lastPaintedLevel);
             double[] grid = level.crsToGrid(localX, localY);
             Tile tile = level.getTile(grid[0], grid[1]);
-            if (tile != null) {
-                DrawableImage di = imageMap.get(tile);
-                if (di != null) {
-                    IImage image = di.getImage();
-                    if (image instanceof IColormappedImage) {
-                        return ((IColormappedImage) image).getValue(
-                                (int) grid[0] % tileSize, (int) grid[1]
-                                        % tileSize);
-                    }
+            DrawableImage di = imageMap.get(tile);
+            if (di != null) {
+                IImage image = di.getImage();
+                if (image instanceof IColormappedImage) {
+                    return ((IColormappedImage) image).getValue((int) grid[0]
+                            % tileSize, (int) grid[1] % tileSize);
                 }
             }
         } catch (TransformException e) {

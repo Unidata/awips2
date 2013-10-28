@@ -66,7 +66,7 @@
                      plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="SCVR_TYPE" 
                      prioritySelectTable="cloud_select.txt"
-                     plotLookupTable="pgen_skyc.txt" />
+                     plotLookupTable="cloud_chars.txt" />
 
  <PlotParameterDefn  plotParamName="SKYCHAR" metParamName="SkyCoverage" 
                      plotMode="text" dbParamName="SCVR_TYPE" 
@@ -77,7 +77,7 @@
                      plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="PROBABLE_SCVR_TYPE" 
                      prioritySelectTable="cloud_select.txt"
-                     plotLookupTable="pgen_skyc.txt" />
+                     plotLookupTable="cloud_chars.txt" />
  
  <PlotParameterDefn  plotParamName="CEIL" metParamName="CeilingFromSurface" dbParamName="CEILING" plotUnit="hecto_ft" plotFormat="%3.0f"/>
  <PlotParameterDefn  plotParamName="CMSL" metParamName="CeilingFromSeaLevel" deriveParams="CeilingFromSurface,StationElevation" plotUnit="hecto_ft" plotFormat="%3.0f"/>

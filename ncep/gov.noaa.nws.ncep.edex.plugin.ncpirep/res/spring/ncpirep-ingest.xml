@@ -40,13 +40,13 @@
             <setHeader headerName="pluginName">
                 <constant>ncpirep</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.ncpirep"/>
+            <to uri="jms-generic:queue:Ingest.ncpirep"/>
         </route>
         <!-- End of section to allow use of sbn -->
         
         <!-- Begin ncpirep routes -->
         <route id="ncpirepIngestRoute">
-            <from uri="jms-durable:queue:Ingest.ncpirep"/>
+            <from uri="jms-generic:queue:Ingest.ncpirep"/>
             <setHeader headerName="pluginName">
                 <constant>ncpirep</constant>
             </setHeader>

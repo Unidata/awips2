@@ -188,7 +188,6 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     updated AreaHatcher's run().
  * 07/26/2013  DR 16450    D. Friedman Fix logic errors when frame count is one.
  * 08/19/2013   2177       jsanchez    Set a GeneralGridGeometry object in the GeospatialDataList.
- * 09/17/2013  DR 16496    D. Friedman Make editable state more consistent.
  * </pre>
  * 
  * @author mschenke
@@ -3011,7 +3010,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 final boolean editable = isEditable();
                 boxEditable = editable;
                 displayState.editable = editable;
-                dialog.realizeEditableState();
+                if (editable) {
+                    boxEditable = dialog.boxEditable();
+                    displayState.editable = dialog.trackEditable();
+                }
                 final WarngenDialog dlg = dialog;
                 dialog.getDisplay().asyncExec(new Runnable() {
                     @Override

@@ -49,7 +49,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Sep 27, 2012 1149       jsanchez    Refactored methods from AbstractWarningsResource into this class.
  * May 06, 2013 1930       bsteffen    Check for null in WatchesResource.
  * May 10, 2013 1951       rjpeter     Updated ugcZones references
- * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
  * </pre>
  * 
  * @author jsanchez
@@ -140,10 +139,6 @@ public class WatchesResource extends AbstractWWAResource {
         entryMap.clear();
         if (warningsFont != null) {
             warningsFont.dispose();
-        }
-
-        if (emergencyFont != null) {
-            emergencyFont.dispose();
         }
     }
 

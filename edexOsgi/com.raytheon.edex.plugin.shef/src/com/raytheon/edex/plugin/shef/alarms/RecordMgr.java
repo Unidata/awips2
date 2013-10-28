@@ -41,7 +41,6 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
- * Sep  05, 2013    16549    wkwock      Fix the query
  * 
  * 
  * </pre>
@@ -148,7 +147,7 @@ class RecordMgr {
 
     private static String modeSubClause() {
         if (options.getMode() == ReportMode.UNREPORTED)
-            return " AND action_time IS NULL ";
+            return " AND action_time IS NULL AND ";
         else
             return " ";
     }

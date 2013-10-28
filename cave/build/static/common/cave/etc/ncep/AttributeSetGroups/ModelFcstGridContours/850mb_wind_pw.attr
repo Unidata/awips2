@@ -19,7 +19,6 @@ FINT=!0.5;1.0;1.5;2.0
 FLINE=!0;23;22;21;2
 HILO=0
 HLSYM=0
-CLRBAR=0             !1/V/LL
 WIND=9/0.8/2/112
 TITLE=1/-1/~ 850mb WIND (KTS) and PRECIPITABLE WATER
 COLORS=2                                                                       
