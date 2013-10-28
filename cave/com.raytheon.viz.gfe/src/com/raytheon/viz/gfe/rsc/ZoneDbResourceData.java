@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -37,9 +38,23 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.gfe.rsc.zones.ZoneDbResource;
 
 /**
- * @author wldougher
  * 
+ * Resource data for Zones in the database.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
+ * 
+ * </pre>
+ * 
+ * @author wldougher
+ * @version 1.0
  */
+@XmlTransient
 public class ZoneDbResourceData extends AbstractResourceData {
 
     public static final RGB DEFAULT_BACKGROUND_COLOR = new RGB(50, 50, 50);

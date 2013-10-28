@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -31,23 +33,23 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.hydrocommon.data.ArealData;
 
 /**
- * Displays the Areal FFG Data from the Contingency Value table
- * in IHFS.
+ * Displays the Areal FFG Data from the Contingency Value table in IHFS.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 22, 2011            mpduff     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 22, 2011           mpduff      Initial creation
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
+@XmlTransient
 public class ArealFfgResourceData extends AbstractResourceData {
     /** List of ArealData objects */
     private List<ArealData> arealDataList = new ArrayList<ArealData>();
