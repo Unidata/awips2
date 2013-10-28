@@ -212,14 +212,14 @@ public abstract class MonitorConfigurationManager {
             if (!adjacentAreaFileExists) {
                 AdjacentWfoMgr adjMgr = new AdjacentWfoMgr(currentSite);
                 List<String> zones = adjMgr.getAdjZones();
-                if (!zones.isEmpty()) {
+                if (zones.isEmpty()) {
                     for (String zone : zones) {
                         AreaIdXML zoneXml = new AreaIdXML();
                         zoneXml.setAreaId(zone);
                         zoneXml.setType(ZoneType.REGULAR);
                         List<StationIdXML> stations = MonitorAreaUtils
                                 .getZoneReportingStationXMLs(zone);
-                        if (!stations.isEmpty()) {
+                        if (stations.isEmpty()) {
                             for (StationIdXML station : stations) {
                                 zoneXml.addStationIdXml(station);
                             }
