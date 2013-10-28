@@ -48,6 +48,7 @@ import com.raytheon.viz.core.ColorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2013       1638 mschenke    Renamed to better represent purpose
+ * Aug 29, 2103 DR 16550   D. Friedman Fix reflection constructor args
  * 
  * </pre>
  * 
@@ -101,7 +102,7 @@ public class GenericToolsResourceData<T extends AbstractVizResource<?, ?>>
     public T construct(LoadProperties loadProperties, IDescriptor descriptor)
             throws VizException {
         try {
-            Class<?>[] ctorParams = new Class<?>[] { this.getClass(),
+            Class<?>[] ctorParams = new Class<?>[] { GenericToolsResourceData.class,
                     LoadProperties.class };
             Object[] ctorArgs = new Object[] { this, loadProperties };
 
@@ -110,7 +111,7 @@ public class GenericToolsResourceData<T extends AbstractVizResource<?, ?>>
                 ctor = classT.getConstructor(ctorParams);
             } catch (NoSuchMethodException e) {
                 // check for ctor with additional descriptor parameter
-                ctorParams = new Class<?>[] { this.getClass(),
+                ctorParams = new Class<?>[] { GenericToolsResourceData.class,
                         LoadProperties.class, MapDescriptor.class };
                 ctorArgs = new Object[] { this, loadProperties, descriptor };
                 ctor = classT.getConstructor(ctorParams);

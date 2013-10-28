@@ -58,10 +58,15 @@ public class ManageNcInventoryMsgHandler implements IRequestHandler<ManageNcInve
 			NcInventory inv = NcInventory.getInventory( mngrMsg.getInventoryName() );
 
 			if( inv == null ) {
+				System.out.println("NcInventory: REINIT_INVENTORY_DIRECTIVE : "+
+						mngrMsg.getInventoryName()+" has not been created." );
 				return "Inventory " + mngrMsg.getInventoryName()+" has not been created.";
 			}
 			else if( mngrMsg.getInventoryDefinition() != null ) {
 				if( !inv.getInventoryDefinition().equals( mngrMsg.getInventoryDefinition() ) ) {
+					System.out.println("NcInventory: REINIT_INVENTORY_DIRECTIVE ???Existing inventory "+mngrMsg.getInventoryName()+
+						    " has different description than that given in the ReInit msg???" );
+
 					return "???Existing inventory "+mngrMsg.getInventoryName()+
 					    " has different description than that given in the ReInit msg???";
 				}
@@ -75,6 +80,8 @@ public class ManageNcInventoryMsgHandler implements IRequestHandler<ManageNcInve
 			return deleteInventory( mngrMsg );
 		}
 		else {
+			System.out.println("NcInventory: Manage Inventory Request : Unrecognized NcInventory Directive, "+
+		          directive );
 			return (Object)"Unrecognized NcInventory Directive";
 		}
 	}
@@ -97,10 +104,17 @@ public class ManageNcInventoryMsgHandler implements IRequestHandler<ManageNcInve
 			freader.read(xmlStr);
 			freader.close();
 
+			try {
 			EDEXUtil.getMessageProducer().sendAsyncUri( MANAGE_INVENTORY_TOPIC,
 				( reload ? ManageNcInventoryMsg.REINIT_INVENTORY_DIRECTIVE :
 						   ManageNcInventoryMsg.CREATE_INVENTORY_DIRECTIVE ) 
 						          		+ new String(xmlStr) );
+			}
+			catch ( EdexException ee ) {
+				System.out.println("NcInventory: initInventory; error sending async msg to topic"+
+						MANAGE_INVENTORY_TOPIC );
+				throw ee;
+			}
 			
 			if( !tmpFile.delete() ) {
 				System.out.println("Error deleting temp file:"+tmpFile.getName());

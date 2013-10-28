@@ -10,7 +10,7 @@
 	<bean id="acarsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="acarsPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.acars?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.acars"/>
 	</bean>
 	
 	<bean id="acarsCamelRegistered" factory-bean="contextManager"
@@ -33,13 +33,13 @@
 			<setHeader headerName="pluginName">
 				<constant>acars</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.acars" />
+			<to uri="jms-durable:queue:Ingest.acars" />
 		</route>
         -->
 
 		<!-- Begin ACARS routes -->
 		<route id="acarsIngestRoute">
-			<from uri="jms-generic:queue:Ingest.acars?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.acars"/>
 			<setHeader headerName="pluginName">
 				<constant>acars</constant>
 			</setHeader>

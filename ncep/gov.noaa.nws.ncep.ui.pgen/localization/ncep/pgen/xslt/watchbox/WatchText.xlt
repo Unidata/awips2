@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:import href="fmtDateTime.xlt"/>
 <xsl:output method = "text"/>
 
 <!--
@@ -30,15 +31,21 @@
 
 	<xsl:value-of select="$newline"/>
         <xsl:text>ISSUE TIME:         </xsl:text>
-        <xsl:value-of select="@issueTime"/>
+		<xsl:call-template name="fmtDateTime">
+         	<xsl:with-param name="date" select="'X'"/>
+    	</xsl:call-template>
 
 	<xsl:value-of select="$newline"/>
         <xsl:text>VALID TIME:         </xsl:text>
-        <xsl:value-of select="@issueTime"/>
+        <xsl:call-template name="fmtDateTime">
+         	<xsl:with-param name="date" select="'X'"/>
+    	</xsl:call-template>
 
 	<xsl:value-of select="$newline"/>
         <xsl:text>EXPIRATION TIME:    </xsl:text>
-        <xsl:value-of select="@expTime"/>
+        <xsl:call-template name="fmtDateTime">
+         	<xsl:with-param name="date" select="@expTime"/>
+    	</xsl:call-template>
 
 	<xsl:value-of select="$newline"/>
         <xsl:text>ENDPOINT (ANC,sm):  </xsl:text>

@@ -62,7 +62,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
- *  July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
+ * July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
+ * Sep  05, 2013   16539     wkwock      Fix RECENT, NEAR_NOW,FRESH,and NEW_OR_INCREASED modes 
  * 
  * </pre>
  * 
@@ -84,8 +85,6 @@ class ReportWriter {
 
     private Date now;
 
-    private long window;
-
     private Date startTime;
 
     private Date endTime;
@@ -102,10 +101,12 @@ class ReportWriter {
         this.reportData = new StringBuilder();
         this.opt = opt;
         this.now = now;
-        window = opt.getMinutes() * 60;
-        startTime = new Date(now.getTime() - window);
-        endTime = new Date(now.getTime() + window);
-       
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, opt.getMinutes());
+        endTime = cal.getTime();
+        cal.add(Calendar.MINUTE, opt.getMinutes()*(-2));
+        startTime = cal.getTime();
+
     }
     
 
@@ -376,8 +377,6 @@ class ReportWriter {
 
         Alertalarmval maxfcst = findMaxfcst(grpData);
         Alertalarmval latestReport = findLatestAction(grpData);
-        long latestActiontime = 0;
-        long latestPosttime = 0;
         Date posttime = null;
         double latestValue = -88888.;
 
@@ -448,6 +447,17 @@ class ReportWriter {
             }
             break;
 
+        case RECENT:
+            for (Alertalarmval aav : grpData) {
+                Date postingTime = aav.getPostingtime();
+                if (postingTime.after(startTime)) {
+                    writeAAval(aav);
+                    updateDatabase(aav);
+                    alarmCount++;
+                }
+            }
+        	break;
+
         case LATEST_MAXFCST:
 
             if (grpTs0 == 'R' || grpTs0 == 'P') {
@@ -471,11 +481,13 @@ class ReportWriter {
              */
             for (Alertalarmval aav : grpData) {
 
-                if ((grpTs0 == 'R' || grpTs0 == 'P') && latestReport != null) {
+                if ((grpTs0 == 'R' || grpTs0 == 'P')) {
                     Date validtime = aav.getId().getValidtime();
-                    latestActiontime = latestReport.getId().getValidtime()
-                            .getTime();
-                    if (validtime.after(new Date(latestActiontime + window))) {
+                    Calendar cal = Calendar.getInstance();
+                    if (latestReport != null)
+                    	cal.setTime(latestReport.getId().getValidtime());
+                    cal.add(Calendar.MINUTE, opt.getMinutes());
+                    if (latestReport==null || validtime.after(cal.getTime())) {
                         writeAAval(aav);
                         updateDatabase(aav);
                         alarmCount++;
@@ -485,9 +497,7 @@ class ReportWriter {
                 if (grpTs0 == 'F' || grpTs0 == 'C') {
                     if (maxfcst != null
                             && isNotNull(maxfcst.getActionTime().getTime())) {
-                        latestActiontime = maxfcst.getActionTime().getTime();
-                        Date latestActiondate = maxfcst.getActionTime();
-                        if (latestActiondate.before(startTime)) {
+                        if (maxfcst.getActionTime().before(startTime)) {
                             writeAAval(maxfcst);
                             updateDatabase(maxfcst);
                             alarmCount++;
@@ -498,10 +508,13 @@ class ReportWriter {
             break;
 
         case NEW_OR_INCREASED:
+        	Calendar cal = Calendar.getInstance();
             for (Alertalarmval aav : grpData) {
                 if (latestReport != null) {
-                    latestPosttime = aav.getPostingtime().getTime();
-                    latestValue = aav.getValue();
+                    latestValue = latestReport.getValue();
+                    cal.setTime(latestReport.getPostingtime());
+                } else {
+                	cal.setTimeInMillis(0);
                 }
 
                 if (isNull(aav.getActionTime().getTime())) {
@@ -512,8 +525,9 @@ class ReportWriter {
                      * has a higher value than the last posted record's value
                      * (i.e. the report is 'increased'), then report it.
                      */
+                    cal.add(Calendar.MINUTE, opt.getMinutes());
 
-                    if (posttime.after(new Date(latestPosttime + window))
+                   if (posttime.after(cal.getTime())
                             || (aav.getValue() > latestValue)) {
                         writeAAval(aav);
                         updateDatabase(aav);
@@ -553,8 +567,6 @@ class ReportWriter {
 
         Alertalarmval latestReport = findLatestAction(grpData);
         Alertalarmval maxfcstVal = findMaxfcst(grpData);
-        long latestActiontime = 0;
-        long latestPosttime = 0;
         Date posttime = null;
         double latestValue = -88888.;
 
@@ -579,18 +591,21 @@ class ReportWriter {
                  * forecast value
                  */
 
-                if ((ts0 == 'R' || ts0 == 'P') && latestReport != null) {
-                    Date validtime = aav.getId().getValidtime();
-                    latestActiontime = latestReport.getId().getValidtime()
-                            .getTime();
-                    if (validtime.after(new Date(latestActiontime + window)))
+                if ((ts0 == 'R' || ts0 == 'P') ) {
+                	if (latestReport == null)
+                		return true;
+
+                	Date validtime = aav.getId().getValidtime();
+                    Calendar cal = Calendar.getInstance();
+                   	cal.setTime(latestReport.getId().getValidtime());
+                    cal.add(Calendar.MINUTE, opt.getMinutes());
+                    if (validtime.after(cal.getTime()))
                         return true;
                 }
 
                 if (ts0 == 'F' || ts0 == 'C') {
                     if (maxfcstVal != null
                             && isNotNull(maxfcstVal.getActionTime().getTime())) {
-                        latestActiontime = maxfcstVal.getActionTime().getTime();
                         Date latestActiondate = maxfcstVal.getActionTime();
                         if (latestActiondate.before(startTime))
                             return true;
@@ -600,9 +615,12 @@ class ReportWriter {
 
             case NEW_OR_INCREASED:
                 /* get the last reported record and its time and value. */
+            	Calendar cal = Calendar.getInstance();
                 if (latestReport != null) {
-                    latestPosttime = aav.getPostingtime().getTime();
-                    latestValue = aav.getValue();
+                    latestValue = latestReport.getValue();
+                    cal.setTime(latestReport.getPostingtime());
+                } else {
+                	cal.setTimeInMillis(0);
                 }
 
                 if (isNull(aav.getActionTime().getTime())) {
@@ -613,8 +631,9 @@ class ReportWriter {
                      * has a higher value than the last posted record's value
                      * (i.e. the report is 'increased'), then report it.
                      */
+                    cal.add(Calendar.MINUTE, opt.getMinutes());
 
-                    if (posttime.after(new Date(latestPosttime + window))) {
+                    if (posttime.after(cal.getTime())) {
                         return true;
                     } else if (aav.getValue() > latestValue) {
                         return true;
@@ -682,10 +701,12 @@ class ReportWriter {
         short dur = aav.getId().getDur();
         if (dur != 0) {
             Object[] durData = getShefDurInfo(dur);
-            if (durData == null)
+            if (durData == null) 
                 devbStr[0] = "Duration=" + dur;
-            else
-                devbStr[0] = (String) durData[2] + Constants.SPACE;
+            else {
+                Object[] aDurData = (Object[]) durData[0]
+;                devbStr[0] = (String) aDurData[2] + Constants.SPACE;
+            }
 
         } else {
             devbStr[0] = Constants.SPACE;
@@ -837,9 +858,10 @@ class ReportWriter {
     private Alertalarmval findLatestAction(List<Alertalarmval> grpData) {
         TreeSet<Alertalarmval> actions = new TreeSet<Alertalarmval>(
                 new ActiontimeComparator());
-        for (Alertalarmval aav : grpData)
+        for (Alertalarmval aav : grpData) {
             if (isNotNull(aav.getActionTime().getTime()))
                 actions.add(aav);
+        }
         return actions.isEmpty() ? null : actions.first();
     }
 
@@ -986,7 +1008,7 @@ class ReportWriter {
                             flushDataLimitsObj(limits);
                             dateWithin = checkDateRange(validtime, mds, mde);
                             if (dateWithin) {
-                                copyThresholds(limits, limRow, !locRangeFound);
+                                copyThresholds(limits, limRow, locRangeFound);
                                 break;
                             }
                         }
@@ -1148,7 +1170,7 @@ class ReportWriter {
     public static boolean isNull(long value) {
         boolean result = false;
 
-        if (value == getNullLong()) {
+        if (value == getNullLong() || value==0) {
             result = true;
         }
 
