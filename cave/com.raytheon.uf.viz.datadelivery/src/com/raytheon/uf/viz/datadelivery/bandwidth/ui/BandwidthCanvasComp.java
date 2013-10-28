@@ -47,6 +47,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -61,6 +62,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Slider;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -71,6 +73,8 @@ import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.CanvasImages;
+import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.GraphSection;
+import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.GraphType;
 import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.SortBy;
 import com.raytheon.uf.viz.datadelivery.common.ui.IDialogClosed;
 import com.raytheon.uf.viz.datadelivery.common.ui.SubscriptionViewer;
@@ -78,9 +82,10 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
  * 
- * This class contains all of the canvases for graphing data. There are Graph ,
- * X Label, Y Label, X Header, and Y Header canvases on the display. The Graph,
- * X Label, and Y Label canvases can be zoomed and panned.
+ * This class contains all of the canvases for graphing data. There are
+ * Subscription Graph, Bandwidth Graph, X Label, Y Label, X Header, and Y Header
+ * canvases on the display. The Graph, X Label, and Y Label canvases can be
+ * zoomed and panned.
  * 
  * <pre>
  * 
@@ -92,7 +97,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
  * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
  * Jan 28, 2013   1529     djohnson    Disable menu items if no subscriptions selected.
- * 
+ * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * </pre>
  * 
  * @author lvenable
@@ -104,6 +109,8 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
     /** UFStatus handler. */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthCanvasComp.class);
+
+    private final int MISSING = -999;
 
     /** Parent composite */
     private final Composite parentComp;
@@ -165,12 +172,18 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
     /** Counts the minutes until the next full update. */
     private int fullUpdateMinuteCount = 0;
 
+    /** Vertical line marking the mouse pointer's location */
+    private int mouseMarker;
+
+    /** Bandwidth popup menu */
+    private Menu bandwidthPopupMenu;
+
     /**
      * Constructor.
      * 
      * @param parentComp
      *            Parent composite.
-     * @param bgd
+     * @param graphDataUtil
      *            Bandwidth graph data object
      */
     public BandwidthCanvasComp(Composite parentComp, GraphDataUtil graphDataUtil) {
@@ -212,15 +225,27 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         this.setLayoutData(gd);
 
         createFillerSpace(2);
+        createUtilizationHeaderCanvas();
+        createFillerSpace(1);
+
+        createFillerSpace(1);
+        createUtilizationLabelCanvas();
+        createUtilizationGraphCanvas();
+        createFillerSpace(1);
+
+        createFillerSpace(2);
         createXHeaderCanvas();
         createFillerSpace(1);
+
         createYHeaderCanvas();
         createYLabelCanvas();
         createGraphCanvas();
         createVerticalSlider();
+
         createFillerSpace(2);
         createXLabelCanvas();
         createFillerSpace(1);
+
         createFillerSpace(2);
         createHorizontalSlider();
         createFillerSpace(1);
@@ -315,6 +340,18 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         // Create the y header canvas settings
         cs = new CanvasSettings(35, heightWithBuffer, 35, 440, 0, 0);
         canvasSettingsMap.put(CanvasImages.Y_HEADER, cs);
+
+        // Create the bandwidth utilization header settings
+        cs = new CanvasSettings(140, 60, 140, 0, 20, 0);
+        canvasSettingsMap.put(CanvasImages.UTILIZATION_LABEL, cs);
+
+        // Create the bandwidth utilization graph settings
+        cs = new CanvasSettings(740, 60, graphSize.x, 100, xSpaceBuffer, 0);
+        canvasSettingsMap.put(CanvasImages.UTILIZATION_GRAPH, cs);
+
+        // Create the Utilization header canvas settings
+        cs = new CanvasSettings(740, 40, 740, 40, xSpaceBuffer, 0);
+        canvasSettingsMap.put(CanvasImages.UTILIZATION_HEADER, cs);
     }
 
     /**
@@ -363,6 +400,124 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         Label spaceLbl = new Label(this, SWT.NONE);
         spaceLbl.setLayoutData(gd);
         spaceLbl.setVisible(false);
+    }
+
+    /**
+     * Create the utilization graph header canvas.
+     */
+    private void createUtilizationHeaderCanvas() {
+        Canvas canvas = new Canvas(this, SWT.DOUBLE_BUFFERED);
+        CanvasSettings cs = canvasSettingsMap
+                .get(CanvasImages.UTILIZATION_HEADER);
+
+        GridData gd = new GridData(cs.getCanvasWidth(), cs.getCanvasHeight());
+        canvas.setLayoutData(gd);
+
+        canvas.addPaintListener(new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e) {
+                drawUtilizationHeaderCanvas(e.gc);
+            }
+        });
+
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                if (e.button == 1) {
+                    handleUtilizationHeaderMouseEvent(e);
+                }
+            }
+        });
+
+        canvasMap.put(CanvasImages.UTILIZATION_HEADER, canvas);
+    }
+
+    /**
+     * Create the utilization graph's label canvas.
+     */
+    private void createUtilizationLabelCanvas() {
+        Canvas canvas = new Canvas(this, SWT.DOUBLE_BUFFERED);
+        CanvasSettings cs = canvasSettingsMap
+                .get(CanvasImages.UTILIZATION_LABEL);
+
+        GridData gd = new GridData(cs.getCanvasWidth(), cs.getCanvasHeight());
+        canvas.setLayoutData(gd);
+
+        canvas.addPaintListener(new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e) {
+                drawUtilizationLabelCanvas(e.gc);
+            }
+        });
+
+        canvasMap.put(CanvasImages.UTILIZATION_LABEL, canvas);
+    }
+
+    /**
+     * Create the utilization graph canvas.
+     */
+    private void createUtilizationGraphCanvas() {
+        Canvas canvas = new Canvas(this, SWT.DOUBLE_BUFFERED);
+        CanvasSettings cs = canvasSettingsMap
+                .get(CanvasImages.UTILIZATION_GRAPH);
+
+        GridData gd = new GridData(cs.getCanvasWidth(), cs.getCanvasHeight());
+        canvas.setLayoutData(gd);
+
+        canvas.addPaintListener(new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e) {
+                drawUtilizationGraphCanvas(e.gc);
+            }
+        });
+
+        /*
+         * Add a mouse track listener to determine when the mouse hovers over
+         * the canvas.
+         */
+        canvas.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
+            public void mouseExit(MouseEvent e) {
+                // Remove mouse vertical line
+                mouseMarker = MISSING;
+                canvasMap.get(CanvasImages.GRAPH).redraw();
+                canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
+            }
+        });
+
+        /*
+         * Add a mouse move listener to determine when the mouse is moving over
+         * the canvas.
+         */
+        canvas.addMouseMoveListener(new MouseMoveListener() {
+            @Override
+            public void mouseMove(MouseEvent e) {
+
+                // If the mouse button is not pressed then set the previous
+                // mouse x,y coordinates to the current mouse x,y position.
+                if (!mouseDown) {
+                    previousMousePoint.x = e.x;
+                    previousMousePoint.y = e.y;
+                    mouseMarker = e.x;
+                    canvasMap.get(CanvasImages.GRAPH).redraw();
+                    canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
+                    return;
+                }
+
+                mouseMarker = MISSING;
+            }
+        });
+
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                if (e.button == 3) {
+                    bandwidthUsedPopupMenu();
+                }
+            }
+        });
+
+        canvasMap.put(CanvasImages.UTILIZATION_GRAPH, canvas);
     }
 
     /**
@@ -424,7 +579,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
      * Create the graph canvas.
      */
     private void createGraphCanvas() {
-        Canvas graphCanvas = new Canvas(this, SWT.DOUBLE_BUFFERED);
+        final Canvas graphCanvas = new Canvas(this, SWT.DOUBLE_BUFFERED);
 
         GridData gd = new GridData(graphCanvasSettings.getCanvasWidth(),
                 graphCanvasSettings.getCanvasHeight());
@@ -469,6 +624,14 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
          */
         graphCanvas.addMouseTrackListener(new MouseTrackAdapter() {
             @Override
+            public void mouseExit(MouseEvent e) {
+                // Remove mouse vertical line
+                mouseMarker = MISSING;
+                canvasMap.get(CanvasImages.GRAPH).redraw();
+                canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
+            }
+
+            @Override
             public void mouseHover(MouseEvent e) {
                 displayToolTipText(e, CanvasImages.GRAPH);
             }
@@ -487,6 +650,9 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                 if (mouseDown == false) {
                     previousMousePoint.x = e.x;
                     previousMousePoint.y = e.y;
+                    mouseMarker = e.x;
+                    canvasMap.get(CanvasImages.GRAPH).redraw();
+                    canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
                     return;
                 }
 
@@ -523,6 +689,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                 canvasMap.get(CanvasImages.GRAPH).redraw();
                 canvasMap.get(CanvasImages.X_LABEL).redraw();
                 canvasMap.get(CanvasImages.Y_LABEL).redraw();
+                canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
 
                 previousMousePoint.x = e.x;
                 previousMousePoint.y = e.y;
@@ -719,6 +886,47 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
 
         canvasMap.get(CanvasImages.GRAPH).redraw();
         canvasMap.get(CanvasImages.X_LABEL).redraw();
+        canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
+    }
+
+    private void drawUtilizationHeaderCanvas(GC gc) {
+        gc.drawImage(imgMap.get(CanvasImages.UTILIZATION_HEADER), 0, 0);
+    }
+
+    private void drawUtilizationLabelCanvas(GC gc) {
+        gc.drawImage(imgMap.get(CanvasImages.UTILIZATION_LABEL), 0, 0);
+
+        gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
+        CanvasSettings cs = canvasSettingsMap
+                .get(CanvasImages.UTILIZATION_LABEL);
+        gc.drawLine(0, 0, cs.getCanvasWidth(), 0);
+        gc.drawLine(0, 0, 0, cs.getCanvasHeight());
+        gc.drawLine(0, cs.getCanvasHeight() - 1, cs.getCanvasWidth(),
+                cs.getCanvasHeight() - 1);
+        gc.drawLine(cs.getCanvasWidth() - 1, 0, cs.getCanvasWidth() - 1,
+                cs.getCanvasHeight() - 1);
+    }
+
+    private void drawUtilizationGraphCanvas(GC gc) {
+        gc.drawImage(imgMap.get(CanvasImages.UTILIZATION_GRAPH),
+                cornerPointOffset.x, 0);
+
+        CanvasSettings cs = canvasSettingsMap
+                .get(CanvasImages.UTILIZATION_GRAPH);
+
+        // draw the mouse locator line
+        if (mouseMarker != MISSING && mouseMarker > cs.getXSpaceBuffer()) {
+            gc.drawLine(mouseMarker, 0, mouseMarker, cs.getCanvasHeight());
+        }
+
+        gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
+        gc.drawLine(0, 0, cs.getCanvasWidth(), 0);
+        gc.drawLine(0, 0, 0, cs.getCanvasHeight());
+        gc.drawLine(0, cs.getCanvasHeight() - 1, cs.getCanvasWidth(),
+                cs.getCanvasHeight() - 1);
+        gc.drawLine(cs.getCanvasWidth() - 1, 0, cs.getCanvasWidth() - 1,
+                cs.getCanvasHeight() - 1);
+
     }
 
     /**
@@ -750,6 +958,13 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
     private void drawGraphCanvas(GC gc) {
         gc.drawImage(imgMap.get(CanvasImages.GRAPH), cornerPointOffset.x,
                 cornerPointOffset.y);
+
+        // draw the mouse locator line
+        if (mouseMarker != MISSING
+                && mouseMarker > graphCanvasSettings.getXSpaceBuffer()) {
+            gc.drawLine(mouseMarker, 0, mouseMarker,
+                    graphCanvasSettings.getCanvasHeight());
+        }
 
         gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
         gc.drawLine(0, 0, graphCanvasSettings.getCanvasWidth(), 0);
@@ -843,6 +1058,19 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         imageMgr.performAction(CanvasImages.X_HEADER, new Point(me.x, me.y));
         redrawImage(CanvasImages.X_HEADER);
         redrawImage(CanvasImages.GRAPH);
+    }
+
+    /**
+     * Handle the mouse event on the Utilization header canvas.
+     * 
+     * @param me
+     *            Mouse Event
+     */
+    private void handleUtilizationHeaderMouseEvent(MouseEvent me) {
+        imageMgr.performAction(CanvasImages.UTILIZATION_HEADER, new Point(me.x,
+                me.y));
+        redrawImage(CanvasImages.UTILIZATION_HEADER);
+        redrawImage(CanvasImages.UTILIZATION_GRAPH);
     }
 
     /**
@@ -970,6 +1198,37 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         m.setVisible(true);
     }
 
+    private void bandwidthUsedPopupMenu() {
+        if (bandwidthPopupMenu == null) {
+            bandwidthPopupMenu = new Menu(this.getShell(), SWT.POP_UP);
+
+            MenuItem lineMenu = new MenuItem(bandwidthPopupMenu, SWT.RADIO);
+            lineMenu.setText("Display as Line Graph");
+            lineMenu.setSelection(true);
+            lineMenu.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    handleBandwidthGraphStyleSelection(GraphType.LINE);
+                }
+            });
+
+            MenuItem barMenu = new MenuItem(bandwidthPopupMenu, SWT.RADIO);
+            barMenu.setText("Display as Bar Graph");
+            barMenu.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    handleBandwidthGraphStyleSelection(GraphType.BAR);
+                }
+            });
+        }
+        bandwidthPopupMenu.setVisible(true);
+    }
+
+    protected void handleBandwidthGraphStyleSelection(GraphType type) {
+        imageMgr.setBandwidthGraphType(type);
+        redrawImage(CanvasImages.UTILIZATION_GRAPH);
+    }
+
     /**
      * Select/Deselect all event handler.
      * 
@@ -1038,7 +1297,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
      * @param ci
      *            The image to redraw
      */
-    private void redrawImage(CanvasImages ci) {
+    protected void redrawImage(CanvasImages ci) {
         imageMgr.regenerateImage(ci);
         imgMap.put(ci, imageMgr.getImage(ci));
         canvasMap.get(ci).redraw();
@@ -1094,6 +1353,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
     public void setColorByPriority(boolean colorByPriority) {
         imageMgr.setColorByPriority(colorByPriority);
         redrawImage(CanvasImages.GRAPH);
+        redrawImage(CanvasImages.UTILIZATION_GRAPH);
     }
 
     /**
@@ -1146,8 +1406,10 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                                 .getTimeInMillis());
                         redrawImage(CanvasImages.GRAPH);
                         redrawImage(CanvasImages.X_LABEL);
+                        redrawImage(CanvasImages.UTILIZATION_GRAPH);
                         canvasMap.get(CanvasImages.GRAPH).redraw();
                         canvasMap.get(CanvasImages.X_LABEL).redraw();
+                        canvasMap.get(CanvasImages.UTILIZATION_GRAPH);
 
                     }
                 });
@@ -1190,5 +1452,51 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                 setGraphData(graphDataUtil.getGraphData(false));
             }
         });
+    }
+
+    /**
+     * Set the network for display.
+     * 
+     * @param network
+     *            The network to display
+     */
+    public void setGraphNetwork(Network network) {
+        imageMgr.setGraphNetwork(network);
+        redrawImage(CanvasImages.GRAPH);
+        redrawImage(CanvasImages.UTILIZATION_GRAPH);
+        redrawImage(CanvasImages.UTILIZATION_HEADER);
+        redrawImage(CanvasImages.UTILIZATION_LABEL);
+        redrawImage(CanvasImages.X_HEADER);
+        redrawImage(CanvasImages.X_LABEL);
+        redrawImage(CanvasImages.Y_HEADER);
+        redrawImage(CanvasImages.Y_LABEL);
+    }
+
+    /**
+     * Set the bandwidth used threshold values.
+     * 
+     * @param thresholdValues
+     *            The threshold values
+     */
+    public void setBandwidthThresholdValues(int[] thresholdValues) {
+        imageMgr.setBandwidthThreholdValues(thresholdValues);
+    }
+
+    /**
+     * Get the bandwidth used threshold values.
+     * 
+     * @return thresholdValues The threshold values
+     */
+    public int[] getBandwidthThresholdValues() {
+        return imageMgr.getBandwidthThreholdValues();
+    }
+
+    /**
+     * Get the bandwidth threshold colors.
+     * 
+     * @return Threshold colors
+     */
+    public Map<GraphSection, RGB> getBandwidthThresholdColors() {
+        return imageMgr.getPercentageColorMap();
     }
 }
