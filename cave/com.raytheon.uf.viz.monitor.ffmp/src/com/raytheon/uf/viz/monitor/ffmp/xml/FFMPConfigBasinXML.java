@@ -29,8 +29,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Config Basin xml object.
  * 
@@ -38,10 +36,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                                     Initial creation
- * Apr 12, 2013   1902    mpduff       Return a FFMPTableColumnXML object.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 12, 2013  1902     mpduff      Return a FFMPTableColumnXML object.
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -49,7 +47,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "FfmpConfigBasin")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFMPConfigBasinXML implements ISerializableObject {
+public class FFMPConfigBasinXML {
     /**
      * When on, the Basin Table will use the time of the D2D frame that launched
      * it. When off the Basin Table will either use the most recent time in the
