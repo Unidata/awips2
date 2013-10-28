@@ -316,7 +316,10 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-viz" ]; then
+   buildRPM "awips2"
    buildRPM "awips2-common-base"
+   buildRPM "awips2-tools"
+   buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
