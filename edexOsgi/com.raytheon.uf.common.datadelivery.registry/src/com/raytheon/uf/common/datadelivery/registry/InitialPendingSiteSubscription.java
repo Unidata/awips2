@@ -58,7 +58,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
+        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT})
 public class InitialPendingSiteSubscription<T extends Time, C extends Coverage> extends SiteSubscription<T, C> implements
         InitialPendingSubscription<T, C> {
     private static final long serialVersionUID = 2779084460608459754L;
@@ -138,4 +139,5 @@ public class InitialPendingSiteSubscription<T extends Time, C extends Coverage> 
     public Subscription<T, C> subscription() {
         return new SiteSubscription<T, C>(this);
     }
+
 }
