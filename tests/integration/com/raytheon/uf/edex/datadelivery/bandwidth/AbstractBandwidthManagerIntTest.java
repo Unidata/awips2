@@ -78,7 +78,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 03, 2013 2095       djohnson     Move getPointDataSet in from subclass.
  * Jul 09, 2013 2106       djohnson     Add datadelivery handlers, since they are now dependency injected.
  * Sep 17, 2013 2383       bgonzale     Added "thrift.stream.maxsize" System property to setup.
- * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Sep 25, 2013 1797       dhladky      separated time from gridded time
+ * Oct 21, 2013 2292       mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -101,7 +102,7 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
     protected ApplicationContext context;
 
     @Autowired
-    protected EdexBandwidthManager<T,C> bandwidthManager;
+    protected EdexBandwidthManager<T, C> bandwidthManager;
 
     @Autowired
     protected RetrievalManager retrievalManager;
@@ -188,7 +189,7 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
      * 
      * @return the subscription
      */
-    protected SiteSubscription<T,C> createSubscriptionThatFillsUpABucket() {
+    protected SiteSubscription<T, C> createSubscriptionThatFillsUpABucket() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize);
     }
 
@@ -197,7 +198,7 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
      * 
      * @return the subscription
      */
-    protected SiteSubscription<T,C> createSubscriptionThatFillsUpTenBuckets() {
+    protected SiteSubscription<T, C> createSubscriptionThatFillsUpTenBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 10);
     }
 
@@ -206,7 +207,7 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
      * 
      * @return the subscription
      */
-    protected SiteSubscription<T,C> createSubscriptionThatFillsHalfABucket() {
+    protected SiteSubscription<T, C> createSubscriptionThatFillsHalfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(halfBucketSize);
     }
 
@@ -215,7 +216,7 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
      * 
      * @return the subscription
      */
-    protected SiteSubscription<T,C> createSubscriptionThatFillsAThirdOfABucket() {
+    protected SiteSubscription<T, C> createSubscriptionThatFillsAThirdOfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(thirdBucketSizeInBytes);
     }
 
@@ -224,14 +225,14 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
      * 
      * @return the subscription
      */
-    protected SiteSubscription<T,C> createSubscriptionThatFillsUpTwoBuckets() {
+    protected SiteSubscription<T, C> createSubscriptionThatFillsUpTwoBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 2);
     }
 
-    protected SiteSubscription<T,C> createSubscriptionWithDataSetSizeInBytes(
+    protected SiteSubscription<T, C> createSubscriptionWithDataSetSizeInBytes(
             long bytes) {
-        SiteSubscription<T,C> subscription = SiteSubscriptionFixture.INSTANCE
-                .get(subscriptionSeed++);
+        SiteSubscription<T, C> subscription = SiteSubscriptionFixture.INSTANCE
+                .get(subscriptionSeed++, DataType.GRID);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));
         subscription.setRoute(getRouteToUseForSubscription());
@@ -245,11 +246,12 @@ public abstract class AbstractBandwidthManagerIntTest<T extends Time, C extends 
      *            the retrieval interval
      * @return
      */
-    protected Subscription<T,C> getPointDataSubscription(int retrievalInterval) {
+    protected Subscription<T, C> getPointDataSubscription(int retrievalInterval) {
         final PointTime pointTime = new PointTime();
         pointTime.setInterval(retrievalInterval);
 
-        Subscription<PointTime,Coverage> subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription<PointTime, Coverage> subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         subscription.setTime(pointTime);
         subscription.setDataSetType(DataType.POINT);
         subscription.setLatencyInMinutes(retrievalInterval);
