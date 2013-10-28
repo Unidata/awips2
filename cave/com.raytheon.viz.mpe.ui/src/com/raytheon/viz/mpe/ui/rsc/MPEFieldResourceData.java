@@ -275,8 +275,9 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
         case mintempPrism:
         case maxtempPrism:
             return NonSI.FAHRENHEIT;
+		default:
+			return NonSI.INCH;
         }
-        return NonSI.INCH;
     }
 
     public static Unit<?> getDataUnitsForField(DisplayFieldData fieldData) {
@@ -293,7 +294,9 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
         case mintempPrism:
         case maxtempPrism:
             return NonSI.FAHRENHEIT.divide(10);
+            
+        default :
+        	return SI.MILLIMETER.divide(100);
         }
-        return SI.MILLIMETER.divide(100);
     }
 }

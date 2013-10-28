@@ -266,7 +266,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-pil"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
+  # buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-tables"
@@ -326,18 +326,8 @@ if [ "${1}" = "-viz" ]; then
    exit 0
 fi
 
-if [ "${1}" = "-notification" ]; then
-   buildRPM "awips2-notification"
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-common-base"
-   buildRPM "awips2"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -346,7 +336,17 @@ if [ "${1}" = "-edex" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-custom" ]; then
+   buildQPID
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
 if [ "${1}" = "-qpid" ]; then
+   buildRPM "awips2-python-qpid"
    buildQPID
    if [ $? -ne 0 ]; then
       exit 1
@@ -356,19 +356,7 @@ if [ "${1}" = "-qpid" ]; then
 fi
 
 if [ "${1}" = "-ldm" ]; then
-   #buildRPM "awips2-httpd-collaboration"
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
-   buildRPM "awips2-ant"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-rcm"
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
-   buildJava
-   #buildRPM "awips2-common-base"
-   #buildRPM "awips2-ldm"
+   buildRPM "awips2-ldm"
 
    exit 0
 fi
