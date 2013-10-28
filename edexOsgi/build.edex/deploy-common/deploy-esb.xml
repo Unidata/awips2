@@ -17,12 +17,6 @@
 				<antcall target="deploy.esb-data" />
 			</then>
 		</if>
-		<if>
-			<equals arg1="${deploy.web}" arg2="true" />
-			<then>
-				<antcall target="deploy.esb-web" />
-			</then>
-		</if>
 	</target>
 	
 	<target name="cleanup">		
@@ -94,18 +88,6 @@
 		<!-- update directory permissions. -->
 		<chmod dir="${edex.root.directory}/data" perm="775" 
 			includes="**/*" type="both" />
-	</target>
-	
-	<target name="deploy.esb-web">
-    	<deploy.war
-    		web.project.dir="com.raytheon.edex.uengine"
-    		war.name="uEngineWeb" />
-        <deploy.war
-        	web.project.dir="gov.noaa.nws.ncep.edex.purgeutil"
-        	war.name="purgeWeb" />
-		<deploy.war
-			web.project.dir="com.raytheon.uf.edex.registry.ebxml"
-			war.name="registryEbxml" />
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 
