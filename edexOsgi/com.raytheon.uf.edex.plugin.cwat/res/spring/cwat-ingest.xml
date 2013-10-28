@@ -12,7 +12,7 @@
 	
 	<camelContext id="cwat-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
         <route id="CWATGenerate">
-        	<from uri="jms-durable:queue:cwatGenerate"/>
+        	<from uri="jms-generic:queue:cwatGenerate?destinationResolver=#qpidDurableResolver" />
             <doTry>
 	          	<bean ref="serializationUtil" method="transformFromThrift" />
             	<bean ref="cwatGenerator" method="generate" />

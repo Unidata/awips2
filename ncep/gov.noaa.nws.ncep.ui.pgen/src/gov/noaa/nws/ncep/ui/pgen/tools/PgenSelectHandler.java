@@ -74,9 +74,6 @@ import com.vividsolutions.jts.geom.Point;
  * 04/13		#927		B. Yin   	Moved from the PgenSelectingTool class
  * 05/13		#994		J. Wu 		Removed "DEL" - make it same as "Ctrl+X"
  * 07/13		?			J. Wu 		Set the "otherTextLastUsed for GFA.
- * 09/13		?			J. Wu 		Call buildVortext for GFA when mouse is 
- *                                      down since GFA converted from VGF does not 
- *                                      have vorText set.
  * 
  * </pre>
  * 
@@ -409,10 +406,6 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
             	} else if(attrDlg instanceof GfaAttrDlg){
            		    ((GfaAttrDlg)attrDlg).setOtherTextLastUsed( elSelected.getForecastHours() );
             		((GfaAttrDlg)attrDlg).redrawHazardSpecificPanel();
-					if ( ((Gfa)elSelected).getGfaVorText() == null || 
-						 ((Gfa)elSelected).getGfaVorText().length() < 1	) {
-					    ((Gfa)elSelected).setGfaVorText( Gfa.buildVorText( (Gfa)elSelected ) );
-					}
             		attrDlg.setAttrForDlg( elSelected );
             		((GfaAttrDlg)attrDlg).enableMoveTextBtn(true);
             	}

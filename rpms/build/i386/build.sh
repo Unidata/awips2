@@ -85,28 +85,28 @@ if [ "${2}" = "-nobinlightning" ]; then
 fi
 
 if [ "${1}" = "-python-qpid" ]; then
-   buildRPM "awips2"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
+#   buildRPM "awips2"
+#   buildRPM "awips2-python-qpid"
+#   buildRPM "awips2-python"
+#   buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-jimporter"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-pil"
-   buildRPM "awips2-python-pmw"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
-   buildRPM "awips2-python-thrift"
-   buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-pygtk"
-   buildRPM "awips2-python-pycairo"
+#   buildRPM "awips2-python-nose"
+#   buildRPM "awips2-python-numpy"
+#   buildRPM "awips2-python-h5py"
+#   buildRPM "awips2-python-jimporter"
+#   buildRPM "awips2-python-matplotlib"
+#   buildRPM "awips2-python-pil"
+#   buildRPM "awips2-python-pmw"
+#   buildRPM "awips2-python-pupynere"
+#   buildRPM "awips2-python-scientific"
+#   buildRPM "awips2-python-scipy"
+#   buildRPM "awips2-python-tables"
+#   buildRPM "awips2-python-thrift"
+#   buildRPM "awips2-python-tpg"
+#   buildRPM "awips2-python-ufpy"
+#   buildRPM "awips2-python-werkzeug"
+#   buildRPM "awips2-python-pygtk"
+#   buildRPM "awips2-python-pycairo"
    if [ $? -ne 0 ]; then
       exit 1
    fi
@@ -347,9 +347,11 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-viz" ]; then
+   buildRPM "awips2"
    buildRPM "awips2-common-base"
-   buildRPM "awips2-rcm"
-   buildRPM "awips2-hydroapps-shared"
+  # buildRPM "awips2-rcm"
+  # buildRPM "awips2-hydroapps-shared"
+  # buildRPM "awips2-notification"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -360,11 +362,13 @@ if [ "${1}" = "-viz" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-adapt-native"
+   #buildRPM "awips2"
+   #buildRPM "awips2-common-base"
+ #  buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-python-qpid"
+ # buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-edex-environment"
  # buildRPM "awips2-ncep-database"
  # buildRPM "awips2-python-dynamicserialize"
    buildEDEX
@@ -374,16 +378,6 @@ if [ "${1}" = "-edex" ]; then
 
    exit 0
 fi
-
-if [ "${1}" = "-localization" ]; then
-   buildLocalizationRPMs
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
 
 if [ "${1}" = "-qpid" ]; then
    buildQPID
@@ -396,19 +390,6 @@ fi
 
 if [ "${1}" = "-ldm" ]; then
    buildRPM "awips2-ldm"
-
-   exit 0
-fi
-
-if [ "${1}" = "-awips2" ]; then
-   buildRPM "awips2"
-
-   exit 0
-fi
-
-# Use the custom flag for selecting specific rpms to build
-if [ "${1}" = "-custom" ]; then
-   #buildRPM "awips2-ldm"
 
    exit 0
 fi

@@ -120,7 +120,7 @@
     <PlotParameterDefn  plotParamName="SKYC" metParamName="TotalSkyCoverFcst12hr" 
                      plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="totalSkyCover" 
-                     plotLookupTable="pgen_bufrmos_total_skyc.txt" />                	                  	
+                     plotLookupTable="ncep_totalSkyCover.txt" />                	                  	
 
   	<PlotParameterDefn  plotParamName="CL12" metParamName="TotalSkyCoverFcst12hr" plotMode="text"   
                      	dbParamName="totalSkyCover" /> 

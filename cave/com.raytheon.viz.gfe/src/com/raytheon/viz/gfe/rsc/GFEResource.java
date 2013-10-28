@@ -161,7 +161,6 @@ import com.vividsolutions.jts.geom.Envelope;
  * May 11, 2012            njensen     Allow rsc to be recycled
  * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
  * Mar 04, 2013 1637       randerso    Fix time matching for ISC grids
- * Aug 27, 2013 2287       randerso    Fixed scaling and direction of wind arrows
  * 
  * </pre>
  * 
@@ -618,7 +617,6 @@ public class GFEResource extends
                     }
 
                     clearVectorDisplays();
-                    GFEVectorGraphicsRenderableFactory factory;
                     for (VisualizationType type : visTypes) {
                         switch (type) {
                         case WIND_ARROW:
@@ -628,31 +626,24 @@ public class GFEResource extends
                             if (logFactor < 0.0) {
                                 logFactor = 0.0;
                             }
-                            factory = new GFEVectorGraphicsRenderableFactory(
-                                    logFactor, parm.getGridInfo().getMaxValue());
+                            // TODO: add logFactor to PointWindDisplay,
+                            // GriddedVectorDisplay
 
                             this.vectorDisplay.add(new GriddedVectorDisplay(
                                     mag, dir, descriptor, MapUtil
                                             .getGridGeometry(gs.getGridInfo()
                                                     .getGridLoc()),
                                     getVectorSize("WindArrowDefaultSize"),
-                                    1.36, false, visTypeToDisplayType(type),
-                                    factory));
+                                    visTypeToDisplayType(type)));
                             break;
 
                         case WIND_BARB:
-                            factory = new GFEVectorGraphicsRenderableFactory(
-                                    0.0, parm.getGridInfo().getMaxValue());
-                            this.vectorDisplay
-                                    .add(new GriddedVectorDisplay(
-                                            mag,
-                                            dir,
-                                            descriptor,
-                                            MapUtil.getGridGeometry(gs
-                                                    .getGridInfo().getGridLoc()),
-                                            getVectorSize("WindBarbDefaultSize"),
-                                            1.36, false,
-                                            visTypeToDisplayType(type), factory));
+                            this.vectorDisplay.add(new GriddedVectorDisplay(
+                                    mag, dir, descriptor, MapUtil
+                                            .getGridGeometry(gs.getGridInfo()
+                                                    .getGridLoc()),
+                                    getVectorSize("WindBarbDefaultSize"),
+                                    visTypeToDisplayType(type)));
                             break;
 
                         case IMAGE:
@@ -1008,6 +999,8 @@ public class GFEResource extends
         if (size == 0) {
             size = 60;
         }
+
+        size = (int) (size / 0.8);
 
         int offset = parm.getDisplayAttributes().getFontOffset()
                 + Activator.getDefault().getPreferenceStore()

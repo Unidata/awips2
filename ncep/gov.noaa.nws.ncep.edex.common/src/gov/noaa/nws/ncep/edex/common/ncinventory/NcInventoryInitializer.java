@@ -33,7 +33,7 @@ public class NcInventoryInitializer {
  	public static final String NCINVENTORY_DEFN_PATH = "ncep/NcInventoryDefinitions"; 
  	
     public void initialize() throws Exception {
-//        System.out.println("initializing ncinventory");
+        System.out.println("initializing ncinventory");
         
         IPathManager pathMngr = PathManagerFactory.getPathManager();
         
@@ -52,32 +52,24 @@ public class NcInventoryInitializer {
         			new String[]{".xml"}, false, true );
         
         for( LocalizationFile lFile : invDefnsFiles ) {
-        	System.out.println("NcInventory: Creating NcInventory from :"+ lFile.getName() );
+        	System.out.println("invDefn  file is :"+ lFile.getName() );
         	File invDefnFile = lFile.getFile();
     		
+    		Object xmlObj;
     		try {
-    			NcInventoryDefinition invDefn = SerializationUtil.jaxbUnmarshalFromXmlFile( 
-    					NcInventoryDefinition.class, invDefnFile.getAbsolutePath() );
-    			NcInventory existingID = NcInventory.getInventory( invDefn ); 
-    			
-    			if( existingID != null ) {
-    				String existingFileName = existingID.getInventoryDefinition().getInvDefnFileName();
-    				
-    				System.out.println("NcInventory: sanity check : a matching InvDefn for this file already exists. name= "
-    						+ existingID.getInventoryDefinition().getInventoryName() + " from file: " +
-    						( existingFileName == null ? " user created inventory ": existingFileName ) );
-    				// add an entry in the inventoryAliasMap? 
-    				if( existingFileName != null ) {
-    					continue;
-    				}
+    			xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
+    								invDefnFile.getAbsolutePath() );
+    			if( !(xmlObj instanceof NcInventoryDefinition) ) {
+    				throw new Exception("NcInventoryDefinition .xml file is not an NcInventoryDefinition object???");
     			}
+    			NcInventoryDefinition invDefn = (NcInventoryDefinition)xmlObj;
     			
     			NcInventory.initInventory( invDefn, false );        			    			
-    			invDefn.setInvDefnFileName( lFile.getName() );
     		}
     		catch( Exception ex ) {
     			NcInventory.logError( ex.getMessage() );
     		}
         }
     }
+
 }

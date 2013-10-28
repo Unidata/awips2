@@ -103,13 +103,11 @@ public class NsharpGribModelTypeConfigDialog extends Dialog {
     	ArrayList<String> queryRsltsList = 
     		NsharpGridInventory.getInstance().searchInventory( 
     			rcMap, "info.datasetId" );
-    	
     	List<String> modelTypeList = new ArrayList<String>(); 
-    	
     	if( queryRsltsList != null && !queryRsltsList.isEmpty() ) {
-			for(String modelName : queryRsltsList ) {
-//				System.out.println("model name:"+queryRslt );
-//				String modelName = queryRslt.substring( "grid/".length() );
+			for(String queryRslt : queryRsltsList ) {
+				System.out.println("model name:"+queryRslt );
+				String modelName = queryRslt.substring( "grid/".length() );
 				if(returnNeeded)
 					modelTypeList.add(modelName);
 				else

@@ -29,13 +29,13 @@
 			<setHeader headerName="pluginName">
 				<constant>ccfp</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.ccfp" />
+			<to uri="jms-generic:queue:Ingest.ccfp" />
 		</route>
         -->
 
 		<!-- Begin ccfp routes -->
 		<route id="ccfpIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ccfp"/>
+			<from uri="jms-generic:queue:Ingest.ccfp?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>ccfp</constant>
 			</setHeader>
