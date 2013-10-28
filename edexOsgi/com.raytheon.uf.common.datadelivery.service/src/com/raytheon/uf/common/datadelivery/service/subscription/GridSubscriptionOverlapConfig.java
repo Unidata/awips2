@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Configuration for the {@link ISubscriptionOverlapService}.
  * 
@@ -13,7 +14,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sept 24, 2013 2386       dhladky     Grid Subscription Overlap
+ * Sep 24, 2013   2386     dhladky     Grid Subscription Overlap
+ * Oct 21, 2013   2292     mpduff      Change overlap rules
  * 
  * </pre>
  * 
@@ -23,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class GridSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
-     
+
     @XmlElement(required = true)
     private int maxAllowedForecastHourDuplication;
 
@@ -34,7 +36,7 @@ public class GridSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
      * Constructor.
      */
     public GridSubscriptionOverlapConfig() {
-      
+
     }
 
     /**
@@ -50,7 +52,7 @@ public class GridSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
             int maxAllowedForecastHourDuplication,
             int maxAllowedCycleDuplication, int maxAllowedSpatialDuplication,
             SubscriptionOverlapMatchStrategy matchStrategy) {
-        
+
         this.maxAllowedParameterDuplication = maxAllowedParameterDuplication;
         this.maxAllowedForecastHourDuplication = maxAllowedForecastHourDuplication;
         this.maxAllowedCycleDuplication = maxAllowedCycleDuplication;
@@ -90,32 +92,15 @@ public class GridSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
     }
 
     /**
-     * Check whether the given duplication percents indicate an overlapping
-     * subscription.
-     * 
-     * @param parameterDuplicationPercent
-     * @param forecastHourDuplicationPercent
-     * @param cycleDuplicationPercent
-     * @param spatialDuplicationPercent
-     * @return true if the subscription should be considered overlapping
+     * {@inheritDoc}
      */
-    public boolean isOverlapping(int parameterDuplicationPercent,
-            int forecastHourDuplicationPercent, int cycleDuplicationPercent,
-            int spatialDuplicationPercent) {
-
-        // Pass through to the match strategy
-        return this.matchStrategy.isOverlapping(this,
-                parameterDuplicationPercent, forecastHourDuplicationPercent,
-                cycleDuplicationPercent, spatialDuplicationPercent);
-    }
-    
+    @Override
     public SubscriptionOverlapConfig getNeverOverlaps() {
         return new GridSubscriptionOverlapConfig(
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
                 SubscriptionOverlapMatchStrategy.MATCH_ALL);
     }
-    
 }
