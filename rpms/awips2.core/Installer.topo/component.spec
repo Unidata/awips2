@@ -8,7 +8,6 @@ Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
-Prefix: /awips2/edex
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -31,11 +30,14 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 # Copies the standard Raytheon licenses into a license directory for the
 # current component.
 function copyLegal()
@@ -91,8 +93,7 @@ for topoFile in ${TOPO_TO_COPY[*]};
 do
    cp -r %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
       ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
-   RC=$?
-   if [ ${RC} -ne 0 ]; then
+   if [ $? -ne 0 ]; then
       exit 1
    fi
 done
@@ -101,42 +102,16 @@ done
 mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo/hlsTopo
 cp -r %{_awipscm_share}/${TOPO_SRC_DIR}/hlsTopo/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo/hlsTopo
-RC=$?
-if [ ${RC} -ne 0 ]; then
+if [ $? -ne 0 ]; then
    exit 1
 fi
 
 copyLegal "awips2/edex/data/hdf5/topo"
 
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II Topo Distribution...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
-echo -e "\e[1;34m         Destination = ${RPM_INSTALL_PREFIX}/data/hdf5/topo\e[m"
-echo ""
-
 %post
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Topo Distribution Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %preun
-
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II Topo Distribution Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

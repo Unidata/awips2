@@ -1,5 +1,7 @@
 %define _build_arch %(uname -i)
 %define _pgadmin3_version 1.16.1
+%define _pgadmin3_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
 #
 # AWIPS II PostgreSQL Spec File
 #
@@ -7,7 +9,7 @@
 Name: awips2-pgadmin3
 Summary: AWIPS II pgadmin3 Distribution
 Version: %{_pgadmin3_version}
-Release: 1
+Release: 1.el6
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -18,16 +20,16 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-BuildRequires: awips2-postgresql = 9.2.3-1
-BuildRequires: postgresql = 8.1.18-2.el5_4.1
-BuildRequires: postgresql-devel = 8.1.18-2.el5_4.1
-BuildRequires: postgresql-libs = 8.1.18-2.el5_4.1
-BuildRequires: wxGTK = 2.8.12-1.el5.rf
-BuildRequires: wxGTK-devel = 2.8.12-1.el5.rf
+BuildRequires: awips2-postgresql = 9.2.3-1.el6
+BuildRequires: postgresql = 8.4.13-1.el6_3
+BuildRequires: postgresql-devel = 8.4.13-1.el6_3
+BuildRequires: postgresql-libs = 8.4.13-1.el6_3
+BuildRequires: wxGTK = 2.8.12-1.el6.rf
+BuildRequires: wxGTK-devel = 2.8.12-1.el6.rf
 
 provides: awips2-pgadmin3
 requires: awips2-psql = 9.2.3-1
-requires: wxGTK = 2.8.12-1.el5.rf
+requires: wxGTK = 2.8.12-1.el6.rf
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with
@@ -48,33 +50,32 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+if [ -d %{_pgadmin3_build_loc} ]; then
+   rm -rf %{_pgadmin3_build_loc}
+fi
+mkdir -p %{_pgadmin3_build_loc}
 
 SRC_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.pgadmin/SOURCES"
-PGADMIN_BUILD_DIR="awips2/pgadmin-build"
 PGADMIN_TAR_FILE="pgadmin3-%{_pgadmin3_version}.tar.gz"
 
 mkdir -p %{_build_root}/awips2/pgadmin3
-mkdir -p %{_build_root}/${PGADMIN_BUILD_DIR}
 
 # Copy our source tar file to the build directory.
-cp ${SRC_DIR}/${PGADMIN_TAR_FILE} \
-   ${RPM_BUILD_ROOT}/${PGADMIN_BUILD_DIR}
+cp ${SRC_DIR}/${PGADMIN_TAR_FILE} %{_pgadmin3_build_loc}
 
 # Untar the postgresql source
-cd ${RPM_BUILD_ROOT}/${PGADMIN_BUILD_DIR}
+cd %{_pgadmin3_build_loc}
 
 tar -xvf ${PGADMIN_TAR_FILE}
 
 %build
 
-PGADMIN_BUILD_DIR="awips2/pgadmin-build"
-
-cd ${RPM_BUILD_ROOT}/${PGADMIN_BUILD_DIR}/pgadmin3-%{_pgadmin3_version}
+cd %{_pgadmin3_build_loc}/pgadmin3-%{_pgadmin3_version}
 
 export CPPFLAGS="-I/awips2/postgresql/include -I/awips2/postgresql/include/server"
 export LDFLAGS="-L/awips2/postgresql/lib"
 
-./configure --prefix=%{_build_root}/awips2/pgadmin3
+./configure --prefix=/awips2/pgadmin3
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -108,19 +109,17 @@ function copyLegal()
       
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-PGADMIN_BUILD_DIR="awips2/pgadmin-build"
 
-cd ${RPM_BUILD_ROOT}/${PGADMIN_BUILD_DIR}/pgadmin3-%{_pgadmin3_version}
+cd %{_pgadmin3_build_loc}/pgadmin3-%{_pgadmin3_version}
 
-make install
+make install prefix=%{_build_root}/awips2/pgadmin3
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-rm -rf ${RPM_BUILD_ROOT}/${PGADMIN_BUILD_DIR}
-
 %clean
 rm -rf ${RPM_BUILD_ROOT}
+rm -rf %{_pgadmin3_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)

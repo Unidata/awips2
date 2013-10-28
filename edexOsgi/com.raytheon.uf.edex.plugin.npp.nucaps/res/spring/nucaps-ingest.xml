@@ -24,7 +24,7 @@
 
         <!-- Begin nucaps routes -->
         <route id="nucapsIngestRoute">
-            <from uri="jms-durable:queue:Ingest.nucaps"/>
+            <from uri="jms-generic:queue:Ingest.nucaps?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>nucaps</constant>
             </setHeader>

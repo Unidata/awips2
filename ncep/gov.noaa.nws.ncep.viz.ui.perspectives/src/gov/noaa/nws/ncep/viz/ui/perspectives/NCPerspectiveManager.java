@@ -118,6 +118,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
     
     public static final String newDisplayCmd = "gov.noaa.nws.ncep.viz.ui.newMapEditor";
 
+    private boolean gridInventoryInited = false;
+
     private IVizEditorChangedListener displayChangeListener = null;
 
     // Issue the newDisplay command the same as if called from the main menu 
@@ -176,35 +178,33 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         // force DESK level to be created.
         NcPathManager.getInstance();
 
-        if( !NcGridInventory.getInstance().isInitialized() ) {
+        if (!gridInventoryInited) {
             long t0 = System.currentTimeMillis();
-            
             try {
-            	NcGridInventory.getInstance().initialize( 5 ); // try 5 times
-            }
-            catch ( final VizException e ) {            	
+                NcGridInventory.getInstance().initInventory(false); // don't
+                                                                    // re-init
                 // NcGridInventory.getInstance().dumpNcGribInventory();
+            } catch (final VizException e) {
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
                         MessageDialog errDlg = new MessageDialog(
-            		perspectiveWindow.getShell(), "Error", null, "Error initializing NcGridInventory\n"+
-            				"Please click OK and wait while a new inventory is created", MessageDialog.ERROR,
+                                perspectiveWindow.getShell(), "Error", null,
+                                "Error initializing NcGridInventory\n"
+                                        + e.getMessage(), MessageDialog.ERROR,
                                 new String[] { "OK" }, 0);
                         errDlg.open();
-            	
-            	try {
-					NcGridInventory.getInstance().createInventory();
-				} catch (VizException e1) {
-	            	errDlg = new MessageDialog(
-	            			perspectiveWindow.getShell(), "Error", null, "Error creating NcGridInventory\n",
-	            			MessageDialog.ERROR, new String[] { "OK" }, 0);
-	            	errDlg.open();
                     }
+                });
+                // System.out.println("NcGridInventory  failed : "+e.getMessage()
+                // );
             }
-                            
             GridMapper.GridMapperInit();
             GempakGridParmInfoLookup.getInstance();
             GempakGridVcrdInfoLookup.getInstance();
             long t1 = System.currentTimeMillis();
             System.out.println("NcGridInventory Init took: " + (t1 - t0));
+            gridInventoryInited = true;
         }
 
         displayChangeListener = new IVizEditorChangedListener() {

@@ -33,13 +33,13 @@
 			<setHeader headerName="pluginName">
                 <constant>recco</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.recco" />
+			<to uri="jms-generic:queue:Ingest.recco" />
 		</route>
 		-->
 
 		<!-- Begin RECCO routes -->
 		<route id="reccoIngestRoute">
-			<from uri="jms-durable:queue:Ingest.recco"/>
+			<from uri="jms-generic:queue:Ingest.recco?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
                 <constant>recco</constant>
 			</setHeader>

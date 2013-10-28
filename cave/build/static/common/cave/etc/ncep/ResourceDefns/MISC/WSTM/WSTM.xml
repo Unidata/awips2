@@ -4,8 +4,7 @@
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>    
 pluginName=aww
-! removed 'ADVISORY' which seemed to be result of WIND CHILL ADVISORY
-reportType=WINTER WEATHER ADVISORY,WINTER STORM WARNING,WINTER STORM WATCH,URGENT WEATHER MESSAGE,WEATHER ADVISORY,WINTER STORM
+reportType=WINTER_WEATHER_ADVISORY,WINTER_STORM_WARNING,WINTER_STORM_WATCH,ADVISORY,URGENT_WEATHER_MESSAGE,WEATHER_ADVISORY,WINTER_STORM
 legendColor=RGB {255, 255, 255}
     </resourceParameters>
     <rscImplementation>WSTM</rscImplementation>

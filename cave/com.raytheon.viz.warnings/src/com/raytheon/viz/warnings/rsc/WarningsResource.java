@@ -60,8 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 27, 2012  1149     jsanchez     Refactored methods from AbstractWarningsResource into this class.
  * Apr 18, 2013  1877     jsanchez     Ordered the records the same for update and initial load.
  *                                     Removed no longer needed frameAltered. Do not set wire frame for a CAN.
- * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning
- * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
+ * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning                                  
  * </pre>
  * 
  * @author jsanchez
@@ -143,10 +142,6 @@ public class WarningsResource extends AbstractWWAResource {
         entryMap.clear();
         if (warningsFont != null) {
             warningsFont.dispose();
-        }
-
-        if (emergencyFont != null) {
-            emergencyFont.dispose();
         }
     }
 
@@ -239,7 +234,7 @@ public class WarningsResource extends AbstractWWAResource {
             for (AbstractWarningRecord warnrec : recordsToLoad) {
                 WarningAction act = WarningAction.valueOf(warnrec.getAct());
                 if (act == WarningAction.CON || act == WarningAction.CAN
-                        || act == WarningAction.EXT) {
+                		|| act == WarningAction.EXT) {
                     AbstractWarningRecord createShape = null;
                     for (String key : entryMap.keySet()) {
                         WarningEntry entry = entryMap.get(key);

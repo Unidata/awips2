@@ -76,9 +76,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * Nov 29, 2012            mschenke     Initial creation
  * May 28, 2013 15971      lbousaidi    change the reading hour for SATPRE
  *                                      since the start time in the file is one 
- *                                      hour less than the file time stamp. 
- * Sep 17, 2013 16563      snaples      Updated createFrameImage to handle trace precip 
- *                                      properly when mapping to screen.													 
+ *                                      hour less than the file time stamp. 													 
  * 
  * </pre>
  * 
@@ -150,7 +148,6 @@ public class MPEFieldResource extends
      * @param frame
      * @return
      */
-    @SuppressWarnings("incomplete-switch")
     private short[] getEditedData(MPEFieldFrame frame) {
         short[] editedData = frame.getEditedData();
         if (editedData != null) {
@@ -416,42 +413,16 @@ public class MPEFieldResource extends
                 .getColorMapParameters();
         UnitConverter dataToImage = params.getDataToImageConverter();
         short[] data = getEditedData(frame);
-        DisplayFieldData cvuse = resourceData.getFieldData();
         int length = data.length;
         short[] imageData = new short[length];
-        switch (cvuse) {
-            case Locbias:
-            case Height:
-            case Index:
-            case Locspan:
-            case mintempPrism:
-            case maxtempPrism:
-            	for (int i = 0; i < length; ++i) {
-                    short value = data[i];
-                    if (value == MISSING_VALUE) {
-                        imageData[i] = 0;
-                    } else {
-                        imageData[i] = (short) dataToImage.convert(value);
-                    }
-                } 
-            	break;
-                
-            default :
-            	for (int i = 0; i < length; ++i) {
-                    short value = data[i];
-                    if (value == MISSING_VALUE) {
-                        imageData[i] = 0;
-                    } else if(value <= 0){
-                	    imageData[i] = 1;
-                    } else if(value > 0 && value < 25){
-                    	value = 10;
-                	    imageData[i] = (short) dataToImage.convert(value);
-                    } else {
-                        imageData[i] = (short) dataToImage.convert(value);
-                    }        	
-                } 
-            	break;
+        for (int i = 0; i < length; ++i) {
+            short value = data[i];
+            if (value == MISSING_VALUE) {
+                imageData[i] = 0;
+            } else {
+                imageData[i] = (short) dataToImage.convert(value);
             }
+        }
         return new GriddedImageDisplay2(ShortBuffer.wrap(imageData),
                 gridGeometry, this);
     }

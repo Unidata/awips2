@@ -19,7 +19,6 @@ FINT=!70;90;110;130;150;170;190!3;5;7;9;11;13!
 FLINE=!0;24;25;29;7;15;14;2!0;23;22;21;17;16;2!
 HILO=0
 HLSYM=0
-CLRBAR=0!0!1/V/LL!0
 WIND=9/1/2/112
 TITLE=1/-1/~ @ HGHTS, ISOTACHS (KTS), AND DIVERGENCE!0
 COLORS=2                                                                       

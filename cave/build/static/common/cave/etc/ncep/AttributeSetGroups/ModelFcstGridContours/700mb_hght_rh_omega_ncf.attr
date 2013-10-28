@@ -19,6 +19,6 @@ FINT   =
 FLINE  =   
 HILO   =    0
 HLSYM  =   0
-CLRBAR=  1
+!CLRBAR=  1
 WIND   =    
 TITLE  =   5/0/~ @ HEIGHT, REL HUMIDITY AND OMEGA!
