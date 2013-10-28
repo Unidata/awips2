@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 
 /**
@@ -33,9 +32,11 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 2, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 2, 2010            mnash       Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -43,7 +44,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractSpatialEnabler implements ISerializableObject {
+public abstract class AbstractSpatialEnabler {
 
     public void enable(PluginDataObject d, AbstractRequestableResourceData arrd) {
     }

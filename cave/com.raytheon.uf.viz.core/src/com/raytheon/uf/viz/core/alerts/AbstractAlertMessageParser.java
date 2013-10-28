@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.alerts;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 
@@ -29,17 +31,18 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 15, 2009            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 15, 2009           mschenke    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-
-public abstract class AbstractAlertMessageParser implements ISerializableObject {
+@XmlAccessorType(XmlAccessType.NONE)
+public abstract class AbstractAlertMessageParser {
 
     /**
      * Parse the alert message object into an object expected by the Resource

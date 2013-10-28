@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.comm.PerspectiveSpecificLoadProperties;
 import com.raytheon.uf.viz.d2d.core.time.LoadMode;
@@ -39,9 +38,11 @@ import com.raytheon.uf.viz.d2d.core.time.TimeMatchingConfiguration;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 1, 2009            bgonzale     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2009           bgonzale    Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -50,8 +51,7 @@ import com.raytheon.uf.viz.d2d.core.time.TimeMatchingConfiguration;
  */
 @XmlType(name = "d2dLoadProperties")
 @XmlAccessorType(XmlAccessType.NONE)
-public class D2DLoadProperties extends PerspectiveSpecificLoadProperties
-        implements ISerializableObject {
+public class D2DLoadProperties extends PerspectiveSpecificLoadProperties {
 
     private transient TimeMatchingConfiguration timeConfig;
 
