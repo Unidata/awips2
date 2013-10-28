@@ -4,7 +4,7 @@
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>    
 pluginName=aww
-reportType=WATCH COUNTY NOTIFICATION
+reportType=WATCH_COUNTY_NOTIFICATION
 color=RGB {155, 155, 155}
     </resourceParameters>
     <rscImplementation>WCN</rscImplementation>

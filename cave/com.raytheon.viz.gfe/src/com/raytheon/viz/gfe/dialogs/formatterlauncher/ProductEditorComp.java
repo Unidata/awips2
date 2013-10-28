@@ -63,6 +63,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -151,7 +152,6 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/12/2013        #1597 randerso    Code cleanup. Fixed possible widget disposed errors on shut down.
  * 05/08/2013        #1842 dgilling    Add alternate setProductText(), fix
  *                                     warnings.
- * 09/03/2013  16534       ryu         Refactor; sneak in a change for Ron (RM #1597).
  * 
  * </pre>
  * 
@@ -1851,7 +1851,7 @@ public class ProductEditorComp extends Composite implements
         }
 
         // convert to hours and check bounds
-        Float purgeOffset = offset / ((float) TimeUtil.SECONDS_PER_HOUR);
+        Float purgeOffset = (float) (offset / TimeUtil.SECONDS_PER_HOUR);
         purgeOffset = Math.min(purgeOffset, 24F);
         purgeOffset = Math.max(purgeOffset, 1F);
 
@@ -2868,16 +2868,21 @@ public class ProductEditorComp extends Composite implements
         }
 
         // Look for locked text in the selection
-        if (textComp.rangeHasLockedText(selectionRange.x, selectionRange.y)) {
-            String msg2 = "Selection contains locked text\n\n ";
-            MessageBox mb2 = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
-            mb2.setText("CTA");
-            mb2.setMessage(msg2);
-            mb2.open();
-            return;
+        StyleRange[] styleRanges = styledText.getStyleRanges(selectionRange.x,
+                selectionRange.y);
+        Color lockedColor = textComp.getLockColor();
+        for (StyleRange styleRange : styleRanges) {
+            if (lockedColor.equals(styleRange.foreground)) {
+                String msg2 = "Selection contains locked text\n\n ";
+                MessageBox mb2 = new MessageBox(getShell(), SWT.OK
+                        | SWT.ICON_WARNING);
+                mb2.setText("CTA");
+                mb2.setMessage(msg2);
+                mb2.open();
+                return;
+            }
         }
-        
+
         // Word-wrap the whole selection.
         int curLine = styledText.getLineAtOffset(selectionRange.x);
         int lastSelIdx = selectionRange.x + selectionRange.y - 1;

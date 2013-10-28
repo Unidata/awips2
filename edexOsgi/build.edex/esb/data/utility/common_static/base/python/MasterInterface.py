@@ -33,7 +33,6 @@
 #    ------------    ----------    -----------    --------------------------
 #    10/20/08                      njensen        Initial Creation.
 #    01/17/13         1486         dgilling       Make a new-style class.
-#    09/23/13         16614        njensen        Fixed reload method
 #    
 # 
 #
@@ -121,8 +120,7 @@ class MasterInterface(object):
         if self.isInstantiated(moduleName):
             self.__instanceMap.__delitem__(moduleName)
         if sys.modules.has_key(moduleName):
-            self.clearModuleAttributes(moduleName)
-            sys.modules.pop(moduleName)
+            sys.modules.__delitem__(moduleName)
         if moduleName in self.scripts:
             self.scripts.remove(moduleName)
     
@@ -130,8 +128,7 @@ class MasterInterface(object):
         # we may be overriding something in self.scripts, so let's
         # force an import here
         if moduleName in self.scripts:
-            self.clearModuleAttributes(moduleName)
-            sys.modules.pop(moduleName)
+            sys.modules.__delitem__(moduleName)
         __import__(moduleName)
         if not moduleName in self.scripts:
             self.scripts.append(moduleName)
@@ -143,27 +140,10 @@ class MasterInterface(object):
     
     def reloadModule(self, moduleName):
         if sys.modules.has_key(moduleName):
-            # From the python documentation:
-            # "When a module is reloaded, its dictionary (containing the module's
-            # global variables) is retained. Redefinitions of names will override the
-            # old definitions, so this is generally not a problem. If the new version
-            # of a module does not define a name that was defined by the old
-            # version, the old definition remains."
-            #
-            #
-            # Because the user might have removed items 
-            # from the module's dictionary, we cannot trust reload() to
-            # remove old items.  We will manually remove everything
-            # but built-ins to ensure everything gets re-initialized when
-            # reload() is called.
-            self.clearModuleAttributes(moduleName)                                        
-            reload(sys.modules[moduleName])
-        
-    def clearModuleAttributes(self, moduleName):
-        if sys.modules.has_key(moduleName):
-            mod = sys.modules[moduleName]
-            modGlobalsToRemove = [k for k in mod.__dict__ if not k.startswith('_')]
-            for k in modGlobalsToRemove:                
-                mod.__dict__.pop(k)
+            # because the user might have added or removed items 
+            # from the module's dictionary, we cannot trust reload() here.
+            sys.modules.__delitem__(moduleName)
+        __import__(moduleName)
+            
 
         

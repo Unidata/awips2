@@ -62,6 +62,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                     when no distribution files present
  * Mar 19, 2013 1794       djohnson    PatternWrapper is immutable, add toString() to it for debugging.
  * Aug 19, 2013 2257       bkowal      edexBridge to qpid 0.18 upgrade
+ * Aug 30, 2013 2163       bkowal      edexBridge to qpid 0.18 RHEL6 upgrade
  * 
  * </pre>
  * 
@@ -75,6 +76,8 @@ public class DistributionSrv {
             .getHandler(DistributionSrv.class);
 
     private static final String HEADER_QPID_SUBJECT = "qpid.subject";
+
+    private static final String MESSAGE_HEADER = "header";
 
     private static class PatternWrapper {
         private final String plugin;
@@ -231,10 +234,10 @@ public class DistributionSrv {
         if (header != null) {
             // make the qpid subject the header so that everything downstream
             // will be able to read it as the header.
-            in.setHeader("header", header);
+            in.setHeader(MESSAGE_HEADER, header);
         }
 
-        header = (String) in.getHeader("header");
+        header = (String) in.getHeader(MESSAGE_HEADER);
         Object payload = in.getBody();
         String bodyString = null;
         if (payload instanceof byte[]) {

@@ -33,12 +33,12 @@
 			<setHeader headerName="pluginName">
 				<constant>nctext</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:ingest.nctext" />
+			<to uri="jms-generic:queue:ingest.nctext" />
 		</route>
 
 		 
 		<route id="nctextIngestRoute">
-			<from uri="jms-durable:queue:ingest.nctext" />
+			<from uri="jms-generic:queue:ingest.nctext" />
 			<setHeader headerName="pluginName">
                 <constant>nctext</constant>
             </setHeader>

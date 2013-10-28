@@ -134,7 +134,6 @@ import com.raytheon.uf.viz.core.style.level.SingleLevel;
  * 05/23/2012               X. Guo          Loaded ncgrib logger   
  * 06/07/2012               X. Guo          Catch datauri&grid data for each frame
  * 09/26/2012               X. Guo          Fixed navigation query problems                                    
-*  08/19/2013   #743        S. Gurung       Added clrbar related changes                              
  * </pre>
  * 
  * @author mli
@@ -812,7 +811,6 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 						// create HILO symbols
 						if ( (attrType.contains("F") || attrType.contains("C"))&& (contourRenderable[i] != null) && 
 								(contourRenderable[i].getData() instanceof NcFloatDataRecord)) {
-												
 							if ( contourRenderable[i].getGridRelativeHiLo() == null  ) {
 								contourRenderable[i].setGridRelativeHiLo(createGridRelativeHiLoDisplay(
 	    								(NcFloatDataRecord)contourRenderable[i].getData(), gdPrxy, contourAttributes[i]));
@@ -1596,7 +1594,7 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     	String[] hlsymArray = gridRscData.getHlsym().trim().split("!");
     	String[] windArray = gridRscData.getWind().trim().split("!");
     	String[] markerArray = gridRscData.getMarker().trim().split("!");
-    	String[] clrbarArray  = gridRscData.getClrbar().trim().split("!");
+    	
     	/*Clean up cint -- max 5 zoom level*/
     	if ( cintArray != null && cintArray.length > 0 ) {
     		for ( int i = 0 ; i < cintArray.length ; i ++ ) {
@@ -1652,7 +1650,6 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     			contourAttributes[i].setHlsym(hlsymArray[0].trim());
     			contourAttributes[i].setWind(windArray[0].trim());
     			contourAttributes[i].setMarker(markerArray[0].trim());
-    			contourAttributes[i].setClrbar(clrbarArray[0].trim());
     			
     		}
     		else {
@@ -1701,9 +1698,6 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     			
     			idx = (markerArray.length > i) ? i : markerArray.length - 1;
     			contourAttributes[i].setMarker(markerArray[idx].trim());
-    			
-    			idx = (clrbarArray.length > i) ? i : clrbarArray.length - 1;
-    			contourAttributes[i].setClrbar( clrbarArray[idx].trim() );
     		}
     	}
     }
@@ -2247,9 +2241,7 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
         	rcMap.put( GridDBConstants.LEVEL_ONE_QUERY, new RequestConstraint( parmList[4]+".0" ) );
         }
         
-        // search for all the params stored in the inventory.
-        ArrayList<String>  rslts = NcGridInventory.getInstance().searchNcGridInventory( rcMap, 
-        		NcGridInventory.getInstance().inventoryParamNames.toArray( new String[0] ) );//"info.level.leveltwovalue" );
+        ArrayList<String>  rslts = NcGridInventory.getInstance().searchNcGridInventory( rcMap, "info.level.leveltwovalue" );
         
         long t11 = System.currentTimeMillis();
         if ( rslts == null || rslts.isEmpty() ) {

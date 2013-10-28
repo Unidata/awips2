@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.textformatter;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -39,9 +40,8 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Sep 8, 2008				njensen     Initial creation
- * Jan 15, 2010  3395       ryu         Fix &quot;issued by&quot; functionality
- * Sep 05, 2013  2329       randerso    Removed save of combinations file
+ * Sep 8, 2008				njensen	Initial creation
+ * Jan 15, 2010  3395       ryu     Fix &quot;issued by&quot; functionality
  * 
  * </pre>
  * 
@@ -63,20 +63,21 @@ public class FormatterUtil {
      *            the formatter instance to use
      * @param productName
      *            the name of the text product
-     * @param dbId
-     *            source database
-     * @param vtecMode
-     *            VTEC mode
+     * @param zoneList
+     *            the list of zones to produce the product for
      * @param finish
      *            listener to fire when formatter finishes generating product
      */
     public static void runFormatterScript(TextProductManager productMgr,
-            String productName, String dbId, String vtecMode,
-            TextProductFinishListener finish) {
+            String productName, List<List<String>> zoneList, String dbId,
+            String vtecMode, TextProductFinishListener finish) {
         try {
             String filename = productMgr.getCombinationsFileName(productName);
             boolean mapRequired = productMgr.mapRequired(productName);
             if (filename != null && mapRequired) {
+                String filenameExt = filename + ".py";
+                CombinationsFileGenerator.generateAutoCombinationsFile(
+                        zoneList, filenameExt);
                 productMgr.reloadModule(filename);
             }
         } catch (Exception e) {

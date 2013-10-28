@@ -39,7 +39,7 @@ public class NcLineWidth extends LineWidth implements INcCommand {
 	public void paint(IGraphicsTarget target, PaintProperties paintProps,
 			IDescriptor descriptor,
 			ImageBuilder ib) throws VizException {
-		ib.currentLineWidth = this.width / 1.0;  //  TODO  ??
+		ib.currentLineWidth = this.width / 10.0;  //  TODO  ??
 	}
 
 }

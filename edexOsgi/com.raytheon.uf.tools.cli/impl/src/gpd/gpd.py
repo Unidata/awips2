@@ -37,22 +37,6 @@ USAGE_MESSAGE = \
     gpd spx --f filePath
     <To store product GEMPAK file at filePath to EDEX server database>
     gpd spg --f filePath --p prodName [--v versionNum]
-    <To query product information in Gempak format  result saved at filePath>
-    gpd qig --p prodName --f filePath                       
-    <To query and list product information in Gempak format >
-    gpd qigl --p prodName       
-    <To query a product (all stations) in Gempak format, optional version number, result saved at filePath > 
-    gpd qpg --p prodName --t referenceTime [--f filePath --v versionNum]
-    <To query and list a product (all stations) in Gempak format, optional version number > 
-    gpd qpgl --p prodName --t referenceTime [--v versionNum]
-    <To query a station product (single station) in Gempak format,optional version number, result saved at optional filePath > 
-    gpd qsg --p prodName --t referenceTime --id stationId [--f filePath --v versionNum]
-    <To query and list a station product (single station) in Gempak format, optional version number > 
-    gpd qsgl --p prodName --t referenceTime --id stationId [--v versionNum]
-    <To query a moving product in Gempak format, optional version number result saved at optional filePath >  
-    gpd qmg --p prodName --t referenceTime --slat latitude --slon longitude  [--f filePath --v versionNum]
-    <To query and list a moving product in Gempak format, optional version number >  
-    gpd qmgl --p prodName --t referenceTime --slat latitude --slon longitude  [--v versionNum]
     <To purge expired products from DB and HDF5>
     gpd pe
     <To purge all products from DB and HDF5>
@@ -78,6 +62,27 @@ SUBCOMMAND_MESSAGE = \
     qmxl: To query and print a moving product 
     spx: To store product XML file to EDEX server database 
     spg: To store product GEMPAk table file to EDEX server database 
+    pe: To purge expired products
+    pa: To purge all products
+    u: To print usage
+"""
+'''
+    gpd qig --p prodName --f filePath                       
+    <To query and list product information in Gempak format >
+    gpd qigl --p prodName       
+    <To query a product (all stations) in Gempak format, optional version number, result saved at filePath > 
+    gpd qpg --p prodName --t referenceTime [--f filePath --v versionNum]
+    <To query and list a product (all stations) in Gempak format, optional version number > 
+    gpd qpgl --p prodName --t referenceTime [--v versionNum]
+    <To query a station product (single station) in Gempak format,optional version number, result saved at optional filePath > 
+    gpd qsg --p prodName --t referenceTime --id stationId [--f filePath --v versionNum]
+    <To query and list a station product (single station) in Gempak format, optional version number > 
+    gpd qsgl --p prodName --t referenceTime --id stationId [--v versionNum]
+    <To query a moving product in Gempak format, optional version number result saved at optional filePath >  
+    gpd qmg --p prodName --t referenceTime --slat latitude --slon longitude  [--f filePath --v versionNum]
+    <To query and list a moving product in Gempak format, optional version number >  
+    gpd qmgl --p prodName --t referenceTime --slat latitude --slon longitude  [--v versionNum]
+
     qig: To query product information, result saved at optional filePath
     qigl: To query and list product information 
     qpg: To query a product (all stations), result saved at optional filePath
@@ -86,10 +91,7 @@ SUBCOMMAND_MESSAGE = \
     qsgl: To query and list a station product 
     qmg: To query a moving product, result saved at optional filePath 
     qmgl: To query and print a moving product 
-    pe: To purge expired products
-    pa: To purge all products
-    u: To print usage
-"""
+'''
 def __initLogger():
     global logger
     logger = logging.getLogger("gpd")
@@ -152,7 +154,7 @@ def __parseCommandLine():
     #parser_info_printXml.add_argument("--f", dest="filePath", action="store",
     #                  help=":target file path for return product")
     parser_info_printXml.set_defaults(func=__getPrintProdInfoXml)
-    
+    '''
     parser_infoGempak = subparsers.add_parser('qig')       
     parser_infoGempak.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")   
@@ -164,7 +166,7 @@ def __parseCommandLine():
     parser_info_printGempak.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")         
     parser_info_printGempak.set_defaults(func=__getPrintProdInfoGempak)
-    
+    '''
     #To query a station product (single station)
     parser_stnProdXml = subparsers.add_parser('qsx') 
     parser_stnProdXml.add_argument("--p", dest="prodName", action="store",required=True,
@@ -190,7 +192,7 @@ def __parseCommandLine():
                       help=":product version")
     parser_stnProdXml_print.set_defaults(func=__getPrintStnProdXml)
     
-    
+    '''
     parser_stnProdGempak = subparsers.add_parser('qsg') 
     parser_stnProdGempak.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")   
@@ -214,7 +216,7 @@ def __parseCommandLine():
     parser_stnProdGempak_print.add_argument("--v", dest="versionNum", action="store",
                       help=":product version")
     parser_stnProdGempak_print.set_defaults(func=__getPrintStnProdGempak)
-    
+    '''
     #To query a moving product
     parser_movingProdXml = subparsers.add_parser('qmx') 
     parser_movingProdXml.add_argument("--p", dest="prodName", action="store",required=True,
@@ -244,7 +246,7 @@ def __parseCommandLine():
                       help=":product version")
     parser_movingProdXml_print.set_defaults(func=__getPrintMovingProdXml)
     
-    
+    '''
     parser_movingProdGempak = subparsers.add_parser('qmg') 
     parser_movingProdGempak.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")   
@@ -272,7 +274,7 @@ def __parseCommandLine():
     parser_movingProdGempak_print.add_argument("--v", dest="versionNum", action="store",
                       help=":product version")
     parser_movingProdGempak_print.set_defaults(func=__getPrintMovingProdGempak)
-    
+    '''
 
     #To query a product
     parser_prodXml = subparsers.add_parser('qpx') 
@@ -286,7 +288,7 @@ def __parseCommandLine():
                       help=":product version")
     parser_prodXml.set_defaults(func=__getProdXml)
     
-    
+    '''
     parser_prodGempak = subparsers.add_parser('qpg') 
     parser_prodGempak.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")   
@@ -297,7 +299,7 @@ def __parseCommandLine():
     parser_prodGempak.add_argument("--v", dest="versionNum", action="store",
                       help=":product version")
     parser_prodGempak.set_defaults(func=__getProdGempak)
-    
+    '''
     parser_prodXml_print = subparsers.add_parser('qpxl') 
     parser_prodXml_print.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")   
@@ -307,7 +309,7 @@ def __parseCommandLine():
                       help=":product version")
     
     parser_prodXml_print.set_defaults(func=__getPrintProdXml)
-    
+    '''
     parser_prodGempak_print = subparsers.add_parser('qpgl') 
     parser_prodGempak_print.add_argument("--p", dest="prodName", action="store",required=True,
                       help=":name of a Generic Point Data product")   
@@ -317,7 +319,7 @@ def __parseCommandLine():
                       help=":product version")
     
     parser_prodGempak_print.set_defaults(func=__getPrintProdGempak)
-    
+    '''
 
     '''
     #parser_purge_prod = subparsers.add_parser('pp') 

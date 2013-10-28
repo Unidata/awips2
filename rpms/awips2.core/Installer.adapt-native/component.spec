@@ -7,6 +7,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -34,11 +35,14 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 FILES_NATIVE="%{_baseline_workspace}/files.native"
 
 /bin/cp -rf ${FILES_NATIVE}/adapt \
