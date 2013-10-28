@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.common.dataplugin.geomag.dao;
 
+
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.AbstractStorageRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
@@ -261,7 +261,6 @@ public class GeoMagDao extends PluginDao {
 //        	dataStore.addDataRecord(storageRecord);  
 //        	       
 //        }
-        
 //        if (magRecord.getHrAvgIdx() != null) {
 //		    AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.HrAvgIdx, 
 //		    		magRecord.getDataURI(), (int[]) magRecord.getHrAvgIdx(), 1, 
@@ -270,290 +269,269 @@ public class GeoMagDao extends PluginDao {
 //	    	storageRecord.setCorrelationObject(record);
 //	    	dataStore.addDataRecord(storageRecord);
 //        }
-
-        /*
-         * Write H_HR_AVG data to HDF5.
-         */
-        if ( magRecord.getHrAvgH() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.H_HR_AVG, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHrAvgH(), 1, 
-        			new long[] {magRecord.getHrAvgH().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        /*
-         * Write D_HR_AVG data to HDF5.
-         */
-        if ( magRecord.getHrAvgD() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.D_HR_AVG, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHrAvgD(), 1, 
-        			new long[] {magRecord.getHrAvgD().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);       
-        	       
-        }
+//
 //        /*
-//         * Write insertTime data to HDF5.
+//         * Write H_HR_AVG data to HDF5.
 //         */
-//        if ( magRecord.getCompInsertTime() != null ) {
-//        	AbstractStorageRecord storageRecord = new LongDataRecord(GeoMagRecord.Comp_Insert_Time, 
-//        			magRecord.getDataURI(), (long[]) magRecord.getCompInsertTime(), 1, 
-//        			new long[] {magRecord.getCompInsertTime().length});
+//        if ( magRecord.getHrAvgH() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.H_HR_AVG, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHrAvgH(), 1, 
+//        			new long[] {magRecord.getHrAvgH().length});
 //        	storageRecord.setCorrelationObject(magRecord);
 //        	dataStore.addDataRecord(storageRecord);  
 //        	       
 //        }
-        
-        /*
-         * Write K_Index data to HDF5.
-         */
-        // 3hr
-        if ( magRecord.getKKIndex() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.K_Index, 
-        			magRecord.getDataURI(), (int[]) magRecord.getKKIndex(), 1, 
-        			new long[] {magRecord.getKKIndex().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getKKGamma() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.K_Gamma, 
-        			magRecord.getDataURI(), (float[]) magRecord.getKKGamma(), 1, 
-        			new long[] {magRecord.getKKGamma().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getKKReal() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.K_Real, 
-        			magRecord.getDataURI(), (float[]) magRecord.getKKReal(), 1, 
-        			new long[] {magRecord.getKKReal().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getKestIndex() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.Kest_Index, 
-        			magRecord.getDataURI(), (int[]) magRecord.getKestIndex(), 1, 
-        			new long[] {magRecord.getKestIndex().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getKestGamma() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Gamma, 
-        			magRecord.getDataURI(), (float[]) magRecord.getKestGamma(), 1, 
-        			new long[] {magRecord.getKestGamma().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getKestReal() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Real, 
-        			magRecord.getDataURI(), (float[]) magRecord.getKestReal(), 1, 
-        			new long[] {magRecord.getKestReal().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getHKGamma() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Gamma, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHKGamma(), 1, 
-        			new long[] {magRecord.getHKGamma().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getHKReal() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Real, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHKReal(), 1, 
-        			new long[] {magRecord.getHKReal().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-
-        if ( magRecord.getDKGamma() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Gamma, 
-        			magRecord.getDataURI(), (float[]) magRecord.getDKGamma(), 1, 
-        			new long[] {magRecord.getDKGamma().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getDKReal() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Real, 
-        			magRecord.getDataURI(), (float[]) magRecord.getDKReal(), 1, 
-        			new long[] {magRecord.getDKReal().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-
-        
-        
-        // 1 min    
-//        if (magRecord.getKIdx() != null) {
-//		    AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KIdx, 
-//		    		magRecord.getDataURI(), (int[]) magRecord.getKIdx(), 1, 
-//	    			new long[] {magRecord.getKIdx().length});
+//        
+//        /*
+//         * Write D_HR_AVG data to HDF5.
+//         */
+//        if ( magRecord.getHrAvgD() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.D_HR_AVG, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHrAvgD(), 1, 
+//        			new long[] {magRecord.getHrAvgD().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        /*
+//         * Write K_Index data to HDF5.
+//         */
+//        // 3hr
+//        if ( magRecord.getKKIndex() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.K_Index, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getKKIndex(), 1, 
+//        			new long[] {magRecord.getKKIndex().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getKKGamma() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.K_Gamma, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getKKGamma(), 1, 
+//        			new long[] {magRecord.getKKGamma().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getKKReal() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.K_Real, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getKKReal(), 1, 
+//        			new long[] {magRecord.getKKReal().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getKestIndex() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.Kest_Index, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getKestIndex(), 1, 
+//        			new long[] {magRecord.getKestIndex().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getKestGamma() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Gamma, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getKestGamma(), 1, 
+//        			new long[] {magRecord.getKestGamma().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getKestReal() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Real, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getKestReal(), 1, 
+//        			new long[] {magRecord.getKestReal().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getHKGamma() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Gamma, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHKGamma(), 1, 
+//        			new long[] {magRecord.getHKGamma().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getHKReal() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Real, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHKReal(), 1, 
+//        			new long[] {magRecord.getHKReal().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//
+//        if ( magRecord.getDKGamma() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Gamma, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getDKGamma(), 1, 
+//        			new long[] {magRecord.getDKGamma().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getDKReal() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Real, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getDKReal(), 1, 
+//        			new long[] {magRecord.getDKReal().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//
+//        
+//        
+//        // 1 min    
+//        if ( magRecord.getKestIndex1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.Kest_Index_1m, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getKestIndex1m(), 1, 
+//        			new long[] {magRecord.getKestIndex1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getKestGamma1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Gamma_1m, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getKestGamma1m(), 1, 
+//        			new long[] {magRecord.getKestGamma1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
 //		    
+//        if ( magRecord.getKestReal1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Real_1m, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getKestReal1m(), 1, 
+//        			new long[] {magRecord.getKestReal1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getHKGamma1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Gamma_1m, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHKGamma1m(), 1, 
+//        			new long[] {magRecord.getHKGamma1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getHKReal1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Real_1m, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHKReal1m(), 1, 
+//        			new long[] {magRecord.getHKReal1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//
+//        if ( magRecord.getDKGamma1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Gamma_1m, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getDKGamma1m(), 1, 
+//        			new long[] {magRecord.getDKGamma1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getDKReal1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Real_1m, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getDKReal1m(), 1, 
+//        			new long[] {magRecord.getDKReal1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        if ( magRecord.getHKIndex1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KH_Index_1m, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getHKIndex1m(), 1, 
+//        			new long[] {magRecord.getHKIndex1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getDKIndex1m() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KD_Index_1m, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getDKIndex1m(), 1, 
+//        			new long[] {magRecord.getDKIndex1m().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if ( magRecord.getHCount() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KH_Count, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getHCount(), 1, 
+//        			new long[] {magRecord.getHCount().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//     
+//        if ( magRecord.getDCount() != null ) {
+//        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KD_Count, 
+//        			magRecord.getDataURI(), (int[]) magRecord.getDCount(), 1, 
+//        			new long[] {magRecord.getDCount().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//
+//        if ( magRecord.getHDev() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Dev, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getHDev(), 1, 
+//        			new long[] {magRecord.getHDev().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//     
+//        if ( magRecord.getDDev() != null ) {
+//        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Dev, 
+//        			magRecord.getDataURI(), (float[]) magRecord.getDDev(), 1, 
+//        			new long[] {magRecord.getDDev().length});
+//        	storageRecord.setCorrelationObject(magRecord);
+//        	dataStore.addDataRecord(storageRecord);  
+//        	       
+//        }
+//        
+//        if (magRecord.getKs() != null) {
+//			AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.K_s, 
+//					magRecord.getDataURI(), (float[]) magRecord.getKs(), 1, 
+//	    			new long[] {magRecord.getKs().length});
 //	    	storageRecord.setCorrelationObject(record);
 //	    	dataStore.addDataRecord(storageRecord);
+//        				
+//	    }
+//		
+//        if (magRecord.getAest() != null) {
+//			AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.A_est, 
+//					magRecord.getDataURI(), (int[]) magRecord.getAest(), 1, 
+//	    			new long[] {magRecord.getAest().length});
+//	    	storageRecord.setCorrelationObject(record);
+//	    	dataStore.addDataRecord(storageRecord);  
+//        				
+//	    }
+//		
+//	    if (magRecord.getLastUpdate() != null) {
+//			AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Last_Update_1m, 
+//					magRecord.getDataURI(), (float[]) magRecord.getLastUpdate(), 1, 
+//	    			new long[] {magRecord.getLastUpdate().length});
+//	    	storageRecord.setCorrelationObject(record);
+//	    	dataStore.addDataRecord(storageRecord);  
+//        				
 //        }
-        
-        if ( magRecord.getKestIndex1m() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.Kest_Index_1m, 
-        			magRecord.getDataURI(), (int[]) magRecord.getKestIndex1m(), 1, 
-        			new long[] {magRecord.getKestIndex1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);       
-        	       
-        }
-        
-        if ( magRecord.getKestGamma1m() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Gamma_1m, 
-        			magRecord.getDataURI(), (float[]) magRecord.getKestGamma1m(), 1, 
-        			new long[] {magRecord.getKestGamma1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getKestReal1m() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Kest_Real_1m, 
-        			magRecord.getDataURI(), (float[]) magRecord.getKestReal1m(), 1, 
-        			new long[] {magRecord.getKestReal1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getHKGamma1m() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Gamma_1m, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHKGamma1m(), 1, 
-        			new long[] {magRecord.getHKGamma1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getHKReal1m() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Real_1m, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHKReal1m(), 1, 
-        			new long[] {magRecord.getHKReal1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-
-        if ( magRecord.getDKGamma1m() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Gamma_1m, 
-        			magRecord.getDataURI(), (float[]) magRecord.getDKGamma1m(), 1, 
-        			new long[] {magRecord.getDKGamma1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getDKReal1m() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Real_1m, 
-        			magRecord.getDataURI(), (float[]) magRecord.getDKReal1m(), 1, 
-        			new long[] {magRecord.getDKReal1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        if ( magRecord.getHKIndex1m() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KH_Index_1m, 
-        			magRecord.getDataURI(), (int[]) magRecord.getHKIndex1m(), 1, 
-        			new long[] {magRecord.getHKIndex1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getDKIndex1m() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KD_Index_1m, 
-        			magRecord.getDataURI(), (int[]) magRecord.getDKIndex1m(), 1, 
-        			new long[] {magRecord.getDKIndex1m().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if ( magRecord.getHCount() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KH_Count, 
-        			magRecord.getDataURI(), (int[]) magRecord.getHCount(), 1, 
-        			new long[] {magRecord.getHCount().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-     
-        if ( magRecord.getDCount() != null ) {
-        	AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.KD_Count, 
-        			magRecord.getDataURI(), (int[]) magRecord.getDCount(), 1, 
-        			new long[] {magRecord.getDCount().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-
-        if ( magRecord.getHDev() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KH_Dev, 
-        			magRecord.getDataURI(), (float[]) magRecord.getHDev(), 1, 
-        			new long[] {magRecord.getHDev().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-     
-        if ( magRecord.getDDev() != null ) {
-        	AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.KD_Dev, 
-        			magRecord.getDataURI(), (float[]) magRecord.getDDev(), 1, 
-        			new long[] {magRecord.getDDev().length});
-        	storageRecord.setCorrelationObject(magRecord);
-        	dataStore.addDataRecord(storageRecord);  
-        	       
-        }
-        
-        if (magRecord.getKs() != null) {
-			AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.K_s, 
-					magRecord.getDataURI(), (float[]) magRecord.getKs(), 1, 
-	    			new long[] {magRecord.getKs().length});
-	    	storageRecord.setCorrelationObject(record);
-	    	dataStore.addDataRecord(storageRecord);  
-        				
-	    }
-		
-        if (magRecord.getAest() != null) {
-			AbstractStorageRecord storageRecord = new IntegerDataRecord(GeoMagRecord.A_est, 
-					magRecord.getDataURI(), (int[]) magRecord.getAest(), 1, 
-	    			new long[] {magRecord.getAest().length});
-	    	storageRecord.setCorrelationObject(record);
-	    	dataStore.addDataRecord(storageRecord);  
-        				
-	    }
-		
-	    if (magRecord.getLastUpdate() != null) {
-			AbstractStorageRecord storageRecord = new FloatDataRecord(GeoMagRecord.Last_Update_1m, 
-					magRecord.getDataURI(), (float[]) magRecord.getLastUpdate(), 1, 
-	    			new long[] {magRecord.getLastUpdate().length});
-	    	storageRecord.setCorrelationObject(record);
-	    	dataStore.addDataRecord(storageRecord);  
-        				
-	    }
         return dataStore;
     }
     

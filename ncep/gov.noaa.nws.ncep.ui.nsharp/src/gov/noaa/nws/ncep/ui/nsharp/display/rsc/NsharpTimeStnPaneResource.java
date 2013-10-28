@@ -551,7 +551,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     		if(numStnToShow <1)
     			numStnToShow=1;
     	}
-    	int startIndex = (rscHandler.getCurStnIdPage()-1) * numStnToShow;
+    	int startIndex = (rscHandler.getCurSndPage()-1) * numStnToShow;
     	if(startIndex<0)
     		startIndex =0;
         int colorIndex;

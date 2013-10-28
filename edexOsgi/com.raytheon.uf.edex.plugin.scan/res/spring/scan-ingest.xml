@@ -28,7 +28,7 @@
 	    xmlns="http://camel.apache.org/schema/spring"
 	    errorHandlerRef="errorHandler">                
 	    <route id="scanCpgSrvListenerRoute">
-            <from uri="jms-generic:queue:scanCpgsrvFiltering"/>
+            <from uri="jms-durable:queue:scanCpgsrvFiltering"/>
 	        <doTry>
 		          <pipeline>
 		          	<bean ref="serializationUtil" method="transformFromThrift" />

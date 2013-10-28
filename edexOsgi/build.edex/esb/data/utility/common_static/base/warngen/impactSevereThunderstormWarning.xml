@@ -6,9 +6,23 @@
      MIKE REGA 5-10-2012 DR 14525 added timeZoneField
                          DR 14691 added feAreaField
      Evan Bookbinder 09-11-2012 Added settings for locations shapefile    
-                                Added new areaSource object                   
+                                Added new areaSource object     
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml              
 -->
 <warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -170,10 +184,9 @@
   <bullet bulletName="addlHailWindRpt" bulletText="Select to include additional hail and/or wind reports..." bulletGroup="radioset4"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
@@ -203,157 +216,4 @@
 </bulletActionGroup>
 </bulletActionGroups>
 
- <!-- areaSource object to generate county-based information -->
- <areaSource variable="areas">
-   <areaSource>County</areaSource>
-   <inclusionPercent>0</inclusionPercent>
-   <inclusionAndOr>AND</inclusionAndOr>
-   <inclusionArea>0</inclusionArea>
-   <areaField>COUNTYNAME</areaField>
-   <parentAreaField>NAME</parentAreaField>
-   <areaNotationField>STATE</areaNotationField>
-   <feAreaField>FE_AREA</feAreaField>
-   <timeZoneField>TIME_ZONE</timeZoneField>
-   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-   <fipsField>FIPS</fipsField>
-   <pointField>NAME</pointField>
-   <sortBy>
-  	<sort>parent</sort>
-   </sortBy>
-   <pointFilter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1" constraintType="EQUALS" />
- 		</mapping>
-  </pointFilter>
-  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
-</areaSource>
-  
- <pointSource variable="closestPoints">
- 	<pointField>NAME</pointField>
- 	<searchMethod>POINTS</searchMethod>
- 	<type>AREA</type>
- 	<filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1,2" constraintType="IN" />
- 		</mapping>
-  	  <mapping key="LANDWATER">
- 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
- 	  </mapping>  		
- 	</filter>
- 	<maxResults>1</maxResults>
- 	<distanceThreshold>100</distanceThreshold>
- 	<sortBy>
- 		<sort>distance</sort>
-  		<sort>warngenlev</sort>
-  		<sort>population</sort>
-  	</sortBy>
- </pointSource>
- 
- <pointSource variable="otherClosestPoints">
- 	<pointField>NAME</pointField>
- 	<searchMethod>POINTS</searchMethod>
- 	<type>AREA</type>
- 	<filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1" constraintType="EQUALS" />
- 		</mapping>
-  	  <mapping key="LANDWATER">
- 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
- 	  </mapping>  		
- 	</filter>
- 	<maxResults>5</maxResults>
- 	<distanceThreshold>100</distanceThreshold>
- 	<sortBy>
- 		<sort>distance</sort>
-  	</sortBy>
- </pointSource>
- 
- <pathcastConfig>
-  <inclusionPercent>1</inclusionPercent>
-  <withinPolygon>true</withinPolygon>
-  <distanceThreshold>8.0</distanceThreshold>
-  <interval>5</interval>
-  <delta>5</delta>
-  <maxResults>10</maxResults>
-  <maxGroup>8</maxGroup>
-  <pointField>Name</pointField>
-  <type>AREA</type>
- <areaField>COUNTYNAME</areaField> 
-<!-- <areaField>NAME</areaField> -->
-  <parentAreaField>STATE</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <sortBy>
-  		<sort>warngenlev</sort>
-  		<sort>population</sort>
-  		<sort>distance</sort>
-  </sortBy>
-  <filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1,2" constraintType="IN" />
- 		</mapping>
-  	  <mapping key="LANDWATER">
- 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
- 	  </mapping> 	 	
-  </filter>
- </pathcastConfig>
- 
-  <pointSource variable="cityList">
- 	<pointField>NAME</pointField>
- 	<inclusionPercent>1</inclusionPercent>
- 	<type>AREA</type>
- 	<searchMethod>TRACK</searchMethod>
- 	<withinPolygon>true</withinPolygon>
- 	<maxResults>20</maxResults>
- 	<distanceThreshold>10</distanceThreshold>
-	<filter> 	
-  	  <mapping key="WARNGENLEV">
- 		<constraint constraintValue="1,2,3,4" constraintType="IN" />
- 	  </mapping>
-  	  <mapping key="LANDWATER">
- 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
- 	  </mapping> 	 	  
- 	</filter>  	
- 	<sortBy>
-  		<sort>warngenlev</sort>
-  		<sort>population</sort>
-  		<sort>distance</sort>
-  	</sortBy>
- </pointSource>
- 
-  <pointSource variable="otherPoints">
- 	<pointField>NAME</pointField>
- 	<inclusionPercent>1</inclusionPercent>
- 	<type>AREA</type>
- 	<searchMethod>TRACK</searchMethod>
- 	<withinPolygon>true</withinPolygon>
- 	<maxResults>10</maxResults>
- 	<distanceThreshold>10</distanceThreshold>
- 	<sortBy>
-  		<sort>distance</sort>
-  	</sortBy>
-	<filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3,4" constraintType="IN" />
- 		</mapping>
-  	  <mapping key="LANDWATER">
- 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
- 	  </mapping> 	 	
-  	</filter>
- </pointSource>
- 
- <!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
-and place into this template
--->  
-<include file="pointMarkers.xml"/>
-<include file="mileMarkers.xml"/>
-
- <geospatialConfig>
-  <pointSource>WarnGenLoc</pointSource>
- <areaSource>County</areaSource>
-<!-- <areaSource>Zone</areaSource> -->
-  <parentAreaSource>States</parentAreaSource>
-  <timezoneSource>TIMEZONES</timezoneSource>
-  <timezoneField>TIME_ZONE</timezoneField>
- </geospatialConfig>
 </warngenConfig>

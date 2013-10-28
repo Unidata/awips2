@@ -121,7 +121,7 @@ public class CalcUtil {
 		}
 	}
 	
-	public static int geta2k(int k) {
+	public static int getK2a(int k) {
 		int a = 0;
 		if (k == 0)
 			a = K2a.a0.a;
@@ -295,7 +295,7 @@ public class CalcUtil {
 				break;
 		}
 		
-		//take the lower of i
+		//take the lower of i. this step eq. K_limit = K9limit * [5, 10, 20, 40...
 		if (i > 0)
 			i = i-1;
 		

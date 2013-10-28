@@ -1,23 +1,19 @@
 #################################################################
 ## SEVERE WEATHER STATEMENT TEMPLATE                           ##
 ## CREATED BY EVAN BOOKBINDER - WFO EAX                        ##
-## MODIFIED     INITIAL OB11.4 REWRITE - 4-13-2011             ##
-##              HEADLINE MACRO REWRITE   8-17-2011  OB11.8.4   ##
-##              PATHCAST/CITIES CHANGES  9-15-2011  OB11.8.0-8 ##
-##         BY PHIL KURIMSKI              9-22-2011  OB11.8.0-8 ##
-##         BY EVAN BOOKBINDER           11-04-2011  OB11.9-3   ##
-##         BY EVAN BOOKBINDER            2-24-2012  OB12.2.1   ##
-##         BY MIKE REGA       5-3-2012 DR 14885 MND blank line ##
-##         BY QINGLU LIN     6-18-2012 DR 15043 use duration   ##
-##         BY QINGLU LIN     7-31-2012 DR 15217 use roundAndPad##
+## RECENT HISTORY:
 ##         Mike Dangelo 9-13-2012 minor tweaks to ${variables} ##
 ##         Mike Dangelo 2-5-2013 NWS Mets Detected options     ##
 ##         PHIL KURIMSKI 2-6-2013  Tor emergency preamble      ##
+##         EVAN BOOKBINDER 9-16-2013  CTA WORDING FIX          ##
+##         PHIL KURIMSKI   9-17-2013  Tor emergency headline   ##
+##         EVAN BOOKBINDER 9-18-2013  Implemented config.vm    ##
 #################################################################
 ##
 ###################################################################
 ## Set null variables for wind/hail tags used in the template    ##
 ###################################################################
+#parse("config.vm")
 #set($windhailTag = "")
 #set($TORhailTag = "")
 ###############################################################################
@@ -79,19 +75,33 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
 #end
+-##
+#end
+
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
 #end
+-##
+#end
+
 #else
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 #end
 
@@ -133,6 +143,8 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE ${eventType} WARNING FOR ##
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
+###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
+###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
 #end
 ############################
 ## END CAN/EXP HEADLINE ####
@@ -310,7 +322,11 @@ $$
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -325,7 +341,11 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -335,17 +355,18 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #end
 #end
+#####################################################################
+### TORNADO EMERGENCY HEADLINE                                      #
+#####################################################################
+#if(${list.contains(${bullets}, "torEmergency")})
+
+...TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
+
+#end
 #if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
 ...A ${eventType} WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone},${duration}) FOR ##
 #headlineLocList(${areas} true true true false)...
 ########### END NEW HEADLINE CODE ####################
-#####################################################################
-### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE                      #
-#####################################################################
-#if(${list.contains(${bullets}, "torEmergency")})
-...THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
-
-#end
 #set($reportType = "!** BASIS FOR WARNING **!")
 #set($reportAuthSVR = "")
 ############### BASIS SECTION ####################
@@ -614,15 +635,24 @@ THIS IS A TEST MESSAGE. ##
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${reportType}${hailwind}. ##
 ${reportType2} LOCATED ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if($movementSpeed < 3 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} NEARLY STATIONARY. ${smallHail}${TORHailThreat}
 #else
 ...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ${smallHail}${TORHailThreat}
+#end
+
+#####################################################################
+### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE GOES WITH 3RD BULLET #
+#####################################################################
+#if(${list.contains($bullets, "torEmergency")})
+THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW.
+
 #end
 #############################################
 ######## GENERATE ADDITIONAL REPORTS  #######
@@ -690,6 +720,8 @@ THOSE ATTENDING THE !**now/venue name or location**! ARE IN THE PATH OF THIS STO
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
+## Uncomment below pull in point marker info
+## #parse("pointMarkers.vm")
 
 ##################################
 ######### CALLS TO ACTION ########
@@ -768,7 +800,7 @@ SEVERE THUNDERSTORMS PRODUCE DAMAGING WINDS...DESTRUCTIVE HAIL...DEADLY LIGHTNIN
 ##
 #if(${list.contains(${bullets}, "canProduceTornadoesCTA")})
 #if(${stormType} == "line")
-DOPPLER RADAR HAS INDICATED SOME WEAK ROTATION WITHIN THESE STORMS. ALTHOUGH A TORNADO IS NOT IMMEDIATELY LIKELY...IF ONE IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR
+DOPPLER RADAR HAS INDICATED SOME WEAK ROTATION WITHIN THESE STORMS. ALTHOUGH A TORNADO IS NOT IMMEDIATELY LIKELY...IF ONE IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR ROOM.
 
 #else
 DOPPLER RADAR HAS INDICATED SOME WEAK ROTATION WITHIN THIS STORM. ALTHOUGH A TORNADO IS NOT IMMEDIATELY LIKELY...IF ONE IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR ROOM.

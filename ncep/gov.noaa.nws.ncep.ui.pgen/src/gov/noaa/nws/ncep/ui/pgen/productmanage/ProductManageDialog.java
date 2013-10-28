@@ -12,7 +12,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.GfaAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.OutlookAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.controls.StoreActivityDialog;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.ProductInfo;
@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *                                      unless the user selects them. 
  * 06/12		TTR559		B. Yin		Link the layer name to Outlook type
  * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
+ * 09/13  		?           J. Wu    	Use new "StoreActivityDialog" at exit.
  * 
  * </pre>
  *
@@ -1274,18 +1275,17 @@ public class ProductManageDialog extends ProductDialog {
 
    	    	if ( confirmDlg.getReturnCode() == MessageDialog.OK ) {   		    
 
-   	    		PgenFileManageDialog file_dlg = null;
-
-   	    		if ( file_dlg == null ) {
+   	    		StoreActivityDialog  storeDlg = null;
+   	    		if ( storeDlg == null ) {
    	    			try {	
-   	    				file_dlg = new PgenFileManageDialog( shell, "Save" );        		
+   	                     storeDlg = new StoreActivityDialog( shell, "Save As" );
    	    			}
    	    			catch (VizException e) {
    	    				e.printStackTrace();
    	    			}  
    	    		}
 
-   	    		if ( file_dlg != null )  file_dlg.open();
+   	    		if ( storeDlg != null )  storeDlg.open();
 
    	    	}
         

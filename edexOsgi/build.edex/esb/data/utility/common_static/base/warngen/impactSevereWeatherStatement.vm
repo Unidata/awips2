@@ -2,20 +2,17 @@
 ## SEVERE WEATHER STATEMENT TEMPLATE                          ##
 ## FOR CR IMPACT BASED TOR/SVR INITIATIVE                     ## 
 ## CREATED BY PHIL KURIMSKI - WFO DTX                         ##
-## VERSION AWIPS II 1.0 -- 2-21-2012 OB12.1.1-1               ##
-## VERSION AWIPS II 1.1 -- 2-29-2012 OB12.2.1-4               ##
-## VERSION AWIPS II 1.2 -- 4-20-2012                          ##
-## VERSION AWIPS II 1.3 -- 9-13-2012 OB12.9.1-12              ##
-## VERSION AWIPS II 1.4 -- 2-04-2012 OB13.2.1-5 impact stmts  ##
-## VERSION AWIPS II 1.5 -- Bookbinder 2-22-13 2013 IBW Changes##
-## VERSION AWIPS II 1.6 -- Kurimski 5-20-13 2013 IBW Changes  ##
+## 	   UPDATED Evan Bookbinder 2-22-13 2013 IBW Changes       ##
+##     UPDATED -- Kurimski 5-20-13 2013 IBW Changes           ##
+##     UPDATED -- Kurimski 9/17/13 Tor Emer Headline          ##
+##     UPDATED -- Bookbinder 9/18/13 Implement config.vm      ##
 ################################################################
 ## Commented out Impact statements Feb 2013 and created file to
 ## be parsed into the template called impactStatements.vm
 ## Changes to the impact statements can be made to this file
 ## instead of the template
 ################################################################
-##
+#parse("config.vm")
 ###################################################################
 ## Set null variables for wind/hail tags used in the template    ##
 ###################################################################
@@ -100,19 +97,33 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
 #end
+-##
+#end
+
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
 #end
+-##
+#end
+
 #else
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 #end
 
@@ -154,6 +165,8 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE ${eventType} WARNING FOR ##
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
+###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
+###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
 #end
 ############################
 ## END CAN/EXP HEADLINE ####
@@ -165,12 +178,12 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
 #### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
 #if(${stormType} == "line")
-  #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED/MOVED OUT OF THE WARNED AREA **!. THEREFORE THE WARNING ${expcanBODYTag}.")
+  #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED. MOVED OUT OF THE WARNED AREA.**! THEREFORE THE WARNING ${expcanBODYTag}.")
 #else
   #if(${phenomena}=="SV")
-    #set($expcanPhrase = "THE SEVERE THUNDERSTORM WHICH PROMPTED THE WARNING HAS !** WEAKENED/MOVED OUT OF THE WARNED AREA **!. THEREFORE THE WARNING ${expcanBODYTag}.")
+    #set($expcanPhrase = "THE SEVERE THUNDERSTORM WHICH PROMPTED THE WARNING HAS !** WEAKENED. MOVED OUT OF THE WARNED AREA. **! THEREFORE THE WARNING ${expcanBODYTag}.")
   #else
-    #set($expcanPhrase = "THE TORNADIC THUNDERSTORM WHICH PROMPTED THE WARNING HAS !** WEAKENED/MOVED OUT OF THE WARNED AREA **!. THEREFORE THE WARNING ${expcanBODYTag}.")
+    #set($expcanPhrase = "THE TORNADIC THUNDERSTORM WHICH PROMPTED THE WARNING HAS !** WEAKENED. MOVED OUT OF THE WARNED AREA. **! THEREFORE THE WARNING ${expcanBODYTag}.")
   #end
 #end
 #### WEAKENED BELOW SEVERE LIMITS
@@ -332,7 +345,11 @@ $$
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -347,7 +364,11 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -357,18 +378,18 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #end
 #end
+#####################################################################
+### TORNADO EMERGENCY HEADLINE                                      #
+#####################################################################
+#if(${list.contains(${bullets}, "torEmergency")})
+
+...TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
+
+#end
 #if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
 ...A ${eventType} WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
 #headlineLocList(${areas} true true true false)...
 ########### END NEW HEADLINE CODE ####################
-#####################################################################
-### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE                      #
-#####################################################################
-#if(${list.contains(${bullets}, "torEmergency")})
-
-...THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
-
-#end
 #set($reportType = "!** BASIS FOR WARNING **!")
 #set($reportAuthSVR = "")
 ############### BASIS SECTION ####################
@@ -831,12 +852,13 @@ THIS IS A TEST MESSAGE. ##
 
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...##
 ${reportType} LOCATED ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if($movementSpeed < 3 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 #if(${stormType} == "line")
 ...AND ARE NEARLY STATIONARY. 
  #else
