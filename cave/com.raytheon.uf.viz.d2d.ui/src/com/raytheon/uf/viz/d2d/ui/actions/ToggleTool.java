@@ -43,7 +43,6 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  *  ------------ ----------  ----------- --------------------------
  *  Feb 23, 2007             chammack    Initial Creation.
  *  Nov  3, 2009 3457        bsteffen    Updated to change blend on all DisplayPanes, not just the active ones.
- *  Aug 30, 2013 DR 16555    D. Friedman Prevent NPE.
  * 
  * </pre>
  * 
@@ -66,7 +65,7 @@ public class ToggleTool extends AbstractTool {
             ResourceList rscs = mapDescriptor.getResourceList();
             for (ResourcePair rp : rscs) {
                 AbstractVizResource<?, ?> rsc = rp.getResource();
-                if (rsc != null && rsc.getCapabilities().hasCapability(
+                if (rsc.getCapabilities().hasCapability(
                         BlendableCapability.class)) {
                     rsc.getCapability(BlendableCapability.class).toggle();
                 }

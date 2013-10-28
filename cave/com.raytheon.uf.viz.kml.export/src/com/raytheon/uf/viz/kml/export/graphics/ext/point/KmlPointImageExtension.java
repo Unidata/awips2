@@ -57,17 +57,15 @@ import de.micromata.opengis.kml.v_2_2_0.Style;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun  1, 2012            bsteffen    Initial creation
- * Aug 27, 2013     #2287  randerso    Removed 180 degree adjustment required by error
- *                                     in Maputil.rotation
+ * Jun 1, 2012            bsteffen     Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class KmlPointImageExtension extends
-        GraphicsExtension<KmlGraphicsTarget> implements IPointImageExtension {
+public class KmlPointImageExtension extends GraphicsExtension<KmlGraphicsTarget>
+        implements IPointImageExtension {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(KmlRasterImageExtension.class);
 
@@ -115,7 +113,7 @@ public class KmlPointImageExtension extends
 
                     IconStyle iconStyle = style.createAndSetIconStyle();
                     iconStyle.setScale(options.getPlotIconScale());
-                    double heading = MapUtil.rotation(
+                    double heading = 180 + MapUtil.rotation(
                             new com.vividsolutions.jts.geom.Coordinate(loc
                                     .getLongitude(), loc.getLatitude()),
                             gridGeometry);

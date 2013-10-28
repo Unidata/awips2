@@ -38,22 +38,6 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-/bin/mkdir %{_build_root}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/mkdir %{_build_root}/awips2
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/mkdir -p %{_build_root}/awips2/alertviz/alertvizEnvironment
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/mkdir -p %{_build_root}/etc/xdg/autostart
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 %build
 build_arch=%{_build_arch}
@@ -78,6 +62,15 @@ fi
 popd > /dev/null
 
 %install
+/bin/mkdir -p %{_build_root}/awips2/alertviz/alertvizEnvironment
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/mkdir -p %{_build_root}/etc/xdg/autostart
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 build_arch=%{_build_arch}
 if [ "${build_arch}" = "i386" ]; then
    build_arch="x86"

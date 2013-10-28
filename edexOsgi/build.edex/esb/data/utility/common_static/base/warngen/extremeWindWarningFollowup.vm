@@ -4,10 +4,8 @@
 ##          Evan Bookbinder 4-25-2012  for OB 12.3.1 (corText)
 ##          Mike Dangelo 9-13-2012 minor tweaks to ${variables} 
 ##          Evan Bookbinder 06-07-2013 Fixed CTAs/&&
-##          Evan Bookbinder 09-18-2013 Implemented config.vm
 ################################################
 ##
-#parse("config.vm")
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
 #if(${action}=="COR" && ${cancelareas})
 #set($CORCAN = "true")
@@ -44,11 +42,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -150,11 +144,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -180,13 +170,12 @@ THIS IS A TEST MESSAGE. ##
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${reportType}...${reportType1} ##
 #end
-##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
 #end
-#if(${movementSpeed} < ${landStationary} || ${stationary})
+#if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY.##
 #else
 ...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.##
@@ -319,11 +308,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -337,8 +322,6 @@ THIS IS A TEST MESSAGE.##
 #end
 ...THE EXTREME WIND WARNING FOR ##
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
 
 ## One line explanation
 !**EXPLANATION**!
@@ -366,11 +349,7 @@ $$
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -392,13 +371,12 @@ THIS IS A TEST MESSAGE. AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${lo
 
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
 #end
-##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
 #end
-#if(${movementSpeed} < ${landStationary} || ${stationary})
+#if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY.##
 #else
 ...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.##
@@ -490,11 +468,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}

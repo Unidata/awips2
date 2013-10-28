@@ -34,12 +34,12 @@
             <setHeader headerName="pluginName">
                 <constant>pirep</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.pirep"/>
+            <to uri="jms-generic:queue:Ingest.pirep"/>
         </route>
         -->
         <!-- Begin Pirep routes -->
         <route id="pirepIngestRoute">
-            <from uri="jms-durable:queue:Ingest.pirep"/>
+            <from uri="jms-generic:queue:Ingest.pirep?destinationResolver=#qpidDurableResolver"/>
             <setHeader headerName="pluginName">
                 <constant>pirep</constant>
             </setHeader>

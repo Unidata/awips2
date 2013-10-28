@@ -120,7 +120,6 @@
 		<label name="HVYRA"		value="100"/>
 		<label name="HVYSN"		value="120"/>
 		<label name="FZRA"		value="140"/>
-		<label name="WWUNLIK"		value="160"/>
 	</otlktype>
 	
 	<otlktype name="TSTMOLK" prefix="">

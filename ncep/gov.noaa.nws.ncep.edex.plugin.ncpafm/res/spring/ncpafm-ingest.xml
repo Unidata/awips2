@@ -37,13 +37,13 @@
 			<setHeader headerName="pluginName">
 				<constant>ncpafm</constant> 
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.ncpafm" />
+			<to uri="jms-generic:queue:Ingest.ncpafm" />
 		</route>
 		-->
 			
 		<!-- Begin ncpafm routes -->
 		<route id="ncpafmIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ncpafm" />
+			<from uri="jms-generic:queue:Ingest.ncpafm" />
 			<setHeader headerName="pluginName">
 				<constant>ncpafm</constant>
 			</setHeader>

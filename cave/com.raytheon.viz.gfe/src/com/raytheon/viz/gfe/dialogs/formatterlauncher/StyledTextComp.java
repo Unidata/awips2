@@ -80,7 +80,6 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 26 Sep 2012  15423      ryu         Avoid resetting text when possible.
  * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
  * 30 APR 2013  16095      ryu         Modified updateTextStyle() to not lock edited text.
- * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
  *
  * </pre>
  *
@@ -334,6 +333,19 @@ public class StyledTextComp extends Composite {
     }
 
     /**
+     * computes the logical caret offset within the ProductEditor as a result of
+     * the CTA insert.
+     *
+     * @param newProductText
+     *            The new product text
+     */
+    private int caretOffsetAfterCTAInsert(String newProductText) {
+        int currentProductTextLength = textEditorST.getText().length();
+        int displacement = newProductText.length() - currentProductTextLength;
+        return displacement + textEditorST.getCaretOffset();
+    }
+
+    /**
      * Lock the parts of the text that needs to be uneditable.
      */
     private void lockText() {
@@ -564,7 +576,7 @@ public class StyledTextComp extends Composite {
                 replaceText(ff, SPC + newfield);
             }
         } else {
-        	String s = SPC + newfield;
+            String s = SPC + newfield;
             if (!ff.getText().equals(s)) {
                 replaceText(ff, s);
             }
@@ -808,7 +820,7 @@ public class StyledTextComp extends Composite {
      * @return Whether or not there is text in the range that contains locked
      *         text.
      */
-    protected boolean rangeHasLockedText(int offset, int length) {
+    private boolean rangeHasLockedText(int offset, int length) {
         StyleRange[] ranges = textEditorST.getStyleRanges(offset, length);
 
         for (StyleRange range : ranges) {
@@ -1336,8 +1348,17 @@ public class StyledTextComp extends Composite {
             line = st.getLine(searchLine);
             int lineOffset = st.getOffsetAtLine(searchLine);
 
-            // if line contains locked text, quit looking.            
-            if (rangeHasLockedText(lineOffset, line.length())) {
+            // if line contains locked text, quit looking.
+            StyleRange[] styleRanges = st.getStyleRanges(lineOffset,
+                    line.length());
+            boolean locked = false;
+            for (StyleRange range : styleRanges) {
+                if (range.foreground.equals(lockColor)) {
+                    locked = true;
+                    break;
+                }
+            }
+            if (locked) {
                 break;
             }
 
@@ -1369,7 +1390,16 @@ public class StyledTextComp extends Composite {
             line = st.getLine(searchLine);
 
             // don't use locked text
-            if (rangeHasLockedText(lineStartOffset, line.length())) {
+            StyleRange[] ranges = st.getStyleRanges(lineStartOffset,
+                    line.length());
+            boolean locked = false;
+            for (StyleRange range : ranges) {
+                if (range.foreground.equals(lockColor)) {
+                    locked = true;
+                    break;
+                }
+            }
+            if (locked) {
                 break;
             }
 
@@ -1392,10 +1422,6 @@ public class StyledTextComp extends Composite {
 
         if (endIndex >= st.getCharCount()) {
             endIndex = st.getCharCount() - 1;
-        }
-        
-        if (endIndex < startIndex) {
-            return new int[] { startIndex, endIndex, 0 };
         }
 
         // get the block text before the cursor

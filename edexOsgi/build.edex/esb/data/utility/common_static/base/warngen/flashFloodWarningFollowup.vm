@@ -11,11 +11,7 @@
 ##             Mike Dangelo  9-13-2012 minor tweaks to ${variables} 
 ##             Phil Kurimski 2-08-2013 revised CTA statements
 ##             Evan Bookbinder 3-1-2013 missing $$ for Partial Cancellation
-##             Mike Dangelo 09-18-2013 added code for init pos & pathcasting, and added pointMarkers parse line
-##             Mike Dangelo 09-19-2013 implemented config.vm
-##             Gene Petrescu 09-20-2013 added AK modifications (GP comments)
 #################################### SET SOME VARs ###################################
-#parse("config.vm")
 #set($hycType = "")
 #set($snowMelt = "")
 #set($floodReason = "")
@@ -57,11 +53,7 @@ ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${cancelareas})
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
@@ -69,11 +61,7 @@ ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${cancelareas})
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 #else
 ${ugcline}
@@ -81,11 +69,7 @@ ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 #end
 
@@ -120,24 +104,14 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${hycType} != "")
 <L>${hycType}</L> IN ##
 #end
-###REMMED OUT FOR Alaska. This would output the headline in zone format
 #headlineLocList(${areas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${affectedCounties} true true true false) ${expcanHLTag}...
-###UNCOMMENT LINE BELOW FOR AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!  ${expcanHLTag}...
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE FLASH FLOOD WARNING FOR ##
 #if(${hycType} != "")
 <L>${hycType}</L> IN ##
 #end
-###REMMED OUT FOR Alaska. This would output the headline in zone format
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
-###UNCOMMENT LINE BELOW FOR AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!  ${expcanHLTag}...
 #end
 ############################
 ## END CAN/EXP HEADLINE ####
@@ -166,11 +140,7 @@ ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -186,11 +156,7 @@ ${ugcline}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
+${area.name} ${area.stateabbr}-##
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -207,26 +173,21 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-###################################
-## Flash Flood Emergency Headline #
-###################################
+...THE FLASH FLOOD WARNING ##
+#if(${hycType} != "")
+FOR <L>${hycType}</L> ##
+#end
+REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#headlineLocList(${areas} true true true false)...
+###############################################################################
+## Flash Flood Emergency per NWS 10-922 Directive goes after initial headline #
+###############################################################################
 #if(${list.contains(${bullets}, "ffwEmergency")})
 #set($ctaSelected = "YES")
 
 ...THIS IS A FLASH FLOOD EMERGENCY FOR !**ENTER LOCATION**!...
 
 #end
-...THE FLASH FLOOD WARNING ##
-#if(${hycType} != "")
-FOR <L>${hycType}</L> ##
-#end
-REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-###REMMED OUT FOR Alaska. This would output the headline in zone format
-#headlineLocList(${areas} true true true false)...
-###REPLACE LINE ABOVE WITH THE FOLLOWING IF YOU USE COUNTY HEADLINE INSTEAD OF ZONES
-###headlineLocList(${affectedCounties} true true true false)...
-###UNCOMMENT LINE BELOW for AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
 
 ################################################
 #################################
@@ -336,76 +297,19 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #if(${list.contains(${bullets}, "satelliteGauge")} && ${list.contains(${bullets}, "thunder")})
   #set($report = "SATELLITE ESTIMATES AND AUTOMATED RAIN GAUGES INDICATED THAT THUNDERSTORMS WERE PRODUCING HEAVY RAIN OVER THE WARNED AREA.")   
 #end
-#if(${list.contains(${bullets}, "onlyGauge")})
-  #set($report = "GAUGE REPORTS INDICATED THAT HEAVY RAIN WAS FALLING OVER THE WARNED AREA.")   
-#end
-#if(${list.contains(${bullets}, "onlyGauge")} && ${list.contains(${bullets}, "thunder")})
-  #set($report = "GAUGE REPORTS INDICATED THUNDERSTORMS WERE PRODUCING HEAVY RAIN OVER THE WARNED AREA.")   
-#end
-#if(${list.contains(${bullets}, "onlyGauge")} && ${list.contains(${bullets}, "plainRain")})
-  #set($report = "GAUGE REPORTS INDICATED HEAVY RAIN WAS FALLING OVER THE WARNED AREA.")   
-#end
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-############## IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
-#if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#if(${stormType} == "line")
-...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
-#else
-...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
-#end
-#if(${movementSpeed} < ${landStationary} || ${stationary})
-...AND IS STATIONARY. ##
-#else
-#if(${stormType} == "line")
-...AND MOVING ## 
-#else
-...MOVING ##
-#end
-#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
-#end
-${rainAmount} ${isExpected} ${snowMelt}
-#else
-###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...${report} ${rainAmount} ${isExpected} ${snowMelt} 
-#end
-
-##########################
-## Flash Flood Emergency #
-##########################
-#if(${list.contains(${bullets}, "ffwEmergency")} )
-#set($ctaSelected = "YES")
-THIS IS A FLASH FLOOD EMERGENCY FOR !** LOCATION **!. SEEK HIGHER GROUND NOW!
-#end
+...${report} ${rainAmount} ${isExpected} ${snowMelt} 
 
 ${burnScar}
 
-######################################################
-######## OPTIONAL LOCATIONS/CITY LIST INFO  ##########
-######################################################
-############# IF TRACK IS ENABLED AND trackStorm AND stormPosition BOTH SELECTED ###############################################
-#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
-#if($movementSpeed < 3 )
-#pathCast("HEAVY RAIN WILL CONTINUE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
-
-#else
-#pathCast("HEAVY RAIN WILL MOVE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
-
-#end
-#end
-################
+############################################
+######## (CITY LIST) #########
+############################################
 #if(${list.contains(${bullets}, "listofcities")})
-###set($phenomena = "FLASH FLOOD")
-#set($floodType = "FLASH FLOODING") 
-###set($warningType = "WARNING") 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -419,7 +323,7 @@ THIS IS A TEST MESSAGE. ##
 ########### KEEP TWO BLANK LINES BELOW
 
 
-########################################## END OF OPTIONAL LOCATIONS LISTS ##############################
+########################################## END OF OPTIONAL FOURTH BULLET ##############################
 ######################################
 ###### WHERE ADDITIONAL INFO GOES ####
 ######################################
@@ -438,8 +342,6 @@ FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**loc
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
-## Uncomment below pull in point marker info
-## #parse("pointMarkers.vm")
 
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
@@ -545,16 +447,16 @@ PLEASE REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO S
 
 #end
 #################################### END OF CTA STUFF ###################################
-########################
-## LAT/LON, TML, SIGN ##
-########################
+
+##########################################
+########BOTTOM OF THE PRODUCT#############
+##########################################
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
-
-#printcoords(${areaPoly}, ${list})
-
+#set($COORDS = "#printcoords(${areaPoly}, ${list})")
+${COORDS}
 
 $$
 #end

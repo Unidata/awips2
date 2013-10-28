@@ -14,7 +14,7 @@
 	<bean id="ldadmanualDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadmanual" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadmanual"/>
+		<constructor-arg value="jms-dist:queue:Ingest.ldadmanual?destinationResolver=#qpidDurableResolver" />
 	</bean>	
 
     <bean id="ldadmanualCamelRegistered" factory-bean="contextManager"
@@ -28,7 +28,7 @@
 		autoStartup="false">
 
 		<route id="ldadmanualIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ldadmanual"/>
+			<from uri="jms-generic:queue:Ingest.ldadmanual?destinationResolver=#qpidDurableResolver" />
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile" />

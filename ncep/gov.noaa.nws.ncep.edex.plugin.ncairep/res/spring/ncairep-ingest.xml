@@ -35,13 +35,13 @@
 			<setHeader headerName="pluginName">
 				<constant>ncairep</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.ncairep" />
+			<to uri="jms-generic:queue:Ingest.ncairep" />
 		</route>
 		
 
 		<!-- Begin ncairep routes -->
 		<route id="ncairepIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ncairep" />
+			<from uri="jms-generic:queue:Ingest.ncairep" />
 			<setHeader headerName="pluginName">
 				<constant>ncairep</constant>
 			</setHeader>

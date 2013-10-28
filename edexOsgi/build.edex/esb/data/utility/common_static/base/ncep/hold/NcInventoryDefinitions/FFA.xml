@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryName>FFA</inventoryName>
+    <inventoryParameters>pluginName,reportType,dataTime</inventoryParameters>
+    <baseConstraints>
+        <mapping key="reportType">
+            <constraint constraintValue="FLASH_FLOOD_ADVISORY,FLASH_FLOOD_WARNING,FLASH_FLOOD_WATCH,FLASH_FLOOD_STATEMENT,FLOOD_WATCH" constraintType="IN"/>
+        </mapping>
+        <mapping key="pluginName">
+            <constraint constraintValue="aww" constraintType="EQUALS"/>
+        </mapping>
+    </baseConstraints>
+</NcInventoryDefinition>
