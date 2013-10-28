@@ -70,7 +70,6 @@ import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
 import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionTableComp.SubscriptionType;
 import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalDlg;
@@ -128,6 +127,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 14, 2013 2064       mpduff     Check for null/disposed sort column.
  * Jul 26, 2013   2232     mpduff     Refactored Data Delivery permissions.
  * Sep 25. 2013   2409     mpduff     Add check for widget disposed after calling configuration.
+ * Oct 25, 2013   2292     mpduff     Move overlap checks to edex.
  * </pre>
  * 
  * @author mpduff
@@ -876,12 +876,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                         sub.setActive(activate);
 
                         try {
-                            ISubscriptionServiceResult response = subscriptionService
+                            SubscriptionServiceResult response = subscriptionService
                                     .update(sub, forceApplyPromptDisplayText);
                             if (response.hasMessageToDisplay()) {
                                 DataDeliveryUtils.showMessage(getShell(),
                                         SWT.OK, sub.getName() + " Activated",
-                                        response.getMessageToDisplay());
+                                        response.getMessage());
                             }
 
                             if (!response.isAllowFurtherEditing()) {
