@@ -10,7 +10,6 @@
 #if(${list.contains($bullets, "FourMileBurnArea")})
     #set($burnScarName = "FOUR MILE BURN AREA")
     #set($burnScarEnd = " OVER THE FOUR MILE BURN AREA")
-    #set($emergencyHeadline = "AREAS IN AND AROUND THE ${burnScarName}")
 #end
 #if(${list.contains($bullets, "fourmilelowimpact")})
   #set($ctaSelected = "YES")

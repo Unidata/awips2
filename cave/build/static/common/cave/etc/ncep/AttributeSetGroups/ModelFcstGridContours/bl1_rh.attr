@@ -20,7 +20,6 @@ FINT=70;80;90;95
 FLINE=0;24;23;22;14
 HILO=0
 HLSYM=0
-CLRBAR=1/V/LL!0
 WIND=9/0.8/2/112
 TITLE=1/-1/~ 0-30MB AGL RELH AND WIND (KTS) AND 60-90MB AGL OMEGA!0
 COLORS=2                                                                       

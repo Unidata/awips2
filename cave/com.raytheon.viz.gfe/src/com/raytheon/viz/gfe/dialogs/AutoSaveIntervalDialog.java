@@ -29,21 +29,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.gfe.jobs.AutoSaveJob;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
-import com.raytheon.viz.ui.widgets.SpinScale;
 
 /**
- * The auto save interval dialog.
+ * The auto save iterval dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 30, 2008            Eric Babin  Initial Creation
- * Aug 27, 2013     #2302  randerso    Code cleanup
+ * 	Jan 30, 2008					Eric Babin Initial Creation
  * 
  * </pre>
  * 
@@ -53,26 +52,98 @@ import com.raytheon.viz.ui.widgets.SpinScale;
 
 public class AutoSaveIntervalDialog extends CaveJFACEDialog {
 
-    private AutoSaveJob autoSaveJob;
+    private Composite top = null;
+
+    private Label intervalMinutes;
+
+    private Scale intervalScale;
+
+    private int currentInterval = 1;
+
+    private boolean autoSaveEnabled = false;
 
     private Button offButton;
 
     private Button onButton;
 
-    private Label intervalLabel;
-
-    private SpinScale intervalScale;
-
-    /**
-     * Constructor
-     * 
-     * @param parent
-     * @param currentInterval
-     * @param isEnabled
-     */
-    public AutoSaveIntervalDialog(Shell parent, AutoSaveJob autoSaveJob) {
+    public AutoSaveIntervalDialog(Shell parent, int currentInterval,
+            boolean isEnabled) {
         super(parent);
-        this.autoSaveJob = autoSaveJob;
+        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.currentInterval = currentInterval;
+        this.autoSaveEnabled = isEnabled;
+    }
+
+    @Override
+    protected Control createDialogArea(Composite parent) {
+        top = (Composite) super.createDialogArea(parent);
+
+        top.setLayout(new GridLayout(2, false));
+        loadConfigData();
+        initializeComponents();
+
+        return top;
+    }
+
+    private void initializeComponents() {
+
+        Group g = new Group(top, SWT.NONE);
+        g.setLayout(new GridLayout(2, true));
+
+        offButton = new Button(g, SWT.RADIO);
+        offButton.setText("Off");
+        offButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                autoSaveEnabled = false;
+            }
+        });
+        offButton.setSelection(!autoSaveEnabled);
+
+        onButton = new Button(g, SWT.RADIO);
+        onButton.setText("On");
+        onButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                autoSaveEnabled = true;
+            }
+        });
+        onButton.setSelection(autoSaveEnabled);
+
+        Composite c = new Composite(top, SWT.NONE);
+        GridLayout layout = new GridLayout(2, false);
+        layout.marginBottom = 10;
+
+        c.setLayout(layout);
+        c.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
+
+        Label label = new Label(c, SWT.NONE);
+        label.setText("Save Interval in Minutes");
+        GridData data = new GridData();
+        data.horizontalSpan = 2;
+        label.setLayoutData(data);
+
+        intervalScale = new Scale(c, SWT.HORIZONTAL);
+        intervalScale.setLayoutData(new GridData(120, SWT.DEFAULT));
+        intervalScale.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                autoSaveEnabled = true;
+                currentInterval = intervalScale.getSelection();
+                String s = Integer.toString(currentInterval);
+                intervalMinutes.setText(s);
+                intervalMinutes.setToolTipText(s);
+                onButton.setSelection(autoSaveEnabled);
+                offButton.setSelection(!autoSaveEnabled);
+            }
+        });
+        intervalScale.setMinimum(AutoSaveJob.MIN_INTERVAL);
+        intervalScale.setMaximum(AutoSaveJob.MAX_INTERVAL);
+        intervalScale.setSelection(this.currentInterval);
+
+        intervalMinutes = new Label(c, SWT.NONE);
+        intervalMinutes.setLayoutData(new GridData(20, SWT.DEFAULT));
+        intervalMinutes.setText(String.valueOf(intervalScale.getSelection()));
     }
 
     /*
@@ -83,92 +154,23 @@ public class AutoSaveIntervalDialog extends CaveJFACEDialog {
      * .Shell)
      */
     @Override
-    protected void configureShell(Shell newShell) {
-        super.configureShell(newShell);
-        newShell.setText("Auto Save Interval Dialog");
+    protected void configureShell(Shell shell) {
+        super.configureShell(shell);
+        shell.setText("Auto Save Interval Dialog");
     }
 
-    @Override
-    protected Control createDialogArea(Composite parent) {
-        Composite comp = (Composite) super.createDialogArea(parent);
-        GridLayout layout = (GridLayout) comp.getLayout();
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-
-        Group group = new Group(comp, SWT.NONE);
-        layout = new GridLayout(2, false);
-        group.setLayout(layout);
-        GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        group.setLayoutData(layoutData);
-        group.setText("Auto Save");
-
-        int interval = autoSaveJob.getInterval();
-
-        offButton = new Button(group, SWT.RADIO);
-        layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        offButton.setLayoutData(layoutData);
-        offButton.setText("Off");
-        offButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (offButton.getSelection()) {
-                    intervalLabel.setEnabled(false);
-                    intervalScale.setEnabled(false);
-                }
-            }
-        });
-        offButton.setSelection(interval == 0);
-
-        onButton = new Button(group, SWT.RADIO);
-        layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        onButton.setLayoutData(layoutData);
-        onButton.setText("On");
-        onButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (onButton.getSelection()) {
-                    intervalLabel.setEnabled(true);
-                    intervalScale.setEnabled(true);
-                }
-            }
-        });
-        onButton.setSelection(interval > 0);
-
-        intervalLabel = new Label(group, SWT.CENTER);
-        intervalLabel.setText("Save Interval in Minutes");
-        layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false, 2, 1);
-        intervalLabel.setLayoutData(layoutData);
-
-        intervalScale = new SpinScale(group, SWT.HORIZONTAL);
-        layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false, 2, 1);
-        layoutData.minimumWidth = 240;
-        intervalScale.setLayoutData(layoutData);
-        intervalScale.setMinimum(AutoSaveJob.MIN_INTERVAL);
-        intervalScale.setMaximum(AutoSaveJob.MAX_INTERVAL);
-        if (interval > 0) {
-            intervalScale.setSelection(interval);
-        } else {
-            intervalLabel.setEnabled(false);
-            intervalScale.setEnabled(false);
-            intervalScale.setSelection(AutoSaveJob.MAX_INTERVAL);
-        }
-
-        return comp;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#okPressed()
+    /**
+     * Method for loading the various config data for the dialog.
      */
-    @Override
-    protected void okPressed() {
-        if (offButton.getSelection()) {
-            autoSaveJob.setInterval(0);
-        } else {
-            autoSaveJob.setInterval(intervalScale.getSelection());
-        }
-        super.okPressed();
+    private void loadConfigData() {
+
     }
 
+    public int getCurrentInterval() {
+        return currentInterval;
+    }
+
+    public boolean isAutoSaveEnabled() {
+        return autoSaveEnabled;
+    }
 }

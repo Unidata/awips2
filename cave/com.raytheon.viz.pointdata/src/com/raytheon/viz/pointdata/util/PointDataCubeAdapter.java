@@ -89,7 +89,7 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
             "bufrascat", "poessounding", "profiler", "bufrua", "ldadmesonet",
             "ldadhydro", "qc", "fssobs", "bufrmosAVN", "bufrmosETA",
             "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP", "bufrmosMRF",
-            "bufrmosNGM", "ncairep", "ncpirep", "nctaf" };
+            "bufrmosNGM" };
 
     protected AbstractPointDataInventory inventory;
 

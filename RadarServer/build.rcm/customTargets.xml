@@ -80,6 +80,9 @@
         		<copy todir="${buildDirectory}/plugins">
         		    <fileset dir="${buildDirectory}/../../" includes="org.slf4j*/**"/>
         		</copy>
+                        <copy todir="${buildDirectory}/plugins">
+                            <fileset dir="${buildDirectory}/../../" includes="ch.*/**"/>
+                        </copy>
         		<copy todir="${buildDirectory}/plugins">
         	        		    <fileset dir="${buildDirectory}/../../" includes="javax.jms*/**"/>
         	    </copy>

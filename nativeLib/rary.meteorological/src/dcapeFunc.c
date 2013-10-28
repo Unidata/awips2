@@ -18,7 +18,7 @@
 // evaporate up to one-third of max_evap into the sinking parcel at the
 // start, afterward attempting to trend the RH toward max_rh at the ground.
 // If usetv=1, buoyancy is done with virtual temp, if usetv=0 with temp.
-void dcapeFunc(float usetv, const float ** p_dat, const float ** t_dat, const float ** td_dat,
+int dcapeFunc(float usetv, const float ** p_dat, const float ** t_dat, const float ** td_dat,
                float * p0, float * th0, float * sh0,
                int mnx, int nx, int ny, int nz,
                float max_evap, float max_rh, float * dcape_dat)

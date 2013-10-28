@@ -44,7 +44,7 @@ public class CalcKp {
 				kest[i] = MISSING_VAL;
 			else 
 				kest[i] = 9.0f;
-			//System.out.println("**kest "+kest[i] +" "+kIndex[i]+" "+gamma[i]);
+			System.out.println("**kest "+kest[i] +" "+kIndex[i]+" "+gamma[i]);
 		}
 		
 		return kest;
@@ -60,7 +60,7 @@ public class CalcKp {
 			kest = MISSING_VAL;
 		else
 			kest = 9.0f;
-//		System.out.println("****kest "+kest +" "+kIndex);
+		//System.out.println("****kest "+kest +" "+kIndex);
 			
 		return kest;
 	}
@@ -109,12 +109,12 @@ public class CalcKp {
 			int period = hour/3;// 24 -> 8
 			
 			KsThree ksThree = ksThreeList.get(period);
-			//System.out.println("**kss "+ksThree.getK1()+" "+ksThree.getK2()+" "+ksThree.getK3()+" "+ksThree.getK5()+" "+ksThree.getK6()+" "+getKsOfKsThree(k, ksThree));
+			System.out.println("**kss "+ksThree.getK1()+" "+ksThree.getK2()+" "+ksThree.getK3()+" "+ksThree.getK5()+" "+ksThree.getK6()+" "+getKsOfKsThree(k, ksThree));
 			if (ksThree != null) 
 				ks.add(getKsOfKsThree(k, ksThree));
 			
 			ksThree = ksThreeList.get(period + 8);
-			//System.out.println("**kss "+ksThree.getK1()+" "+ksThree.getK2()+" "+ksThree.getK3()+" "+ksThree.getK5()+" "+ksThree.getK6()+" "+getKsOfKsThree(k, ksThree));
+			System.out.println("**kss "+ksThree.getK1()+" "+ksThree.getK2()+" "+ksThree.getK3()+" "+ksThree.getK5()+" "+ksThree.getK6()+" "+getKsOfKsThree(k, ksThree));
 			if (ksThree != null) 
 				ks.add(getKsOfKsThree(k, ksThree));
 			
@@ -182,7 +182,6 @@ public class CalcKp {
 			ks = ksThree.getK9();
 		return ks;
 	}
-	
 	public static float getKs(String station, int k, Date time) throws ParseException {
 		float a = 0;
 		float b = 0;
@@ -219,64 +218,64 @@ public class CalcKp {
     	List<Integer> ksThree = getKsThree(time, station, k );
     	
     	if(time.compareTo(date1) >= 0 && time.compareTo(date2) < 0){
-    		ks = (float) ksThree.get(0) /3;
+    		ks = ksThree.get(0) /3;
     	}
 		else if (time.compareTo(date4) >= 0 && time.compareTo(date5) < 0){
-    		ks = (float)(0.25f*ksThree.get(0) + 0.75f*ksThree.get(1)) /3;
+    		ks = (0.25f*ksThree.get(0) + 0.75f*ksThree.get(1)) /3;
     	}
 		else if (time.compareTo(date5) >= 0 && time.compareTo(date6) < 0){
-    		ks = (float)ksThree.get(1) /3;
+    		ks = ksThree.get(1) /3;
     	}
 		else if (time.compareTo(date6) >= 0 && time.compareTo(date7) < 0){
-    		ks = (float) (0.75f*ksThree.get(1) + 0.25f*ksThree.get(2)) /3;
+    		ks = (0.75f*ksThree.get(1) + 0.25f*ksThree.get(2)) /3;
     	}
 		else if (time.compareTo(date7) >= 0 && time.compareTo(date8) < 0){
-    		ks = (float) (0.5f*ksThree.get(1) + 0.5f*ksThree.get(2)) /3;
+    		ks = (0.5f*ksThree.get(1) + 0.5f*ksThree.get(2)) /3;
     	}
 		else if (time.compareTo(date8) >= 0 && time.compareTo(date9) < 0){
-    		ks = (float) (0.25f*ksThree.get(1) + 0.75f*ksThree.get(2)) /3;
+    		ks = (0.25f*ksThree.get(1) + 0.75f*ksThree.get(2)) /3;
     	}
 		else if (time.compareTo(date9) >= 0 && time.compareTo(date10) < 0){
-    		ks = (float) ksThree.get(2) /3;
+    		ks = ksThree.get(2) /3;
     	}
 		else if (time.compareTo(date10) >= 0 && time.compareTo(date11) < 0){
-    		ks = (float) (0.75f*ksThree.get(2) + 0.25f*ksThree.get(1)) /3;
+    		ks = (0.75f*ksThree.get(2) + 0.25f*ksThree.get(1)) /3;
     	}
 		else if (time.compareTo(date11) >= 0 && time.compareTo(date12) < 0){
-    		ks = (float) (0.5f*ksThree.get(2) + 0.5f*ksThree.get(1)) /3;
+    		ks = (0.5f*ksThree.get(2) + 0.5f*ksThree.get(1)) /3;
     	}
 		else if (time.compareTo(date12) >= 0 && time.compareTo(date13) < 0){
-    		ks = (float) (0.25f*ksThree.get(2) + 0.75f*ksThree.get(1)) /3;
+    		ks = (0.25f*ksThree.get(2) + 0.75f*ksThree.get(1)) /3;
     	}
 		else if (time.compareTo(date13) >= 0 && time.compareTo(date14) < 0){
-    		ks = (float) ksThree.get(1) /3;
+    		ks = ksThree.get(1) /3;
     	}
 		else if (time.compareTo(date14) >= 0 && time.compareTo(date15) < 0){
-    		ks = (float) (0.75f*ksThree.get(1) + 0.25f*ksThree.get(0)) /3;
+    		ks = (0.75f*ksThree.get(1) + 0.25f*ksThree.get(0)) /3;
     	}
 		else if (time.compareTo(date15) >= 0 && time.compareTo(date16) < 0){
-    		ks = (float) (0.5f*ksThree.get(1) + 0.5f*ksThree.get(0)) /3;
+    		ks = (0.5f*ksThree.get(1) + 0.5f*ksThree.get(0)) /3;
     	}
 		else if (time.compareTo(date16) >= 0 && time.compareTo(date17) < 0){
-    		ks = (float) (0.25f*ksThree.get(1) + 0.75f*ksThree.get(0)) /3;
+    		ks = (0.25f*ksThree.get(1) + 0.75f*ksThree.get(0)) /3;
     	}
 		else if (time.compareTo(date17) >= 0 && time.compareTo(date18) <= 0){
-    		ks = (float) ksThree.get(0) /3;
+    		ks = ksThree.get(0) /3;
     	}
 		else if (CalcUtil.isLeapYear(year)) {
 			if(time.compareTo(date2Leep) >= 0 && time.compareTo(date3Leep) < 0){
-	    		ks = (float) (0.75f*ksThree.get(0) + 0.25f*ksThree.get(1)) /3;
+	    		ks = (0.75f*ksThree.get(0) + 0.25f*ksThree.get(1)) /3;
 	    	}
     		else if(time.compareTo(date3Leep) >= 0 && time.compareTo(date4) < 0){
-        		ks = (float) (0.5f*ksThree.get(0) + 0.5f*ksThree.get(1)) /3;
+        		ks = (0.5f*ksThree.get(0) + 0.5f*ksThree.get(1)) /3;
         	}
     	}
     	else {
     		if(time.compareTo(date2) >= 0 && time.compareTo(date3) < 0){
-	    		ks = (float) (0.75f*ksThree.get(0) + 0.25f*ksThree.get(1)) /3;
+	    		ks = (0.75f*ksThree.get(0) + 0.25f*ksThree.get(1)) /3;
 	    	}
     		else if(time.compareTo(date3) >= 0 && time.compareTo(date4) < 0){
-        		ks = (float) (0.5f*ksThree.get(0) + 0.5f*ksThree.get(1)) /3;
+        		ks = (0.5f*ksThree.get(0) + 0.5f*ksThree.get(1)) /3;
         	}
     	}   	    	
 
@@ -351,7 +350,7 @@ public class CalcKp {
 		return ks;
 	}
 	public static int getAest(String station, int kIndex) {
-		return CalcUtil.getK2a(kIndex);		
+		return CalcUtil.geta2k(kIndex);		
 	}
 	
 	@SuppressWarnings("unchecked")

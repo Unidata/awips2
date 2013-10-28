@@ -77,13 +77,6 @@ public class Command implements Cloneable {
 
 		this.elementClass = ec;
 		this.elementCode = eid;
-		boolean extendArgLengthToEven = false;
-		// ORIGINAL does not contain the following "if"
-		if (l==32) {  // normally maxes at 31 (to indicate long-form command); 32 indicates...
-		    extendArgLengthToEven = true;  // ..."push" needed to even length (used for little endian text)
-		    l = 31;
-		}
-		// end of this change to ORIGINAL, but see also extendArgLengthToEven reference below...
 		if (l != 31) {
 			this.args = new int[l];
 			for (int i = 0; i < l; i++)
@@ -114,11 +107,6 @@ public class Command implements Cloneable {
 				else {
 					done = true;
 				}
-				//ORIGINAL doesn't contain following statement...
-				if (extendArgLengthToEven && l % 2 == 1) {
-				    l++;
-				}
-				// end of this change to ORIGINAL, but see also extendArgLengthToEven reference above
 				if (this.args == null) {
 					this.args = new int[l];
 				}

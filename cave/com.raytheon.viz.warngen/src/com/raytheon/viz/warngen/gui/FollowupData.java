@@ -20,7 +20,6 @@
 package com.raytheon.viz.warngen.gui;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
-import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -40,7 +39,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string. Removed calendar object.
  * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute. Fixed for practice mode.
  * Aug 15,2013  2243       jsanchez    Improved the expiration string off by one minute.
- * Sep  4,2013  2176       jsanchez    Used EmergencyType class to identify emergency products. 
  * </pre>
  * 
  * @author rferrel
@@ -98,8 +96,8 @@ public class FollowupData extends AbstractWarningRecord {
             rval.append(buildExpStr(status, record));
         }
 
-        if (EmergencyType.isEmergency(record.getRawmessage())) {
-            rval.append(" " + EmergencyType.EMER);
+        if (record.getRawmessage().contains("EMERGENCY")) {
+            rval.append(" EMER");
         }
         equvialentString = rval.substring(0,
                 record.getProductClass().equals("T") ? 20 : 18);

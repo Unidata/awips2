@@ -4,11 +4,11 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="jms-shef" class="org.apache.camel.component.jms.JmsComponent">
-		<constructor-arg ref="jmsShefConfig" />
+		<constructor-arg ref="jmsIngestShefConfig" />
 		<property name="taskExecutor" ref="shefThreadPool" />
 	</bean>
-    <bean id="jmsShefConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
+	<bean id="jmsIngestShefConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+		factory-bean="jmsConfig" factory-method="copy" />
 	<bean id="shefThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="3" />
@@ -47,13 +47,13 @@
 		factory-method="register">
 		<constructor-arg value="shef" />
 		<constructor-arg
-			value="jms-dist:queue:Ingest.Shef"/>
+			value="jms-dist:queue:Ingest.Shef?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
     <bean id="shefHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
         factory-method="register">
         <constructor-arg value="shef" />
-        <constructor-arg value="jms-dist:queue:Ingest.Shef"/>
+        <constructor-arg value="jms-dist:queue:Ingest.Shef?destinationResolver=#qpidDurableResolver" />
     </bean>
 
 	<bean id="shefCamelRegistered" factory-bean="contextManager"
@@ -80,7 +80,7 @@
             <bean ref="manualProc" method="copyFileToArchive" />
             <bean ref="manualProc" />
             <to
-                uri="jms-durable:queue:Ingest.ShefManual"/>
+                uri="jms-generic:queue:Ingest.ShefManual?destinationResolver=#qpidDurableResolver" />
         </route>
     </camelContext>
 
@@ -92,7 +92,7 @@
 		<!-- Begin shef routes -->
 		<route id="shefIngestRoute">
 			<from
-				uri="jms-shef:queue:Ingest.Shef"/>
+				uri="jms-shef:queue:Ingest.Shef?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>
@@ -103,7 +103,7 @@
 		</route>
 		<route id="shefStagedRoute">
 			<from
-				uri="jms-shef:queue:Ingest.ShefStaged"/>
+				uri="jms-shef:queue:Ingest.ShefStaged?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>
@@ -119,7 +119,7 @@
 				<split streaming="true">
 					<method bean="synopticToShef" method="iterate" />
 					<bean ref="synopticToShef" method="transform" />
-					<to uri="jms-durable:queue:Ingest.ShefStaged" />
+					<to uri="jms-generic:queue:Ingest.ShefStaged" />
 				</split>
 			</pipeline>
 		</route>
@@ -134,7 +134,7 @@
 					<method bean="metarToShef" method="iterate" />
 					<bean ref="metarToShef" method="transformMetar" />
 					<to
-						uri="jms-durable:queue:Ingest.ShefStaged"/>
+						uri="jms-generic:queue:Ingest.ShefStaged?destinationResolver=#qpidDurableResolver" />
 				</split>
 			</pipeline>
 		</route>
@@ -155,7 +155,7 @@
 
 		<route id="shefManualIngestRoute">
 			<from
-				uri="jms-shef:queue:Ingest.ShefManual"/>
+				uri="jms-shef:queue:Ingest.ShefManual?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>

@@ -7,50 +7,6 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.display;
 
-import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
-import gov.noaa.nws.ncep.edex.common.stationTables.Station;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
-import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
-import gov.noaa.nws.ncep.ui.pgen.display.CornerPatternApplicator.CornerPattern;
-import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
-import gov.noaa.nws.ncep.ui.pgen.display.IAvnText.AviationTextType;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
-import gov.noaa.nws.ncep.ui.pgen.display.PatternSegment.PatternType;
-import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
-import gov.noaa.nws.ncep.ui.pgen.elements.ComboSymbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
-import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
-import gov.noaa.nws.ncep.ui.pgen.elements.Text;
-import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
-import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmFcst;
-import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmWindQuarter;
-import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
-import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
-import gov.noaa.nws.ncep.ui.pgen.gfa.GfaClip;
-import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.AbstractSigmet;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.VaaInfo;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
-import gov.noaa.nws.ncep.ui.pgen.tca.BPGeography;
-import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
-import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
-import gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpoint;
-import gov.noaa.nws.ncep.viz.common.SnapUtil;
-
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -64,13 +20,51 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
+
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
+import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.display.CornerPatternApplicator.CornerPattern;
+import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
+import gov.noaa.nws.ncep.ui.pgen.display.IAvnText.AviationTextType;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
+import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
+import gov.noaa.nws.ncep.ui.pgen.elements.ComboSymbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
+import gov.noaa.nws.ncep.ui.pgen.elements.Text;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmFcst;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmWindQuarter;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaClip;
+import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
+import gov.noaa.nws.ncep.ui.pgen.tca.BPGeography;
+import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
+import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
+import gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpoint;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.*;//SigmetInfo;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.display.PatternSegment.PatternType;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -81,19 +75,21 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.color.BackgroundColor;
 import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -108,7 +104,6 @@ import com.vividsolutions.jts.linearref.LengthLocationMap;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
-//SigmetInfo;
 
 /**
  * This factory class is used to create IDisplayable elements from IMultiPoint
@@ -135,9 +130,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 09/12					B. Hebbard  Merge out RTS changes from OB12.9.1 - adds reset()
  * 11/12		#901/917  	J. Wu		Set the symbol in GFA text box in proper location/size
  * 05/13                    Chin Chen   use IDescriptor instead of IMapDescriptor for used by Nsharp wind barb drawing
- * 07/13        #988        Archana 	added createDisplayElements() to add all symbols in the same color to a single wire-frame. 									
- * 09/23/13                 Chin Chen   changed several private variables/methods to protected, for NsharpDisplayElementFactory now extend from
- * 										this class
+ * 										
  * </pre>
  * 
  * @author sgilbert
@@ -153,12 +146,12 @@ public class DisplayElementFactory {
 	/**
 	 * Graphics Target used to create the Wireframe and Shaded shapes
 	 */
-	protected IGraphicsTarget target;
+	private IGraphicsTarget target;
 	
 	/**
 	 * Map Descriptor used for Lat/Lon to pixel coordinate transformations
 	 */
-	protected IDescriptor/*IMapDescriptor*/ iDescriptor;
+	private IDescriptor/*IMapDescriptor*/ iDescriptor;
 	private GeometryFactory gf;
 	
 	/**
@@ -173,7 +166,7 @@ public class DisplayElementFactory {
 	private IWireframeShape  sym;
 	
 	private ILine elem;
-    protected double deviceScale = 25.0;         //  default scale factor for GL device
+    private double deviceScale = 25.0;         //  default scale factor for GL device
     private double symbolScale = 0.65;
     private double screenToExtent = 1.0;
     double screenToWorldRatio = 1.0;
@@ -187,7 +180,7 @@ public class DisplayElementFactory {
 	private Color   layerColor = null;	
 	private Boolean layerFilled = false;
 	
-	protected BackgroundColor backgroundColor = BackgroundColor.getActivePerspectiveInstance();
+	private BackgroundColor backgroundColor = BackgroundColor.getActivePerspectiveInstance();
 	
 	class SymbolImageCallback implements IRenderedImageCallback {
 		private String patternName;
@@ -721,160 +714,6 @@ public class DisplayElementFactory {
         
         return dlist;
 
-	}
-	
-	/**
-	 * Method to add ALL symbols of the same color into a single wire-frame. 
-	 * Designed to increase efficiency in rendering symbols. 
-	 * @param paintProps
-	 * @param listOfSymbolLocSets - A list of symbols - each of which will be rendered at multiple locations 
-	 * @return A list of IDisplayable elements
-	 */
-	public List<IDisplayable> createDisplayElements( PaintProperties paintProps, List<SymbolLocationSet> listOfSymbolLocSets ){
-		    List<IDisplayable> listOfDisplayables = new ArrayList<IDisplayable>(0);
-		    setScales(paintProps);
-	   
-	
-	    	Map<Color,IWireframeShape> mapOfWireFrames     = new HashMap<Color,IWireframeShape>();
-	    	Map<Color,IWireframeShape> mapOfMasks          = new HashMap<Color,IWireframeShape>();
-	    	Map<Color,IShadedShape>    mapOfShadedShapes   = new HashMap<Color,IShadedShape>();		   
-		    Map<Color,Float>           mapOfLineWidths     = new HashMap<Color,Float>();//this assumes that all symbols of the same color have the same lineWidth
-	    	SymbolPatternManager symbolPatternManager = SymbolPatternManager.getInstance();  
-		    
-		    for( ISymbolSet eachSymbolSet : listOfSymbolLocSets ){
-			   Symbol symbol = eachSymbolSet.getSymbol();
-			   if( symbol == null )
-				   continue;
-               double sfactor = deviceScale *symbol.getSizeScale()*0.5;
-			   Float lineWidth = symbol.getLineWidth();
-			   Color symbolColor = symbol.getColors()[0];
-			   mapOfLineWidths.put(symbolColor, lineWidth);
-			   RGB symbolRGB = null;
-			   if(symbolColor != null ){
-				   symbolRGB = new RGB( symbolColor.getRed(),
-						                symbolColor.getGreen(),
-						                symbolColor.getBlue());
-			   }
-			   Coordinate[] symbolLocArray = eachSymbolSet.getLocations();
-			   Color bgColor = null;
-			   IWireframeShape mask = null;
-			   IWireframeShape wireFrameShape =  mapOfWireFrames.get(symbolColor);
-			   if ( wireFrameShape == null ){
-				    wireFrameShape = target.createWireframeShape(false, iDescriptor);
-				    
-			   }
-			   
-			   IShadedShape symbolShadedShape = mapOfShadedShapes.get(symbolColor);
-			   if( symbolShadedShape == null ){
-				   symbolShadedShape = target.createShadedShape(false, iDescriptor.getGridGeometry(), false);
-
-			   }
-			   
-			   if(symbol.isClear()){
-			      	RGB bgclr       = backgroundColor.getColor(BGColorMode.EDITOR);
-		        	bgColor   = new Color(bgclr.red, bgclr.green, bgclr.blue);
-		        	mask = mapOfMasks.get(bgColor);
-		        	if( mask == null ){
-		        		mask = target.createWireframeShape(false, iDescriptor);
-		        	}
-		        	mapOfLineWidths.put(bgColor, lineWidth);
-			   }
-			   
-			   try {
-					   SymbolPattern symbolPattern = symbolPatternManager.getSymbolPattern(symbol.getPatternName());
-					   
-					   /*Get the list of parts to draw the symbol*/
-					   List<SymbolPart> listOfSymbolParts = symbolPattern.getParts();
-					
-					   /*Repeat for ALL the locations at which this symbol needs to be rendered*/
-					   for(Coordinate currWorldCoord : symbolLocArray){
-                           if(currWorldCoord == null )
-                        	   continue;
-						   double[] symbolLocWorldCoord = new double[]{ currWorldCoord.x, currWorldCoord.y };
-		                   double[] pixCoord = iDescriptor.worldToPixel( symbolLocWorldCoord );
-
-							
-							for( SymbolPart sPart: listOfSymbolParts ){
-				                 Coordinate[] coords = sPart.getPath();
-				                 double[][]   path   = new double[ coords.length ][ 3 ];                            
-				                
-				                 /*At each location where this symbol is to be drawn, create a line segment path*/
-				                 for ( int j = 0 ; j < coords.length ; j++ ) {
-				                        path[j][0] = pixCoord[0] + (  sfactor * coords[j].x );
-				                        path[j][1] = pixCoord[1] + ( -sfactor * coords[j].y );   
-				                 }
-				                 
-				                 
-				                 /*If needed - add the line segment part to the mask*/
-				                 if (symbol.isClear() && (mask != null ) ){
-				                	 mask.addLineSegment(path);
-				                 }
-				                 
-				                 /*Add the line-segment path to the wire-frame*/
-				                 wireFrameShape.addLineSegment(path);
-				                 
-				                 /*If needed - add the shaded shape corresponding to the symbol*/
-				                 if(getDisplayFillMode (sPart.isFilled())){
-				                 	Coordinate[] pixels = new Coordinate[path.length];
-				                	for (int k=0; k<path.length; k++ ) {
-				                		pixels[k] = new Coordinate( path[k][0], path[k][1] );
-				                	}
-				                	symbolShadedShape.addPolygonPixelSpace(toLineString(pixels), symbolRGB);
-				                 }
-				                 
-							}		                   
-		                   
-					   }
-
-					mapOfWireFrames.put(symbolColor, wireFrameShape);
-					mapOfShadedShapes.put(symbolColor, symbolShadedShape);
-	        		if( ( symbol.isClear() ) &&  (bgColor != null) && (mask != null) ){
-					   mapOfMasks.put(bgColor, mask);
-	        		}
-					
-					
-				}   catch (SymbolPatternException e) {
-					       return listOfDisplayables;
-				}
-				  
-			   
-		   }
-		    
-		    Set<Color> maskColorSet         = mapOfMasks.keySet();
-		    Set<Color> wireFrameColorSet    = mapOfWireFrames.keySet();
-		    Set<Color> shadedShapesColorSet = mapOfShadedShapes.keySet();
-
-		    
-		    float lineWidthScaleFactor = 0.5f;
-		    for(Color color: maskColorSet){
-		    	IWireframeShape maskWireframeShape = mapOfMasks.get( color );
-		    	maskWireframeShape.compile();
-		    	Float theLineWidth = mapOfLineWidths.get( color );
-		    	float lineWidth = 1.0f;
-		    	 
-		    	if(theLineWidth != null )
-		    		lineWidth =  theLineWidth.floatValue()*lineWidthScaleFactor;
-		    	listOfDisplayables.add(new LineDisplayElement(maskWireframeShape, color, (float) (lineWidth + 25)));
-		    }
-		    
-		    for( Color color : wireFrameColorSet ){
-		    	IWireframeShape symbolWireframeShape = mapOfWireFrames.get( color );
-		    	symbolWireframeShape.compile();
-		    	Float theLineWidth = mapOfLineWidths.get( color );
-		    	float lineWidth = 1.0f;
-		    	if(theLineWidth != null )
-		    		lineWidth = theLineWidth.floatValue()*lineWidthScaleFactor;
-		    	listOfDisplayables.add(new LineDisplayElement(symbolWireframeShape, color, (float) (lineWidth )));		    	
-		    }
-		    
-		    for ( Color color : shadedShapesColorSet ){
-		    	IShadedShape shadedSymbolShape = mapOfShadedShapes.get( color );
-		    	shadedSymbolShape.compile();
-		    	listOfDisplayables.add(new FillDisplayElement(shadedSymbolShape, color.getAlpha()));
-		    }
-		   
-		return listOfDisplayables;
-		
 	}
 	
 	/**
@@ -3112,7 +2951,7 @@ public class DisplayElementFactory {
 	 * @param coords - input data points
 	 * @return data points in new format
 	 */
-	protected double[][] toDouble( Coordinate[] coords) {
+	private double[][] toDouble( Coordinate[] coords) {
 		
 		double[][] dpts = new double[coords.length][3];
 		
@@ -3129,7 +2968,7 @@ public class DisplayElementFactory {
 	 * @param coords - input data points
 	 * @return data points in new format
 	 */
-	protected LineString[] toLineString ( Coordinate[] coords ) {
+	private LineString[] toLineString ( Coordinate[] coords ) {
 		
 		LineString[] ls = new LineString[] { gf.createLineString(coords) };
 		return ls;
@@ -3140,7 +2979,7 @@ public class DisplayElementFactory {
 	 * @param coords - input data points
 	 * @return data points in new format
 	 */
-	protected LineString[] toLineString ( double[][] points ) {
+	private LineString[] toLineString ( double[][] points ) {
 		
 		Coordinate[] coords = new Coordinate[points.length];
 		for ( int j=0; j<points.length; j++) {
@@ -3246,7 +3085,7 @@ public class DisplayElementFactory {
 	 * the size of something from screen relative to pixel relative
 	 * @param props The paint properties associated with the target
 	 */
-	protected void setScales(PaintProperties props) {
+	private void setScales(PaintProperties props) {
 
 		/*
 		 * Sets the device scale factor based on the current pixel extent
@@ -3657,13 +3496,6 @@ public class DisplayElementFactory {
     	 * For each color encountered above, compile the accumulated wireframes (or shaded shapes)
     	 * of that color, package them into a single display element, and add to return list
     	 */
-
-    	for (Color color : arrowMap.keySet()) {
-    		IWireframeShape arrows = arrowMap.get(color);
-    		arrows.compile();
-    		slist.add( new LineDisplayElement(arrows, color, lineWidth) );
-    	}        
-        
     	for (Color color : maskMap.keySet()) {
     		IWireframeShape masks = maskMap.get(color);
     		masks.compile();
@@ -4037,7 +3869,7 @@ public class DisplayElementFactory {
     }
     
     
-    protected double[][] calculateCircle(double[] center, double radius) {
+    private double[][] calculateCircle(double[] center, double radius) {
     	
     	int numpts = 16;
     	double[][] arcpts =new double[numpts+1][3];
@@ -4101,7 +3933,7 @@ public class DisplayElementFactory {
     /**
      * Get the colors for displaying an element.
      */
-	protected Color[] getDisplayColors( Color[] clr ) {
+	private Color[] getDisplayColors( Color[] clr ) {
                 
         Color[] newClr = new Color[ clr.length ];
     	
@@ -4121,7 +3953,7 @@ public class DisplayElementFactory {
     /**
      * Get the colors for displaying an element.
      */
-	protected Color getDisplayColor( Color clr ) {        
+	private Color getDisplayColor( Color clr ) {        
 		
         if ( layerMonoColor && layerColor != null ) {
     		 return layerColor;	

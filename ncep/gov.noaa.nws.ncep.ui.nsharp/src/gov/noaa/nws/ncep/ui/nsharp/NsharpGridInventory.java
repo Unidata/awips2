@@ -23,7 +23,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 08/19/12       #845     Greg Hull     Created.
  * 08/23/12				   Chin Chen     Added ref time for Nsharp and remove event time as 
  * 										 it is not used.
- * 09/04/13       #1031    Greg Hull     Make directory request to find the grid resource's inventory.
  * 
  * </pre>
  * 
@@ -33,10 +32,13 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 public class NsharpGridInventory {
 
 	// This will use one NcInventory to store grid metadata needed for NSharp. 
-	// currently this is just the modelNames and dataTimes. This will use
-	// the same inventory as the NcGrid resource.
+	// currently this is just the modelNames and dataTimes. 
 	//
-	public static String nsharpGridInventoryName = "";//"NcGridModelTimes";
+	// NOTE : If more data is needed we may want to consider merging this
+	// with the NcGridInventory which stores the parm/vcord/levels but not 
+	// the dataTimes.
+	// 
+	public static final String nsharpGridInventoryName = "NsharpGridInventory";
 	
 	private static final ArrayList<String> inventoryParamNames = new ArrayList<String>(); {
 		/*
@@ -51,118 +53,43 @@ public class NsharpGridInventory {
 		//inventoryParamNames.add( "dataTime.fcstTime");
 	}
 	
+	private boolean isInventoryInited = false;
+		
+	//private static final transient IUFStatusHandler statusHandler = 
+	//			UFStatus.getHandler(NsharpGridInventory.class);
+
     private static NsharpGridInventory instance = null;
     
 	public static NsharpGridInventory getInstance() {
 		if( instance == null ) {
 			instance = new NsharpGridInventory();	
-			nsharpGridInventoryName = "";
 		}
 		return instance;
 	}
 	
 	public Boolean isInitialized() {
-		return !nsharpGridInventoryName.isEmpty();
-	}
-
-	// get a list of the inventories on the server and save the name of
-	// the one that NSharp will query
-	public void initialize() throws VizException {
-
-		if( isInitialized() ) {
-			return;
-		}
-		String errMsg = "";
-		HashMap<String, RequestConstraint> baseConstraints = 
-				new HashMap<String,RequestConstraint>();
-		baseConstraints.put( "pluginName", new RequestConstraint( "grid" ) );
-
-		//inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );			
-		NcInventoryDefinition invDefn = 
-				new NcInventoryDefinition( "NSharpGridModels", //  
-						baseConstraints, inventoryParamNames );
-
-		NcInventoryRequestMsg dirRequest = NcInventoryRequestMsg.makeDirectoryRequest();
-
-		try {
-			Object rslts = ThriftClient.sendRequest( dirRequest );
-
-			if( rslts instanceof String ) {
-				errMsg = rslts.toString();
-			}
-			if( !(rslts instanceof ArrayList<?>) ) {
-				errMsg = "Grid Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>.";
-			}
-			else if( ((ArrayList<?>)rslts).isEmpty() ) {
-				errMsg = "Grid Inventory Directory Request Warning: No Inventories initialized.???";
-			}
-			else if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
-				errMsg = "Grid Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>.";
-			}
-			else {
-				// used to set the inventory initialized flag
-				ArrayList<NcInventoryDefinition> invDefnsList = (ArrayList<NcInventoryDefinition>)rslts;
-
-				// it would be nice to use the supportsQuery() method instead of equals but we'd have to 'assume' the constraints  
-				// used for queries and I'd rather not do that.
-				// instead just check for 1 'grid' base constraint and that the needed parameters
-				// are in the inventory.
-				for( NcInventoryDefinition id : invDefnsList ) {
-					//if( id.supportsQuery( , inventoryParamNames ))
-					if( id.getBaseConstraints().keySet().size() > 1 ||
-					   !id.getBaseConstraints().containsKey("pluginName") ||
-					   !id.getBaseConstraints().get("pluginName").getConstraintValue().equals("grid")) {
-						continue;
-					}
-					Boolean invFound = true;
-					for( String invPrm : inventoryParamNames ) {
-						if( !id.getInventoryParameters().contains( invPrm ) ) {
-							invFound = false;
-							break;
-						}
-					}
-					if( invFound ) {
-						nsharpGridInventoryName = id.getInventoryName();
-						System.out.println("Found Inventory, "+ nsharpGridInventoryName + 
-								", to be used by the NsharpGridInventory class");				
-						break;
-					}
-				}
-				
-				if( nsharpGridInventoryName.isEmpty() ) {
-					errMsg = "Could not find usable inventory for NSharp Grid Models";
-				}
-			}
-		}
-		catch( VizException e ) {
-			errMsg = "Error getting inventory directory: "+e.getMessage();
-		}
-		
-		if( !isInitialized() ) {
-			System.out.println(errMsg);
-			throw new VizException( errMsg );
-		}
+		return isInventoryInited;
 	}
 	
 	// Note: this should not be necessary since edex should have already initialized the 
 	// NcGridSoundingInventoryDefinition 
 	// 
-	// if the grid inventory is not found on the server, we
-	// can create it from here. 
-	public static void createInventory() throws VizException {
+	public void initInventory( boolean reinit ) throws VizException {
+		
+		if( !isInventoryInited || reinit) {
+
 			HashMap<String, RequestConstraint> baseConstraints = 
 									new HashMap<String,RequestConstraint>();
 			baseConstraints.put( "pluginName", new RequestConstraint( "grid" ) );
 			
-		nsharpGridInventoryName = "NSharpGridModels";
-		
 			//inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );			
 	    	NcInventoryDefinition invDescr = 
     				new NcInventoryDefinition( nsharpGridInventoryName, 
     							baseConstraints, inventoryParamNames );
 
 	    	ManageNcInventoryMsg createReqMsg = 
-    			       ManageNcInventoryMsg.makeCreateDirective();
+	    		( reinit ? ManageNcInventoryMsg.makeReinitDirective() :
+	    			       ManageNcInventoryMsg.makeCreateDirective() );
 	    	createReqMsg.setInventoryDefinition( invDescr );
 //	    	createReqMsg.setReInitInventory( reinit );
 
@@ -171,13 +98,14 @@ public class NsharpGridInventory {
 	    	Object rslts = ThriftClient.sendRequest( createReqMsg );
 
 	    	if( !(rslts instanceof String) ) {
-    		nsharpGridInventoryName = "";
 	    		throw new VizException("initInventory failed: response not of type String???");	    		
 	    	}
 	    	String response = (String)rslts;
 
-    	if( !response.equals( ManageNcInventoryMsg.CREATE_SUCCESS_RESPONSE ) ) {	    		
-    		nsharpGridInventoryName = "";
+	    	if( response.equals( ManageNcInventoryMsg.CREATE_SUCCESS_RESPONSE ) ) {	    		
+	    		isInventoryInited = true;
+	    	}
+	    	else {
 	    		throw new VizException( response );
 	    	}
 
@@ -185,13 +113,13 @@ public class NsharpGridInventory {
 
 	    	out.println("Inventory loaded for "+ nsharpGridInventoryName+" in "+ (t02-t01)+ "msecs" );
 		}
+	}
 		
 	// 
 	public ArrayList<String> searchInventory( 
 				HashMap<String, RequestConstraint> searchConstraints, String reqParam ) {
 		
-		if( !isInitialized() ) {
-			System.out.println("Nsharp searchInventory failed because the inventory has not been initialized.");
+		if( !isInventoryInited ) {
 			return null;
 		}
 
@@ -199,9 +127,8 @@ public class NsharpGridInventory {
 			NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
 
 	 		reqMsg.setInventoryName( nsharpGridInventoryName );
-	 		reqMsg.setRequestedParams( new String[]{reqParam} );
+	 		reqMsg.setRequestedParam( reqParam );
 	 		reqMsg.setReqConstraintsMap( searchConstraints );
-	 		reqMsg.setUniqueValues( true );
 
 	 		Object rslts;
 
@@ -211,11 +138,8 @@ public class NsharpGridInventory {
 
 //	 		out.println("inv request returned "+rslts.getClass().getCanonicalName() );
 
-	 		if( rslts instanceof String ) {
-	 			throw new VizException("Inventory Request Failed: "+ rslts.toString() ); 				
- 			}
-	 		
 	 		if( !(rslts instanceof String[]) ) {
+//	 			out.println("Inventory Request Failed: expecting String[] return." + rslts.toString());
 	 			throw new VizException("Inventory Request Failed: expecting String[] instead of "+
 	 					rslts.getClass().getName() );
 	 		}
@@ -237,7 +161,6 @@ public class NsharpGridInventory {
 	 		return retArray;
 	 	}
 	 	catch ( VizException vizex ) {
-	 		System.out.println("Error searching NsharpGridInventory: "+vizex.getMessage() );
 	 		return null;
 	 	}
 	}	
@@ -251,8 +174,8 @@ public class NsharpGridInventory {
     	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeDumpRequest();
     	
 		reqMsg.setInventoryName( nsharpGridInventoryName );
-//		reqMsg.setRequestedParam( 
-//				inventoryParamNames.get( inventoryParamNames.size()-1) );
+		reqMsg.setRequestedParam( 
+				inventoryParamNames.get( inventoryParamNames.size()-1) );
 	//	reqMsg.setDumpToFile( true );
 		
 		Object rslts;

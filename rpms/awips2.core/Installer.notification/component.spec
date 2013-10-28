@@ -49,17 +49,6 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
       exit 1
    fi
 fi
-mkdir -p ${RPM_BUILD_ROOT}/awips2/notification
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-PROFILE_D_DIR="rpms/awips2.core/Installer.notification/scripts/profile.d"
-cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %build
 
@@ -87,6 +76,16 @@ function copyLegal()
       
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
+
+mkdir -p ${RPM_BUILD_ROOT}/awips2/notification
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 BUILD_NATIVE="%{_baseline_workspace}/build.native"
 
 pushd . > /dev/null 2>&1
@@ -102,6 +101,9 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
+PROFILE_D_DIR="rpms/awips2.core/Installer.notification/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+
 copyLegal "awips2/notification"
 
 %pre
@@ -109,35 +111,15 @@ if [ "${1}" = "2" ]; then
    exit 0
 fi
 
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II Notification...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
-
 %post
 if [ "${1}" = "2" ]; then   
    exit 0
 fi
-echo "--------------------------------------------------------------------------------"
-echo "\| Setting up the AWIPS II Notification Runtime and Environment..."
-echo "--------------------------------------------------------------------------------"
-
-echo "--------------------------------------------------------------------------------"
-echo "\| Adding Environment Variables for AWIPS II Notification"
-echo "--------------------------------------------------------------------------------"
-
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Notification Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
 
 %postun
 if [ "${1}" = "1" ]; then
    exit 0
 fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II Notification Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

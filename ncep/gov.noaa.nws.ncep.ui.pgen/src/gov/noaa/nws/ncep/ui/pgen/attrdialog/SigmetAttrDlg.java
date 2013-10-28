@@ -99,8 +99,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03/12        #676        Q. Zhou     Added Issue Office dropdown list.
  * 08/12        #612		S. Gurung   Fixed issue related to conversion of phenom Lat/Lon to prepended format
  * 03/13		#928		B. Yin		Made the button bar smaller.
- * 04/13        #977        S. Gilbert  PGEN Database support
- * 09/13        TTR656      J. Wu	  	Display for INTL_SIGMET converted from VGF.
+ * 04/29        #977        S. Gilbert  PGEN Database support
  * </pre>
  * 
  * @author gzhang
@@ -1396,13 +1395,9 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
             final Coordinate[] coors = (elSelected == null) ? null : elSelected
                     .getPoints().toArray(new Coordinate[] {});
 
-            /*
-             * Added "trim()" since SIGMETs VGFs has no "editableAttrFromLine" and it is
-             * defaulted as " " when converted into XML - (J. Wu). 
-             */
             if (coors != null) {
                 if (editableAttrFromLine == null
-                        || editableAttrFromLine.trim().equals("")) {
+                        || editableAttrFromLine.equals("")) {
                     coorsLatLon.append(getLatLonStringPrepend2(coors,
                             AREA.equals(((Sigmet) elSelected).getType())));
                     resetText(coorsLatLon.toString(), txtInfo);

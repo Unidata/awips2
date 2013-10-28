@@ -2,7 +2,6 @@ package gov.noaa.nws.ncep.edex.common.ncinventory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -36,7 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *  05/03/12      #606       Greg Hull   make ISerializable; changed to store all constraints as
  *                                       RequestConstraints in baseConstraints and access as QueryParam
  *  05/23/12      #606       Greg Hull   Save jaxb files in static_common for edex to read on startup
- *  08/15/13     #1031       Greg Hull   supportsQuery() for super-inventories
+ * 
  * </pre>
  * 
  * @author ghull
@@ -68,8 +67,6 @@ public class NcInventoryDefinition implements ISerializableObject {
     @XmlJavaTypeAdapter(value = RequestableMetadataMarshaller.class)
 	private HashMap<String,RequestConstraint>  baseConstraints;
 
-	private String invDefnFileName = null;
-
 	// no-arg constructor required for serialization
 	public NcInventoryDefinition() {
 		inventoryName = "none";
@@ -91,66 +88,6 @@ public class NcInventoryDefinition implements ISerializableObject {
 		baseConstraints  = new HashMap<String,RequestConstraint>( baseConstrMap );
 	}
 
-	// return true if this inventory will support queries made with the given 
-	// request constraints and parameters.
-	public Boolean supportsQuery( Map<String,RequestConstraint> queryConstraints, List<String> reqParams) {
-		// first all of the requested parameters have to be stored in the inventory.
-		for( String reqParam : reqParams ) {
-			if( !inventoryParameters.contains( reqParam ) ) {
-				return false;
-			}
-		}
-
-		// if there are baseconstraints then the inventory only supports the 
-		// query if there is an equal or stricter request constriaint.
-		//
-		for( String invConstrParam : baseConstraints.keySet() ) {
-			RequestConstraint invConstr = baseConstraints.get( invConstrParam );
-			
-			if( invConstr != RequestConstraint.WILDCARD ) {
-				
-				if( !queryConstraints.containsKey( invConstrParam ) ) {
-					return false;
-				}
-				RequestConstraint queryConstr = queryConstraints.get( invConstrParam );
-				
-				if( invConstr.equals( queryConstr ) ) {
-					// 
-				}
-				// if the constraint is not the same we will need the data in the inventory 
-				// to satisfy the query.
-				else if( !inventoryParameters.contains( invConstrParam ) ) {						
-					return false;
-				}
-				else {
-				// TODO : determine if the query constraint is stricter than 
-				// the inventory constraint and continue if true;
-					return false;
-				}
-			}
-		}
-		
-		// second all the request constraints either have to have the data in the inventory or
-		// have the same constraint in the base constraints 
-		// have to be looser than the requesting constraints.
-		//
-		for( String queryParam : queryConstraints.keySet() ) {
-			// if a constraint parameter is not stored in the inventory then it must
-			// have the same constraint as a base constraint.
-			if( !inventoryParameters.contains( queryParam ) ) {
-				
-				if( !baseConstraints.containsKey( queryParam ) ) {
-					return false;
-				}								
-				else if( !baseConstraints.get( queryParam ).equals( 
-						      queryConstraints.get( queryParam ) 	) ) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	
 	public void setInventoryName(String inventoryName) {
 		this.inventoryName = inventoryName;
 	}
@@ -184,13 +121,20 @@ public class NcInventoryDefinition implements ISerializableObject {
 		return baseConstraints.get( paramName );		
 	}
 	
-	public String getInvDefnFileName() {
-		return invDefnFileName;
-	}
-
-	public void setInvDefnFileName(String invDefnFileName) {
-		this.invDefnFileName = invDefnFileName;
-	}
+	// if there are constraints for a parameter stored in the inventory the NcInventory
+	// needs to know them when making the catalog query for that parameter.
+	//
+	/// This was used by queryChildNodes() before it was replaced
+//	public QueryParam getQueryParamFromConstraints( String paramName ) {
+//		if( baseConstraints.containsKey( paramName ) ) {
+//			return new QueryParam( paramName, 
+//					baseConstraints.get( paramName ).getConstraintValue(),
+//							getQueryOperandFromRequestConstraintType(
+//									baseConstraints.get( paramName ).getConstraintType() ) );
+//		}
+//
+//		return null;		
+//	}
 	
 	// return a version of the baseConstraints using QueryParams instead of 
 	// RequestConstraints. (Should we leave out the constraints for the inventory parameters?) 
@@ -258,7 +202,7 @@ public class NcInventoryDefinition implements ISerializableObject {
 		return result;
 	}
 
-	// Note that inventoryName and filename are NOT part of the equals 
+	// Note that inventoryName is NOT part of the equals 
 	// 2 users can create 2 resourceDefns with different names but as long as the constraints
 	// are the same then they are the same inventory
 	@Override
@@ -286,7 +230,7 @@ public class NcInventoryDefinition implements ISerializableObject {
 	public String toString() {
 		return  "InventoryName="+ inventoryName + 
 				"\nBaseConstraints="+baseConstraints.toString() +
-				"\nInventoryParameters=" + inventoryParameters.toString();
+				"\nInventoryConstraints=" + inventoryParameters.toString();
 	}
 	
 	public static class InvParmListAdapter extends XmlAdapter<String, ArrayList<String>> {
