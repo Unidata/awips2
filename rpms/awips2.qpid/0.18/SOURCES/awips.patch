@@ -75,7 +75,7 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   commons-cli=lib/required/commons-cli-1.2.jar
 ! commons-codec=lib/required/commons-codec-1.6.jar
   commons-collections=lib/required/commons-collections-3.2.1.jar
-! commons-configuration=lib/required/commons-configuration-1.8.jar
+  commons-configuration=lib/required/commons-configuration-1.8.jar
   commons-digester=lib/required/commons-digester-1.8.1.jar
 ! commons-lang=lib/required/commons-lang-2.6.jar
   commons-logging=lib/required/commons-logging-1.1.1.jar
@@ -89,7 +89,7 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   commons-cli=lib/required/commons-cli-1.2.jar
 ! commons-codec=lib/required/commons-codec-1.4.jar
   commons-collections=lib/required/commons-collections-3.2.1.jar
-! commons-configuration=lib/required/commons-configuration-1.6.jar
+  commons-configuration=lib/required/commons-configuration-1.8.jar
   commons-digester=lib/required/commons-digester-1.8.1.jar
 ! commons-lang=lib/required/commons-lang-2.3.jar
   commons-logging=lib/required/commons-logging-1.1.1.jar

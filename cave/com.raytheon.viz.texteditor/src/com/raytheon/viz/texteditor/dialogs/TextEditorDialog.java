@@ -44,7 +44,6 @@ import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -331,7 +330,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
  *                                      command history or close browser window for "update obs".
- * 
+ * 04Sep2013   2176         jsanchez    Changed the order of the QC check dialogs.
  * </pre>
  * 
  * @author lvenable
@@ -2952,20 +2951,23 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            The font size sub menu.
      */
     private void createFontSizeSubMenu(Menu fontSizeSubMenu) {
-        
-        FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg().getFontSizeCfg();
-        SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg().getSelectedFontButton();
-        
+
+        FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg()
+                .getFontSizeCfg();
+        SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg()
+                .getSelectedFontButton();
+
         for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
             MenuItem item = new MenuItem(fontSizeSubMenu, SWT.RADIO);
             item.setText(buttonCfg.getLabelName());
-            item.setSelection( false );
+            item.setSelection(false);
             item.setData(buttonCfg);
-            
+
             // if this button is the initial selection.
-            if( seldFontBtn.getLabelName().equals( buttonCfg.getLabelName() ) ) {            	
+            if (seldFontBtn.getLabelName().equals(buttonCfg.getLabelName())) {
                 item.setSelection(true);
-            	setDefaultFont( seldFontBtn.getFontSize(), seldFontBtn.getFontName() );
+                setDefaultFont(seldFontBtn.getFontSize(),
+                        seldFontBtn.getFontName());
             }
 
             item.addSelectionListener(new SelectionAdapter() {
@@ -2973,10 +2975,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 public void widgetSelected(SelectionEvent event) {
                     MenuItem item = (MenuItem) event.getSource();
                     if (item.getSelection()) {
-                        int selectFontSize = ( (SizeButtonCfg) item.getData()).getFontSize();
-                		 String seldFontName = ((SizeButtonCfg) item.getData()).getFontName();
-                	
-                		 setDefaultFont( selectFontSize, seldFontName );
+                        int selectFontSize = ((SizeButtonCfg) item.getData())
+                                .getFontSize();
+                        String seldFontName = ((SizeButtonCfg) item.getData())
+                                .getFontName();
+
+                        setDefaultFont(selectFontSize, seldFontName);
 
                         textEditor.setFont(dftFont);
                         headerTF.setFont(dftFont);
@@ -2987,8 +2991,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     }
 
-    public void setDefaultFont( int fontSize, String fontName ) {
-    	dftFont =  new Font( getDisplay(), fontName, fontSize, SWT.NORMAL);    	    	
+    public void setDefaultFont(int fontSize, String fontName) {
+        dftFont = new Font(getDisplay(), fontName, fontSize, SWT.NORMAL);
     }
 
     /**
@@ -3723,7 +3727,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         textEditorComp = new Composite(shell, SWT.NONE);
         GridLayout gridLayout = new GridLayout(1, false);
-//        TextColorsCfg textColorCfg = null;
+        // TextColorsCfg textColorCfg = null;
 
         textEditorComp.setLayout(gridLayout);
         textEditorComp.setLayoutData(gd);
@@ -3745,8 +3749,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
         textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
 
-//        textColorCfg = getTextColorCfg();
-        setDefaultTextColor( TextEditorCfg.getTextEditorCfg() );
+        // textColorCfg = getTextColorCfg();
+        setDefaultTextColor(TextEditorCfg.getTextEditorCfg());
         textEditor.setForeground(textForeground);
         textEditor.setBackground(textBackground);
 
@@ -3948,42 +3952,46 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
     }
 
-//    private TextColorsCfg getTextColorCfg() {
-//        TextColorsCfg textColorsCfg =  TextEditorCfg.getTextEditorCfg().getTextColorsCfg();
-//
-//        // Perform Sanity Checks on configuration.
-//        StringBuilder message = new StringBuilder();
-//        
-//        for (TextColorElement textElm : textColorsCfg.getTextColorElements()) {
-//    		String prmtName = textElm.getParamName();
-//            if (prmtName == null) {
-//            	message.append("Item \"paramName\" problem!\n");
-//                    
-//            }
-//    		
-//            if( textElm.getColor() == null ) {
-//            	message.append("Item \"color\" data enter problem!\n");
-//            }
-//            
-//            if (message.length() > 0) {
-//                message.insert(0, "TextColorsCfg broblem(s): ");
-//                IUFStatusHandler statusHandler = UFStatus
-//                        .getHandler(TextEditorDialog.class);
-//                statusHandler.handle(Priority.PROBLEM, message.toString());
-//            }
-//    		
-//    	}
-//    	
-//    	return textColorsCfg;
-//    }
+    // private TextColorsCfg getTextColorCfg() {
+    // TextColorsCfg textColorsCfg =
+    // TextEditorCfg.getTextEditorCfg().getTextColorsCfg();
+    //
+    // // Perform Sanity Checks on configuration.
+    // StringBuilder message = new StringBuilder();
+    //
+    // for (TextColorElement textElm : textColorsCfg.getTextColorElements()) {
+    // String prmtName = textElm.getParamName();
+    // if (prmtName == null) {
+    // message.append("Item \"paramName\" problem!\n");
+    //
+    // }
+    //
+    // if( textElm.getColor() == null ) {
+    // message.append("Item \"color\" data enter problem!\n");
+    // }
+    //
+    // if (message.length() > 0) {
+    // message.insert(0, "TextColorsCfg broblem(s): ");
+    // IUFStatusHandler statusHandler = UFStatus
+    // .getHandler(TextEditorDialog.class);
+    // statusHandler.handle(Priority.PROBLEM, message.toString());
+    // }
+    //
+    // }
+    //
+    // return textColorsCfg;
+    // }
 
-    
-    private void setDefaultTextColor(TextEditorCfg  txtClrCfg ) {
-        	
-    	textBackground = new Color( shell.getDisplay(), txtClrCfg.getTextBackgroundColor() );    				 
-    	textForeground = new Color(shell.getDisplay(), txtClrCfg.getTextForegroundColor() );
-    	highlightBackground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextBackgroundColor() );
-    	highlightForeground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextForegroundColor() );   
+    private void setDefaultTextColor(TextEditorCfg txtClrCfg) {
+
+        textBackground = new Color(shell.getDisplay(),
+                txtClrCfg.getTextBackgroundColor());
+        textForeground = new Color(shell.getDisplay(),
+                txtClrCfg.getTextForegroundColor());
+        highlightBackground = new Color(shell.getDisplay(),
+                txtClrCfg.getHighlightTextBackgroundColor());
+        highlightForeground = new Color(shell.getDisplay(),
+                txtClrCfg.getHighlightTextForegroundColor());
     }
 
     /**
@@ -4858,14 +4866,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     @Override
                     public void dialogClosed(Object returnValue) {
                         if (Boolean.TRUE.equals(returnValue)) {
-                            checkEmergencyProduct(resend);
+                            finishSendProduct(resend);
                         }
 
                     }
                 });
                 wgcd.open();
             } else {
-                checkEmergencyProduct(resend);
+                finishSendProduct(resend);
             }
         } else {
             finishSendProduct(resend);
@@ -4915,7 +4923,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             @Override
             public void dialogClosed(Object returnValue) {
                 if (Boolean.TRUE.equals(returnValue)) {
-                    warngenCloseCallback(resend);
+                    checkEmergencyProduct(resend);
                 }
             }
         });
@@ -4943,14 +4951,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void dialogClosed(Object returnValue) {
                     if (Boolean.TRUE.equals(returnValue)) {
-                        finishSendProduct(resend);
+                        warngenCloseCallback(resend);
                     }
 
                 }
             });
             wgcd.open();
         } else {
-            finishSendProduct(resend);
+            warngenCloseCallback(resend);
         }
     }
 
@@ -5903,7 +5911,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
-        if (! isObsUpdated) {
+        if (!isObsUpdated) {
             if (browser != null) {
                 browser.close();
                 browser = null;
@@ -6097,7 +6105,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void postExecute(boolean hasAttachment, boolean enterEditor,
             boolean validExecuteCommand, String attachedFilename) {
         if (!this.isDisposed()) {
-            if (! productQueryJob.isExpectingRequests()) {
+            if (!productQueryJob.isExpectingRequests()) {
                 if (hasAttachment) {
                     statusBarLabel.setText("Attachment: " + attachedFilename);
                 } else {

@@ -10,7 +10,7 @@
 	<bean id="bufrmthdwDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrmthdwPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrmthdw?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrmthdw"/>
 	</bean>
 
 	<bean id="bufrmthdwCamelRegistered" factory-bean="contextManager"
@@ -31,13 +31,13 @@
 			<setHeader headerName="pluginName">
                 <constant>bufrmthdw</constant>
 			</setHeader>
-			<to uri="jms-generic:queue:Ingest.bufrmthdw" />
+			<to uri="jms-durable:queue:Ingest.bufrmthdw" />
 		</route>
 		-->
 
 		<!-- Begin bufrmthdw routes -->
 		<route id="bufrhdwIngestRoute">
-			<from uri="jms-generic:queue:Ingest.bufrmthdw?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.bufrmthdw"/>
 			<setHeader headerName="pluginName">
                 <constant>bufrmthdw</constant>
 			</setHeader>
