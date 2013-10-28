@@ -159,7 +159,7 @@ private:
 			{
 				uwarn(error.what());
 			}
-		}
+                }
 		this->isConnected = false;
 	}
 
@@ -399,7 +399,7 @@ int main(int argc, char* argv[]) {
 
 			// Need to copy in the end of the queue before moving to front
 			if (lastQueueSize > queueSize) {
-				udebug(
+				unotice(
 						"Coming over the top with lastQueueSize of %d on a size of %d",
 						lastQueueSize, sizeOfQueue);
 				endQueueDiff = sizeOfQueue - lastQueueSize;
@@ -431,7 +431,7 @@ int main(int argc, char* argv[]) {
 						messagesSent, queue_diff);
 
 			}
-			udebug(
+			unotice(
 					"Sent %d messages (%d at the end of the queue, %d normally).",
 					messagesSent, endQueueDiff, queue_diff);
 		}

@@ -6,8 +6,8 @@ if [ -z ${WORKSPACE} ]; then
    exit 1
 fi
 if [ -z ${AWIPSII_BUILD_ROOT} ]; then
-   echo "Error: the location of the AWIPS II build root must be specified using the AWIPSII_BUILD_ROOT environment variable."
-   exit 1
+   export AWIPSII_BUILD_ROOT="/tmp/${USER}/awips-component"
+   echo "INFO: using default build root - ${AWIPSII_BUILD_ROOT}."
 fi
 
 __SPECS=qpid-java.spec
@@ -67,6 +67,7 @@ rpmbuild -ba \
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
 popd > /dev/null
 
 exit 0

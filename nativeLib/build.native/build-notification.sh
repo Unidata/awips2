@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Constants:
 __ECLIPSE_="eclipse"
 __NO_SPLASH_="-nosplash"
@@ -65,7 +67,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-PROJECTS_TO_IMPORT=( "org.apache.thrift" "org.apache.qpid" )
+PROJECTS_TO_IMPORT=( "org.apache.thrift" )
 PROJECTS_TO_BUILD=( "edex_com" "edex_notify" )
 
 for project in ${PROJECTS_TO_IMPORT[*]};

@@ -12,7 +12,7 @@
 	<bean id="goessoundingDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="goessoundingPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.goessounding"/>
+		<constructor-arg value="jms-dist:queue:Ingest.goessounding?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
     <bean id="goessoundingCamelRegistered" factory-bean="contextManager"
@@ -35,13 +35,13 @@
             <setHeader headerName="pluginName">
                 <constant>goessounding</constant>
             </setHeader>
-			<to uri="jms-durable:queue:Ingest.goessounding" />
+			<to uri="jms-generic:queue:Ingest.goessounding" />
 		</route>
         -->
 
 		<!-- Begin GOES Sounding routes -->
         <route id="goessndgIngestRoute">
-            <from uri="jms-durable:queue:Ingest.goessounding"/>
+            <from uri="jms-generic:queue:Ingest.goessounding?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>goessounding</constant>
             </setHeader>

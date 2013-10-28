@@ -44,12 +44,12 @@
 			<setHeader headerName="pluginName">
 				<constant>mosaic</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.Mosaic" />
+			<to uri="jms-generic:queue:Ingest.Mosaic" />
 		</route>
 
 
 		<route id="mosaicIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Mosaic" />
+			<from uri="jms-generic:queue:Ingest.Mosaic" />
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile" />

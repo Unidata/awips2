@@ -8,8 +8,8 @@
         <constructor-arg ref="jmsSmartInitConfig" />
 		<property name="taskExecutor" ref="smartInitThreadPool" />		
 	</bean>
-    <bean id="jmsSmartInitConfig" class="org.apache.camel.component.jms.JmsConfiguration" factory-bean="jmsDurableConfig"
-        factory-method="copy"/>
+	<bean id="jmsSmartInitConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
 	<bean id="smartInitThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${smartinit.threadpoolsize}" />
@@ -40,7 +40,7 @@
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		<route id="SPCWatch">
-			<from uri="jms-durable:queue:edex.spcWatch"/>
+			<from uri="jms-generic:queue:edex.spcWatch?destinationResolver=#qpidDurableResolver" />
             <doTry>
     			<bean ref="spcWatch" method="handleSpcWatch" />
                 <doCatch>
@@ -51,7 +51,7 @@
 		</route>
 		
 		<route id="TPCWatch">
-			<from uri="jms-durable:queue:edex.tpcWatch"/>
+			<from uri="jms-generic:queue:edex.tpcWatch?destinationResolver=#qpidDurableResolver" />
             <doTry>
     			<bean ref="tpcWatch" method="handleTpcWatch" />
                 <doCatch>
@@ -78,7 +78,7 @@
 
         <!--  gfeIngestNotification must be a singleton and has 4 threads to read due to throughput of messages during model run times -->
         <route id="gfeIngestNotification">
-            <from uri="jms-durable:queue:gfeDataURINotification?concurrentConsumers=4" />
+            <from uri="jms-generic:queue:gfeDataURINotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=4" />
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift" />
                 <bean ref="gfeIngestFilter" method="filterDataURINotifications" />
@@ -117,9 +117,9 @@
 		
 		<!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
 		<route id="gfeDataURINotificationQueueRoute">
-			<from uri="jms-generic:topic:edex.alerts" />
+			<from uri="jms-gfe-notify:topic:edex.alerts" />
 			<doTry>
-				<to uri="jms-durable:queue:gfeDataURINotification"/>
+				<to uri="jms-generic:queue:gfeDataURINotification"/>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
@@ -128,6 +128,40 @@
 			</doTry>
 		</route>
 	</camelContext>
+	
+	<!-- Beans to define a custom jms connection which will allow a durable subscription -->
+	<bean id="gfeNotifyConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@gfeNotify/edex?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+    </bean>
+
+    <bean id="gfeNotifyPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
+       <constructor-arg ref="gfeNotifyConnectionFactory"/>
+       <property name="provider" value="QPID"/>
+       <property name="reconnectInterval" value="5000"/>
+       <!-- After connection has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
+       <property name="connectionHoldTime" value="90000"/>
+       <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
+       <property name="resourceRetention" value="60000"/>
+       <property name="maxSpareConnections" value="1"/>
+    </bean>
+
+	<bean id="gfeNotifyJmsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+		<property name="listenerConnectionFactory" ref="gfeNotifyPooledConnectionFactory" />
+		<property name="templateConnectionFactory" ref="gfeNotifyPooledConnectionFactory" />
+    </bean>
+
+    <bean id="gfeNotifyThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean>
+
+    <bean id="jms-gfe-notify" class="org.apache.camel.component.jms.JmsComponent">
+       <constructor-arg ref="gfeNotifyJmsConfig" />
+       <property name="taskExecutor" ref="gfeNotifyThreadPool" />
+	</bean>
+	<!-- end of custom JMS beans -->
 
 	<bean factory-bean="clusteredCamelContextMgr"
 		factory-method="register">

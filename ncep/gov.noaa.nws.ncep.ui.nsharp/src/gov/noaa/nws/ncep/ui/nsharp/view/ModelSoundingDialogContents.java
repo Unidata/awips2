@@ -140,17 +140,17 @@ public class ModelSoundingDialogContents {
     	 * We will have to strip off "ncgrib/ruc13/" and ":00:00.0(6)xxxxx", also replace "_" with space, to get 
     	 * grid file name like this "2012-01-17 16".
     	 */
-//    	char fileSep =  File.pathSeparatorChar;
-    	//String header = "grid"+fileSep+  selectedModel +fileSep;
+    	char fileSep =  File.pathSeparatorChar;
+    	String header = "grid"+fileSep+  selectedModel +fileSep;
     	if( queryRsltsList1 != null && !queryRsltsList1.isEmpty() ) {
     		Collections.sort(queryRsltsList1, String.CASE_INSENSITIVE_ORDER);
     		Collections.reverse(queryRsltsList1);
     		
-			for(String dataTimeStr : queryRsltsList1 ) {
+			for(String queryRslt : queryRsltsList1 ) {
 				//System.out.println("ref time:"+queryRslt );
-//				queryRslt = queryRslt.substring(header.length());
-				String refTime = dataTimeStr.substring(0, dataTimeStr.indexOf('_'));
-				refTime = refTime + " "+ dataTimeStr.substring(dataTimeStr.indexOf('_')+1,dataTimeStr.indexOf(':'));
+				queryRslt = queryRslt.substring(header.length());
+				String refTime = queryRslt.substring(0, queryRslt.indexOf('_'));
+				refTime = refTime + " "+ queryRslt.substring(queryRslt.indexOf('_')+1,queryRslt.indexOf(':'));
 				//System.out.println("ret for disp="+refTime );
 				//Chin: a same refTime may be returned more than once. 
 				int index = availableFileList.indexOf(refTime);
@@ -355,9 +355,9 @@ public class ModelSoundingDialogContents {
 
     	if( queryRsltsList != null && !queryRsltsList.isEmpty() ) {
     		Collections.sort(queryRsltsList, String.CASE_INSENSITIVE_ORDER);
-			for(String modelName : queryRsltsList ) {
-//				System.out.println("model name:"+modelName );
-//				String modelName = queryRslt.substring( "grid/".length() );
+			for(String queryRslt : queryRsltsList ) {
+				System.out.println("model name:"+queryRslt );
+				String modelName = queryRslt.substring( "grid/".length() );
 				if(cfgList!=null && cfgList.size()>0){
 					if(cfgList.contains(modelName))
 						modelTypeList.add(modelName);

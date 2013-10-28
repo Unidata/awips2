@@ -1,6 +1,5 @@
 package gov.noaa.nws.ncep.common.dataplugin.geomag;
 
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -131,7 +130,7 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     @Column
     @DynamicSerializeElement
     @XmlAttribute
-    private int badDataPoint;
+    private String badDataPoint;
  
     /**
      * H or X values
@@ -166,30 +165,6 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     private float component_4;
     
     /**
-     * F values
-     */
-    @Column
-    @DynamicSerializeElement
-    @XmlAttribute
-    private int distributionId;
-
-    /**
-     * F values
-     */
-    @Column
-    @DynamicSerializeElement
-    @XmlAttribute
-    private int instrumentOrientationId;
-
-    /**
-     * F values
-     */
-    @Column
-    @DynamicSerializeElement
-    @XmlAttribute
-    private int cadenceId;
-    
-    /**
      * Observation Date and Time for the minute values
      */
     @Transient
@@ -219,76 +194,76 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     @Transient
     private float[] comp4_data;
 
-//    /**
-//     * Following for HrAvg values
-//     */
-//    @Transient
-//    private float[] hrAvgH;
-//
-//    @Transient
-//    private float[] hrAvgD;
-//
-//    @Transient
-//    private long[] comp_InsertTime;
-//
-//    /**
-//     * Following for K values
-//     */
-//    // 3hr
-//    @Transient
-//    private int[] kK_Index;
-//    @Transient
-//    private float[] kK_Real;
-//    @Transient
-//    private float[] kK_Gamma;    
-//    @Transient
-//    private int[] kest_Index;
-//    @Transient
-//    private float[] kest_Real;
-//    @Transient
-//    private float[] kest_Gamma;
-//    @Transient
-//    private float[] hK_Real;
-//    @Transient
-//    private float[] hK_Gamma;
-//    @Transient
-//    private float[] dK_Real;     
-//    @Transient
-//    private float[] dK_Gamma;
-//    
-//    // 1 min
-//    @Transient
-//    private int[] h_Count;
-//    @Transient
-//    private int[] d_Count;
-//    @Transient
-//    private int[] kest_Index_1m;
-//    @Transient
-//    private float[] kest_Real_1m;
-//    @Transient
-//    private float[] kest_Gamma_1m;
-//    @Transient
-//    private float[] hK_Real_1m;
-//    @Transient
-//    private float[] hK_Gamma_1m;
-//    @Transient
-//    private float[] dK_Real_1m;     
-//    @Transient
-//    private float[] dK_Gamma_1m;    
-//    @Transient
-//    private int[] hK_Index_1m;
-//    @Transient
-//    private int[] dK_Index_1m;
-//    @Transient
-//    private float[] h_Dev;
-//    @Transient
-//    private float[] d_Dev;
-//    @Transient
-//    private float[] Ks;
-//    @Transient
-//    private int[] a_est;
-//    @Transient
-//    private float[] update_1m;
+    /**
+     * Following for HrAvg values
+     */
+    @Transient
+    private float[] hrAvgH;
+
+    @Transient
+    private float[] hrAvgD;
+
+    @Transient
+    private long[] comp_InsertTime;
+
+    /**
+     * Following for K values
+     */
+    // 3hr
+    @Transient
+    private int[] kK_Index;
+    @Transient
+    private float[] kK_Real;
+    @Transient
+    private float[] kK_Gamma;    
+    @Transient
+    private int[] kest_Index;
+    @Transient
+    private float[] kest_Real;
+    @Transient
+    private float[] kest_Gamma;
+    @Transient
+    private float[] hK_Real;
+    @Transient
+    private float[] hK_Gamma;
+    @Transient
+    private float[] dK_Real;     
+    @Transient
+    private float[] dK_Gamma;
+    
+    // 1 min
+    @Transient
+    private int[] h_Count;
+    @Transient
+    private int[] d_Count;
+    @Transient
+    private int[] kest_Index_1m;
+    @Transient
+    private float[] kest_Real_1m;
+    @Transient
+    private float[] kest_Gamma_1m;
+    @Transient
+    private float[] hK_Real_1m;
+    @Transient
+    private float[] hK_Gamma_1m;
+    @Transient
+    private float[] dK_Real_1m;     
+    @Transient
+    private float[] dK_Gamma_1m;    
+    @Transient
+    private int[] hK_Index_1m;
+    @Transient
+    private int[] dK_Index_1m;
+    @Transient
+    private float[] h_Dev;
+    @Transient
+    private float[] d_Dev;
+    @Transient
+    private float[] Ks;
+    @Transient
+    private int[] a_est;
+    @Transient
+    private float[] update_1m;
     
     /**
      * No-arg Constructor
@@ -340,14 +315,14 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     /**
      * @return the badDataPoint
      */
-    public int getBadDataPoint() {
+    public String getBadDataPoint() {
         return badDataPoint;
     }
 
     /**
      * @param the badDataPoint to set
      */
-    public void setBadDataPoint(int badDataPoint) {
+    public void setBadDataPoint(String badDataPoint) {
         this.badDataPoint = badDataPoint;
     }
     
@@ -467,252 +442,252 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     /**
      * @return the h_HrAvg
      */
-    public int getDistributionId() {
-        return distributionId;
+    public float[] getHrAvgH() {
+        return hrAvgH;
     }
 
     /**
      * @param h_HrAvg
      */
-    public void setDistributionId(int distributionId) {
-        this.distributionId = distributionId;
+    public void setHrAvgH(float[] hrAvgH) {
+        this.hrAvgH = hrAvgH;
     }
     
     /**
      * @return the d_HrAvg
      */
-    public int getInstrumentOrientationId() {
-        return instrumentOrientationId;
+    public float[] getHrAvgD() {
+        return hrAvgD;
     }
 
     /**
      * @param d_HrAvg
      */
-    public void setInstrumentOrientationId(int instrumentOrientationId) {
-        this.instrumentOrientationId = instrumentOrientationId;
-    }
-
-    public int getCadenceId() {
-        return cadenceId;
+    public void setHrAvgD(float[] hrAvgD) {
+        this.hrAvgD = hrAvgD;
     }
     
-    public void setCadenceId(int cadenceId) {
-        this.cadenceId = cadenceId;
+    public long[] getCompInsertTime() {
+        return comp_InsertTime;
     }
 
-//    /*
-//     * @param k index related
-//     */
-//    // 3hr
-//    public int[] getKKIndex() {
-//        return kK_Index;
-//    }
-//
-//    public void setKKIndex(int[] kK_Index) {
-//        this.kK_Index = kK_Index;
-//    }
-//      
-//    public float[] getKKReal() {
-//        return kK_Real;
-//    }
-//
-//    public void setKKReal(float[] kK_Real) {
-//        this.kK_Real = kK_Real;
-//    }
-//    
-//    public float[] getKKGamma() {
-//        return kK_Gamma;
-//    }
-//
-//    public void setKKGamma(float[] kK_Gamma) {
-//        this.kK_Gamma = kK_Gamma;
-//    }
-//    
-//    
-//    public float[] getHKReal() {
-//        return hK_Real;
-//    }
-//
-//    public void setHKReal(float[] hK_Real) {
-//        this.hK_Real = hK_Real;
-//    }
-//    
-//    public float[] getDKReal() {
-//        return dK_Real;
-//    }
-//
-//    public void setDKReal(float[] dK_Real) {
-//        this.dK_Real = dK_Real;
-//    }
-//    
-//    public int[] getKestIndex() {
-//        return kest_Index;
-//    }
-//
-//    public void setKestIndex(int[] kest_Index) {
-//        this.kest_Index = kest_Index;
-//    }
-//    
-//    public float[] getKestReal() {
-//        return kest_Real;
-//    }
-//
-//    public void setKestReal(float[] kest_Real) {
-//        this.kest_Real = kest_Real;
-//    }
-//
-//    public float[] getKestGamma() {
-//        return kest_Gamma;
-//    }
-//
-//    public void setKestGamma(float[] kest_Gamma) {
-//        this.kest_Gamma = kest_Gamma;
-//    }
-//       
-//    public float[] getHKGamma() {
-//        return hK_Gamma;
-//    }
-//
-//    public void setHKGamma(float[] hK_Gamma) {
-//        this.hK_Gamma = hK_Gamma;
-//    }
-//    
-//    public float[] getDKGamma() {
-//        return dK_Gamma;
-//    }
-//
-//    public void setDKGamma(float[] dK_Gamma) {
-//        this.dK_Gamma = dK_Gamma;
-//    }
-//    
-//    // 1min
-//    public float[] getHKReal1m() {
-//        return hK_Real_1m;
-//    }
-//
-//    public void setHKReal1m(float[] hK_Real_1m) {
-//        this.hK_Real_1m = hK_Real_1m;
-//    }
-//    
-//    public float[] getDKReal1m() {
-//        return dK_Real_1m;
-//    }
-//
-//    public void setDKReal1m(float[] dK_Real_1m) {
-//        this.dK_Real_1m = dK_Real_1m;
-//    }
-//    
-//    public int[] getKestIndex1m() {
-//        return kest_Index_1m;
-//    }
-//
-//    public void setKestIndex1m(int[] kest_Index_1m) {
-//        this.kest_Index_1m = kest_Index_1m;
-//    }
-//    
-//    public float[] getKestReal1m() {
-//        return kest_Real_1m;
-//    }
-//
-//    public void setKestReal1m(float[] kest_Real_1m) {
-//        this.kest_Real_1m = kest_Real_1m;
-//    }
-//
-//    public float[] getKestGamma1m() {
-//        return kest_Gamma_1m;
-//    }
-//
-//    public void setKestGamma1m(float[] kest_Gamma_1m) {
-//        this.kest_Gamma_1m = kest_Gamma_1m;
-//    }
-//       
-//    public float[] getHKGamma1m() {
-//        return hK_Gamma_1m;
-//    }
-//
-//    public void setHKGamma1m(float[] hK_Gamma_1m) {
-//        this.hK_Gamma_1m = hK_Gamma_1m;
-//    }
-//    
-//    public float[] getDKGamma1m() {
-//        return dK_Gamma_1m;
-//    }
-//
-//    public void setDKGamma1m(float[] dK_Gamma_1m) {
-//        this.dK_Gamma_1m = dK_Gamma_1m;
-//    }
-//    
-//    public int[] getHKIndex1m() {
-//        return hK_Index_1m;
-//    }
-//
-//    public void setHKIndex1m(int[] hK_Index_1m) {
-//        this.hK_Index_1m = hK_Index_1m;
-//    }
-//    
-//    public int[] getDKIndex1m() {
-//        return dK_Index_1m;
-//    }
-//
-//    public void setDKIndex1m(int[] dK_Index_1m) {
-//        this.dK_Index_1m = dK_Index_1m;
-//    }
-//  
-//    public int[] getHCount() {
-//        return h_Count;
-//    }
-//
-//    public void setHCount(int[] h_Count) {
-//        this.h_Count = h_Count;
-//    }
-//    
-//    public int[] getDCount() {
-//        return d_Count;
-//    }
-//
-//    public void setDCount(int[] d_Count) {
-//        this.d_Count = d_Count;
-//    }
-//    
-//    public float[] getHDev() {
-//        return h_Dev;
-//    }
-//
-//    public void setHDev(float[] h_Dev) {
-//        this.h_Dev = h_Dev;
-//    }
-//    
-//    public float[] getDDev() {
-//        return d_Dev;
-//    }
-//
-//    public void setDDev(float[] d_Dev) {
-//        this.d_Dev = d_Dev;
-//    }
-//    
-//    public float[] getKs() {
-//        return Ks;
-//    }
-//
-//    public void setKs(float[] Ks) {
-//        this.Ks = Ks;
-//    }
-//    
-//    public int[] getAest() {
-//        return a_est;
-//    }
-//
-//    public void setAest(int[] a_est) {
-//        this.a_est = a_est;
-//    }
-//    
-//    public float[] getLastUpdate() {
-//        return update_1m;
-//    }
-//
-//    public void setLastUpdate(float[] update_1m) {
-//        this.update_1m = update_1m;
-//    }
+    public void setCompInsertTime(long[] comp_InsertTime) {
+        this.comp_InsertTime = comp_InsertTime;
+    }
+    
+    /*
+     * @param k index related
+     */
+    // 3hr
+    public int[] getKKIndex() {
+        return kK_Index;
+    }
+
+    public void setKKIndex(int[] kK_Index) {
+        this.kK_Index = kK_Index;
+    }
+      
+    public float[] getKKReal() {
+        return kK_Real;
+    }
+
+    public void setKKReal(float[] kK_Real) {
+        this.kK_Real = kK_Real;
+    }
+    
+    public float[] getKKGamma() {
+        return kK_Gamma;
+    }
+
+    public void setKKGamma(float[] kK_Gamma) {
+        this.kK_Gamma = kK_Gamma;
+    }
+    
+    
+    public float[] getHKReal() {
+        return hK_Real;
+    }
+
+    public void setHKReal(float[] hK_Real) {
+        this.hK_Real = hK_Real;
+    }
+    
+    public float[] getDKReal() {
+        return dK_Real;
+    }
+
+    public void setDKReal(float[] dK_Real) {
+        this.dK_Real = dK_Real;
+    }
+    
+    public int[] getKestIndex() {
+        return kest_Index;
+    }
+
+    public void setKestIndex(int[] kest_Index) {
+        this.kest_Index = kest_Index;
+    }
+    
+    public float[] getKestReal() {
+        return kest_Real;
+    }
+
+    public void setKestReal(float[] kest_Real) {
+        this.kest_Real = kest_Real;
+    }
+
+    public float[] getKestGamma() {
+        return kest_Gamma;
+    }
+
+    public void setKestGamma(float[] kest_Gamma) {
+        this.kest_Gamma = kest_Gamma;
+    }
+       
+    public float[] getHKGamma() {
+        return hK_Gamma;
+    }
+
+    public void setHKGamma(float[] hK_Gamma) {
+        this.hK_Gamma = hK_Gamma;
+    }
+    
+    public float[] getDKGamma() {
+        return dK_Gamma;
+    }
+
+    public void setDKGamma(float[] dK_Gamma) {
+        this.dK_Gamma = dK_Gamma;
+    }
+    
+    // 1min
+    public float[] getHKReal1m() {
+        return hK_Real_1m;
+    }
+
+    public void setHKReal1m(float[] hK_Real_1m) {
+        this.hK_Real_1m = hK_Real_1m;
+    }
+    
+    public float[] getDKReal1m() {
+        return dK_Real_1m;
+    }
+
+    public void setDKReal1m(float[] dK_Real_1m) {
+        this.dK_Real_1m = dK_Real_1m;
+    }
+    
+    public int[] getKestIndex1m() {
+        return kest_Index_1m;
+    }
+
+    public void setKestIndex1m(int[] kest_Index_1m) {
+        this.kest_Index_1m = kest_Index_1m;
+    }
+    
+    public float[] getKestReal1m() {
+        return kest_Real_1m;
+    }
+
+    public void setKestReal1m(float[] kest_Real_1m) {
+        this.kest_Real_1m = kest_Real_1m;
+    }
+
+    public float[] getKestGamma1m() {
+        return kest_Gamma_1m;
+    }
+
+    public void setKestGamma1m(float[] kest_Gamma_1m) {
+        this.kest_Gamma_1m = kest_Gamma_1m;
+    }
+       
+    public float[] getHKGamma1m() {
+        return hK_Gamma_1m;
+    }
+
+    public void setHKGamma1m(float[] hK_Gamma_1m) {
+        this.hK_Gamma_1m = hK_Gamma_1m;
+    }
+    
+    public float[] getDKGamma1m() {
+        return dK_Gamma_1m;
+    }
+
+    public void setDKGamma1m(float[] dK_Gamma_1m) {
+        this.dK_Gamma_1m = dK_Gamma_1m;
+    }
+    
+    public int[] getHKIndex1m() {
+        return hK_Index_1m;
+    }
+
+    public void setHKIndex1m(int[] hK_Index_1m) {
+        this.hK_Index_1m = hK_Index_1m;
+    }
+    
+    public int[] getDKIndex1m() {
+        return dK_Index_1m;
+    }
+
+    public void setDKIndex1m(int[] dK_Index_1m) {
+        this.dK_Index_1m = dK_Index_1m;
+    }
+  
+    public int[] getHCount() {
+        return h_Count;
+    }
+
+    public void setHCount(int[] h_Count) {
+        this.h_Count = h_Count;
+    }
+    
+    public int[] getDCount() {
+        return d_Count;
+    }
+
+    public void setDCount(int[] d_Count) {
+        this.d_Count = d_Count;
+    }
+    
+    public float[] getHDev() {
+        return h_Dev;
+    }
+
+    public void setHDev(float[] h_Dev) {
+        this.h_Dev = h_Dev;
+    }
+    
+    public float[] getDDev() {
+        return d_Dev;
+    }
+
+    public void setDDev(float[] d_Dev) {
+        this.d_Dev = d_Dev;
+    }
+    
+    public float[] getKs() {
+        return Ks;
+    }
+
+    public void setKs(float[] Ks) {
+        this.Ks = Ks;
+    }
+    
+    public int[] getAest() {
+        return a_est;
+    }
+
+    public void setAest(int[] a_est) {
+        this.a_est = a_est;
+    }
+    
+    public float[] getLastUpdate() {
+        return update_1m;
+    }
+
+    public void setLastUpdate(float[] update_1m) {
+        this.update_1m = update_1m;
+    }
     
     @Override
     public IDecoderGettable getDecoderGettable() {
@@ -758,3 +733,4 @@ public class GeoMagRecord extends PersistablePluginDataObject {
         return GeoMagPathProvider.getInstance();
     }
 }
+

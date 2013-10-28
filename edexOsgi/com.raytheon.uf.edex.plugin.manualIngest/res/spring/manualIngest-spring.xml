@@ -16,7 +16,7 @@
 		    <from ref="manualFileEndpoint" />
 		    <bean ref="manualProc" method="copyFileToArchive"/>
 		    <bean ref="manualProc" />
-		    <to uri="jms-durable:queue:external.dropbox"/>
+		    <to uri="jms-generic:queue:external.dropbox?destinationResolver=#qpidDurableResolver" />
 		</route>
 
 		<route id="ndmFileScan">

@@ -516,6 +516,11 @@
         <dt>1</dt>
     </info>
     <info>
+        <title>FFG-TIR-HiRes</title>
+        <datasetId>FFG-TIR-HiRes</datasetId>
+        <dt>1</dt>
+    </info>
+    <info>
         <title>QPE-TIR</title>
         <datasetId>QPE-TIR</datasetId>
         <dt>1</dt>

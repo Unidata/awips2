@@ -38,8 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2011            bsteffen    Initial creation
- * Aug 27, 2013     #2287  randerso    Refactored to allow subclassing
+ * May 27, 2011            bsteffen     Initial creation
  * 
  * </pre>
  * 
@@ -48,17 +47,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class VectorGraphicsRenderable {
 
-    protected IWireframeShape lastShape;
+    private IWireframeShape lastShape;
 
-    protected double size = 80;
+    private double size = 80;
 
-    protected double scale = 1.0;
+    private double scale = 1.0;
 
-    protected RGB color;
+    private RGB color;
 
-    protected float lineWidth = 1.0f;
+    private float lineWidth = 1.0f;
 
-    protected LineStyle lineStyle;
+    private LineStyle lineStyle;
 
     public VectorGraphicsRenderable(IDescriptor descriptor,
             IGraphicsTarget target, double size, double scale) {
@@ -90,7 +89,36 @@ public class VectorGraphicsRenderable {
     public void paintBarb(Coordinate plotLoc, double adjSize, double spd,
             double dir) {
         if (spd < 2.5) {
-            paintPoint(plotLoc, adjSize);
+            double[][] line = new double[9][2];
+
+            double aa = adjSize * .030;
+            double saa = aa * 0.707;
+
+            line[8][0] = line[0][0] = plotLoc.x + aa;
+            line[8][1] = line[0][1] = plotLoc.y;
+            line[1][0] = plotLoc.x + saa;
+            line[1][1] = plotLoc.y + saa;
+
+            line[2][0] = plotLoc.x;
+            line[2][1] = plotLoc.y + aa;
+
+            line[3][0] = plotLoc.x - saa;
+            line[3][1] = plotLoc.y + saa;
+
+            line[4][0] = plotLoc.x - aa;
+            line[4][1] = plotLoc.y;
+
+            line[5][0] = plotLoc.x - saa;
+            line[5][1] = plotLoc.y - saa;
+
+            line[6][0] = plotLoc.x;
+            line[6][1] = plotLoc.y - aa;
+
+            line[7][0] = plotLoc.x + saa;
+            line[7][1] = plotLoc.y - saa;
+
+            lastShape.addLineSegment(line);
+
             return;
         }
 
@@ -168,38 +196,6 @@ public class VectorGraphicsRenderable {
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
         }
-    }
-
-    protected void paintPoint(Coordinate plotLoc, double adjSize) {
-        double[][] line = new double[9][2];
-
-        double aa = adjSize * .030;
-        double saa = aa * 0.707;
-
-        line[8][0] = line[0][0] = plotLoc.x + aa;
-        line[8][1] = line[0][1] = plotLoc.y;
-        line[1][0] = plotLoc.x + saa;
-        line[1][1] = plotLoc.y + saa;
-
-        line[2][0] = plotLoc.x;
-        line[2][1] = plotLoc.y + aa;
-
-        line[3][0] = plotLoc.x - saa;
-        line[3][1] = plotLoc.y + saa;
-
-        line[4][0] = plotLoc.x - aa;
-        line[4][1] = plotLoc.y;
-
-        line[5][0] = plotLoc.x - saa;
-        line[5][1] = plotLoc.y - saa;
-
-        line[6][0] = plotLoc.x;
-        line[6][1] = plotLoc.y - aa;
-
-        line[7][0] = plotLoc.x + saa;
-        line[7][1] = plotLoc.y - saa;
-
-        lastShape.addLineSegment(line);
     }
 
     public void paintDualArrow(Coordinate plotLoc, double adjSize, double spd,

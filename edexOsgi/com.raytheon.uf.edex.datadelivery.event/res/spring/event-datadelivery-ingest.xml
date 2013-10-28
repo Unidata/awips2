@@ -6,7 +6,7 @@
 	<bean id="notificationHandler"
 		class="com.raytheon.uf.edex.datadelivery.event.handler.NotificationHandler">
 		<constructor-arg type="java.lang.String"
-			value="jms-generic:topic:notify.msg"/>
+			value="jms-generic:topic:notify.msg?destinationResolver=#qpidDurableResolver" />
 		<property name="notificationDao" ref="notificationDao" />
 	</bean>
     
