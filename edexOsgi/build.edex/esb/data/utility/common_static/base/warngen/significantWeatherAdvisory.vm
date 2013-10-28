@@ -2,10 +2,13 @@
 ## SPS - SIGNIFICANT WEATHER ADVISORY               ##
 ## WRITTEN BY:                                      ##
 ## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO EAX     ##
-## VERSION 1.0                          8-16-2011   ##
-######################################################
+## Modified by:                                                  ##
+##             Phil Kurimski 16 Sep 2013 OB13.5.2-4              ## 
+##             Evan Bookbinder Sep 18 2013 Implemented config.vm ##
+###################################################################
 ##
 ##SET SOME INITIAL VARIABLES
+#parse("config.vm")
 #if(${stormType} == "line")
   #set($report = "A LINE OF STRONG THUNDERSTORMS WERE REPORTED")
   #set($reportType1 = "LINE OF STRONG THUNDERSTORMS")
@@ -15,11 +18,14 @@
   #set($reportType1 = "STRONG THUNDERSTORM")
   #set($reportType2 = "THIS STORM WAS")
 #end
+#set($windThreat = "")
+#set($hailThreat = "")
+#set($hailTrail = "")
 #############################################################
 #### CREATE BASIS WORDING ###################################
 #############################################################
 #if(${list.contains(${bullets}, "doppler")})
-  #set($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR WAS TRACKING A ${reportType1}")
+  #set($report = "DOPPLER RADAR WAS TRACKING A ${reportType1}")
   #set($reportAuthSVR = "CAPABLE OF PRODUCING")
 #end
 #if(${list.contains(${bullets}, "stormSpotters")})
@@ -57,9 +63,14 @@
   #set($windTag = "40MPH")
 #end
 #if(${list.contains(${bullets}, "wind50")})
-  #set($windThreat = "WINDS IN EXCESS OF 50 MPH") 
+  #set($windThreat = "WIND GUSTS UP TO 50 MPH") 
   #set($windSpeed = 50)
   #set($windTag = "50MPH")
+#end
+#if(${list.contains(${bullets}, "wind55")})
+  #set($windThreat = "WIND GUSTS OF 50 TO 55 MPH") 
+  #set($windSpeed = 50)
+  #set($windTag = "55MPH")
 #end
  
 ###################################################
@@ -68,8 +79,13 @@
 #set($hailSize = 0)
 #set($smallHail = "")
 #if(${list.contains(${bullets}, "peaHail")})
-  #set($hailSize = 0.50)
+  #set($hailSize = 0.25)
   #set($hailThreat = "PEA SIZE") 
+  #set($hailTrail = " HAIL") 
+#end
+#if(${list.contains(${bullets}, "halfHail")})
+  #set($hailSize = 0.50)
+  #set($hailThreat = "HALF INCH") 
   #set($hailTrail = " HAIL") 
 #end
 #if(${list.contains(${bullets}, "dimeHail")})
@@ -103,11 +119,14 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
  
 #end
 ${ugcline}
-#set($zoneList = "")
 #foreach (${area} in ${areas})
-#set($zoneList = "${zoneList}${area.name}-")
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
 #end
-${zoneList}
+-##
+#end
+
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
@@ -135,12 +154,13 @@ THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report} ##
+##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
-#if($movementSpeed < 3 || ${stationary})
+#if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} NEARLY STATIONARY. ${smallHail}
 #else
 #if(${stormType} == "line")
@@ -151,41 +171,21 @@ THIS IS A TEST MESSAGE. ##
 #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ${smallHail}
 #end
 
-#if(${list.contains(${bullets}, "peaHail")})
-#set($hail = "Hail up to the size of peas")
-#elseif(${list.contains(${bullets}, "dimeHail")})
-#set($hail = "Hail up to the size of dimes")
-#elseif(${list.contains(${bullets}, "nickelHail")})
-#set($hail = "Hail up to the size of nickels")
-#else 
-#set($hail="")
-#end
-#if(${list.contains(${bullets}, "wind30")})
-#set($wind = "Wind gusts up to 30 mph")
-#elseif(${list.contains(${bullets}, "wind40")})
-#set($wind = "Wind gusts up to 40 mph")
-#elseif(${list.contains(${bullets}, "wind50")})
-#set($wind = "Wind gusts up to 50 mph")
-#else 
-#set($wind="")
-#end
-
-
 #if(${stormType} == "line")
-#if(${hail} != "" && ${wind} != "")
-${hail} AND ${wind} WILL BE POSSIBLE WITH THESE STORMS.
-#elseif(${hail}=="" && ${wind}!="")
-${wind} WILL BE POSSIBLE WITH THESE STORMS.
-#elseif(${hail}!="" && ${wind}=="")
-${hail} WILL BE POSSIBLE WITH THESE STORMS.
+#if(${hailThreat} != "" && ${windThreat} != "")
+${hailThreat}${hailTrail} AND ${windThreat} WILL BE POSSIBLE WITH THESE STORMS.
+#elseif(${hailThreat}=="" && ${windThreat}!="")
+${windThreat} WILL BE POSSIBLE WITH THESE STORMS.
+#elseif(${hailThreat}!="" && ${windThreat}=="")
+${hailThreat}${hailTrail} WILL BE POSSIBLE WITH THESE STORMS.
 #end
 #else
-#if(${hail} != "" && ${wind} != "")
-${hail} AND ${wind} WILL BE POSSIBLE WITH THIS STORM.
-#elseif(${hail}=="" && ${wind}!="")
-${wind} WILL BE POSSIBLE WITH THIS STORM.
-#elseif(${hail}!="" && ${wind}=="")
-${hail} WILL BE POSSIBLE WITH THIS STORM.
+#if(${hailThreat} != "" && ${windThreat} != "")
+${hailThreat}${hailTrail} AND ${windThreat} WILL BE POSSIBLE WITH THIS STORM.
+#elseif(${hailThreat}=="" && ${windThreat}!="")
+${windThreat} WILL BE POSSIBLE WITH THIS STORM.
+#elseif(${hailThreat}!="" && ${windThreat}=="")
+${hailThreat}${hailTrail} WILL BE POSSIBLE WITH THIS STORM.
 #end
 #end
 
@@ -240,6 +240,8 @@ THIS IS A TEST MESSAGE. ##
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
+## Uncomment below pull in point marker info
+## #parse("pointMarkers.vm")
 
 ##################################
 ######### CALLS TO ACTION ########

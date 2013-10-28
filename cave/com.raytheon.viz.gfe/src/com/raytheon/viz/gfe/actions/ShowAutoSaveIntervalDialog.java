@@ -20,10 +20,12 @@
 
 package com.raytheon.viz.gfe.actions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -42,8 +44,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jan 23, 2008             Eric Babin  Initial Creation
- * Jul 8, 2008              randerso    reworked
+ * Jul  8, 2008             randerso    reworked
  * Oct 23, 2012 1287        rferrel     Changes for non-blocking AutoSaveIntervalDialog.
+ * Aug 27, 2013 2302        randerso    Code clean up for AutoSaveJob changes
  * 
  * </pre>
  * 
@@ -51,7 +54,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * @version 1.0
  */
 public class ShowAutoSaveIntervalDialog extends AbstractHandler {
-    private AutoSaveIntervalDialog dialog;
+    final private Map<IWorkbenchWindow, AutoSaveIntervalDialog> dialogMap = new HashMap<IWorkbenchWindow, AutoSaveIntervalDialog>();
 
     /**
      * 
@@ -69,47 +72,28 @@ public class ShowAutoSaveIntervalDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        final IWorkbenchWindow window = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow();
+        DataManager dm = DataManagerUIFactory.findInstance(window);
+        if (dm == null) {
+            return null;
+        }
+
+        AutoSaveIntervalDialog dialog = dialogMap.get(window);
 
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            final IWorkbenchWindow window = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow();
-            Shell shell = window.getShell();
 
-            int interval = AutoSaveJob.getInterval();
-            boolean autoSaveEnabled = interval > 0;
-            if (!autoSaveEnabled) {
-                interval = AutoSaveJob.MAX_INTERVAL;
-            }
-            dialog = new AutoSaveIntervalDialog(shell, interval,
-                    autoSaveEnabled);
+            AutoSaveJob autoSaveJob = dm.getAutoSaveJob();
+
+            Shell shell = window.getShell();
+            dialog = new AutoSaveIntervalDialog(shell, autoSaveJob);
+            dialogMap.put(window, dialog);
             dialog.setBlockOnOpen(false);
             dialog.setCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    if (returnValue instanceof Integer) {
-                        int returnCode = (Integer) returnValue;
-                        if (returnCode == Window.OK) {
-                            DataManager dm = DataManagerUIFactory
-                                    .findInstance(window);
-                            // update
-                            if (dialog.isAutoSaveEnabled()) {
-                                int interval = dialog.getCurrentInterval();
-                                AutoSaveJob.setInterval(interval);
-                                if (dm != null) {
-                                    dm.enableAutoSave();
-                                }
-                                DataManagerUIFactory.findInstance(window)
-                                        .enableAutoSave();
-                            } else {
-                                AutoSaveJob.setInterval(0);
-                                if (dm != null) {
-                                    dm.disableAutoSave();
-                                }
-                            }
-
-                        }
-                    }
+                    dialogMap.remove(window);
                 }
             });
             dialog.open();

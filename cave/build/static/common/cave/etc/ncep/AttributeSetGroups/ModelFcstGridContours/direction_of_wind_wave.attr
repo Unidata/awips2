@@ -16,6 +16,7 @@ FINT=
 FLINE=
 HILO=
 HLSYM=
+CLRBAR=0
 WIND=
 TITLE=1/-1/~ Direction Of Wind Wave !0
 COLORS=2                                                                       
