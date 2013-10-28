@@ -1,4 +1,3 @@
- * 10/2013      B. Hebbard  Modify model name inference from metafile name
 package gov.noaa.nws.ncep.edex.plugin.ntrans.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
@@ -31,6 +30,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ -------- ----------- -------------------------------------
  * 03/2013               B. Hebbard  Initial creation
  * 04/2013               B. Hebbard  IOC version (for OB13.4.1)
+ * 10/2013               B. Hebbard  Modify model name inference from metafile name
  * Aug 30, 2013 2298     rjpeter     Make getPluginName abstract
  * </pre>
  * 
@@ -439,9 +439,8 @@ public class NtransDecoder extends AbstractDecoder {
         } else if (/* fileName.matches("^[A-Z]") */
         fileName.contains("_GFS")) {
             modelName = "vaftad";
+        /*
         } else if (fileName.contains("_2")) {
-		
-		/*
             modelName = fileName.substring(0, fileName.indexOf("_2"));
             if (modelName.equals("jma")) {
                 modelName = "jmap";
@@ -451,7 +450,7 @@ public class NtransDecoder extends AbstractDecoder {
         return modelName;
 		*/
 		
-		else {
+        } else {
 		    for (Model model : Model.values()) {
 		        if (fileName.toLowerCase().contains(model.name().toLowerCase())) {
 		            modelName = model.name().toLowerCase();
