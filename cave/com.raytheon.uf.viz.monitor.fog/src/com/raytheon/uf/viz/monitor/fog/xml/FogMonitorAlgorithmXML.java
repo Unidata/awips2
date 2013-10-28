@@ -24,12 +24,27 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
+/**
+ * 
+ * Class for serialization of xml describing a fog monitor algorithm.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
+ */
 @XmlRootElement(name = "FogMonitorAlgorithm")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FogMonitorAlgorithmXML implements ISerializableObject
-{
+public class FogMonitorAlgorithmXML {
+
     @XmlElement(name = "FogProductYLo")
     private double fogProductYLo;
     
