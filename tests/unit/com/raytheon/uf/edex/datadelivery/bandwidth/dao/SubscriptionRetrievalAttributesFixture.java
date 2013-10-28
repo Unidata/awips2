@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
 import java.util.Random;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -35,6 +36,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2013 2106       djohnson     Initial creation
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -66,8 +68,8 @@ public class SubscriptionRetrievalAttributesFixture extends
         SubscriptionRetrievalAttributes entity = new SubscriptionRetrievalAttributes();
         entity.setSubscriptionRetrieval(retrieval);
         try {
-            entity.setSubscription(SiteSubscriptionFixture.INSTANCE
-                    .get(seedValue));
+            entity.setSubscription(SiteSubscriptionFixture.INSTANCE.get(
+                    seedValue, DataType.GRID));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
