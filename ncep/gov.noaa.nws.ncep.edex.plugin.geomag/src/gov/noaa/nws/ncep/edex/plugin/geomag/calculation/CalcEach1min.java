@@ -2,6 +2,7 @@ package gov.noaa.nws.ncep.edex.plugin.geomag.calculation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 /*
@@ -30,8 +31,8 @@ public class CalcEach1min {
 	/*
 	 * @param dataIn -- data of 4320
 	 */
-	public static float[] fillGaps(float[] dataIn){
-		float[] data = dataIn.clone();  
+	public static float[] fillGaps(float[] data){
+		//float[] data = dataIn.clone();  //z=4320
 		int i = 0;
 		int size = data.length;
 		
@@ -73,7 +74,7 @@ public class CalcEach1min {
 		        		float value1 = data[gapIndex-1];
 		        		float value2 = data[i];
 		        		for (int j=1; j < gapLength+1; j++)
-		        		    data[gapIndex++] = value1 + (j * (value2-value1)) / (gapLength+1);
+		        		    data[gapIndex] = value1 + (j * (value2-value1)) / (gapLength+1);
 		        	}
 		        }		          
 		    }
@@ -102,7 +103,11 @@ public class CalcEach1min {
 			if (fitLength[i] >1440)
 				fitLength[i] = 1440;
 		}
-		
+//		for (int i = 0; i < HOURS; i++) 
+//			System.out.print("***defLength "+defLength[i]+" ");
+//		for (int i = 0; i < HOURS; i++) 
+//			System.out.print("***fitLength "+fitLength[i]+" ");
+//		System.out.println(" ");			
 		return fitLength;
 	}
 	
@@ -177,13 +182,13 @@ public class CalcEach1min {
 	    	    int gapLength = hr0-hr; 
 	  	      	float value1 = HrAvg[hr-1];//not missing
 	  	      	float value2 = HrAvg[hr0]; //not missing
-	  	      //System.out.println("***gapLength  "+gapLength +" "+value1 +" "+value2);
+	  	      System.out.println("***gapLength  "+gapLength +" "+value1 +" "+value2);
 	  	      	for (int i=1; i < gapLength+1; i++)
 	  	      		HrAvg[hr++] = value1+(i*(value2-value1))/(gapLength+1);
 	    	}
 	    }
-//	    for (int i=0;i<HrAvg.length;i++)
-//	    	System.out.print("***centHrAvg[i]  "+HrAvg[i] +" ");
+	    for (int i=0;i<HrAvg.length;i++)
+	    	System.out.print("***centHrAvg[i]  "+HrAvg[i] +" ");
 //	    while (hour0 lt hour1) do begin
 //	    repeat begin
 //	      hour0++
@@ -227,6 +232,12 @@ public class CalcEach1min {
 		    }
 		}
 		
+//		for (int i = 0; i < 6; i++) 
+//			System.out.print("**reA "+reA[i]+" "); System.out.println(" ");
+//		for (int i = 0; i < 6; i++) 
+//			System.out.print("**imA "+imA[i]+" "); System.out.println(" ");
+		
+		
 		// Derive FitCurve as harmonic fit using inverse transform
 		for (int t=0; t < HOURS*delta; t++) {  // t is minute of the day
 		    float theta = (float) (2 * (Math.PI) * (t-t0) / (HOURS*delta));
@@ -238,6 +249,9 @@ public class CalcEach1min {
 		    fitCurve[t] += r_coeff*(t-t0);
 		}
 		
+//		for (int i = 0; i < HOURS*delta; i++) 			
+//			System.out.print("**fitCurve hQdc "+fitCurve[i]+" ");System.out.println(" ");
+		
 		return fitCurve;
 	}
 
@@ -246,7 +260,6 @@ public class CalcEach1min {
 	 */
 	public static List getKIndex(float[] hdev, float[] ddev, int[] kLimit, int missingFlag) {
 		List<float[]> list = new ArrayList<float[]>();
-		
 		// Initialize the return data with MissingValue
 		float[] kIndex = new float[8];
 		float[] hk = new float[8];
@@ -262,12 +275,10 @@ public class CalcEach1min {
 		Arrays.fill(hGamma, MISSING_VAL);
 		Arrays.fill(dGamma, MISSING_VAL);
 		
-		
 		// Check for bad input data 
 		int npts = hdev.length;
 		if (npts != ddev.length)
 			return list;
-		
 		if (npts < 1261 || npts > 1440) //21*60+1
 			return list;
 		
@@ -292,7 +303,6 @@ public class CalcEach1min {
 		    	dddev[j-istart] = ddev[j];
 		    }
 		    
-
 		    // get hdevGood
 		    for (i = npdpts-1; i >=0; i--) 
 		    	if (hhdev[i] != MISSING_VAL && hhdev[i] != 0)
@@ -304,7 +314,7 @@ public class CalcEach1min {
 		    
 		    
 		    // i, ii are the last data that is not missing		    
-		    float[] hdevGood = new float[i +1];
+		    float[] hdevGood = new float[i+1];
 		    float[] ddevGood = new float[ii+1];
 		    if (i >-1)
 			    for (int j = 0; j < i+1; j++) 
@@ -313,17 +323,20 @@ public class CalcEach1min {
 			    for (int j = 0; j < ii+1; j++)
 			    	ddevGood[j] = dddev[j];
 
+		    System.out.println("**j " +hdevGood.length+" "+ddevGood.length);
 		    if ( missingFlag == 0 || (i > -1 && ii > -1)) {
 		    	if (hdevGood != null && hdevGood.length != 0)
 		    		hGamma[ipd] = CalcUtil.maxValue(hdevGood) - CalcUtil.minValue(hdevGood);
-		    	if (ddevGood != null && ddevGood.length != 0)
+		    	if (hdevGood != null && hdevGood.length != 0)
 		    		dGamma[ipd] = CalcUtil.maxValue(ddevGood) - CalcUtil.minValue(ddevGood);	
-			    
+			    System.out.println("***Gamma "+ hGamma[ipd]+ " "+dGamma[ipd]);
 			    
 			    if (hGamma[ipd] != MISSING_VAL)
+				    //for (int l = 0; l < 8; l++) 
 				    	hk[ipd] = CalcUtil.getKfromTable(kLimit, hGamma[ipd]);
 
 			    if (dGamma[ipd] != MISSING_VAL)
+				    //for (int l = 0; l < 8; l++) 
 				    	dk[ipd] = CalcUtil.getKfromTable(kLimit, dGamma[ipd]);
 
 			    // get bigger one 
@@ -335,6 +348,7 @@ public class CalcEach1min {
 			    	kIndex[ipd] = dk[ipd];
 			    	gamma[ipd] = dGamma[ipd];
 			    }
+			    System.out.println("***kIndex "+ kIndex[ipd]);
 			    
 		    }
 		}
@@ -357,6 +371,8 @@ public class CalcEach1min {
 		
 		if (qdc.length != 1440)
 			return data;
+//		for (int j=0; j<qdc.length;j++)
+//			System.out.print("****QHAQDC-qdc "+ qdc[j]);
 		
 		float jump = qdc[0] - qdc[1439];
 		
@@ -365,6 +381,10 @@ public class CalcEach1min {
 			data[i] -= (1 - i/(SMOOTH_WINDOW-1)) * 0.5 * jump;
 		}
 		
+//		
+//		for (int j=0; j<data.length;j++)
+//			System.out.print("****QHAQDC "+ data[j]);
+//		System.out.println("****QHAQDC "+ data.length);
 		return data;
 	}
 	
@@ -387,25 +407,32 @@ public class CalcEach1min {
 	/*
 	 * 
 	 */
-	public static float[] getExtrapolation(float[] dataIn, float[] qhaQdc, int currTimeIndex){ //4320
-		float[] data = dataIn.clone();
+	public static float[] getExtrapolation(float[] data, float[] qhaQdc, int currTimeIndex){ //4320
+		//float[] data = dataIn.clone();
 		int j0 = currTimeIndex;//Last good H or D index
+//		for (int i = data.length-1; i >= 0; i--)
+//			if (data[i] != MISSING_VAL){
+//				j0 = i;
+//				break;
+//			}
+			
 			
 		if (data.length != 4320 || qhaQdc.length != 1440)
 			return data;
 		
+		System.out.println("***currentIndexVal "+data.length+" "+j0+" "+ data[j0-2]+" "+ data[j0-1] + " " + data[j0] + " " + data[j0+1]+ " " + data[j0+2]);
+
 		if (data[j0] != MISSING_VAL) {
 			for (int j = j0 +1; j < 4320; j++) {				
 				int w2 = j - j0 -1; //from .pro
 				int w1 = TRANSITION_TIME - w2;
-				
 				if (w1 < 0) 
 					w1 = 0;
 				//System.out.println("**qhaQdc "+qhaQdc[j % 1440]);
 				data[j] = (w1 * data[j0] + w2 * qhaQdc[j % 1440]) / (w1 + w2);				
 			}
 		}
-		
+		//System.out.println("***data.size " +data.length +" "+data[data.length-2]);
 		return data;
 	}
 	
@@ -413,11 +440,10 @@ public class CalcEach1min {
 		float[] dev = new float[1440];
 		
 		if (data.length != 4320 || qdc.length != 1440)
-			return dev;
-
+			return data;
 		
 		for (int i = 0; i < 1440; i++) {
-			//System.out.print("***data-qdc "+i+" " +data[i+1440] +" "+qdc[i] +"  ");
+			System.out.print("***data-qdc "+i+" " +data[i+1440] +" "+qdc[i] +"  ");
 			if (data[i+1440] != MISSING_VAL && qdc[i] != MISSING_VAL)
 				dev[i] = data[i+1440] - qdc[i];
 			else
@@ -427,18 +453,17 @@ public class CalcEach1min {
 		return dev;
 	}
 	
-	public static float[] adjustHrCentAvg(float[] hcAIn, float [] qha, float[] gamma, int[] kLimit){
-		float[] hcA = hcAIn.clone();
+	public static float[] adjustHrCentAvg(float[] hcA, float [] qha, float[] gamma, int[] kLimit){
 		float wh = 0;
 		
 		if (hcA.length != HOURS || gamma.length != 8)
 			return hcA;
 		
 		for (int ipd = 0; ipd < 8; ipd++) {
-			if (gamma[ipd] < kLimit[4])
+			if (gamma[ipd] < kLimit[3])
 				wh = 1;
-			else if (gamma[ipd] >= kLimit[4] && gamma[ipd] < kLimit[6])
-				wh = (float) Math.pow( ((kLimit[6] - gamma[ipd]) /(kLimit[6] - kLimit[4])), PHASE_POWER);
+			else if (gamma[ipd] >= kLimit[3] && gamma[ipd] < kLimit[5])
+				wh = (float) Math.pow( ((kLimit[5] - gamma[ipd]) /(kLimit[5] - kLimit[3])), PHASE_POWER);
 			else 
 				wh = 0;
 			

@@ -27,6 +27,7 @@ import socket
 import re
 import httplib
 import json
+from qmf.console import Session, Console
 from qpid.disp import Display, Header, Sorter
 
 _host = "localhost"
@@ -54,7 +55,7 @@ def Usage ():
     print
     sys.exit (1)
 
-class RestManager():
+class RestManager(Console):
     def __init__(self):
         self._host = None
         self._port = 0

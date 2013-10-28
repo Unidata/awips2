@@ -8,13 +8,13 @@
 	<bean id="warningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="warning" />
-		<constructor-arg value="jms-dist:queue:Ingest.Warning"/>
+		<constructor-arg value="jms-dist:queue:Ingest.Warning?destinationResolver=#qpidDurableResolver" />
 	</bean>
 	
 	<bean id="warningHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="warning" />
-		<constructor-arg value="jms-dist:queue:Ingest.Warning"/>
+		<constructor-arg value="jms-dist:queue:Ingest.Warning?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
     <bean id="warningCamelRegistered" factory-bean="contextManager"
@@ -23,11 +23,12 @@
   	</bean>  
 
 	<bean id="jms-warning" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsWarningConfig" />
+        <constructor-arg ref="jmsIngestWarningConfig" />
 		<property name="taskExecutor" ref="warningThreadPool" />		
 	</bean>
-    <bean id="jmsWarningConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
+	<bean id="jmsIngestWarningConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+	</bean>
 	<bean id="warningThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="1" />
@@ -48,7 +49,7 @@
 			<setHeader headerName="pluginName">
 				<constant>warning</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.Warning" />
+			<to uri="jms-generic:queue:Ingest.Warning" />
 		</route>
 		-->
 
@@ -56,7 +57,7 @@
 			Warning routes
 		-->
 		<route id="warningIngestRoute">
-			<from uri="jms-warning:queue:Ingest.Warning"/>
+			<from uri="jms-warning:queue:Ingest.Warning?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>warning</constant>
 			</setHeader>
@@ -71,7 +72,7 @@
 						<to uri="jms-warning:queue:edex.tpcWatch" />
 						<filter>
 							<method bean="vtecFilter" method="hasVTEC" />
-							<to uri="jms-warning:queue:activeTablePending"/>
+							<to uri="jms-warning:queue:activeTablePending?destinationResolver=#qpidDurableResolver" />
 						</filter>
 					</multicast>
 				</pipeline>
@@ -88,5 +89,6 @@
 			<bean ref="processUtil" method="log" />
 			<to uri="vm:stageNotification" />
 		</route>
+
 	</camelContext>
 </beans>

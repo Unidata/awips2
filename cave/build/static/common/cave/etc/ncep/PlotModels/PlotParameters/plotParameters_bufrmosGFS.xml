@@ -117,7 +117,7 @@
 	
 	<!--  WIND -->
 	<PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection"  
-                     	dbParamName="windDir"  plotUnit="°"/>
+                     	dbParamName="windDir"  plotUnit="°" />
 	<PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed"  
                      	deriveParams="all" plotUnit="m/s" plotFormat="%3.0f"/>
 	<PlotParameterDefn  plotParamName="UWND" metParamName="WindDirectionUComp"  
@@ -171,7 +171,7 @@
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
                      plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="clouds_bestCat" 
-                     plotLookupTable="pgen_clouds_best_cat.txt" />                   
+                     plotLookupTable="ncep_cloudsbestCat.txt" />                   
 
     
 

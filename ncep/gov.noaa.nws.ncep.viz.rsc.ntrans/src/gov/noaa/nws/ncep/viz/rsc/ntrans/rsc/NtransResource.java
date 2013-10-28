@@ -105,9 +105,7 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
 		}
 		
 		public void dispose() {
-		    if (shadedShape != null) {
-		        shadedShape.dispose();
-		    }
+			shadedShape.dispose();
 		}
 	}
 
@@ -136,7 +134,6 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
         		// if so dispose of the existing data and process the new record
         		return false;
         	}
-        	
         	//  Get PDO from the given RDO
 
         	DfltRecordRscDataObj ntransRDO = (DfltRecordRscDataObj) rscDataObj;
@@ -190,7 +187,7 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
     		
     		//TODO  Add optional (cool) debug dump of CGM representation 
     		
-    		// cgm.showCGMCommands();
+    		//cgm.showCGMCommands();
 
         	//  Save away just the info needed to draw this frame
         	
@@ -456,7 +453,6 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
     			}
     			else {
     				wireframeForThisColor.compile();
-    				//TODO  to be correct, should be lineWidth in effect at individual wireframe paints
     				target.drawWireframeShape(wireframeForThisColor, color, (float) ib.currentLineWidth);
     				wireframeForThisColor.dispose();
     			}

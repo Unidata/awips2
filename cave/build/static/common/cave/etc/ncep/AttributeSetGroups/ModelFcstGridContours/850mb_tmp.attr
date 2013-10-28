@@ -17,7 +17,6 @@ FINT=-24;-18;-12;-6;0;18
 FLINE=24;30;28;29;25;0;17
 HILO=
 HLSYM=
-CLRBAR=1
 WIND=18/1/1
 TITLE=5/-1/~ @ TEMPERATURE!
 COLORS=2                                                                       

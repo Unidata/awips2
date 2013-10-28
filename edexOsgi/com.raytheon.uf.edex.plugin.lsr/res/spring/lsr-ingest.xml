@@ -31,13 +31,13 @@
             <setHeader headerName="pluginName">
                 <constant>lsr</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.lsr" />
+            <to uri="jms-generic:queue:Ingest.lsr" />
         </route>
         -->
 
         <!-- Begin lclstrmrpt routes -->
         <route id="lclstrmrptIngestRoute">
-            <from uri="jms-durable:queue:Ingest.lsr"/>
+            <from uri="jms-generic:queue:Ingest.lsr?destinationResolver=#qpidDurableResolver" />
             <setHeader headerName="pluginName">
                 <constant>lsr</constant>
             </setHeader>

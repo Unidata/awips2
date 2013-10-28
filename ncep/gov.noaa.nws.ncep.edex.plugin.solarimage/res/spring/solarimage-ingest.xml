@@ -27,7 +27,7 @@
 	<bean id="solarimageDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="solarimagePluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.SolarImage"/>
+		<constructor-arg value="jms-dist:queue:Ingest.SolarImage?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
     <bean id="solarimageCamelRegistered" factory-bean="contextManager"
@@ -51,13 +51,13 @@
 			<setHeader headerName="pluginName">
 				<constant>solarimage</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.SolarImage" />
+			<to uri="jms-generic:queue:Ingest.SolarImage" />
 		</route>
 		
 
 		<!-- Begin SolarImage routes -->
 		<route id="solarimageIngestRoute">
-			<from uri="jms-durable:queue:Ingest.SolarImage"/>
+			<from uri="jms-generic:queue:Ingest.SolarImage?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>solarimage</constant>
 			</setHeader>
@@ -78,7 +78,7 @@
 			<from uri="vm:satNotify" />
 			<bean ref="satNotifyTransform" method="transformToMessages" />
 			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-durable:queue:satNotification" />
+			<to uri="jms-generic:queue:satNotification" />
 		</route-->
 	</camelContext>
 </beans>

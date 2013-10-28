@@ -37,11 +37,15 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-mkdir -p %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles
 
 %build
 
 %install
+mkdir -p %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles
+if [ $? -ne 0 ]; then
+   exit 1 
+fi
+
 AWIPS2_STATIC=%{_awipscm_share}/awips2-static
 
 # Determine which version of the shapefiles we should use.

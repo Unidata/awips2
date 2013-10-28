@@ -76,7 +76,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/11/2009   1981       dhladky    Initial Creation.
- * 09/03/2013   DR 13083   gzhang	  Added getZRvalue2() to fix an error.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -1926,35 +1926,5 @@ public class ScanUtils {
         }
 
         return returns;
-    }
-    
-    /**
-     *  DR 13083: the first parameter zValue will use a radar bin's raw data
-     *  since old version handles value 66 wrong in getDecodedDHRValue(int).
-     *  
-     *  Usage: to be called in FFMPProcessor.processRADAR(ArrayList<SourceBinEntry>):
-    
-		1). comment out fval line; 
-		2). call ScanUtils.getZRvalue2;  
-		3). use dataVals[j] as the first parameter in the step 2 above.		
-     */
-    public static float getZRvalue2(double zValue, double coefficent,
-            double hailCap, double power, double bias) {
-        // The Fulton et al 1998 standard NWS Z-R relationship
-        double rValue = 0.0f;
-        if (zValue >= 2) {
-        	zValue = MIN_DHR_DBZ + ((zValue  - 2) * DHR_DBZ_STEP);
-            double rlogMult = Math.log10(coefficent);
-            rValue = bias*(Math.pow(10.0, ((zValue-10.0*rlogMult)/(10.0*power))));
-
-            // hail cap check
-            if (rValue > hailCap) {
-                return (float) (MM_TO_INCH * hailCap);
-            }
-        } else {
-            return (float) rValue;
-        }
-
-        return (float) (MM_TO_INCH * rValue);
     }
 }

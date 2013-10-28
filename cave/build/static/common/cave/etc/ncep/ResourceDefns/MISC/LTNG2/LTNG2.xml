@@ -4,7 +4,6 @@
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>
 pluginName=binlightning
-lightSource=NLDN,GLN
 colorByIntensity=true
 legendColor=RGB {200, 200, 200}
     </resourceParameters>

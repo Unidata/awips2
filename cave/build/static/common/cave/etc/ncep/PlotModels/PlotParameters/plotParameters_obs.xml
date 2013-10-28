@@ -17,21 +17,23 @@
 
  <PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres"  
                      dbParamName="seaLevelPress" plotUnit="mb" 
-                     plotFormat="PMSL"/>
+                     plotFormat="%4.0f"/>
 
  <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
-                     dbParamName="pressChange3Hour" plotUnit="Pa" 
+                     dbParamName="pressChange3Hour" plotUnit="mb" 
                      plotFormat="%+3.0f"/>
 
-<PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol" dbParamName="pressChangeChar" 
-                    plotMode="table" symbolFont="WxSymbolFont" plotLookupTable="pgen_pressure_tendency.txt"/>
+ <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol"  
+					 dbParamName="pressChangeChar"
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     plotLookupTable="press_change_char_lookup.txt"/>
 
  <!--  RMSL - First 3 digits left of decimal of PMSL * 10 -->
  <PlotParameterDefn  plotParamName="RMSL" metParamName="MeanSeaLevelPres"  
                      dbParamName="seaLevelPress" plotUnit="inHg" 
                      plotFormat="RMSL"/>
  <PlotParameterDefn  plotParamName="SMSL" metParamName="MeanSeaLevelPres"  
-                     dbParamName="seaLevelPress" plotUnit="mb" 
+                     dbParamName="seaLevelPress" plotUnit="inHg" 
                      plotFormat="SMSL"/>
 <!-- to get PALT to display without the decimal, use the plotUnit="centi_inHg"
      and plotFormat="%2.0"
@@ -177,7 +179,7 @@ p24m
                      plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="skyCover" 
                      prioritySelectTable="cloud_select.txt"
-                     plotLookupTable="pgen_skyc.txt" />
+                     plotLookupTable="cloud_chars.txt" />
  <PlotParameterDefn  plotParamName="SKYCHAR" metParamName="SkyCoverage" 
                      plotMode="text" dbParamName="skyCover" 
                      prioritySelectTable="cloud_select.txt"
@@ -219,9 +221,9 @@ don't think this is needed here plotLookupTable="wx_symbol_trans.txt"
  only configured to rank all values the same so to prioritize it would need the ranking set -->
  <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
                      dbParamName="presWeather" 
-                     plotMode="table"
-                     prioritySelectTable="wx_sym_select.txt"
-                     plotLookupTable="pgen_wsym.txt"/>
+                     plotMode="table" symbolFont="WxSymbolFont"
+                     arrayIndex="0"
+                     plotLookupTable="wx_symbol_trans.txt"/>
 <!--  arrayIndex="0" or   prioritySelectTable="wx_sym_select.txt"  -->
 
 <!-- There is currently a bug that will not let more than one value in an array be displayed 

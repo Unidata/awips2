@@ -1,7 +1,6 @@
 package gov.noaa.nws.ncep.edex.common.ncinventory;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -15,7 +14,6 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  *  04/13/12      #606       Greg Hull   created
- *  08/15/13      #1031      Greg Hull   add requestedParam
  * 
  * </pre>
  * 
@@ -39,15 +37,11 @@ public class NcInventoryRequestMsg implements IServerRequest {
 	@DynamicSerializeElement
 	private String inventoryName;  // the userName+rscDefnName
 	
-	// a list of parameter values that are expected in the result. if empty then default to all parameters
 	@DynamicSerializeElement
-	private String[] requestedParams; 
+	private String requestedParam; 
 
 	@DynamicSerializeElement
-	private Boolean uniqueValues=false; 
-
-	@DynamicSerializeElement
-	private Map<String,RequestConstraint> reqConstraintsMap;
+	private HashMap<String,RequestConstraint> reqConstraintsMap;
 
 	
 	public static NcInventoryRequestMsg makeQueryRequest( ) {
@@ -82,15 +76,15 @@ public class NcInventoryRequestMsg implements IServerRequest {
 		this.inventoryName = inventoryName;
 	}
 
-	public String[] getRequestedParams() {
-		return requestedParams;
+	public String getRequestedParam() {
+		return requestedParam;
 	}
 
-	public void setRequestedParams(String[] requestedParams) {
-		this.requestedParams = requestedParams;
+	public void setRequestedParam(String requestedParam) {
+		this.requestedParam = requestedParam;
 	}
 
-	public Map<String, RequestConstraint> getReqConstraintsMap() {
+	public HashMap<String, RequestConstraint> getReqConstraintsMap() {
 		if( reqConstraintsMap == null ) {
 			return new HashMap<String,RequestConstraint>();
 		}
@@ -100,7 +94,7 @@ public class NcInventoryRequestMsg implements IServerRequest {
 	}
 
 	public void setReqConstraintsMap(
-			Map<String, RequestConstraint> reqConstraintsMap) {
+			HashMap<String, RequestConstraint> reqConstraintsMap) {
 		this.reqConstraintsMap = reqConstraintsMap;
 	}
 	
@@ -111,12 +105,4 @@ public class NcInventoryRequestMsg implements IServerRequest {
 	public void setRequestType(NcInventoryRequestType requestType) {
 		this.requestType = requestType;
 	}
-
-	public Boolean getUniqueValues() {
-		return uniqueValues;
-	}
-
-	public void setUniqueValues(Boolean uniqueValues) {
-		this.uniqueValues = uniqueValues;
-	}	
 }

@@ -43,11 +43,11 @@
 			<setHeader headerName="pluginName">
 				<constant>ncscd</constant>
 			</setHeader>
-			<to uri="jms-durable:queue:Ingest.ncscd" />
+			<to uri="jms-generic:queue:Ingest.ncscd" />
 		</route>
 
 		<route id="ncscdIngestRoute">
-			<from uri="jms-durable:queue:Ingest.ncscd" />
+			<from uri="jms-generic:queue:Ingest.ncscd" />
 			<setHeader headerName="pluginName">
 				<constant>ncscd</constant>
 			</setHeader>

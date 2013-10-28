@@ -19,7 +19,7 @@
 [ ${NETWORKING} = "no" ] && exit 0
 
 RETVAL=0
-prog="qpid-wrapper"
+prog="qpid-server"
 
 # Who to run QPID as, usually "awips".  (NOT "root")
 QPIDUSER=awips
@@ -28,37 +28,17 @@ QPIDUSER=awips
 TODAY=`/bin/date +%Y%m%d`
 
 QPID_HOME=/awips2/qpid
-wrapper_process="org.rzo.yajsw.app.WrapperJVMMain"
-_wrapper_jar=${QPID_HOME}/bin/yajsw/wrapper.jar
 
-function getQPID_psCount()
-{
-   psCount_qpid=`ps -ef | grep ${wrapper_process} | grep QPID_HOME="${QPID_HOME}" | grep -c "PNAME=QPBRKR "`
-}
-
-function getQPID_pid()
-{
-   pid_qpid=`ps -e -o pid,args | grep ${wrapper_process} | grep QPID_HOME="${QPID_HOME}" | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
-}
-
-function getWrapper_psCount()
-{
-   psCount_wrapper=`ps -ef | grep "${_wrapper_jar} -c" | grep -c wrapper.conf`
-}
-
-function getWrapper_pid()
-{
-   pid_wrapper=`ps -e -o pid,args | grep "${_wrapper_jar} -c" | grep wrapper.conf | grep -e "^ *\([0-9]\+\)" -o`
-}
+export QPID_JAVA_MEM=-Xmx2048m
 
 start() {
-   getQPID_psCount
-   if [ ${psCount_qpid} -eq 1 ]; then
+   isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
+   if [ $isRunning -eq 1 ]; then
       echo "WARNING: QPID already running, not starting another instance"
       return 1
    fi
 
-   DAEMON="/bin/bash ${QPID_HOME}/bin/${prog}"
+   DAEMON="${QPID_HOME}/bin/qpid-server"
    
    QPIDSTARTLOG=${QPID_HOME}/log/start-qpid-$TODAY.log
    su $QPIDUSER -c "$DAEMON" >> $QPIDSTARTLOG 2>&1 &
@@ -67,47 +47,35 @@ start() {
 }
 
 stop() {
-   # determine if qpid is running, first.
-   getQPID_psCount
-   if [ ${psCount_qpid} -ne 1 ]; then
-      echo "WARNING: Qpid is not running, no shutdown attempted!"
-      return 1
-   fi
-   # get the qpid pid
-   getQPID_pid
-   
-   # determine if the qpid wrapper is running.
-   getWrapper_psCount
-   if [ ${psCount_wrapper} -eq 1 ]; then
-      # get the wrapper pid
-      getWrapper_pid
-      
-      # stop the wrapper
-      kill ${pid_wrapper}
+   isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
+
+   if [ $isRunning -eq 1 ]; then
+      pid=`ps -e -o pid,args | grep org.apache.qpid.server.Main | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
+      kill $pid
+
+      CNT=0
+      while [[ "X$pid" != "X" ]]; do
+         if [ "$CNT" -ge "15" ]; then
+            echo "QPID did not shut down gracefully in 15 seconds, force shutting down"
+            kill -9 $pid
+         else
+            let CNT=${CNT}+1
+         fi
+
+         sleep 1
+         pid=`ps -e -o pid,args | grep org.apache.qpid.server.Main | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
+      done
    else
-      # stop qpid
-      kill ${pid_qpid}
+      echo "QPID is not running"
    fi
-   
-   # wait for and verify that qpid has stopped running
-   savepid=${pid_qpid}
-   while [ "X${pid_qpid}" != "X" ]; do
-      sleep 1
-      
-      getQPID_psCount
-      if [ ${psCount_qpid} -eq 1 ]; then
-         pid_qpid=${savepid}
-      else
-         pid_qpid=""
-      fi
-   done
+  
 }
 
 checkStatus() {
-   getQPID_psCount
-   if [ ${psCount_qpid} -eq 1 ]; then
-      getQPID_pid
-      echo "QPID is running (PID ${pid_qpid})"
+   isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
+   if [ $isRunning -eq 1 ]; then
+      pid=`ps -e -o pid,args | grep org.apache.qpid.server.Main | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
+      echo "QPID is running (PID $pid)"
    else
       echo "QPID is not running"
    fi

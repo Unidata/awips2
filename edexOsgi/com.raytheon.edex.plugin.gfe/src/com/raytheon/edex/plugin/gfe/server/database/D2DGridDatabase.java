@@ -43,6 +43,7 @@ import com.raytheon.edex.plugin.gfe.db.dao.GFED2DDao;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfo;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
 import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
+import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -106,9 +107,6 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 04/17/2013   #1913       randerso    Added GFE level mapping to replace GridTranslator
  * 05/02/2013   #1969       randerso    Removed unnecessary updateDbs method
  * 05/03/2013   #1974       randerso    Fixed error handling when no D2D level mapping found
- * 09/12/2013   #2348       randerso    Removed code that called getDb from  getD2DDatabaseIdsFromDb
- *                                      Added function to create a D2DGridDatabase object only if there is
- *                                      data in postgres for the desired model/reftime
  * 
  * </pre>
  * 
@@ -135,33 +133,6 @@ public class D2DGridDatabase extends VGridDatabase {
         }
         return new DatabaseID(getSiteID(config), DataType.GRID, "D2D",
                 gfeModelName, modelTime);
-    }
-
-    /**
-     * Get a D2DGridDatabase if it is available
-     * 
-     * @param config
-     *            configuration for site
-     * @param dbId
-     *            DatabaseID of desired database
-     * @return D2DGridDatabase or null if not available
-     */
-    public static D2DGridDatabase getDatabase(IFPServerConfig config,
-            String d2dModelName, Date refTime) {
-        try {
-            GFED2DDao dao = new GFED2DDao();
-            List<Date> result = dao.getModelRunTimes(d2dModelName, -1);
-
-            if (result.contains(refTime)) {
-                D2DGridDatabase db = new D2DGridDatabase(config, d2dModelName,
-                        refTime);
-                return db;
-            }
-            return null;
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return null;
-        }
     }
 
     /**
@@ -207,7 +178,15 @@ public class D2DGridDatabase extends VGridDatabase {
             for (Date date : result) {
                 DatabaseID dbId = null;
                 dbId = getDbId(d2dModelName, date, config);
-                dbInventory.add(dbId);
+                try {
+                    GridDatabase db = GridParmManager.getDb(dbId);
+                    if ((db != null) && !dbInventory.contains(dbId)) {
+                        dbInventory.add(dbId);
+                    }
+                } catch (GfeException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
             }
             return dbInventory;
         } catch (PluginException e) {
@@ -306,14 +285,10 @@ public class D2DGridDatabase extends VGridDatabase {
     /**
      * Constructs a new D2DGridDatabase
      * 
-     * For internal use only. External code should call
-     * D2DGridDatabase.getDatabase(IFPServerConfig, String, Date) to ensure
-     * objects are only created if data is present
-     * 
      * @param dbId
      *            The database ID of this database
      */
-    private D2DGridDatabase(IFPServerConfig config, String d2dModelName,
+    public D2DGridDatabase(IFPServerConfig config, String d2dModelName,
             Date refTime) throws GfeException {
         super(config);
 
