@@ -8,10 +8,7 @@ if [ ${RC} -ne 0 ]; then
 fi
 
 # Determine Where awips2-tools Has Been Installed.
-HDF5_TOOLS_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-tools`
-if [ "${HDF5_TOOLS_INSTALL}" = "" ]; then
-   return
-fi
+HDF5_TOOLS_INSTALL=/awips2/tools
 
 # Update The Environment.
 # Determine If awips2-tools Is Already Part Of The Path.
