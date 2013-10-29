@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012 1286       djohnson     Initial creation
  * Jul 10, 2013 2106       djohnson     Remove EDEX instance specific methods.
+ * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
  * 
  * </pre>
  * 
@@ -66,7 +67,7 @@ public interface IBandwidthManager<T extends Time, C extends Coverage> {
      * @param b
      * @return
      */
-    List<BandwidthAllocation> schedule(AdhocSubscription<T, C> subscription);
+    List<BandwidthAllocation> scheduleAdhoc(AdhocSubscription<T, C> subscription);
 
     /**
      * When a Subscription is updated in the Registry, update the retrieval plan
@@ -76,8 +77,8 @@ public interface IBandwidthManager<T extends Time, C extends Coverage> {
      * @return
      * @throws SerializationException
      */
-    List<BandwidthAllocation> subscriptionUpdated(Subscription<T, C> subscription)
-            throws SerializationException;
+    List<BandwidthAllocation> subscriptionUpdated(
+            Subscription<T, C> subscription) throws SerializationException;
 
     /**
      * 
