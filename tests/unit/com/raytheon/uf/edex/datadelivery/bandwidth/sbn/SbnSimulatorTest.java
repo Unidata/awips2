@@ -117,10 +117,8 @@ public class SbnSimulatorTest {
 
     @Test
     public void errorOnOneFileDoesNotStopTheOthers() throws IOException {
-        File fileOneExpectedResult = createTestFileGetExpected(testDir,
-                "fileOne.txt", "AA1");
-        File fileTwoExpectedResult = createTestFileGetExpected(testDir,
-                "fileTwo.txt", "AA2");
+        createTestFileGetExpected(testDir, "fileOne.txt", "AA1");
+        createTestFileGetExpected(testDir, "fileTwo.txt", "AA2");
 
         doThrow(new IOException()).when(fileProcessor).processFile(
                 any(File.class));
