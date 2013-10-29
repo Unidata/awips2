@@ -19,14 +19,13 @@
  **/
 package com.raytheon.viz.ui.cmenu;
 
-import javax.xml.bind.JAXBException;
-
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
@@ -35,15 +34,18 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 
 /**
- * TODO Add Description
+ * Duplicate a resource but with a different display type. Works only on
+ * resources with the {@link DisplayTypeCapability}.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 26, 2010            bsteffen     Initial creation
- * Aug 10, 2011           njensen      Added runWithEvent
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 26, 2010           bsteffen    Initial creation
+ * Aug 10, 2011           njensen     Added runWithEvent
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -63,11 +65,12 @@ public abstract class LoadAsDisplayTypeAction extends AbstractRightClickAction {
     @Override
     public void run() {
         try {
+            ProcedureXmlManager jaxb = ProcedureXmlManager.getInstance();
             ResourcePair rp = selectedRsc;
             ResourceGroup group = new ResourceGroup();
             group.getResourceList().add(rp);
-            String xml = SerializationUtil.marshalToXml(group);
-            group = (ResourceGroup) SerializationUtil.unmarshalFromXml(xml);
+            String xml = jaxb.marshal(group);
+            group = jaxb.unmarshal(ResourceGroup.class, xml);
             rp = group.getResourceList().get(0);
             rp.setProperties(new ResourceProperties());
             rp.getLoadProperties()
@@ -77,7 +80,7 @@ public abstract class LoadAsDisplayTypeAction extends AbstractRightClickAction {
                     .setDisplayType(getDisplayType());
             rp.instantiateResource(getDescriptor());
             getDescriptor().getResourceList().add(rp);
-        } catch (JAXBException e) {
+        } catch (SerializationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unexpected error cloning resource", e);
         } catch (VizException e) {
