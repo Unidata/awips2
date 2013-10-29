@@ -155,6 +155,20 @@ public class ProcedureXmlManager {
     }
 
     /**
+     * Transofrm an object to XML and store it in the specified file.
+     * 
+     * @param obj
+     *            Object to store
+     * @param filePath
+     *            file to store object in.
+     * @throws SerializationException
+     */
+    public void marshalToFile(Object obj, String filePath)
+            throws SerializationException {
+        getManager().marshalToXmlFile(obj, filePath);
+    }
+
+    /**
      * Transform some xml in a String to an object of the specified class.
      * 
      * @param clazz
