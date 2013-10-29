@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.raytheon.uf.common.status.UFStatus.Priority;
-
 /**
  * The principal mechanism for representing the outcome of an operation. <BR>
  * 
@@ -103,23 +101,22 @@ public class UFStatus {
     protected final String message;
 
     /** handler factory */
-    private static AtomicReference<IUFStatusHandlerFactory> handlerFactoryRef = createHandlerFactory();
+    private static AtomicReference<IUFStatusHandlerFactory> handlerFactoryRef = new AtomicReference<IUFStatusHandlerFactory>();
 
-    private static final AtomicReference<IUFStatusHandlerFactory> createHandlerFactory() {
+    static {
         ServiceLoader<IUFStatusHandlerFactory> loader = ServiceLoader.load(
                 IUFStatusHandlerFactory.class,
                 IUFStatusHandlerFactory.class.getClassLoader());
         Iterator<IUFStatusHandlerFactory> handlerIterator = loader.iterator();
-        IUFStatusHandlerFactory factory = null;
 
         if (handlerIterator.hasNext()) {
-            factory = handlerIterator.next();
+            UFStatus.setHandlerFactory(handlerIterator.next());
         } else {
-            factory = new DefaultStatusHandlerFactory();
+            UFStatus.setHandlerFactory(new DefaultStatusHandlerFactory());
             Exception e = new RuntimeException("No "
                     + IUFStatusHandlerFactory.class.getName()
                     + " found.\nUsing default handler.");
-            factory.getInstance()
+            UFStatus.getHandler()
                     .handle(Priority.CRITICAL,
                             e.getLocalizedMessage()
                                     + "\nPlease ignore if you are in a unit test environment\n");
@@ -130,7 +127,6 @@ public class UFStatus {
                     + IUFStatusHandlerFactory.class.getName()
                     + " handlers defined");
         }
-        return new AtomicReference<IUFStatusHandlerFactory>(factory);
     }
 
     /**
