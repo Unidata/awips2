@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.core;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.core.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -77,6 +77,7 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.notification.observers,
  com.raytheon.uf.viz.core.preferences,
  com.raytheon.uf.viz.core.procedures,
+ com.raytheon.uf.viz.core.reflect,
  com.raytheon.uf.viz.core.requests,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.uf.viz.core.rsc.capabilities,
