@@ -16,6 +16,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -139,10 +140,9 @@ public abstract class Crawler {
         HarvesterConfig hc = null;
 
         try {
-            hc = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(
-                    HarvesterConfig.class, configFile);
-        } catch (SerializationException e1) {
-            e1.printStackTrace();
+            hc = HarvesterConfigurationManager.getHarvesterFile(configFile);
+        } catch (Exception e1) {
+            statusHandler.handle(Priority.ERROR, e1.getLocalizedMessage(), e1);
         }
 
         return hc;
