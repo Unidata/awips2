@@ -17,11 +17,13 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-import DatabaseID, AbsTime
+import DatabaseID, AbsTime, JUtil
 
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID as JavaDatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID
+
+from numpy import int8
 
 class DBSSWE:
     def __init__(self, parm):
@@ -47,12 +49,17 @@ class DBSSWE:
                         self._parm.getGridInventory()):
             if t == key:                
                 #return g.pyData()
-                g.populate()     
-                result = g.getGridSlice().__numpy__
+                g.populate()
+                slice = g.getGridSlice()
+                result = slice.__numpy__
                 if len(result) == 1:
-                    result = result[0]
-                elif len(result) == 2 and isinstance(result[1], str):
-                    result[1] = eval(result[1])
+                    if result[0].dtype != int8:
+                        # scalar
+                        result = result[0]
+                    else:
+                        # discrete or weather
+                        dkeys = JUtil.javaObjToPyVal(slice.getKeyList())
+                        result.append(dkeys) 
                 return result
         return None
 
