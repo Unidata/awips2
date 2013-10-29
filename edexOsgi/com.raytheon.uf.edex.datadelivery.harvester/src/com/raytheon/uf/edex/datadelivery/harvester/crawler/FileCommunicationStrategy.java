@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
 import com.raytheon.uf.common.datadelivery.harvester.ProtoCollection;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
@@ -73,6 +74,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
  * Aug 06, 2012 1022       djohnson     Add shutdown(), write out millis with filename to prevent overwriting.
  * Sep 10, 2012 1154       djohnson     Use JAXB instead of thrift, allowing introspection of links, return files in ascending order.
  * Mar 14, 2013 1794       djohnson     Consolidate common FilenameFilter implementations.
+ * Oct 28, 2013 2361       dhladky     Fixed up JAXBManager.
  * 
  * </pre>
  * 
@@ -373,7 +375,7 @@ class FileCommunicationStrategy implements CommunicationStrategy {
         File file = lf.getFile();
 
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(hconfig,
+            HarvesterJaxbManager.getJaxb().marshalToXmlFile(hconfig,
                     file.getAbsolutePath());
             lf.save();
         } catch (SerializationException e) {
