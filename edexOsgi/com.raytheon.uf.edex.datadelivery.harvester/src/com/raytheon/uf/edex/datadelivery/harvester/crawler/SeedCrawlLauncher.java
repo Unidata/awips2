@@ -6,13 +6,13 @@ import java.util.List;
 import com.raytheon.uf.common.datadelivery.harvester.Agent;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -28,6 +28,7 @@ import com.raytheon.uf.edex.datadelivery.harvester.cron.HarvesterJobController;
  * ------------ ---------- ----------- --------------------------
  * Oct 4, 2012  1038      dhladky     Initial creation
  * Nov 19, 2012 1166      djohnson    Clean up JAXB representation of registry objects.
+ * Oct 28, 2013 2361       dhladky     Fixed up JAXBManager.
  * 
  * </pre>
  * 
@@ -76,8 +77,8 @@ public class SeedCrawlLauncher extends CrawlLauncher {
             // if many, start many
             for (LocalizationFile lf : getLocalizedFiles()) {
 
-                HarvesterConfig hc = (HarvesterConfig) new JAXBManager(
-                        HarvesterConfig.class).unmarshalFromXmlFile(
+                HarvesterConfig hc = HarvesterJaxbManager.getJaxb()
+                        .unmarshalFromXmlFile(HarvesterConfig.class,
                                 lf.getFile());
 
                 if (hc.getProvider().getName().equals(providerName)) {
