@@ -15,7 +15,7 @@ import java.util.Set;
 import com.raytheon.uf.common.datadelivery.harvester.Agent;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
-import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Utils;
@@ -99,9 +99,9 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
 
         if (files != null) {
             for (LocalizationFile file : files) {
-
                 try {
-                    HarvesterConfig hc = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(HarvesterConfig.class, file.getFile());
+                    HarvesterConfig hc = HarvesterConfigurationManager
+                            .getHarvesterFile(file.getFile());
                     Agent agent = hc.getAgent();
 
                     if (agent != null) {
