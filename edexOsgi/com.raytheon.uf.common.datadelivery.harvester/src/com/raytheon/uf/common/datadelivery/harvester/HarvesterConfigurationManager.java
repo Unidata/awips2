@@ -20,6 +20,7 @@ package com.raytheon.uf.common.datadelivery.harvester;
  * further licensing information.
  **/
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,13 +80,7 @@ public class HarvesterConfigurationManager {
 
         for (LocalizationFile lf : getLocalizedFiles()) {
 
-            try {
-                config = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(HarvesterConfig.class, lf.getFile());
-            } catch (SerializationException e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Can't deserialize harvester config at "
-                                + lf.getFile().getPath(), e);
-            }
+            config = getHarvesterFile(lf.getFile());
 
             if (config != null) {
                 Agent agent = config.getAgent();
@@ -110,13 +105,7 @@ public class HarvesterConfigurationManager {
 
         for (LocalizationFile lf : getLocalizedFiles()) {
 
-            try {
-                config = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(HarvesterConfig.class, lf.getFile());
-            } catch (SerializationException e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Can't deserialize harvester config at "
-                                + lf.getFile().getPath(), e);
-            }
+            config = getHarvesterFile(lf.getFile());
 
             if (config != null) {
                 Agent agent = config.getAgent();
@@ -130,6 +119,41 @@ public class HarvesterConfigurationManager {
         }
 
         return config;
+    }
+
+    /**
+     * Get this harvester configuration File
+     * @param file
+     * @return
+     */
+    public static HarvesterConfig getHarvesterFile(File file) {
+        
+        HarvesterConfig config = null;
+        
+        try {
+            config = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(HarvesterConfig.class, file);
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Can't deserialize harvester config at "
+                            + file.getPath(), e);
+        }
+        
+        return config;
+
+    }
+    
+    /**
+     * Writes the harvester config files
+     * @param config
+     * @param file
+     */
+    public static void setHarvesterFile(HarvesterConfig config, File file) {
+        try {
+            HarvesterJaxbManager.getJaxb().marshalToXmlFile(config,
+                    file.getAbsolutePath());
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.ERROR, "Couldn't write Harvester Config file.", e);
+        }
     }
 
 }
