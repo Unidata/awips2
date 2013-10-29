@@ -937,7 +937,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { this.getScalarGrid().getFloats() };
     }
 
