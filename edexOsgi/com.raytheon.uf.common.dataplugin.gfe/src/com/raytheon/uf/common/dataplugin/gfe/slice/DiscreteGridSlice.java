@@ -36,7 +36,6 @@ import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
-import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.time.TimeRange;
  *                                     string
  * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
  *                                     debugger when trying to display the grid
+ * 10/29/2013   2476       njensen     Updated getNumpy() and added getKeyList()
  * </pre>
  * 
  * @author chammack
@@ -789,16 +789,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     @Override
-    public Object[] getNumPy() {
-        Object[] numpy = new Object[2];
-        numpy[0] = getDiscreteGrid().getBuffer().array();
-        List<String> keyList = new ArrayList<String>();
-        for (DiscreteKey k : key) {
-            keyList.add(k.toString());
-        }
-        String pyList = PyUtil.listToList(keyList);
-        numpy[1] = pyList;
-        return numpy;
+    public Object[] getNumpy() {
+        return new Object[] { getDiscreteGrid().getBuffer().array() };
     }
 
     @Override
@@ -859,5 +851,13 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                     "GFE");
             diskCache.removeFromCache(cacheId);
         }
+    }
+
+    public List<String> getKeyList() {
+        List<String> list = new ArrayList<String>(key.length);
+        for (DiscreteKey k : key) {
+            list.add(k.toString());
+        }
+        return list;
     }
 }
