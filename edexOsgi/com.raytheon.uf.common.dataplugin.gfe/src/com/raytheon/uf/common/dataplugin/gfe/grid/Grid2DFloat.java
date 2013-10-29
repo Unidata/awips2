@@ -425,7 +425,7 @@ public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable,
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { buffer.array() };
     }
 

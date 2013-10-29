@@ -50,6 +50,7 @@
 #                                                 so mask can be used with advanced indexing
 #                                                 (e.g. grid[mask] = value)
 #    Oct 07, 2013    2424          randerso       remove use of pytz
+#    Oct 29, 2013  2476       njensen         Improved getting wx/discrete keys in _getGridResults
 #
 ########################################################################
 import types, string, time, sys
@@ -463,24 +464,31 @@ class SmartScript(BaseTool.BaseTool):
             elif "List" == mode:
                 xlated = []
                 for rgrid in result:
-                    xlgrid = rgrid.getGridSlice()
-                    xlgrid = xlgrid.__numpy__
+                    jxlgrid = rgrid.getGridSlice()                    
+                    xlgrid = jxlgrid.__numpy__
                     if len(xlgrid) == 1:
-                        xlgrid = xlgrid[0];
-                    elif len(xlgrid) == 2 and isinstance(xlgrid[1], str):
-                        xlgrid[1] = eval(xlgrid[1])
+                        if xlgrid[0].dtype != numpy.int8:
+                            # scalar
+                            xlgrid = xlgrid[0]
+                        else:
+                            # discrete or weather
+                            keys = JUtil.javaObjToPyVal(jxlgrid.getKeyList())
+                            xlgrid.append(keys)                    
                     xlated.append(xlgrid)
                 retVal = xlated
             else:
                 result = result[0];
-                result = result.getGridSlice()
-                result = result.__numpy__
+                slice = result.getGridSlice()
+                result = slice.__numpy__
                 if len(result) == 1:
-                    retVal = result[0]
-                elif len(result) == 2 and isinstance(result[1], str):
-                    retVal = (result[0], eval(result[1]))
-                else:
-                    retVal = (result[0], result[1])
+                    if result[0].dtype != numpy.int8:
+                        # scalar
+                        result = result[0]
+                    else:
+                        # discrete or weather
+                        keys = JUtil.javaObjToPyVal(slice.getKeyList())
+                        result.append(keys)
+                retVal = result
 
         if retVal is None or retVal == []:
             if noDataError == 1:
