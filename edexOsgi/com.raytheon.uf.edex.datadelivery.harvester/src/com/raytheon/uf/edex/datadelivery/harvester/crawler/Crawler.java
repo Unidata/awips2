@@ -16,9 +16,9 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -38,6 +38,7 @@ import edu.uci.ics.crawler4j.crawler.CrawlConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 4, 2012   1038      dhladky     Initial creation
+ * Oct 28, 2013  2361       dhladky     Fixed up JAXBManager.
  * 
  * </pre>
  * 
@@ -138,7 +139,7 @@ public abstract class Crawler {
         HarvesterConfig hc = null;
 
         try {
-            hc = SerializationUtil.jaxbUnmarshalFromXmlFile(
+            hc = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(
                     HarvesterConfig.class, configFile);
         } catch (SerializationException e1) {
             e1.printStackTrace();
