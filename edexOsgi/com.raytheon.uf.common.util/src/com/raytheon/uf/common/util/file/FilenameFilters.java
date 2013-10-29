@@ -21,10 +21,6 @@ package com.raytheon.uf.common.util.file;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * Consolidates common filename filters.
@@ -179,23 +175,26 @@ public final class FilenameFilters {
         }
     };
 
-    /**
-     * Accepts Path directories.
-     */
-    public static final DirectoryStream.Filter<Path> ACCEPT_PATH_DIRECTORIES = new DirectoryStream.Filter<Path>() {
-        public boolean accept(Path path) throws IOException {
-            return (Files.isDirectory(path));
-        }
-    };
-
-    /**
-     * Accepts Path files.
-     */
-    public static final DirectoryStream.Filter<Path> ACCEPT_PATH_FILES = new DirectoryStream.Filter<Path>() {
-        public boolean accept(Path path) throws IOException {
-            return (Files.isRegularFile(path));
-        }
-    };
+    // TODO Code that can be uncommented after a transition to Java 1.7
+    // /**
+    // * Accepts Path directories.
+    // */
+    // public static final DirectoryStream.Filter<Path> ACCEPT_PATH_DIRECTORIES
+    // = new DirectoryStream.Filter<Path>() {
+    // public boolean accept(Path path) throws IOException {
+    // return (Files.isDirectory(path));
+    // }
+    // };
+    //
+    // /**
+    // * Accepts Path files.
+    // */
+    // public static final DirectoryStream.Filter<Path> ACCEPT_PATH_FILES = new
+    // DirectoryStream.Filter<Path>() {
+    // public boolean accept(Path path) throws IOException {
+    // return (Files.isRegularFile(path));
+    // }
+    // };
 
     /**
      * Returns a {@link FilenameFilter} that matches the specified file
