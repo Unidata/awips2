@@ -31,9 +31,10 @@ import java.util.List;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20070925            391 jkorman     Initial Coding.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 25, 2007  391      jkorman     Initial Coding.
+ * Oct 29, 2013  2489     bsteffen    Add checks for NAVTEX_END_PART
  * 
  * </pre>
  * 
@@ -136,6 +137,17 @@ public class SfcObsSubMessage {
                     // just throw it away.
                 } else if (SfcObsPart.ME_PART.equals(part)) {
                     break;
+                } else if (SfcObsPart.NAVTEX_END_PART.equals(part)) {
+                    /*
+                     * NNNN is an end of message token for some of the sbn
+                     * data(NAVTEX generated data) and it is not a valid
+                     * observation. If NNNN is the only part in the report then
+                     * it will be ignored completely(dataWritten will be false).
+                     * If there is other parts before or after NNNN then it will
+                     * be included in the report.
+                     */
+                    sb.append(" ");
+                    sb.append(part.getPartValue());
                 } else {
                     sb.append(" ");
                     sb.append(part.getPartValue());
