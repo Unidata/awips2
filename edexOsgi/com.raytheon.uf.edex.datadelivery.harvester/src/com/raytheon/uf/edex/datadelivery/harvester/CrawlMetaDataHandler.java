@@ -15,6 +15,7 @@ import java.util.Set;
 import com.raytheon.uf.common.datadelivery.harvester.Agent;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Utils;
@@ -63,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Feb 05, 2013 1580       mpduff      EventBus refactor.
  * 3/18/2013    1802       bphillip    Modified to insert provider object after database is initialized
  * Jun 24, 2013 2106       djohnson    Accepts ProviderHandler as a constructor argument.
+ * Oct 28, 2013 2361       dhladky     Fixed up JAXBManager.
  * 
  * </pre>
  * 
@@ -76,7 +78,7 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CrawlMetaDataHandler.class);
-
+    
     /** Path to crawler links directory. */
     private static final String PROCESSED_DIR = StringUtil.join(new String[] {
             "datadelivery", "harvester", "processed" }, File.separatorChar);
@@ -99,11 +101,7 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
             for (LocalizationFile file : files) {
 
                 try {
-
-                    HarvesterConfig hc = SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(HarvesterConfig.class,
-                                    file.getFile());
-
+                    HarvesterConfig hc = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(HarvesterConfig.class, file.getFile());
                     Agent agent = hc.getAgent();
 
                     if (agent != null) {
@@ -117,7 +115,7 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
                             hcs.put(hc.getProvider().getName(), hc);
                         }
                     }
-                } catch (SerializationException e1) {
+                } catch (Exception e1) {
                     statusHandler.error(
                             "Serialization Error Reading Crawler Config files",
                             e1);
