@@ -34,11 +34,11 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * 
- * SOFTWARE HISTORY
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 19, 2007  391      jkorman     Initial Coding.
+ * Oct 29, 2013  2489     bsteffen    Add null check to matchElement.
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20071019            391 jkorman     Initial coding.
  * </pre>
  * 
  * @author jkorman
@@ -166,7 +166,7 @@ public abstract class AbstractSfcObsDecoder implements ISfcObsDecoder {
      */
     public static final boolean matchElement(String element, String pattern) {
         boolean matches = false;
-        if (pattern != null) {
+        if (pattern != null && element != null) {
             Pattern p = Pattern.compile(pattern);
             Matcher m = p.matcher(element);
             matches = m.find();
