@@ -24,9 +24,16 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
+import com.raytheon.uf.common.datadelivery.registry.Connection;
+import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.ProviderType;
+import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -53,6 +60,32 @@ public class HarvesterConfigurationManager {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(HarvesterConfigurationManager.class);
+    
+    private static final Class<?>[] clazzess = new Class<?>[] {
+        HarvesterConfig.class, Provider.class, Connection.class,
+        ProviderType.class, ServiceType.class, Agent.class,
+        CrawlAgent.class, OGCAgent.class, ConfigLayer.class };
+
+    private static JAXBManager jaxb = null;
+    
+    /**
+     * marshall and unmarshall harvester objects
+     * 
+     * @return
+     */
+    private static JAXBManager getJaxb() {
+
+        if (jaxb == null) {
+            try {
+                jaxb = new JAXBManager(clazzess);
+
+            } catch (JAXBException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+        return jaxb;
+    }
 
     /**
      * Gets site and base level configs for harvesters
@@ -123,36 +156,39 @@ public class HarvesterConfigurationManager {
 
     /**
      * Get this harvester configuration File
+     * 
      * @param file
      * @return
      */
     public static HarvesterConfig getHarvesterFile(File file) {
-        
+
         HarvesterConfig config = null;
-        
+
         try {
-            config = HarvesterJaxbManager.getJaxb().unmarshalFromXmlFile(HarvesterConfig.class, file);
+            config = getJaxb()
+                    .unmarshalFromXmlFile(HarvesterConfig.class, file);
         } catch (SerializationException e) {
             statusHandler.handle(Priority.ERROR,
-                    "Can't deserialize harvester config at "
-                            + file.getPath(), e);
+                    "Can't deserialize harvester config at " + file.getPath(),
+                    e);
         }
-        
+
         return config;
 
     }
-    
+
     /**
      * Writes the harvester config files
+     * 
      * @param config
      * @param file
      */
     public static void setHarvesterFile(HarvesterConfig config, File file) {
         try {
-            HarvesterJaxbManager.getJaxb().marshalToXmlFile(config,
-                    file.getAbsolutePath());
+            getJaxb().marshalToXmlFile(config, file.getAbsolutePath());
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.ERROR, "Couldn't write Harvester Config file.", e);
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't write Harvester Config file.", e);
         }
     }
 
