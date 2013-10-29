@@ -6,7 +6,7 @@ import java.util.List;
 import com.raytheon.uf.common.datadelivery.harvester.Agent;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
-import com.raytheon.uf.common.datadelivery.harvester.HarvesterJaxbManager;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -77,9 +77,7 @@ public class SeedCrawlLauncher extends CrawlLauncher {
             // if many, start many
             for (LocalizationFile lf : getLocalizedFiles()) {
 
-                HarvesterConfig hc = HarvesterJaxbManager.getJaxb()
-                        .unmarshalFromXmlFile(HarvesterConfig.class,
-                                lf.getFile());
+                HarvesterConfig hc = HarvesterConfigurationManager.getHarvesterFile(lf.getFile());
 
                 if (hc.getProvider().getName().equals(providerName)) {
                     if (hc.getAgent() != null) {
