@@ -69,7 +69,6 @@ int pyjobject_check(PyObject *obj);
 
 //added by njensen
 static PyObject* pyjobject_numpy(PyJobject_Object *obj);
-static void initNumpy(void);
-static int numpyInit = 0;
+
 
 #endif // ndef pyjobject

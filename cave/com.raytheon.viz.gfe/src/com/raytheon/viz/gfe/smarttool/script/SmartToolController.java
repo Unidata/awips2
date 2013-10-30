@@ -69,6 +69,7 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2008            njensen     Initial creation
+ * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
  * </pre>
  * 
  * @author njensen
@@ -178,7 +179,7 @@ public class SmartToolController extends BaseGfePyController {
         if (parmToEdit == null) {
             return null;
         } else {
-            return getNumericResult(parmToEdit.getGridInfo().getGridType());
+            return getNumpyResult(parmToEdit.getGridInfo().getGridType());
         }
     }
 
@@ -246,7 +247,7 @@ public class SmartToolController extends BaseGfePyController {
      * @return the result of the execution in Java format
      * @throws JepException
      */
-    protected Object getNumericResult(GridType type) throws JepException {
+    protected Object getNumpyResult(GridType type) throws JepException {
         Object result = null;
         boolean resultFound = (Boolean) jep.getValue(RESULT + " is not None");
 
@@ -308,9 +309,9 @@ public class SmartToolController extends BaseGfePyController {
                 Grid2DFloat dir = (grid.getVectorSlice()).getDirGrid();
                 String magName = argName + "Mag";
                 String dirName = argName + "Dir";
-                jep.setNumeric(magName, mag.getFloats(), mag.getXdim(),
+                jep.setNumpy(magName, mag.getFloats(), mag.getXdim(),
                         mag.getYdim());
-                jep.setNumeric(dirName, dir.getFloats(), dir.getXdim(),
+                jep.setNumpy(dirName, dir.getFloats(), dir.getXdim(),
                         dir.getYdim());
                 jep.eval(argName + " = [" + magName + ", " + dirName + "]");
                 jep.eval(magName + " = None");
@@ -318,7 +319,7 @@ public class SmartToolController extends BaseGfePyController {
             } else if (argValue instanceof ScalarGridData) {
                 ScalarGridData grid = (ScalarGridData) argValue;
                 Grid2DFloat f = (grid.getScalarSlice()).getScalarGrid();
-                jep.setNumeric(argName, f.getFloats(), f.getXdim(), f.getYdim());
+                jep.setNumpy(argName, f.getFloats(), f.getXdim(), f.getYdim());
             } else if (argValue instanceof DiscreteGridData) {
                 DiscreteGridData grid = (DiscreteGridData) argValue;
                 jep.set("discreteGridData", grid);
