@@ -52,10 +52,10 @@ public class PythonNumpyFloatArray implements INumpyable {
     /*
      * (non-Javadoc)
      * 
-     * @see jep.INumpyable#getNumPy()
+     * @see jep.INumpyable#getNumpy()
      */
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { messageData };
     }
 

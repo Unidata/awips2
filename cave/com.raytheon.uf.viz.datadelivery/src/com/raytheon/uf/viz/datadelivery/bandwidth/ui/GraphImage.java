@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.SortBy;
  * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
  * Jan 04, 2013   1420     mpduff      Change default priority to normal priority.
  * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum, remove incorrect use of ordinal values.
+ * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * 
  * </pre>
  * 
@@ -106,7 +107,9 @@ public class GraphImage extends AbstractCanvasImage {
      */
     @Override
     public void disposeResources() {
-        bgColor.dispose();
+        if (bgColor != null) {
+            bgColor.dispose();
+        }
     }
 
     /**
@@ -159,7 +162,6 @@ public class GraphImage extends AbstractCanvasImage {
         gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
 
         if (graphData == null) {
-
             return;
         }
 
@@ -193,14 +195,13 @@ public class GraphImage extends AbstractCanvasImage {
             }
 
             // Draw the dashed subscription line
-            gc.setLineStyle(SWT.LINE_DASH);
             if (imageMgr.isShowSubscriptionLines()) {
+                gc.setLineStyle(SWT.LINE_DASH);
                 gc.setLineWidth(1);
                 gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
                 gc.drawLine(0, yCoord + 4, cs.getImageWidth(), yCoord + 4);
+                gc.setLineStyle(SWT.LINE_SOLID);
             }
-
-            gc.setLineStyle(SWT.LINE_SOLID);
 
             long startTime = 0;
             List<TimeWindowData> timeWindows = dataMap.get(subName);
