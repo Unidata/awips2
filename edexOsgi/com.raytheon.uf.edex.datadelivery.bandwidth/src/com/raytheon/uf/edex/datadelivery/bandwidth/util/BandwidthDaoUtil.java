@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  *                                      no metadata found.
  * Sept 24, 2013 1797      dhladky      separated time from GriddedTime
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Oct 30, 2013  2448      dhladky      Fixed pulling data before and after activePeriod starting and ending.
  * 
  * </pre>
  * 
@@ -161,92 +162,101 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
 
         Calendar planEnd = plan.getPlanEnd();
         Calendar planStart = plan.getPlanStart();
+        Calendar activePeriodStart = null;
+        Calendar activePeriodEnd = null;
 
         // Make sure the RetrievalPlan's start and end times intersect
         // the Subscription's active period.
-        Date activePeriodEnd = subscription.getActivePeriodEnd();
-
-        if (activePeriodEnd != null) {
-            Date activePeriodStart = subscription.getActivePeriodStart();
-            Calendar active = BandwidthUtil.copy(activePeriodStart);
-
+        if (subscription.getActivePeriodEnd() != null
+                && subscription.getActivePeriodStart() != null) {
+            
+            activePeriodStart = TimeUtil.newCalendar(subscription
+                    .getActivePeriodStart());
             // Substitute the active periods month and day for the
             // plan start month and day.
-            Calendar s = BandwidthUtil.copy(planStart);
-            s.set(Calendar.MONTH, active.get(Calendar.MONTH));
-            s.set(Calendar.DAY_OF_MONTH, active.get(Calendar.DAY_OF_MONTH));
-
-            // If the active period start in outside the plan bounds,
+            Calendar start = BandwidthUtil.planToPeriodCompareCalendar(planStart, activePeriodStart);
+            // If the active period start is outside the plan bounds,
             // there is no intersection - just return an empty set.
-            if (s.before(planStart) && s.after(planEnd)) {
+            if (start.after(planEnd)) {
                 return subscriptionTimes;
             }
 
             // Do the same for active plan end..
-            activePeriodStart = subscription.getActivePeriodEnd();
-            active = BandwidthUtil.copy(activePeriodStart);
-
+            activePeriodEnd = TimeUtil.newCalendar(subscription.getActivePeriodEnd());
             // Substitute the active periods month and day for the
             // plan ends month and day.
-            s = BandwidthUtil.copy(planStart);
-            s.set(Calendar.MONTH, active.get(Calendar.MONTH));
-            s.set(Calendar.DAY_OF_MONTH, active.get(Calendar.DAY_OF_MONTH));
-
+            Calendar end = BandwidthUtil.planToPeriodCompareCalendar(planStart, activePeriodEnd);
             // If the active period end is before the start of the plan,
             // there is no intersection - just return an empty set.
-            if (s.before(planStart)) {
+            if (end.before(planStart)) {
                 return subscriptionTimes;
             }
         }
 
         // Now check the Subscription start and end times for intersection
         // with the RetrievalPlan...
-
         // Figure out the 'active' period for a subscription..
-
-        Calendar subscriptionEndDate = BandwidthUtil.copy(subscription
+        Calendar subscriptionEnd = TimeUtil.newCalendar(subscription
                 .getSubscriptionEnd());
-        Calendar subscriptionStartDate = null;
+        Calendar subscriptionStart = null;
         // Check to see if this is a non-expiring subscription
-        if (subscriptionEndDate == null) {
+        if (subscriptionEnd == null) {
             // If there is no subscription start end dates then the largest
             // window that can be scheduled is the RetrievalPlan size..
-            subscriptionEndDate = BandwidthUtil.copy(planEnd);
-            subscriptionStartDate = BandwidthUtil.copy(planStart);
+            subscriptionEnd = TimeUtil.newCalendar(planEnd);
+            subscriptionStart = TimeUtil.newCalendar(planStart);
         } else {
             // If there is a start and end time, then modify the start and
             // end times to 'fit' within the RetrievalPlan times
-            subscriptionStartDate = BandwidthUtil.copy(BandwidthUtil.max(
+            subscriptionStart = TimeUtil.newCalendar(BandwidthUtil.max(
                     subscription.getSubscriptionStart(), planStart));
-            subscriptionEndDate = BandwidthUtil.copy(BandwidthUtil.min(
+            subscriptionEnd = TimeUtil.newCalendar(BandwidthUtil.min(
                     subscription.getSubscriptionEnd(), planEnd));
         }
 
         // Create a Set of Calendars for all the baseReferenceTimes that a
         // Subscription can contain...
-        TimeUtil.minCalendarFields(subscriptionStartDate, Calendar.MILLISECOND,
+        TimeUtil.minCalendarFields(subscriptionStart, Calendar.MILLISECOND,
                 Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+        TimeUtil.maxCalendarFields(subscriptionEnd, Calendar.MILLISECOND,
+                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+             
+        // setup active period checks if necessary
+        if (activePeriodStart != null && activePeriodEnd != null) {
+            // need to add the current year in order to make the checks relevant
+            activePeriodStart = TimeUtil.addCurrentYearCalendar(activePeriodStart);
+            activePeriodEnd = TimeUtil.addCurrentYearCalendar(activePeriodEnd);
+        }
 
-        outerloop: while (!subscriptionStartDate.after(subscriptionEndDate)) {
+        outerloop: while (!subscriptionStart.after(subscriptionEnd)) {
 
             for (Integer cycle : hours) {
-                subscriptionStartDate.set(Calendar.HOUR_OF_DAY, cycle);
+                subscriptionStart.set(Calendar.HOUR_OF_DAY, cycle);
                 for (Integer minute : minutes) {
-                    subscriptionStartDate.set(Calendar.MINUTE, minute);
-                    if (subscriptionStartDate.after(subscriptionEndDate)) {
+                    subscriptionStart.set(Calendar.MINUTE, minute);
+                    if (subscriptionStart.after(subscriptionEnd)) {
                         break outerloop;
-                    } else {
+                    }
+                    else {
                         Calendar time = TimeUtil.newCalendar();
-                        time.setTimeInMillis(subscriptionStartDate
+                        time.setTimeInMillis(subscriptionStart
                                 .getTimeInMillis());
+                        // Last check for time window, this checks fine grain by hour and minute
+                        if (activePeriodStart != null && activePeriodEnd != null) {
+                            if (time.after(activePeriodEnd) || time.before(activePeriodStart)) {
+                                // discard this retrieval time, outside activePeriod window
+                                continue;
+                            }
+                        } 
+                       
                         subscriptionTimes.add(time);
                     }
                 }
             }
 
             // Start the next day..
-            subscriptionStartDate.add(Calendar.DAY_OF_YEAR, 1);
-            subscriptionStartDate.set(Calendar.HOUR_OF_DAY, hours.first());
+            subscriptionStart.add(Calendar.DAY_OF_YEAR, 1);
+            subscriptionStart.set(Calendar.HOUR_OF_DAY, hours.first());
         }
 
         // Now walk the subscription times and throw away anything outside the
@@ -257,7 +267,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
         while (itr.hasNext()) {
 
             Calendar time = itr.next();
-            Calendar withAvailabilityDelay = BandwidthUtil.copy(time);
+            Calendar withAvailabilityDelay = TimeUtil.newCalendar(time);
             withAvailabilityDelay.add(Calendar.MINUTE, availabilityDelay);
 
             // We allow base reference times that are still possible to retrieve
