@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.datadelivery.registry.replication;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -41,6 +42,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 4/9/2013     1802        bphillip    Initial implementation
  * 5/21/2013    1707        bphillip    Removed unused fields
  * 6/4/2013     1707        bphillip    Renamed and changed fields for clarity
+ * 10/30/2013   1538        bphillip    getRegistryReplicationServers returns empty list if no servers are specified
  * </pre>
  * 
  * @author bphillip
@@ -55,6 +57,9 @@ public class NotificationServers {
     private List<NotificationHostConfiguration> registryReplicationServers;
 
     public List<NotificationHostConfiguration> getRegistryReplicationServers() {
+        if (registryReplicationServers == null) {
+            registryReplicationServers = new ArrayList<NotificationHostConfiguration>();
+        }
         return registryReplicationServers;
     }
 
