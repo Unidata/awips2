@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
  * Jul 8, 2008				njensen	    Initial creation
  * Nov 20, 2009 #3387       jelkins     Use derived script's variableId instead of filename
  * Nov 21, 2009 #3576       rjpeter     Refactored to populate DerivParamDesc.
+ * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
  * </pre>
  * 
  * @author njensen
@@ -214,7 +215,7 @@ public class MasterDerivScript extends PythonInterpreter {
                             argKey += "_"
                                     + Integer.toHexString((val.hashCode()));
                         }
-                        // setNumeric won't work with indexed objects
+                        // setNumpy won't work with indexed objects
                         evaluateArgument(argKey, val);
                         jep.eval(argName + ".append(" + argKey + ")");
                     }
@@ -231,7 +232,7 @@ public class MasterDerivScript extends PythonInterpreter {
                 for (int argIdx = 0; argIdx < valList.length; argIdx++) {
                     IDataRecord val = valList[argIdx];
                     jep.eval(argName + ".append(None)");
-                    // setNumeric won't work with indexed objects
+                    // setNumpy won't work with indexed objects
                     evaluateArgument("__tmp", val);
                     jep.eval(argName + "[" + argIdx + "] = __tmp");
                 }
@@ -241,10 +242,10 @@ public class MasterDerivScript extends PythonInterpreter {
             setDataRecordArg(argName, (IDataRecord) argValue);
         } else if (argValue instanceof float[]) {
             float[] val = (float[]) argValue;
-            jep.setNumeric(argName, val, val.length, 1);
+            jep.setNumpy(argName, val, val.length, 1);
         } else if (argValue instanceof int[]) {
             int[] val = (int[]) argValue;
-            jep.setNumeric(argName, val, val.length, 1);
+            jep.setNumpy(argName, val, val.length, 1);
         } else if (argValue instanceof Float) {
             jep.set(argName, (argValue));
         } else if (argValue instanceof DerivedParameterRequest) {
@@ -401,7 +402,7 @@ public class MasterDerivScript extends PythonInterpreter {
         if (argValue instanceof FloatDataRecord) {
             FloatDataRecord record = (FloatDataRecord) argValue;
             if (sizes.length == 2) {
-                jep.setNumeric(argName, record.getFloatData(), (int) sizes[0],
+                jep.setNumpy(argName, record.getFloatData(), (int) sizes[0],
                         (int) sizes[1]);
                 reshape = false;
             } else {
@@ -415,7 +416,7 @@ public class MasterDerivScript extends PythonInterpreter {
         } else if (argValue instanceof IntegerDataRecord) {
             IntegerDataRecord record = (IntegerDataRecord) argValue;
             if (sizes.length == 2) {
-                jep.setNumeric(argName, record.getIntData(), (int) sizes[0],
+                jep.setNumpy(argName, record.getIntData(), (int) sizes[0],
                         (int) sizes[1]);
                 reshape = false;
             } else {
@@ -424,7 +425,7 @@ public class MasterDerivScript extends PythonInterpreter {
         } else if (argValue instanceof ByteDataRecord) {
             ByteDataRecord record = (ByteDataRecord) argValue;
             if (sizes.length == 2) {
-                jep.setNumeric(argName, record.getByteData(), (int) sizes[0],
+                jep.setNumpy(argName, record.getByteData(), (int) sizes[0],
                         (int) sizes[1]);
                 reshape = false;
             } else {
