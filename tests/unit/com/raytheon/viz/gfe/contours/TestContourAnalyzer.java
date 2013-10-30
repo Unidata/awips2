@@ -202,8 +202,8 @@ public class TestContourAnalyzer {
             String label) {
         assertEquals(label + ":getXdim()", expected.getXdim(), result.getXdim());
         assertEquals(label + ":getYdim()", expected.getYdim(), result.getYdim());
-        assertArrayEquals(label + ":values", expected.getNumPy(),
-                result.getNumPy());
+        assertArrayEquals(label + ":values", expected.getNumpy(),
+                result.getNumpy());
     }
 
     /**
