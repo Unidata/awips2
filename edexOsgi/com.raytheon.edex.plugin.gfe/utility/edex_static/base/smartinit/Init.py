@@ -28,6 +28,7 @@
 #    04/04/13        #1787         randerso       fix validTime check to work with accumulative parms
 #                                                 fix logging so you can actually determine why 
 #                                                 a smartInit is not calculating a parameter
+#    Oct 29, 2013  2476       njensen         Improved getting wx/discrete keys when retrieving data
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -967,12 +968,16 @@ class Forecaster(GridUtilities):
         pytr = TimeRange.encodeJavaTimeRange(tr)
         pkeys = TimeRange.javaTimeRangeListToPyList(p.getKeys())
         if  pytr in pkeys:            
-            slice = p.getItem(tr)
-            slice = slice.__numpy__
+            jslice = p.getItem(tr)
+            slice = jslice.__numpy__
             if len(slice) == 1:
-                slice = slice[0]
-            elif len(slice) == 2 and type(slice[1]) is str:
-                exec "slice[1] = " + slice[1]
+                if slice[0].dtype != int8:
+                    # scalar
+                    slice = slice[0]
+                else:
+                    # discrete or weather
+                    keys = JUtil.javaObjToPyVal(jslice.getKeyList())
+                    slice.append(keys)            
             cache[arg] = (slice, pytr)
         else:            
             cache[arg] = (None, time)
@@ -1048,11 +1053,16 @@ class Forecaster(GridUtilities):
 
             if type(rval) is not ndarray:
                 if type(rval) is not tuple:
+                    jrval = rval
                     rval = rval.__numpy__
                     if len(rval) == 1:
-                        rval = rval[0]
-                    elif len(rval) == 2 and type(rval[1]) is str:
-                        exec "rval[1] = " + rval[1]
+                        if rval[0].dtype != int8:
+                            # scalar
+                            rval = rval[0]
+                        else:
+                            # discrete or weather
+                            keys = JUtil.javaObjToPyVal(jrval.getKeyList())
+                            rval.append(keys)
             cache[we] = (rval, time)        
             if rval is not None and cache['mtime'][0] is not None and doStore:
                 parm = self.__getNewWE(we)          
@@ -1211,9 +1221,13 @@ class IFPIO:
             slice = self.getSrcWE(name, 0).getItem(time)
             out = slice.__numpy__
             if len(out) == 1:
-                out = out[0]
-            elif len(out) == 2 and type(out[1]) is str:
-                exec "out[1] = " + out[1]
+                if out[0].dtype != int8:
+                    # scalar
+                    out = out[0]
+                else:
+                    # discrete or weather
+                    keys = JUtil.javaObjToPyVal(slice.getKeyList())
+                    out.append(keys)            
         else:
             out = self._getcube(self.eta, name, time)
         return out
@@ -1239,12 +1253,16 @@ class IFPIO:
         pres = []
         for l in lvls:
             p = self.getSrcWE(parm + "_" + l, 0)
-            slice = p.getItem(time)            
-            slice = slice.__numpy__
+            jslice = p.getItem(time)            
+            slice = jslice.__numpy__
             if len(slice) == 1:
-                slice = slice[0]
-            elif len(slice) == 2 and type(slice[1]) is str:
-                exec "slice[1] = " + slice[1]
+                if slice[0].dtype != int8:
+                    # scalar
+                    slice = slice[0]
+                else:
+                    # discrete or weather
+                    keys = JUtil.javaObjToPyVal(jslice.getKeyList())
+                    slice.append(keys)            
             lst.append(slice)
             pres.append(int(l[2:]))
         if type(lst[0]) == types.TupleType or type(lst[0]) == types.ListType:            
