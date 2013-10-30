@@ -305,9 +305,16 @@
         <exclude>.*datadelivery-ncf.*</exclude>
     </mode>
     <mode name="sbnSimulator">
-        <include>.*sbn-simulator.*</include>
+        <include>.*sbn-simulator-wfo.*</include>
         <include>event-common.xml</include>
         <include>eventbus-common.xml</include>
+        <exclude>.*sbn-simulator-ncf.*</exclude>
+    </mode>
+    <mode name="centralSbnSimulator">
+        <include>.*sbn-simulator-ncf.*</include>
+        <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
+        <exclude>.*sbn-simulator-wfo.*</exclude>
     </mode>
 	<mode name="grib">
 		<include>grib-decode.xml</include>
