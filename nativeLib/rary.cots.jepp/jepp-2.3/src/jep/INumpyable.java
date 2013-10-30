@@ -20,13 +20,14 @@
 package jep;
 
 /**
- * TODO Add Description
+ * Interface representing a Java object that can be transformed into a numpy
+ * array.  
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date         Ticket#         Engineer        Description
  * ------------	----------	-----------	--------------------------
- * Apr 4, 2008				njensen	Initial creation
+ * Apr 4, 2008                  njensen         Initial creation
  * 
  * </pre>
  * 
@@ -39,14 +40,21 @@ public interface INumpyable {
     /**
      * Gets an Object[] representation of the object to transform into numpy.
      * Each index in the Object[] should be another array of the primitive type,
-     * e.g. {float[], float[]}
+     * e.g. {float[], float[]}.  The result in python will then be a python
+     * list, e.g. [numpy.ndarray(dtype=float32), numpy.ndarray(dtype=float32)].
      * 
      * @return
      */
-    public Object[] getNumPy();
+    public Object[] getNumpy();
 
+    /**
+     *  Gets the x dimension of the arrays returned by getNumpy().
+     */
     public int getNumpyX();
 
+    /**
+     *  Gets the y dimension of hte arrays returned by getNumpy().
+     */
     public int getNumpyY();
 
 }
