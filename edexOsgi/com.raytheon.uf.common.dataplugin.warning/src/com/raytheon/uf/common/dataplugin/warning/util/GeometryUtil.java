@@ -26,7 +26,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2010            mschenke     Initial creation
  * Apr 28, 2013     1955   jsanchez     Added an ignoreUserData flag to intersection method.
- * Oct 01, 2013 DR 16632   Qinglu Lin   Catch exceptions thrown by intersection().
+ * Oct 21, 2013 DR 16632   D. Friedman  Handle zero-length input in union.
  * 
  * </pre>
  * 
@@ -121,13 +121,8 @@ public class GeometryUtil {
 
                 if (g1Name == null || g2Name == null || g2Name.equals(g1Name)
                         || ignoreUserData) {
-                	Geometry section = null;
-                    try {
-                        section = g1.intersection(g2);
-                    } catch (Exception e) {
-                        ; //continue;
-                    }
-                    if (section != null && section.isEmpty() == false) {
+                    Geometry section = g1.intersection(g2);
+                    if (section.isEmpty() == false) {
                         if (g2.getUserData() != null) {
                             if (section instanceof GeometryCollection) {
                                 for (int n = 0; n < section.getNumGeometries(); ++n) {
@@ -210,7 +205,7 @@ public class GeometryUtil {
      */
     public static Geometry union(Geometry... geoms) {
         List<Geometry> geometries = new ArrayList<Geometry>(
-                geoms[0].getNumGeometries() + 1);
+                geoms.length > 0 ? geoms[0].getNumGeometries() + 1 : 0);
         for (Geometry g : geoms) {
             buildGeometryList(geometries, g);
         }
