@@ -37,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      end since the times will be correct now.
  * Oct 1, 2013   1797      dhladky      Generics
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Oct 28, 2013 2448       dhladky       Request start time incorrectly used subscription start time.
  * 
  * </pre>
  * 
@@ -195,8 +196,9 @@ public class WfsRequestBuilder<T extends Time, C extends Coverage> extends Reque
             String endDateString = null;
             String startDateString = null;
 
-            endDateString = ogcDateFormat.get().format(inTime.getEnd());
-            startDateString = ogcDateFormat.get().format(inTime.getStart());
+            // need to grab the request start and end times
+            endDateString = ogcDateFormat.get().format(inTime.getRequestEnd());
+            startDateString = ogcDateFormat.get().format(inTime.getRequestStart());
 
             StringBuilder sb = new StringBuilder(256);
             sb.append(PROPRERTYISGREATERTHAN_OPEN).append(NEW_LINE);
