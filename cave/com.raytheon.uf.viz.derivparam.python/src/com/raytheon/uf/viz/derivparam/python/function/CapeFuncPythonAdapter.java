@@ -59,7 +59,7 @@ public class CapeFuncPythonAdapter {
         }
 
         @Override
-        public Object[] getNumPy() {
+        public Object[] getNumpy() {
             return new Object[] { cape, cin };
         }
 
