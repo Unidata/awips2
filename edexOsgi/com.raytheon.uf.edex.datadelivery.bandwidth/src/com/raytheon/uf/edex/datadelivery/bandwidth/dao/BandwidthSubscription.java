@@ -16,9 +16,9 @@ import javax.persistence.Table;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 13, 2013 2095       djohnson     Add flag for whether or not data set update should be looked for on aggregating.
  * Jun 24, 2013 2106       djohnson     Add copy constructor.
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum, remove the Subscription.
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -48,8 +49,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @DynamicSerialize
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
 public class BandwidthSubscription extends PersistableDataObject<Long>
-        implements Serializable, ISerializableObject,
-        IDeepCopyable<BandwidthSubscription> {
+        implements Serializable, IDeepCopyable<BandwidthSubscription> {
 
     private static final long serialVersionUID = 20120723L;
 
@@ -117,7 +117,7 @@ public class BandwidthSubscription extends PersistableDataObject<Long>
      * @param bandwidthSubscription
      */
     public BandwidthSubscription(BandwidthSubscription bandwidthSubscription) {
-        this.baseReferenceTime = BandwidthUtil.copy(bandwidthSubscription
+        this.baseReferenceTime = TimeUtil.newCalendar(bandwidthSubscription
                 .getBaseReferenceTime());
         this.checkForDataSetUpdate = bandwidthSubscription.checkForDataSetUpdate;
         this.cycle = bandwidthSubscription.cycle;
