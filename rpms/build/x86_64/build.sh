@@ -165,6 +165,7 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
+   buildRPM "awips2"
    buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
