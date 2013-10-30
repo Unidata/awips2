@@ -1,4 +1,5 @@
 <project name="Build specific targets and properties" default="noDefault">
+	<import file="${builder}/../deploy-common/deploy-web.xml" />
 	<!-- =====================================================================
 	    
 	    The Following Properties are available in all targets:
@@ -28,6 +29,20 @@
 			<property name="deployment._root" 
 				value="${target.folder}/.." />
 		</ant>
+		
+		<!-- determine if plugin is a web project -->
+		<!-- determine if the plugin is a web project -->
+		<if>			
+			<available file="${projectLocation}/web.deploy" type="file" />
+			<then>
+				<var file="${projectLocation}/web.deploy" />
+				<basename property="plugin.name" file="${projectLocation}" />
+				<deploy.war
+					web.project.dir="${plugin.name}"
+					war.name="${war.name}"
+					webapps.dir="${target.folder}/../webapps" />
+			</then>
+		</if>		
 	</target>
 	
 	<!-- ===================================================================== -->

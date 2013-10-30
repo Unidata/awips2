@@ -122,14 +122,15 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  *                                      case for no matching dataset metadata for an 
  *                                      adhoc subscription.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-public abstract class BandwidthManager<T extends Time, C extends Coverage> extends
-        AbstractPrivilegedRequestHandler<IBandwidthRequest<T, C>> implements
-        IBandwidthManager<T, C> {
+public abstract class BandwidthManager<T extends Time, C extends Coverage>
+        extends AbstractPrivilegedRequestHandler<IBandwidthRequest<T, C>>
+        implements IBandwidthManager<T, C> {
 
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthManager.class);
@@ -141,7 +142,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
 
     private BandwidthInitializer initializer;
 
-    protected final BandwidthDaoUtil<T,C> bandwidthDaoUtil;
+    protected final BandwidthDaoUtil<T, C> bandwidthDaoUtil;
 
     private final IBandwidthDbInit dbInit;
 
@@ -154,8 +155,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
     final RetrievalManager retrievalManager;
 
     public BandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil<T,C> bandwidthDaoUtil) {
+            IBandwidthDao<T, C> bandwidthDao,
+            RetrievalManager retrievalManager,
+            BandwidthDaoUtil<T, C> bandwidthDaoUtil) {
         this.dbInit = dbInit;
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
@@ -244,8 +246,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
         return unscheduled;
     }
 
-    protected List<BandwidthAllocation> schedule(Subscription<T, C> subscription,
-            BandwidthSubscription dao) {
+    protected List<BandwidthAllocation> schedule(
+            Subscription<T, C> subscription, BandwidthSubscription dao) {
         Calendar retrievalTime = dao.getBaseReferenceTime();
 
         // Retrieve all the current subscriptions by provider, dataset name and
@@ -440,7 +442,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @return
      */
     @Override
-    public List<BandwidthAllocation> schedule(AdhocSubscription<T, C> subscription) {
+    public List<BandwidthAllocation> scheduleAdhoc(
+            AdhocSubscription<T, C> subscription) {
 
         List<BandwidthSubscription> subscriptions = new ArrayList<BandwidthSubscription>();
         Calendar now = BandwidthUtil.now();
@@ -453,8 +456,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
          * and time.
          */
         AdhocSubscription<T, C> subscriptionUpdated = bandwidthDaoUtil
-                .setAdhocMostRecentUrlAndTime(
-                subscription, true);
+                .setAdhocMostRecentUrlAndTime(subscription, true);
         if (subscriptionUpdated != null) {
             subscription = subscriptionUpdated;
         }
@@ -558,7 +560,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      *            the subscription
      * @return the list of unscheduled subscriptions
      */
-    private List<BandwidthAllocation> handlePoint(Subscription<T, C> subscription) {
+    private List<BandwidthAllocation> handlePoint(
+            Subscription<T, C> subscription) {
         return schedule(subscription,
                 ((PointTime) subscription.getTime()).getInterval());
     }
@@ -570,8 +573,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      *            the subscription
      * @return the list of unscheduled subscriptions
      */
-    private List<BandwidthAllocation> handleGridded(Subscription<T, C> subscription) {
-        final List<Integer> cycles = ((GriddedTime)subscription.getTime()).getCycleTimes();
+    private List<BandwidthAllocation> handleGridded(
+            Subscription<T, C> subscription) {
+        final List<Integer> cycles = ((GriddedTime) subscription.getTime())
+                .getCycleTimes();
         final boolean subscribedToCycles = !CollectionUtil
                 .isNullOrEmpty(cycles);
         final boolean useMostRecentDataSetUpdate = !subscribedToCycles;
@@ -599,7 +604,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
                                         + "No adhoc requested.",
                                         subscription.getName()));
             } else {
-                unscheduled = schedule(adhoc);
+                unscheduled = scheduleAdhoc(adhoc);
             }
         } else {
             statusHandler
@@ -614,10 +619,11 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @return
      */
     @Override
-    public List<BandwidthAllocation> adhocSubscription(AdhocSubscription<T, C> adhoc) {
+    public List<BandwidthAllocation> adhocSubscription(
+            AdhocSubscription<T, C> adhoc) {
         statusHandler.info("Scheduling adhoc subscription [" + adhoc.getName()
                 + "]");
-        return schedule(adhoc);
+        return scheduleAdhoc(adhoc);
     }
 
     /**
@@ -660,7 +666,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * {@inheritDoc}
      */
     @Override
-    public Object handleRequest(IBandwidthRequest<T, C> request) throws Exception {
+    public Object handleRequest(IBandwidthRequest<T, C> request)
+            throws Exception {
 
         ITimer timer = TimeUtil.getTimer();
         timer.start();
@@ -670,7 +677,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
         final Network requestNetwork = request.getNetwork();
         final int bandwidth = request.getBandwidth();
 
-        final List<Subscription<T, C>> subscriptions = request.getSubscriptions();
+        final List<Subscription<T, C>> subscriptions = request
+                .getSubscriptions();
         final RequestType requestType = request.getRequestType();
         switch (requestType) {
         case GET_ESTIMATED_COMPLETION:
@@ -797,7 +805,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @throws SerializationException
      */
     protected abstract Set<String> scheduleSbnSubscriptions(
-            List<Subscription<T, C>> subscriptions) throws SerializationException;
+            List<Subscription<T, C>> subscriptions)
+            throws SerializationException;
 
     /**
      * Proposes scheduling a list of subscriptions.
@@ -808,7 +817,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @throws SerializationException
      */
     protected ProposeScheduleResponse proposeScheduleSubscriptions(
-            List<Subscription<T, C>> subscriptions) throws SerializationException {
+            List<Subscription<T, C>> subscriptions)
+            throws SerializationException {
         final ProposeScheduleResponse proposeResponse = proposeSchedule(subscriptions);
         Set<String> subscriptionsUnscheduled = proposeResponse
                 .getUnscheduledSubscriptions();
@@ -907,7 +917,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @return the set of subscription names unscheduled
      * @throws SerializationException
      */
-    protected Set<String> scheduleSubscriptions(List<Subscription<T, C>> subscriptions)
+    protected Set<String> scheduleSubscriptions(
+            List<Subscription<T, C>> subscriptions)
             throws SerializationException {
         Set<String> unscheduledSubscriptions = new TreeSet<String>();
 
@@ -993,7 +1004,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @throws SerializationException
      */
     private ProposeScheduleResponse proposeSchedule(
-            List<Subscription<T, C>> subscriptions) throws SerializationException {
+            List<Subscription<T, C>> subscriptions)
+            throws SerializationException {
         BandwidthMap copyOfCurrentMap = BandwidthMap
                 .load(EdexBandwidthContextFactory.getBandwidthMapConfig());
 
@@ -1100,7 +1112,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @throws SerializationException
      */
     @VisibleForTesting
-    BandwidthManager<T, C> startProposedBandwidthManager(BandwidthMap bandwidthMap) {
+    BandwidthManager<T, C> startProposedBandwidthManager(
+            BandwidthMap bandwidthMap) {
 
         InMemoryBandwidthContextFactory
                 .setInMemoryBandwidthConfigFile(bandwidthMap);
@@ -1137,8 +1150,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * @param type
      * @return the reference to the bandwidth manager
      */
-    private BandwidthManager<T, C> startBandwidthManager(final String[] springFiles,
-            boolean close, String type) {
+    private BandwidthManager<T, C> startBandwidthManager(
+            final String[] springFiles, boolean close, String type) {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
 
@@ -1146,8 +1159,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
         try {
             ctx = new ClassPathXmlApplicationContext(springFiles,
                     EDEXUtil.getSpringContext());
-            final BandwidthManager<T, C> bwManager = ctx.getBean("bandwidthManager",
-                    BandwidthManager.class);
+            final BandwidthManager<T, C> bwManager = ctx.getBean(
+                    "bandwidthManager", BandwidthManager.class);
             try {
                 bwManager.initializer.executeAfterRegistryInit();
                 return bwManager;
@@ -1218,11 +1231,11 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
     /**
      * {@inheritDoc}
      */
-    public List<BandwidthAllocation> copyState(BandwidthManager<T,C> copyFrom) {
+    public List<BandwidthAllocation> copyState(BandwidthManager<T, C> copyFrom) {
         IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
         timer.start();
         List<BandwidthAllocation> unscheduled = Collections.emptyList();
-        IBandwidthDao<T,C> fromDao = copyFrom.bandwidthDao;
+        IBandwidthDao<T, C> fromDao = copyFrom.bandwidthDao;
 
         final boolean proposingBandwidthChange = retrievalManager
                 .isProposingBandwidthChanges(copyFrom.retrievalManager);
@@ -1239,10 +1252,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
                 subscriptionNames.add(subscription.getName());
             }
 
-            Set<Subscription<T,C>> actualSubscriptions = Sets.newHashSet();
+            Set<Subscription<T, C>> actualSubscriptions = Sets.newHashSet();
             for (String subName : subscriptionNames) {
                 try {
-                    Subscription<T,C> actualSubscription = DataDeliveryHandlers
+                    Subscription<T, C> actualSubscription = DataDeliveryHandlers
                             .getSubscriptionHandler().getByName(subName);
                     actualSubscriptions.add(actualSubscription);
                 } catch (RegistryHandlerException e) {
@@ -1332,7 +1345,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      *            the subscription
      * @return the required dataset size
      */
-    private long determineRequiredDataSetSize(final Subscription<T, C> subscription) {
+    private long determineRequiredDataSetSize(
+            final Subscription<T, C> subscription) {
         return determineRequiredValue(subscription,
                 new FindSubscriptionRequiredDataSetSize());
     }
@@ -1430,7 +1444,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      *            the subscription
      * @return true if able to be cleanly scheduled, false otherwise
      */
-    private boolean isSchedulableWithoutConflict(final Subscription<T, C> subscription) {
+    private boolean isSchedulableWithoutConflict(
+            final Subscription<T, C> subscription) {
         BandwidthMap copyOfCurrentMap = BandwidthMap
                 .load(EdexBandwidthContextFactory.getBandwidthMapConfig());
 
@@ -1455,22 +1470,24 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage> exten
      * Provide implementation specific shutdown.
      */
     protected abstract void shutdownInternal();
-    
+
     /**
      * Special handling for Gridded Times with cycles and time indicies
+     * 
      * @param subTime
      * @param dataSetMetaDataTime
      * @return
      */
-    protected static Time handleCyclesAndSequences(Time subTime, Time dataSetMetaDataTime) {
-        
+    protected static Time handleCyclesAndSequences(Time subTime,
+            Time dataSetMetaDataTime) {
+
         if (subTime instanceof GriddedTime) {
-            GriddedTime time = (GriddedTime)subTime;
-            GriddedTime dsmTime = (GriddedTime)dataSetMetaDataTime;
+            GriddedTime time = (GriddedTime) subTime;
+            GriddedTime dsmTime = (GriddedTime) dataSetMetaDataTime;
             dsmTime.setSelectedTimeIndices(time.getSelectedTimeIndices());
             dsmTime.setCycleTimes(time.getCycleTimes());
         }
-        
+
         return dataSetMetaDataTime;
     }
 }
