@@ -131,7 +131,7 @@ public class GridLocation extends PersistableDataObject<String> implements
         }
 
         @Override
-        public Object[] getNumPy() {
+        public Object[] getNumpy() {
             return new Object[] { data };
         }
 
@@ -1048,7 +1048,7 @@ public class GridLocation extends PersistableDataObject<String> implements
         System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
 
         PythonNumpyLatLonGrid latLonGrid = gloc.getLatLonGrid();
-        float[] data = (float[]) latLonGrid.getNumPy()[0];
+        float[] data = (float[]) latLonGrid.getNumpy()[0];
         for (int x = 0; x < gloc.getNx(); x++) {
             for (int y = 0; y < gloc.getNy(); y++) {
                 int idx = 2 * ((x * gloc.ny) + y);

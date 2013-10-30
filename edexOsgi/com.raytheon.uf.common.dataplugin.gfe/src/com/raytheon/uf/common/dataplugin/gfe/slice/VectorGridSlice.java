@@ -1225,7 +1225,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { this.getMagGrid().getFloats(),
                 this.getDirGrid().getFloats() };
     }
