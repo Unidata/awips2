@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.datadelivery.bandwidth.ui.GraphDataUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 25, 2012   1269     mpduff      Initial creation.
  * Dec 13, 2012   1269     lvenable    Updated to use a graph utility for the graph data.
+ * Oct 28, 2013   2430     mpduff      Removed redraw if already open.
  * 
  * </pre>
  * 
@@ -64,7 +65,6 @@ public class BandwidthScheduleGraphAction extends AbstractHandler {
             dlg = new BandwidthUtilizationDlg(shell, gdu);
             dlg.open();
         } else {
-            dlg.redrawGraph();
             dlg.open();
         }
 

@@ -1,4 +1,6 @@
 <project>
+	<import file="deploy-web.xml" />
+	
 	<macrodef name="processPlugins">
 		<attribute name="includes.file" />
 		<attribute name="plugin.type" />
@@ -100,6 +102,19 @@
 	 					jar.file323="${jar.destfile}" />
 	 			</else>
 	 		</if>
+			
+			<!-- determine if the plugin is a web project -->
+			<if>
+				<available file="${plugin.base}/web.deploy" type="file" />
+				<then>
+					<var file="${plugin.base}/web.deploy" />
+					
+					<deploy.war
+						web.project.dir="@{plugin.name}"
+						war.name="${war.name}"
+						webapps.dir="${edex.root.directory}/webapps" />					
+				</then>
+			</if>
 			
 			<ant antfile="${basedir}/deploy-common/external-rules.xml" 
 			inheritAll="false">
