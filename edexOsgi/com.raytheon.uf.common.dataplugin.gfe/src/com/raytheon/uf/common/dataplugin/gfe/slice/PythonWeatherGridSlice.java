@@ -72,10 +72,10 @@ public class PythonWeatherGridSlice extends AbstractGridSlice {
     /*
      * (non-Javadoc)
      * 
-     * @see jep.INumpyable#getNumPy()
+     * @see jep.INumpyable#getNumpy()
      */
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         Object[] numpy = new Object[2];
         numpy[0] = weatherGrid.getBuffer().array();
         String pyList = PyUtil.listToList(keys);

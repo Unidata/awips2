@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,11 +31,10 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 
-import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
-import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.GraphSection;
 
 /**
- * Header image for X axis.
+ * Utilization header image.
  * 
  * <pre>
  * 
@@ -43,41 +42,26 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 28, 2012   1269     lvenable    Initial creation.
- * Dec 13, 2012   1269     lvenable    Fixes and updates.
- * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
- * Oct 28, 2013   2430     mpduff      Changed labels.
+ * Sep 24, 2013   2430     mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author lvenable
+ * @author mpduff
  * @version 1.0
  */
 
-public class XHeaderImage extends AbstractCanvasImage {
-    /** Graph title */
-    private final String xHeaderStr = "Download Time Windows";
+public class UtilizationHeaderImage extends AbstractCanvasImage {
+    /** Title text */
+    private final String TITLE = "Percent of Bandwidth Used";
 
-    /** Priority constant */
-    private final String priorityStr = "Priority: ";
+    /** Legend text */
+    private final String LEGEND = "Legend: ";
 
-    /** Colon constant */
-    private final String colon = ": ";
+    /** Percent sign */
+    private final String PERCENT = "%";
 
-    /** Live update constant */
-    private final String liveUpdate = "Live Update: ";
-
-    /** On constant */
-    private final String on = "On";
-
-    /** Off constant */
-    private final String off = "Off";
-
-    /** Sort by constant */
-    private final String sortBy = "Sort by: ";
-
-    /** Map of rectangles and subscription priorities. */
-    private final Map<Rectangle, SubscriptionPriority> rectPriMap;
+    /** Map of Rectangles -> GraphSection */
+    private final Map<Rectangle, GraphSection> rectPercentMap = new HashMap<Rectangle, GraphSection>();
 
     /**
      * Constructor.
@@ -86,24 +70,18 @@ public class XHeaderImage extends AbstractCanvasImage {
      *            Parent composite
      * @param cs
      *            Canvas settings
-     * @param graphData
-     *            The graph data
      * @param imageMgr
      *            The image manager
      */
-    public XHeaderImage(Composite parentComp, CanvasSettings cs,
-            BandwidthGraphData graphData, BandwidthImageMgr imageMgr) {
-        super(parentComp, cs, graphData, imageMgr);
+    public UtilizationHeaderImage(Composite parentComp, CanvasSettings cs,
+            BandwidthImageMgr imageMgr) {
+        super(parentComp, cs, null, imageMgr);
         bgColor = display.getSystemColor(SWT.COLOR_WHITE);
-        rectPriMap = new HashMap<Rectangle, SubscriptionPriority>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void disposeResources() {
-        // dispose objects here
+        // No-op
 
     }
 
@@ -119,27 +97,38 @@ public class XHeaderImage extends AbstractCanvasImage {
         gc.setBackground(bgColor);
         gc.fillRectangle(0, 0, cs.getImageWidth(), cs.getImageHeight());
 
-        String title = xHeaderStr + " (" + imageMgr.getNetwork().name() + ")";
-        Point extent = gc.stringExtent(title);
-        int yCoord = 25;
+        String titleStr = TITLE + " (" + imageMgr.getNetwork().name() + ")";
+
+        Point extent = gc.stringExtent(titleStr);
+        int yCoord = 5;
         int fontHeight = extent.y;
 
         int xCoord = cs.getImageWidth() / 2 - extent.x;
-        gc.drawText(title, xCoord, yCoord, true);
+        gc.drawText(titleStr, xCoord, yCoord, true);
 
-        int legendSpace = 5;
-        Point priorityPt = gc.stringExtent(priorityStr);
-        xCoord = cs.getXSpaceBuffer() + 5;
+        int legendSpace = 7;
+        Point legendPt = gc.stringExtent(LEGEND);
+        xCoord = cs.getXSpaceBuffer() + legendSpace;
         yCoord = cs.getCanvasHeight() - fontHeight - 3;
-        gc.drawText(priorityStr, xCoord, yCoord, true);
-        xCoord += priorityPt.x + legendSpace;
+        gc.drawText(LEGEND, xCoord, yCoord, true);
+        xCoord += legendPt.x + legendSpace;
+
         Color c;
         Rectangle r;
-        for (SubscriptionPriority priority : SubscriptionPriority.values()) {
-            String priorityName = priority.getPriorityName() + colon;
-            Point p = gc.stringExtent(priorityName);
-            gc.drawText(priorityName, xCoord, yCoord, true);
-            c = new Color(display, imageMgr.getPriorityColor(priority));
+        int[] thresholdValues = imageMgr.getBandwidthThreholdValues();
+        for (GraphSection section : imageMgr.getPercentageColorMap().keySet()) {
+            StringBuilder percentString = new StringBuilder("> ");
+            if (section == GraphSection.MIDDLE) {
+                percentString.append(thresholdValues[0]).append(PERCENT);
+            } else if (section == GraphSection.UPPER) {
+                percentString.append(thresholdValues[1]).append(PERCENT);
+            } else {
+                percentString.append("0").append(PERCENT);
+            }
+            Point p = gc.stringExtent(percentString.toString());
+            gc.drawText(percentString.toString(), xCoord, yCoord, true);
+            c = new Color(display, imageMgr.getPercentageColorMap()
+                    .get(section));
             gc.setBackground(c);
             xCoord += p.x + 3;
             r = new Rectangle(xCoord, yCoord + 4, 10, 10);
@@ -147,40 +136,28 @@ public class XHeaderImage extends AbstractCanvasImage {
             gc.drawRectangle(r);
             xCoord += 10 + legendSpace * 3;
             c.dispose();
-
-            rectPriMap.put(r, priority);
+            rectPercentMap.put(r, section);
         }
 
-        gc.setBackground(bgColor);
-        xCoord += 50;
-
-        if (imageMgr.isLiveUpdate()) {
-            gc.drawString(liveUpdate + on, xCoord, yCoord);
-        } else {
-            gc.drawString(liveUpdate + off, xCoord, yCoord);
-        }
-
-        xCoord += 150;
-
-        gc.drawString(sortBy + imageMgr.getSortBy().getSortByString(), xCoord,
-                yCoord);
-
-        // Dispose of the graphics context
         gc.dispose();
     }
 
-    /**
-     * {@inheritDoc}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.datadelivery.bandwidth.ui.AbstractCanvasImage#
+     * performAction(org.eclipse.swt.graphics.Point)
      */
     @Override
     public void performAction(Point mousePt) {
-        for (Rectangle rec : rectPriMap.keySet()) {
+        for (Rectangle rec : this.rectPercentMap.keySet()) {
             if (rec.contains(mousePt)) {
                 ColorDialog colorDlg = new ColorDialog(display.getActiveShell());
 
                 // Set the selected color in the dialog from
                 // user's selected color
-                colorDlg.setRGB(imageMgr.getPriorityColor(rectPriMap.get(rec)));
+                colorDlg.setRGB(imageMgr.getPercentColor(rectPercentMap
+                        .get(rec)));
 
                 // Change the title bar text
                 colorDlg.setText("Select a Color");
@@ -189,7 +166,7 @@ public class XHeaderImage extends AbstractCanvasImage {
                 RGB rgb = colorDlg.open();
 
                 if (rgb != null) {
-                    imageMgr.setPriorityColor(rectPriMap.get(rec), rgb);
+                    imageMgr.setPercentColor(rectPercentMap.get(rec), rgb);
                 }
                 break;
             }
