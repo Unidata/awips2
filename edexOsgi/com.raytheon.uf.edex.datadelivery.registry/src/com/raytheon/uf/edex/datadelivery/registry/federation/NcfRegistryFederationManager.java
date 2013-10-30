@@ -26,10 +26,14 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
+import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
 
@@ -54,6 +58,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * ------------ ----------  ----------- --------------------------
  * 5/22/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
+ * 10/30/2013   1538        bphillip    Override submitObjects method
  * </pre>
  * 
  * @author bphillip
@@ -121,6 +126,21 @@ public class NcfRegistryFederationManager extends RegistryFederationManager
             }
         } else {
             statusHandler.info("Federation is disabled for this registry.");
+        }
+    }
+
+    protected void submitObjects(List<RegistryObjectType> objects)
+            throws EbxmlRegistryException {
+        SubmitObjectsRequest submitObjectsRequest2 = new SubmitObjectsRequest(
+                "Federation Objects submission",
+                "Submitting federation related objects", null,
+                new RegistryObjectListType(objects), false,
+                Mode.CREATE_OR_REPLACE);
+        try {
+            lcm.submitObjects(submitObjectsRequest2);
+        } catch (MsgRegistryException e) {
+            throw new EbxmlRegistryException(
+                    "Error submitting federation objects to registry", e);
         }
     }
 
