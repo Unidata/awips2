@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.sbn;
 
-import static com.raytheon.uf.common.util.Matchers.hasNoFiles;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -31,10 +29,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import java.io.File;
 import java.io.IOException;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.datadelivery.bandwidth.sbn.SbnSimulator.IFileProcessor;
 
 /**
@@ -47,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.sbn.SbnSimulator.IFileProcess
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 18, 2013 1648       djohnson     Initial creation
+ * Oct 18, 2013 2267       bgonzale     Updated tests to work with sbnSimulator reading from site specific dirs.
  * 
  * </pre>
  * 
@@ -55,26 +57,31 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.sbn.SbnSimulator.IFileProcess
  */
 public class SbnSimulatorTest {
 
+    private final static String SITE = "OAX";
     private final File testDir = TestUtil
             .setupTestClassDir(SbnSimulatorTest.class);
 
     private final IFileProcessor fileProcessor = mock(IFileProcessor.class);
 
     private final SbnSimulator simulator = new SbnSimulator(testDir,
-            fileProcessor);
+            fileProcessor, SITE);
 
     @Test
     public void processesEachFileInDirectory() throws IOException {
-        File fileOne = new File(testDir, "fileOne.txt");
-        File fileTwo = new File(testDir, "fileTwo.txt");
+        SbnSimulator simAAA = new SbnSimulator(testDir, fileProcessor, "AAA");
+        SbnSimulator simBBB = new SbnSimulator(testDir, fileProcessor, "BBB");
 
-        FileUtil.bytes2File("fileOne".getBytes(), fileOne);
-        FileUtil.bytes2File("fileTwo".getBytes(), fileTwo);
+        File fileOneExpectedResult = createTestFileGetExpected(testDir,
+                "fileOne.txt", SITE);
+        File fileTwoExpectedResult = createTestFileGetExpected(testDir,
+                "fileTwo.txt", "BBB");
 
         simulator.checkForSbnData();
+        simAAA.checkForSbnData();
+        simBBB.checkForSbnData();
 
-        verify(fileProcessor).processFile(fileOne);
-        verify(fileProcessor).processFile(fileTwo);
+        verify(fileProcessor).processFile(fileOneExpectedResult);
+        verify(fileProcessor).processFile(fileTwoExpectedResult);
     }
 
     @Test
@@ -86,32 +93,32 @@ public class SbnSimulatorTest {
 
     @Test
     public void fileInDirectoryProcessedOnlyOnce() throws IOException {
-        File fileOne = new File(testDir, "fileOne.txt");
-
-        FileUtil.bytes2File("fileOne".getBytes(), fileOne);
+        File fileOneExpectedResult = createTestFileGetExpected(testDir,
+                "fileOne.txt", SITE);
 
         simulator.checkForSbnData();
 
-        verify(fileProcessor, times(1)).processFile(fileOne);
+        verify(fileProcessor, times(1)).processFile(fileOneExpectedResult);
     }
 
     @Test
     public void fileInDirectoryIsDeleted() throws IOException {
-        File fileOne = new File(testDir, "fileOne.txt");
-
-        FileUtil.bytes2File("fileOne".getBytes(), fileOne);
+        createTestFileGetExpected(testDir, "fileOne.txt", SITE);
 
         simulator.checkForSbnData();
 
-        assertThat(testDir, hasNoFiles());
+        int fileCount = FileUtil.listFiles(testDir,
+                FilenameFilters.ACCEPT_FILES, true).size();
+
+        Assert.assertEquals(
+                "Found unexpected files in the processing directory.", 0,
+                fileCount);
     }
 
     @Test
     public void errorOnOneFileDoesNotStopTheOthers() throws IOException {
-        FileUtil.bytes2File("fileOne".getBytes(), new File(testDir,
-                "fileOne.txt"));
-        FileUtil.bytes2File("fileTwo".getBytes(), new File(testDir,
-                "fileTwo.txt"));
+        createTestFileGetExpected(testDir, "fileOne.txt", "AA1");
+        createTestFileGetExpected(testDir, "fileTwo.txt", "AA2");
 
         doThrow(new IOException()).when(fileProcessor).processFile(
                 any(File.class));
@@ -120,4 +127,17 @@ public class SbnSimulatorTest {
 
         verify(fileProcessor, times(2)).processFile(any(File.class));
     }
+
+    private File createTestFileGetExpected(File dir, String name, String site)
+            throws IOException {
+        File file = new File(dir, name);
+        File fileExpectedResult = new File(dir, "sbnSimulator/" + site
+                + File.separator + name);
+
+        FileUtil.bytes2File(name.getBytes(), file);
+        simulator.distributeToSiteDirs();
+        return fileExpectedResult;
+    }
+
+
 }

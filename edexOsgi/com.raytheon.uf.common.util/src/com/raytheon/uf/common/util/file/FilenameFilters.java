@@ -32,6 +32,7 @@ import java.io.FilenameFilter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 14, 2013 1794       djohnson     Initial creation
+ * Oct 18, 2013 2267       bgonzale     Added Path filters.
  * 
  * </pre>
  * 
@@ -154,7 +155,7 @@ public final class FilenameFilters {
     };
 
     /**
-     * Accepts directories.
+     * Accepts files.
      */
     public static final FilenameFilter ACCEPT_FILES = new FilenameFilter() {
         @Override
@@ -162,6 +163,38 @@ public final class FilenameFilters {
             return new File(dir.getPath(), name).isFile();
         }
     };
+    
+    /**
+     * Accepts files.
+     */
+    public static final FilenameFilter ACCEPT_VISIBLE_FILES = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            File tmp = new File(dir.getPath(), name);
+            return tmp.isFile() && !tmp.isHidden();
+        }
+    };
+
+    // TODO Code that can be uncommented after a transition to Java 1.7
+    // /**
+    // * Accepts Path directories.
+    // */
+    // public static final DirectoryStream.Filter<Path> ACCEPT_PATH_DIRECTORIES
+    // = new DirectoryStream.Filter<Path>() {
+    // public boolean accept(Path path) throws IOException {
+    // return (Files.isDirectory(path));
+    // }
+    // };
+    //
+    // /**
+    // * Accepts Path files.
+    // */
+    // public static final DirectoryStream.Filter<Path> ACCEPT_PATH_FILES = new
+    // DirectoryStream.Filter<Path>() {
+    // public boolean accept(Path path) throws IOException {
+    // return (Files.isRegularFile(path));
+    // }
+    // };
 
     /**
      * Returns a {@link FilenameFilter} that matches the specified file
