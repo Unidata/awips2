@@ -21,12 +21,14 @@ package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -40,21 +42,29 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.StringUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.registry.ebxml.dao.QueryDefinitionDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
 /**
  * 
- * Implementation of the registry data access service interface
+ * Implementation of the registry data access service interface <br>
+ * TODO: This class really needs to be moved to a data delivery specific plugin
  * 
  * <pre>
  * 
@@ -66,6 +76,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * 9/20/2013    2385        bphillip    Added subscription backup functions
  * 10/2/2013    2385        bphillip    Fixed subscription backup queries
  * 10/8/2013    1682        bphillip    Added query queries
+ * 10/23/2013   2385        bphillip    Restored subscriptions are now scheduled in the bandwidth manager
  * </pre>
  * 
  * @author bphillip
@@ -90,6 +101,8 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
     private static final String GET_SUBSCRIPTIONS_QUERY = "FROM RegistryObjectType obj "
             + "where obj.objectType like '%SiteSubscription' "
             + "OR obj.objectType like '%SharedSubscription' order by obj.id asc";
+
+    private static final JAXBManager subscriptionJaxbManager = initJaxbManager();
 
     /** Data access object for registry objects */
     private RegistryObjectDao registryObjectDao;
@@ -234,8 +247,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
     @GET
     @Path(DATA_ACCESS_PATH_PREFIX + "backupSubscription/{subscriptionName}")
     public String backupSubscription(
-            @PathParam("subscriptionName") String subscriptionName)
-            throws JAXBException {
+            @PathParam("subscriptionName") String subscriptionName) {
         StringBuilder response = new StringBuilder();
         List<RegistryObjectType> result = registryObjectDao.executeHQLQuery(
                 GET_SINGLE_SUBSCRIPTIONS_QUERY, "id", subscriptionName);
@@ -277,7 +289,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
     @Override
     @GET
     @Path(DATA_ACCESS_PATH_PREFIX + "backupAllSubscriptions/")
-    public String backupAllSubscriptions() throws JAXBException {
+    public String backupAllSubscriptions() {
         StringBuilder response = new StringBuilder();
         List<RegistryObjectType> subs = registryObjectDao
                 .executeHQLQuery(GET_SUBSCRIPTIONS_QUERY);
@@ -300,16 +312,32 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
     @GET
     @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscription/{subscriptionName}")
     public String restoreSubscription(
-            @PathParam("subscriptionName") String subscriptionName)
-            throws JAXBException {
+            @PathParam("subscriptionName") String subscriptionName) {
         StringBuilder response = new StringBuilder();
         File subscriptionFile = new File(SUBSCRIPTION_BACKUP_DIR
                 + File.separator + subscriptionName);
         if (subscriptionFile.exists()) {
             SubmitObjectsRequest submitRequest = JAXB.unmarshal(
                     subscriptionFile, SubmitObjectsRequest.class);
+            String subscriptionXML = submitRequest.getRegistryObjects().get(0)
+                    .getSlotByName("content").getSlotValue().getValue();
+
             try {
+                Object subObj = subscriptionJaxbManager
+                        .unmarshalFromXml(subscriptionXML);
+                EDEXUtil.getMessageProducer().sendSync("scheduleSubscription",
+                        subObj);
                 lcm.submitObjects(submitRequest);
+                subscriptionFile.delete();
+                response.append(
+                        "Subscription successfully restored from file [")
+                        .append(subscriptionFile).append("]<br>");
+            } catch (EdexException e1) {
+                statusHandler.error("Error submitting subscription", e1);
+                response.append("Subscription from file [")
+                        .append(subscriptionFile)
+                        .append("] failed to be restored: ")
+                        .append(e1.getLocalizedMessage()).append("<br>");
             } catch (MsgRegistryException e) {
                 response.append("Error restoring subscription from file [")
                         .append(subscriptionFile).append("] ")
@@ -317,10 +345,13 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
                 statusHandler.error("Error restoring subscription from file ["
                         + subscriptionFile + "]", e);
                 return response.toString();
+            } catch (JAXBException e) {
+                response.append("Error restoring subscription from file [")
+                        .append(subscriptionFile).append("] ")
+                        .append(e.getMessage()).append("<br>");
+                statusHandler.error("Error restoring subscription from file ["
+                        + subscriptionFile + "]", e);
             }
-            subscriptionFile.delete();
-            response.append("Subscription successfully restored from file [")
-                    .append(subscriptionFile).append("]<br>");
         } else {
             response.append("No backup file exists for subscription[")
                     .append(subscriptionName).append("]<br>");
@@ -345,18 +376,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
                 response.append("No subscriptions found to restore<br>");
             } else {
                 for (File subscription : filesToRestore) {
-
-                    try {
-                        response.append(restoreSubscription(subscription
-                                .getName()));
-                    } catch (JAXBException e) {
-                        statusHandler.error("Error restoring subscription ["
-                                + subscription + "]", e);
-                        response.append("Error restoring subscription [")
-                                .append(subscription).append("] ")
-                                .append(e.getMessage()).append("<br>");
-                        continue;
-                    }
+                    response.append(restoreSubscription(subscription.getName()));
                 }
             }
         } else {
@@ -392,6 +412,28 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
             response.append("No backup files to delete");
         }
         return response.toString();
+    }
+
+    /**
+     * Initializes the JAXBManager for datadelivery classes.
+     * 
+     * @return JAXBManager for datadelivery classes
+     */
+    private static JAXBManager initJaxbManager() {
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.addUrls(ClasspathHelper
+                .forPackage("com.raytheon.uf.common.datadelivery.registry"));
+        cb.setScanners(new TypeAnnotationsScanner());
+        Reflections reflecs = cb.build();
+        Set<Class<?>> classes = reflecs
+                .getTypesAnnotatedWith(XmlRootElement.class);
+        try {
+            return new JAXBManager(
+                    classes.toArray(new Class<?>[classes.size()]));
+        } catch (JAXBException e) {
+            throw new RuntimeException(
+                    "Error initializing subscription jaxb Manager!", e);
+        }
     }
 
     public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {

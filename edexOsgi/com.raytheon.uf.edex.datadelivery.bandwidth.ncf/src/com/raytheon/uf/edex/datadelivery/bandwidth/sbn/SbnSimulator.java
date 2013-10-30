@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
@@ -41,6 +42,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 14, 2013 1648       djohnson     Initial creation
+ * Oct 18, 2013 2267       bgonzale     Added distribution to and check in site specific directories.
  * 
  * </pre>
  * 
@@ -84,14 +86,20 @@ public class SbnSimulator {
 
     private final File directoryToScan;
 
+    private final File sitesDirectory;
+
+    private final File localSiteDirectory;
+
     private final IFileProcessor fileProcessor;
+
+    private String site;
 
     /**
      * Private constructor.
      */
     public SbnSimulator() {
         this(new File(System.getProperty("sbn.retrieval.transfer.directory")),
-                new CopyFileToManualIngest());
+                new CopyFileToManualIngest(), SiteUtil.getSite());
     }
 
     /**
@@ -100,9 +108,13 @@ public class SbnSimulator {
      * @param fileProcessor
      */
     @VisibleForTesting
-    SbnSimulator(File scanDirectory, IFileProcessor fileProcessor) {
+    SbnSimulator(File scanDirectory, IFileProcessor fileProcessor, String site) {
         this.fileProcessor = fileProcessor;
         this.directoryToScan = scanDirectory;
+        this.sitesDirectory = new File(directoryToScan, "sbnSimulator");
+        this.localSiteDirectory = new File(sitesDirectory, site);
+        this.localSiteDirectory.mkdirs();
+        this.site = site;
     }
 
     /**
@@ -111,11 +123,11 @@ public class SbnSimulator {
      * @throws IOException
      */
     public void checkForSbnData() throws IOException {
-        final List<File> files = FileUtil.listFiles(directoryToScan,
-                FilenameFilters.ACCEPT_FILES, false);
+        final List<File> files = FileUtil.listFiles(localSiteDirectory,
+                FilenameFilters.ACCEPT_VISIBLE_FILES, false);
 
-        statusHandler
-                .info("Found [" + files.size() + "] files from the SBN...");
+        statusHandler.info("Found [" + files.size() + "] files for " + site
+                + " from the SBN...");
 
         for (File file : files) {
 
@@ -130,5 +142,81 @@ public class SbnSimulator {
             }
         }
     }
+
+    /**
+     * Distribute to the site directories. Enables all site client registries to
+     * ingest shared data.
+     * 
+     * @throws IOException
+     */
+    public void distributeToSiteDirs() throws IOException {
+        final List<File> undistributedFiles = FileUtil.listFiles(
+                directoryToScan,
+ FilenameFilters.ACCEPT_FILES, false);
+        // get list of site dirs
+        final List<File> sites = FileUtil.listFiles(sitesDirectory,
+                FilenameFilters.ACCEPT_DIRECTORIES, false);
+        
+        statusHandler.info("Found [" + undistributedFiles.size() + "] files to distribute...");
+        
+        // distribute to site specific directories
+        for (File file : undistributedFiles) {
+            statusHandler.info("Distributing file [" + file + "]");
+            for (File siteDir : sites) {
+                File dest = new File(siteDir, file.getName().toString());
+                File hiddenDest = new File(siteDir, "."
+                        + file.getName().toString());
+
+                // move to site sbn directory as hidden
+                FileUtil.copyFile(file, hiddenDest);
+                // rename dest to un-hidden
+                hiddenDest.renameTo(dest);
+                statusHandler.info("===> to file [" + dest + "]");
+            }
+            // delete source file
+            file.delete();
+        }
+    }
+
+    // TODO Java 1.7 version of the distributeToSiteDirs() method
+    // /**
+    // * Distribute to the site directories. Enables all site client registries
+    // * to ingest shared data.
+    // *
+    // * @throws IOException
+    // */
+    // public void distributeToSiteDirs() throws IOException {
+    // final List<Path> undistributedFiles = FileUtil.listPaths(
+    // directoryToScan,
+    // FilenameFilters.ACCEPT_PATH_FILES, false);
+    // // get list of site dirs
+    // final List<Path> sites = FileUtil.listPaths(sitesDirectory,
+    // FilenameFilters.ACCEPT_PATH_DIRECTORIES, false);
+    //
+    // statusHandler.info("Found [" + undistributedFiles.size() +
+    // "] files to distribute...");
+    //
+    // // distribute to site specific directories
+    // for (Path file : undistributedFiles) {
+    // statusHandler.info("Distributing file [" + file + "]");
+    // for (Path siteDir : sites) {
+    // Path dest = FileSystems.getDefault().getPath(
+    // siteDir.toString(), file.getFileName().toString());
+    // Path hiddenDest = FileSystems.getDefault()
+    // .getPath(siteDir.toString(),
+    // "." + file.getFileName().toString());
+    //
+    // // move to site sbn directory as hidden
+    // java.nio.file.Files.copy(file, hiddenDest,
+    // StandardCopyOption.REPLACE_EXISTING);
+    // // rename dest to un-hidden
+    // java.nio.file.Files.move(hiddenDest, dest,
+    // StandardCopyOption.ATOMIC_MOVE);
+    // statusHandler.info("===> to file [" + dest + "]");
+    // }
+    // // delete source file
+    // java.nio.file.Files.delete(file);
+    // }
+    // }
 
 }
