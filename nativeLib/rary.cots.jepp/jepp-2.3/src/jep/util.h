@@ -37,6 +37,9 @@
 #endif
 #include <Python.h>
 
+// added by njensen
+#include "numpy/arrayobject.h"
+
 #ifndef _Included_util
 #define _Included_util
 
@@ -106,11 +109,12 @@ int process_py_exception(JNIEnv*, int);
 
 // added by njensen
 char *PyTraceback_AsString(PyObject*);
-static void initUtil(void);
-static int utilInit = 0;
+static void initNumpy(void);
+static int numpyInited = 0;
 jstring javaStacktrace_tostring(JNIEnv*, jthrowable);
 jarray numpyToJavaArray(JNIEnv*, PyObject*, jclass);
 jarray pylistToJStringList(JNIEnv*, PyObject*);
+PyObject* javaToNumpyArray(JNIEnv*, jobject, npy_intp*);
 
 // convert java exception to pyerr.
 // true (1) if an exception was processed.
