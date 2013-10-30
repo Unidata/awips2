@@ -17,61 +17,71 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.gfe.smartinit;
-
-import jep.INumpyable;
+package com.raytheon.uf.viz.datadelivery.bandwidth.ui;
 
 /**
- * TODO Add Description
+ * Point object for graph points.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 1, 2008				njensen	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 24, 2013   2430     mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author mpduff
  * @version 1.0
  */
 
-public class FakeTopo implements INumpyable {
+public class GraphPoint {
 
-    // TODO need real topo databases!
+    private int x;
 
-    private static final int x = 145;
+    private int y;
 
-    private static final int y = 145;
-
-    /*
-     * (non-Javadoc)
+    /**
+     * Constructor.
      * 
-     * @see jep.INumpyable#getNumPy()
+     * @param x
+     *            x coordinate
+     * @param y
+     *            y coordinate
      */
-    @Override
-    public Object[] getNumPy() {
-        return new Object[] { new float[x * y] };
+    public GraphPoint(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see jep.INumpyable#getNumpyX()
+    /**
+     * @return the x
      */
-    @Override
-    public int getNumpyX() {
+    public int getX() {
         return x;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see jep.INumpyable#getNumpyY()
+    /**
+     * @param x
+     *            the x to set
      */
-    @Override
-    public int getNumpyY() {
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    public int getY() {
         return y;
     }
 
+    /**
+     * @param y
+     *            the y to set
+     */
+    public void setY(int y) {
+        this.y = y;
+    }
 }
