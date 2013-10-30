@@ -5,6 +5,7 @@ import java.util.Calendar;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -22,6 +23,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 09, 2012 1286       djohnson    Add getters for bytes.
  * Jun 24, 2013 2106       djohnson    Add copy constructor.
  * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -85,12 +87,12 @@ public class BandwidthReservation implements Serializable,
      */
     public BandwidthReservation(BandwidthReservation from) {
         this.bandwidthBucket = from.bandwidthBucket;
-        this.endTime = BandwidthUtil.copy(from.endTime);
+        this.endTime = TimeUtil.newCalendar(from.endTime);
         this.id = from.id;
         this.network = from.network;
         this.priority = from.priority;
         this.size = from.size;
-        this.startTime = BandwidthUtil.copy(from.startTime);
+        this.startTime = TimeUtil.newCalendar(from.startTime);
     }
 
     @Override
