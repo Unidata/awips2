@@ -1,7 +1,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
     <bean id="propertyPlaceholderConfigurer"
         class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -86,5 +87,15 @@
         <constructor-arg ref="retrievalAgentNotifier" />
         <property name="retrievalPlans" ref="retrievalPlans" />
     </bean>
+    
+    <camelContext id="datadelivery-bandwidth" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<endpoint id="scheduleBandwidthQueue"
+			uri="vm://scheduleBandwidth" />
+		<route id="scheduleSubscription">
+			<from uri="scheduleBandwidthQueue" />
+			<bean ref="bandwidthManager" method="schedule"/>
+		</route>
+	</camelContext>
 
 </beans>

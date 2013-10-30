@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 11, 2013  2460      dhladky     Initial creation
+ * Oct 23, 2013  2469      dhladky     Refined the time check and accommodation for lack of purge rules.
  * 
  * </pre>
  * 
@@ -63,6 +64,8 @@ public class AdhocSubscriptionCleaner {
     
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AdhocSubscriptionCleaner.class);
+    
+    private static final String DEFAULT_RULE = "00-12:00:00";
         
     public AdhocSubscriptionCleaner() {
 
@@ -150,17 +153,29 @@ public class AdhocSubscriptionCleaner {
                         if (purgeRuleSet != null) {
                             
                             List<PurgeRule> rules = purgeRuleSet.getRules();
+                            // if no rules exist, create a default, 12 hours
+                            if (rules.isEmpty()) {
+                                rules = new ArrayList<PurgeRule>();
+                                PurgeRule rule = new PurgeRule();
+                                rule.setPeriod(DEFAULT_RULE);
+                                rules.add(rule);
+                            }
 
                             // Go over all of the purge rules for each sub
-                            for (PurgeRule rule: rules) {
-                                // use current system date/time
-                                long timeCheck = TimeUtil.newDate().getTime();
-                                Date expireDate = new Date(timeCheck + rule.getPeriodInMillis());
-                                
-                                // check rule against creation time of this sub
-                                if (adhoc.getTime().getEnd().before(expireDate)) {
-                                    if (!subsToDelete.contains(adhoc)) {
-                                        subsToDelete.add(adhoc);
+                            for (PurgeRule rule : rules) {
+                                // use a valid rule
+                                if (rule.getPeriodInMillis() != 0) {
+                                    // use current system date/time
+                                    Date compareTime = TimeUtil.newDate();
+                                    Date expireDate = new Date(adhoc.getTime()
+                                            .getStart().getTime()
+                                            + rule.getPeriodInMillis());
+
+                                    if (expireDate.before(compareTime)) {
+                                        if (!subsToDelete.contains(adhoc)) {
+                                            subsToDelete.add(adhoc);
+                                            break;
+                                        }
                                     }
                                 }
                             }
