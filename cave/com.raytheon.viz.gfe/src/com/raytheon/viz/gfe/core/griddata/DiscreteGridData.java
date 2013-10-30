@@ -840,7 +840,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { this.getGrid().getBuffer().array() };
     }
 
