@@ -2,6 +2,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
@@ -17,6 +18,7 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerator;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 
@@ -37,7 +39,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
  * Jun 04, 2013 1763       dhladky      Readied for WFS Retrievals.
  * Jun 18, 2013 2120       dhladky      Fixed times.
  * Sep 18, 2013 2383       bgonzale     Added subscription name to log output.
- * Oct 2, 2013  1797       dhladky      Generics time gridded time separation
+ * Oct 2, 2013  1797       dhladky      Generics time gridded time separation.
+ * Oct 28, 2013 2448       dhladky      Request start time incorrectly used subscription start time.
  * 
  * </pre>
  * 
@@ -85,8 +88,6 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
 
         if (sub != null) {
 
-            PointTime subTime = sub.getTime();
-
             if (sub.getUrl() == null) {
                 statusHandler
                         .info("Skipping subscription "
@@ -94,6 +95,16 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
                                 + " that is unfulfillable with the current metadata (null URL.)");
                 return Collections.emptyList();
             }
+            
+            PointTime subTime = sub.getTime();
+            // Gets the most recent time, which is kept as the end time.
+            Date endDate = subTime.getEnd();
+            // We add a little extra padding in the interval to prevent gaps in data.
+            long intervalMillis = (long) (subTime.getInterval() * TimeUtil.MILLIS_PER_MINUTE * 1.5);
+            // create the request start and end times.
+            subTime.setRequestEnd(endDate);
+            Date requestStartDate = new Date(endDate.getTime() - intervalMillis);
+            subTime.setRequestStart(requestStartDate);
 
             // with point data they all have the same data
             Parameter param = null;

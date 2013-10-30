@@ -123,6 +123,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  *                                      adhoc subscription.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * </pre>
  * 
  * @author dhladky
@@ -307,7 +308,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                         .getBandwidthSubscription();
                 Calendar retrievalTime = bandwidthSubscription
                         .getBaseReferenceTime();
-                Calendar startTime = BandwidthUtil.copy(retrievalTime);
+                Calendar startTime = TimeUtil.newCalendar(retrievalTime);
 
                 int delayMinutes = retrieval.getDataSetAvailablityDelay();
                 int maxLatency = retrieval.getSubscriptionLatency();
@@ -472,7 +473,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
         for (SubscriptionRetrieval retrieval : retrievals) {
             retrieval.setStartTime(now);
-            Calendar endTime = BandwidthUtil.copy(now);
+            Calendar endTime = TimeUtil.newCalendar(now);
             endTime.add(Calendar.MINUTE, retrieval.getSubscriptionLatency());
             retrieval.setEndTime(endTime);
             // Store the SubscriptionRetrieval - retrievalManager expects
