@@ -262,7 +262,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 return;
             }
 
-            Calendar next = BandwidthUtil.copy(dao.getBaseReferenceTime());
+            Calendar next = TimeUtil.newCalendar(dao.getBaseReferenceTime());
             // See how far into the future the plan goes..
             int days = retrievalManager.getPlan(dao.getRoute()).getPlanDays();
 
