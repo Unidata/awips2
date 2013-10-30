@@ -9,7 +9,7 @@
  * an export license or other authorization.
  * 
  * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
+ * Contractor Address:     6825 Pine Street, Suite 340 
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
@@ -34,12 +34,12 @@
  * @author bphillip
  * @version 1
  */
-	function getValidQueryTypes(){ 
-		var tokens = callDataAccessService("getQueries","").split("\n") 
-		var selectBox = document.getElementById("queryTypeInput")
+	function getValidQueryTypes(){  
+		var tokens = callDataAccessService("getQueries").split("\n")  
+		var selectBox = document.getElementById("queryTypeInput")  
 		for(var i=0;i<tokens.length;i++){
 			if(tokens[i].length != 0){
-				var textTokens = tokens[i].split(":");
+				var textTokens = tokens[i].split(":"); 
 				var optn = document.createElement("OPTION");
 				optn.text = textTokens[textTokens.length-1]; 
 				optn.value = tokens[i];
@@ -52,7 +52,7 @@
 	function getQueryParameters(){
 		var selectBox = document.getElementById("queryTypeInput")
 		var value = selectBox.options[selectBox.selectedIndex].value
-		var responseTokens = callDataAccessService("getParametersForQuery",value).split("\n")
+		var responseTokens = callDataAccessServiceWithArg("getParametersForQuery",value).split("\n")
 	
 		var gen = "<table>"
 		var paramType=""
@@ -84,21 +84,3 @@
 		gen+="</table><br><input type=\"submit\" value=\"Submit\"/>"
 		document.getElementById("querySpecificSpan").innerHTML = gen
 	}	
-
-	function callRestService(url,arg){
-		var url = "http://"+url+"/"+arg;
-		var client = new XMLHttpRequest();
-		client.open("GET", url, false);
-		client.setRequestHeader("Content-Type", "text/plain");
-		client.send();
-		return client.responseText
-	}
-
-	function callDataAccessService(func,arg){
-		var url = "http://"+window.location.host+"/rest/dataAccess/"+func+"/"+arg;
-		var client = new XMLHttpRequest();
-		client.open("GET", url, false);
-		client.setRequestHeader("Content-Type", "text/plain");
-		client.send();
-		return client.responseText
-	}

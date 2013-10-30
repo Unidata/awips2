@@ -6,6 +6,7 @@
     <bean id="notificationListenerFactory"
         class="com.raytheon.uf.edex.registry.ebxml.services.notification.MockNotificationListenerFactory">
         <constructor-arg ref="EmailSender" />
+        <constructor-arg ref="registryWebServiceClient"/>
     </bean>
 
 </beans>

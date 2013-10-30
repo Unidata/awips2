@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Apr 16, 2013 1672       djohnson     Extracted from RegistryNotificationManager.
  * 8/28/2013    1538       bphillip     Changed to catch a Throwable instead of just EbxmlRegistryException
  * 10/20/2013   1682       bphillip     Added synchronous notification delivery
+ * 10/30/2013   1538       bphillip     Changed to use non-static soap service client
  * 
  * </pre>
  * 
@@ -63,13 +64,19 @@ public class WebServiceNotificationListener implements NotificationListener {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WebServiceNotificationListener.class);
 
+    /** The destination of notifications sent via this listener */
     private final String destination;
+
+    /** Registry soap service client */
+    private RegistrySOAPServices registrySoapClient;
 
     /**
      * @param destination
      */
-    public WebServiceNotificationListener(NotificationDestination destination) {
+    public WebServiceNotificationListener(NotificationDestination destination,
+            RegistrySOAPServices registrySoapClient) {
         this.destination = destination.getDestination();
+        this.registrySoapClient = registrySoapClient;
     }
 
     /**
@@ -120,8 +127,8 @@ public class WebServiceNotificationListener implements NotificationListener {
             RegistryServiceException, MsgRegistryException {
         statusHandler.info("Sending notification [" + notification.getId()
                 + "]");
-        RegistrySOAPServices.getNotificationListenerServiceForUrl(
-                serviceAddress).synchronousNotification(notification);
+        registrySoapClient.getNotificationListenerServiceForUrl(serviceAddress)
+                .synchronousNotification(notification);
         statusHandler.info("Notification [" + notification.getId() + "] sent!");
     }
 }
