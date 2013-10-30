@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.services.rest;
+package com.raytheon.uf.common.datadelivery.registry.web;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,13 +34,16 @@ import javax.ws.rs.Produces;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
+ * 10/30/2013   1538        bphillip    Moved data delivery specific servics out of registry plugin
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/registryAvailable")
+@Path(IRegistryAvailableRestService.REGISTRY_AVAILABILITY_PATH_PREFIX)
 public interface IRegistryAvailableRestService {
+
+    public static final String REGISTRY_AVAILABILITY_PATH_PREFIX = "/registryAvailable";
 
     /**
      * Method that simply returns a string. This method is called to see if
