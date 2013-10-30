@@ -66,12 +66,13 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * 4/19/2013    1931        bphillip    Initial implementation
  * 5/21/2013    2022        bphillip    Added interface and moved constants
  * 10/8/2013    1682        bphillip    Refactored to use parameter definitions from the registry
+ * 10/30/2013   1538        bphillip    Changed root REST service path
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/search")
+@Path("/search")
 @Service
 @Transactional
 public class QueryProtocolRestService implements IQueryProtocolRestService {

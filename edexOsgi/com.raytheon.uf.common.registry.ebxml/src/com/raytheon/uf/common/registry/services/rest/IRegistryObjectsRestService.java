@@ -36,12 +36,13 @@ import javax.xml.bind.JAXBException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
+ * 10/30/2013   1538        bphillip    Changed REST service paths
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/registryObjects/{objectId}")
+@Path("/registryObjects/{objectId}")
 public interface IRegistryObjectsRestService {
 
     /**
