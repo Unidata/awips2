@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+
 /**
  * Configuration for the {@link ISubscriptionOverlapService}.
  * 
@@ -14,7 +15,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sept 24, 2013 2386       dhladky     Point Subscription Overlap
+ * Sep 24, 2013    2386    dhladky     Point Subscription Overlap
+ * Oct 21, 2013    2292    mpduff      Changes for new implementation of point rules
  * 
  * </pre>
  * 
@@ -32,7 +34,7 @@ public class PointSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
      * Constructor.
      */
     public PointSubscriptionOverlapConfig() {
-        
+
     }
 
     /**
@@ -40,13 +42,11 @@ public class PointSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
      * 
      * @param maxAllowedParameterDuplication
      * @param maxAllowedTimeDuplication
-     * @param notUsed
      * @param maxAllowedSpatialDuplication
      * @param matchStrategy
      */
     public PointSubscriptionOverlapConfig(int maxAllowedParameterDuplication,
-            int maxAllowedTimeDuplication, int notUsed,
-            int maxAllowedSpatialDuplication,
+            int maxAllowedTimeDuplication, int maxAllowedSpatialDuplication,
             SubscriptionOverlapMatchStrategy matchStrategy) {
 
         this.maxAllowedParameterDuplication = maxAllowedParameterDuplication;
@@ -63,42 +63,22 @@ public class PointSubscriptionOverlapConfig extends SubscriptionOverlapConfig {
     }
 
     /**
-     * @param maxAllowedForecastHourDuplication
-     *            the maxAllowedForecastHourDuplication to set
+     * @param maxAllowedTimeDuplication
+     *            the maxAllowedTimeDuplication to set
      */
     public void setMaxAllowedTimeDuplication(int maxAllowedTimeDuplication) {
         this.maxAllowedTimeDuplication = maxAllowedTimeDuplication;
     }
 
     /**
-     * Check whether the given duplication percents indicate an overlapping
-     * subscription.
-     * 
-     * @param parameterDuplicationPercent
-     * @param timeDuplicationPercent
-     * @param notUsed
-     * @param spatialDuplicationPercent
-     * @return true if the subscription should be considered overlapping
+     * {@inheritDoc}
      */
-    public boolean isOverlapping(int parameterDuplicationPercent,
-            int timeDuplicationPercent, int notUsed,
-            int spatialDuplicationPercent) {
-
-        // Pass through to the match strategy
-        return this.matchStrategy.isOverlapping(this,
-                parameterDuplicationPercent, timeDuplicationPercent, notUsed,
-                spatialDuplicationPercent);
-    }
-
     @Override
     public SubscriptionOverlapConfig getNeverOverlaps() {
         return new PointSubscriptionOverlapConfig(
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-                ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
+                SubscriptionOverlapConfig.ONE_HUNDRED_PERCENT,
                 SubscriptionOverlapMatchStrategy.MATCH_ALL);
-
     }
-
 }
