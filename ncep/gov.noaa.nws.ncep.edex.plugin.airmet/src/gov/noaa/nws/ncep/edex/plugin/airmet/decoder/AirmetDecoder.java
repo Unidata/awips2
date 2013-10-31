@@ -109,7 +109,6 @@ public class AirmetDecoder extends AbstractDecoder {
          */
         if (record != null) {
             record.setTraceId(traceId);
-            record.setPluginName(pluginName);
             record.setReportType(pluginName);
             record.setReportName(reportName);
             // Decode and set the update number
