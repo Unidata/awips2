@@ -69,10 +69,12 @@ public class JAXBClassLocator {
 
     private List<Class<?>> included = new ArrayList<Class<?>>(512);
 
-    private JAXBClassLocator(ISubClassLocator locator, Class<?> rootClass) {
+    private JAXBClassLocator(ISubClassLocator locator, Class<?>... rootClasses) {
         this.locator = locator;
         processed.addAll(getBuiltinTypes());
-        processClass(rootClass);
+        for (Class<?> rootClass : rootClasses) {
+            processClass(rootClass);
+        }
     }
 
     private void processClass(Class<?> clazz) {
@@ -191,7 +193,7 @@ public class JAXBClassLocator {
      * @return all classes that are can be in the xml.
      */
     public static Collection<Class<?>> getJAXBClasses(ISubClassLocator locator,
-            Class<?> baseClass) {
-        return new JAXBClassLocator(locator, baseClass).getResults();
+            Class<?>... baseClasses) {
+        return new JAXBClassLocator(locator, baseClasses).getResults();
     }
 }
