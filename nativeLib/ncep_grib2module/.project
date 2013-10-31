@@ -3,7 +3,7 @@
 	<name>ncep_grib2module</name>
 	<comment></comment>
 	<projects>
-		<project>rary.cots.jasper</project>
+		<project>rary.cots.g2clib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
