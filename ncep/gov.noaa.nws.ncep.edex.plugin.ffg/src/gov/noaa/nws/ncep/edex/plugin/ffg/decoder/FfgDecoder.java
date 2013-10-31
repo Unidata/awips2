@@ -7,15 +7,17 @@
  * <pre>
  * SOFTWARE HISTORY
  *
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 08/2008      14				T. Lee     	Initial coding
- * 12/2008		14				T. Lee		Changed FfgSeparator to DecoderSeparator
- * 03/2009		14				T. Lee		Migration to TO10
- * 07/2009		14				T. Lee		Migration to TO11
- * 11/2009		14				T. Lee		Migration to TO11D6
- * 05/2010		14				T. Lee		Migration to TO11DR11
- * 06/2010		14				T. Lee		Added traceId output
+ * Date         Ticket#  Engineer    Description
+ * ------------ -------- ----------- --------------------------
+ * 08/2008      14       T. Lee      Initial coding
+ * 12/2008      14       T. Lee      Changed FfgSeparator to
+ *                                   DecoderSeparator
+ * 03/2009      14       T. Lee      Migration to TO10
+ * 07/2009      14       T. Lee      Migration to TO11
+ * 11/2009      14       T. Lee      Migration to TO11D6
+ * 05/2010      14       T. Lee      Migration to TO11DR11
+ * 06/2010      14       T. Lee      Added traceId output
+ * Aug 30, 2013 2298     rjpeter     Make getPluginName abstract
  * </pre>
  *
  * @author T.Lee
@@ -41,8 +43,6 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 public class FfgDecoder extends AbstractDecoder {
-    private static String pluginName;
-
     private FfgRecord record;
 
     private Calendar mndTime = null;
@@ -50,15 +50,6 @@ public class FfgDecoder extends AbstractDecoder {
     private final Logger log = Logger.getLogger(getClass().getName());
 
     private String lastTraceId = "";
-
-    /**
-     * Constructor
-     * 
-     * @throws DecoderException
-     */
-    public FfgDecoder(String name) throws DecoderException {
-        pluginName = name;
-    }
 
     public PluginDataObject[] decode(byte[] data, Headers headers)
             throws DecoderException {
@@ -137,7 +128,6 @@ public class FfgDecoder extends AbstractDecoder {
         if (record != null) {
             try {
                 record.setTraceId(traceId);
-                record.setPluginName(pluginName);
                 record.constructDataURI();
             } catch (PluginException e) {
                 throw new DecoderException("Unable to construct dataURI", e);

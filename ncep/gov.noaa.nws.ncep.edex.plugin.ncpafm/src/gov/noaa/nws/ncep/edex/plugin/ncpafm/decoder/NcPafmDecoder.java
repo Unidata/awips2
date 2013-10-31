@@ -1,42 +1,3 @@
-/**
- *
- * NcPafmDecoder
- * 
- * Decoder implementation for Point/Area Forecast Matrices PAFM Decoder Plug-In
- * 
- * <pre>
- * SOFTWARE HISTORY
- * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 21Aug2009	126			F. J. Yen	Initial creation
- * 30Sep2009	126			F. J. Yen	Add Fire Wx Point Forecast Matrices.  
- * 										Remove setting bullMessage (since deleting)
- * 09Dec2009	126			F. J. Yen	Updated from to11d3 to to11d6
- * 01Jun2010	126			F. J. Yen	Migrated from to11dr3 to to11dr11
- * 05Jan2011	126			F. J. Yen	Migrated from R1G1-4 to R1G1-6 needed 
- * 										to synchronize decode method
- * 10Feb2011	126			F. J. Yen	Do not process Fire Weather Point Forecast
- * 										Matrices since could have different formats
- * 30Sep2011	126			B. Hebbard	Rename & refactor to restructure stored data and persist
- * 										most to HDF5.  Former top-level PafmRecord becomes
- * 										NcPafmBulletin (no longer a PDO); new NcPafmRecord
- * 										(the new PDO) contains data for single location/
- * 										forecast hour pair.  The decode() method continues
- * 										to a build structure corresponding to the hierarchy
- * 										of the incoming product (bulletin/segment[UGC]/
- * 										location[FIPS]), but must convert to the finer-grain
- * 										PDOs, which it does via NcPafmBulletin.split().
- * 
- * </pre>
- * 
- * @author Fee Jing Yen, SIB
- * @version 1
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * 
- */
-
 package gov.noaa.nws.ncep.edex.plugin.ncpafm.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.ncpafm.NcPafmBulletin;
@@ -56,9 +17,52 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
+/**
+ *
+ * NcPafmDecoder
+ * 
+ * Decoder implementation for Point/Area Forecast Matrices PAFM Decoder Plug-In
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 21Aug2009    126        F. J. Yen   Initial creation
+ * 30Sep2009    126        F. J. Yen   Add Fire Wx Point Forecast Matrices.
+ *                                     Remove setting bullMessage (since
+ *                                     deleting)
+ * 09Dec2009    126        F. J. Yen   Updated from to11d3 to to11d6
+ * 01Jun2010    126        F. J. Yen   Migrated from to11dr3 to to11dr11
+ * 05Jan2011    126        F. J. Yen   Migrated from R1G1-4 to R1G1-6 needed  to
+ *                                     synchronize decode method
+ * 10Feb2011    126        F. J. Yen   Do not process Fire Weather Point
+ *                                     Forecast  Matrices since could have
+ *                                     different formats
+ * 30Sep2011    126        B. Hebbard  Rename & refactor to restructure stored
+ *                                     data and persist  most to HDF5.  Former
+ *                                     top-level PafmRecord becomes
+ *                                     NcPafmBulletin (no longer a PDO); new
+ *                                     NcPafmRecord  (the new PDO) contains data
+ *                                     for single location/  forecast hour pair.
+ *                                     The decode() method continues  to a build
+ *                                     structure corresponding to the hierarchy
+ *                                     of the incoming product
+ *                                     (bulletin/segment[UGC]/  location[FIPS]),
+ *                                     but must convert to the finer-grain
+ *                                     PDOs, which it does via
+ *                                     NcPafmBulletin.split().
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * </pre>
+ * 
+ * @author Fee Jing Yen, SIB
+ * @version 1
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
+ */
 public class NcPafmDecoder extends AbstractDecoder {
     // Name of the plugin controlling this decoder.
     private final String pluginName;
@@ -145,8 +149,8 @@ public class NcPafmDecoder extends AbstractDecoder {
                 mattypeInd = theBulletin.indexOf("AREA FORECAST MATRICES");
                 if (mattypeInd == -1) {
                     /*
-                     * Do not process by setting bulletinRec to null since matrix
-                     * type is missing or not known.
+                     * Do not process by setting bulletinRec to null since
+                     * matrix type is missing or not known.
                      */
                     bulletinRec = null;
                 } else {
@@ -157,8 +161,8 @@ public class NcPafmDecoder extends AbstractDecoder {
             }
         } else {
             /*
-             * Type is Fire Wx Point Forecast Matrix, set bulletinRec to null so it
-             * won't be decoded.
+             * Type is Fire Wx Point Forecast Matrix, set bulletinRec to null so
+             * it won't be decoded.
              */
             bulletinRec = null;
         }
@@ -192,7 +196,7 @@ public class NcPafmDecoder extends AbstractDecoder {
 
             // Set MND remark
             bulletinRec.setMndTime(mt.getMndTimeString());
-            
+
             bulletinRec.setReportType("PAFM");
         }
         /*
@@ -205,17 +209,16 @@ public class NcPafmDecoder extends AbstractDecoder {
         NcPafmRecord[] pdos = bulletinRec.split();
 
         for (NcPafmRecord pdo : pdos) {
-        	pdo.setTraceId(traceId);
-        	pdo.setPluginName(pluginName);
-        	pdo.setMessageData(theMessage);  //TODO:  Do we need????
-        	/*
-        	 * If unable to construct the DataURI, throw exception.
-        	 */
-        	try {
-        		pdo.constructDataURI();
-        	} catch (PluginException e) {
-        		throw new DecoderException("Error constructing dataURI", e);
-        	}
+            pdo.setTraceId(traceId);
+            pdo.setMessageData(theMessage); // TODO: Do we need????
+            /*
+             * If unable to construct the DataURI, throw exception.
+             */
+            try {
+                pdo.constructDataURI();
+            } catch (PluginException e) {
+                throw new DecoderException("Error constructing dataURI", e);
+            }
         }
 
         return pdos;
