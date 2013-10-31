@@ -42,9 +42,12 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
+import com.raytheon.uf.viz.archive.data.SizeJob;
 
 /**
  * Archive table composite that contains the SWT table.
@@ -56,6 +59,10 @@ import com.raytheon.uf.viz.archive.data.IArchiveTotals;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2013 #1964      lvenable     Initial creation
+ * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
+ * Aug 06, 2013 #2222      rferrel      Changes to display all selected data.
+ * Aug 14, 2013 #2220      rferrel      Add refresh method.
+ * Aug 26, 2013 #2225      rferrel      Add missing updates.
  * 
  * </pre>
  * 
@@ -70,6 +77,14 @@ public class ArchiveTableComp extends Composite {
     /** Column to display size information,. */
     private final int SIZE_COL_INDEX = 1;
 
+    private boolean showSelectAll = false;
+
+    /** Name of table's archive. */
+    String archiveName;
+
+    /** Name of table's category. */
+    String categoryName;
+
     /** Table control. */
     private Table table;
 
@@ -82,13 +97,11 @@ public class ArchiveTableComp extends Composite {
     /** Size label. */
     private Label sizeLbl;
 
-    /** Table type enumeration. */
-    public enum TableType {
-        Retention, Case
-    };
+    /** Composite for holding the table */
+    Composite tblComp;
 
-    /** Current table type. */
-    private final TableType type;
+    /** The dialog's type. */
+    private final ArchiveConstants.Type type;
 
     /** Allows the parent dialog log to update other total displays. */
     private final IArchiveTotals iArchiveTotals;
@@ -107,6 +120,11 @@ public class ArchiveTableComp extends Composite {
     private final List<IModifyListener> modifiedListeners = new CopyOnWriteArrayList<IModifyListener>();
 
     /**
+     * Use to update the selections for size job queues.
+     */
+    private final SizeJob sizeJob;
+
+    /**
      * Constructor.
      * 
      * @param parent
@@ -114,12 +132,13 @@ public class ArchiveTableComp extends Composite {
      * @param type
      *            Table type.
      */
-    public ArchiveTableComp(Composite parent, TableType type,
-            IArchiveTotals iTotalSelectedSize) {
+    public ArchiveTableComp(Composite parent, Type type,
+            IArchiveTotals iTotalSelectedSize, SizeJob sizeJob) {
         super(parent, 0);
 
         this.type = type;
         this.iArchiveTotals = iTotalSelectedSize;
+        this.sizeJob = sizeJob;
         init();
     }
 
@@ -137,7 +156,7 @@ public class ArchiveTableComp extends Composite {
 
         createTable();
 
-        if (type != TableType.Retention) {
+        if (type != Type.Retention) {
             createTableLabels();
         }
     }
@@ -148,11 +167,20 @@ public class ArchiveTableComp extends Composite {
     private void createTable() {
         GridData gd = null;
 
-        table = new Table(this, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
-                | SWT.H_SCROLL | SWT.MULTI | SWT.VIRTUAL);
+        tblComp = new Composite(this, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        gl.horizontalSpacing = 0;
+        tblComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         gd.widthHint = 730;
         gd.heightHint = 270;
+        tblComp.setLayoutData(gd);
+
+        table = new Table(tblComp, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
+                | SWT.H_SCROLL | SWT.MULTI | SWT.VIRTUAL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
@@ -163,8 +191,15 @@ public class ArchiveTableComp extends Composite {
                 TableItem item = (TableItem) event.item;
                 int index = table.indexOf(item);
                 DisplayData displayData = tableData[index];
-                item.setText(new String[] { displayData.getDisplayLabel(),
-                        displayData.getSizeLabel() });
+                String label = null;
+                if (showSelectAll) {
+                    label = displayData.getArchiveName() + " | "
+                            + displayData.getCategoryName() + " | "
+                            + displayData.getDisplayLabel();
+                } else {
+                    label = displayData.getDisplayLabel();
+                }
+                item.setText(new String[] { label, displayData.getSizeLabel() });
                 item.setChecked(displayData.isSelected());
             }
         });
@@ -173,9 +208,9 @@ public class ArchiveTableComp extends Composite {
         pathColumn.setText("Label");
 
         TableColumn sizeColumn = new TableColumn(table, SWT.CENTER);
-        if (type == TableType.Retention) {
+        if (type == Type.Retention) {
             sizeColumn.setText("Current Size");
-        } else if (type == TableType.Case) {
+        } else if (type == Type.Case) {
             sizeColumn.setText("Size");
         }
 
@@ -285,7 +320,7 @@ public class ArchiveTableComp extends Composite {
             TableItem item = table.getItem(index);
             if (item.getChecked()) {
                 ++count;
-                displayData.setSelected(true);
+                sizeJob.setSelect(displayData, true);
                 if (tableTotalSize >= 0) {
                     long diSize = displayData.getSize();
                     if (diSize < 0) {
@@ -295,7 +330,7 @@ public class ArchiveTableComp extends Composite {
                     }
                 }
             } else {
-                displayData.setSelected(false);
+                sizeJob.setSelect(displayData, false);
             }
         }
         List<DisplayData> displayDatas = Arrays.asList(tableData);
@@ -422,12 +457,31 @@ public class ArchiveTableComp extends Composite {
     }
 
     /**
-     * Set up table with values in the list.
+     * Update table display to show data for the desired category.
      * 
      * @param displayDatas
      */
-    protected void populateTable(List<DisplayData> displayDatas) {
+    protected void populateTable(String archiveName, String categoryName,
+            List<DisplayData> displayDatas) {
+        showSelectAll = false;
+        table.getColumn(0).setText("Label");
+        populateTable(displayDatas);
+    }
+
+    /**
+     * Flag table as showing all selected data and update display.
+     * 
+     * @param displayDatas
+     */
+    protected void populateSelectAll(List<DisplayData> displayDatas) {
+        showSelectAll = true;
+        table.getColumn(0).setText("Archive | Category | Label");
+        populateTable(displayDatas);
+    }
+
+    private void populateTable(List<DisplayData> displayDatas) {
         tableData = displayDatas.toArray(new DisplayData[0]);
+        Arrays.sort(tableData, DisplayData.LABEL_ORDER);
         table.removeAll();
         table.setItemCount(tableData.length);
 
@@ -440,6 +494,15 @@ public class ArchiveTableComp extends Composite {
         table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
         table.setSortDirection(SWT.UP);
         table.clearAll();
+        updateSelectionLabels();
+    }
+
+    /**
+     * Update the current tables display.
+     */
+    public void refresh() {
+        table.clearAll();
+        updateSelectionLabels();
     }
 
     /**
