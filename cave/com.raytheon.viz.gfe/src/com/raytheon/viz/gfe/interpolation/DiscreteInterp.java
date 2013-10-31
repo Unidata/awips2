@@ -124,6 +124,7 @@ import com.raytheon.viz.gfe.Activator;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 2, 2008		#1161	randerso	Initial creation
+ * Oct 31, 2013     #2508   randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -380,7 +381,7 @@ public class DiscreteInterp extends Interp {
         findWxTypeGroups(joint, single);
 
         // do joint interpolation if needed.
-        if (joint.size() > 0 && joint.get(0) != 0 && joint.get(1) != 0) {
+        if ((joint.size() > 0) && (joint.get(0) != 0) && (joint.get(1) != 0)) {
             jointInterpControl(joint, workGrid1, workGrid2, groupGrid1,
                     groupGrid2, newGrid, fraction, interpResult);
         }
@@ -441,8 +442,8 @@ public class DiscreteInterp extends Interp {
         Grid2DByte grid2 = baseData2.getDiscreteGrid();
 
         // extract the lists of weatherKeys associated with each index grid
-        DiscreteKey[] keys1 = baseData1.getKey();
-        DiscreteKey[] keys2 = baseData2.getKey();
+        DiscreteKey[] keys1 = baseData1.getKeys();
+        DiscreteKey[] keys2 = baseData2.getKeys();
 
         // Make a list of DiscreteKeys that spans both keys1 and keys2.
 
@@ -711,18 +712,18 @@ public class DiscreteInterp extends Interp {
                 if (x < 0) {
                     x = 0;
                 }
-                if (x > _xDim - 1) {
+                if (x > (_xDim - 1)) {
                     x = _xDim - 1;
                 }
                 if (y < 0) {
                     y = 0;
                 }
-                if (y > _yDim - 1) {
+                if (y > (_yDim - 1)) {
                     y = _yDim - 1;
                 }
 
                 // if the point has a different and non-zero value
-                if (grid.get(x, y) != 0 && grid.get(x, y) != wxValue) {
+                if ((grid.get(x, y) != 0) && (grid.get(x, y) != wxValue)) {
                     // have found a contiguous point of differing value
 
                     // set flag for contiguous point
@@ -848,8 +849,8 @@ public class DiscreteInterp extends Interp {
                 for (j = 1; j < _wxTypeInfoMatrix.getYDim(); j++) {
                     // if types match, and
                     // if it contiguous to other types
-                    if (_wxTypeList1.get(i).wxType == _wxTypeInfoMatrix.get(0,
-                            j) && _wxTypeList1.get(i).isContig) {
+                    if ((_wxTypeList1.get(i).wxType == _wxTypeInfoMatrix.get(0,
+                            j)) && _wxTypeList1.get(i).isContig) {
                         // now there is a list of the types this one
                         // is contiguous to, but they may not be in
                         // same order as first column in matrix.
@@ -858,10 +859,10 @@ public class DiscreteInterp extends Interp {
                             // when find it, flag in matrix, but only in
                             // upper left half: where j>m
                             for (m = 1; m < _wxTypeInfoMatrix.getXDim(); m++) {
-                                if (j > m
-                                        && _wxTypeInfoMatrix.get(m, 0) == _wxTypeList1
+                                if ((j > m)
+                                        && (_wxTypeInfoMatrix.get(m, 0) == _wxTypeList1
                                                 .get(i).contigWxType.get(k)
-                                                .intValue()) {
+                                                .intValue())) {
                                     _wxTypeInfoMatrix.set(m, j, 1); // done!
                                 }
                             }
@@ -876,14 +877,14 @@ public class DiscreteInterp extends Interp {
         for (i = 0; i < _wxTypeList2.size(); i++) {
             if (_wxTypeList2.get(i).wxType != 0) {
                 for (m = 1; m < _wxTypeInfoMatrix.getXDim(); m++) {
-                    if (_wxTypeList2.get(i).wxType == _wxTypeInfoMatrix.get(m,
-                            0) && _wxTypeList2.get(i).isContig) {
+                    if ((_wxTypeList2.get(i).wxType == _wxTypeInfoMatrix.get(m,
+                            0)) && _wxTypeList2.get(i).isContig) {
                         for (k = 0; k < _wxTypeList2.get(i).contigWxType.size(); k++) {
                             for (j = 1; j < _wxTypeInfoMatrix.getXDim(); j++) {
-                                if (m > j
-                                        && _wxTypeInfoMatrix.get(0, j) == _wxTypeList2
+                                if ((m > j)
+                                        && (_wxTypeInfoMatrix.get(0, j) == _wxTypeList2
                                                 .get(i).contigWxType.get(k)
-                                                .intValue()) {
+                                                .intValue())) {
                                     _wxTypeInfoMatrix.set(m, j, 1); // done!
                                 }
                             }
@@ -945,9 +946,10 @@ public class DiscreteInterp extends Interp {
 
                 // loop over left col
                 for (n = 1; n < _wxTypeInfoMatrix.getYDim(); n++) {
-                    if (n != m // not on diagonal
-                            && _wxTypeInfoMatrix.get(m, n) == 1
-                            && _wxTypeInfoMatrix.get(n, m) == 1) {
+                    if ((n != m // not on diagonal
+                    )
+                            && (_wxTypeInfoMatrix.get(m, n) == 1)
+                            && (_wxTypeInfoMatrix.get(n, m) == 1)) {
                         jointInterp = true;
 
                         // add _wxTypeInfoMatrix(m,0) to joint if not already
@@ -1080,7 +1082,7 @@ public class DiscreteInterp extends Interp {
         for (i = 0; i < joint.size(); i++) {
             if (size[i] != 0) {
                 for (j = i + 1; j < joint.size(); j++) {
-                    if (size[j] > size[i] && size[j] > 0) {
+                    if ((size[j] > size[i]) && (size[j] > 0)) {
                         tempwx = joint.get(i);
                         tempsize = size[i];
                         joint.set(i, joint.get(j));
@@ -1178,11 +1180,11 @@ public class DiscreteInterp extends Interp {
         // kind of weather wxValue were found in that grid. Reset the
         // 0,0 to the other center x,y so the area does not move to the
         // corner. It will grow or shrink in the same place.
-        if (center1.x == 0 && center1.y == 0) {
+        if ((center1.x == 0) && (center1.y == 0)) {
             center1.x = center2.x;
             center1.y = center2.y;
         }
-        if (center2.x == 0 && center2.y == 0) {
+        if ((center2.x == 0) && (center2.y == 0)) {
             center2.x = center1.x;
             center2.y = center1.y;
         }
@@ -1208,26 +1210,26 @@ public class DiscreteInterp extends Interp {
                 y = j + _dy;
 
                 // if the translated point is still on visible grid
-                if (x >= 0 && x < _xDim && y >= 0 && y < _yDim) {
+                if ((x >= 0) && (x < _xDim) && (y >= 0) && (y < _yDim)) {
                     // if this point is part of BOTH the original area,
                     // and part of the final area when translated,
                     // it is a point in the "core area."
-                    if (_featureStart.get(i, j) == wxValue
-                            && _featureEnd.get(x, y) == wxValue) {
+                    if ((_featureStart.get(i, j) == wxValue)
+                            && (_featureEnd.get(x, y) == wxValue)) {
                         _coreArea.set(i, j, 1);
                     }
 
                     // if it appears in original grid but not in final grid,
                     // it will "fade away", so note in _fadeArea.
-                    if (_featureStart.get(i, j) == wxValue
-                            && _featureEnd.get(x, y) != wxValue) {
-                        _fadeArea.set(i + _xDim / 2, j + _yDim / 2, 1);
+                    if ((_featureStart.get(i, j) == wxValue)
+                            && (_featureEnd.get(x, y) != wxValue)) {
+                        _fadeArea.set(i + (_xDim / 2), j + (_yDim / 2), 1);
 
                         // compute distance "dist" from center of
                         // weather area to this _fadeArea point
-                        dist = (float) Math.sqrt((i - center1.x)
-                                * (i - center1.x) + (j - center1.y)
-                                * (j - center1.y));
+                        dist = (float) Math
+                                .sqrt(((i - center1.x) * (i - center1.x))
+                                        + ((j - center1.y) * (j - center1.y)));
 
                         // compute which angle sector this point lies in
                         deltax = i - center1.x;
@@ -1240,8 +1242,8 @@ public class DiscreteInterp extends Interp {
                             _faControl.set(sector, 1, dist);
                         }
                         // set min distance to edge of _fadeArea in this sector
-                        if (dist < _faControl.get(sector, 0)
-                                || _faControl.get(sector, 0) == 0.0f) {
+                        if ((dist < _faControl.get(sector, 0))
+                                || (_faControl.get(sector, 0) == 0.0f)) {
                             _faControl.set(sector, 0, dist);
                         }
                     }
@@ -1250,11 +1252,12 @@ public class DiscreteInterp extends Interp {
                 // for original grid points which land
                 // outside data grid when projected:
                 // keep 'em as _fadeArea points.
-                if (_featureStart.get(i, j) == wxValue
-                        && (x < 0 || x >= _xDim || y < 0 || y >= _yDim)) {
-                    _fadeArea.set(i + _xDim / 2, j + _yDim / 2, 1);
-                    dist = (float) Math.sqrt((i - center1.x) * (i - center1.x)
-                            + (j - center1.y) * (j - center1.y));
+                if ((_featureStart.get(i, j) == wxValue)
+                        && ((x < 0) || (x >= _xDim) || (y < 0) || (y >= _yDim))) {
+                    _fadeArea.set(i + (_xDim / 2), j + (_yDim / 2), 1);
+                    dist = (float) Math
+                            .sqrt(((i - center1.x) * (i - center1.x))
+                                    + ((j - center1.y) * (j - center1.y)));
 
                     // compute which angle sector this point lies in
                     deltax = i - center1.x;
@@ -1267,8 +1270,8 @@ public class DiscreteInterp extends Interp {
                         _faControl.set(sector, 1, dist);
                     }
                     // set min distance to edge of _fadeArea in this sector
-                    if (dist < _faControl.get(sector, 0)
-                            || _faControl.get(sector, 0) == 0.0f) {
+                    if ((dist < _faControl.get(sector, 0))
+                            || (_faControl.get(sector, 0) == 0.0f)) {
                         _faControl.set(sector, 0, dist);
                     }
                 }
@@ -1306,16 +1309,17 @@ public class DiscreteInterp extends Interp {
                     mainy = y - _dy;
 
                     // indices in the _growArea grid:
-                    m = mainx + _xDim / 2;
-                    n = mainy + _yDim / 2;
+                    m = mainx + (_xDim / 2);
+                    n = mainy + (_yDim / 2);
                     // (make sure (n,m) inside the _growArea grid)
-                    if (m >= 0 && m < 2 * _xDim && n >= 0 && n < 2 * _yDim) {
+                    if ((m >= 0) && (m < (2 * _xDim)) && (n >= 0)
+                            && (n < (2 * _yDim))) {
                         _growArea.set(m, n, 1);
 
                         // compute distance "dist" from center of
                         // weather area to this _growArea point
-                        arg = (mainx - center1.x) * (mainx - center1.x)
-                                + (mainy - center1.y) * (mainy - center1.y);
+                        arg = ((mainx - center1.x) * (mainx - center1.x))
+                                + ((mainy - center1.y) * (mainy - center1.y));
                         dist = (float) Math.sqrt(arg);
 
                         // compute which angle sector this point lies in
@@ -1330,8 +1334,8 @@ public class DiscreteInterp extends Interp {
                         }
 
                         // set min distance to edge of _growArea in this sector
-                        if (dist < _gaControl.get(sector, 0)
-                                || _gaControl.get(sector, 0) == 0.0f) {
+                        if ((dist < _gaControl.get(sector, 0))
+                                || (_gaControl.get(sector, 0) == 0.0f)) {
                             _gaControl.set(sector, 0, dist);
                         }
                     }
@@ -1373,14 +1377,14 @@ public class DiscreteInterp extends Interp {
 
         // (A) number of radians per sector = 2 * pi /(how many sectors in
         // circle)
-        double step = 2.0 * Math.PI / _numSectors;
+        double step = (2.0 * Math.PI) / _numSectors;
 
         // compartimentalize into sectors:
-        sector = (int) (0.5 + (angle + Math.PI) / step) - 1;
+        sector = (int) (0.5 + ((angle + Math.PI) / step)) - 1;
 
         // (A)
         // bad value clamp (should not occur)
-        if (sector < 0 || sector >= _numSectors) {
+        if ((sector < 0) || (sector >= _numSectors)) {
             sector = 0;
         }
 
@@ -1418,8 +1422,8 @@ public class DiscreteInterp extends Interp {
 
         Point center = new Point();
         if (num != 0) {
-            center.x = (int) (0.5 + sumX / num);
-            center.y = (int) (0.5 + sumY / num);
+            center.x = (int) (0.5 + (sumX / num));
+            center.y = (int) (0.5 + (sumY / num));
         } else {
             center.x = 0;
             center.y = 0;
@@ -1505,18 +1509,18 @@ public class DiscreteInterp extends Interp {
 
         // Add in points from grow and fade Areas where appropriate.
         // loop over coordinates for _growArea and _fadeArea grids
-        for (int i = 0; i < 2 * _xDim; i++) {
-            for (int j = 0; j < 2 * _yDim; j++) {
+        for (int i = 0; i < (2 * _xDim); i++) {
+            for (int j = 0; j < (2 * _yDim); j++) {
                 // "i,j" positions for grow or fade area
                 // as if on on main grid coordinates (there may not actually
                 // be any main grid points with these indexes).
-                mainx = i - _xDim / 2;
-                mainy = j - _yDim / 2;
+                mainx = i - (_xDim / 2);
+                mainy = j - (_yDim / 2);
 
                 // distance from center of initial area to this g or f area
                 // point.
-                dist = Math.sqrt((mainx - center1.x) * (mainx - center1.x)
-                        + (mainy - center1.y) * (mainy - center1.y));
+                dist = Math.sqrt(((mainx - center1.x) * (mainx - center1.x))
+                        + ((mainy - center1.y) * (mainy - center1.y)));
 
                 // translated position for this step:
                 // (coordinates in _growArea and _fadeArea grid system)
@@ -1524,8 +1528,8 @@ public class DiscreteInterp extends Interp {
                 int jj = j + (int) ((_dy * zeta) + 0.5);
 
                 // translated position on main grid
-                tmainy = jj - _yDim / 2;
-                tmainx = ii - _xDim / 2;
+                tmainy = jj - (_yDim / 2);
+                tmainx = ii - (_xDim / 2);
 
                 // get angle sector for this point
                 sector = findAngleSector(mainx - center1.x, mainy - center1.y);
@@ -1568,8 +1572,9 @@ public class DiscreteInterp extends Interp {
                     // from center of moving area, addthis point to the weather
                     // area.
                     // (also make sure it's on the main grid!)
-                    if (dist < testGAdist && tmainy >= 0 && tmainx < _xDim
-                            && tmainx >= 0 && tmainy < _yDim) {
+                    if ((dist < testGAdist) && (tmainy >= 0)
+                            && (tmainx < _xDim) && (tmainx >= 0)
+                            && (tmainy < _yDim)) {
                         newGrid.set(tmainx, tmainy, wxValue);
                     }
 
@@ -1609,8 +1614,9 @@ public class DiscreteInterp extends Interp {
                     // only keep a _fadeArea point inside the
                     // limiting distance
                     // (also make sure it's on the main grid!)
-                    if (dist < testFAdist && tmainy >= 0 && tmainy < _yDim
-                            && tmainx >= 0 && tmainx < _xDim) {
+                    if ((dist < testFAdist) && (tmainy >= 0)
+                            && (tmainy < _yDim) && (tmainx >= 0)
+                            && (tmainx < _xDim)) {
                         newGrid.set(tmainx, tmainy, wxValue);
                     }
                 }
