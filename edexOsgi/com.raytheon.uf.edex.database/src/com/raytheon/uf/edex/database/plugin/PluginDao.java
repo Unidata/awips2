@@ -118,7 +118,6 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sept23, 2013 2399       dhladky     Changed logging of duplicate records.
  * Oct 07, 2013 2392       rjpeter     Updated to pass null productKeys as actual null instead of string null.
- * 
  * </pre>
  * 
  * @author bphillip
