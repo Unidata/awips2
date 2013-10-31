@@ -49,6 +49,7 @@ import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
  * ------------ ---------- ----------- --------------------------
  * Jan 12, 2012            dgilling     Initial creation
  * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
+ * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -96,7 +97,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             tempNames.addAll(encodeGridAndMask(gd, mask, i, sb, instance));
             sb.append(')');
 
-            if (i < argTuples.size() - 1) {
+            if (i < (argTuples.size() - 1)) {
                 sb.append(',');
             }
         }
@@ -165,7 +166,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             jepString.append('(');
             jepString.append(name);
             jepString.append(',');
-            DiscreteKey[] keys = grid.getDiscreteSlice().getKey();
+            DiscreteKey[] keys = grid.getDiscreteSlice().getKeys();
             ArrayList<String> stringKeys = new ArrayList<String>(keys.length);
             for (DiscreteKey k : keys) {
                 stringKeys.add(k.toString());

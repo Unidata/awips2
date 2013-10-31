@@ -68,9 +68,9 @@ import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CreateSubscriptionDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.VerticalXML;
@@ -132,6 +132,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * Oct 15, 2013   2477     mpduff       Remove debug code.
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
  * </pre>
  * 
  * @author mpduff
@@ -505,12 +506,12 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
                 return;
             }
             try {
-                ISubscriptionServiceResult result = subscriptionService.store(
+                SubscriptionServiceResult result = subscriptionService.store(
                         as, this);
 
                 if (result.hasMessageToDisplay()) {
                     DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                            "Query Scheduled", result.getMessageToDisplay());
+                            "Query Scheduled", result.getMessage());
                 }
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -540,7 +541,8 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         sub.setOwner((create) ? LocalizationManager.getInstance()
                 .getCurrentUser() : this.subscription.getOwner());
-        sub.setOriginatingSite(LocalizationManager.getInstance().getCurrentSite());
+        sub.setOriginatingSite(LocalizationManager.getInstance()
+                .getCurrentSite());
 
         return setupCommonSubscriptionAttributes(sub, defaultRoute);
     }

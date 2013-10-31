@@ -22,7 +22,6 @@
         <constructor-arg ref="subscriptionNotificationService" />
         <constructor-arg ref="bandwidthService" />
         <constructor-arg ref="permissionsService" />
-        <constructor-arg ref="subscriptionOverlapService" />
     </bean>
 
     <bean name="dataDeliveryServices"

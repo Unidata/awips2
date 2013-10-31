@@ -39,4 +39,14 @@
         <constructor-arg ref="providerKeyRequestServiceHandler" />
     </bean>
 
+    <bean id="overlapRequestServiceHandler"
+        class="com.raytheon.uf.edex.datadelivery.service.services.overlap.SubscriptionOverlapHandler" />
+    
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapRequest" />
+        <constructor-arg ref="overlapRequestServiceHandler" />
+    </bean>
+
+
 </beans>
