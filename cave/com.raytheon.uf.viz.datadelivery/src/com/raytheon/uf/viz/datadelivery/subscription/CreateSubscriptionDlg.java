@@ -95,7 +95,6 @@ import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -142,6 +141,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Oct 11, 2013   2386     mpduff      Refactor DD Front end.
  * Oct 15, 2013   2477     mpduff      Fix bug in group settings.
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Oct 21, 2013   2292     mpduff      Close dialog on OK.
  * 
  * </pre>
  * 
@@ -526,7 +526,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                     status = Status.OK;
                     getShell().setCursor(
                             getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-                    handleOkAction();
+                    if (handleOkAction()) {
+                        close();
+                    }
                 } finally {
                     if (!getShell().isDisposed()) {
                         getShell().setCursor(null);
@@ -1148,13 +1150,13 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                     @Override
                     protected IStatus run(IProgressMonitor monitor) {
                         DataDeliveryGUIUtils.markBusyInUIThread(jobShell);
-                        ISubscriptionServiceResult result = storeSubscription(
+                        SubscriptionServiceResult result = storeSubscription(
                                 subscription, username);
                         if (result != null) {
                             if (result.isAllowFurtherEditing()) {
                                 return new Status(Status.CANCEL,
                                         CreateSubscriptionDlg.class.getName(),
-                                        result.getMessageToDisplay());
+                                        result.getMessage());
                             } else {
                                 SubscriptionStatusSummary sum = result
                                         .getSubscriptionStatusSummary();
@@ -1162,7 +1164,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                                 exchanger.add(sum);
                                 return new Status(Status.OK,
                                         CreateSubscriptionDlg.class.getName(),
-                                        result.getMessageToDisplay());
+                                        result.getMessage());
                             }
                         } else {
                             return new Status(Status.ERROR,
@@ -1266,13 +1268,12 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
 
             if (autoApprove) {
                 try {
-                    final ISubscriptionServiceResult response = subscriptionService
+                    final SubscriptionServiceResult response = subscriptionService
                             .update(subscription,
                                     new CancelForceApplyAndIncreaseLatencyDisplayText(
                                             "update", getShell()));
                     if (response.hasMessageToDisplay()) {
-                        displayPopup(UPDATED_TITLE,
-                                response.getMessageToDisplay());
+                        displayPopup(UPDATED_TITLE, response.getMessage());
                     }
 
                     // If there was a force apply prompt, and the user
@@ -1563,9 +1564,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
      *            the username
      * @return true if the dialog can be closed, false otherwise
      */
-    private ISubscriptionServiceResult storeSubscription(
+    private SubscriptionServiceResult storeSubscription(
             Subscription subscription, String username) {
-        ISubscriptionServiceResult result = null;
+        SubscriptionServiceResult result = null;
         try {
             result = subscriptionService.store(subscription,
                     new CancelForceApplyAndIncreaseLatencyDisplayText("create",
