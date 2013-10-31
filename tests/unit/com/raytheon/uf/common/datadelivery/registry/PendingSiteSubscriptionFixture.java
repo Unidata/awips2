@@ -35,6 +35,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2012 1187       djohnson     Initial creation
  * Oct 2,  2013 1797       dhladky      Generics
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -57,8 +58,10 @@ public class PendingSiteSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    public PendingSiteSubscription<Time, Coverage> getInstance(long seedValue, Random random) {
-        PendingSiteSubscription<Time, Coverage> sub = super.getInstance(seedValue, random);
+    public PendingSiteSubscription<Time, Coverage> getInstance(long seedValue,
+            Random random, DataType dataType) {
+        PendingSiteSubscription<Time, Coverage> sub = super.getInstance(
+                seedValue, random, dataType);
         sub.setChangeReqId("change" + seedValue);
 
         return sub;

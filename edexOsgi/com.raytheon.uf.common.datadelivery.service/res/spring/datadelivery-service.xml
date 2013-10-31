@@ -5,12 +5,8 @@
     <bean id="subscriptionNotificationService"
         class="com.raytheon.uf.common.datadelivery.service.SendToServerSubscriptionNotificationService" />
 
-    <bean id="subscriptionDuplicateChecker"
-        class="com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionDuplicateChecker" />
-
     <bean id="subscriptionOverlapService"
         class="com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapService">
-        <constructor-arg ref="subscriptionDuplicateChecker" />
     </bean>
 
 </beans>
