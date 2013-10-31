@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.edex.core.props.EnvAttributePropertyInjector;
@@ -47,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Apr 18, 2013 1914       djohnson     Fix broken test.
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager}.
  * Sep 06, 2013 2344       bgonzale     Added property injection of valid test value.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -65,7 +67,8 @@ public class HibernateBandwidthInitializerTest {
     @Test
     public void testSchedulesAllSubscriptionReturnedFromIFindSubscriptions()
             throws Exception {
-        final Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        final Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
 
         subscription.addOfficeID("OAX");
         IFindSubscriptionsForScheduling strategy = mock(IFindSubscriptionsForScheduling.class);
@@ -75,7 +78,8 @@ public class HibernateBandwidthInitializerTest {
         IBandwidthManager bandwidthManager = mock(IBandwidthManager.class);
         IBandwidthDbInit dbInit = mock(IBandwidthDbInit.class);
 
-        final HibernateBandwidthInitializer initializer = new HibernateBandwidthInitializer(strategy);
+        final HibernateBandwidthInitializer initializer = new HibernateBandwidthInitializer(
+                strategy);
         initializer
                 .init(bandwidthManager, dbInit, mock(RetrievalManager.class));
         initializer.executeAfterRegistryInit();
