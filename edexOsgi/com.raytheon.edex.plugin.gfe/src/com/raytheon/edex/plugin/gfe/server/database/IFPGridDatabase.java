@@ -111,6 +111,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 06/13/13     #2044      randerso    Pass in GridDbConfig as construction parameter
  * 07/30/13     #2057      randerso    Added a static deleteDatabase method
  * 08/05/13     #1571      randerso    Refactored to store GridParmInfo and ParmStorageinfo in postgres database
+ * 10/31/2013   #2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -1664,7 +1665,7 @@ public class IFPGridDatabase extends GridDatabase {
 
             StringBuffer sb = new StringBuffer();
             boolean first = true;
-            for (DiscreteKey key : slice.getKey()) {
+            for (DiscreteKey key : slice.getKeys()) {
                 if (first) {
                     first = false;
                 } else {
