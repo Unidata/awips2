@@ -25,7 +25,6 @@ import java.util.Random;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
  * Move in reusable code from {@link SiteSubscriptionFixture}.
@@ -43,6 +42,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Office Ids are now a list.
  * Oct 2   2013 1797       dhladky      subscription and time generics
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -50,26 +50,53 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public abstract class BaseSubscriptionFixture<M extends Subscription> extends
-        AbstractFixture<M> {
+public abstract class BaseSubscriptionFixture<M extends Subscription> {
+    private static long DEFAULT_SEED = 1L;
 
     /**
-     * {@inheritDoc}
+     * Retrieve an instance using the default seed value.
+     * 
+     * @return the instance
      */
-    @Override
-    public M getInstance(long seedValue, Random random) {
+    public final M get(DataType dataType) {
+        return get(DEFAULT_SEED, dataType);
+    }
+
+    /**
+     * Retrieve an instance based on the specified seed value.
+     * 
+     * @param seedValue
+     *            the seed value
+     * @return the instance based on the seed value
+     */
+    public final M get(long seedValue, DataType dataType) {
+        Random random = new Random(seedValue);
+
+        return getInstance(seedValue, random, dataType);
+    }
+
+    public M getInstance(long seedValue, Random random, DataType dataType) {
         M subscription = getSubscription();
         subscription.setActive(random.nextBoolean());
         subscription.setActivePeriodStart(TimeUtil.newDate());
         subscription.setActivePeriodEnd(new Date(subscription
                 .getActivePeriodStart().getTime() + seedValue));
-        subscription
-                .setCoverage(GriddedCoverageFixture.INSTANCE.get(seedValue));
-        subscription
-                .setDataSetName(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
-                        .get(seedValue).getDataSetName());
+        if (dataType == DataType.GRID) {
+            subscription.setCoverage(GriddedCoverageFixture.INSTANCE
+                    .get(seedValue));
+            subscription
+                    .setDataSetName(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
+                            .get(seedValue).getDataSetName());
+            subscription.setDataSetType(DataType.GRID);
+            subscription.setTime(GriddedTimeFixture.INSTANCE.get(seedValue));
+        } else if (dataType == DataType.POINT) {
+            subscription.setDataSetType(DataType.POINT);
+            subscription.setCoverage(CoverageFixture.INSTANCE.get(seedValue));
+            subscription.setDataSetName(PointDataSetMetaDataFixture.INSTANCE
+                    .get(seedValue).getDataSetName());
+            subscription.setTime(PointTimeFixture.INSTANCE.get(seedValue));
+        }
         subscription.setDataSetSize(seedValue);
-        subscription.setDataSetType(DataType.GRID);
         subscription.setDeleted(random.nextBoolean());
         subscription.setDescription("description" + random.nextInt());
         subscription.setFullDataSet(random.nextBoolean());
@@ -85,7 +112,6 @@ public abstract class BaseSubscriptionFixture<M extends Subscription> extends
         subscription.setSubscriptionStart(subscription.getActivePeriodStart());
         subscription.setSubscriptionEnd(null);
         subscription.setSubscriptionId("subscriptionId" + random.nextInt());
-        subscription.setTime(GriddedTimeFixture.INSTANCE.get(seedValue));
         subscription.setUrl("http://someurl/" + random.nextInt());
 
         subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));

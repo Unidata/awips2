@@ -29,6 +29,7 @@
 #    ??/??/??                      ????????       Initial Creation.
 #    05/14/13        1842          dgilling       Use GFEVtecUtil to handle NEW
 #                                                 ETN assignment.
+#    09/24/13        1843          dgilling       Handle GetNextEtnResponse.
 #    
 # 
 
@@ -713,7 +714,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # Local WFOs do not assign these numbers, so they should have
         # numbers < 1000
         if phensig not in self.__tpcKeys or self.__siteID4 in self.__sitesIgnoreNatlEtn:
-            etn_base = GFEVtecUtil.getNextEtn(self.__siteID4, '.'.join(phensig), False) - 1
+            etn_base = GFEVtecUtil.getNextEtn(self.__siteID4, '.'.join(phensig), False).getNextEtn() - 1
         else:
             presentyear = time.gmtime(self.__time)[0]
             for active in activeTable:
