@@ -14,6 +14,11 @@
 		<constructor-arg value="jms-dist:queue:Ingest.Text"/>
 	</bean>
 
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg value="text" />
+    </bean>
+
 	<bean id="textHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="text" />
