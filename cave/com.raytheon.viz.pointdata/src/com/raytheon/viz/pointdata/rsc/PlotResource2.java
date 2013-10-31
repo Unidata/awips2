@@ -349,19 +349,7 @@ public class PlotResource2 extends
                     plots.put(normTime, list);
                 }
                 list.add(info);
-                
-                // Sort this data in "backwards" so that the most recent observation 
-                // for a particular station display correctly
-                Collections.sort(list, new Comparator<PlotInfo>() {
-                
-                @Override
-                public int compare(PlotInfo o1, PlotInfo o2) {                         	  
-                       return o1.dataTime.compareTo(o2.dataTime);
-                     }
-                });
-                
-                Collections.reverse(list);
-                
+
             }
         }
 
@@ -373,6 +361,19 @@ public class PlotResource2 extends
             DataTime time = entry.getKey();
             List<PlotInfo> info = entry.getValue();
             FrameInformation frameInfo = frameMap.get(time);
+
+            // Sort this data in "backwards" so that the most recent observation 
+            // for a particular station display correctly
+            if (info.size() > 1) {
+                Collections.sort(info, new Comparator<PlotInfo>() {
+
+                @Override
+                public int compare(PlotInfo o1, PlotInfo o2) {                         	  
+                   return o2.dataTime.compareTo(o1.dataTime);
+                 }
+                });
+            }
+
             if (frameInfo != null) {
                 Map<String, Station> stationMap = frameInfo.stationMap;
                 for (PlotInfo plot : info) {
