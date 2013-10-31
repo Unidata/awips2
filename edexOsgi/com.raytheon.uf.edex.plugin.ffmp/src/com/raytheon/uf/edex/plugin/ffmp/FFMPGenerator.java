@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
@@ -48,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
 import com.raytheon.uf.common.dataplugin.ffmp.dao.FFMPDao;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -114,17 +114,28 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/21/2009   2521       dhladky     Initial Creation.
- * 02/03/2011   6500       cjeanbap    Fixed NullPointerException.
- * 07/31/2011   578        dhladky     FFTI modifications
- * 01/27/13     1478       D. Hladky   Added creation of full cache records to help read write stress on NAS
- * 02/01/13     1569       D. Hladky  Added constants, switched to using aggregate records written through pypies
- * 02/20/13     1635       D. Hladky   Added some finally methods to increase dead lock safety.  Reduced wait times for threads.
- * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
- * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
- * 03/22/13     1803       D. Hladky   Fixed broken performance logging for ffmp.
- * 07/03/13     2131       D. Hladky   InitialLoad array was forcing total FDC re-query with every update.
- * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jun 21, 2009 2521       dhladky     Initial Creation.
+ * Feb 03, 2011 6500       cjeanbap    Fixed NullPointerException.
+ * Jul 31, 2011 578        dhladky     FFTI modifications
+ * Jan 27, 2013 1478       D. Hladky   Added creation of full cache records to
+ *                                     help read write stress on NAS
+ * Feb 01, 2013 1569       D. Hladky   Added constants, switched to using
+ *                                     aggregate records written through pypies
+ * Feb 20, 2013 1635       D. Hladky   Added some finally methods to increase
+ *                                     dead lock safety.  Reduced wait times for
+ *                                     threads.
+ * Feb 25, 2013 1660       D. Hladky   Redesigned data flow for FFTI in order to
+ *                                     have only one mosaic piece in memory at a
+ *                                     time.
+ * Mar 13, 2013 1478       D. Hladky   non-FFTI mosaic containers weren't
+ *                                     getting ejected.  Made it so that they
+ *                                     are ejected after processing as well.
+ * Mar 22, 2013 1803       D. Hladky   Fixed broken performance logging for
+ *                                     ffmp.
+ * Jul 03, 2013 2131       D. Hladky   InitialLoad array was forcing total FDC
+ *                                     re-query with every update.
+ * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author dhladky
@@ -408,9 +419,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         if (messages instanceof DataURINotificationMessage) {
             URIFilter[] filters = getFilters();
             if (filters != null) {
-                for (int i = 0; i < filters.length; i++) {
-                    if (filters[i] != null) {
-                        FFMPURIFilter filter = (FFMPURIFilter) filters[i];
+                for (URIFilter filter2 : filters) {
+                    if (filter2 != null) {
+                        FFMPURIFilter filter = (FFMPURIFilter) filter2;
 
                         if (loaded) {
 
@@ -682,7 +693,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
                     ffmpRec.setSiteKey(siteKey);
-                    ffmpRec.setPluginName(getCompositeProductType());
                     ffmpRec.setWfo(config.getCWA());
                     FFMPProcessor ffmp = new FFMPProcessor(config, generator,
                             ffmpRec, template);
@@ -890,7 +900,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             if (source.isRfc()) {
                 int i = 0;
                 for (String dataKey : ingest.getDataKey()) {
-                    if (i < ingest.getDataKey().size() - 1) {
+                    if (i < (ingest.getDataKey().size() - 1)) {
                         buf.append(dataKey + ",");
                     } else {
                         buf.append(dataKey);
@@ -1234,7 +1244,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
             }
 
-
             // pull from disk if there
             fdc = getFFMPDataContainer(sourceSiteDataKey, backDate);
 
@@ -1265,7 +1274,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     Date newDate = fdc.getNewest();
                     Date oldDate = fdc.getOldest();
 
-                    if (newDate != null && oldDate != null) {
+                    if ((newDate != null) && (oldDate != null)) {
                         if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
                                 .getTime()) >= (source
                                 .getExpirationMinutes(ffmpRec.getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)) {
@@ -1377,14 +1386,14 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         }
 
         // condition for first time read in
-        if (fdc == null && record != null) {
+        if ((fdc == null) && (record != null)) {
             // creates a place holder for this source
             fdc = new FFMPDataContainer(sourceSiteDataKey, record);
             populated = true;
         }
 
         // condition for update to fdc while in use
-        if (record != null && !populated) {
+        if ((record != null) && !populated) {
             fdc.setAggregateData(record);
         }
 
@@ -1444,10 +1453,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      */
     private class WriteAggregateRecord implements Runnable {
 
-        private FFMPDataContainer fdc;
+        private final FFMPDataContainer fdc;
 
-        private String sourceSiteDataKey;
+        private final String sourceSiteDataKey;
 
+        @Override
         public void run() {
             try {
                 write();
@@ -1750,7 +1760,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         }
 
         // This will only happen at initial load, update, and duration changes.
-        if (accumulator.isReset() || accumulator.getDuration() != duration) {
+        if (accumulator.isReset() || (accumulator.getDuration() != duration)) {
 
             accumulator.setDuration(duration);
             accumulator.setUnit(unit);
@@ -1852,7 +1862,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         if (isFFTI(siteDataKey)) {
             values = (FFTIRatioDiff) getFFTIData(siteDataKey);
-            if (values.getGuids() == null || values.getQpes() == null) {
+            if ((values.getGuids() == null) || (values.getQpes() == null)) {
                 values.setReset(true);
             }
         } else {
@@ -1860,7 +1870,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         }
 
         // This will only happen at initial load, update, and duration changes.
-        if (values.isReset() || values.getDuration() != duration) {
+        if (values.isReset() || (values.getDuration() != duration)) {
 
             values.setDuration(duration);
             values.setUnit(unit);

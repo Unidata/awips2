@@ -1,6 +1,5 @@
 package gov.noaa.nws.ncep.edex.plugin.mosaic.decoder;
 
-import static com.raytheon.uf.common.localization.LocalizationContext.LocalizationType.EDEX_STATIC;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicInfo;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicInfoDict;
@@ -24,8 +23,6 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.time.DataTime;
@@ -34,51 +31,57 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 /**
  * Decoder implementation for mosaic plugin
  * 
- * Date Ticket# Engineer Description ------------ ---------- -----------
- * -------------------------- 09/2009 143 L. Lin Initial coding 11/2009 143 L.
- * Lin Migration to to11 d6. 1/2011 143 T. Lee Used prod name from
- * mosaicInfo.txt </pre>
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 09/2009      143             L. Lin      Initial coding
+ * 11/2009      143             L. Lin      Migration to to11 d6.
+ * 1/2011       143             T. Lee      Used prod name from mosaicInfo.txt
+ * 01/19/13                     Greg Hull   Use getStaticLocalizationFile to get mosaicInfo file
+ * Aug 30, 2013 2298            rjpeter     Make getPluginName abstract
+ * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  * 
- * 01/19/13   #      Greg hull   Use getStaticLocalizationFile to get mosaicInfo file
  * 
  * @author L. Lin
  * @version 1.0
  */
-
 public class MosaicDecoder extends AbstractDecoder {
 
     private final Log theLogger = LogFactory.getLog(getClass());
 
     private String traceId = "";
 
-    public static final String MOSAIC_INFO_FILE = "ncep"+File.separator+"dictionary"+
-    													 File.separator+"mosaicInfo.txt";
+    public static final String MOSAIC_INFO_FILE = "ncep" + File.separator
+            + "dictionary" + File.separator + "mosaicInfo.txt";
 
     private MosaicInfoDict infoDict;
 
-    private byte[] headerBlock = new byte[120];
+    private final byte[] headerBlock = new byte[120];
 
     public MosaicDecoder() throws DecoderException {
 
         IPathManager manager = PathManagerFactory.getPathManager();
 
-        LocalizationFile lf = manager.getStaticLocalizationFile( MOSAIC_INFO_FILE );
+        LocalizationFile lf = manager
+                .getStaticLocalizationFile(MOSAIC_INFO_FILE);
 
-        if( lf == null ) {
-        	theLogger.error("Error finding "+ MOSAIC_INFO_FILE );
-        }
-        else {
-        	infoDict = MosaicInfoDict.getInstance( lf.getFile() );
+        if (lf == null) {
+            theLogger.error("Error finding " + MOSAIC_INFO_FILE);
+        } else {
+            infoDict = MosaicInfoDict.getInstance(lf.getFile());
         }
     }
 
     public PluginDataObject[] decode(byte[] messageData, Headers headers)
             throws DecoderException {
-        String prodName  = null;
-        
-        if ( headers != null) {
+        String prodName = null;
+
+        if (headers != null) {
             /*
              * traceId equals to the file name
              */
@@ -111,7 +114,7 @@ public class MosaicDecoder extends AbstractDecoder {
                 if (prodName == null) {
                     prodName = "unknown";
                 }
-                
+
                 MosaicInfo info = infoDict.getInfo(prodCode);
                 if (info == null) {
                     theLogger.error(traceId + "-Unknown mosaic product code: "
@@ -162,7 +165,6 @@ public class MosaicDecoder extends AbstractDecoder {
 
     private void finalizeRecord(MosaicRecord record) throws PluginException {
         record.setTraceId(traceId);
-        record.setPluginName("mosaic");
         record.constructDataURI();
         record.setInsertTime(TimeTools.getSystemCalendar());
     }
