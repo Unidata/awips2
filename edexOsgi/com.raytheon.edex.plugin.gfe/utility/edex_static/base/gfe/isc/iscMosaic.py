@@ -82,6 +82,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    06/05/13        2063          dgilling       Change __siteInDbGrid() to
 #                                                 call IFPWE.history() like A1.
 #    09/05/13        2307          dgilling       Fix breakage caused by #2044.
+#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 # 
 # 
 
@@ -204,14 +205,8 @@ class WECache(object):
         elif gridType == "VECTOR":
             vecGrids = grid.__numpy__
             return (vecGrids[0], vecGrids[1])
-        elif gridType == "WEATHER":
+        elif gridType == "WEATHER" or gridType =="DISCRETE":
             keys = grid.getKeys()
-            keyList = []
-            for theKey in keys:
-                keyList.append(theKey.toString())
-            return (grid.__numpy__[0], keyList)
-        elif gridType =="DISCRETE":
-            keys = grid.getKey()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())

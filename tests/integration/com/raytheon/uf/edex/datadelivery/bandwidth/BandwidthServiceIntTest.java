@@ -49,6 +49,7 @@ import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -87,12 +88,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Jul 18, 2013 1653       mpduff       Added test for sub status summary.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends AbstractWfoBandwidthManagerIntTest<T, C> {
+public class BandwidthServiceIntTest<T extends Time, C extends Coverage>
+        extends AbstractWfoBandwidthManagerIntTest<T, C> {
 
     private static final int ONE_HUNDRED = 100;
 
@@ -216,10 +219,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
 
         @SuppressWarnings("unchecked")
         Set<String> unscheduledSubscriptions = service.schedule(Arrays.asList(
@@ -235,10 +238,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         @SuppressWarnings("unchecked")
         Set<String> unscheduledSubscriptions = service.schedule(Arrays.asList(
@@ -254,10 +257,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -275,10 +278,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
 
         @SuppressWarnings("unchecked")
         IProposeScheduleResponse response = service.proposeSchedule(Arrays
@@ -295,10 +298,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
         Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
 
         @SuppressWarnings("unchecked")
         IProposeScheduleResponse response = service.proposeSchedule(Arrays
@@ -316,10 +319,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
         Subscription<T, C> subscription2 = createSubscriptionThatFillsHalfABucket();
 
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
 
         @SuppressWarnings("unchecked")
         IProposeScheduleResponse response = service.proposeSchedule(Arrays
@@ -340,10 +343,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         @SuppressWarnings("unchecked")
         Set<String> unscheduledSubscriptions = service.proposeSchedule(
@@ -360,10 +363,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -382,10 +385,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -404,10 +407,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpTenBuckets();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -426,8 +429,8 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
     public void testProposeScheduleSubscriptionsSecondDoesntFitReturnsRequiredSizeForSubscriptionUpdate() {
 
         Subscription<T, C> subscription = createSubscriptionThatFillsHalfABucket();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -454,10 +457,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         Set<String> unscheduledSubscriptions = service.schedule(subscription);
         verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
@@ -488,8 +491,9 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
 
         @SuppressWarnings("unchecked")
         AdhocSubscription<T, C> subscription = (AdhocSubscription<T, C>) AdhocSubscriptionFixture.INSTANCE
-                .get();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(Integer.valueOf(0)));
+                .get(DataType.GRID);
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(0)));
         subscription.setDataSetSize(createSubscriptionThatFillsUpABucket()
                 .getDataSetSize());
 
@@ -511,10 +515,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime())
-                .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
         service.schedule(subscription2);
@@ -533,10 +537,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime())
-                .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
         service.schedule(subscription2);
@@ -545,8 +549,7 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         RetrievalPlan opsnetPlan = retrievalManager.getPlan(Network.OPSNET);
 
         assertEquals("Incorrect number of subscriptions returned!",
-                opsnetPlan.getBucketMinutes(),
-                graphData.getBinTimeInMinutes());
+                opsnetPlan.getBucketMinutes(), graphData.getBinTimeInMinutes());
         SortedSet<BandwidthBucketDescription> descs = graphData
                 .getNetworkBucketMap().get(Network.OPSNET);
         long earliestTime = descs.first().getBucketStartTime();
@@ -644,10 +647,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         Subscription<T, C> subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime())
-                .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
         service.schedule(subscription2);
@@ -679,10 +682,10 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
         subscription.setPriority(SubscriptionPriority.HIGH);
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime())
-                .setCycleTimes(Arrays.asList(Integer.valueOf(3)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(3)));
 
         service.schedule(subscription);
         service.schedule(subscription2);
@@ -702,8 +705,8 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
     public void testProposeScheduleSubscriptionsReturnsStatusSummary() {
         Subscription<T, C> subscription = createSubscriptionThatFillsUpTwoBuckets();
 
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
         subscription.setLatencyInMinutes(3);
 
         IProposeScheduleResponse response = service
@@ -820,7 +823,8 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage> extends
      *            the subscription
      */
     private static void verifySubscriptionWasNotAbleToBeFullyScheduled(
-            Set<String> unscheduledSubscriptions, @SuppressWarnings("rawtypes") Subscription subscription) {
+            Set<String> unscheduledSubscriptions, @SuppressWarnings("rawtypes")
+            Subscription subscription) {
         assertEquals(
                 "One and only one subscription should not have been able to fully schedule",
                 1, unscheduledSubscriptions.size());
