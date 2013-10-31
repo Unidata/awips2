@@ -164,6 +164,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Mar 04, 2013  1637     randerso    Fix time matching for ISC grids
  * Aug 27, 2013  2287     randerso    Fixed scaling and direction of wind arrows
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -340,7 +341,7 @@ public class GFEResource extends
      * changed, data appeared/disappeared)
      */
     private void resetFrame(TimeRange timeRange) {
-        if (curTime != null && timeRange.overlaps(curTime.getValidPeriod())) {
+        if ((curTime != null) && timeRange.overlaps(curTime.getValidPeriod())) {
             lastDisplayedTime = null;
             issueRefresh();
         }
@@ -492,7 +493,7 @@ public class GFEResource extends
 
         // hack to get around target.getDefaultFont()-centeredness in
         // contourDisplay.
-        double contourMagnification = magnification * gfeFont.getFontSize()
+        double contourMagnification = (magnification * gfeFont.getFontSize())
                 / target.getDefaultFont().getFontSize();
 
         double density = parm.getDisplayAttributes().getDensity();
@@ -509,7 +510,7 @@ public class GFEResource extends
                 .getValidPeriod());
 
         boolean iscParm = this.parm.isIscParm();
-        if (gd.length == 0 && !dataManager.getParmManager().iscMode()) {
+        if ((gd.length == 0) && !dataManager.getParmManager().iscMode()) {
             return;
         }
 
@@ -519,7 +520,7 @@ public class GFEResource extends
 
         if (!this.curTime.equals(this.lastDisplayedTime)
                 || !visMode.equals(this.lastVisMode)
-                || this.lastIscMode != dataManager.getParmManager().iscMode()) {
+                || (this.lastIscMode != dataManager.getParmManager().iscMode())) {
 
             this.lastDisplayedTime = this.curTime;
             this.lastVisMode = visMode;
@@ -537,7 +538,7 @@ public class GFEResource extends
 
             if (gd != null) {
                 IGridSlice gs = null;
-                if (dataManager.getParmManager().iscMode() && gd.length == 0) {
+                if (dataManager.getParmManager().iscMode() && (gd.length == 0)) {
                     GridParmInfo gpi = this.parm.getGridInfo();
                     GridType gridType = gpi.getGridType();
 
@@ -583,8 +584,8 @@ public class GFEResource extends
                     gs = gd[0].getGridSlice();
                 }
 
-                if (gs instanceof VectorGridSlice
-                        || gs instanceof ScalarGridSlice) {
+                if ((gs instanceof VectorGridSlice)
+                        || (gs instanceof ScalarGridSlice)) {
 
                     if (this.gridDisplay != null) {
                         this.gridDisplay.dispose();
@@ -660,9 +661,8 @@ public class GFEResource extends
                                     mag, dir, descriptor, MapUtil
                                             .getGridGeometry(gs.getGridInfo()
                                                     .getGridLoc()),
-                                    VECTOR_DENSITY_FACTOR,
-                                    false, visTypeToDisplayType(type),
-                                    vectorConfig));
+                                    VECTOR_DENSITY_FACTOR, false,
+                                    visTypeToDisplayType(type), vectorConfig));
                             break;
 
                         case WIND_BARB:
@@ -753,7 +753,7 @@ public class GFEResource extends
                                 gid, true, slice);
                     }
 
-                    for (DiscreteKey discreteKey : slice.getKey()) {
+                    for (DiscreteKey discreteKey : slice.getKeys()) {
 
                         if (discreteKey.isValid()) {
                             outlineShapes.put(discreteKey, target
@@ -1330,9 +1330,9 @@ public class GFEResource extends
             Coordinate gridCoord = MapUtil.latLonToGridCoordinate(coord,
                     PixelOrientation.CENTER, gridLocation);
 
-            if (gridCoord.x < 0 || gridCoord.y < 0
-                    || gridCoord.x >= gridLocation.getNx()
-                    || gridCoord.y >= gridLocation.getNy()) {
+            if ((gridCoord.x < 0) || (gridCoord.y < 0)
+                    || (gridCoord.x >= gridLocation.getNx())
+                    || (gridCoord.y >= gridLocation.getNy())) {
                 return;
             }
 
@@ -1471,21 +1471,21 @@ public class GFEResource extends
 
                 // now see if adjacent grid cells exist containing the
                 // same data.
-                if ((xGrid + xLabelGrid > gridDim.x) || (xGrid - 1 < 0)) {
+                if (((xGrid + xLabelGrid) > gridDim.x) || ((xGrid - 1) < 0)) {
                     continue;
                 }
-                if ((yGrid + yLabelGrid > gridDim.y) || (yGrid - 1 < 0)) {
+                if (((yGrid + yLabelGrid) > gridDim.y) || ((yGrid - 1) < 0)) {
                     continue;
                 }
 
                 byte weatherByteVal = byteData.get(xGrid, yGrid);
 
                 boolean printLabel = true;
-                for (int ii = xGrid - 1; ii < xGrid + xLabelGrid; ii++) {
-                    for (int j = yGrid - 1; j < yGrid + yLabelGrid; j++) {
+                for (int ii = xGrid - 1; ii < (xGrid + xLabelGrid); ii++) {
+                    for (int j = yGrid - 1; j < (yGrid + yLabelGrid); j++) {
                         if (!parm.getDisplayAttributes().getDisplayMask()
                                 .getAsBoolean(ii, j)
-                                || byteData.get(ii, j) != weatherByteVal) {
+                                || (byteData.get(ii, j) != weatherByteVal)) {
                             printLabel = false;
                             break;
                         }
@@ -1550,9 +1550,9 @@ public class GFEResource extends
         for (xpos = gridOffset; xpos < gridDim.x; xpos += gridInterval) {
             yCounter++;
             int xCounter = 0;
-            for (ypos = yCounter % 4 + 1; ypos < gridDim.y - gridOffset; ypos += gridInterval) {
+            for (ypos = (yCounter % 4) + 1; ypos < (gridDim.y - gridOffset); ypos += gridInterval) {
                 xCounter++;
-                int xGrid = xpos + (xCounter % 4 * gridOffset);
+                int xGrid = xpos + ((xCounter % 4) * gridOffset);
                 if (xGrid > gridDim.x) {
                     break;
                 }
