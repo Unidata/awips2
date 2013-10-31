@@ -149,6 +149,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
  *  Aug 15, 2013 DR 16418    D. Friedman Make dialog visibility match editable state.
  *  Sep 17, 2013 DR 16496    D. Friedman Make editable state more consistent.
+ *  Oct 01, 2013 DR16612 m.gamazaychikov Fixed inconsistencies with track locking and updateListSelected method
  * </pre>
  * 
  * @author chammack
@@ -258,6 +259,8 @@ public class WarngenDialog extends CaveSWTDialog implements
     private boolean trackEditable = true;
 
     private boolean polygonLocked = false;
+
+    private boolean trackLocked = false;
 
     private int totalSegments = 0;
 
@@ -1066,7 +1069,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         if (((followupData == null) || ((WarningAction.valueOf(followupData
                 .getAct()) == WarningAction.CON) && warngenLayer
                 .conWarnAreaChanged(followupData)))
-                && !polygonLocked) {
+                && !polygonLocked && !trackLocked) {
             redrawFromWarned();
         }
 
@@ -1518,8 +1521,8 @@ public class WarngenDialog extends CaveSWTDialog implements
             }
             warngenLayer.getStormTrackState().setInitiallyMotionless(
                     (warngenLayer.getConfiguration().isTrackEnabled() == false)
-                            || (warngenLayer.getConfiguration()
-                                    .getPathcastConfig() == null));
+                    || (warngenLayer.getConfiguration()
+                            .getPathcastConfig() == null));
             if (warngenLayer.getStormTrackState().isInitiallyMotionless()) {
                 warngenLayer.getStormTrackState().speed = 0;
                 warngenLayer.getStormTrackState().angle = 0;
@@ -1570,6 +1573,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param b
      */
     private void setTrackLocked(boolean b) {
+        trackLocked = b;
         fromTrack.setEnabled(!b);
         warngenLayer.getStormTrackState().editable = !b;
     }
@@ -1624,7 +1628,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                         if ((WarningAction
                                 .valueOf(warngenLayer.state.followupData
                                         .getAct()) == WarningAction.CON)
-                                && (totalSegments > 1)) {
+                                        && (totalSegments > 1)) {
                             sameProductMessage(warngenLayer.state.followupData
                                     .getEquvialentString());
                         }
@@ -1633,21 +1637,22 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             } else {
                 if (warngenLayer.state.followupData != null) {
-                    // Sets the updatelist with the last selected vtec option
-                    for (int i = 0; i < updateListCbo.getItemCount(); i++) {
-                        String item = updateListCbo.getItem(i);
-                        if (item.equals(warngenLayer.state.followupData
-                                .getDisplayString())) {
-                            updateListCbo.select(i);
-                            updateListCbo.setText(item);
-                            data = warngenLayer.state.followupData;
-                            break;
-                        }
-                    }
-                } else {
+                    // recreate updates before setting the updatelist to the
+                    // last selected vtec option
                     recreateUpdates();
                     recreateDurations(durationList);
-                    return;
+                    for (int i = 0; i < updateListCbo.getItemCount(); i++) {
+                        FollowupData fd = (FollowupData) updateListCbo
+                                .getData(updateListCbo.getItem(i));
+                        if ( fd != null ) {
+                            if (fd.equals(warngenLayer.state.followupData)) {
+                                updateListCbo.select(i);
+                                updateListCbo.setText(updateListCbo.getItem(i));
+                                data = warngenLayer.state.followupData;
+                                return;
+                            }
+                        }
+                    }
                 }
             }
             if (currMode == Mode.DRAG_ME) {
@@ -2116,7 +2121,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         setPolygonLocked(false);
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
-                data.getEtn(), data.getPhen() + "." + data.getSig());
+                        data.getEtn(), data.getPhen() + "." + data.getSig());
 
         updatePolygon(newWarn);
 
@@ -2147,7 +2152,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
-                data.getEtn(), data.getPhen() + "." + data.getSig());
+                        data.getEtn(), data.getPhen() + "." + data.getSig());
 
         updatePolygon(newWarn);
 
@@ -2459,7 +2464,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     public void realizeEditableState() {
         boolean layerEditable = warngenLayer.isEditable();
         // TODO: Note there is no 'is track editing allowed' state yet.
-        warngenLayer.getStormTrackState().editable = layerEditable && trackEditable;
+        warngenLayer.getStormTrackState().editable = layerEditable && trackEditable && !trackLocked;
         warngenLayer.setBoxEditable(layerEditable && boxEditable && !polygonLocked);
         warngenLayer.issueRefresh();
     }
