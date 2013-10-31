@@ -34,6 +34,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2013 1841       djohnson     Initial creation
  * Oct 2,  2013 1797       dhladky      Updated to work with generics
+ * Oct 21, 2013   2292     mpduff      Implement multiple data types
  * 
  * </pre>
  * 
@@ -48,8 +49,8 @@ public abstract class BaseSiteSubscriptionFixture<M extends SiteSubscription>
      * {@inheritDoc}
      */
     @Override
-    public M getInstance(long seedValue, Random random) {
-        M subscription = super.getInstance(seedValue, random);
+    public M getInstance(long seedValue, Random random, DataType dataType) {
+        M subscription = super.getInstance(seedValue, random, dataType);
 
         subscription.setOwner("owner" + random.nextInt());
         subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
