@@ -33,8 +33,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 08, 2013 2000       djohnson     Initial creation
- * Sept 24, 2013 2386       dhladky     Abstracted for more types
+ * May 08, 2013   2000     djohnson    Initial creation
+ * Sep 24, 2013   2386     dhladky     Abstracted for more types
+ * Oct 21, 2013   2292     mpduff      Changes for point type implementation
  * 
  * </pre>
  * 
@@ -44,13 +45,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class SubscriptionOverlapConfig {
-    
+    public final static transient int ONE_HUNDRED_PERCENT = 100;
+
     @XmlElement(required = true)
     protected int maxAllowedParameterDuplication;
 
     @XmlElement(required = true)
     protected int maxAllowedSpatialDuplication;
-    
+
     @XmlElement(required = true)
     protected SubscriptionOverlapMatchStrategy matchStrategy;
 
@@ -107,20 +109,6 @@ public abstract class SubscriptionOverlapConfig {
         this.matchStrategy = matchStrategy;
     }
 
-    /**
-     * Check whether the given duplication percents indicate an overlapping
-     * subscription.
-     * 
-     * @param parameterDuplicationPercent
-     * @param forecastHourOrTimeDuplicationPercent
-     * @param cycleOrNotUsedDuplicationPercent
-     * @param spatialDuplicationPercent
-     * @return true if the subscription should be considered overlapping
-     */
-    public abstract boolean isOverlapping(int parameterDuplicationPercent,
-            int forecastHourOrTimeDuplicationPercent, int cycleOrNotUsedDuplicationPercent,
-            int spatialDuplicationPercent);
-    
     /**
      * setup a default never overlapping config
      */

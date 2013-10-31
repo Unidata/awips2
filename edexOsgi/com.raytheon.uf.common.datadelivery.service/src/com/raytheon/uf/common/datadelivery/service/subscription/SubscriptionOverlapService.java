@@ -19,15 +19,13 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -43,7 +41,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * Checks subscriptions to see if they would be considered duplicates.
+ * Read/Write subscription overlap config files.
  * 
  * <pre>
  * 
@@ -55,7 +53,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jun 04, 2013  223       mpduff       Get base file if site doesn't exist.
  * Sept 23, 2013 2283      dhladky      Updated for multiple configs
  * Oct 03, 2013  2386      mpduff       Moved the subscription overlap rules files into the rules directory.
- * 
+ * Oct 25, 2013  2292      mpduff       Move overlap checks to edex.
  * </pre>
  * 
  * @author djohnson
@@ -64,47 +62,6 @@ import com.raytheon.uf.common.util.FileUtil;
 
 public class SubscriptionOverlapService<T extends Time, C extends Coverage>
         implements ISubscriptionOverlapService<T, C> {
-
-    /**
-     * Base response object implementing {@link ISubscriptionOverlapResponse}.
-     */
-    public class SubscriptionOverlapResponse implements
-            ISubscriptionOverlapResponse {
-
-        private final boolean duplicate;
-
-        private final boolean overlapping;
-
-        /**
-         * Constructor.
-         * 
-         * @param duplicate
-         * @param overlapping
-         */
-        public SubscriptionOverlapResponse(boolean duplicate,
-                boolean overlapping) {
-            this.duplicate = duplicate;
-            this.overlapping = overlapping;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isDuplicate() {
-            return duplicate;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isOverlapping() {
-            return overlapping;
-        }
-
-    }
-
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionOverlapService.class);
 
@@ -114,9 +71,7 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
     private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT = "SubscriptionOverlapRules.xml";
 
     private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = FileUtil
-            .join("datadelivery", "systemManagement", "rules");
-
-    private final ISubscriptionDuplicateChecker<T, C> duplicateChecker;
+            .join("datadelivery", "systemManagement", "rules", File.separator);
 
     private final JAXBManager jaxbManager;
 
@@ -125,10 +80,7 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
      * 
      * @param duplicateChecker
      */
-    public SubscriptionOverlapService(
-            ISubscriptionDuplicateChecker<T, C> duplicateChecker) {
-        this.duplicateChecker = duplicateChecker;
-
+    public SubscriptionOverlapService() {
         try {
             @SuppressWarnings("rawtypes")
             Class[] clazzes = new Class[] { SubscriptionOverlapConfig.class,
@@ -138,27 +90,6 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ISubscriptionOverlapResponse isOverlapping(Subscription<T, C> sub1,
-            Subscription<T, C> sub2) {
-        // Ignore requests to compare with itself
-        if (sub1.getName().equals(sub2.getName())) {
-            return new SubscriptionOverlapResponse(false, false);
-        }
-
-        // Ignore requests where the two subscriptions are of different types
-        if (!sub1.getDataSetType().equals(sub2.getDataSetType())) {
-            return new SubscriptionOverlapResponse(false, false);
-        }
-
-        SubscriptionOverlapConfig config = getConfigFile(sub1.getDataSetType());
-
-        return getOverlap(config, sub1, sub2);
     }
 
     /**
@@ -192,94 +123,13 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
     }
 
     /**
-     * {@inheritDoc}
-     * 
-     * @throws LocalizationException
-     */
-    @Override
-    public Map<DataType, SubscriptionOverlapConfig> readConfig()
-            throws LocalizationException {
-
-        HashMap<DataType, SubscriptionOverlapConfig> configs = new HashMap<DataType, SubscriptionOverlapConfig>();
-
-        for (DataType type : DataType.values()) {
-            SubscriptionOverlapConfig config = getConfigFile(type);
-            if (config != null) {
-                configs.put(type, config);
-            }
-        }
-
-        return configs;
-    }
-
-    /**
-     * Process a set of Gridded subscriptions for duplication;
-     * 
-     * @param config
-     * @param sub1
-     * @param sub2
-     * @return
-     */
-    private SubscriptionOverlapResponse processGriddedSubscriptionOverlap(
-            GridSubscriptionOverlapConfig config, Subscription<T, C> sub1,
-            Subscription<T, C> sub2) {
-        final int parameterDuplicationPercent = duplicateChecker
-                .getParameterDuplicationPercent(sub1, sub2);
-        final int forecastHourDuplicationPercent = duplicateChecker
-                .getForecastHourDuplicationPercent(sub1, sub2);
-        final int cycleDuplicationPercent = duplicateChecker
-                .getCycleDuplicationPercent(sub1, sub2);
-        final int spatialDuplicationPercent = duplicateChecker
-                .getSpatialDuplicationPercent(sub1, sub2);
-
-        final boolean overlaps = config.isOverlapping(
-                parameterDuplicationPercent, forecastHourDuplicationPercent,
-                cycleDuplicationPercent, spatialDuplicationPercent);
-
-        final boolean duplicate = (parameterDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (forecastHourDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (cycleDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (spatialDuplicationPercent == ONE_HUNDRED_PERCENT);
-
-        return new SubscriptionOverlapResponse(duplicate, overlaps);
-    }
-
-    /***
-     * Process a set of Point subscriptions for duplication
-     * 
-     * @param config
-     * @param sub1
-     * @param sub2
-     * @return
-     */
-    private SubscriptionOverlapResponse processPointSubscriptionOverlap(
-            PointSubscriptionOverlapConfig config, Subscription<T, C> sub1,
-            Subscription<T, C> sub2) {
-        final int parameterDuplicationPercent = duplicateChecker
-                .getParameterDuplicationPercent(sub1, sub2);
-        final int timeDuplicationPercent = duplicateChecker
-                .getTimeDuplicationPercent(sub1, sub2);
-        final int spatialDuplicationPercent = duplicateChecker
-                .getSpatialDuplicationPercent(sub1, sub2);
-
-        final boolean overlaps = config.isOverlapping(
-                parameterDuplicationPercent, timeDuplicationPercent, 0,
-                spatialDuplicationPercent);
-
-        final boolean duplicate = (parameterDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (timeDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (spatialDuplicationPercent == ONE_HUNDRED_PERCENT);
-
-        return new SubscriptionOverlapResponse(duplicate, overlaps);
-    }
-
-    /**
      * Gets the overlap config file by type
      * 
      * @param type
      * @return
      */
-    private SubscriptionOverlapConfig getConfigFile(DataType type) {
+    @Override
+    public SubscriptionOverlapConfig getConfigFile(DataType type) {
 
         final IPathManager pathManager = PathManagerFactory.getPathManager();
         LocalizationFile localizationFile = null;
@@ -321,31 +171,4 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
         return config;
     }
 
-    /**
-     * Gets the SubscriptionOverlapResponse by type
-     * 
-     * @param config
-     * @param sub1
-     * @param sub2
-     * @return
-     */
-    private SubscriptionOverlapResponse getOverlap(
-            SubscriptionOverlapConfig config, Subscription<T, C> sub1,
-            Subscription<T, C> sub2) {
-        SubscriptionOverlapResponse response = null;
-        DataType type = sub1.getDataSetType();
-
-        if (type == DataType.GRID) {
-            response = processGriddedSubscriptionOverlap(
-                    (GridSubscriptionOverlapConfig) config, sub1, sub2);
-        } else if (type == DataType.POINT) {
-            response = processPointSubscriptionOverlap(
-                    (PointSubscriptionOverlapConfig) config, sub1, sub2);
-        } else {
-            throw new IllegalArgumentException(type
-                    + " Config not yet Implemented!");
-        }
-
-        return response;
-    }
 }

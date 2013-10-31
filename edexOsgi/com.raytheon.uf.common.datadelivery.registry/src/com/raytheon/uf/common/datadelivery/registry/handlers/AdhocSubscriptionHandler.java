@@ -20,19 +20,9 @@
 
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.collect.Lists;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
-
 import com.raytheon.uf.common.datadelivery.registry.ebxml.AdhocSubscriptionQuery;
-import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
-
-import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
 /**
  * {@link IRegistryObjectHandler} implementation for {@link AdhocSubscription}.
@@ -45,6 +35,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * ------------ ---------- ----------- --------------------------
  * Oct 05, 2012 1241       djohnson     Initial creation.
  * Oct 12, 2013 2460       dhladky      restored.
+ * Oct 25, 2013 2292       mpduff       Removed unused imports.
  * 
  * </pre>
  * 
@@ -60,22 +51,18 @@ public class AdhocSubscriptionHandler extends
      */
 
     @Override
-
     protected AdhocSubscriptionQuery getQuery() {
         return new AdhocSubscriptionQuery();
     }
 
     /**
-
+     * 
      * {@inheritDoc}
-
      */
 
     @Override
-
     protected Class<AdhocSubscription> getRegistryObjectClass() {
         return AdhocSubscription.class;
     }
-    
-}
 
+}
