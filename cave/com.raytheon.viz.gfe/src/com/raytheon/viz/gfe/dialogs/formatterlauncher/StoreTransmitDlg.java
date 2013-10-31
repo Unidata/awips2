@@ -20,6 +20,9 @@
 package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -37,6 +40,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.activetable.PracticeProductOfftimeRequest;
 import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
+import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
@@ -52,6 +56,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.gfe.vtec.GFEVtecUtil;
+import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -70,6 +75,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 08 MAY 2013  1842       dgilling    Use VtecUtil to set product ETNs, fix
  *                                     warnings.
  * 07 Jun 2013  1981       mpduff      Set user's id in OUPRequest as it is now a protected operation.
+ * 23 Oct 2013  1843       dgilling    Ensure that dialog is always closed,
+ *                                     even on failure, changes for error handling
+ *                                     of intersite ETN assignment.
  * </pre>
  * 
  * @author lvenable
@@ -334,46 +342,116 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         // Store/Transmit the product...
 
         if (!countdownThread.threadCancelled()) {
+            boolean retrieveEtnFailed = false;
 
-            try {
-                productText = GFEVtecUtil.finalizeETNs(productText);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.CRITICAL,
-                        "Error setting ETNs for product", e);
-                sendTransmissionStatus(ConfigData.productStateEnum.Failed);
-                VizApp.runAsync(new Runnable() {
+            Set<VtecObject> vtecsToAssignEtn = GFEVtecUtil
+                    .getVtecLinesThatNeedEtn(productText);
+            Map<String, Integer> etnCache = new HashMap<String, Integer>();
+
+            for (VtecObject vtec : vtecsToAssignEtn) {
+                try {
+                    GetNextEtnResponse serverResponse = GFEVtecUtil.getNextEtn(
+                            vtec.getOffice(), vtec.getPhensig(), true, true);
+                    if (!serverResponse.isOkay()) {
+                        final VtecObject vtecToFix = vtec;
+                        final boolean[] exitLoopContainer = { false };
+                        final Exception[] exceptionContainer = { null };
+                        final GetNextEtnResponse[] responseContainer = { serverResponse };
+
+                        do {
+                            getDisplay().syncExec(new Runnable() {
+                                @Override
+                                public void run() {
+                                    GetNextEtnResponse serverResponse = responseContainer[0];
+                                    ETNConfirmationDialog dlg = new ETNConfirmationDialog(
+                                            getShell(), serverResponse);
+                                    if (dlg.open() == ETNConfirmationDialog.OK) {
+                                        int etn = dlg.getProposedEtn();
+                                        statusHandler.info(String
+                                                .format("User confirmed ETN for %s: %04d",
+                                                        serverResponse
+                                                                .getPhensig(),
+                                                        etn));
+                                        try {
+                                            GetNextEtnResponse followupResp = GFEVtecUtil.getNextEtn(
+                                                    vtecToFix.getOffice(),
+                                                    vtecToFix.getPhensig(),
+                                                    true, true, true, etn);
+                                            responseContainer[0] = followupResp;
+                                        } catch (VizException e) {
+                                            exceptionContainer[0] = e;
+                                            exitLoopContainer[0] = true;
+                                        }
+                                    } else {
+                                        statusHandler
+                                                .info("User declined to fix ETN for %s",
+                                                        serverResponse
+                                                                .getPhensig());
+                                        exitLoopContainer[0] = true;
+                                    }
+                                }
+                            });
+                        } while (!responseContainer[0].isOkay()
+                                && !exitLoopContainer[0]);
+
+                        if (!responseContainer[0].isOkay()) {
+                            String msg = "Unable to set ETN for phensig "
+                                    + responseContainer[0].getPhensig()
+                                    + "\nStatus: "
+                                    + responseContainer[0].toString();
+                            Exception e = exceptionContainer[0];
+                            if (e == null) {
+                                throw new VizException(msg);
+                            } else {
+                                throw new VizException(msg, e);
+                            }
+                        }
+                    }
+
+                    etnCache.put(vtec.getPhensig(), serverResponse.getNextEtn());
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.CRITICAL,
+                            "Error setting ETNs for product", e);
+                    retrieveEtnFailed = true;
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+                            StoreTransmitDlg.this.parentEditor.revive();
+                        }
+                    });
+                    break;
+                }
+            }
+
+            if (!retrieveEtnFailed) {
+                productText = GFEVtecUtil.finalizeETNs(productText, etnCache);
+
+                VizApp.runSync(new Runnable() {
 
                     @Override
                     public void run() {
-                        StoreTransmitDlg.this.parentEditor.revive();
+                        String pid = productIdTF.getText();
+                        if (parentEditor.isTestVTEC()) {
+                            if (isStoreDialog) {
+                                parentEditor.devStore(pid.substring(3));
+                            } else {
+                                parentEditor.devStore(pid.substring(4));
+                                transmitProduct(true);
+                            }
+                        } else {
+                            if (isStoreDialog) {
+                                TextDBUtil.storeProduct(pid, productText,
+                                        parentEditor.isTestVTEC());
+                            } else {
+                                transmitProduct(false);
+                            }
+                        }
                     }
+
                 });
-                return;
             }
-
-            VizApp.runSync(new Runnable() {
-
-                @Override
-                public void run() {
-                    String pid = productIdTF.getText();
-                    if (parentEditor.isTestVTEC()) {
-                        if (isStoreDialog) {
-                            parentEditor.devStore(pid.substring(3));
-                        } else {
-                            parentEditor.devStore(pid.substring(4));
-                            transmitProduct(true);
-                        }
-                    } else {
-                        if (isStoreDialog) {
-                            TextDBUtil.storeProduct(pid, productText,
-                                    parentEditor.isTestVTEC());
-                        } else {
-                            transmitProduct(false);
-                        }
-                    }
-                }
-
-            });
         }
 
         // The asyncExec call is used to dispose of the shell since it is
