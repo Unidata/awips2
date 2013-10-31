@@ -21,18 +21,27 @@ package com.raytheon.uf.edex.plugin.manualIngest;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.springframework.util.FileCopyUtils;
+import org.apache.commons.io.FileUtils;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.distribution.DistributionPatterns;
 
 /**
  * A bean based on FileToString that will take a message generated from a file
@@ -45,8 +54,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            brockwoo     Initial creation
- * 
+ * Oct 28, 2009            brockwoo    Initial creation
+ * Sep 03, 2013 2327       rjpeter     Added directory routing by plugin and date of product.
  * </pre>
  * 
  * @author brockwoo
@@ -65,6 +74,29 @@ public class MessageGenerator implements Processor {
 
     private String ingestRoute = null;
 
+    private final ThreadLocal<SimpleDateFormat> sdfs = new ThreadLocal<SimpleDateFormat>() {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.ThreadLocal#initialValue()
+         */
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd"
+                    + File.separatorChar + "HH");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return sdf;
+        }
+
+    };
+
+    /**
+     * Set of plugins that are not the primary decoder of the data. These are
+     * secondary or additional information such as text, dhr, dpa, etc.
+     */
+    private final Set<String> secondaryPlugins = new HashSet<String>();
+
     public static MessageGenerator getInstance() {
         return instance;
     }
@@ -77,6 +109,19 @@ public class MessageGenerator implements Processor {
         this.ingestRoute = ingestRoute;
     }
 
+    /**
+     * Register a secondary plugin, i.e. not the primary decoder of the data.
+     * These are plugins that provide data in a different format oradditional
+     * information such as text, dhr, dpa, etc.
+     * 
+     * @param plugin
+     * @return
+     */
+    public MessageGenerator registerSecondaryPlugin(String plugin) {
+        secondaryPlugins.add(plugin);
+        return this;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -86,14 +131,12 @@ public class MessageGenerator implements Processor {
     public void process(Exchange arg0) throws Exception {
         File file = (File) arg0.getIn().getBody();
         if (file != null) {
-            String fileName = file.getName();
             String messageHeader = WMOHeaderFinder.find(file);
             if (messageHeader == null) {
-                messageHeader = fileName;
+                messageHeader = file.getName();
             } else {
                 messageHeader = messageHeader.trim();
             }
-
             arg0.getIn().setBody(file.toString());
             arg0.getIn().setHeader("header", messageHeader);
             arg0.getIn().setHeader("enqueueTime", System.currentTimeMillis());
@@ -103,20 +146,86 @@ public class MessageGenerator implements Processor {
         }
     }
 
-    public File copyFileToArchive(File inFile) {
-        String path = DIR + File.separator;
+    /**
+     * Copies the specified file to the archive directory.
+     * 
+     * @param inFile
+     * @return
+     * @throws IOException
+     */
+    public File copyFileToArchive(File inFile) throws IOException {
+        StringBuilder path = new StringBuilder(inFile.getPath().length());
+        path.append(DIR).append(File.separatorChar);
+
+        // find header and determine file date
+        Date fileTime = null;
+        String header = WMOHeaderFinder.find(inFile);
+        if (header == null) {
+            header = inFile.getName();
+        } else {
+            header = header.trim();
+            try {
+                String dtg = WMOHeaderFinder.findDtg(header);
+                Calendar headerTime = TimeTools.findCurrentTime(dtg,
+                        inFile.getName());
+                if (headerTime != null) {
+                    fileTime = headerTime.getTime();
+                }
+            } catch (Exception e) {
+                statusHandler.error("Exception occurred parsing WMO Header", e);
+            }
+        }
+
+        // determine the plugin
+        List<String> plugins = DistributionPatterns.getInstance()
+                .getMatchingPlugins(header);
+        int numPlugins = plugins.size();
+        if (numPlugins == 1) {
+            path.append(plugins.get(0)).append(File.separatorChar);
+        } else if (numPlugins > 1) {
+            if (plugins.size() <= secondaryPlugins.size()) {
+                // check for a non secondary plugin,
+                String plugin = null;
+                for (String pluginToCheck : plugins) {
+                    if (!secondaryPlugins.contains(pluginToCheck)) {
+                        plugin = pluginToCheck;
+                        break;
+                    }
+                }
+
+                if (plugin == null) {
+                    // didn't find a non secondary plugin, just grab first
+                    // plugin
+                    plugin = plugins.get(0);
+                }
+
+                path.append(plugin).append(File.separatorChar);
+            } else {
+                // remove secondary and grab first one
+                plugins.removeAll(secondaryPlugins);
+                path.append(plugins.get(0)).append(File.separatorChar);
+            }
+        } else {
+            path.append("unknown").append(File.separatorChar);
+        }
+
+        // append YYYYMMDD/HH
+        if (fileTime == null) {
+            // default to current time
+            fileTime = SimulatedTime.getSystemTime().getTime();
+        }
+        path.append(sdfs.get().format(fileTime)).append(File.separatorChar);
 
         // Determine the sub-directory
         String inputPath = inFile.getParent();
 
         // Split on the manual directory to get the sub-directory
         String[] parts = inputPath.split("manual");
-        File dir = null;
         if (parts.length > 1) {
-            dir = new File(path + parts[1]);
-        } else {
-            dir = new File(path);
+            path.append(parts[1]);
         }
+
+        File dir = new File(path.toString());
 
         if (!dir.exists()) {
             dir.mkdirs();
@@ -125,7 +234,7 @@ public class MessageGenerator implements Processor {
         File newFile = new File(dir, inFile.getName());
 
         try {
-            FileCopyUtils.copy(inFile, newFile);
+            FileUtils.copyFile(inFile, newFile);
             statusHandler.handle(Priority.INFO,
                     "DataManual: " + inFile.getAbsolutePath());
         } catch (IOException e) {
@@ -137,7 +246,14 @@ public class MessageGenerator implements Processor {
         return newFile;
     }
 
-    public File moveFileToArchive(File inFile) {
+    /**
+     * Moves the specified file to the archive directory.
+     * 
+     * @param inFile
+     * @return
+     * @throws IOException
+     */
+    public File moveFileToArchive(File inFile) throws IOException {
         File newFile = copyFileToArchive(inFile);
         if (newFile != null) {
             inFile.delete();
@@ -145,10 +261,25 @@ public class MessageGenerator implements Processor {
         return newFile;
     }
 
+    /**
+     * Copies a file to the archive directory and sends the path to the manual
+     * ingest route.
+     * 
+     * @param inFile
+     * @return
+     */
     public boolean sendFileToIngest(String inFile) {
         return sendFileToIngest(inFile, ingestRoute);
     }
 
+    /**
+     * Copies a file to the archive directory and sends the path to the
+     * specified route.
+     * 
+     * @param inFile
+     * @param route
+     * @return
+     */
     public boolean sendFileToIngest(String inFile, String route) {
         boolean rval = true;
 
@@ -156,7 +287,7 @@ public class MessageGenerator implements Processor {
             File archiveFile = copyFileToArchive(new File(inFile));
             EDEXUtil.getMessageProducer().sendAsync(route,
                     archiveFile.getAbsolutePath());
-        } catch (EdexException e) {
+        } catch (Exception e) {
             rval = false;
             statusHandler.handle(Priority.ERROR, "Failed to insert file ["
                     + inFile + "] into ingest stream", e);

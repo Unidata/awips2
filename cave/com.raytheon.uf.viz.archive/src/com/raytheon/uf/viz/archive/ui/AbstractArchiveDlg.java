@@ -21,37 +21,37 @@ package com.raytheon.uf.viz.archive.ui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
 import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.ArchiveInfo;
 import com.raytheon.uf.viz.archive.data.CategoryInfo;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
+import com.raytheon.uf.viz.archive.data.IRetentionHour;
 import com.raytheon.uf.viz.archive.data.IUpdateListener;
 import com.raytheon.uf.viz.archive.data.SizeJob;
-import com.raytheon.uf.viz.archive.data.SizeJobRequest;
-import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -68,7 +68,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * May 30, 2013 1965       bgonzale     Initial creation
  * Jun 10, 2013 1966       rferrel      Change to allow Case Creation to extend.
- * 
+ * Jul 24, 2013 2220       rferrel      Changes to queue size request for all data.
+ * Aug 01, 2013 2221       rferrel      Changes for select configuration.
+ * Aug 06, 2013 2222       rferrel      Changes to display all selected data.
  * </pre>
  * 
  * @author bgonzale
@@ -76,7 +78,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
-        IArchiveTotals, IUpdateListener {
+        IArchiveTotals, IUpdateListener, IModifyListener, IRetentionHour {
 
     /** Table composite that holds the table controls. */
     private ArchiveTableComp tableComp;
@@ -87,8 +89,8 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /** Category combo box. */
     private Combo categoryCbo;
 
-    /** Information for populating the various table displays. */
-    protected final Map<String, ArchiveInfo> archiveInfoMap = new HashMap<String, ArchiveInfo>();
+    /** Data manager. */
+    protected ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
     /**
      * Boolean to indicate when DisplayData is created should its selection be
@@ -99,7 +101,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /**
      * Must be set by sub-class prior to creating table.
      */
-    protected TableType tableType;
+    protected ArchiveConstants.Type type;
 
     /**
      * Job that computes sizes of table row entries off the UI thread.
@@ -108,6 +110,21 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
     /** Keeps track of when it is safe to clear the busy cursor. */
     protected final AtomicInteger busyCnt = new AtomicInteger(0);
+
+    /** Performs save action button. */
+    protected Button saveBtn;
+
+    /** Optional button to toggle displaying all selected or category */
+    protected Button showSelectedBtn;
+
+    /** Flag set when user wants to close with unsaved modifications. */
+    protected boolean closeFlag = false;
+
+    /** Current select (case/retention) loaded into the dialog. */
+    protected String selectName = ArchiveConstants.defaultSelectName;
+
+    /** Which table is being displayed. */
+    private boolean showingSelected = true;
 
     /**
      * @param parentShell
@@ -131,23 +148,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     public AbstractArchiveDlg(Shell parentShell, int style, int caveStyle) {
         super(parentShell, style, caveStyle);
-    }
-
-    public List<DisplayData> getAllSelected() {
-        List<DisplayData> allSelected = new ArrayList<DisplayData>();
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-            for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayDataList()) {
-                    if (displayData.isSelected()) {
-                        allSelected.add(displayData);
-                    }
-                }
-            }
-        }
-        return allSelected;
     }
 
     /**
@@ -203,6 +203,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected abstract void setTotalSizeText(String sizeStringText);
 
+    /**
+     * This method is called by the AbstractArchiveDlg to set total Size.
+     * 
+     * @param totalSize
+     */
     protected abstract void setTotalSelectedItems(int totalSize);
 
     /**
@@ -268,48 +273,73 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
+        ArchiveConfigManager.getInstance().reset();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
      */
     @Override
     protected void preOpened() {
         super.preOpened();
         setCursorBusy(true);
+        populateComboBoxes();
+        String titleName = initDisplayData();
+        setSelectName(titleName);
+        populateTableComp();
+        setCursorBusy(false);
 
-        // Setup to display blank dialog with busy cursor while getting data.
-        Job job = new Job("setup") {
+        addModifiedListener(this);
+        shell.addShellListener(new ShellAdapter() {
+
             @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                if (!shell.isDisposed()) {
-                    VizApp.runAsync(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            populateComboBoxes();
-                            setCursorBusy(false);
-                        }
-                    });
+            public void shellClosed(ShellEvent e) {
+                if (closeFlag || !isModified()) {
+                    return;
                 }
-                initDisplayData();
-                if (!shell.isDisposed()) {
-                    VizApp.runAsync(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            updateTableComp();
+                e.doit = false;
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (verifyClose()) {
+                            close();
                         }
-                    });
-                }
-                return Status.OK_STATUS;
+                    }
+                });
             }
-        };
-        job.schedule();
+        });
+    }
+
+    /**
+     * Change the select name and update the dialog's title. Assumes the
+     * sub-classes places a hyphen at the end of the string when setting the
+     * dialog's title.
+     * 
+     * @param selectName
+     */
+    protected void setSelectName(String selectName) {
+        this.selectName = selectName;
+        StringBuilder sb = new StringBuilder(getText());
+        sb.setLength(sb.indexOf("-") + 1);
+        sb.append(" ").append(selectName);
+        setText(sb.toString());
     }
 
     /**
      * Create the table control.
      */
     protected void createTable() {
-        tableComp = new ArchiveTableComp(shell, tableType, this);
+        tableComp = new ArchiveTableComp(shell, type, this, sizeJob);
         sizeJob.addUpdateListener(this);
     }
 
@@ -335,7 +365,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * Initial population up of the combo boxes.
      */
     private void populateComboBoxes() {
-        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         boolean doSelect = false;
         for (String archiveName : manager.getArchiveDataNamesList()) {
             archCfgCbo.add(archiveName);
@@ -344,7 +373,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
         if (doSelect) {
             archCfgCbo.select(0);
-            archiveComboSelection();
+            initCategoryCbo();
         }
     }
 
@@ -358,10 +387,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /**
      * Populate the category combo based on the archive name and populate the
      * table.
-     * 
-     * @param archiveName
      */
     private void populateCategoryCbo() {
+        initCategoryCbo();
+        categoryComboSelection();
+    }
+
+    private void initCategoryCbo() {
         String archiveName = getSelectedArchiveName();
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         categoryCbo.removeAll();
@@ -369,7 +401,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
             categoryCbo.add(categoryName);
         }
         categoryCbo.select(0);
-        categoryComboSelection();
     }
 
     /**
@@ -383,30 +414,37 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * Set up all display data and queue getting sizes for any that are
      * selected.
      */
-    private void initDisplayData() {
-        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
-        Calendar startCal = getStart();
-        Calendar endCal = getEnd();
-        String[] archiveNames = manager.getArchiveDataNamesList();
-        for (String archiveName : archiveNames) {
-            ArchiveInfo archiveInfo = new ArchiveInfo();
-            archiveInfoMap.put(archiveName, archiveInfo);
-            String[] categoryNames = manager.getCategoryNames(manager
-                    .getArchive(archiveName));
-            for (String categoryName : categoryNames) {
-                List<DisplayData> displayDatas = manager.getDisplayData(
-                        archiveName, categoryName, setSelect);
-                CategoryInfo categoryInfo = new CategoryInfo(archiveName,
-                        categoryName, displayDatas);
-                archiveInfo.add(categoryInfo);
-                for (DisplayData displayData : displayDatas) {
-                    if (displayData.isSelected()) {
-                        sizeJob.queue(new SizeJobRequest(displayData, startCal,
-                                endCal));
-                    }
-                }
-            }
+    protected String initDisplayData() {
+        String displayArchive = getSelectedArchiveName();
+        String displayCategory = getSelectedCategoryName();
+        String selectedName = sizeJob.initData(type, null, displayArchive,
+                displayCategory, this);
+        sizeJob.resetTime(getStart(), getEnd());
+        return selectedName;
+    }
+
+    /**
+     * Delete a select configuration file.
+     * 
+     * @param selectName
+     */
+    protected void deleteSelect(String selectName) {
+        String fileName = ArchiveConstants.selectFileName(type, selectName);
+        try {
+            manager.deleteSelection(fileName);
+        } catch (LocalizationOpFailedException e) {
+            MessageDialog.openError(shell, "Case Error",
+                    "Unable to delete file: " + fileName);
         }
+    }
+
+    /**
+     * Load a select configuration file.
+     * 
+     * @param selectName
+     */
+    protected void loadSelect(String selectName) {
+        sizeJob.loadSelect(selectName, type);
     }
 
     /**
@@ -416,33 +454,20 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     protected void populateTableComp() {
         String archiveName = getSelectedArchiveName();
         String categoryName = getSelectedCategoryName();
-        Calendar startCal = getStart();
-        Calendar endCal = getEnd();
 
         setCursorBusy(true);
 
         try {
-            sizeJob.clearQueue();
+            setShowingSelected(false);
 
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-
-            // Not yet populated by background job.
-            if (archiveInfo == null) {
-                return;
+            List<DisplayData> displayDatas = sizeJob.changeDisplay(archiveName,
+                    categoryName);
+            if (displayDatas != null) {
+                tableComp
+                        .populateTable(archiveName, categoryName, displayDatas);
+            } else {
+                tableComp.refresh();
             }
-
-            // Not yet populated by background job.
-            CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-            if (categoryInfo == null) {
-                return;
-            }
-
-            for (DisplayData displayData : categoryInfo.getDisplayDataList()) {
-                sizeJob.queue(new SizeJobRequest(displayData, startCal, endCal));
-            }
-            sizeJob.requeueSelected(startCal, endCal);
-
-            tableComp.populateTable(categoryInfo.getDisplayDataList());
         } finally {
             setCursorBusy(false);
         }
@@ -474,8 +499,8 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         long totalSize = 0;
         int totalSelected = 0;
 
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
+        for (String archiveName : sizeJob.getArchiveNames()) {
+            ArchiveInfo archiveInfo = sizeJob.get(archiveName);
             for (String categoryName : archiveInfo.getCategoryNames()) {
                 CategoryInfo categoryInfo = archiveInfo.get(categoryName);
                 for (DisplayData displayData : categoryInfo
@@ -506,6 +531,75 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         setTotalSelectedItems(totalSelected);
     }
 
+    /**
+     * Creates the showSelectedBtn for sub-classes.
+     * 
+     * @param actionControlComp
+     */
+    protected void createShowingSelectedBtn(Composite actionControlComp) {
+        showSelectedBtn = new Button(actionControlComp, SWT.PUSH);
+        setShowingSelected(false);
+        showSelectedBtn.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handelShowSelectAll();
+            }
+        });
+    }
+
+    /**
+     * Populate the table with the desired display.
+     */
+    protected void handelShowSelectAll() {
+        if (showingSelected) {
+            populateTableComp();
+        } else {
+            populateSelectAllTable();
+        }
+    }
+
+    /**
+     * Sets the state for the showing selected flag and updates the label for
+     * the show selected button.
+     * 
+     * @param state
+     */
+    private void setShowingSelected(boolean state) {
+        if (showSelectedBtn != null && !showSelectedBtn.isDisposed()) {
+            if (showingSelected != state) {
+                showingSelected = state;
+                if (showingSelected) {
+                    showSelectedBtn.setText(" Category ");
+                    showSelectedBtn
+                            .setToolTipText("Change display to show category.");
+                } else {
+                    showSelectedBtn.setText(" Selected ");
+                    showSelectedBtn
+                            .setToolTipText("Change display to show all case selections");
+                }
+            }
+        }
+    }
+
+    /**
+     * Up date the table to display all selected data.
+     */
+    private void populateSelectAllTable() {
+        setCursorBusy(true);
+
+        try {
+            setShowingSelected(true);
+            List<DisplayData> selectedData = sizeJob.changeDisplayAll();
+
+            if (selectedData != null) {
+                tableComp.populateSelectAll(selectedData);
+            }
+        } finally {
+            setCursorBusy(false);
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -513,18 +607,26 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * com.raytheon.uf.viz.archive.data.IUpdateListener#update(java.util.List)
      */
     @Override
-    public void update(List<SizeJobRequest> dirInfos) {
-        final List<DisplayData> displayDatas = new ArrayList<DisplayData>(
-                dirInfos.size());
-        for (SizeJobRequest request : dirInfos) {
-            displayDatas.add(request.getDisplayData());
+    public void update(final List<DisplayData> displayDatas) {
+        final List<DisplayData> myDisplayDatas = new ArrayList<DisplayData>(
+                displayDatas.size());
+        for (DisplayData data : displayDatas) {
+            String label = data.getDisplayLabel();
+            for (DisplayData displayData : sizeJob.get(data.getArchiveName())
+                    .get(data.getCategoryName()).getDisplayDataList()) {
+                if (label.equals(displayData.getDisplayLabel())) {
+                    displayData.setSize(data.getSize());
+                    myDisplayDatas.add(displayData);
+                    break;
+                }
+            }
         }
 
         VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
-                tableComp.updateSize(displayDatas);
+                tableComp.updateSize(myDisplayDatas);
                 updateTotals(null);
             }
         });
@@ -547,6 +649,16 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     }
 
     /**
+     * Get the data information on all selected items; not just the currently
+     * displayed table.
+     * 
+     * @return selectedDatas
+     */
+    protected List<DisplayData> getSelectedData() {
+        return sizeJob.getSelectAll();
+    }
+
+    /**
      * Remove modification listener.
      * 
      * @param iModifyListener
@@ -555,15 +667,70 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         tableComp.removeModifiedListener(iModifyListener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
+    /**
+     * Reset all data to unknown size, and queue request for sizes.
      */
-    @Override
-    protected void initializeComponents(Shell shell) {
-        ArchiveConfigManager.getInstance().reset();
+    protected void resetSizes() {
+        sizeJob.recomputeSize();
+        populateTableComp();
+    }
+
+    /**
+     * Allows a sub-class to set the start and end times based on the off set.
+     * 
+     * @param startTimeOffset
+     */
+    public void setRetentionTimes(long startTimeOffset) {
+        // do nothing override by sub-classes
+    }
+
+    /**
+     * Indicate unsaved user changes.
+     * 
+     * @return modified
+     */
+    protected boolean isModified() {
+        return (saveBtn != null) && !saveBtn.isDisposed()
+                && saveBtn.isEnabled();
+    }
+
+    /**
+     * Save current selections of the select configuration file.
+     * 
+     * @param selectName
+     * @return true when save is successful
+     */
+    protected boolean saveSelection(String selectName) {
+        Calendar start = getStart();
+        Calendar end = getEnd();
+        long startRetentionMS = 0L;
+        if (start != null && end != null) {
+            startRetentionMS = end.getTimeInMillis() - start.getTimeInMillis();
+        }
+        String errorMsg = sizeJob
+                .saveSelect(selectName, type, startRetentionMS);
+        if (errorMsg != null) {
+            MessageDialog.openError(shell, type + " Selection Error", errorMsg);
+        }
+
+        return errorMsg == null;
+    }
+
+    /**
+     * When unsaved modifications this asks the user to verify the close.
+     * 
+     * @return true when okay to close.
+     */
+    protected boolean verifyClose() {
+        boolean state = true;
+        if (isModified()) {
+            MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
+                    | SWT.CANCEL);
+            box.setText("Close " + type);
+            box.setMessage("Unsave changes.\nSelect OK to discard changes.");
+            state = box.open() == SWT.OK;
+        }
+        closeFlag = state;
+        return state;
     }
 }

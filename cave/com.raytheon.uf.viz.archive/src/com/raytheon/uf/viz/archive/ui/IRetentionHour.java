@@ -17,7 +17,31 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.uf.viz.archive.ui;
+
 /**
- * Contains utility classes for mesowest plugin
+ * Interface to adjusting values based on the retention hour value found in a
+ * selection configuration.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 13, 2013 2220       rferrel     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
  */
-package com.raytheon.edex.plugin.obs.mesowest.util;
+
+public interface IRetentionHour {
+    /**
+     * Adjust start/end based on the value found in selection configuration.
+     * 
+     * @param startRetentionHours
+     */
+    public void setRetentionTimes(long startRetentionHours);
+}

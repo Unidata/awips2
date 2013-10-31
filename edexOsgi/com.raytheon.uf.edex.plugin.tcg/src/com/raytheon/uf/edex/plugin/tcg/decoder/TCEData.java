@@ -37,76 +37,82 @@ import com.raytheon.uf.common.time.DataTime;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2009            jsanchez     Initial creation
- *
+ * Nov 12, 2009            jsanchez    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0 
+ * @version 1.0
  */
-public class TCEData extends TCGDataAdapter{
-    
+public class TCEData extends TCGDataAdapter {
+
     private float latitude = -9999;
-    
+
     private float longitude = -9999;
-    
+
     private int month;
-    
+
     private int year;
-    
+
     private int day;
-    
+
     private int hour;
-    
+
     private int minute;
-    
-    public TCEData(PointDataDescription pdd, TropicalCycloneGuidanceDao dao, String pluginName) {
-        super(pdd,dao,pluginName);
+
+    public TCEData(PointDataDescription pdd, TropicalCycloneGuidanceDao dao,
+            String pluginName) {
+        super(pdd, dao, pluginName);
     }
-    
-    public List<TropicalCycloneGuidance> findReports(byte [] message) {
+
+    @Override
+    public List<TropicalCycloneGuidance> findReports(byte[] message) {
         List<TropicalCycloneGuidance> reports = new ArrayList<TropicalCycloneGuidance>();
         List<InternalReport> parts = InternalReport.identifyMessage(message);
-        if(parts != null) {
+        if (parts != null) {
             clearData();
-            for(InternalReport iRpt : parts) {
+            for (InternalReport iRpt : parts) {
                 InternalType t = iRpt.getLineType();
                 String s = iRpt.getReportLine();
                 if (InternalType.PRODUCT.equals(t)) {
                     productType = s;
-                } else if(InternalType.STORM_TYPE_INFO.equals(t)){
+                } else if (InternalType.STORM_TYPE_INFO.equals(t)) {
                     parseStormTypeInfo(s);
-                } else if(InternalType.STATIONID.equals(t)){
+                } else if (InternalType.STATIONID.equals(t)) {
                     parseStationIdInfo(s);
-                } else if(InternalType.INIT_TIME_INFO.equals(t)){
+                } else if (InternalType.INIT_TIME_INFO.equals(t)) {
                     parseInitTimeInfo(s);
-                } else if(InternalType.TCE_REFHOUR.equals(t)){
+                } else if (InternalType.TCE_REFHOUR.equals(t)) {
                     parseRefhour(s);
-                } else if(InternalType.LATITUDE.equals(t)){
+                } else if (InternalType.LATITUDE.equals(t)) {
                     parseLatitude(s);
-                } else if(InternalType.LONGITUDE.equals(t)){
+                } else if (InternalType.LONGITUDE.equals(t)) {
                     parseLongitude(s);
-                } else if(InternalType.END.equals(t)){
-                    if(latitude != -9999 && longitude != -9999){
+                } else if (InternalType.END.equals(t)) {
+                    if ((latitude != -9999) && (longitude != -9999)) {
                         TropicalCycloneGuidance rpt = new TropicalCycloneGuidance();
-                        SurfaceObsLocation location = new SurfaceObsLocation(stationId);
-                        location.setLongitude((double)longitude);
-                        location.setLatitude((double)latitude);      
+                        SurfaceObsLocation location = new SurfaceObsLocation(
+                                stationId);
+                        location.setLongitude((double) longitude);
+                        location.setLatitude((double) latitude);
                         rpt.setWmoHeader(wmoHeader.getWmoHeader());
                         rpt.setTraceId(traceId);
-                        rpt.setPluginName(pluginName);
                         rpt.setStormName(stormName);
                         rpt.setType(stormType);
-                        rpt.setProductType(productType);          
+                        rpt.setProductType(productType);
                         rpt.setLocation(location);
-                        rpt.setInsertTime(Calendar.getInstance(TimeZone.getTimeZone("GMT"))); 
-                        refTime = getDataTime(year, month, day, hour, minute, "GMT");
-                        DataTime dt = new DataTime(refTime.getRefTimeAsCalendar());
+                        rpt.setInsertTime(Calendar.getInstance(TimeZone
+                                .getTimeZone("GMT")));
+                        refTime = getDataTime(year, month, day, hour, minute,
+                                "GMT");
+                        DataTime dt = new DataTime(
+                                refTime.getRefTimeAsCalendar());
                         rpt.setDataTime(dt);
                         reports.add(rpt);
                     }
@@ -116,65 +122,66 @@ public class TCEData extends TCGDataAdapter{
         }
         return reports;
     }
-    
-    private void parseStormTypeInfo(String stormTypeInfo){
+
+    private void parseStormTypeInfo(String stormTypeInfo) {
         int index = setStormType(stormTypeInfo);
         if (index != -1) {
             String temp[] = stormTypeInfo.substring(index).trim().split(" ");
             stormName = temp[0];
         }
     }
-    
-    private void parseStationIdInfo(String stationIdInfo){
+
+    private void parseStationIdInfo(String stationIdInfo) {
         Pattern p = Pattern.compile("(\\w{2,2}\\d{6,6})");
         Matcher m = p.matcher(stationIdInfo);
-        if(m.find()){
+        if (m.find()) {
             stationId = m.group();
         }
     }
-    
-    private void parseInitTimeInfo(String initTimeInfo){
+
+    private void parseInitTimeInfo(String initTimeInfo) {
         String parts[] = getParts(initTimeInfo, 7);
         month = MONTH_MAP.get(parts[4]);
         day = Integer.parseInt(parts[5]);
         year = Integer.parseInt(parts[6]);
     }
-    
-    private void parseRefhour(String refhourInfo){
+
+    private void parseRefhour(String refhourInfo) {
         Pattern p = Pattern.compile("(\\d{4,4})");
         Matcher m = p.matcher(refhourInfo);
-        if(m.find()){
-            hour = Integer.parseInt(m.group().substring(0,2));
+        if (m.find()) {
+            hour = Integer.parseInt(m.group().substring(0, 2));
             minute = Integer.parseInt(m.group().substring(2));
         }
     }
-    
-    private void parseLatitude(String latitudeInfo){
+
+    private void parseLatitude(String latitudeInfo) {
         Pattern p = Pattern.compile(InternalReport.LAT_PTRN);
         Matcher m = p.matcher(latitudeInfo);
-        if(m.find()){
+        if (m.find()) {
             latitude = Float.parseFloat(m.group().substring(8).trim());
-            if (latitudeInfo.contains("SOUTH")){
+            if (latitudeInfo.contains("SOUTH")) {
                 latitude *= -1;
             }
         }
-        
+
     }
-    
-    private void parseLongitude(String longitudeInfo){
+
+    private void parseLongitude(String longitudeInfo) {
         Pattern p = Pattern.compile(InternalReport.LON_PTRN);
         Matcher m = p.matcher(longitudeInfo);
-        if(m.find()){
+        if (m.find()) {
             longitude = Float.parseFloat(m.group().substring(10).trim());
-            if(longitudeInfo.contains("WEST")){
+            if (longitudeInfo.contains("WEST")) {
                 longitude *= -1;
-            } else if (longitudeInfo.contains("SOUTH") && latitude > 0){
+            } else if (longitudeInfo.contains("SOUTH") && (latitude > 0)) {
                 latitude *= -1;
             }
         }
     }
-    
-    public void clearData(){
+
+    @Override
+    public void clearData() {
         latitude = -9999;
         longitude = -9999;
         stationId = null;

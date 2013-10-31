@@ -50,12 +50,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "ncscat",
-		indexes = {
-				@Index(name = "ncscat_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "ncscat", indexes = { @Index(name = "ncscat_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -167,5 +163,10 @@ public class NcscatRecord extends PersistablePluginDataObject {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "ncsat";
     }
 }
