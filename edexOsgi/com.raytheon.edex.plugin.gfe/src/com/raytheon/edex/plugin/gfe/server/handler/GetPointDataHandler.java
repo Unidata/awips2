@@ -68,7 +68,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 11, 2009            njensen     Initial creation
  * Mar 06, 2013 1735       rferrel     Change to retrieve multiple points
  *                                      in a single grid request.
- * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Jun 13, 2013     #2044  randerso    Refactored to use IFPServer
+ * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -213,7 +214,7 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
                             } else if (slice instanceof DiscreteGridSlice) {
                                 DiscreteGridSlice gs = (DiscreteGridSlice) slice;
                                 byte value = gs.getDiscreteGrid().get(x, y);
-                                String key = gs.getKey()[value].toString();
+                                String key = gs.getKeys()[value].toString();
                                 Type type = Type.STRING;
                                 view.setData(param, type, unit, key);
                             }

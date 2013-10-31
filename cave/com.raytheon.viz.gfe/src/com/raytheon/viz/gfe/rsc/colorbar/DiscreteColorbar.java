@@ -96,6 +96,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 23, 2013     #1524  randerso    Fix missing discrete color bar and error when clicking 
  *                                     on discrete color bar when no grid exists
  * Feb 12, 2013     15719  jdynina     Fixed out of bounds error in calcGridColorTable  
+ * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -213,7 +214,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         DataTime currentTime = paintProps.getFramesInfo().getCurrentFrame();
-        if (parm == null || currentTime == null) {
+        if ((parm == null) || (currentTime == null)) {
             return;
         }
 
@@ -241,7 +242,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
                     DiscreteGridSlice slice = new DiscreteGridSlice();
                     parm.getDataManager().getIscDataAccess()
                             .getCompositeGrid(gid, true, slice);
-                    if (slice.getKey().length == 0) {
+                    if (slice.getKeys().length == 0) {
                         return;
                     }
                     iscGridData = new DiscreteGridData(this.parm, slice);
@@ -365,7 +366,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
         }
         // for DISCRETE
         else {
-            DiscreteKey[] dKeys = ((DiscreteGridSlice) gs).getKey();
+            DiscreteKey[] dKeys = ((DiscreteGridSlice) gs).getKeys();
             for (int i = 0; i < 256; i++) {
                 if (cArray[i]) {
                     gridWValues.add(new DiscreteWxValue(dKeys[i], parm));
@@ -485,7 +486,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
             double pickupLabelSize = target.getStringsBounds(dstring)
                     .getWidth();
-            double pickupLabelDrawPoint = (minX + (pickupIndex * keywidth) + keywidth / 2)
+            double pickupLabelDrawPoint = (minX + (pickupIndex * keywidth) + (keywidth / 2))
                     * xScaleFactor;
             pickupLabelMinX = pickupLabelDrawPoint - (pickupLabelSize / 2);
             pickupLabelMaxX = pickupLabelDrawPoint + (pickupLabelSize / 2);
@@ -535,7 +536,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
                     maxY, 0.0, seColorBarTickColor, 1.0f);
 
             String keyName = colorEntry.getValue().toString();
-            labelLoc = (float) (minX + ikeywidth) + (float) keywidth / 2;
+            labelLoc = (float) (minX + ikeywidth) + ((float) keywidth / 2);
 
             double boxMinXCoord = (minX + ikeywidth) * xScaleFactor;
             double boxMaxXCoord = boxMinXCoord + (keywidth * xScaleFactor);
@@ -591,15 +592,15 @@ public class DiscreteColorbar implements IColorBarDisplay,
         int x = 0;
         for (ColorEntry colorEntry : colorTable) {
             // calculate the bounding box from x
-            PixelExtent pe = new PixelExtent(x1 + x * keywidth, x1 + (x + 1)
-                    * keywidth, y1, y2);
+            PixelExtent pe = new PixelExtent(x1 + (x * keywidth), x1
+                    + ((x + 1) * keywidth), y1, y2);
 
             Coordinate[] coordinates = new Coordinate[5];
-            coordinates[0] = new Coordinate(x1 + x * keywidth, y1);
-            coordinates[1] = new Coordinate(x1 + (x + 1) * keywidth, y1);
-            coordinates[2] = new Coordinate(x1 + (x + 1) * keywidth, y2);
-            coordinates[3] = new Coordinate(x1 + x * keywidth, y2);
-            coordinates[4] = new Coordinate(x1 + x * keywidth, y1);
+            coordinates[0] = new Coordinate(x1 + (x * keywidth), y1);
+            coordinates[1] = new Coordinate(x1 + ((x + 1) * keywidth), y1);
+            coordinates[2] = new Coordinate(x1 + ((x + 1) * keywidth), y2);
+            coordinates[3] = new Coordinate(x1 + (x * keywidth), y2);
+            coordinates[4] = new Coordinate(x1 + (x * keywidth), y1);
 
             // draw the shaded rectangle with the correct color(s) and
             // pattern(s)
