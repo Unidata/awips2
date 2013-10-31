@@ -57,9 +57,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.IDisplay;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
@@ -96,6 +96,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * May 23, 2013  1650      djohnson     Fix creation of new GroupDefinitions.
  * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
  * Jun 13, 2013  2108      mpduff       Refactored DataSizeUtils.
+ * Oct 28, 2013  2292      mpduff       Change overlap services.
  * </pre>
  * 
  * @author jpiatt
@@ -418,14 +419,14 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         }
 
         try {
-            final ISubscriptionServiceResult result = DataDeliveryServices
+            final SubscriptionServiceResult result = DataDeliveryServices
                     .getSubscriptionService().updateWithPendingCheck(
                             new ArrayList<Subscription>(Sets.union(
                                     groupSubscriptions,
                                     removeFromGroupSubscriptions)), this);
             if (result.hasMessageToDisplay()) {
                 DataDeliveryUtils.showMessage(getShell(), SWT.ICON_INFORMATION,
-                        "Edit Group", result.getMessageToDisplay());
+                        "Edit Group", result.getMessage());
             }
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
