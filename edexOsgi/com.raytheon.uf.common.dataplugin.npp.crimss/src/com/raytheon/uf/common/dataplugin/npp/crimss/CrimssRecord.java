@@ -43,10 +43,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 2, 2011            bsteffen     Initial creation
+ * Dec 02, 2011            bsteffen    Initial creation
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -84,4 +85,8 @@ public class CrimssRecord extends NPPSoundingRecord {
         return super.getDataURI();
     }
 
+    @Override
+    public String getPluginName() {
+        return "crimss";
+    }
 }

@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Nov 10, 2010 5050       rjpeter     Initial creation
  * Jul 16, 2012 DR 15073   D. Friedman Stop consumers instead of whole context
  * May 14, 2013 1989       njensen     Camel 2.11 compatibility
+ * Aug 26, 2013 DR 2272    bkowal      Append an optional suffix to the cluster task details
  * </pre>
  * 
  * @author rjpeter
@@ -112,8 +113,9 @@ public class ClusteredContextManager {
     }
 
     public void checkClusteredContexts() {
+        String suffix = ClusterLockUtils.CLUSTER_SUFFIX;
         for (CamelContext camelContext : clusteredContextList) {
-            String contextName = camelContext.getName();
+            String contextName = camelContext.getName() + suffix;
             ClusterTask lock = ClusterLockUtils.lock(taskName, contextName,
                     myName, timeOutMillis, false);
             boolean activateRoute = false;

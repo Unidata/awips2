@@ -58,7 +58,8 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 25, 2010            bsteffen     Initial creation
+ * Mar 25, 2010            bsteffen    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -88,9 +89,9 @@ public class GridUpdater implements IAlertObserver {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + getOuterType().hashCode();
-            result = prime * result + ((node == null) ? 0 : node.hashCode());
-            result = prime * result + timeOffset;
+            result = (prime * result) + getOuterType().hashCode();
+            result = (prime * result) + ((node == null) ? 0 : node.hashCode());
+            result = (prime * result) + timeOffset;
             return result;
         }
 
@@ -101,22 +102,29 @@ public class GridUpdater implements IAlertObserver {
          */
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             UpdateValue other = (UpdateValue) obj;
-            if (!getOuterType().equals(other.getOuterType()))
+            if (!getOuterType().equals(other.getOuterType())) {
                 return false;
+            }
             if (node == null) {
-                if (other.node != null)
+                if (other.node != null) {
                     return false;
-            } else if (!node.equals(other.node))
+                }
+            } else if (!node.equals(other.node)) {
                 return false;
-            if (timeOffset != other.timeOffset)
+            }
+            if (timeOffset != other.timeOffset) {
                 return false;
+            }
             return true;
         }
 
@@ -126,11 +134,11 @@ public class GridUpdater implements IAlertObserver {
 
     }
 
-    private Set<String> myUpdates = new HashSet<String>();
+    private final Set<String> myUpdates = new HashSet<String>();
 
-    private GridInventory inventory;
+    private final GridInventory inventory;
 
-    private Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<GridMapKey, Set<UpdateValue>>();
+    private final Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<GridMapKey, Set<UpdateValue>>();
 
     public GridUpdater(GridInventory inventory) {
         this.inventory = inventory;
@@ -147,7 +155,7 @@ public class GridUpdater implements IAlertObserver {
     public synchronized void addNode(AbstractDerivedDataNode node)
             throws VizException {
         List<Dependency> dependencies = node.getDependencies();
-        if (dependencies == null || dependencies.isEmpty()) {
+        if ((dependencies == null) || dependencies.isEmpty()) {
             return;
         }
         List<Dependency> dep = new ArrayList<Dependency>(dependencies);
@@ -238,7 +246,7 @@ public class GridUpdater implements IAlertObserver {
                     // Null means it is an alias model and supplement means
                     // there exists a true GribNode buried under the or
                     // node
-                    if (method == null
+                    if ((method == null)
                             || !method.getName().equals("Supplement")) {
                         inventory.reinitTree();
                         // System.out.println(((AbstractDerivedLevelNode) lNode)
@@ -256,7 +264,6 @@ public class GridUpdater implements IAlertObserver {
             }
             for (UpdateValue value : set) {
                 GridRecord fakeRec = new GridRecord();
-                fakeRec.setPluginName(GridInventory.PLUGIN_NAME);
                 Object obj = alert.decodedAlert.get("dataTime");
                 if (!(obj instanceof DataTime)) {
                     throw new IllegalArgumentException(
