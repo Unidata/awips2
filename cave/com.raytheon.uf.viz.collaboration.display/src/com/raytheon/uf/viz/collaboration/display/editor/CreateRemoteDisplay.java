@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 
 /**
@@ -37,9 +36,11 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 16, 2012            njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 16, 2012           njensen     Initial creation
+ * Oct 31, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class CreateRemoteDisplay implements ISerializableObject {
+public class CreateRemoteDisplay {
 
     @XmlAttribute
     private int displayId;
