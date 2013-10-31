@@ -53,7 +53,7 @@ public class FollowupData extends AbstractWarningRecord {
     /**
      * String displayed in the drop down update list.
      */
-    private String displayString;
+    private final String displayString;
 
     /**
      * String used to test if this object is equivalent to one of the updated
@@ -64,7 +64,7 @@ public class FollowupData extends AbstractWarningRecord {
     /**
      * Information string used when the follow up is no longer valid or allowed.
      */
-    private String expirationString;
+    private final String expirationString;
 
     public FollowupData(WarningAction action, AbstractWarningRecord record) {
         super(record);
@@ -194,4 +194,13 @@ public class FollowupData extends AbstractWarningRecord {
         return expirationString;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.dataplugin.PluginDataObject#getPluginName()
+     */
+    @Override
+    public String getPluginName() {
+        return "followUpWarning";
+    }
 }

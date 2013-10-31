@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.archive.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.raytheon.uf.common.archive.config.DisplayData;
@@ -34,6 +36,7 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2013 1966        rferrel     Initial creation
+ * Aug 14, 2013 2220       rferrel     Make sure displayDataList is never null.
  * 
  * </pre>
  * 
@@ -49,31 +52,57 @@ public class CategoryInfo {
     private final String categoryName;
 
     /** List of display items for the category. */
-    private final List<DisplayData> displayDataList;
+    private List<DisplayData> displayDataList;
 
     /**
-     * Contructor.
+     * Constructor.
      * 
      * @param archiveName
      * @param categoryName
      * @param displayInfoList
      */
     public CategoryInfo(String archiveName, String categoryName,
-            List<DisplayData> displayInfoList) {
+            List<DisplayData> displayDataList) {
         this.archiveName = archiveName;
         this.categoryName = categoryName;
-        this.displayDataList = displayInfoList;
+        if (displayDataList == null) {
+            this.displayDataList = new ArrayList<DisplayData>(0);
+        } else {
+            setDisplayDataList(displayDataList);
+        }
     }
 
+    /**
+     * Change the display data list.
+     * 
+     * @param displayDataList
+     */
+    public void setDisplayDataList(List<DisplayData> displayDataList) {
+        this.displayDataList = new ArrayList<DisplayData>(
+                displayDataList.size());
+        this.displayDataList.addAll(displayDataList);
+    }
+
+    /**
+     * @return archiveName
+     */
     public String getArchiveName() {
         return archiveName;
     }
 
+    /**
+     * @return categoryName
+     */
     public String getCategoryName() {
         return categoryName;
     }
 
+    /**
+     * Get unmodifiable display data list.
+     * 
+     * @return displayDataList
+     */
     public List<DisplayData> getDisplayDataList() {
-        return displayDataList;
+        return Collections.unmodifiableList(displayDataList);
     }
 }
