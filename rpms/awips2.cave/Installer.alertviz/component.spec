@@ -107,12 +107,6 @@ fi
 %pre
 
 %post
-# Remove the alertviz autostart script if we have been
-# installed on an xt machine.
-if [ "`hostname | cut -b 1-2`" = "xt" ]; then
-   # Remove the awips2-alertviz autostart script.
-   rm -f /etc/xdg/autostart/awips2-alertviz.desktop
-fi
 
 %preun
 %postun
