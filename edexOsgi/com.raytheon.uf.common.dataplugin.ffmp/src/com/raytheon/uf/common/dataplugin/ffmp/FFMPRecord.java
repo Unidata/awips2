@@ -77,18 +77,22 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 06/03/09     2521     D. Hladky   Initial release
- * 01/27/13     1478        D. Hladky   OUN memory help
- * Feb 28, 2013  1729      dhladky    Supressed un-necessary debug loggers
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 8, 2013   1293      bkowal     Removed references to hdffileid.
- * April, 9 2013  1890     dhladky    Moved dates to referenced map in record rather than multiple dates in FFMPBasin objs.
+ * Jun 03, 2009 2521     D. Hladky   Initial release
+ * Jan 27, 2013 1478        D. Hladky   OUN memory help
+ * Feb 28, 2013 1729        dhladky    Supressed un-necessary debug loggers
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal     Removed references to hdffileid.
+ * April, 9 2013 1890       dhladky    Moved dates to referenced map in record
+ *                                          rather than multiple dates in
+ *                                          FFMPBasin objs.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
- * Apr 18, 2013 1919       dhladky     Added method for VGB loading
+ * Apr 18, 2013 1919        dhladky     Added method for VGB loading
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -102,18 +106,13 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "ffmp",
-		indexes = {
-				@Index(name = "ffmp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
-
+@org.hibernate.annotations.Table(appliesTo = "ffmp", indexes = { @Index(name = "ffmp_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class FFMPRecord extends PersistablePluginDataObject
-        implements IPersistable {
+public class FFMPRecord extends PersistablePluginDataObject implements
+        IPersistable {
 
     private static final long serialVersionUID = 76774564365671L;
 
@@ -273,8 +272,8 @@ public class FFMPRecord extends PersistablePluginDataObject
         String unit = null;
         if (field == FIELDS.RATE) {
             unit = "in/hr";
-        } else if (field == FIELDS.QPE || field == FIELDS.QPF
-                || field == FIELDS.GUIDANCE || field == FIELDS.DIFF) {
+        } else if ((field == FIELDS.QPE) || (field == FIELDS.QPF)
+                || (field == FIELDS.GUIDANCE) || (field == FIELDS.DIFF)) {
             unit = "in";
         } else if (field == FIELDS.RATIO) {
             unit = "%";
@@ -394,7 +393,7 @@ public class FFMPRecord extends PersistablePluginDataObject
             LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
                     domain.getCwa(), FFMPRecord.ALL);
 
-            if (map != null && !map.isEmpty()) {
+            if ((map != null) && !map.isEmpty()) {
                 fbd.addBasins(datastoreFile, uri, getSiteKey(),
                         domain.getCwa(), FFMPRecord.ALL, sourceName, idate,
                         map.keySet(), aggregate);
@@ -446,7 +445,7 @@ public class FFMPRecord extends PersistablePluginDataObject
                 LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
                         domain.getCwa(), huc);
 
-                if (map != null && map.get(pfaf) != null) {
+                if ((map != null) && (map.get(pfaf) != null)) {
 
                     int index = 0;
                     for (Long pfafToCheck : map.keySet()) {
@@ -695,5 +694,10 @@ public class FFMPRecord extends PersistablePluginDataObject
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "ffmp";
     }
 }

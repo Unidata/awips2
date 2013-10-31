@@ -57,7 +57,8 @@ import com.raytheon.uf.edex.plugin.npp.AbstractNPPDecoder;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 4, 2013            mschenke     Initial creation
+ * Jan 04, 2013            mschenke    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -67,14 +68,14 @@ import com.raytheon.uf.edex.plugin.npp.AbstractNPPDecoder;
 
 public class NPPSoundingDecoder extends AbstractNPPDecoder {
 
-    private IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(NPPSoundingDecoder.class);
 
     private static final String LATITUDE_DATASET_ID = "Latitude@";
 
     private static final String LONGITUDE_DATASET_ID = "Longitude@";
 
-    private String pluginName;
+    private final String pluginName;
 
     private NPPSoundingDao pluginDao;
 
@@ -128,7 +129,7 @@ public class NPPSoundingDecoder extends AbstractNPPDecoder {
                 longitude = var;
             }
         }
-        if (latitude == null || longitude == null) {
+        if ((latitude == null) || (longitude == null)) {
             throw new DecoderException("Unable to find lat/lon information");
         }
 
@@ -142,7 +143,6 @@ public class NPPSoundingDecoder extends AbstractNPPDecoder {
             // Create PDO for lat/lon entry
             NPPSoundingRecord record = (NPPSoundingRecord) pluginDao
                     .newObject();
-            record.setPluginName(pluginName);
             record.setDataTime(dataTime);
             record.setLatitude((double) latArray.getFloat(i));
             record.setLongitude((double) lonArray.getFloat(i));
@@ -182,7 +182,7 @@ public class NPPSoundingDecoder extends AbstractNPPDecoder {
                         } else if (sourceNumDims == 1) {
                             read1D(records, var, name);
                         }
-                    } else if (sourceNumDims == 1 && destNumDims == 2) {
+                    } else if ((sourceNumDims == 1) && (destNumDims == 2)) {
                         read1Dto2D(records, var, name);
                     }
                 }
@@ -209,8 +209,8 @@ public class NPPSoundingDecoder extends AbstractNPPDecoder {
             String parameter) throws IOException {
         int numLevels = var.getDimension(0).getLength();
         Array data = var.read();
-        for (int i = 0; i < records.length; i++) {
-            PointDataView pdv = records[i].getPointDataView();
+        for (NPPSoundingRecord record : records) {
+            PointDataView pdv = record.getPointDataView();
             for (int j = 0; j < numLevels; j++) {
                 float value = data.getFloat(j);
                 pdv.setFloat(parameter, value, j);

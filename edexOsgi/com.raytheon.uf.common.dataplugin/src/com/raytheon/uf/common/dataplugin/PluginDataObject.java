@@ -102,6 +102,7 @@ import com.raytheon.uf.common.time.DataTime;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * May 16, 2013 1869        bsteffen    Rewrite dataURI property mappings.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  */
@@ -122,12 +123,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     @Id
     protected int id;
-
-    /** The name of the plugin this object is associated with */
-    @Transient
-    @XmlAttribute
-    @DynamicSerializeElement
-    protected String pluginName;
 
     /** The data time for this record */
     @Embedded
@@ -190,7 +185,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     }
 
     public String getDataURI() {
-        if (dataURI == null && pluginName != null) {
+        if (dataURI == null) {
             try {
                 this.dataURI = DataURIUtil.createDataURI(this);
             } catch (PluginException e) {
@@ -230,13 +225,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         this.messageData = messageData;
     }
 
-    public String getPluginName() {
-        return pluginName;
-    }
-
-    public void setPluginName(String pluginName) {
-        this.pluginName = pluginName;
-    }
+    public abstract String getPluginName();
 
     public void setDataTime(DataTime dataTime) {
         this.dataTime = dataTime;
@@ -325,11 +314,13 @@ public abstract class PluginDataObject extends PersistableDataObject implements
             return false;
         }
 
+        String pluginName = getPluginName();
+        String rhsPluginName = rhs.getPluginName();
         if (pluginName == null) {
-            if (rhs.pluginName != null) {
+            if (rhsPluginName != null) {
                 return false;
             }
-        } else if (!pluginName.equals(rhs.pluginName)) {
+        } else if (!pluginName.equals(rhsPluginName)) {
             return false;
         }
 
@@ -340,14 +331,16 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((dataTime == null) ? 0 : dataTime.hashCode());
-        result = prime * result
-                + ((getDataURI() == null) ? 0 : dataURI.hashCode());
-        result = prime * result + id;
-        result = prime * result
+        String dataUri = getDataURI();
+        result = (prime * result)
+                + ((dataUri == null) ? 0 : dataURI.hashCode());
+        result = (prime * result) + id;
+        result = (prime * result)
                 + ((insertTime == null) ? 0 : insertTime.hashCode());
-        result = prime * result
+        String pluginName = getPluginName();
+        result = (prime * result)
                 + ((pluginName == null) ? 0 : pluginName.hashCode());
         return result;
     }
