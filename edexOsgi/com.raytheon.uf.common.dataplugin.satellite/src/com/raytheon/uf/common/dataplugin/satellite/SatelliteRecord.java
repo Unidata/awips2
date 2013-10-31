@@ -57,21 +57,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 02/14/07     139         bphillip    Initial Creation    
- * 20070914            379  jkorman     Added populateDataStore() and
- *                                      getPersistenceTime() from new IPersistable
- * 20071129            472  jkorman     Added IDecoderGettable interface.
- * 20081106           1515  jkorman     Changed units length from 16 to 26
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * - AWIPS2 Baseline Repository --------
- * 07/30/2012    798        jkorman     Support for common satellite data.
- * 03/25/2013   1823        dgilling    Replace underscores with spaces in URI
+ * Feb 14, 2007 139         bphillip    Initial Creation
+ * Sep 14, 2007 379         jkorman     Added populateDataStore() and
+ *                                      getPersistenceTime() from new
+ *                                      IPersistable
+ * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
+ * Nov 06, 2008 1515        jkorman     Changed units length from 16 to 26
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Jul 30, 2012 798         jkorman     Support for common satellite data.
+ * Mar 25, 2013 1823        dgilling    Replace underscores with spaces in URI
  *                                      constructor.
- * 04/08/2013   1293        bkowal      Removed references to hdffileid.
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * 
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bphillip
@@ -411,5 +412,10 @@ public class SatelliteRecord extends PersistablePluginDataObject
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "satellite";
     }
 }

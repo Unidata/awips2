@@ -1,15 +1,3 @@
-/**
- *
- * WcpDecoder
- * 
- * Decoder Plug-In for Watch Corner Point WCP.
- * 
- * 12 December 2008
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * 
- */
-
 package gov.noaa.nws.ncep.edex.plugin.wcp.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpRecord;
@@ -28,28 +16,28 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
- * 
  * WcpDecoder
  * 
- * Decoder implementation for WCP Plug-In
+ * Decoder implementation for WCP Plug-In.
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 12Dec2008		37		F. J. Yen	Initial creation
- * 17Apr2009		37		F. J. Yen	Refactored for TO10 and to allow for more unit testing
- * 24Aug2009		37		F. J. Yen	Modified for TO11 migration
- * 10Dec2009		37		F. J. Yen	Modified for To11d6
- * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 12Dec2008    37         F. J. Yen   Initial creation
+ * 17Apr2009    37         F. J. Yen   Refactored for TO10 and to allow for more
+ *                                     unit testing
+ * 24Aug2009    37         F. J. Yen   Modified for TO11 migration
+ * 10Dec2009    37         F. J. Yen   Modified for To11d6
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author Fee Jing Yen, SIB
  * @version 1
- * 
  */
-
 public class WcpDecoder extends AbstractDecoder {
     // Name of the plugin controlling this decoder.
     public final String pluginName;
@@ -140,7 +128,6 @@ public class WcpDecoder extends AbstractDecoder {
         if (record != null) {
             try {
                 record.setTraceId(traceId);
-                record.setPluginName(pluginName);
                 record.constructDataURI();
             } catch (PluginException e) {
                 throw new DecoderException("Unable to construct dataURI", e);

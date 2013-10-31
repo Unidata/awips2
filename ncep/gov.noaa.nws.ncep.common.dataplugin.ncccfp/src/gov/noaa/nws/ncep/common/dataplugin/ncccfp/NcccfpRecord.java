@@ -1,4 +1,3 @@
-
 package gov.noaa.nws.ncep.common.dataplugin.ncccfp;
 
 import java.util.Calendar;
@@ -31,15 +30,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * --------- ----------  ----------- --------------------------
- * 10/05/2009   155         F. J. Yen   From Raytheon's CCFP; mod for NC_CCFP
- * 26/05/2010	155			F. J. Yen	Refactored to dataplugin for migration to to11dr11
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869     bsteffen    Remove dataURI column from
+ * Date         Ticket#  Engineer    Description
+ * ------------ -------- ----------- --------------------------
+ * Oct 05, 2009 155      F. J. Yen   From Raytheon's CCFP; mod for NC_CCFP
+ * May 26, 2010 155      F. J. Yen   Refactored to dataplugin for
+ *                                   migration to to11dr11
+ * Apr 04, 2013 1846      bkowal     Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857      bgonzale   Added SequenceGenerator annotation.
+ * May 07, 2013 1869      bsteffen   Remove dataURI column from
  *                                   PluginDataObject.
- * 
+ * Aug 30, 2013 2298      rjpeter    Make getPluginName abstract
  * </pre>
  * 
  * @author F. J. Yen
@@ -52,12 +52,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "ncccfp",
-		indexes = {
-				@Index(name = "ncccfp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "ncccfp", indexes = { @Index(name = "ncccfp_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -76,7 +72,7 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
     @XmlAttribute
     @DynamicSerializeElement
     private Calendar validtime;
-    
+
     @Column(length = 8)
     @XmlAttribute
     @DynamicSerializeElement
@@ -117,26 +113,26 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
     @XmlAttribute
     @DynamicSerializeElement
     private Integer numPts;
-    
+
     @Column
     @DynamicSerializeElement
     @XmlElement
     private Boolean canadaflag;
 
     /*
-     * locationUri contains up to the first seven coordinates.  This is for making the dataURI
-     * unique.  (It was suggested that it was highly unlikely that 7 coordinates would not
-     * be unique enough.  The number of coordinates was reduced due to the limited length of
-     * the string dataURI)
+     * locationUri contains up to the first seven coordinates. This is for
+     * making the dataURI unique. (It was suggested that it was highly unlikely
+     * that 7 coordinates would not be unique enough. The number of coordinates
+     * was reduced due to the limited length of the string dataURI)
      */
     @DataURI(position = 4)
-    @Column(length=150)
+    @Column(length = 150)
     @XmlElement
     @DynamicSerializeElement
     private String locationUri;
-    
+
     private NcccfpLocation location;
- 
+
     /**
      * Default Constructor
      */
@@ -299,8 +295,8 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
      */
     public void setDirection(Integer direction) {
         this.direction = direction;
-    } 
-    
+    }
+
     /**
      * @return the number of points
      */
@@ -315,6 +311,7 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
     public void setNumPts(Integer numPts) {
         this.numPts = numPts;
     }
+
     @Override
     public NcccfpLocation getSpatialObject() {
         return location;
@@ -332,9 +329,9 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
         return location;
     }
 
-    public void setLocation (NcccfpLocation location) {
+    public void setLocation(NcccfpLocation location) {
         this.location = location;
-	}
+    }
 
     @Override
     @Column
@@ -343,4 +340,8 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
         return super.getDataURI();
     }
 
+    @Override
+    public String getPluginName() {
+        return "ncccfp";
+    }
 }
