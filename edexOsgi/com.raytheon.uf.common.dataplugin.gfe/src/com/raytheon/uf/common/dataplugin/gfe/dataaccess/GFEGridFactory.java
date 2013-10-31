@@ -36,7 +36,6 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
-import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
@@ -73,6 +72,7 @@ import com.raytheon.uf.common.util.StringUtil;
  * May 02, 2013 1949       bsteffen    Update GFE data access in Product
  *                                     Browser, Volume Browser, and Data Access
  *                                     Framework.
+ * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -221,7 +221,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
             } else if (slice instanceof DiscreteGridSlice) {
                 DiscreteGridSlice castedSlice = (DiscreteGridSlice) slice;
                 data = castedSlice.getDiscreteGrid();
-                DiscreteKey[] dKeys = castedSlice.getKey();
+                Object[] dKeys = castedSlice.getKeys();
                 String[] keys = new String[dKeys.length];
                 for (int i = 0; i < dKeys.length; i++) {
                     keys[i] = dKeys[i].toString();
@@ -285,7 +285,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     private GFERecord asGFERecord(Object obj) {
-        if (obj instanceof GFERecord == false) {
+        if ((obj instanceof GFERecord) == false) {
             throw new DataRetrievalException(this.getClass().getSimpleName()
                     + " cannot handle " + obj.getClass().getSimpleName());
         }

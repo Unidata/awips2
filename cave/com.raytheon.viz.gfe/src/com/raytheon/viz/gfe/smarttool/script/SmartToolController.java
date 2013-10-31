@@ -70,6 +70,7 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2008            njensen     Initial creation
  * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
+ * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * </pre>
  * 
  * @author njensen
@@ -201,7 +202,7 @@ public class SmartToolController extends BaseGfePyController {
         Set<String> set = null;
         String[] tools = new String[0];
         try {
-            if (parmName == null && parmTypeName == null) {
+            if ((parmName == null) && (parmTypeName == null)) {
                 set = (Set<String>) execute("getScripts", INTERFACE, null);
             } else {
                 HashMap<String, Object> argMap = new HashMap<String, Object>(2);
@@ -325,7 +326,7 @@ public class SmartToolController extends BaseGfePyController {
                 jep.set("discreteGridData", grid);
                 jep.eval("discreteGridNumpy = discreteGridData.__numpy__");
                 jep.eval("discreteGridNumpy = discreteGridNumpy[0]");
-                DiscreteKey[] keys = grid.getDiscreteSlice().getKey();
+                DiscreteKey[] keys = grid.getDiscreteSlice().getKeys();
                 ArrayList<String> stringKeys = new ArrayList<String>();
                 for (DiscreteKey k : keys) {
                     stringKeys.add(k.toString());
