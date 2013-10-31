@@ -110,6 +110,7 @@ g2int g2_unpack3(unsigned char *cgrib,g2int *iofst,g2int **igds,g2int **igdstmpl
         mapgrid=getgridtemplate(ligds[4]);
         if (mapgrid == 0) {         // undefined template
           ierr=5;
+	  free(ligds);
           return(ierr);
         }
         *mapgridlen=mapgrid->maplen;
@@ -126,6 +127,7 @@ g2int g2_unpack3(unsigned char *cgrib,g2int *iofst,g2int **igds,g2int **igdstmpl
               *mapgridlen=0;
               *igdstmpl=0;    //NULL
               if( mapgrid != 0 ) free(mapgrid);
+	      free(ligds);
               return(ierr);
            }
            else {
@@ -197,6 +199,7 @@ g2int g2_unpack3(unsigned char *cgrib,g2int *iofst,g2int **igds,g2int **igdstmpl
             ierr=6;
             *idefnum=0;
             *ideflist=0;   //NULL
+            free(ligds);
             return(ierr);
          }
          else {
