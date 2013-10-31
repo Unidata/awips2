@@ -1,20 +1,3 @@
-/**
- * BufrSshaDecoder
- *
- * This java class decodes SSHA (Sea Surface Height Anomaly) BUFR data.
- *
- ** <pre>
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#     Engineer    Description
- * -------		-------		--------	-----------
- * 09/11					Chin J Chen   Initial coding from BufrSshaDecoder
- * </pre>
- *
- * @author Chin J. Chen
- * @version 1.0
- */
-
 package gov.noaa.nws.ncep.edex.plugin.ssha.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.ssha.SshaRecord;
@@ -32,10 +15,27 @@ import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 
+/**
+ * BufrSshaDecoder
+ *
+ * This java class decodes SSHA (Sea Surface Height Anomaly) BUFR data.
+ *
+ ** <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket# Engineer    Description
+ * ------------ ------- ----------- -----------
+ * 09/11                Chin J Chen Initial coding from BufrSshaDecoder
+ * Aug 30, 2013 2298    rjpeter     Make getPluginName abstract
+ * </pre>
+ *
+ * @author Chin J. Chen
+ * @version 1.0
+ */
 public class SshaDecoder extends AbstractDecoder implements IBinaryDecoder {
     private static String pluginName;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     /**
      * Empty constructor required by DecoderFactory.
@@ -53,6 +53,7 @@ public class SshaDecoder extends AbstractDecoder implements IBinaryDecoder {
      * @throws DecoderException
      *             Thrown if no data is available.
      */
+    @Override
     public PluginDataObject[] decode(byte[] bufrData) throws DecoderException {
         SshaRecord sshaRec;
         SshaSeparator sep = new SshaSeparator();
@@ -82,7 +83,6 @@ public class SshaDecoder extends AbstractDecoder implements IBinaryDecoder {
             sshaRec = SshaParser.processSsha(sep, subsetNum);
             if (sshaRec != null) {
                 try {
-                    sshaRec.setPluginName(pluginName);
                     sshaRec.constructDataURI();
                     sshaRec.setReportType("BUFRSSHA");
                 } catch (PluginException e) {

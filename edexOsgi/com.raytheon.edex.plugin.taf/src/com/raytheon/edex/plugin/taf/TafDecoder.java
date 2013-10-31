@@ -30,18 +30,18 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 
- * Decoder implementation for taf plugin
+ * Decoder implementation for taf plugin.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 2/14/07		139			bphillip	Initial creation	
- * 6/21/07		180			bphillip	Updated to use new plugin pattern
- * 20080425           1001  jkorman     Extracted decoder code into TAFParser.
- * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Feb 14, 2007 139         bphillip    Initial creation
+ * Jun 21, 2007 180         bphillip    Updated to use new plugin pattern
+ * Apr 25, 2008 1001        jkorman     Extracted decoder code into TAFParser.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bphillip
@@ -52,7 +52,7 @@ public class TafDecoder extends AbstractDecoder {
     // Name of the plugin controlling this decoder.
     public static final String PLUGIN_NAME = "TAF";
 
-    private String traceId = "";
+    private final String traceId = "";
 
     /**
      * Constructor.
@@ -88,12 +88,12 @@ public class TafDecoder extends AbstractDecoder {
             record = parser.getDecodedRecord();
             if (record != null) {
                 record.setTraceId(traceId);
-                record.setPluginName("taf");
                 record.constructDataURI();
             } else {
                 TAFParts parts = input.tafParts;
-                if(parts.getTafHeader() != null) {
-                    logger.error("Could not parse TAF for input " + parts.getTafHeader() + " in file " + traceId);
+                if (parts.getTafHeader() != null) {
+                    logger.error("Could not parse TAF for input "
+                            + parts.getTafHeader() + " in file " + traceId);
                 } else {
                     logger.error("Could not parse file " + traceId);
                 }
@@ -107,8 +107,9 @@ public class TafDecoder extends AbstractDecoder {
             record = null;
         }
 
-        if (record == null)
+        if (record == null) {
             return new PluginDataObject[0];
+        }
 
         return new PluginDataObject[] { record };
     }

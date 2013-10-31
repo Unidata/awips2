@@ -5,9 +5,7 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
        
 	
-	<bean id="stormTrackDecoder" class="gov.noaa.nws.ncep.edex.plugin.stormtrack.decoder.StormTrackDecoder">
-		<constructor-arg ref="stormTrackPluginName"/>
-	</bean>
+	<bean id="stormTrackDecoder" class="gov.noaa.nws.ncep.edex.plugin.stormtrack.decoder.StormTrackDecoder"/>
 		
 	<bean id="stormTrackSeparator" class="gov.noaa.nws.ncep.edex.plugin.stormtrack.decoder.StormTrackSeparator" />
 
@@ -20,7 +18,7 @@
 <!-- class=" com.raytheon.uf.edex.distribution.DistributionSrv" -->
 	<bean id="stormTrackDistRegistry" factory-bean="distributionSrv" 
 		factory-method="register">
-		<constructor-arg value="stormTrack" />
+		<constructor-arg value="stormtrack" />
 		<!-- <constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />  -->
 		<constructor-arg value="jms-dist:queue:Ingest.stormTrack" />
 	</bean>

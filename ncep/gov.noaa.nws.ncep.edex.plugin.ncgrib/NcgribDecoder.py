@@ -68,8 +68,6 @@ from gov.noaa.nws.ncep.edex.util.grib2vcrd import Grib2VcrdTableLookup
 from  gov.noaa.nws.ncep.edex.plugin.ncgrib import Ncgrib1Decoder
 from  gov.noaa.nws.ncep.edex.util.ncgrib import NcgribParamTranslator
 
-PLUGIN_NAME = "ncgrib"
-
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
 GENPROCESS_TABLE = "A"
@@ -137,6 +135,7 @@ THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 #    11/02/11                      xguo           Added codes to decode firewx
 #    11/08/11                      xguo           Adjusted glevel1/glevel2 for PRES/PDLY/POTV
 #    11/22/11                      xguo           Updated Level infor in model
+#    Sep 04, 2013    2298          rjpeter        Removed setPluginName call
 #    
 class NcgribDecoder():
 
@@ -460,7 +459,6 @@ class NcgribDecoder():
                 
         # Construct the ncgribRecord
         record = NcgribRecord()
-        record.setPluginName(PLUGIN_NAME)
         record.setDataTime(dataTime)
         record.setMasterTableVersion(idSectionValues['masterTableVersion'])
         record.setLocalTableVersion(idSectionValues['localTableVersion'])

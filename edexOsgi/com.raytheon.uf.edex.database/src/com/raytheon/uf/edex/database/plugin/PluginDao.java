@@ -112,6 +112,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 07, 2013 2392       rjpeter     Updated to pass null productKeys as actual null instead of string null.
  * </pre>
  * 
@@ -360,8 +361,8 @@ public abstract class PluginDao extends CoreDao {
         Boolean hasDataURIColumn = pluginDataURIColumn.get(pdoClazz);
         if (!Boolean.FALSE.equals(hasDataURIColumn)) {
             try {
-                getSessionFactory().getClassMetadata(pdoClazz)
-                        .getPropertyType("dataURI");
+                getSessionFactory().getClassMetadata(pdoClazz).getPropertyType(
+                        "dataURI");
                 criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
                 return;
             } catch (QueryException e) {
@@ -633,7 +634,6 @@ public abstract class PluginDao extends CoreDao {
             throws PluginException {
         PluginDataObject[] queryResults = getMetadata(query);
         for (PluginDataObject obj : queryResults) {
-            obj.setPluginName(pluginName);
             obj.setMessageData(getHDF5Data(obj, tile));
         }
         return queryResults;
@@ -846,7 +846,7 @@ public abstract class PluginDao extends CoreDao {
                     long dateTimeAsLong = timeToCompare.getTime();
 
                     if (rule.isDeltaTimeMultiple()) {
-                        if (dateTimeAsLong % delta == 0) {
+                        if ((dateTimeAsLong % delta) == 0) {
                             // If the versions to keep is zero we keep it if
                             // it does not exceed the period specified, if
                             // any
@@ -1610,7 +1610,8 @@ public abstract class PluginDao extends CoreDao {
     }
 
     private Date roundDateToHour(Date dateToRound) {
-        return new Date(dateToRound.getTime() - dateToRound.getTime() % 3600000);
+        return new Date(dateToRound.getTime()
+                - (dateToRound.getTime() % 3600000));
     }
 
     /**
@@ -1754,7 +1755,7 @@ public abstract class PluginDao extends CoreDao {
 
                 // remove .h5
                 int index = path.lastIndexOf('.');
-                if ((index > 0) && (path.length() - index < 5)) {
+                if ((index > 0) && ((path.length() - index) < 5)) {
                     // ensure its end of string in case extension is
                     // dropped/changed
                     path = path.substring(0, index);
@@ -1818,7 +1819,7 @@ public abstract class PluginDao extends CoreDao {
         }
 
         protected void updateRate(float rate) {
-            cumulativeRate = (rate + cumulativeRate * total) / (total + 1);
+            cumulativeRate = (rate + (cumulativeRate * total)) / (total + 1);
             duplicateCheck = cumulativeRate < DUPLICATE_CHECK_THRESHOLD;
 
             if (total < DUPLICATE_MEMORY) {
