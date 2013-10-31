@@ -184,6 +184,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     ant time weighted average.
  * Apr 02, 2013 #1774      randerso    Fixed a possible deadlock issue.
  * Aug 27, 2013 #2302      randerso    Fix simultaneous save issue
+ * Oct 31, 2013 #2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -593,7 +594,8 @@ public abstract class Parm implements Comparable<Parm> {
 
         this.grids.acquireReadLock();
         try {
-            if (this.grids.size() > 0 && !getGridInfo().isTimeIndependentParm()) {
+            if ((this.grids.size() > 0)
+                    && !getGridInfo().isTimeIndependentParm()) {
                 return new TimeRange(
                         this.grids.get(0).getGridTime().getStart(), this.grids
                                 .get(this.grids.size() - 1).getGridTime()
@@ -965,7 +967,7 @@ public abstract class Parm implements Comparable<Parm> {
         Date[] dateArray = { absTime };
         IGridData[] gridData = startParmEdit(dateArray);
 
-        if (gridData != null && gridData.length == 1) {
+        if ((gridData != null) && (gridData.length == 1)) {
             return gridData[0];
         }
 
@@ -1029,7 +1031,7 @@ public abstract class Parm implements Comparable<Parm> {
             IGridData grid = null;
             grid = overlappingGrid(absTime);
 
-            if (grid != null && isOkToEdit(grid.getGridTime())) {
+            if ((grid != null) && isOkToEdit(grid.getGridTime())) {
                 retGrids.add(grid);
                 affectedTimes.add(grid.getGridTime());
                 saveUndoTimes.add(grid.getGridTime());
@@ -1245,7 +1247,7 @@ public abstract class Parm implements Comparable<Parm> {
 
         boolean invChanged = false;
         IGridData leftGrid = overlappingGrid(splitTimeRange.getStart());
-        if (leftGrid != null
+        if ((leftGrid != null)
                 && !leftGrid.getGridTime().getStart()
                         .equals(splitTimeRange.getStart())) {
             IGridData newGrid = null;
@@ -1266,7 +1268,7 @@ public abstract class Parm implements Comparable<Parm> {
 
         IGridData rightGrid = overlappingGrid(new Date(splitTimeRange.getEnd()
                 .getTime() - 1000));
-        if (rightGrid != null
+        if ((rightGrid != null)
                 && !rightGrid.getGridTime().getEnd()
                         .equals(splitTimeRange.getEnd())) {
             IGridData newGrid;
@@ -1355,10 +1357,10 @@ public abstract class Parm implements Comparable<Parm> {
 
             // in some cases, you can end up with an invalid TR
             if (!expTR.isValid()
-                    || orgTR.getStart().getTime() < replaceRange.getStart()
-                            .getTime()
-                    || orgTR.getEnd().getTime() > replaceRange.getEnd()
-                            .getTime()) {
+                    || (orgTR.getStart().getTime() < replaceRange.getStart()
+                            .getTime())
+                    || (orgTR.getEnd().getTime() > replaceRange.getEnd()
+                            .getTime())) {
                 continue;
             }
 
@@ -1461,8 +1463,8 @@ public abstract class Parm implements Comparable<Parm> {
                 // add proportional value to existing grid
                 float timeRatio = (float) intersect.getDuration()
                         / (float) orgTR.getDuration();
-                if (grids.get(j).getGridSlice() instanceof IContinuousSlice
-                        && grid.getGridSlice() instanceof IContinuousSlice) {
+                if ((grids.get(j).getGridSlice() instanceof IContinuousSlice)
+                        && (grid.getGridSlice() instanceof IContinuousSlice)) {
 
                     IGridSlice copy;
                     try {
@@ -1656,8 +1658,8 @@ public abstract class Parm implements Comparable<Parm> {
                         e);
             }
 
-            if (copy instanceof IContinuousSlice
-                    && newgrid.getGridSlice() instanceof IContinuousSlice) {
+            if ((copy instanceof IContinuousSlice)
+                    && (newgrid.getGridSlice() instanceof IContinuousSlice)) {
                 ((IContinuousSlice) copy).operateEquals(Op.MULTIPLY, timeRatio,
                         dataManager.getRefManager().fullRefSet().getGrid());
                 ((IContinuousSlice) newgrid.getGridSlice()).operateEquals(
@@ -2068,8 +2070,8 @@ public abstract class Parm implements Comparable<Parm> {
         ParmID parmId = getParmID();
         String siteId = parmId.getDbId().getSiteId();
 
-        if (grids.length == 1
-                && getGridInfo().getGridType() != GridType.WEATHER) {
+        if ((grids.length == 1)
+                && (getGridInfo().getGridType() != GridType.WEATHER)) {
             // nothing to average so we're done, except in the weather case
             try {
                 gridSlice = grids[0].getGridSlice().clone();
@@ -2119,8 +2121,8 @@ public abstract class Parm implements Comparable<Parm> {
                 float dur = gridTR.get(k).getDuration();
                 for (int i = 0; i < ge.getSpan(0); i++) {
                     for (int j = 0; j < ge.getSpan(1); j++) {
-                        uSum.set(i, j, uSum.get(i, j) + uGrid.get(i, j) * dur);
-                        vSum.set(i, j, vSum.get(i, j) + vGrid.get(i, j) * dur);
+                        uSum.set(i, j, uSum.get(i, j) + (uGrid.get(i, j) * dur));
+                        vSum.set(i, j, vSum.get(i, j) + (vGrid.get(i, j) * dur));
                     }
                 }
             }
@@ -2184,7 +2186,7 @@ public abstract class Parm implements Comparable<Parm> {
                     // values that exceed the configured percentage
                     ArrayList<WeatherSubKey> weightedKeys = new ArrayList<WeatherSubKey>();
                     for (int k = 0; k < subKeys.size(); k++) {
-                        if ((float) wcount.get(k) / totalDuration > significantPercent) {
+                        if (((float) wcount.get(k) / totalDuration) > significantPercent) {
                             weightedKeys.add(subKeys.get(k));
                         }
                     }
@@ -2237,7 +2239,7 @@ public abstract class Parm implements Comparable<Parm> {
                     Map<DiscreteKey, MutableInteger> values = new HashMap<DiscreteKey, MutableInteger>();
                     for (int k = 0; k < gridCount; k++) {
                         DiscreteKey key1[] = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice()).getKey();
+                                .getGridSlice()).getKeys();
                         Grid2DByte grid1 = ((DiscreteGridSlice) grids[k]
                                 .getGridSlice()).getDiscreteGrid();
                         // TextString kv = key1[grid1(i, j)].keyAsString();
@@ -2323,8 +2325,8 @@ public abstract class Parm implements Comparable<Parm> {
     public void adjust(float deltaValue, final Date time,
             final ReferenceData refData) {
         // Can't adjust weather or discrete
-        if (getGridInfo().getGridType() == GridType.WEATHER
-                || getGridInfo().getGridType() == GridType.DISCRETE) {
+        if ((getGridInfo().getGridType() == GridType.WEATHER)
+                || (getGridInfo().getGridType() == GridType.DISCRETE)) {
             return;
         }
 
@@ -2348,7 +2350,7 @@ public abstract class Parm implements Comparable<Parm> {
         Date[] dateArray = { absTime };
         IGridData[] gridData = extendParmEdit(dateArray);
 
-        if (gridData != null && gridData.length == 1) {
+        if ((gridData != null) && (gridData.length == 1)) {
             return gridData[0];
         }
 
@@ -2434,8 +2436,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public boolean timeShiftTR(TimeRange tr, int secondsToShift,
             boolean copyOnly) {
-        if (Math.abs(secondsToShift)
-                % this.gridInfo.getTimeConstraints().getRepeatInterval() != 0) {
+        if ((Math.abs(secondsToShift) % this.gridInfo.getTimeConstraints()
+                .getRepeatInterval()) != 0) {
             throw new IllegalArgumentException("timeShiftSelectedTR of "
                     + secondsToShift + " not an interval of "
                     + this.gridInfo.getTimeConstraints().getRepeatInterval()
@@ -2443,15 +2445,15 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // Make sure the given timeRange is valid and there is something to do
-        if (!tr.isValid() || secondsToShift == 0) {
+        if (!tr.isValid() || (secondsToShift == 0)) {
             return false;
         }
 
         // calculate source and destination timeRanges
         TimeRange sourceTR = new TimeRange(tr.getStart(), tr.getEnd());
         TimeRange destinationTR = new TimeRange(tr.getStart().getTime()
-                + secondsToShift * 1000, tr.getEnd().getTime() + secondsToShift
-                * 1000);
+                + (secondsToShift * 1000), tr.getEnd().getTime()
+                + (secondsToShift * 1000));
 
         // Create a combinedTR that includes the all blocks it touches
         TimeRange combinedTR = destinationTR;
@@ -2502,27 +2504,28 @@ public abstract class Parm implements Comparable<Parm> {
 
         for (int i = 0; i < destGrids.length; i++) {
             TimeRange tr2 = destGrids[i].getGridTime();
-            tr2 = new TimeRange(tr2.getStart().getTime() + secondsToShift
-                    * 1000, tr2.getEnd().getTime() + secondsToShift * 1000);
+            tr2 = new TimeRange(tr2.getStart().getTime()
+                    + (secondsToShift * 1000), tr2.getEnd().getTime()
+                    + (secondsToShift * 1000));
             destGrids[i].changeValidTime(tr2, true);
             destGrids[i].updateHistoryToModified(this.dataManager.getWsId());
         }
 
         // Trim the start of the first copied grid, if necessary
-        if (destGrids[0].getGridTime().getStart().getTime() < sourceTR
-                .getStart().getTime() + secondsToShift * 1000) {
+        if (destGrids[0].getGridTime().getStart().getTime() < (sourceTR
+                .getStart().getTime() + (secondsToShift * 1000))) {
             TimeRange newTR = new TimeRange(sourceTR.getStart().getTime()
-                    + secondsToShift * 1000, destGrids[0].getGridTime()
+                    + (secondsToShift * 1000), destGrids[0].getGridTime()
                     .getEnd().getTime());
             destGrids[0].changeValidTime(newTR, true);
         }
 
         // Trim the end of the last copied grid, if necessary
-        if (destGrids[destGrids.length - 1].getGridTime().getEnd().getTime() > sourceTR
-                .getEnd().getTime() + secondsToShift * 1000) {
+        if (destGrids[destGrids.length - 1].getGridTime().getEnd().getTime() > (sourceTR
+                .getEnd().getTime() + (secondsToShift * 1000))) {
             TimeRange newTR = new TimeRange(destGrids[destGrids.length - 1]
                     .getGridTime().getStart().getTime(), sourceTR.getEnd()
-                    .getTime() + secondsToShift * 1000);
+                    .getTime() + (secondsToShift * 1000));
             destGrids[destGrids.length - 1].changeValidTime(newTR, true);
         }
 
@@ -2730,9 +2733,9 @@ public abstract class Parm implements Comparable<Parm> {
         IGridData leftGrid = overlappingGrid(timeRange.getStart());
         IGridData rightGrid = overlappingGrid(new Date(timeRange.getEnd()
                 .getTime() - 1000));
-        if ((leftGrid == null || leftGrid.getGridTime().getStart()
+        if (((leftGrid == null) || leftGrid.getGridTime().getStart()
                 .equals(timeRange.getStart()))
-                && (rightGrid == null || rightGrid.getGridTime().getEnd()
+                && ((rightGrid == null) || rightGrid.getGridTime().getEnd()
                         .equals(timeRange.getEnd()))) {
             return false; // nothing to split
         }
@@ -3180,8 +3183,8 @@ public abstract class Parm implements Comparable<Parm> {
         ParmState.CombineMode cCombineMode = this.parmState.getCombineMode();
         if (this.gridInfo.getGridType() == GFERecord.GridType.VECTOR) {
             this.parmState.setVectorMode(ParmState.VectorMode.BOTH);
-        } else if (this.gridInfo.getGridType() == GFERecord.GridType.WEATHER
-                || this.gridInfo.getGridType() == GFERecord.GridType.DISCRETE) {
+        } else if ((this.gridInfo.getGridType() == GFERecord.GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GFERecord.GridType.DISCRETE)) {
             this.parmState.setCombineMode(ParmState.CombineMode.REPLACE);
         }
 
@@ -3198,8 +3201,8 @@ public abstract class Parm implements Comparable<Parm> {
         // restore the edit modes
         if (this.gridInfo.getGridType() == GFERecord.GridType.VECTOR) {
             this.parmState.setVectorMode(cVectorMode);
-        } else if (this.gridInfo.getGridType() == GFERecord.GridType.WEATHER
-                || this.gridInfo.getGridType() == GFERecord.GridType.DISCRETE) {
+        } else if ((this.gridInfo.getGridType() == GFERecord.GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GFERecord.GridType.DISCRETE)) {
             this.parmState.setCombineMode(cCombineMode);
         }
 
@@ -3367,13 +3370,13 @@ public abstract class Parm implements Comparable<Parm> {
             if (interval < tc.getRepeatInterval()) {
                 interval = tc.getRepeatInterval();
             }
-            if (interval % tc.getRepeatInterval() != 0) {
-                interval = (interval / tc.getRepeatInterval() + 1)
+            if ((interval % tc.getRepeatInterval()) != 0) {
+                interval = ((interval / tc.getRepeatInterval()) + 1)
                         * tc.getRepeatInterval();
             }
         }
 
-        if (interval == 0 || duration == 0) {
+        if ((interval == 0) || (duration == 0)) {
             gridTimes.add(tr);
         }
 
@@ -3415,8 +3418,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public Parm min(TimeRange timeRange) {
         // Can't take the minimum of a weather or discrete type
-        if (this.gridInfo.getGridType() == GridType.WEATHER
-                || this.gridInfo.getGridType() == GridType.DISCRETE) {
+        if ((this.gridInfo.getGridType() == GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GridType.DISCRETE)) {
             return null;
         }
 
@@ -3478,8 +3481,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public Parm max(TimeRange timeRange) {
         // Can't take the minimum of a weather or discrete type
-        if (this.gridInfo.getGridType() == GridType.WEATHER
-                || this.gridInfo.getGridType() == GridType.DISCRETE) {
+        if ((this.gridInfo.getGridType() == GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GridType.DISCRETE)) {
             return null;
         }
 
@@ -3541,8 +3544,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public Parm sum(TimeRange timeRange) {
         // Can't take the minimum of a weather or discrete type
-        if (this.gridInfo.getGridType() == GridType.WEATHER
-                || this.gridInfo.getGridType() == GridType.DISCRETE) {
+        if ((this.gridInfo.getGridType() == GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GridType.DISCRETE)) {
             return null;
         }
 
@@ -3769,7 +3772,7 @@ public abstract class Parm implements Comparable<Parm> {
 
                     for (k = 0; k < gridCount; k++) {
                         DiscreteKey[] key1 = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice()).getKey();
+                                .getGridSlice()).getKeys();
                         Grid2DByte grid1 = ((DiscreteGridSlice) grids[k]
                                 .getGridSlice()).getDiscreteGrid();
                         DiscreteKey dkv = key1[grid1.get(i, j)];
@@ -3919,16 +3922,16 @@ public abstract class Parm implements Comparable<Parm> {
                 // left
                 {
                     end = mid - 1;
-                    mid = (end - begin) / 2 + begin;
+                    mid = ((end - begin) / 2) + begin;
                 } else // on the right
                 {
                     begin = mid + 1;
-                    mid = (end - begin) / 2 + begin;
+                    mid = ((end - begin) / 2) + begin;
                 }
             }
 
             // Did we find it? Last chance...
-            if (mid >= 0 && mid < this.grids.size()
+            if ((mid >= 0) && (mid < this.grids.size())
                     && this.grids.get(mid).getGridTime().contains(time)) {
                 return this.grids.get(mid);
             }
@@ -4042,7 +4045,7 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // set duration to interval if needed
-        if (interval != 0 && duration == 0) {
+        if ((interval != 0) && (duration == 0)) {
             duration = interval;
         }
 
@@ -4120,7 +4123,7 @@ public abstract class Parm implements Comparable<Parm> {
 
         // eliminate all of the earlier and the later grids from
         // basegrids
-        if (endIndex != -1 && endIndex < baseGrids.size() - 1) {
+        if ((endIndex != -1) && (endIndex < (baseGrids.size() - 1))) {
             baseGrids.subList(endIndex + 1, baseGrids.size()).clear();
         }
         if (startIndex >= 1) {
@@ -4160,7 +4163,7 @@ public abstract class Parm implements Comparable<Parm> {
                     break;
                 }
             }
-            st.setTime(st.getTime() + interval * 1000);
+            st.setTime(st.getTime() + (interval * 1000));
         }
 
         // now split grids if necessary due to interference with base grids
@@ -4173,12 +4176,12 @@ public abstract class Parm implements Comparable<Parm> {
                     if (bgTime.contains(t)) {
                         break; // can't salvage this one
                     }
-                    if (bgTime.getStart().compareTo(t.getStart()) <= 0
-                            && bgTime.getEnd().compareTo(t.getEnd()) < 0) {
+                    if ((bgTime.getStart().compareTo(t.getStart()) <= 0)
+                            && (bgTime.getEnd().compareTo(t.getEnd()) < 0)) {
                         newDSTR.add(new TimeRange(bgTime.getEnd(), t.getEnd()));
                         overlaps = true;
-                    } else if (bgTime.getStart().compareTo(t.getStart()) > 0
-                            && bgTime.getEnd().compareTo(t.getEnd()) >= 0) {
+                    } else if ((bgTime.getStart().compareTo(t.getStart()) > 0)
+                            && (bgTime.getEnd().compareTo(t.getEnd()) >= 0)) {
                         newDSTR.add(new TimeRange(t.getStart(), bgTime
                                 .getStart()));
                         overlaps = true;
@@ -4227,13 +4230,13 @@ public abstract class Parm implements Comparable<Parm> {
             interptimes.add(bs.getValidTime());
 
             // if a gap's time range fits in here, append to arrays.
-            if (i < baseGrids.size() - 1) {
+            if (i < (baseGrids.size() - 1)) {
                 IGridSlice nbs = baseGrids.get(i + 1).getGridSlice();
                 for (j = 0; j < newDSTR.size(); j++) {
                     TimeRange ntr = newDSTR.get(j);
-                    if (ntr.getStart().compareTo(bs.getValidTime().getEnd()) >= 0
-                            && ntr.getEnd().compareTo(
-                                    nbs.getValidTime().getStart()) <= 0) {
+                    if ((ntr.getStart().compareTo(bs.getValidTime().getEnd()) >= 0)
+                            && (ntr.getEnd().compareTo(
+                                    nbs.getValidTime().getStart()) <= 0)) {
                         // make an empty NONE type GridSlice for the
                         // ones to
                         // be interpolated, and append the time for it.
@@ -4469,11 +4472,11 @@ public abstract class Parm implements Comparable<Parm> {
         int idx2 = strings.indexOf(parm2);
 
         // parms in strings come before those that aren't
-        if (idx1 != -1 && idx2 == -1) {
+        if ((idx1 != -1) && (idx2 == -1)) {
             cmp = -1;
-        } else if (idx1 == -1 && idx2 != -1) {
+        } else if ((idx1 == -1) && (idx2 != -1)) {
             cmp = 1;
-        } else if (idx1 != -1 && idx2 != -1 && idx1 != idx2) {
+        } else if ((idx1 != -1) && (idx2 != -1) && (idx1 != idx2)) {
             // both are in strings at different indices.
             // compare their position in strings.
             if (idx1 > idx2) {
