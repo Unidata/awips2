@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.dataquery.db.ReturnedField;
@@ -49,8 +48,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2010            mschenke     Initial creation
+ * Jan 21, 2010            mschenke    Initial creation
  * Mar 19, 2013 1807       rferrel     OrderBy now performed.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -179,10 +179,7 @@ public class DbQueryHandler implements IRequestHandler<DbQueryRequest> {
             if (row == null) {
                 continue;
             }
-            if (fields == null || fields.size() == 0) {
-                if (row instanceof PluginDataObject) {
-                    ((PluginDataObject) row).setPluginName(pluginName);
-                }
+            if ((fields == null) || (fields.size() == 0)) {
                 objectMap.put(null, row);
             } else if (fields.size() == 1) {
                 objectMap.put(fields.get(0).field, row);

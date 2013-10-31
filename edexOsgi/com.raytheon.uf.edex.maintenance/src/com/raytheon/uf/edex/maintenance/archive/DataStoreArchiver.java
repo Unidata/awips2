@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
  * ------------ ---------- ----------- --------------------------
  * Dec 8, 2011            njensen     Initial creation
  * Jan 14, 2013 1469      bkowal      Removed the hdf5 data directory.
+ * Jul 23, 2013 2216      rferrel     Removed the time stamp filter in hdf5 copy.
  * 
  * </pre>
  * 
@@ -68,12 +69,8 @@ public class DataStoreArchiver {
             String outputDir = archiveDir; // + dirs of hdf5 file
 
             try {
-                // data must be older than 30 minutes, and no older than hours
-                // to keep hours need to lookup plugin and see if compression
-                // matches, or embed in configuration the compression level on
-                // archive, but would still need to lookup plugin
-                ds.copy(outputDir, compression, "lastArchived", 1800000,
-                        conf.getHoursToKeep() * 60000 + 1800000);
+                // Do not perform time stamp check.
+                ds.copy(outputDir, compression, null, 0, 0);
             } catch (StorageException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
             }
