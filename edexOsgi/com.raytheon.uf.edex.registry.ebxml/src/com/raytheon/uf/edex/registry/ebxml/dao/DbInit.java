@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.xml.bind.JAXBException;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
@@ -57,8 +59,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlJaxbManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -79,13 +81,14 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * ------------ ----------  ----------- --------------------------
  * 2/9/2012     184         bphillip    Initial Coding
  * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
- * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
- * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
+ * 4/9/2013     1802        bphillip    Changed submitObjects method call from submitObjectsInternal
+ * Apr 15, 2013 1693        djohnson    Use a strategy to verify the database is up to date.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
- * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
- * May 29, 2013 1650       djohnson     Reference LifecycleManager as interface type.
- * Jun 24, 2013 2106       djohnson     Invoke registry initialized listeners in their own transaction so 
+ * 5/21/2013    2022        bphillip    Using TransactionTemplate for database initialization
+ * May 29, 2013 1650        djohnson    Reference LifecycleManager as interface type.
+ * Jun 24, 2013 2106        djohnson    Invoke registry initialized listeners in their own transaction so 
  *                                      they can't fail the ebxml schema creation/population.
+ * Nov 01, 2013 2361        njensen     Use EbxmlJaxbManager instead of SerializationUtil
  * </pre>
  * 
  * @author bphillip
@@ -162,9 +165,15 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
             statusHandler.info("Populating RegRep database from file: "
                     + fileList[i].getName());
 
-            SubmitObjectsRequest obj = SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(SubmitObjectsRequest.class,
-                            fileList[i]);
+            SubmitObjectsRequest obj = null;
+            try {
+                obj = EbxmlJaxbManager.getJaxbManager().unmarshalFromXmlFile(
+                        SubmitObjectsRequest.class, fileList[i]);
+            } catch (JAXBException e) {
+                throw new SerializationException(
+                        "Error unmarshalling from file: "
+                                + fileList[i].getPath(), e);
+            }
 
             // Ensure an owner is assigned
             for (RegistryObjectType regObject : obj.getRegistryObjectList()
