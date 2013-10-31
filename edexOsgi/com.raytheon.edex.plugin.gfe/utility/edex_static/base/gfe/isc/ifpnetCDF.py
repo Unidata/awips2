@@ -70,6 +70,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    08/09/2013      1571          randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
 #    09/20/13        2405          dgilling       Clip grids before inserting into cache.
+#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #
 
 # Original A1 BATCH WRITE COUNT was 10, we found doubling that
@@ -140,14 +141,8 @@ class WECache(object):
         elif gridType == "VECTOR":
             vecGrids = grid.__numpy__
             return (clipToExtrema(vecGrids[0], clipArea), clipToExtrema(vecGrids[1], clipArea))
-        elif gridType == "WEATHER":
+        elif gridType == "WEATHER" or gridType =="DISCRETE":
             keys = grid.getKeys()
-            keyList = []
-            for theKey in keys:
-                keyList.append(theKey.toString())
-            return (clipToExtrema(grid.__numpy__[0], clipArea), keyList)
-        elif gridType =="DISCRETE":
-            keys = grid.getKey()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
