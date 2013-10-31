@@ -82,15 +82,6 @@ public class MhsMessage {
     static public final String EnvMhsTrace = "MHS_SHOW_TRACE";
 
     /**
-     * Environment variable to determine the MHS interface to use. If undefined,
-     * it is the same as defining it to "NO" or "FALSE". If set to "YES" or
-     * "TRUE", then the JNI interface to the MHS DWB functions is used to submit
-     * messages. Any other value results in message submission occurring via the
-     * command line utility msg_send.
-     */
-    static public final String EnvMhsUseNative = "MHS_USE_NATIVE_INTERFACE";
-
-    /**
      * Minimum message code value
      */
     static public final int MsgCodeMin = 0;
@@ -194,7 +185,6 @@ public class MhsMessage {
      * Valid time parameter formatted as a string (mm/dd/yyyy:HHMM). This value
      * is derived from {@link #validTime} during message submission.
      */
-    @SuppressWarnings("unused")
     private String validTimeString;
 
     /**
@@ -207,7 +197,6 @@ public class MhsMessage {
      * Timeout time parameter formatted as a string (mm/dd/yyyy:HHMM). This
      * value is derived from {@link #timeoutTime} during message submission.
      */
-    @SuppressWarnings("unused")
     private String timeoutTimeString;
 
     /**
@@ -260,11 +249,6 @@ public class MhsMessage {
     private String resultText;
 
     /**
-          * 
-          */
-    private boolean useNativeInterface;
-
-    /**
      * Sole constructor. Provides reasonable default values for a message
      * object's fields as follows:
      * <ul>
@@ -286,14 +270,10 @@ public class MhsMessage {
      */
     public MhsMessage(int code) {
         String traceString = System.getenv(EnvMhsTrace);
-        String interfaceString = System.getenv(EnvMhsUseNative);
 
         showTrace = (traceString != null)
-                && ((traceString.equalsIgnoreCase("yes") || traceString
-                        .equalsIgnoreCase("true")));
-        useNativeInterface = (interfaceString != null)
-                && ((interfaceString.equalsIgnoreCase("yes")) || interfaceString
-                        .equalsIgnoreCase("true"));
+                && ((traceString.equalsIgnoreCase("yes") 
+                || traceString.equalsIgnoreCase("true")));
 
         actionCode = code;
         setRetryCount(0);
@@ -311,21 +291,6 @@ public class MhsMessage {
         resultText = "Success";
         verifyAddressees = false;
         submitted = false;
-    }
-
-    /**
-     * Submits a message to the message request server daemon. This is JNI code
-     * to translate a Java message object to a C MHS message object.
-     * 
-     * @return 0 if successful; a positive integer if a MHS error is detected;
-     *         -1 if an error occurs in a JNI call, which will usually result in
-     *         a Java exception when control is returned toe the JVM.
-     * @see MhsMessage
-     */
-    private native String submitMessage() throws MhsSubmitException;
-
-    static {
-        System.loadLibrary("coDDM_msg_send");
     }
 
     /**
@@ -840,30 +805,6 @@ public class MhsMessage {
     }
 
     /**
-     * Call to force the MHS interface to be used for this message. The default
-     * value is determined by the environment variable MHS_USE_NATIVE_INTERFACE.
-     * Set to true to use the native C DWB functions. Set to false to use the
-     * command line utility msg_send.
-     * 
-     * @param useNativeInterface
-     *            the useNativeInterface to set
-     */
-    public void setUseNativeInterface(boolean useNativeInterface) {
-        this.useNativeInterface = useNativeInterface;
-    }
-
-    /**
-     * Returns the MHS interface that will be used to submit this message. A
-     * true value indicates that the native C DWB functions will be used. False
-     * indicates that the command line utility msg_send will be used.
-     * 
-     * @return the useNativeInterface
-     */
-    public boolean isUseNativeInterface() {
-        return useNativeInterface;
-    }
-
-    /**
      * Retrieves the message Id of this message.
      * 
      * @return A string containing the message Id assigned by the message
@@ -1153,147 +1094,136 @@ public class MhsMessage {
         String timeStamp = timeStampFormat.format(System.currentTimeMillis());
         System.out.println(timeStamp + ": Message submitted");
 
-        if (useNativeInterface) { // Submit the message using the MHS and DWB
-                                  // native libraries.
-            try {
-                messageId = submitMessage();
-            } catch (MhsSubmitException e) {
-                resultText = e.toString();
-                throw new MhsSubmitException(resultText);
-            }
-        } else { // Submit the message by constructing a command line and
-                 // execing a new msg_send process
-            LinkedList<String> command = new LinkedList<String>();
+        LinkedList<String> command = new LinkedList<String>();
 
-            command.add("msg_send");
-            command.add("-c" + actionCode);
-            String addrStr = "";
-            String ackAddrStr = "";
-            String encList = "";
+        command.add("msg_send");
+        command.add("-c" + actionCode);
+        String addrStr = "";
+        String ackAddrStr = "";
+        String encList = "";
 
-            for (int i = 0; i < addressees.getCount(); i++) {
-                Addressee addr = addressees.get(i);
-                if (addr.isAckRequired()) {
-                    if (ackAddrStr.isEmpty()) {
-                        ackAddrStr = addr.getAddress();
-                    } else {
-                        ackAddrStr += "," + addr.getAddress();
-                    }
+        for (int i = 0; i < addressees.getCount(); i++) {
+            Addressee addr = addressees.get(i);
+            if (addr.isAckRequired()) {
+                if (ackAddrStr.isEmpty()) {
+                    ackAddrStr = addr.getAddress();
                 } else {
-                    if (addrStr.isEmpty()) {
-                        addrStr = addr.getAddress();
-                    } else {
-                        addrStr += "," + addr.getAddress();
-                    }
+                    ackAddrStr += "," + addr.getAddress();
                 }
-            }
-
-            if (!addrStr.isEmpty()) {
-                command.add("-a" + addrStr);
-            }
-
-            if (!ackAddrStr.isEmpty()) {
-                command.add("-A" + ackAddrStr);
-            }
-
-            if (retryCount != 0) {
-                command.add("-R" + retryCount);
-            }
-
-            for (int i = 0; i < enclosures.getCount(); i++) {
-                Enclosure enc = enclosures.get(i);
-                if (encList.isEmpty()) {
-                    encList = enc.getEnclosureName();
+            } else {
+                if (addrStr.isEmpty()) {
+                    addrStr = addr.getAddress();
                 } else {
-                    encList += "," + enc.getEnclosureName();
-                }
-            }
-
-            if (!encList.isEmpty()) {
-                command.add("-e" + encList);
-            }
-
-            if (!timeoutTimeString.isEmpty()) {
-                command.add("-T" + timeoutTimeString);
-            }
-
-            if (!validTimeString.isEmpty()) {
-                command.add("-v" + validTimeString);
-            }
-
-            if (!bodyFile.isEmpty()) {
-                command.add("-b" + bodyFile);
-            }
-
-            if (!productId.isEmpty()) {
-                command.add("-i" + productId);
-            }
-
-            if (!subject.isEmpty()) {
-                command.add("-s" + subject);
-            }
-
-            if (priority != MhsMessagePriority.Default) {
-                command.add("-p" + priority.value());
-            }
-
-            if (type != MhsMessageType.Routine) {
-                command.add("-t" + type.text());
-            }
-
-            if (verifyAddressees) {
-                command.add("-C");
-            }
-
-            if (showTrace) {
-                System.out.print("Executing command: ");
-                for (int i = 0; i < command.size(); i++) {
-                    System.out.print(command.get(i) + " ");
-                }
-                System.out.println();
-            }
-
-            Process proc = null;
-            try {
-                ProcessBuilder procDesc = new ProcessBuilder(command);
-                procDesc.redirectErrorStream(true);
-
-                proc = procDesc.start();
-                InputStream stdout = proc.getInputStream();
-                InputStreamReader isr = new InputStreamReader(stdout);
-                BufferedReader br = new BufferedReader(isr);
-                String outp;
-
-                while ((outp = br.readLine()) != null) {
-                    if (outp.length() > 0) {
-                        // System.out.println(outp);
-                        messageId = outp;
-                    }
-                }
-                // System.out.println(line);
-                int exitVal = proc.waitFor();
-                if (exitVal != 0) {
-                    // System.out.println("Abnormal exit code " + exitVal);
-                    // resultText = messageId;
-                    throw new MhsSubmitException(messageId);
-                }
-
-                if (showTrace) {
-                    System.out
-                            .println("Message successfully submitted.  Message ID: "
-                                    + messageId);
-                }
-            } catch (Throwable t) {
-                resultText = t.getMessage();
-                // System.out.println("Exception thrown: " + resultText);
-                throw new MhsSubmitException(resultText);
-            } finally {
-                // DR #10955
-                if (proc != null) {
-                    proc.destroy();
+                    addrStr += "," + addr.getAddress();
                 }
             }
         }
+
+        if (!addrStr.isEmpty()) {
+            command.add("-a" + addrStr);
+        }
+
+        if (!ackAddrStr.isEmpty()) {
+            command.add("-A" + ackAddrStr);
+        }
+
+        if (retryCount != 0) {
+            command.add("-R" + retryCount);
+        }
+
+        for (int i = 0; i < enclosures.getCount(); i++) {
+            Enclosure enc = enclosures.get(i);
+            if (encList.isEmpty()) {
+                encList = enc.getEnclosureName();
+            } else {
+                encList += "," + enc.getEnclosureName();
+            }
+        }
+
+        if (!encList.isEmpty()) {
+            command.add("-e" + encList);
+        }
+
+        if (!timeoutTimeString.isEmpty()) {
+            command.add("-T" + timeoutTimeString);
+        }
+
+        if (!validTimeString.isEmpty()) {
+            command.add("-v" + validTimeString);
+        }
+
+        if (!bodyFile.isEmpty()) {
+            command.add("-b" + bodyFile);
+        }
+
+        if (!productId.isEmpty()) {
+            command.add("-i" + productId);
+        }
+
+        if (!subject.isEmpty()) {
+            command.add("-s" + subject);
+        }
+
+        if (priority != MhsMessagePriority.Default) {
+            command.add("-p" + priority.value());
+        }
+
+        if (type != MhsMessageType.Routine) {
+            command.add("-t" + type.text());
+        }
+
+        if (verifyAddressees) {
+            command.add("-C");
+        }
+
+        if (showTrace) {
+            System.out.print("Executing command: ");
+            for (int i = 0; i < command.size(); i++) {
+                System.out.print(command.get(i) + " ");
+            }
+            System.out.println();
+        }
+
+        Process proc = null;
+        try {
+            ProcessBuilder procDesc = new ProcessBuilder(command);
+            procDesc.redirectErrorStream(true);
+
+            proc = procDesc.start();
+            InputStream stdout = proc.getInputStream();
+            InputStreamReader isr = new InputStreamReader(stdout);
+            BufferedReader br = new BufferedReader(isr);
+            String outp;
+
+            while ((outp = br.readLine()) != null) {
+                if (outp.length() > 0) {
+                    // System.out.println(outp);
+                    messageId = outp;
+                }
+            }
+            // System.out.println(line);
+            int exitVal = proc.waitFor();
+            if (exitVal != 0) {
+                // System.out.println("Abnormal exit code " + exitVal);
+                // resultText = messageId;
+                throw new MhsSubmitException(messageId);
+            }
+
+            if (showTrace) {
+                System.out.println("Message successfully submitted.  Message ID: "
+                                    + messageId);
+            }
+        } catch (Throwable t) {
+            resultText = t.getMessage();
+            // System.out.println("Exception thrown: " + resultText);
+            throw new MhsSubmitException(resultText);
+        } finally {
+            // DR #10955
+            if (proc != null) {
+                proc.destroy();
+            }
+        }
+
         return messageId;
     }
 }
