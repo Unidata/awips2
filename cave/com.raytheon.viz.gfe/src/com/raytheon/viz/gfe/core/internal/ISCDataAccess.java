@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/14/09      1995       bphillip    Initial release
+ * 10/31/2013    2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -105,6 +106,7 @@ public class ISCDataAccess implements IISCDataAccess {
     }
 
     // returns corresponding ISC gridid, parm, grid
+    @Override
     public GridID getISCGridID(GridID id, boolean exactMatch) {
 
         Parm p = this.getISCParm(id.getParm());
@@ -150,10 +152,12 @@ public class ISCDataAccess implements IISCDataAccess {
         }
     }
 
+    @Override
     public ParmID getISCParmID(ParmID parmID) {
         return dataMgr.getParmManager().getISCParmID(parmID);
     }
 
+    @Override
     public Parm getISCParm(Parm p) {
 
         if (p == null) {
@@ -185,6 +189,7 @@ public class ISCDataAccess implements IISCDataAccess {
         return iscP;
     }
 
+    @Override
     public String getISCSite(Point loc, GridID gid) {
         String empty = "";
         String officeType = gid.getParm().getOfficeType();
@@ -202,6 +207,7 @@ public class ISCDataAccess implements IISCDataAccess {
         }
     }
 
+    @Override
     public boolean inOurSite(Point loc, GridID gid) {
         // must be our office type to be inOurSite
         if (!dataMgr.getOfficeType().equals(gid.getParm().getOfficeType())) {
@@ -216,12 +222,14 @@ public class ISCDataAccess implements IISCDataAccess {
 
     }
 
+    @Override
     public WxValue getDataPoint(GridID gridID, Coordinate worldLoc)
             throws GFEServerException {
         Coordinate gloc = new Coordinate();
         return getDataPoint(gridID, worldLoc, gloc);
     }
 
+    @Override
     public WxValue getDataPoint(GridID gridID, Coordinate worldLoc,
             Coordinate gloc) throws GFEServerException {
         if (gridID.getParm() == null) {
@@ -233,8 +241,8 @@ public class ISCDataAccess implements IISCDataAccess {
         boolean inGrid = false;
         gloc = MapUtil.latLonToGridCoordinate(worldLoc,
                 PixelOrientation.UPPER_RIGHT, location);
-        inGrid = gloc.x >= 0 && gloc.x < location.getNx() && gloc.y >= 0
-                && gloc.y < location.getNy();
+        inGrid = (gloc.x >= 0) && (gloc.x < location.getNx()) && (gloc.y >= 0)
+                && (gloc.y < location.getNy());
         if (!inGrid) {
             return WxValue.defaultValue(gridID.getParm());
         }
@@ -263,6 +271,7 @@ public class ISCDataAccess implements IISCDataAccess {
 
     }
 
+    @Override
     public Grid2DBit getCompositeGrid(GridID gid, boolean exactMatch,
             ScalarGridSlice slice) {
 
@@ -333,6 +342,7 @@ public class ISCDataAccess implements IISCDataAccess {
         return getCompositeGrid(gid, exactMatch, slice);
     }
 
+    @Override
     public Grid2DBit getCompositeGrid(GridID gid, boolean exactMatch,
             VectorGridSlice slice) {
 
@@ -397,6 +407,7 @@ public class ISCDataAccess implements IISCDataAccess {
 
     }
 
+    @Override
     public Grid2DBit getCompositeGrid(GridID gid, boolean exactMatch,
             WeatherGridSlice slice) {
 
@@ -484,6 +495,7 @@ public class ISCDataAccess implements IISCDataAccess {
         return siteMask.or(ourSiteMask);
     }
 
+    @Override
     public Grid2DBit getCompositeGrid(GridID gid, boolean exactMatch,
             DiscreteGridSlice slice) {
 
@@ -519,9 +531,9 @@ public class ISCDataAccess implements IISCDataAccess {
         slice.setDiscreteGrid(primary.getDiscreteSlice().getDiscreteGrid()
                 .clone());
         DiscreteKey[] keys = new DiscreteKey[primary.getDiscreteSlice()
-                .getKey().length];
+                .getKeys().length];
         for (int i = 0; i < keys.length; i++) {
-            keys[i] = new DiscreteKey(primary.getDiscreteSlice().getKey()[i]);
+            keys[i] = new DiscreteKey(primary.getDiscreteSlice().getKeys()[i]);
         }
 
         slice.setKey(keys);
@@ -544,9 +556,9 @@ public class ISCDataAccess implements IISCDataAccess {
         // blend the isc grid into the grid/key for those points set
         Grid2DByte iscGrid = iscGridData.getDiscreteSlice().getDiscreteGrid();
 
-        DiscreteKey[] iscKey = iscGridData.getDiscreteSlice().getKey();
+        DiscreteKey[] iscKey = iscGridData.getDiscreteSlice().getKeys();
 
-        DiscreteKey[] keyList = slice.getKey();
+        DiscreteKey[] keyList = slice.getKeys();
         Map<DiscreteKey, Integer> keyIndexMap = new HashMap<DiscreteKey, Integer>(
                 keyList.length);
         for (int i = 0; i < keyList.length; i++) {
@@ -595,7 +607,7 @@ public class ISCDataAccess implements IISCDataAccess {
         for (int i = 0; i < available.size(); i++) {
             String name = available.get(i).getName();
 
-            if (name.length() >= 5 && name.startsWith("ISC_")
+            if ((name.length() >= 5) && name.startsWith("ISC_")
                     && (name.indexOf('_', 4) == -1)) {
                 String site = name.substring(4);
                 if (knownSites.contains(site)) {

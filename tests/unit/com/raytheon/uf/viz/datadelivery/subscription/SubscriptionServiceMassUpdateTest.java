@@ -47,7 +47,6 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 
 /**
  * Test 
@@ -117,13 +116,13 @@ public class SubscriptionServiceMassUpdateTest extends
 
         subscriptionAlreadyHasPendingChanges(sub1);
 
-        final ISubscriptionServiceResult response = service
+        final SubscriptionServiceResult response = service
                 .updateWithPendingCheck(subs, mockPromptDisplayText);
 
         final String expectedMessage = "The subscriptions have been updated.\n\nThe following subscriptions already had pending changes and were not modified:\n"
                 + sub1.getName();
 
-        assertThat(response.getMessageToDisplay(), is(equalTo(expectedMessage)));
+        assertThat(response.getMessage(), is(equalTo(expectedMessage)));
     }
 
     @Test
@@ -135,13 +134,13 @@ public class SubscriptionServiceMassUpdateTest extends
 
         subscriptionThrowsErrorOnUpdate(sub2);
 
-        final ISubscriptionServiceResult response = service
+        final SubscriptionServiceResult response = service
                 .updateWithPendingCheck(subs, mockPromptDisplayText);
 
         final String expectedMessage = "The subscriptions have been updated.\n\nThe following subscriptions were unable to be modified:\n"
                 + sub2.getName();
 
-        assertThat(response.getMessageToDisplay(), is(equalTo(expectedMessage)));
+        assertThat(response.getMessage(), is(equalTo(expectedMessage)));
     }
 
     @Test
@@ -153,13 +152,13 @@ public class SubscriptionServiceMassUpdateTest extends
 
         subscriptionCantBeChangedByUser(sub2);
 
-        final ISubscriptionServiceResult response = service
+        final SubscriptionServiceResult response = service
                 .updateWithPendingCheck(subs, mockPromptDisplayText);
 
         final String expectedMessage = "The subscriptions have been updated.\n\nThe following subscriptions have pending changes awaiting approval:\n"
                 + sub2.getName();
 
-        assertThat(response.getMessageToDisplay(), is(equalTo(expectedMessage)));
+        assertThat(response.getMessage(), is(equalTo(expectedMessage)));
     }
 
     /**
@@ -200,7 +199,7 @@ public class SubscriptionServiceMassUpdateTest extends
      * {@inheritDoc}
      */
     @Override
-    ISubscriptionServiceResult performServiceInteraction()
+    SubscriptionServiceResult performServiceInteraction()
             throws RegistryHandlerException {
         return service.update(subs, mockPromptDisplayText);
     }
