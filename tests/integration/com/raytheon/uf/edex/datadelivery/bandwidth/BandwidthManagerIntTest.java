@@ -47,6 +47,7 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -105,6 +106,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -153,7 +155,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testDataSetMetaDataUpdateSetsSubscriptionRetrievalsToReady()
             throws SerializationException, ParseException {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -233,7 +236,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testDataSetMetaDataUpdateSetsCorrectTimeOnSubscription()
             throws SerializationException, ParseException {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -271,7 +275,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws RegistryHandlerException, ParseException,
             SerializationException {
         // Store the original subscription
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
         // The dataset metadata update
@@ -309,8 +314,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testDailyProductSubscriptionIsSetToReadyStatus()
             throws RegistryHandlerException, ParseException {
         // Store the original subscription
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Collections.<Integer> emptyList());
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Collections
+                .<Integer> emptyList());
         subscription.setLatencyInMinutes(3);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -343,7 +350,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws RegistryHandlerException, ParseException {
 
         // Store the original subscription
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         subscription.setLatencyInMinutes(5);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -378,10 +386,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .schedule(subscription);
@@ -425,10 +433,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .schedule(subscription);
@@ -463,10 +471,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         bandwidthManager.schedule(subscription);
         bandwidthManager.schedule(subscription2);
@@ -559,10 +567,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .schedule(subscription);
@@ -596,10 +604,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        ((GriddedTime)subscription2.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         bandwidthManager.schedule(subscription);
         bandwidthManager.schedule(subscription2);
@@ -623,7 +631,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
         // Subscription starts out too big
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(Integer.valueOf(6)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(6)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .subscriptionUpdated(subscription);
@@ -660,7 +669,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws SerializationException {
 
         Subscription subscription = createSubscriptionThatFillsUpTenBuckets();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(0)));
         subscription.setLatencyInMinutes(0);
 
         int requiredLatency = bandwidthManager
@@ -685,7 +695,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
         // Subscription starts out too big
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(0)));
         subscription.setLatencyInMinutes(0);
 
         bandwidthManager.subscriptionUpdated(subscription);
@@ -724,7 +735,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
 
         bandwidthManager.schedule(subscription);
 
@@ -753,7 +765,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
 
         bandwidthManager.schedule(subscription);
 
@@ -794,7 +807,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
                 .getDataSetSize()
                 / numberOfSubscriptionsWithSameProviderDataSet);
 
-        ((GriddedTime)templateSubscription.getTime()).setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) templateSubscription.getTime()).setCycleTimes(Arrays
+                .asList(0, 12));
 
         int lastKnownNumberOfBandwidthAllocations = 0;
         final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
@@ -860,7 +874,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
 
         final Network network = subscription.getRoute();
         final List<BandwidthAllocation> bandwidthAllocationsOrig = getRetrievalManagerAllocationsForNetwork(network);
@@ -892,7 +907,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
         subscription.setLatencyInMinutes(0);
 
         final List<BandwidthAllocation> unableToSchedule = bandwidthManager
@@ -925,7 +941,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
         subscription.setLatencyInMinutes(0);
 
         final List<BandwidthAllocation> unableToSchedule = bandwidthManager
@@ -969,8 +986,9 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     private void testSubscriptionCyclesAreAllocatedOncePerCyclePerPlanDay(
             List<Integer> cycles) throws SerializationException {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(cycles);
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
+        ((GriddedTime) subscription.getTime()).setCycleTimes(cycles);
         bandwidthManager.subscriptionUpdated(subscription);
 
         assertEquals("Incorrect number of bandwidth allocations made!",
