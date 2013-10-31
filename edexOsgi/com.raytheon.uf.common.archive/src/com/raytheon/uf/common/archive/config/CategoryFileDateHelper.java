@@ -40,6 +40,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 21, 2013 1965       bgonzale    Initial creation
+ * Aug 03, 2013 2224       rferrel     Changes for new configuration files.
+ * Aug 28, 2013 2299       rferrel     Changes in IFileDateHelper.
  * 
  * </pre>
  * 
@@ -56,13 +58,11 @@ public class CategoryFileDateHelper implements IFileDateHelper {
 
         private final Pattern categoryTopLevelDirPattern;
 
-        private final int yearIndex;
+        private final CategoryDataSet.TimeType timeType;
 
-        private final int monthIndex;
+        private final boolean isDirOnly;
 
-        private final int dayIndex;
-
-        private final int hourIndex;
+        private final int[] timeIndices;
 
         /**
          * Initialization constructor.
@@ -76,13 +76,13 @@ public class CategoryFileDateHelper implements IFileDateHelper {
          */
         public CategoryDateInfo(Pattern datePattern,
                 Pattern categoryTopLevelDirPattern,
-                int yearIndex, int monthIndex, int dayIndex, int hourIndex) {
+                CategoryDataSet.TimeType timeType, boolean isDirOnly,
+                int[] timeIndices) {
             this.datePattern = datePattern;
             this.categoryTopLevelDirPattern = categoryTopLevelDirPattern;
-            this.yearIndex = yearIndex;
-            this.monthIndex = monthIndex;
-            this.dayIndex = dayIndex;
-            this.hourIndex = hourIndex;
+            this.timeType = timeType;
+            this.isDirOnly = isDirOnly;
+            this.timeIndices = timeIndices;
         }
 
     }
@@ -90,8 +90,6 @@ public class CategoryFileDateHelper implements IFileDateHelper {
     private final List<CategoryDateInfo> dateInfoList;
 
     private final String rootDir;
-
-    private final boolean isDirOnly;
 
     /**
      * Initialization constructor.
@@ -101,38 +99,37 @@ public class CategoryFileDateHelper implements IFileDateHelper {
      *            categoryTopLevelDirPattern
      */
     public CategoryFileDateHelper(CategoryConfig config, String rootDir) {
-        List<String> categoryDirPatternList = config.getDirPatternList();
-        this.dateInfoList = new ArrayList<CategoryFileDateHelper.CategoryDateInfo>(
-                categoryDirPatternList.size());
-
-        String filePatternStr = config.getFilePattern();
         this.rootDir = rootDir;
-        this.isDirOnly = (filePatternStr == null)
-                || ".*".equals(filePatternStr);
+        List<CategoryDataSet> categoryDataSetList = config.getDataSetList();
+        int size = 0;
+        for (CategoryDataSet dataSet : categoryDataSetList) {
+            size += dataSet.getDirPatterns().size();
+        }
 
-        for (String patternString : categoryDirPatternList) {
-            Pattern datePattern = null;
-            if (isDirOnly) {
-                datePattern = Pattern.compile(patternString);
-            } else {
-                datePattern = Pattern.compile(patternString + File.separator
-                        + config.getFilePattern());
+        this.dateInfoList = new ArrayList<CategoryFileDateHelper.CategoryDateInfo>(
+                size);
+
+        boolean isDirOnly;
+        CategoryDataSet.TimeType timeType;
+        for (CategoryDataSet dataSet : categoryDataSetList) {
+            isDirOnly = dataSet.isDirOnly();
+            timeType = dataSet.getTimeType();
+
+            for (String patternString : dataSet.getDirPatterns()) {
+                Pattern datePattern = dataSet.getPattern(patternString);
+                int dirSeparatorIndex = patternString
+                        .indexOf(File.separatorChar);
+                patternString = dirSeparatorIndex > patternString.length()
+                        || dirSeparatorIndex < 0 ? patternString
+                        : patternString.substring(0, dirSeparatorIndex);
+                Pattern categoryTopLevelDirPattern = Pattern
+                        .compile(patternString);
+                int[] timeIndices = dataSet.getTimeIndices();
+
+                dateInfoList.add(new CategoryDateInfo(datePattern,
+                        categoryTopLevelDirPattern, timeType, isDirOnly,
+                        timeIndices));
             }
-            int dirSeparatorIndex = patternString.indexOf(File.separatorChar);
-            patternString = dirSeparatorIndex > patternString.length()
-                    || dirSeparatorIndex < 0 ? patternString : patternString
-                    .substring(0, dirSeparatorIndex);
-            Pattern categoryTopLevelDirPattern = Pattern.compile(patternString);
-            String[] indexValues = config.getDateGroupIndices().split(
-                    "\\s*,\\s*");
-            int yearIndex = Integer.parseInt(indexValues[0]);
-            int monthIndex = Integer.parseInt(indexValues[1]);
-            int dayIndex = Integer.parseInt(indexValues[2]);
-            int hourIndex = Integer.parseInt(indexValues[3]);
-
-            dateInfoList.add(new CategoryDateInfo(datePattern,
-                    categoryTopLevelDirPattern, yearIndex, monthIndex,
-                    dayIndex, hourIndex));
         }
     }
 
@@ -141,40 +138,43 @@ public class CategoryFileDateHelper implements IFileDateHelper {
      * 
      * @see
      * com.raytheon.uf.common.archive.config.IFileDateHelper#getFileDate(java
-     * .lang.String)
+     * .io.File)
      */
     @Override
-    public Calendar getFileDate(String filenamePath) {
-        String pathForPatternCheck = filenamePath.substring(rootDir.length());
-        pathForPatternCheck = isDirOnly ? FilenameUtils
-                .getFullPathNoEndSeparator(pathForPatternCheck)
-                : pathForPatternCheck;
+    public Calendar getFileDate(File file) {
+        String filenamePath = file.getAbsolutePath();
+        String pathForFilePatternCheck = filenamePath.substring(rootDir
+                .length());
+        String pathForDirPatternCheck = FilenameUtils
+                .getFullPathNoEndSeparator(pathForFilePatternCheck);
         Calendar result = null;
+        Long timestamp = null;
 
         for (CategoryDateInfo dateInfo : dateInfoList) {
-            Matcher matcher = dateInfo.datePattern.matcher(pathForPatternCheck);
+            Matcher matcher = null;
+            if (dateInfo.isDirOnly) {
+                matcher = dateInfo.datePattern.matcher(pathForDirPatternCheck);
+            } else {
+                matcher = dateInfo.datePattern.matcher(pathForFilePatternCheck);
+            }
 
             if (matcher.matches()) {
-                int year = Integer.parseInt(matcher.group(dateInfo.yearIndex));
-                // Adjust month value to Calendar's 0 - 11
-                int month = Integer
-                        .parseInt(matcher.group(dateInfo.monthIndex)) - 1;
-                int day = Integer.parseInt(matcher.group(dateInfo.dayIndex));
-                int hour = Integer.parseInt(matcher.group(dateInfo.hourIndex));
-
-                result = TimeUtil.newGmtCalendar();
-                result.set(year, month, day, hour, 0, 0);
+                timestamp = CategoryDataSet.getMatchTimeInMilliseconds(
+                        dateInfo.timeType, dateInfo.timeIndices, matcher);
                 break;
             }
         }
-        if (result == null) {
-            // no matching pattern, use file last modified date
-            File file = new File(filenamePath);
-            long lastModifiedMillis = file.lastModified();
 
-            result = TimeUtil.newGmtCalendar();
-            result.setTimeInMillis(lastModifiedMillis);
+        if (timestamp == null) {
+            // no matching pattern, use file last modified date
+            timestamp = file.lastModified();
         }
+
+        // TODO future speed improvement refactor IFileDateHelper to have a
+        // method that returns a long instead of Calendar. That will prevent
+        // converting Calendar to long then back to a Calendar.
+        result = TimeUtil.newGmtCalendar();
+        result.setTimeInMillis(timestamp);
         return result;
     }
 
