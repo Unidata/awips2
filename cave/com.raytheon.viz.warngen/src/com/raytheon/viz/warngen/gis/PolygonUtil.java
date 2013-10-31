@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                     the call to removeIntersectedSeg() with a call to adjustVertex(); updated 
  *                                     removeDuplicateCoordinate(), computeCoordinate(), adjustPolygon() prolog, and
  *                                     removeOverlaidLinesegments(); added alterVertexes() and calcShortestDistance().
+ * 10/01/2013  DR 16632   Qinglu Lin   Fixed the bug in for loop range.
  * </pre>
  * 
  * @author mschenke
@@ -1102,6 +1103,9 @@ public class PolygonUtil {
         if (verts == null) {
             return null;
         }
+        if (verts.length <= 3)
+            return verts;
+
         Set<Coordinate> coords = new LinkedHashSet<Coordinate>();
         for (Coordinate c : verts)
             coords.add(c);
@@ -1300,7 +1304,7 @@ public class PolygonUtil {
                     // of a straight line segment
                     coords = new Coordinate[coords.length - 1];
                     if (i == m - 2) {
-                        for (int j = 1; j < m - 2; j++) {
+                        for (int j = 1; j <= m - 2; j++) {
                             coords[j-1] = new Coordinate(expandedCoords[j]);
                         }
                         coords[coords.length-1] = new Coordinate(coords[0]);
