@@ -21,10 +21,13 @@ package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Random;
 
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * Adds attributes specific to {@link SiteSubscription} types.
+ * Fixture for {@link Coverage}s.
  * 
  * <pre>
  * 
@@ -32,35 +35,35 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2013 1841       djohnson     Initial creation
- * Oct 2,  2013 1797       dhladky      Updated to work with generics
- * Oct 21, 2013   2292     mpduff      Implement multiple data types
+ * Oct 21, 2013   2292     mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
 
-public abstract class BaseSiteSubscriptionFixture<M extends SiteSubscription>
-        extends BaseSubscriptionFixture<M> {
+public class CoverageFixture extends AbstractFixture<Coverage> {
+    public static final CoverageFixture INSTANCE = new CoverageFixture();
+
+    /**
+     * Prevent construction.
+     */
+    private CoverageFixture() {
+
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public M getInstance(long seedValue, Random random, DataType dataType) {
-        M subscription = super.getInstance(seedValue, random, dataType);
+    public Coverage getInstance(long seedValue, Random random) {
+        Coverage coverage = new Coverage();
 
-        subscription.setOwner("owner" + random.nextInt());
-        subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
-
-        return subscription;
+        ReferencedEnvelope env = new ReferencedEnvelope(20, 25, 20, 25,
+                MapUtil.LATLON_PROJECTION);
+        coverage.setEnvelope(env);
+        coverage.setRequestEnvelope(env);
+        return coverage;
     }
-
-    /**
-     * @return
-     */
-    @Override
-    protected abstract M getSubscription();
 }
