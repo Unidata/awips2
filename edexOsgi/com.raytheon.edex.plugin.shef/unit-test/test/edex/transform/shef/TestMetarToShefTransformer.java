@@ -19,10 +19,15 @@
  **/
 package test.edex.transform.shef;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Iterator;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import com.raytheon.edex.transform.shef.MetarToShefTransformer;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -32,26 +37,25 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * Tests extracted from MetarToShef.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * ======================================
  * AWIPS2 DR Work
  * 20120918           1185 jkorman     Extracted from mains
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class TestMetarToShefTransformer {
 
     /**
-     * Test that the transformer creates an empty iterator when
-     * given no input.
+     * Test that the transformer creates an empty iterator when given no input.
      */
     @Test
     public void testMetarToShefInteratorA() {
@@ -60,18 +64,17 @@ public class TestMetarToShefTransformer {
         assertNotNull(it);
         assertFalse(it.hasNext());
         assertNull(it.next());
-        
-        pdos = new PluginDataObject [0];
+
+        pdos = new PluginDataObject[0];
         it = MetarToShefTransformer.iterate(pdos);
         assertNotNull(it);
         assertFalse(it.hasNext());
         assertNull(it.next());
-        
+
     }
-    
+
     /**
-     * Test that the transformer creates an non-empty iterator for
-     * given input.
+     * Test that the transformer creates an non-empty iterator for given input.
      */
     @Test
     public void testMetarToShefInteratorB() {
@@ -81,8 +84,20 @@ public class TestMetarToShefTransformer {
             public IDecoderGettable getDecoderGettable() {
                 return null;
             }
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * com.raytheon.uf.common.dataplugin.PluginDataObject#getPluginName
+             * ()
+             */
+            @Override
+            public String getPluginName() {
+                return "testMetarToShef";
+            }
         };
-        
+
         PluginDataObject[] pdos = { p, };
         Iterator<?> it = MetarToShefTransformer.iterate(pdos);
         assertNotNull(it);
@@ -105,9 +120,6 @@ public class TestMetarToShefTransformer {
                         + "\r\r\n:   60000 T00330011 10078 20033 53021 931012 933025 98245 4/005=",
                 newobs.toString());
 
-    }    
-    
-    
-    
-    
+    }
+
 }
