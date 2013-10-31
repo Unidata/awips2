@@ -51,6 +51,7 @@
 #                                                 (e.g. grid[mask] = value)
 #    Oct 07, 2013    2424          randerso       remove use of pytz
 #    Oct 29, 2013  2476       njensen         Improved getting wx/discrete keys in _getGridResults
+#    Oct 31, 2013    2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #
 ########################################################################
 import types, string, time, sys
@@ -484,7 +485,7 @@ class SmartScript(BaseTool.BaseTool):
                     if result[0].dtype != numpy.int8:
                         # scalar
                         result = result[0]
-                    else:
+                else:
                         # discrete or weather
                         keys = JUtil.javaObjToPyVal(slice.getKeyList())
                         result.append(keys)
@@ -650,7 +651,7 @@ class SmartScript(BaseTool.BaseTool):
             slice = DiscreteGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
             keys = []
-            for k in slice.getKey():
+            for k in slice.getKeys():
                 keys.append(str(k))
             args = (bits.__numpy__[0], slice.getDiscreteGrid().__numpy__[0], keys)
         return args
