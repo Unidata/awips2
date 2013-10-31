@@ -62,12 +62,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 12/12/09                 D. Hladky   Initial release
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 04/08/13     1293        bkowal      Removed references to hdffileid.
+ * Dec 12, 2009             D. Hladky   Initial release
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -81,17 +83,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "fog",
-		indexes = {
-				@Index(name = "fog_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "fog", indexes = { @Index(name = "fog_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class FogRecord extends PersistablePluginDataObject
-        implements IPersistable {
+public class FogRecord extends PersistablePluginDataObject implements
+        IPersistable {
 
     private static final long serialVersionUID = 76774564365671L;
 
@@ -429,14 +427,14 @@ public class FogRecord extends PersistablePluginDataObject
     }
 
     public GridGeometry2D getGridGeometry2D() {
-		return gridGeometry2D;
-	}
+        return gridGeometry2D;
+    }
 
-	public void setGridGeometry2D(GridGeometry2D gridGeometry2D) {
-		this.gridGeometry2D = gridGeometry2D;
-	}
+    public void setGridGeometry2D(GridGeometry2D gridGeometry2D) {
+        this.gridGeometry2D = gridGeometry2D;
+    }
 
-	/**
+    /**
      * Set the VIS pixel array
      * 
      * @param data_array
@@ -652,28 +650,31 @@ public class FogRecord extends PersistablePluginDataObject
         // then means both vis_range and ir_range store range of vis
 
         if (getRangeType(j) == IMAGE_GROUP.TWILIGHT_GROUP) {
-            if (i <= getVisRange(j).getEnd() && i >= getVisRange(j).getStart()) {
+            if ((i <= getVisRange(j).getEnd())
+                    && (i >= getVisRange(j).getStart())) {
                 return IMAGE_GROUP.VIS_GROUP;
             }
 
-            else if (i <= getIRRange(j).getEnd()
-                    && i >= getIRRange(j).getStart()) {
+            else if ((i <= getIRRange(j).getEnd())
+                    && (i >= getIRRange(j).getStart())) {
                 return IMAGE_GROUP.IR_GROUP;
             } else {
                 return IMAGE_GROUP.TWILIGHT_GROUP;
             }
         } else if (getRangeType(j) == IMAGE_GROUP.VIS_GROUP) {
-            if ((i <= getVisRange(j).getEnd() && i >= getVisRange(j).getStart())
-                    || (i <= getIRRange(j).getEnd() && i >= getIRRange(j)
-                            .getStart())) {
+            if (((i <= getVisRange(j).getEnd()) && (i >= getVisRange(j)
+                    .getStart()))
+                    || ((i <= getIRRange(j).getEnd()) && (i >= getIRRange(j)
+                            .getStart()))) {
                 return IMAGE_GROUP.VIS_GROUP;
             } else {
                 return IMAGE_GROUP.TWILIGHT_GROUP;
             }
         } else {
-            if ((i <= getVisRange(j).getEnd() && i >= getVisRange(j).getStart())
-                    || (i <= getIRRange(j).getEnd() && i >= getIRRange(j)
-                            .getStart())) {
+            if (((i <= getVisRange(j).getEnd()) && (i >= getVisRange(j)
+                    .getStart()))
+                    || ((i <= getIRRange(j).getEnd()) && (i >= getIRRange(j)
+                            .getStart()))) {
                 return IMAGE_GROUP.IR_GROUP;
             } else {
                 return IMAGE_GROUP.TWILIGHT_GROUP;
@@ -704,10 +705,16 @@ public class FogRecord extends PersistablePluginDataObject
     public Calendar getRefHour() {
         return refHour;
     }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "fog";
     }
 }

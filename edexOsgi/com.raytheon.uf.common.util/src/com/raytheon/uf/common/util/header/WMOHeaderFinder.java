@@ -37,8 +37,8 @@ import java.util.regex.Pattern;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 27, 2012            mschenke     Initial creation
- * 
+ * Jul 27, 2012            mschenke    Initial creation
+ * Sep 09, 2013 2327       rjpeter     Updated to allow pattern to be used again.  Added capture for DTG
  * </pre>
  * 
  * @author mschenke
@@ -46,10 +46,9 @@ import java.util.regex.Pattern;
  */
 
 public class WMOHeaderFinder {
-
-    private static Pattern WMOPATTERN = Pattern
-            .compile("([A-Z]{3}[A-Z0-9](\\d{0,2}|[A-Z]{0,2}) [A-Z0-9 ]{4} "
-                    + "\\d{6}[^\\r\\n]*)[\\r\\n]+");
+    private static final Pattern WMOPATTERN = Pattern
+            .compile("([A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9 ]{4} "
+                    + "(\\d{6})[^\\r\\n]*)[\\r\\n]*");
 
     /**
      * Finds and returns the WMO header on the {@link File}
@@ -98,5 +97,22 @@ public class WMOHeaderFinder {
         } finally {
             in.close();
         }
+    }
+
+    /**
+     * Returns the Date Time Group associated with a WMO Header
+     * 
+     * @param header
+     * @return
+     */
+    public static String findDtg(String header) {
+        String dtg = null;
+        Matcher matcher = WMOPATTERN.matcher(header);
+
+        if (matcher.matches()) {
+            dtg = matcher.group(2);
+        }
+
+        return dtg;
     }
 }
