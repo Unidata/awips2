@@ -48,17 +48,16 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
-import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService.ISubscriptionOverlapResponse;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IDisplayForceApplyPrompt;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
@@ -79,6 +78,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Jan 02, 2012 1345       djohnson     Fix broken tests from using VizApp to move work off the UI thread.
  * May 08, 2000 2013       djohnson     Allow checks for duplicate subscriptions.
  * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -92,13 +92,16 @@ public abstract class AbstractSubscriptionServiceTest {
 
     protected static final long REQUIRED_DATASET_SIZE = 1024l;
 
-    final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+    final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1,
+            DataType.GRID);
 
-    final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+    final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2,
+            DataType.GRID);
 
     final List<Subscription> subs = Arrays.asList(sub1, sub2);
 
-    final AdhocSubscription adhoc = AdhocSubscriptionFixture.INSTANCE.get();
+    final AdhocSubscription adhoc = AdhocSubscriptionFixture.INSTANCE
+            .get(DataType.GRID);
 
     final String sub1Name = sub1.getName();
 
@@ -122,7 +125,7 @@ public abstract class AbstractSubscriptionServiceTest {
 
     final SubscriptionService service = new SubscriptionService(
             notificationService, mockBandwidthService, permissionsService,
-            subscriptionOverlapService, mockDisplay);
+            mockDisplay);
 
     final IProposeScheduleResponse mockProposeScheduleResponse = mock(IProposeScheduleResponse.class);
 
@@ -139,14 +142,6 @@ public abstract class AbstractSubscriptionServiceTest {
                 .thenReturn(mockProposeScheduleResponse);
         when(mockBandwidthService.proposeSchedule(any(Subscription.class)))
                 .thenReturn(mockProposeScheduleResponse);
-
-        // By default all tests will not find duplicate/overlapping
-        // subscriptions
-        final ISubscriptionOverlapResponse response = mock(ISubscriptionOverlapResponse.class);
-        when(
-                subscriptionOverlapService.isOverlapping(
-                        any(Subscription.class), any(Subscription.class)))
-                .thenReturn(response);
 
         setupForceApplyPromptDisplayTextValues();
     }
@@ -196,7 +191,7 @@ public abstract class AbstractSubscriptionServiceTest {
             throws RegistryHandlerException {
         returnZeroSubscriptionNamesWhenProposeScheduleCalled();
 
-        String message = performServiceInteraction().getMessageToDisplay();
+        String message = performServiceInteraction().getMessage();
 
         assertEquals("Incorrect response message returned!",
                 getSuccessfulServiceInteractionMessage(), message);
@@ -271,8 +266,7 @@ public abstract class AbstractSubscriptionServiceTest {
         returnSub2NameWhenScheduleCalled();
 
         String expectedMessage = getExpectedSuccessfulForceApplyMessageWithSub2Unscheduled();
-        String actualMessage = performServiceInteraction()
-                .getMessageToDisplay();
+        String actualMessage = performServiceInteraction().getMessage();
 
         assertEquals("Incorrect message returned", expectedMessage,
                 actualMessage);
@@ -289,7 +283,7 @@ public abstract class AbstractSubscriptionServiceTest {
         whenForceApplyPromptedUserSelectsForceApply();
         returnSub2NameWhenScheduleCalled();
 
-        ISubscriptionServiceResult result = performServiceInteraction();
+        SubscriptionServiceResult result = performServiceInteraction();
         assertFalse("No further edits should be requested",
                 result.isAllowFurtherEditing());
     }
@@ -324,7 +318,7 @@ public abstract class AbstractSubscriptionServiceTest {
         returnTwoSubscriptionNamesWhenProposeScheduleCalled();
         whenForceApplyPromptedUserSelectsCancel();
 
-        final ISubscriptionServiceResult result = performServiceInteraction();
+        final SubscriptionServiceResult result = performServiceInteraction();
 
         assertTrue("The service should request that further edits be made",
                 result.isAllowFurtherEditing());
@@ -419,7 +413,7 @@ public abstract class AbstractSubscriptionServiceTest {
      * @return the response
      * @throws RegistryHandlerException
      */
-    abstract ISubscriptionServiceResult performServiceInteraction()
+    abstract SubscriptionServiceResult performServiceInteraction()
             throws RegistryHandlerException;
 
     /**
