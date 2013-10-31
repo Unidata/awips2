@@ -70,8 +70,6 @@ from com.raytheon.uf.common.parameter import Parameter;
 from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
 
 
-PLUGIN_NAME = "grid"
-
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
 GENPROCESS_TABLE = "A"
@@ -131,7 +129,7 @@ THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 #    04/7/09         #1994         bphillip       Initial Creation.
 #    Mar 25, 2013    1821          bsteffen       Reshape grib data arrays in
 #                                                 place to improve performance.
-#    
+#    Sep 04, 2013    2298          rjpeter        Removed setPluginName call
 class GribDecoder():
 
     ##
@@ -403,7 +401,6 @@ class GribDecoder():
         
         # Construct the GribRecord
         record = GridRecord()
-        record.setPluginName(PLUGIN_NAME)
         record.setDataTime(dataTime)
         record.setMessageData(numpyDataArray)
         record.setLocation(gdsSectionValues['coverage'])

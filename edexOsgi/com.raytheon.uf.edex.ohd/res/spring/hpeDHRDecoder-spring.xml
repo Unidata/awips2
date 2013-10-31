@@ -11,13 +11,18 @@
 		<constructor-arg value="dhr" />
 		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
 	</bean>
-	
+
 	<bean id="dhrRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="dhr" />
 		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
 	</bean>
-	
+
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg value="dhr" />
+    </bean>
+
 	<camelContext id="nonClusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"
 	    errorHandlerRef="errorHandler">                
 		<!-- Begin non-clustered dhr Routes -->
