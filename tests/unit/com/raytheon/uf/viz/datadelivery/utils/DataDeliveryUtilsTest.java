@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetFixture;
@@ -47,6 +48,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * Jan 14, 2013 1286       djohnson     Initial creation
  * Jan 22, 2013 1519       djohnson     Add tests for getMaxLatency calculations.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -69,8 +71,9 @@ public class DataDeliveryUtilsTest {
         cycleTimes.add(1);
         cycleTimes.add(4);
 
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        GriddedTime subTime = (GriddedTime)subscription.getTime();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
+        GriddedTime subTime = (GriddedTime) subscription.getTime();
         subTime.setCycleTimes(cycleTimes);
 
         assertEquals(THREE_HOURS_AS_MINUTES,
@@ -82,8 +85,9 @@ public class DataDeliveryUtilsTest {
         List<Integer> cycleTimes = newArrayList();
         cycleTimes.add(0);
 
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        GriddedTime subTime = (GriddedTime)subscription.getTime();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
+        GriddedTime subTime = (GriddedTime) subscription.getTime();
         subTime.setCycleTimes(cycleTimes);
 
         assertEquals(MINUTES_PER_DAY,
