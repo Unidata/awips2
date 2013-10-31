@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2013  #1843     dgilling     Initial creation
+ * Oct 21, 2013  #1843     dgilling     Add ETN override field.
  * 
  * </pre>
  * 
@@ -61,17 +62,27 @@ public class LockAndGetNextEtnRequest implements IServerRequest {
     @DynamicSerializeElement
     private Calendar currentTime;
 
+    @DynamicSerializeElement
+    private Integer etnOverride;
+
     public LockAndGetNextEtnRequest() {
         // default constructor for thrift/dynamicserialize
     }
 
     public LockAndGetNextEtnRequest(String siteID, String requestorSiteID,
             ActiveTableMode mode, String phensig, Calendar currentTime) {
+        this(siteID, requestorSiteID, mode, phensig, currentTime, null);
+    }
+
+    public LockAndGetNextEtnRequest(String siteID, String requestorSiteID,
+            ActiveTableMode mode, String phensig, Calendar currentTime,
+            Integer etnOverride) {
         this.siteID = siteID;
         this.requestorSiteID = requestorSiteID;
         this.mode = mode;
         this.phensig = phensig;
         this.currentTime = currentTime;
+        this.etnOverride = etnOverride;
     }
 
     public String getSiteID() {
@@ -112,5 +123,13 @@ public class LockAndGetNextEtnRequest implements IServerRequest {
 
     public void setCurrentTime(Calendar currentTime) {
         this.currentTime = currentTime;
+    }
+
+    public Integer getEtnOverride() {
+        return etnOverride;
+    }
+
+    public void setEtnOverride(Integer etnOverride) {
+        this.etnOverride = etnOverride;
     }
 }
