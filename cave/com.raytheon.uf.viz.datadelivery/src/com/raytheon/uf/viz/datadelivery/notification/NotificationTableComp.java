@@ -83,6 +83,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Sep 16, 2013  2375      mpduff       Removed initial sorting.
  * Sep 26, 2013  2417      mpduff       Fix the find all row selection.
  * Oct 15, 2013  2451      skorolev     Get highlighted rows after message update.
+ * Nov 01, 2013  2431      skorolev     Changed labels on the table.
  * </pre>
  * 
  * @author lvenable
@@ -512,6 +513,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         int endRow = endIndex + 1;
         String selection = null;
 
+        // Total number of enable rows
+        int numTotal = this.getMasterTableList().getDataArray().size();
+
         // Total number of rows in the filteredTableList used in bottom right
         // hand corner
         numRows = filteredTableList.getDataArray().size();
@@ -565,18 +569,19 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                     .setText("No rows to display. Please check the configuration and "
                             + "filtering options.");
         } else if (startIndex == endIndex) {
-            numRowsLbl.setText(ROW + startRow + " of " + numRows);
+            numRowsLbl.setText(ROW + startRow + " from " + numRows + " of "
+                    + numTotal);
             // Initial Load with over the number of configured records per page
         } else if (startIndex == 0 && (numRows > pageConfig)) {
-            numRowsLbl.setText(ROWS + startRow + " - " + pageConfig + " of "
-                    + numRows);
+            numRowsLbl.setText(ROWS + startRow + " - " + pageConfig + " from "
+                    + numRows + " of " + numTotal);
             // Number of records are less than the page config
         } else if (numRows < pageConfig) {
-            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " of "
-                    + numRows);
+            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " from "
+                    + numRows + " of " + numTotal);
         } else if (numRowsLbl != null) {
-            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " of "
-                    + numRows);
+            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " from "
+                    + numRows + " of " + numTotal);
         }
 
         deleteFlag = false;
