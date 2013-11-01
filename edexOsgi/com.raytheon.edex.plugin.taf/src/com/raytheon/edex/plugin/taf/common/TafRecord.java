@@ -36,14 +36,9 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -69,6 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -85,8 +81,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @org.hibernate.annotations.Table(appliesTo = TafRecord.PLUGIN_NAME, indexes = { @Index(name = "taf_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlRootElement
 public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
@@ -94,70 +88,59 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
     public static final String PLUGIN_NAME = "taf";
 
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private String wmoHeader;
 
     @DynamicSerializeElement
-    @XmlElement
     @Column(length = 1024)
     private String tafText;
 
     // Station Identifier for the data
     @DynamicSerializeElement
-    @XmlElement
     @Column
     @Index(name = "taf_stationIndex")
     @DataURI(position = 1)
     private String stationId;
 
     @DynamicSerializeElement
-    @XmlElement
     @Column
     @DataURI(position = 2)
     private String corIndicator;
 
     @DynamicSerializeElement
-    @XmlElement
     @Column
     @DataURI(position = 3)
     private String amdIndicator;
 
     /** Issue date */
     @DynamicSerializeElement
-    @XmlElement
     @Column
     // @DataURI(position = 4)
     private Date issue_time;
 
     /** Issue date string */
     @DynamicSerializeElement
-    @XmlElement
     @Column
     @DataURI(position = 4)
     private String issue_timeString;
 
     /** Bulletin issuance time */
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private Date bulletin_time;
 
     /** Any remarks contained in the TAF record */
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private String remarks;
 
     /** List of change groups (FM, BECMG, etc.) */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
     private Set<ChangeGroup> changeGroups = new HashSet<ChangeGroup>();
 
     @ManyToOne
     @PrimaryKeyJoinColumn
-    @XmlElement
     @DynamicSerializeElement
     protected ObStation location;
 
@@ -352,17 +335,6 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
             }
         }
 
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override
