@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2013    2292    mpduff      Initial creation
+ * Nov 01, 2013    2292    dhladky     Don't check against yourself for duplication
  * 
  * </pre>
  * 
@@ -78,6 +79,10 @@ public class SubscriptionOverlapHandler implements
                 DataType dataType = subscription.getDataSetType();
                 Set<String> overlappingSubscriptions = new HashSet<String>();
                 for (Subscription potentialDuplicate : potentialDuplicates) {
+                    // don't check against yourself
+                    if (potentialDuplicate.getId().equals(subscription.getId())) {
+                        continue;
+                    }
                     OverlapData od = OverlapDataFactory.getOverlapData(
                             subscription, potentialDuplicate);
 
