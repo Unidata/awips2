@@ -1,8 +1,0 @@
-com.raytheon.edex.plugin.taf.common.TafRecord
-com.raytheon.edex.plugin.taf.common.ChangeGroup
-com.raytheon.edex.plugin.taf.common.IcingLayer
-com.raytheon.edex.plugin.taf.common.TafPeriod
-com.raytheon.edex.plugin.taf.common.TafSkyCover
-com.raytheon.edex.plugin.taf.common.TafWeatherCondition
-com.raytheon.edex.plugin.taf.common.TemperatureForecast
-com.raytheon.edex.plugin.taf.common.TurbulenceLayer
