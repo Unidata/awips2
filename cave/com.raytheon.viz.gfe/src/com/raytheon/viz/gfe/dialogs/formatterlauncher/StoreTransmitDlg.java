@@ -405,6 +405,8 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
                             } else {
                                 throw new VizException(msg, e);
                             }
+                        } else {
+                            serverResponse = responseContainer[0];
                         }
                     }
 
