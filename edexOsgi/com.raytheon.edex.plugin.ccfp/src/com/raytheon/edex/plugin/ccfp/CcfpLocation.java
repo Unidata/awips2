@@ -22,17 +22,12 @@ package com.raytheon.edex.plugin.ccfp;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.annotations.Type;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -50,6 +45,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 17, 2009 3072        bsteffen    Fixed type of geometry
  * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
  *                                      spatial
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * 
  * </pre>
@@ -58,7 +54,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1
  */
 @Embeddable
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class CcfpLocation implements ISpatialObject {
 
@@ -66,20 +61,17 @@ public class CcfpLocation implements ISpatialObject {
 
     @Column(name = "location")
     @Type(type = "org.hibernatespatial.GeometryUserType")
-    @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry geometry;
 
     @DataURI(position = 0)
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private double boxLat;
 
     @DataURI(position = 1)
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private double boxLong;
 
     @Override
