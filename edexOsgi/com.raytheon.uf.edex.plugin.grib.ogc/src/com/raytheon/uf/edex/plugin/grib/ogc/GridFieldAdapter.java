@@ -10,6 +10,7 @@
 package com.raytheon.uf.edex.plugin.grib.ogc;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.edex.plugin.dataset.urn.CFNameLookup;
 import com.raytheon.uf.edex.wcs.reg.IFieldAdapted;
 
 /**
@@ -39,7 +40,9 @@ public class GridFieldAdapter implements IFieldAdapted<GridRecord> {
      */
     @Override
     public String getCoverageField(GridRecord record) {
-        return record.getInfo().getParameter().getAbbreviation();
+		CFNameLookup lookup = CFNameLookup.getInstance();
+		String abbr = record.getInfo().getParameter().getAbbreviation();
+		return lookup.getCFFromNCEP(abbr);
     }
 
     /*

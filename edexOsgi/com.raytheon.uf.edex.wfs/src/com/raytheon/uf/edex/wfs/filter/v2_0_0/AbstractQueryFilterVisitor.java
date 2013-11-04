@@ -12,6 +12,7 @@ package com.raytheon.uf.edex.wfs.filter.v2_0_0;
 import java.lang.reflect.Field;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -31,13 +32,17 @@ import net.opengis.gml.v_3_2_1.TimePositionType;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.gml3_2_1.EnvelopeConverter;
 import com.raytheon.uf.edex.ogc.common.gml3_2_1.GeometryConverter;
+import com.raytheon.uf.edex.ogc.common.spatial.CrsLookup;
 import com.raytheon.uf.edex.ogc.common.util.ConvertService;
 import com.raytheon.uf.edex.wfs.provider.VisitorBag;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
@@ -79,7 +84,13 @@ public abstract class AbstractQueryFilterVisitor implements IFilter2Visitor {
      */
     protected Operand getBinaryProps(ExpressionProcessor left,
             ExpressionProcessor right, VisitorBag bag) throws Exception {
+        
         OpField field = getRef(left, bag);
+        //If the field is explicitly ignored in the filter, return null so it is not processed further
+        if(field.value == null) {
+            return null;
+        }
+ 
         Object value = right.accept(exprVisitor, bag);
 
         if (!field.sql) {
@@ -150,7 +161,10 @@ public abstract class AbstractQueryFilterVisitor implements IFilter2Visitor {
             Junction junc) throws Exception {
         Iterator<Filter2Processor> i = filters.iterator();
         while (i.hasNext()) {
-            junc.add((Criterion) i.next().accept(this, obj));
+            Criterion crit = (Criterion)i.next().accept(this, obj);
+            if(crit != null) {
+                junc.add(crit);
+            }
         }
     }
 
@@ -224,13 +238,30 @@ public abstract class AbstractQueryFilterVisitor implements IFilter2Visitor {
             obj = ((JAXBElement<?>) obj).getValue();
         }
         Geometry shape;
+        String crsStr;
         if (obj instanceof EnvelopeType) {
-            Envelope envelope = envConverter.convert((EnvelopeType) obj);
+            EnvelopeType env = (EnvelopeType) obj;
+            Envelope envelope = envConverter.convert(env);
             shape = geomConverter.convert(envelope);
+            crsStr = env.getSrsName();
         } else if (obj instanceof AbstractGeometryType) {
-            shape = geomConverter.convert((AbstractGeometryType) obj);
+            AbstractGeometryType geom = (AbstractGeometryType) obj;
+            shape = geomConverter.convert(geom);
+            crsStr = geom.getSrsName();
         } else {
             throw new Exception("Unsupported geometry format");
+        }
+        CoordinateReferenceSystem crs = CrsLookup.lookup(crsStr);
+        if (CrsLookup.isEpsgGeoCrs(crs)) {
+            shape.apply(new CoordinateFilter() {
+                @Override
+                public void filter(Coordinate coord) {
+                    double tmp = coord.x;
+                    coord.x = coord.y;
+                    coord.y = tmp;
+                }
+            });
+            shape.geometryChanged();
         }
         return shape;
     }
@@ -420,6 +451,11 @@ public abstract class AbstractQueryFilterVisitor implements IFilter2Visitor {
      */
     protected Entry<String, Class<?>> getRef(BinaryTemporalOpType binary,
             VisitorBag bag) throws Exception {
+        if (!binary.isSetValueReference()) {
+            // default to refTime
+            return new SimpleEntry<String, Class<?>>("dataTime.refTime",
+                    Date.class);
+        }
         String prop = binary.getValueReference();
         String[] unfilteredPath = parseProp(prop);
         String unfilteredField = StringUtils.join(unfilteredPath, ".");
