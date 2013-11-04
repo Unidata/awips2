@@ -69,6 +69,12 @@ public abstract class WxxmWfsSource extends PluginWfsSource {
             if (trans.getFieldMap() != null) {
                 fieldMap.putAll(trans.getFieldMap());
             }
+            
+            //Map all the aliases to the same translator
+            List<WfsFeatureType> aliases = getAliases();
+            for(WfsFeatureType alias : aliases) {
+                classMap.put(alias.getName(), trans.getRecordClass());
+            }
         }
     }
 

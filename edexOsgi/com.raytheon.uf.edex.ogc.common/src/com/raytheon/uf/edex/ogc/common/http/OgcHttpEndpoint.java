@@ -29,11 +29,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.raytheon.uf.edex.ogc.common.stats.OgcStatsRecorder;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.log.cxf.RequestLogController;
+import com.raytheon.uf.edex.ogc.common.stats.IStatsRecorder;
+import com.raytheon.uf.edex.ogc.common.stats.OperationType;
+import com.raytheon.uf.edex.ogc.common.stats.ServiceType;
 import com.raytheon.uf.edex.ogc.common.stats.StatsRecorderFinder;
 
 /**
- * TODO - Class comment here
+ * HTTP Camel Processor for OGC REST Services
  * 
  * <pre>
  * 
@@ -56,6 +61,8 @@ public class OgcHttpEndpoint implements Processor {
 	public static final String HEADER_AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 
     protected IOgcHttpPooler pool;
+    
+    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	/**
 	 * 
@@ -89,9 +96,20 @@ public class OgcHttpEndpoint implements Processor {
 
         // TODO get service from request somehow?? remove time and duration
         // calculation from critical path
-		OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+		IStatsRecorder statRecorder = StatsRecorderFinder.find();
         statRecorder.recordRequest(System.currentTimeMillis(),
-                System.nanoTime() - start, "OGCRest", true);
+                System.nanoTime() - start, ServiceType.OGC, OperationType.QUERY, true);
+        
+        //TODO this is part of the incoming request log, the rest is usually in CXF
+        //which is not hooked up here. Fill in cxf portion of request logging.
+        if (RequestLogController.getInstance().shouldLogRequestsInfo() &&
+        		log.isPriorityEnabled(RequestLogController.getInstance().getRequestLogLevel())) {
+			String requestLog = "";
+			requestLog += "Successfully processed request from " + ex.getFromRouteId() + ".  ";
+			requestLog += "Duration of " + (System.nanoTime() - start/1000000000.0) + "s.";
+			log.handle(RequestLogController.getInstance().getRequestLogLevel(), 
+					requestLog);
+		}
 
 		pool.returnObject(id, handler);
 	}
