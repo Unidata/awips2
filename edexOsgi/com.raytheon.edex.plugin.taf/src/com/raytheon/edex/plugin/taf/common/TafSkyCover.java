@@ -27,14 +27,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -49,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 6/21/2007    180         Phillippe   initial creation.
  * 4/16/2008    934         grichard    Added toString overridden method.
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -58,9 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "taf_sky_cover")
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class TafSkyCover extends PersistableDataObject implements
-        ISerializableObject {
+public class TafSkyCover extends PersistableDataObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -75,19 +70,16 @@ public class TafSkyCover extends PersistableDataObject implements
 
     /** The type of sky coverage * */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 3)
     private String type;
 
     /** The height of the cloud layer * */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer height;
 
     // For convective low level cloud - CB
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 3)
     private String genus;
 
