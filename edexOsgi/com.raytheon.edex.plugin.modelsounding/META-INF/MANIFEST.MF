@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Modelsounding Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.modelsounding
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
@@ -14,7 +14,13 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  org.apache.commons.lang;bundle-version="2.3.0",
- com.google.guava;bundle-version="1.0.0"
+ com.google.guava;bundle-version="1.0.0",
+ javax.measure,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.serialization.comm
 Export-Package: com.raytheon.edex.plugin.modelsounding,
  com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,
