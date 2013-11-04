@@ -27,14 +27,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -48,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 8/30/06                  bphillip    Initial Creation
  * 6/21/07      180         bphillip    Updated for use with plugin persistance pattern
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -56,10 +53,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Table(name = "taf_icing_layers")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class IcingLayer extends PersistableDataObject implements
-        ISerializableObject {
+public class IcingLayer extends PersistableDataObject {
 
     @Id
     @GeneratedValue
@@ -76,19 +71,16 @@ public class IcingLayer extends PersistableDataObject implements
 
     /** The icing intensity */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer icing_intensity;
 
     /** The minimum altitude for the icing */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer icing_min_alt_ft_agl;
 
     /** The maximum altitude for the icing */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer icing_max_alt_ft_agl;
 

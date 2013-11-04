@@ -27,14 +27,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -48,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 8/30/2006                bphillip    Initial Creation    
  * 6/21/2007                bphillip    Updated for use with plugin persistance pattern
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -57,9 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "taf_turbulence_layers")
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class TurbulenceLayer extends PersistableDataObject implements
-        ISerializableObject {
+public class TurbulenceLayer extends PersistableDataObject {
 
     /**
      * 
@@ -76,19 +71,16 @@ public class TurbulenceLayer extends PersistableDataObject implements
 
     /** The intensity of the turbulence */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer turbulence_intensity;
 
     /** The minimum altitude for the turbulence */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer turbulence_min_alt_ft_agl;
 
     /** The maximum altitude for the turbulence */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer turbulence_max_alt_ft_agl;
 
