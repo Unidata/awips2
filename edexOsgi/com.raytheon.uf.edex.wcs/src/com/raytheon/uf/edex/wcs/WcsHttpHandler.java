@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.wcs;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -208,28 +209,29 @@ public class WcsHttpHandler extends OgcHttpHandler {
 		return null;
 	}
 
-	private OgcServiceInfo<WcsOpType> getServiceInfo(HttpServletRequest request) {
-		// FIXME get address from spring
-		int port = request.getServerPort();
-		String base = "http://" + request.getServerName();
-		if (port != 80) {
-			base += ":" + port;
-		}
-		base += request.getPathInfo() + "?service=wcs";
-		OgcServiceInfo<WcsOpType> rval = new OgcServiceInfo<WcsOpType>(base);
-		rval.addOperationInfo(getOp(base, base,
-				WcsOpType.GetCapabilities));
-		rval.addOperationInfo(getOp(base, base,
-				WcsOpType.DescribeCoverage));
-		rval.addOperationInfo(getOp(base, base,
-				WcsOpType.GetCoverage));
+    private OgcServiceInfo<WcsOpType> getServiceInfo(HttpServletRequest request) {
+        // FIXME get address from spring
+        int port = request.getServerPort();
+        String base = "http://" + request.getServerName();
+        if (port != 80) {
+            base += ":" + port;
+        }
+        base += request.getPathInfo() + "?service=wcs";
+        OgcServiceInfo<WcsOpType> rval = new OgcServiceInfo<WcsOpType>(base);
+        rval.addOperationInfo(getOp(base, base, WcsOpType.GetCapabilities,
+                request.getServerName()));
+        rval.addOperationInfo(getOp(base, base, WcsOpType.DescribeCoverage,
+                request.getServerName()));
+        rval.addOperationInfo(getOp(base, base, WcsOpType.GetCoverage,
+                request.getServerName()));
 
-		return rval;
-	}
+        return rval;
+    }
 
 	protected OgcOperationInfo<WcsOpType> getOp(String get, String post,
-			WcsOpType type) {
+            WcsOpType type, String host) {
 		OgcOperationInfo<WcsOpType> rval = new OgcOperationInfo<WcsOpType>(type);
+        rval.setHttpBaseHostname(host);
 		// FIXME get version from provider
 		rval.setHttpGetRes(get);
 		rval.setHttpPostRes(post);
@@ -349,7 +351,7 @@ public class WcsHttpHandler extends OgcHttpHandler {
 
 		String[] identifiers = getHeaderArr(IDENTIFIERS, headers);
 		if (identifiers != null) {
-			rval.setIdentifiers(identifiers);
+            rval.setIdentifiers(Arrays.asList(identifiers));
 		}
 
 		return rval;
