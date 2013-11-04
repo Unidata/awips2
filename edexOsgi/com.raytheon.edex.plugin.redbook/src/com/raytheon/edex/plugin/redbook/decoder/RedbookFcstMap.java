@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.redbook.decoder;
 
 import java.util.HashMap;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -33,9 +34,6 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -48,9 +46,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date			Ticket#		Engineer	Description
  * ------------	-----------	-----------	--------------------------
  * 20101022            6424 kshrestha	Add fcsttime
- * Apr 29, 2013        1958 bgonzale     Map is loaded once, and then
+ * Apr 29, 2013        1958 bgonzale    Map is loaded once, and then
  *                                       not loaded again unless the mapping
  *                                       file changes.
+ * Nov 04, 2013        2361 njensen     Use JAXB for XML instead of SerializationUtil
  * 
  * </pre>
  * 
@@ -59,7 +58,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class RedbookFcstMap implements ISerializableObject {
+public class RedbookFcstMap {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookFcstMap.class);
 
@@ -90,9 +90,8 @@ public class RedbookFcstMap implements ISerializableObject {
     private static RedbookFcstMap load(LocalizationFile xmlFile) {
         RedbookFcstMap loadedMap = null;
         try {
-            loadedMap = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    RedbookFcstMap.class, xmlFile.getFile().getAbsolutePath());
-        } catch (SerializationException e) {
+            loadedMap = JAXB.unmarshal(xmlFile.getFile(), RedbookFcstMap.class);
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
         return loadedMap;
