@@ -31,7 +31,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  */
 public class StatsRecorderFinder {
 
-    private static volatile OgcStatsRecorder recorder = null;
+    private static volatile IStatsRecorder recorder = null;
 
     private static final Object recorderMutex = new Object();
 
@@ -40,17 +40,17 @@ public class StatsRecorderFinder {
      * 
      * @return
      */
-    public static OgcStatsRecorder find() {
+    public static IStatsRecorder find() {
         if (recorder == null) {
             synchronized (recorderMutex) {
                 if (recorder == null) {
                     ApplicationContext ctx = EDEXUtil.getSpringContext();
                     String[] beans = ctx
-                            .getBeanNamesForType(OgcStatsRecorder.class);
+                            .getBeanNamesForType(IStatsRecorder.class);
                     if (beans.length == 0) {
                         recorder = new NoopStatsRecorder();
                     } else {
-                        recorder = (OgcStatsRecorder) ctx.getBean(beans[0]);
+                        recorder = (IStatsRecorder) ctx.getBean(beans[0]);
                     }
                 }
             }

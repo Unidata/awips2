@@ -1,33 +1,22 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 29, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wfs.v2_0_0;
 
 import java.util.ArrayList;
@@ -41,6 +30,7 @@ import javax.xml.namespace.QName;
 
 import net.opengis.filter.v_2_0_0.ComparisonOperatorType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorsType;
+import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.GeometryOperandsType;
 import net.opengis.filter.v_2_0_0.GeometryOperandsType.GeometryOperand;
@@ -56,6 +46,7 @@ import net.opengis.ows.v_1_1_0.DCP;
 import net.opengis.ows.v_1_1_0.DomainType;
 import net.opengis.ows.v_1_1_0.HTTP;
 import net.opengis.ows.v_1_1_0.LanguageStringType;
+import net.opengis.ows.v_1_1_0.NoValues;
 import net.opengis.ows.v_1_1_0.OperationsMetadata;
 import net.opengis.ows.v_1_1_0.RequestMethodType;
 import net.opengis.ows.v_1_1_0.ServiceIdentification;
@@ -107,8 +98,8 @@ public class Capabilities {
             "Touches" };
 
     protected String[] comparisonOperators = { "PropertyIsLessThan",
-            "PropertyIsGreaterThan", "PropertyIsLessThanEqualTo",
-            "PropertyIsGreaterThenEqualTo", "PropertyIsEqualTo",
+            "PropertyIsGreaterThan", "PropertyIsLessThanOrEqualTo",
+            "PropertyIsGreaterThanOrEqualTo", "PropertyIsEqualTo",
             "PropertyIsNotEqualTo" };
 
     protected String[] logicOperators = { "And", "Or", "Not" };
@@ -182,20 +173,35 @@ public class Capabilities {
         AllowedValues value = new AllowedValues();
         value.setValueOrRange(toVals);
         rval.setAllowedValues(value);
-        return rval;
-    }
+		return rval;
+	}
 
-    /**
+	/**
+	 * @return
+	 */
+	protected FilterCapabilities getFilterCap() {
+		FilterCapabilities rval = new FilterCapabilities();
+		rval.setConformance(getConformance());
+		rval.setScalarCapabilities(getScalarCapabilities());
+		rval.setSpatialCapabilities(getSpatialCapabilities());
+		rval.setIdCapabilities(getIdCapabilities());
+		return rval;
+	}
+
+	/**
      * @return
      */
-    protected FilterCapabilities getFilterCap() {
-        FilterCapabilities rval = new FilterCapabilities();
-        rval.setScalarCapabilities(getScalarCapabilities());
-        rval.setSpatialCapabilities(getSpatialCapabilities());
-        rval.setIdCapabilities(getIdCapabilities());
+    protected ConformanceType getConformance() {
+        ConformanceType rval = new ConformanceType();
+        DomainType domain = new DomainType();
+        //TODO, is this the correct name here??
+        domain.setName("Filter_Conformance");
+        NoValues value = new NoValues();
+        domain.setNoValues(value);
+        rval.setConstraint(Arrays.asList(domain));
         return rval;
     }
-
+    
     /**
      * @return
      */
@@ -241,6 +247,7 @@ public class Capabilities {
             QName name = new QName(OgcNamespace.GML, op);
             GeometryOperand gop = new GeometryOperand();
             gop.setName(name);
+            ops.add(gop);
         }
         rval.setGeometryOperand(ops);
         return rval;
@@ -311,6 +318,7 @@ public class Capabilities {
         LanguageStringType lst = new LanguageStringType();
         lst.setValue(SERV_TITLE);
         rval.setTitle(Arrays.asList(lst));
-        return rval;
-    }
+        rval.setServiceTypeVersion(Arrays.asList(Wfs2_0_0Provider.version));
+		return rval;
+	}
 }

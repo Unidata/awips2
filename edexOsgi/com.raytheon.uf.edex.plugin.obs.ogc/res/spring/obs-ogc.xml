@@ -20,11 +20,6 @@
 		<constructor-arg ref="metarWfsSource" />
 	</bean> 
 	
-	<bean id="metarWmsSource" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarWmsSource" >
-		<constructor-arg ref="obsProperties" />
-		<constructor-arg ref="metarLayerTransformer"/>
-	</bean>
-	
 	<bean id="metarLayerTransformer" class="com.raytheon.uf.edex.ogc.common.db.LayerTransformer" >
   		<constructor-arg value="metar" />
   		<constructor-arg ref="metarLayerCollector" />
