@@ -53,6 +53,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -67,7 +68,6 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -86,11 +86,12 @@ import com.raytheon.viz.core.gl.GLDisposalManager;
 import com.raytheon.viz.core.gl.GLStats;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.ext.imaging.GLColormappedImageExtension;
+import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
 import com.raytheon.viz.core.gl.ext.imaging.GLDefaultImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
+import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
+import com.raytheon.viz.core.gl.images.GLBufferCMTextureData;
 import com.raytheon.viz.core.gl.images.GLImage;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
 import com.sun.opengl.util.Screenshot;
@@ -128,6 +129,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  *                                      strings are always readable despite extent
  * May 28, 2013 1638        mschenke    Made sure {@link TextStyle#BLANKED} text is drawing correct size
  *                                      box around text
+ * Nov  4, 2013 2492        mschenke    Switched colormap drawing to use 1D texture object for alpha mask
  * 
  * </pre>
  * 
@@ -517,28 +519,19 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
             GLTextureObject i = getColorMapTexture(colorMapParams);
 
-            GLColormappedImage alphaMaskTexture = null;
+            GLBufferCMTextureData alphaMaskTexture = null;
             if (colorMapParams.isUseMask() && capabilities.cardSupportsShaders) {
-                final byte[] mask = colorMapParams.getAlphaMask();
-                alphaMaskTexture = getExtension(
-                        GLColormappedImageExtension.class).initializeRaster(
-                        new IColorMapDataRetrievalCallback() {
-                            @Override
-                            public ColorMapData getColorMapData()
-                                    throws VizException {
-                                return new ColorMapData(ByteBuffer.wrap(mask),
-                                        new int[] { mask.length, 1 });
-                            }
-
-                        }, colorMapParams);
-                alphaMaskTexture.stage();
-                alphaMaskTexture.target(this);
-            }
-
-            if (alphaMaskTexture != null) {
+                byte[] mask = colorMapParams.getAlphaMask();
+                alphaMaskTexture = new GLBufferCMTextureData(new ColorMapData(
+                        ByteBuffer.wrap(mask), new int[] { mask.length },
+                        ColorMapDataType.BYTE), new GLByteDataFormat());
                 gl.glActiveTexture(GL.GL_TEXTURE1);
-                gl.glBindTexture(alphaMaskTexture.getTextureStorageType(),
-                        alphaMaskTexture.getTextureid());
+                if (alphaMaskTexture.loadTexture(gl)) {
+                    gl.glBindTexture(alphaMaskTexture.getTextureStorageType(),
+                            alphaMaskTexture.getTexId());
+                } else {
+                    alphaMaskTexture.dispose();
+                }
             }
 
             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
@@ -573,14 +566,11 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         "colormap");
                 if (program != null) {
                     program.startShader();
-                    program.setUniform("alphaVal", blendAlpha);
-                    program.setUniform("brightness", brightness);
-                    program.setUniform("contrast", contrast);
-                    program.setUniform("colorMap", 0);
-                    program.setUniform("logFactor", logFactor);
-                    program.setUniform("alphaMask", 1);
-                    program.setUniform("applyMask",
-                            colorMapParams.isUseMask() ? 1 : 0);
+
+                    GLSLStructFactory.createColorMapping(program,
+                            "colorMapping", 0, 1, colorMapParams);
+                    GLSLStructFactory.createColorModifiers(program,
+                            "modifiers", blendAlpha, brightness, contrast);
                     program.setUniform("bkgrndRed",
                             backgroundColor.red / 255.0f);
                     program.setUniform("bkgrndGreen",
