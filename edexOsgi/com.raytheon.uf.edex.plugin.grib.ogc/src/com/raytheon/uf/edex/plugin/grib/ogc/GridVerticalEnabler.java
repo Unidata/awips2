@@ -10,6 +10,7 @@
 package com.raytheon.uf.edex.plugin.grib.ogc;
 
 import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -85,5 +86,16 @@ public class GridVerticalEnabler implements VerticalEnabled<GridRecord> {
     public Class<GridRecord> getSupportedClass() {
         return GridRecord.class;
     }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.edex.ogc.common.spatial.VerticalEnabled#
+	 * getDefaultVerticalUnit()
+	 */
+	@Override
+	public Unit<?> getDefaultVerticalUnit() {
+		return null;
+	}
 
 }
