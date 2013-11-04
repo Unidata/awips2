@@ -16,9 +16,10 @@ Require-Bundle: org.geotools;bundle-version="2.6.4",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.common.datadelivery.harvester;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.log;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
- com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0",
  com.sun.xml.bind;bundle-version="1.0.0",
  com.raytheon.uf.common.spatial;bundle-version="1.0.0",
@@ -44,5 +45,4 @@ Export-Package: com.raytheon.uf.edex.wfs,
  com.raytheon.uf.edex.wfs.v2_0_0,
  com.raytheon.uf.edex.wfs.wxxm
 Import-Package: javax.servlet,
- javax.servlet.http,
- org.apache.commons.logging
+ javax.servlet.http

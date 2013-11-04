@@ -48,4 +48,12 @@ public interface IWfsProvider {
     public void handleGet(Map<String, Object> headers, EndpointInfo info,
             IOgcHttpResponse response) throws Exception;
 
+    /**
+     * Return the OGC HTTP (get/post) service location in the form [:port]/path
+     * for appending to the hostname of the server
+     * 
+     * @return
+     */
+    public String getHttpServiceLocation();
+
 }
