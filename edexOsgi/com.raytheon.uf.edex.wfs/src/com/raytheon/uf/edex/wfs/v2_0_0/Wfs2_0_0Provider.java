@@ -1,33 +1,22 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 22, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wfs.v2_0_0;
 
 import java.io.IOException;
@@ -118,7 +107,25 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
 import com.raytheon.uf.edex.wfs.request.WfsRequest;
 import com.raytheon.uf.edex.wfs.request.WfsRequest.Type;
 import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
+import com.raytheon.uf.edex.wfs.util.XMLGregorianCalendarConverter;
 
+/**
+ * TODO Add Description
+ *
+ * @author bclement
+ * @version 1.0	
+ * 
+ *  * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 18, 2013 #411       skorolev    Added required RESPONSE METADATA
+ *
+ * </pre>
+ * 
+ */
 public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         IStoredQueryCallback {
 
@@ -147,7 +154,7 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
     public Wfs2_0_0Provider(WfsRegistryImpl registry) {
         this.capabilities = new Capabilities(registry);
         this.features = new Gml32FeatureFetcher(registry);
-        this.describer = new FeatureDescriber(registry);
+        this.describer = new FeatureDescriber(registry, this);
         this.registry = registry;
         // this name must match preloaded store in utility directory
         this.queryStore = new FileSystemQueryStore(registry, "wfsQueryStore");
@@ -377,6 +384,7 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
     protected OgcOperationInfo<WfsOpType> getOp(String base, WfsOpType type,
             EndpointInfo info) {
         OgcOperationInfo<WfsOpType> rval = new OgcOperationInfo<WfsOpType>(type);
+        rval.setHttpBaseHostname(info.getHost());
         if (!info.isPostOnly()) {
             rval.setHttpGetRes(base);
         }
@@ -485,8 +493,8 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         }
         rval.setMember(members);
         rval.setNumberMatched(Long.toString(features.count));
-        rval.setNumberReturned(new BigInteger(Integer
-                .toString(features.features.size())));
+        rval.setNumberReturned(BigInteger.valueOf(features.features.size()));
+        rval.setTimeStamp(XMLGregorianCalendarConverter.getCurrentTimeStamp());
         return rval;
     }
 
@@ -1169,6 +1177,9 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
             }
         }
         rval.setMember(values);
+        rval.setNumberMatched(Long.toString(counted.count));
+        rval.setNumberReturned(BigInteger.valueOf(counted.features.size()));
+        rval.setTimeStamp(XMLGregorianCalendarConverter.getCurrentTimeStamp());
         return rval;
     }
 
@@ -1184,6 +1195,24 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
      */
     public Gml32FeatureFetcher getFeatures() {
         return features;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.WfsProvider#getHttpServiceLocation()
+     */
+    @Override
+    public String getHttpServiceLocation() {
+        String location = "";
+        String port = registry.getHttpServicePort();
+        if (!port.equals("80")) {
+            location += ":" + port;
+        }
+        String path = registry.getHttpServicePath();
+        location += "/" + path + "?service=" + Capabilities.SERV_TYPE
+                + "&version=" + version;
+        return location;
     }
 
 }

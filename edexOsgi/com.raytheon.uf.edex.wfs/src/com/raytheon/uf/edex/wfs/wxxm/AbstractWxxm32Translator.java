@@ -35,7 +35,9 @@ import net.opengis.gml.v_3_2_1.DirectPositionType;
 import net.opengis.gml.v_3_2_1.FeaturePropertyType;
 import net.opengis.gml.v_3_2_1.LocationPropertyType;
 import net.opengis.gml.v_3_2_1.PointType;
+import net.opengis.gml.v_3_2_1.TimeInstantPropertyType;
 import net.opengis.gml.v_3_2_1.TimeInstantType;
+import net.opengis.gml.v_3_2_1.TimePeriodType;
 import net.opengis.gml.v_3_2_1.TimePositionType;
 import net.opengis.om.v_1_0_0_gml32.ProcessPropertyType;
 import net.opengis.swe.v_1_0_1_gml32.PhenomenonPropertyType;
@@ -44,6 +46,8 @@ import net.opengis.swe.v_1_0_1_gml32.TimeObjectPropertyType;
 import com.eurocontrol.avwx.v_1_1_1.AirspaceType;
 import com.eurocontrol.avwx.v_1_1_1.ObjectFactory;
 import com.eurocontrol.wx.v_1_1_1.AirTemperatureType;
+import com.eurocontrol.wx.v_1_1_1.ForecastType;
+import com.eurocontrol.wx.v_1_1_1.ForecastType.ValidTime;
 import com.eurocontrol.wx.v_1_1_1.ObservationType;
 import com.eurocontrol.wx.v_1_1_1.PressureType;
 import com.eurocontrol.wx.v_1_1_1.UomAngleType;
@@ -65,6 +69,7 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.gml3_2_1.GeometryConverter;
@@ -110,11 +115,11 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
 
     protected static final net.opengis.swe.v_1_0_1_gml32.ObjectFactory sweFactory = new net.opengis.swe.v_1_0_1_gml32.ObjectFactory();
 
-    // FIXME
-    public static final String AIRCRAFT_URN = "";
+	// taken from UCAR example
+    public static final String AIRCRAFT_URN = "urn:icao:Aircraft:type";
 
-    // FIXME
-    public static final String AIRFRAME_URN = "";
+	// FIXME guess based on aircraft URN
+	public static final String AIRFRAME_URN = "urn:icao:Airframe:type";
 
     // FIXME
     public static final String FLIGHT_URN = "";
@@ -174,6 +179,10 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
     protected static final String AIRSPACE_OBSERVED_PROPERTY = "http://www.eurocontrol.int/ont/avwx/1.1/wx.owl#AirspaceWx";
 
     protected static final String AERODROME_OBSERVED_PROPERTY = "http://www.eurocontrol.int/ont/avwx/1.1/wx.owl#AerodromeWx";
+
+    protected static final String AVIATION_FORECAST_PROCEDURE = "urn:fdc:faa.gov:AviationForecast";
+
+    protected static final String WEATHER_OFFICE_URN = "urn:gov:noaa:nws:weatherOffice";
 
     private static IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractWxxm32Translator.class);
@@ -247,6 +256,16 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
     }
 
     /**
+     * Hook method for subclasses to do bulk preprocessing
+     * 
+     * @param pdos
+     * @return
+     */
+    protected PluginDataObject[] preprocess(PluginDataObject[] pdos) {
+        return pdos;
+    }
+
+    /**
      * Translate pdo into GML 3.2.1 WXXM Object
      * 
      * @param pdo
@@ -300,6 +319,18 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      */
     protected Amount createAmount(Double value, Unit<?> uom) {
         if (value == null) {
+            return null;
+        }
+        return new Amount(value, uom);
+    }
+
+    /**
+     * @param value
+     * @param uom
+     * @return null if value is null
+     */
+    protected Amount createAmount(double value, Unit<?> uom, double missingVal) {
+        if (value == missingVal) {
             return null;
         }
         return new Amount(value, uom);
@@ -409,14 +440,104 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
         DataTime time = pdo.getDataTime();
         Date refTime = time.getRefTime();
         TimeObjectPropertyType rval = new TimeObjectPropertyType();
-        TimeInstantType inst = new TimeInstantType();
-        TimePositionType pos = new TimePositionType();
-        String formatted = LayerTransformer.format(refTime);
-        pos.setValue(Arrays.asList(formatted));
-        inst.setTimePosition(pos);
+        TimeInstantType inst = getInstant(refTime);
         JAXBElement<AbstractTimeObjectType> timeObj = gmlFactory
                 .createAbstractTimeObject(inst);
         rval.setAbstractTimeObject(timeObj);
+        return rval;
+    }
+
+    /**
+     * Create instant from date
+     * 
+     * @param d
+     * @return
+     */
+    protected TimeInstantType getInstant(Date d) {
+        TimeInstantType inst = new TimeInstantType();
+        TimePositionType pos = new TimePositionType();
+        String formatted = LayerTransformer.format(d);
+        pos.setValue(Arrays.asList(formatted));
+        inst.setTimePosition(pos);
+        return inst;
+    }
+
+    /**
+     * Create instant from date
+     * 
+     * @param d
+     * @return
+     */
+    protected TimeInstantPropertyType getInstantProp(Date d) {
+        TimeInstantPropertyType rval = new TimeInstantPropertyType();
+        rval.setTimeInstant(getInstant(d));
+        return rval;
+    }
+
+    /**
+     * Create time position from date
+     * 
+     * @param d
+     * @return
+     */
+    protected TimePositionType getTimePosition(Date d) {
+        TimePositionType rval = new TimePositionType();
+        rval.setValue(Arrays.asList(LayerTransformer.format(d)));
+        return rval;
+    }
+
+    /**
+     * Sets valid and sampling times for forecast
+     * 
+     * @param target
+     * @param pdo
+     */
+    protected void setTimes(ForecastType target, Date start, Date end) {
+        TimePeriodType time = getTimePeriod(start, end);
+        ValidTime vtime = new ValidTime();
+        JAXBElement<AbstractTimeObjectType> timeElem = gmlFactory
+                .createAbstractTimeObject(time);
+        vtime.setAbstractTimeObject(timeElem);
+        target.setValidTime(vtime);
+        TimeObjectPropertyType prop = new TimeObjectPropertyType();
+        prop.setAbstractTimeObject(timeElem);
+        target.setSamplingTime(prop);
+    }
+
+    /**
+     * Create time period from valid period
+     * 
+     * @param time
+     * @return
+     */
+    protected TimePeriodType getTimePeriod(DataTime time) {
+        TimeRange range = time.getValidPeriod();
+        return getTimePeriod(range.getStart(), range.getEnd());
+    }
+
+    /**
+     * Create time period from valid period
+     * 
+     * @param time
+     * @return
+     */
+    protected TimePeriodType getTimePeriod(Date start, Date end) {
+        TimePeriodType rval = new TimePeriodType();
+        TimePositionType startpos = getTimePosition(start);
+        TimePositionType endpos = getTimePosition(end);
+        rval.setBeginPosition(startpos);
+        rval.setEndPosition(endpos);
+        return rval;
+    }
+
+    /**
+     * Create aviation forecast procedure
+     * 
+     * @return
+     */
+    protected ProcessPropertyType getForecastProcedure() {
+        ProcessPropertyType rval = new ProcessPropertyType();
+        rval.setHref(AVIATION_FORECAST_PROCEDURE);
         return rval;
     }
 
@@ -522,6 +643,34 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
                 .createPhenomenonPropertyType();
         property.setHref(href);
         return property;
+    }
+
+    /**
+     * @param geom
+     * @param base
+     * @param top
+     * @return
+     */
+    protected FeaturePropertyType createFeatureOfInterest(
+            JAXBElement<AbstractGeometryType> geom, Amount base, Amount top) {
+        FeaturePropertyType rval = new FeaturePropertyType();
+        AirspaceType airspaceType = avFactory.createAirspaceType();
+        if (base != null) {
+            airspaceType.setBase(getVertDist(base));
+        }
+        if (top != null) {
+            airspaceType.setTop(getVertDist(top));
+        }
+        LocationPropertyType locationPropertyType = gmlFactory
+                .createLocationPropertyType();
+        locationPropertyType.setAbstractGeometry(geom);
+        JAXBElement<LocationPropertyType> location = gmlFactory
+                .createLocation(locationPropertyType);
+        airspaceType.setLocation(location);
+        JAXBElement<AirspaceType> airspace = avFactory
+                .createAirspace(airspaceType);
+        rval.setAbstractFeature(airspace);
+        return rval;
     }
 
     /**

@@ -1,40 +1,34 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 10, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wcs.reg;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.measure.unit.SI;
 
 import org.apache.commons.lang.StringUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -43,14 +37,19 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
 import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
+import com.raytheon.uf.edex.ogc.common.spatial.AltUtil;
 import com.raytheon.uf.edex.ogc.common.spatial.Composite3DBoundingBox;
 import com.raytheon.uf.edex.ogc.common.spatial.CrsLookup;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate.Reference;
 import com.raytheon.uf.edex.plugin.dataset.urn.URNLookup;
+import com.raytheon.uf.edex.wcs.WcsConfig;
 import com.raytheon.uf.edex.wcs.WcsException;
 import com.raytheon.uf.edex.wcs.WcsException.Code;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -92,6 +91,22 @@ public abstract class CoverageTransform<D extends SimpleDimension, L extends Sim
         rval.setIdentifier(URNLookup.localToUrn(layer.getName()));
 		OgcGeoBoundingBox bbox = LayerTransformer.getGeoBoundingBox(layer);
         List<Composite3DBoundingBox> bboxes = getBboxes(layer);
+        if (!bboxes.isEmpty() && WcsConfig.isProperty(WcsConfig.FORCE_KM_BBOX)) {
+            List<Composite3DBoundingBox> newList = new ArrayList<Composite3DBoundingBox>(
+                    bboxes.size());
+            for (Composite3DBoundingBox box : bboxes) {
+                if (box.hasVertical()) {
+                    VerticalCoordinate vert = box.getVertical();
+                    vert = AltUtil.convert(SI.KILOMETER, Reference.UNKNOWN,
+                            vert);
+                    newList.add(new Composite3DBoundingBox(box.getHorizontal(),
+                            box.getNative2DCrsUrn(), vert));
+                } else {
+                    newList.add(box);
+                }
+            }
+            bboxes = newList;
+        }
 		if (bbox != null) {
 			rval.setCrs84Bbox(bbox);
             rval.setCrs(getSupportedCrsList(layer.getTargetCrsCode(), bboxes));
@@ -130,7 +145,7 @@ public abstract class CoverageTransform<D extends SimpleDimension, L extends Sim
 		coords[4] = new Coordinate(minx, miny);
 		
 		LinearRing ring = geomFact.createLinearRing(coords);
-		rval.setTimes(getTimes(layer.getTimes()));
+        rval.setTimes(getTimes(layer.getTimes(), layer.isTimesAsRanges()));
 		rval.setRangeFields(getRangeFields(layer));
 		rval.setPolygon(geomFact.createPolygon(ring, new LinearRing[0]));
 		rval.setGridType("urn:ogc:def:method:WCS:1.1:grid2dIn2dMethod");
@@ -222,7 +237,7 @@ public abstract class CoverageTransform<D extends SimpleDimension, L extends Sim
 			return null;
 		}
 		if (crs.equalsIgnoreCase("crs:84")) {
-			return "urn:ogc:def:crs:OGC::CRS84";
+            return "urn:ogc:def:crs:OGC:2:84";
 		}
 		String[] split = crs.split(":");
 		List<String> parts = new ArrayList<String>(split.length + 1);
@@ -243,14 +258,29 @@ public abstract class CoverageTransform<D extends SimpleDimension, L extends Sim
 	 */
     protected abstract List<RangeField> getRangeFields(L layer);
 
-	protected List<DataTime> getTimes(Set<Date> times) {
-		if (times == null) {
-			return null;
+    protected List<DataTime> getTimes(Set<Date> times, boolean asRanges) {
+        if (times == null || times.isEmpty()) {
+            return new ArrayList<DataTime>(0);
 		}
-		List<DataTime> rval = new ArrayList<DataTime>(times.size());
-		for (Date d : times) {
-			rval.add(new DataTime(d));
-		}
+        List<DataTime> rval;
+        if (asRanges) {
+            rval = new ArrayList<DataTime>((int) Math.ceil(times.size() / 2.0));
+            Iterator<Date> iter = times.iterator();
+            while (iter.hasNext()) {
+                Date start = iter.next();
+                Date end = (iter.hasNext() ? iter.next() : start);
+                DataTime time = new DataTime(Calendar.getInstance(),
+                        new TimeRange(start, end));
+                time.setUtilityFlags(EnumSet.of(FLAG.PERIOD_USED));
+                rval.add(time);
+            }
+        } else {
+            rval = new ArrayList<DataTime>(times.size());
+            for (Date d : times) {
+                rval.add(new DataTime(d));
+            }
+        }
+
 		return rval;
 	}
 }
