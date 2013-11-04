@@ -21,9 +21,11 @@ package com.raytheon.viz.core.gl.ext.imaging;
 
 import java.nio.ByteBuffer;
 
+import javax.measure.unit.Unit;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
@@ -32,10 +34,15 @@ import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
+import com.raytheon.viz.core.gl.ext.imaging.GLDataMappingFactory.GLDataMapping;
 import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
+import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLColormappedImage;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
+import com.raytheon.viz.core.gl.images.GLBufferCMTextureData;
+import com.raytheon.viz.core.gl.images.GLCMTextureData;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
 
@@ -53,7 +60,8 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
- * Oct 16, 2013 2333       mschenke    Cleaned up load shader method, used isScaled
+ * Oct 16, 2013 2333       mschenke    Cleaned up load shader method, used isScaled.
+ *                                     Added support for colormapping in non-data unit.
  * 
  * </pre>
  * 
@@ -65,7 +73,7 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
         implements IColormappedImageExtension {
 
     private static class GLColormappedImageExtensionData {
-        public GLColormappedImage alphaMaskTexture;
+        public GLCMTextureData alphaMask;
     }
 
     /*
@@ -108,30 +116,9 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
                 return null;
             }
 
-            if (usedColorMapParameters.isUseMask()) {
-                final byte[] mask = usedColorMapParameters.getAlphaMask();
-                data.alphaMaskTexture = initializeRaster(
-                        new IColorMapDataRetrievalCallback() {
-                            @Override
-                            public ColorMapData getColorMapData()
-                                    throws VizException {
-                                return new ColorMapData(ByteBuffer.wrap(mask),
-                                        new int[] { mask.length, 1 });
-                            }
-                        }, usedColorMapParameters);
-                data.alphaMaskTexture.stage();
-                data.alphaMaskTexture.target(target);
-            }
-
             // Get and stage colormap texture
             GLTextureObject cmapTexture = target
                     .getColorMapTexture(usedColorMapParameters);
-
-            if (data.alphaMaskTexture != null) {
-                gl.glActiveTexture(GL.GL_TEXTURE2);
-                gl.glBindTexture(data.alphaMaskTexture.getTextureStorageType(),
-                        data.alphaMaskTexture.getTextureid());
-            }
 
             gl.glActiveTexture(GL.GL_TEXTURE1);
             cmapTexture.bind(gl, GL.GL_TEXTURE_1D);
@@ -147,8 +134,95 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
                         GL.GL_NEAREST);
             }
+
+            if (usedColorMapParameters.isUseMask()) {
+                data.alphaMask = setupAlphaMasking(gl, GL.GL_TEXTURE2,
+                        usedColorMapParameters.getAlphaMask());
+            }
+
+            setupDataMapping(gl, glImage, GL.GL_TEXTURE3, GL.GL_TEXTURE4);
         }
         return data;
+    }
+
+    /**
+     * Sets up a {@link GLCMTextureData} for an alpha mask for use in image
+     * rendering
+     * 
+     * @param gl
+     * @param maskTexBinding
+     * @param mask
+     * @return The GLCMTextureData the alpha mask is bound to or null if the
+     *         texture failed to initialize
+     * @throws VizException
+     */
+    public static GLCMTextureData setupAlphaMasking(GL gl, int maskTexBinding,
+            byte[] mask) throws VizException {
+        GLBufferCMTextureData maskData = new GLBufferCMTextureData(
+                new ColorMapData(ByteBuffer.wrap(mask),
+                        new int[] { mask.length }, ColorMapDataType.BYTE),
+                new GLByteDataFormat());
+        gl.glActiveTexture(maskTexBinding);
+        if (maskData.loadTexture(gl)) {
+            gl.glBindTexture(maskData.getTextureStorageType(),
+                    maskData.getTexId());
+        } else {
+            maskData.dispose();
+            maskData = null;
+        }
+        return maskData;
+    }
+
+    /**
+     * Sets up a {@link GLDataMapping} for use in image rendering
+     * 
+     * @param gl
+     * @param glImage
+     * @param dataMappedTexBinding
+     * @param colorMappedTexBinding
+     * @throws VizException
+     */
+    public static void setupDataMapping(GL gl,
+            AbstractGLColormappedImage glImage, int dataMappedTexBinding,
+            int colorMappedTexBinding) throws VizException {
+        ColorMapParameters colorMapParameters = glImage.getColorMapParameters();
+        // Get GLDataMapping and generate if datamapping is not set. If
+        // datamapping is not set, the data has already been mapped to
+        // colorMapUnits and we need not do anything
+        GLDataMapping dataMapping = glImage.getDataMapping();
+        if (dataMapping == null && colorMapParameters.getDataMapping() == null) {
+            Unit<?> colorMapUnit = colorMapParameters.getColorMapUnit();
+            Unit<?> dataUnit = colorMapParameters.getDataUnit();
+            int colorMapSize = colorMapParameters.getColorMap().getSize();
+            float colorMapMin = colorMapParameters.getColorMapMin();
+            float colorMapMax = colorMapParameters.getColorMapMax();
+            dataMapping = GLDataMappingFactory.constructGLDataMapping(gl,
+                    dataUnit, colorMapUnit, colorMapMin, colorMapMax,
+                    colorMapSize);
+            glImage.setDataMapping(dataMapping);
+        }
+
+        if (dataMapping != null && dataMapping.isValid()) {
+            GLCMTextureData glDataMapping = dataMapping.getDataMapping();
+            gl.glActiveTexture(dataMappedTexBinding);
+            if (glDataMapping.isLoaded() == false) {
+                glDataMapping.loadTexture(gl);
+            }
+            if (glDataMapping.isLoaded()) {
+                gl.glBindTexture(glDataMapping.getTextureStorageType(),
+                        glDataMapping.getTexId());
+            }
+
+            GLCMTextureData glColorMapping = dataMapping.getColorMapping();
+            gl.glActiveTexture(colorMappedTexBinding);
+            if (glColorMapping.isLoaded() == false) {
+                glColorMapping.loadTexture(gl);
+            }
+            if (glColorMapping.isLoaded()) {
+                gl.glBindTexture(glColorMapping.getTextureStorageType(),
+                        glColorMapping.getTexId());
+            }
+        }
     }
 
     /*
@@ -164,15 +238,21 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
             AbstractGLImage image, Object data) throws VizException {
         GLColormappedImageExtensionData imageData = (GLColormappedImageExtensionData) data;
         GL gl = target.getGl();
-        if (imageData.alphaMaskTexture != null) {
-            gl.glActiveTexture(GL.GL_TEXTURE2);
-            gl.glBindTexture(
-                    imageData.alphaMaskTexture.getTextureStorageType(), 0);
-
-            imageData.alphaMaskTexture.dispose();
-        }
 
         gl.glActiveTexture(GL.GL_TEXTURE1);
+        gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+
+        if (imageData.alphaMask != null) {
+            gl.glActiveTexture(GL.GL_TEXTURE2);
+            gl.glBindTexture(imageData.alphaMask.getTextureStorageType(), 0);
+
+            imageData.alphaMask.dispose();
+        }
+
+        gl.glActiveTexture(GL.GL_TEXTURE3);
+        gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+
+        gl.glActiveTexture(GL.GL_TEXTURE4);
         gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
     }
 
@@ -210,40 +290,22 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
 
         ColorMapParameters colorMapParameters = image.getColorMapParameters();
 
-        program.setUniform("colorMapSz", colorMapParameters.getColorMap()
-                .getSize());
-        boolean isScaled = image.isImageFormatScaled();
-        double dataMin = colorMapParameters.getDataMin();
-        double dataMax = colorMapParameters.getDataMax();
-        if (isScaled) {
-            // get format from image and get data min/max from it
-            dataMin = image.getDataMin();
-            dataMax = image.getDataMax();
+        GLSLStructFactory.createDataTexture(program, "rawData", 0,
+                image.getDataFormat(), colorMapParameters.getNoDataValue());
+
+        int numMappingValues = 0;
+        GLDataMapping mapping = image.getDataMapping();
+        if (mapping != null && mapping.isValid()) {
+            numMappingValues = mapping.getNumMappingValues();
         }
+        GLSLStructFactory.createDataMapping(program, "dataMapping", 3, 4,
+                numMappingValues);
 
-        double cmapMin = colorMapParameters.getColorMapMin();
-        double cmapMax = colorMapParameters.getColorMapMax();
+        GLSLStructFactory.createColorMapping(program, "colorMapping", 1, 2,
+                colorMapParameters);
 
-        program.setUniform("isFloat", !isScaled);
-        program.setUniform("logarithmic",
-                colorMapParameters.isLogarithmic() ? 1 : 0);
-        program.setUniform("logFactor", colorMapParameters.getLogFactor());
-        program.setUniform("mirror", colorMapParameters.isMirror() ? 1 : 0);
-
-        program.setUniform("applyMask", colorMapParameters.isUseMask() ? 1 : 0);
-
-        program.setUniform("naturalMin", dataMin);
-        program.setUniform("naturalMax", dataMax);
-        program.setUniform("cmapMin", cmapMin);
-        program.setUniform("cmapMax", cmapMax);
-
-        program.setUniform("alphaMask", 2);
-        program.setUniform("colorMap", 1);
-        program.setUniform("rawText", 0);
-
-        program.setUniform("brightness", image.getBrightness());
-        program.setUniform("contrast", image.getContrast());
-        program.setUniform("alpha", paintProps.getAlpha());
+        GLSLStructFactory.createColorModifiers(program, "modifiers",
+                paintProps.getAlpha(), image.getBrightness(),
+                image.getContrast());
     }
-
 }
