@@ -1,33 +1,22 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
  * 
- *
- */
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 
 package com.raytheon.uf.edex.wcs.provider;
 
@@ -71,12 +60,9 @@ import net.opengis.wcs.v_1_1_2.CoverageDescriptionType;
 import net.opengis.wcs.v_1_1_2.CoverageDescriptions;
 import net.opengis.wcs.v_1_1_2.CoveragesType;
 import net.opengis.wcs.v_1_1_2.DescribeCoverage;
-import net.opengis.wcs.v_1_1_2.DomainSubsetType;
 import net.opengis.wcs.v_1_1_2.GetCapabilities;
 import net.opengis.wcs.v_1_1_2.GetCoverage;
-import net.opengis.wcs.v_1_1_2.GridCrsType;
 import net.opengis.wcs.v_1_1_2.ObjectFactory;
-import net.opengis.wcs.v_1_1_2.OutputType;
 import net.opengis.wcs.v_1_1_2.RangeSubsetType;
 import net.opengis.wcs.v_1_1_2.RangeSubsetType.FieldSubset;
 import net.opengis.wcs.v_1_1_2.TimePeriodType;
@@ -91,7 +77,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
-import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcNamespace;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
 import com.raytheon.uf.edex.ogc.common.OgcPrefix;
@@ -113,10 +98,10 @@ import com.raytheon.uf.edex.wcs.WcsProvider;
 import com.raytheon.uf.edex.wcs.format.IWcsDataFormatter;
 import com.raytheon.uf.edex.wcs.reg.Coverage;
 import com.raytheon.uf.edex.wcs.reg.CoverageDescription;
+import com.raytheon.uf.edex.wcs.reg.IWcsSource;
 import com.raytheon.uf.edex.wcs.reg.RangeAxis;
 import com.raytheon.uf.edex.wcs.reg.RangeField;
 import com.raytheon.uf.edex.wcs.reg.RangeField.InterpolationType;
-import com.raytheon.uf.edex.wcs.reg.IWcsSource;
 import com.raytheon.uf.edex.wcs.reg.WcsSourceAccessor;
 import com.raytheon.uf.edex.wcs.request.DescCoverageRequest;
 import com.raytheon.uf.edex.wcs.request.GetCapRequest;
@@ -245,26 +230,31 @@ public class OgcWcsProvider implements WcsProvider {
             throws WcsException {
 
         CoverageDescriptions rval = new CoverageDescriptions();
-        String[] ids = request.getIdentifiers();
+        String[] externalIds = request.getExternalIds();
         List<CoverageDescriptionType> descs = null;
-        if (ids == null) {
+        if (externalIds == null) {
             throw new WcsException(Code.MissingParameterValue);
         }
-        descs = new ArrayList<CoverageDescriptionType>(ids.length);
-        for (String id : ids) {
-            descs.add(descCov(id));
+        String[] internalIds = request.getInternalIds();
+        descs = new ArrayList<CoverageDescriptionType>(externalIds.length);
+        for (int i = 0; i < externalIds.length; ++i) {
+            String external = externalIds[i];
+            String internal = internalIds[i];
+            descs.add(descCov(external, internal));
         }
         rval.setCoverageDescription(descs);
         return rval;
     }
 
-    protected CoverageDescriptionType descCov(String id) throws WcsException {
-        IWcsSource<?, ?> source = WcsSourceAccessor.getSource(id);
+    protected CoverageDescriptionType descCov(String externalId,
+            String internalId) throws WcsException {
+        IWcsSource<?, ?> source = WcsSourceAccessor.getSource(internalId);
         if (source == null) {
             throw new WcsException(Code.InvalidParameterValue,
                     "Coverage ID not found");
-        }
-        CoverageDescription cd = source.describeCoverage(id);
+		}
+        CoverageDescription cd = source.describeCoverage(internalId);
+        cd.setIdentifier(externalId);
         return getCoverageBuilder().getCoverageDescriptionType(cd);
     }
 
@@ -276,10 +266,24 @@ public class OgcWcsProvider implements WcsProvider {
         return marshalResponse(capabilities);
     }
 
-    public Capabilities getCapabilities(EndpointInfo info,
-            GetCapabilities request) {
-        return getCapBuilder().getCapabilities(getServiceInfo(info),
-                WcsSourceAccessor.getCoverages(true));
+	public Capabilities getCapabilities(EndpointInfo info,
+			GetCapabilities request) {
+		return getCapBuilder().getCapabilities(getServiceInfo(info),
+				getCoverages(true));
+	}
+
+	/**
+	 * @param summary
+	 * @return list of coverages with mapped identifiers
+	 */
+	private List<CoverageDescription> getCoverages(boolean summary) {
+		List<CoverageDescription> coverages = WcsSourceAccessor
+				.getCoverages(true);
+		for (CoverageDescription desc : coverages) {
+			String id = CustomIdMap.internalToExternal(desc.getIdentifier());
+			desc.setIdentifier(id);
+		}
+		return coverages;
     }
 
     private OgcServiceInfo<WcsOpType> getServiceInfo(EndpointInfo info) {
@@ -300,6 +304,7 @@ public class OgcWcsProvider implements WcsProvider {
     protected OgcOperationInfo<WcsOpType> getOp(String get, String post,
             WcsOpType type, EndpointInfo info) {
         OgcOperationInfo<WcsOpType> rval = new OgcOperationInfo<WcsOpType>(type);
+        rval.setHttpBaseHostname(info.getHost());
         if (!info.isPostOnly()) {
             rval.setHttpGetRes(get);
         }
@@ -333,8 +338,9 @@ public class OgcWcsProvider implements WcsProvider {
             }
 
         }
-        String id = request.getIdentifier();
+        String externalId = request.getExternalId();
         Coverage coverage = requestCoverage(request);
+		coverage.setName(CustomIdMap.internalToExternal(coverage.getName()));
         CoveragesHolder holder = new CoveragesHolder();
         holder.setContentType(format);
         Map<String, byte[]> data = new HashMap<String, byte[]>();
@@ -350,7 +356,7 @@ public class OgcWcsProvider implements WcsProvider {
                 throw new WcsException(Code.InternalServerError);
             }
         } else {
-            href = getCoverageId(id);
+			href = getCoverageId(externalId);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             InputStream in = null;
             try {
@@ -365,7 +371,7 @@ public class OgcWcsProvider implements WcsProvider {
             }
             data.put(href, out.toByteArray());
         }
-        CoveragesType rval = getCoverageOgcResponse(id, href);
+		CoveragesType rval = getCoverageOgcResponse(externalId, href);
         holder.setMetadata(rval);
         holder.setData(data);
         return holder;
@@ -373,7 +379,7 @@ public class OgcWcsProvider implements WcsProvider {
 
     private Coverage requestCoverage(GetCoverageRequest request)
             throws WcsException {
-        String id = request.getIdentifier();
+        String id = request.getInternalId();
         IWcsSource<?, ?> source = WcsSourceAccessor.getSource(id);
         if (source == null) {
             throw new WcsException(Code.InvalidParameterValue,
@@ -404,19 +410,14 @@ public class OgcWcsProvider implements WcsProvider {
             String format = request.getFormat();
             IWcsDataFormatter formatter = WcsSourceAccessor.getFormatMap().get(
                     format);
-            if (formatter == null) {
-                throw new WcsException(Code.InvalidFormat);
-            }
-            String id = request.getIdentifier();
-            IWcsSource<?, ?> source = WcsSourceAccessor.getSource(id);
-            if (source == null) {
-                throw new WcsException(Code.LayerNotDefined);
-            }
-            Composite3DBoundingBox bbox = request.getBbox();
-            Coverage coverage = source.getCoverage(id,
-                    request.getTimeSequence(), bbox, request.getFields());
-            CoveragesType coveragesType = getCoverageOgcResponse(id,
-                    getCoverageId(id));
+			if (formatter == null) {
+				throw new WcsException(Code.InvalidFormat);
+			}
+            String externalId = request.getExternalId();
+			Coverage coverage = requestCoverage(request);
+			coverage.setName(CustomIdMap.internalToExternal(coverage.getName()));
+			CoveragesType coveragesType = getCoverageOgcResponse(externalId,
+					getCoverageId(externalId));
 
             try {
                 // FIXME this code block makes my eyes bleed, needs to be
@@ -439,7 +440,7 @@ public class OgcWcsProvider implements WcsProvider {
                 httpResp.setContentType("multipart/related;boundary=" + part);
 
                 PrintStream stream = new PrintStream(out);
-                String cid = getCoverageId(id);
+                String cid = getCoverageId(externalId);
 
                 stream.println("--" + part);
                 stream.println("Content-Type: text/xml");
@@ -647,7 +648,7 @@ public class OgcWcsProvider implements WcsProvider {
             DescribeCoverage req = (DescribeCoverage) obj;
             List<String> ids = req.getIdentifier();
             DescCoverageRequest dcr = new DescCoverageRequest();
-            dcr.setIdentifiers(ids.toArray(new String[ids.size()]));
+            dcr.setIdentifiers(ids);
             rval = dcr;
         } else {
             rval = new WcsRequest(Type.ERROR);
@@ -660,27 +661,13 @@ public class OgcWcsProvider implements WcsProvider {
      * @return
      */
     protected WcsRequest unwrap(GetCoverage req) {
-        GetCoverageRequest rval = new GetCoverageRequest();
-        DomainSubsetType ds = req.getDomainSubset();
-        rval.setTimeSequence(getTime(ds.getTemporalSubset()));
-        BoundingBoxType bbox = (BoundingBoxType) ds.getBoundingBox().getValue();
         try {
-            rval.setBbox(bbox);
-        } catch (OgcException e) {
-            return new WcsRequest(Type.ERROR);
+            return new GetCoverageRequest(req);
+        } catch (WcsException e) {
+            WcsRequest rval = new WcsRequest(Type.ERROR);
+            rval.setRequest(e);
+            return rval;
         }
-        rval.setIdentifier(req.getIdentifier().getValue());
-        OutputType output = req.getOutput();
-        rval.setFormat(output.getFormat());
-        GridCrsType gridCRS = output.getGridCRS();
-        if (gridCRS != null) {
-            rval.setGridBaseCrs(gridCRS.getGridBaseCRS());
-            rval.setGridOffsets(gridCRS.getGridOffsets());
-            rval.setGridOrigin(gridCRS.getGridOrigin());
-            rval.setGridType(gridCRS.getGridType());
-        }
-        rval.setFields(transform(req.getRangeSubset()));
-        return rval;
     }
 
     protected List<RangeField> transform(RangeSubsetType subset) {

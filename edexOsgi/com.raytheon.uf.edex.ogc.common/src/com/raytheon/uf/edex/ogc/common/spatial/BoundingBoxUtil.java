@@ -26,7 +26,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultCompoundCRS;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
@@ -54,6 +53,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class BoundingBoxUtil {
+    
+    public static Unit<?> FL_UNIT = VerticalCoordinate.FLIGHT_LEVEL_UNIT;
 
     /**
      * Split 3D envelope into composite parts
@@ -266,13 +267,13 @@ public class BoundingBoxUtil {
      */
     private static void checkGeoBounds(ReferencedEnvelope env)
             throws OgcException {
-        if (env.getCoordinateReferenceSystem() instanceof GeographicCRS) {
-            if (env.getMinX() < -180 || env.getMaxX() > 180
-                    || env.getMinY() < -90 || env.getMaxY() > 90) {
-                throw new OgcException(Code.InvalidParameterValue,
-                        "Geo bounds not in range. Check axis order");
-            }
-        }
+        // if (env.getCoordinateReferenceSystem() instanceof GeographicCRS) {
+        // if (env.getMinX() < -180 || env.getMaxX() > 180
+        // || env.getMinY() < -90 || env.getMaxY() > 90) {
+        // throw new OgcException(Code.InvalidParameterValue,
+        // "Geo bounds not in range. Check axis order");
+        // }
+        // }
     }
 
     /**
