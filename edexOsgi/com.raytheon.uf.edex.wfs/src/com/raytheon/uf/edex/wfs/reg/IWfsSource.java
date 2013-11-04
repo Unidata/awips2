@@ -46,6 +46,11 @@ public interface IWfsSource {
     public List<WfsFeatureType> listFeatureTypes();
 
     /**
+     * @return a list of aliases allowed for feature types for this source
+     */
+    public List<WfsFeatureType> getAliases();
+    
+    /**
      * @param feature
      *            name of feature to describe
      * @return XSD describing feature

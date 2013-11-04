@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.wcs.request;
 
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
+import com.raytheon.uf.edex.wcs.provider.CustomIdMap;
 
 /**
  * TODO - Class comment here
@@ -53,6 +54,16 @@ public class WcsRequest {
 
 	public WcsRequest(Type type) {
 		this.type = type;
+	}
+
+	/**
+	 * Map external id to internal URN
+	 * 
+	 * @param id
+	 * @return id if no mapping exists
+	 */
+	public String externalToInternal(String id) {
+		return CustomIdMap.externalToInternal(id);
 	}
 
 	public Type getType() {

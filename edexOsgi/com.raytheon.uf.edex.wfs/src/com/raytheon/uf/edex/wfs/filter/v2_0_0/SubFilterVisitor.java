@@ -53,20 +53,20 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * visitor for parsing filters into subscription filters
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class SubFilterVisitor extends AbstractQueryFilterVisitor {
 
@@ -80,11 +80,16 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * java.lang.Object)
      */
     @Override
-    public ComparisonFilter equal(ExpressionProcessor left,
+    public AbstractPdoFilter equal(ExpressionProcessor left,
             ExpressionProcessor right, boolean matchCase, Object obj)
             throws Exception {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        
+        if(operand == null) {
+            return AbstractPdoFilter.noFilter();
+        }
+        
         if (operand.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -105,11 +110,16 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * java.lang.Object)
      */
     @Override
-    public ComparisonFilter notEqual(ExpressionProcessor left,
+    public AbstractPdoFilter notEqual(ExpressionProcessor left,
             ExpressionProcessor right, boolean matchCase, Object obj)
             throws Exception {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        
+        if(operand == null) {
+            return AbstractPdoFilter.noFilter();
+        }
+        
         if (operand.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -130,11 +140,16 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * java.lang.Object)
      */
     @Override
-    public ComparisonFilter lessThan(ExpressionProcessor left,
+    public AbstractPdoFilter lessThan(ExpressionProcessor left,
             ExpressionProcessor right, boolean matchCase, Object obj)
             throws Exception {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        
+        if(operand == null) {
+            return AbstractPdoFilter.noFilter();
+        }
+        
         if (operand.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -155,11 +170,14 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * java.lang.Object)
      */
     @Override
-    public ComparisonFilter greaterThan(ExpressionProcessor left,
+    public AbstractPdoFilter greaterThan(ExpressionProcessor left,
             ExpressionProcessor right, boolean matchCase, Object obj)
             throws Exception {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        if (operand == null) {
+            return AbstractPdoFilter.noFilter();
+        }
         if (operand.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -180,11 +198,16 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * java.lang.Object)
      */
     @Override
-    public ComparisonFilter greaterThanEqual(ExpressionProcessor left,
+    public AbstractPdoFilter greaterThanEqual(ExpressionProcessor left,
             ExpressionProcessor right, boolean matchCase, Object obj)
             throws Exception {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        
+        if(operand == null) {
+            return AbstractPdoFilter.noFilter();
+        }
+        
         if (operand.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -205,11 +228,16 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * java.lang.Object)
      */
     @Override
-    public ComparisonFilter lessThanEqual(ExpressionProcessor left,
+    public AbstractPdoFilter lessThanEqual(ExpressionProcessor left,
             ExpressionProcessor right, boolean matchCase, Object obj)
             throws Exception {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        
+        if(operand == null) {
+            return AbstractPdoFilter.noFilter();
+        }
+        
         if (operand.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -242,10 +270,13 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
      * .v_1_1_0.PropertyIsNullType, java.lang.Object)
      */
     @Override
-    public ComparisonFilter isNull(PropertyIsNullType op, Object obj)
+    public AbstractPdoFilter isNull(PropertyIsNullType op, Object obj)
             throws Exception {
         ExpressionProcessor eproc = new ExpressionProcessor(op.getExpression());
         String field = getRef(eproc, (VisitorBag) obj).value;
+        if (field == null) {
+            return AbstractPdoFilter.noFilter();
+        }
         return ComparisonFilter.isNull(field);
     }
 
@@ -267,6 +298,10 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
         Operand lowerPart = getBinaryProps(exp, lower, bag);
         Operand upperPart = getBinaryProps(exp, upper, bag);
 
+        if(lowerPart == null || upperPart == null) {
+            return AbstractPdoFilter.noFilter();
+        }
+        
         if (lowerPart.sql || upperPart.sql) {
             // subscriptions do not go to the DB, if we need sql, likely from a
             // function, throw exception
@@ -492,7 +527,7 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
         int dims = EnvelopeConverter.getDims(value);
         Envelope env;
         if (dims == 2) {
-            env = envConverter.convert(value);
+            env = BoundingBoxUtil.convert2D(value);
             SpatialFilter disjoint = new SpatialFilter(SpatialOp.DISJOINT,
                     JTS.toGeometry(env));
             return LogicFilter.not(disjoint);
@@ -531,6 +566,9 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
     public Object isNil(PropertyIsNilType op, Object obj) throws Exception {
         ExpressionProcessor eproc = new ExpressionProcessor(op.getExpression());
         String field = getRef(eproc, (VisitorBag) obj).value;
+        if (field == null) {
+            return AbstractPdoFilter.noFilter();
+        }
         return ComparisonFilter.isNull(field);
     }
 
@@ -720,8 +758,7 @@ public class SubFilterVisitor extends AbstractQueryFilterVisitor {
     @Override
     public TemporalFilter anyInteracts(BinaryTemporalOpType op, Object obj)
             throws Exception {
-        // TODO
-        throw new Exception("Any Interacts filter not supported");
+        return new TemporalFilter(TimeOp.AnyInteracts, parseTimeOp(op, obj));
     }
 
     /*
