@@ -1,33 +1,22 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 22, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wcs.request;
 
 import java.util.ArrayList;
@@ -67,7 +56,9 @@ import com.raytheon.uf.edex.wcs.reg.RangeField;
 
 public class GetCoverageRequest extends WcsRequest {
 
-    protected String identifier;
+    protected String externalId;
+
+    protected String internalId;
 
     protected String format;
 
@@ -93,11 +84,12 @@ public class GetCoverageRequest extends WcsRequest {
         super(Type.GetCoverage);
     }
 
-    public GetCoverageRequest(GetCoverage req) throws Exception {
+    public GetCoverageRequest(GetCoverage req) throws WcsException {
         super(Type.GetCoverage);
         this.request = req;
         if (req.isSetIdentifier()) {
-            this.identifier = req.getIdentifier().getValue();
+            this.externalId = req.getIdentifier().getValue();
+            this.internalId = externalToInternal(this.externalId);
         }
         if (req.isSetOutput()) {
             setOutput(req.getOutput());
@@ -160,8 +152,6 @@ public class GetCoverageRequest extends WcsRequest {
                     setBbox((EnvelopeType) obj);
                 } else if (obj instanceof BoundingBoxType) {
                     setBbox((BoundingBoxType) obj);
-                } else {
-                    throw new IllegalArgumentException();
                 }
             } catch (OgcException e) {
                 throw new WcsException(e);
@@ -371,12 +361,34 @@ public class GetCoverageRequest extends WcsRequest {
         }
     }
 
-    public String getIdentifier() {
-        return identifier;
+    /**
+     * @return the externalId
+     */
+    public String getExternalId() {
+        return externalId;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    /**
+     * @param externalId
+     *            the externalId to set
+     */
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    /**
+     * @return the internalId
+     */
+    public String getInternalId() {
+        return internalId;
+    }
+
+    /**
+     * @param internalId
+     *            the internalId to set
+     */
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 
     public String getFormat() {
@@ -471,6 +483,14 @@ public class GetCoverageRequest extends WcsRequest {
      */
     public boolean isDefacto() {
         return defacto;
+    }
+
+    /**
+     * @param identifier
+     */
+    public void setIdentifier(String identifier) {
+        this.externalId = identifier;
+        this.internalId = externalToInternal(this.externalId);
     }
 
 }
