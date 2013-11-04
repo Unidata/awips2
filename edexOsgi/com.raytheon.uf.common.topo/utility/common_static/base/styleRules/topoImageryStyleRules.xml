@@ -27,7 +27,7 @@
      <displayUnits>kft</displayUnits>
      <range scale="LINEAR">
      	<!-- This kft range matches original -19m to 5000m from code -->
-     	<minValue>-0.0062</minValue>
+     	<minValue>-0.062</minValue>
      	<maxValue>16.404</maxValue>
      </range>
      <defaultColormap>topo</defaultColormap>
