@@ -35,6 +35,8 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -65,9 +67,13 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
  */
 public class OgcJaxbManager extends JAXBManager {
 
-    private final JAXBContext jaxbContext;
+    protected final JAXBContext jaxbContext;
 
     protected static final int QUEUE_SIZE = 10;
+
+	protected final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
+
+	protected final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
 
 	protected volatile int unmarshallersCreated = 0;
 

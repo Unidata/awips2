@@ -52,10 +52,10 @@ public class AbstractFsStore {
 
     protected static File findStore(String directoryName) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext edexStaticCONFIGURED = pathMgr.getContext(
+        LocalizationContext context = pathMgr.getContext(
                 LocalizationContext.LocalizationType.EDEX_STATIC,
-                LocalizationContext.LocalizationLevel.CONFIGURED);
-        return pathMgr.getFile(edexStaticCONFIGURED, directoryName);
+                LocalizationContext.LocalizationLevel.BASE);
+        return pathMgr.getFile(context, directoryName);
     }
 
     /**
