@@ -48,4 +48,8 @@ public interface IWfsRegistry {
      */
     IWfsRegistry unregister(IWfsSource source);
 
+    public String getHttpServicePort();
+
+    public String getHttpServicePath();
+
 }

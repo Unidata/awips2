@@ -10,6 +10,8 @@
 
 package com.raytheon.uf.edex.wfs.soap2_0_0;
 
+//import gov.faa.nawx.v_1_5_0.ObjectFactory;
+
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -39,9 +41,22 @@ import net.opengis.wfs.v_2_0_0.TransactionType;
 import net.opengis.wfs.v_2_0_0.ValueCollectionType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
+import org.apache.cxf.annotations.GZIP;
+import org.apache.cxf.interceptor.InInterceptors;
+
 import com.raytheon.uf.edex.ogc.common.soap.ServiceExceptionReport;
 import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
 
+/* SOFTWARE HISTORY
+* Date         Ticket#    Engineer    Description
+* ------------ ---------- ----------- --------------------------
+* unknown                  bclements   Initial creation
+* 10/22/2013   2472        dhladky     removed FAA dependencies, fixed path for CXFlogger.
+* </pre>
+*/
+
+@GZIP
+@InInterceptors(interceptors = "com.raytheon.uf.edex.log.cxf.CXFLogger")
 @WebService(name = "wfs", targetNamespace = "http://www.opengis.net/wfs/requests/2.0")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @BindingType(javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING)
@@ -51,7 +66,7 @@ import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
         net.opengis.gml.v_3_2_1.ObjectFactory.class,
         com.eurocontrol.avwx.v_1_1_1.ObjectFactory.class,
         com.eurocontrol.wx.v_1_1_1.ObjectFactory.class,
-        net.opengis.sensorml.v_1_0_1_gml32.ObjectFactory.class })
+        net.opengis.sensorml.v_1_0_1_gml32.ObjectFactory.class})
 public interface Wfs {
 
     /**
