@@ -424,6 +424,7 @@ public class VIIRSResource extends
         }
 
         colorMapParameters.setDataUnit(dataUnit);
+        colorMapParameters.setColorMapUnit(dataUnit);
         colorMapParameters.setDisplayUnit(displayUnit);
 
         colorMapParameters.setColorMapMin(colorMapParameters.getDataMin());
@@ -433,12 +434,14 @@ public class VIIRSResource extends
             if (scale != null) {
                 UnitConverter displayToData = colorMapParameters
                         .getDisplayToDataConverter();
+                UnitConverter displayToColorMap = colorMapParameters
+                        .getDisplayToColorMapConverter();
                 if (scale.getMinValue() != null) {
-                    colorMapParameters.setColorMapMin((float) displayToData
+                    colorMapParameters.setColorMapMin((float) displayToColorMap
                             .convert(scale.getMinValue()));
                 }
                 if (scale.getMaxValue() != null) {
-                    colorMapParameters.setColorMapMax((float) displayToData
+                    colorMapParameters.setColorMapMax((float) displayToColorMap
                             .convert(scale.getMaxValue()));
                 }
                 if (scale.getMinValue2() != null) {
