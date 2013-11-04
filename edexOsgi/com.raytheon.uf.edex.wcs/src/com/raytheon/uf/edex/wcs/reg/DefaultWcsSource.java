@@ -1,33 +1,22 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 30, 2011            jelkins     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wcs.reg;
 
 import java.awt.Point;
@@ -64,6 +53,7 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -136,6 +126,8 @@ public abstract class DefaultWcsSource<D extends SimpleDimension, L extends Simp
     protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     private static final String VALID_START = "dataTime.validPeriod.start";
+
+    private static final String VALID_END = "dataTime.validPeriod.end";
 
     @SuppressWarnings("unchecked")
     private final Map<String, ReferencedDataRecord> fillCache = Collections
@@ -852,12 +844,20 @@ public abstract class DefaultWcsSource<D extends SimpleDimension, L extends Simp
             return null;
         }
         Criterion rval;
+        // any interacts
         if (TemporalFilter.isRange(time)) {
             TimeRange period = time.getValidPeriod();
-            rval = Restrictions.between(VALID_START, period.getStart(),
-                    period.getEnd());
+            SimpleExpression lhs = Restrictions
+                    .le(VALID_START, period.getEnd());
+            SimpleExpression rhs = Restrictions
+                    .ge(VALID_END, period.getStart());
+            rval = Restrictions.and(lhs, rhs);
         } else {
-            rval = Restrictions.eq(VALID_START, time.getRefTime());
+            SimpleExpression lhs = Restrictions.le(VALID_START,
+                    time.getRefTime());
+            SimpleExpression rhs = Restrictions
+                    .ge(VALID_END, time.getRefTime());
+            rval = Restrictions.and(lhs, rhs);
         }
         return rval;
     }

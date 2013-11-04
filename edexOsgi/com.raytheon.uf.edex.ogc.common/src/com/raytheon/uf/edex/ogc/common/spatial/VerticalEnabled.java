@@ -9,6 +9,8 @@
  */
 package com.raytheon.uf.edex.ogc.common.spatial;
 
+import javax.measure.unit.Unit;
+
 /**
  * Adapter for vertical spatial information
  * 
@@ -37,5 +39,12 @@ public interface VerticalEnabled<T> {
      * @return class supported by enabler
      */
     public Class<T> getSupportedClass();
+
+	/**
+	 * default unit for vertical coordinates
+	 * 
+	 * @return null if there is no reliable default
+	 */
+	public Unit<?> getDefaultVerticalUnit();
 
 }
