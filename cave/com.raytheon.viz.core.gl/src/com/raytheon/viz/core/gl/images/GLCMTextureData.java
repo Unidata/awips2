@@ -23,6 +23,7 @@ import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
 
@@ -40,6 +41,7 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  *                                     format for offscreen textures.
  * Oct 16, 2013 2333       mschenke    Moved retrievable/Buffer parts out and
  *                                     into separate class.
+ * Oct 23, 2013 2492       mschenke    Added support for 1D textures
  * 
  * </pre>
  * 
@@ -116,6 +118,9 @@ public class GLCMTextureData {
             return false;
         }
         int type = getTextureStorageType();
+        if (type == GL.GL_NONE) {
+            throw new VizException("Unsupported dimension size for texture");
+        }
 
         tex = new GLTextureObject(this);
         tex.bind(gl, type);
@@ -125,7 +130,8 @@ public class GLCMTextureData {
         gl.glTexParameteri(type, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(type, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
-        if (isDataFormatScaled() && isDataFormatSigned()) {
+        boolean changeScaleAndBias = isDataFormatScaled() && isDataFormatSigned();
+        if (changeScaleAndBias) {
             // GL maps signed data into the range -1 to 1, but gl trims
             // this to a valid range of 0 to 1, essentially removing
             // negative values. Adding a scale and bias remaps this from
@@ -135,20 +141,23 @@ public class GLCMTextureData {
             gl.glPixelTransferf(GL.GL_RED_BIAS, 0.5f);
         }
 
-        int w = getDimensionSize(0);
-        int h = getDimensionSize(1);
+        if (type == GL.GL_TEXTURE_1D) {
+            createTexture1D(gl, type, getDimensionSize(0));
+        } else if (type == GL.GL_TEXTURE_2D) {
+            createTexture2D(gl, type, getDimensionSize(0), getDimensionSize(1));
+        }
 
-        createTexture2D(gl, type, w, h);
-
-        gl.glPixelTransferf(GL.GL_RED_SCALE, 1.0f);
-        gl.glPixelTransferf(GL.GL_RED_BIAS, 0.0f);
+        if (changeScaleAndBias) {
+            gl.glPixelTransferf(GL.GL_RED_SCALE, 1.0f);
+            gl.glPixelTransferf(GL.GL_RED_BIAS, 0.0f);
+        }
 
         return true;
     }
 
     /**
-     * Creates a 2D texture for type, with width/height w/h. Texture object must
-     * be bound for this call to work using
+     * Creates a 2D texture for type, with width/height, w/h. Texture object
+     * must be bound for this call to work using
      * {@link GLTextureObject#bind(GL, int)}
      * 
      * @param gl
@@ -160,6 +169,22 @@ public class GLCMTextureData {
         // Allocate our space on the graphics card, no buffer to upload so it
         // will be filled with default values initially (0s)
         gl.glTexImage2D(type, 0, getTextureInternalFormat(), w, h, 0,
+                getTextureFormat(), getTextureType(), null);
+    }
+
+    /**
+     * Creates a 1D texture for type, with width, w. Texture object must be
+     * bound for this call to work using {@link GLTextureObject#bind(GL, int)}
+     * 
+     * @param gl
+     * @param type
+     * @param w
+     * @param h
+     */
+    protected void createTexture1D(GL gl, int type, int w) {
+        // Allocate our space on the graphics card, no buffer to upload so it
+        // will be filled with default values initially (0s)
+        gl.glTexImage1D(type, 0, getTextureInternalFormat(), w, 0,
                 getTextureFormat(), getTextureType(), null);
     }
 
@@ -182,6 +207,15 @@ public class GLCMTextureData {
      */
     public boolean isLoaded() {
         return tex != null && tex.isValid();
+    }
+
+    /**
+     * Returns the GL format of the texture data
+     * 
+     * @return
+     */
+    public AbstractGLColorMapDataFormat getDataFormat() {
+        return data.getDataFormat();
     }
 
     /**
@@ -272,12 +306,20 @@ public class GLCMTextureData {
     }
 
     /**
-     * The texture storage type of the data (TEXTURE_2D)
+     * The texture storage type of the data. Will return {@link GL#GL_NONE} if
+     * unsupported dimension is detected
      * 
      * @return
      */
     public int getTextureStorageType() {
-        return GL.GL_TEXTURE_2D;
+        switch (data.getNumDimensions()) {
+        case 1:
+            return GL.GL_TEXTURE_1D;
+        case 2:
+            return GL.GL_TEXTURE_2D;
+        default:
+            return GL.GL_NONE;
+        }
     }
 
     /**
