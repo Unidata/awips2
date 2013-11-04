@@ -26,9 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -53,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
  * Aug 19, 2013 2275       bsteffen    Add dataURI column back into bufrmos
  *                                     types.
+ * Nov 04, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -73,8 +71,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 				@Index(name = "bufrmosAvn_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
 		}
 )
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class BufrMosAvnData extends BufrMosData {
     @Override
