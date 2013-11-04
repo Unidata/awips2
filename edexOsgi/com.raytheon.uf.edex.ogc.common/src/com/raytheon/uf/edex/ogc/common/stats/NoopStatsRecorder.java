@@ -26,54 +26,32 @@ package com.raytheon.uf.edex.ogc.common.stats;
  * @author bclement
  * @version 1.0
  */
-public class NoopStatsRecorder implements OgcStatsRecorder {
+public class NoopStatsRecorder implements IStatsRecorder {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.edex.ogc.common.OgcStatsRecorder#recordRequest(long,
-     * long, java.lang.String, boolean)
-     */
     @Override
-    public void recordRequest(long time, long duration, String service,
-            boolean success) {
-        // do nothing
+    public void recordRequest(long time, long duration, ServiceType service,
+            OperationType op, boolean success) {
+        // TODO Auto-generated method stub
+        //do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.ogc.common.OgcStatsRecorder#getMinRequestTime(java
-     * .lang.String)
-     */
     @Override
-    public long getMinRequestTime(String service) {
+    public long getMinRequestTime(ServiceType service, OperationType op) {
+        // TODO Auto-generated method stub
         return 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.ogc.common.OgcStatsRecorder#getMaxRequestTime(java
-     * .lang.String)
-     */
     @Override
-    public long getMaxRequestTime(String service) {
+    public long getMaxRequestTime(ServiceType service, OperationType op) {
+        // TODO Auto-generated method stub
         return 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.ogc.common.OgcStatsRecorder#getAvgRequestTime(java
-     * .lang.String)
-     */
     @Override
-    public long getAvgRequestTime(String service) {
+    public long getAvgRequestTime(ServiceType service, OperationType op) {
+        // TODO Auto-generated method stub
         return 0;
     }
+
 
 }
