@@ -128,7 +128,9 @@ public class FsLayerStore extends AbstractFsStore implements ILayerStore {
      */
     private File getClassDirRead(Class<?> c) throws OgcException {
         File rval = new File(storeLocation, c.getName());
-
+        if (!rval.exists()) {
+            return rval;
+        }
         if (!rval.isDirectory()) {
             throw new OgcException(Code.InternalServerError,
                     rval.getAbsolutePath() + " is not a directory");
