@@ -792,12 +792,22 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         }
     }
 
-    public void setKey(DiscreteKey[] key) {
-        this.keys = key;
+    /**
+     * @param keys
+     *            the keys to set
+     * @deprecated use setKeys() instead
+     */
+    @Deprecated
+    public void setKey(DiscreteKey[] keys) {
+        this.keys = keys;
     }
 
-    public void setKey(List<DiscreteKey[]> key) {
-        setKey(key.toArray(new DiscreteKey[] {}));
+    /**
+     * @param keys
+     *            the keys to set
+     */
+    public void setKeys(DiscreteKey[] keys) {
+        this.keys = keys;
     }
 
     @Override
