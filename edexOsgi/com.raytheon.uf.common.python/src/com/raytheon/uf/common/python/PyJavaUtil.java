@@ -30,6 +30,7 @@ package com.raytheon.uf.common.python;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 22, 2013            mnash     Initial creation
+ * Oct 30, 2013            mnash     Add method for searching for subclasses
  * 
  * </pre>
  * 
@@ -41,5 +42,9 @@ public class PyJavaUtil {
 
     public static boolean isArray(Object obj) {
         return obj.getClass().isArray();
+    }
+
+    public static boolean isSubclass(Object obj, Class<?> clazz) {
+        return clazz.isAssignableFrom(obj.getClass());
     }
 }
