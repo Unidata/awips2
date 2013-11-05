@@ -23,7 +23,9 @@ import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -55,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 31, 2012   1278     mpduff      Added functionality for other datasets in NOMADS.
  * Jun 21, 2013   2132     mpduff      Convert coordinates to East/West before drawing.
  * Oct 10, 2013   2428     skorolev    Fixed memory leak for Regions
+ * Oct 24, 2013   2486     skorolev    Fixed an error of editing subset box.
  * 
  * </pre>
  * 
@@ -121,6 +124,9 @@ public class DrawBoxResource extends
     /** The x value of the 360 degree longitude line */
     private double x360;
 
+    /** Map pixel rectangle */
+    private Rectangle mapRctgl;
+
     /**
      * @param resourceData
      * @param loadProperties
@@ -137,9 +143,7 @@ public class DrawBoxResource extends
      */
     @Override
     protected void disposeInternal() {
-        for (Region i : regionList) {
-            i.dispose();
-        }
+        this.disposeRegions();
     }
 
     /*
@@ -184,6 +188,20 @@ public class DrawBoxResource extends
         c.y = 0;
         double[] point360 = getResourceContainer().translateInverseClick(c);
         this.x360 = Math.round(point360[0]);
+
+        getMapRectangle();
+
+        // Create initial regions
+        if ((c1 != null) && (c2 != null)) {
+            double[] luBox = getResourceContainer().translateInverseClick(c1);
+            x1 = (int) luBox[0];
+            y1 = (int) luBox[1];
+            double[] rbBox = getResourceContainer().translateInverseClick(c2);
+            x2 = (int) rbBox[0];
+            y2 = (int) rbBox[1];
+            createRegions();
+        }
+
     }
 
     /*
@@ -217,15 +235,18 @@ public class DrawBoxResource extends
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
-                if (!resizingBox) {
-                    x1 = x;
-                    y1 = y;
-                    c1 = getResourceContainer().translateClick(x, y);
-                    if (c1 != null) {
-                        c1.x = spatialUtils.convertToEasting(c1.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c1.x += 360;
+                // handle mouse only in the map space
+                if (mapRctgl.contains(x, y)) {
+                    if (!resizingBox) {
+                        x1 = x;
+                        y1 = y;
+                        c1 = getResourceContainer().translateClick(x, y);
+                        if (c1 != null) {
+                            c1.x = spatialUtils.convertToEasting(c1.x);
+                            if (spatialUtils.getLongitudinalShift() > 0
+                                    && x >= x360) {
+                                c1.x += 360;
+                            }
                         }
                     }
                 }
@@ -245,45 +266,51 @@ public class DrawBoxResource extends
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
                 drawingBox = true;
-                if (resizingBox) {
-                    Coordinate c = getResourceContainer().translateClick(x, y);
-                    if (c != null) {
-                        if (boxSide == 0) {
-                            c1.y = c.y;
-                        } else if (boxSide == 1) {
-                            c1.x = c.x;
-                            c1.x = spatialUtils.convertToEasting(c1.x);
-                            if (spatialUtils.getLongitudinalShift() > 0
-                                    && x >= x360) {
-                                c1.x += 360;
+                // handle mouse only in the map space
+                if (mapRctgl.contains(x, y)) {
+                    if (resizingBox) {
+                        Coordinate c = getResourceContainer().translateClick(x,
+                                y);
+                        if (c != null) {
+                            if (boxSide == 0) {
+                                c1.y = c.y;
+                            } else if (boxSide == 1) {
+                                c1.x = c.x;
+                                c1.x = spatialUtils.convertToEasting(c1.x);
+                                if (spatialUtils.getLongitudinalShift() > 0
+                                        && x >= x360) {
+                                    c1.x += 360;
+                                }
+                            } else if (boxSide == 2) {
+                                c2.y = c.y;
+                            } else if (boxSide == 3) {
+                                c2.x = c.x;
+                                c2.x = spatialUtils.convertToEasting(c2.x);
+                                if (spatialUtils.getLongitudinalShift() > 0
+                                        && x >= x360) {
+                                    c2.x += 360;
+                                }
                             }
-                        } else if (boxSide == 2) {
-                            c2.y = c.y;
-                        } else if (boxSide == 3) {
-                            c2.x = c.x;
+                        }
+                    } else {
+                        c2 = getResourceContainer().translateClick(x, y);
+                        if (c2 != null) {
                             c2.x = spatialUtils.convertToEasting(c2.x);
                             if (spatialUtils.getLongitudinalShift() > 0
                                     && x >= x360) {
                                 c2.x += 360;
                             }
                         }
+                        x2 = x;
+                        y2 = y;
                     }
-                } else {
-                    c2 = getResourceContainer().translateClick(x, y);
-                    if (c2 != null) {
-                        c2.x = spatialUtils.convertToEasting(c2.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c2.x += 360;
-                        }
-                    }
-                }
 
-                fireBoxChangedEvent();
-                createRegions();
-                target.setNeedsRefresh(true);
+                    fireBoxChangedEvent();
+                    target.setNeedsRefresh(true);
+                }
             } else if (mouseButton == 2) {
                 super.handleMouseDownMove(x, y, 1);
+
             }
 
             return true;
@@ -328,58 +355,71 @@ public class DrawBoxResource extends
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
-                if (resizingBox) {
-                    Coordinate c = getResourceContainer().translateClick(x, y);
-                    if (c != null) {
-                        c.x = spatialUtils.convertToEasting(c.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c.x += 360;
-                        }
-                        if (boxSide == 0) {
-                            c1.y = c.y;
-                            y1 = y;
-                        } else if (boxSide == 1) {
-                            c1.x = c.x;
-                            x1 = x;
-                        } else if (boxSide == 2) {
-                            c2.y = c.y;
-                            y2 = y;
-                        } else if (boxSide == 3) {
-                            c2.x = c.x;
-                            x2 = x;
-                        }
-                        createRegions();
-                        fireBoxChangedEvent();
-                        target.setNeedsRefresh(true);
-                        drawingBox = false;
-                    }
-                } else {
-                    if (drawingBox) {
-                        x2 = x;
-                        y2 = y;
-                        target.setNeedsRefresh(true);
-                        c2 = getResourceContainer().translateClick(x, y);
-                        if (c2 != null) {
-                            c2.x = spatialUtils.convertToEasting(c2.x);
+                // handle mouse only in the map space
+                if (mapRctgl.contains(x, y)) {
+                    if (resizingBox) {
+                        Coordinate c = getResourceContainer().translateClick(x,
+                                y);
+                        if (c != null) {
+                            c.x = spatialUtils.convertToEasting(c.x);
                             if (spatialUtils.getLongitudinalShift() > 0
                                     && x >= x360) {
-                                c2.x += 360;
+                                c.x += 360;
+                            }
+                            if (boxSide == 0) {
+                                c1.y = c.y;
+                                y1 = y;
+                            } else if (boxSide == 1) {
+                                c1.x = c.x;
+                                x1 = x;
+                            } else if (boxSide == 2) {
+                                c2.y = c.y;
+                                y2 = y;
+                            } else if (boxSide == 3) {
+                                c2.x = c.x;
+                                x2 = x;
                             }
                         }
-
-                        createRegions();
-                        fireBoxChangedEvent();
-                        drawingBox = false;
                     } else {
-                        c1 = getResourceContainer().translateClick(x, y);
+                        if (drawingBox) {
+                            x2 = x;
+                            y2 = y;
+                            c2 = getResourceContainer().translateClick(x, y);
+                            if (c2 != null) {
+                                c2.x = spatialUtils.convertToEasting(c2.x);
+                                if (spatialUtils.getLongitudinalShift() > 0
+                                        && x >= x360) {
+                                    c2.x += 360;
+                                }
+                            }
+                        } else {
+                            c1 = getResourceContainer().translateClick(x, y);
+                        }
                     }
                 }
+                createRegions();
+                target.setNeedsRefresh(true);
+                fireBoxChangedEvent();
+                drawingBox = false;
             } else if (mouseButton == 2) {
-                super.handleMouseDown(x, y, 1);
+                super.handleMouseUp(x, y, 1);
+                getMapRectangle();
             }
-
             return true;
+        }
+
+        /*
+         * Turn off mouse wheel.
+         * 
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.viz.ui.input.PanHandler#handleMouseWheel(org.eclipse
+         * .swt.widgets.Event, int, int)
+         */
+        @Override
+        public boolean handleMouseWheel(Event event, int x, int y) {
+            return false;
         }
     }
 
@@ -424,7 +464,9 @@ public class DrawBoxResource extends
      * Create the regions for the mouseover for resizing the existing box
      */
     private void createRegions() {
-        regionList.clear();
+        if (!regionList.isEmpty()) {
+            disposeRegions();
+        }
         int buffer = 10;
 
         // Top
@@ -519,5 +561,36 @@ public class DrawBoxResource extends
      */
     public void setSpatialUtils(SpatialUtils spatialUtils) {
         this.spatialUtils = spatialUtils;
+    }
+
+    /**
+     * Dispose regions.
+     */
+    private void disposeRegions() {
+        for (Region i : regionList) {
+            i.dispose();
+        }
+        regionList.clear();
+    }
+
+    /**
+     * Map's rectangle in pixels
+     */
+    private void getMapRectangle() {
+        Coordinate top = new Coordinate();
+        top.x = spatialUtils.getUpperLeft().x;
+        top.y = spatialUtils.getUpperLeft().y;
+        double[] pointTop = getResourceContainer().translateInverseClick(top);
+        int xTop = (int) Math.round(pointTop[0]);
+        int yTop = (int) Math.round(pointTop[1]);
+
+        Coordinate bot = new Coordinate();
+        bot.x = spatialUtils.getLowerRight().x;
+        bot.y = spatialUtils.getLowerRight().y;
+        double[] pointBot = getResourceContainer().translateInverseClick(bot);
+        int xBottom = (int) Math.round(pointBot[0]);
+        int yBottom = (int) Math.round(pointBot[1]);
+
+        mapRctgl = new Rectangle(xTop, yTop, (xBottom - xTop), (yBottom - yTop));
     }
 }

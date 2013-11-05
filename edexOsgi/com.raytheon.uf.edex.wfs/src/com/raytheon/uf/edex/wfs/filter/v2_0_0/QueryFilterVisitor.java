@@ -1,38 +1,28 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 22, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wfs.filter.v2_0_0;
 
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBElement;
 
 import net.opengis.filter.v_2_0_0.AbstractIdType;
@@ -58,9 +48,13 @@ import org.hibernatespatial.criterion.SpatialRestrictions;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.ogc.common.db.SQLParamRestriction;
 import com.raytheon.uf.edex.ogc.common.gml3_2_1.EnvelopeConverter;
+import com.raytheon.uf.edex.ogc.common.spatial.AltUtil;
 import com.raytheon.uf.edex.ogc.common.spatial.BoundingBoxUtil;
 import com.raytheon.uf.edex.ogc.common.spatial.Composite3DBoundingBox;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate.Reference;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalEnabled;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalSpatialFactory;
 import com.raytheon.uf.edex.ogc.common.util.ConvertService;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsException.Code;
@@ -96,6 +90,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 			boolean matchCase, Object obj) throws Exception {
 		VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
+        
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
 
         if (operand.sql) {
             return SQLParamRestriction.restriction((String) operand.left
@@ -122,6 +120,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 		VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
 
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
+        
         if (operand.sql) {
             return SQLParamRestriction.restriction((String) operand.left
                     + " <> " + (String) operand.right);
@@ -146,6 +148,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 		VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
 
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
+        
         if (operand.sql) {
             return SQLParamRestriction.restriction((String) operand.left
                     + " < " + (String) operand.right);
@@ -170,6 +176,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 		VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
 
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
+        
         if (operand.sql) {
             return SQLParamRestriction.restriction((String) operand.left
                     + " > " + (String) operand.right);
@@ -194,6 +204,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 		VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
 
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
+        
         if (operand.sql) {
             return SQLParamRestriction.restriction((String) operand.left
                     + " >= " + (String) operand.right);
@@ -218,6 +232,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 		VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
 
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
+        
         if (operand.sql) {
             return SQLParamRestriction.restriction((String) operand.left
                     + " <= " + (String) operand.right);
@@ -243,6 +261,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
         VisitorBag bag = (VisitorBag) obj;
         Operand operand = getBinaryProps(left, right, bag);
 
+        if(operand == null) {
+            return Restrictions.disjunction();
+        }
+        
         Character wild = checkChar(op.getWildCard(), op.isSetWildCard(),
                 SQL_WILD);
         Character esc = checkChar(op.getEscapeChar(), op.isSetEscapeChar(), '!');
@@ -357,6 +379,9 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
 			throws Exception {
         ExpressionProcessor eproc = new ExpressionProcessor(op.getExpression());
         String field = getRef(eproc, (VisitorBag) obj).value;
+        if (field == null) {
+            return Restrictions.conjunction();
+        }
         return Restrictions.isNull(field);
 	}
 
@@ -378,6 +403,10 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
         Operand lowerPart = getBinaryProps(exp, lower, bag);
         Operand upperPart = getBinaryProps(exp, upper, bag);
 
+        if(lowerPart == null || upperPart == null) {
+            return Restrictions.disjunction();
+        }
+        
 		return Restrictions.between((String) lowerPart.left, lowerPart.right,
                 upperPart.right);
 	}
@@ -574,10 +603,17 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
         String prop;
         if (!op.isSetExpression()) {
             prop = bag.getSpatialField();
+            if (prop == null) {
+                throw new WfsException(Code.InvalidParameterValue,
+                        "Geospatial filter not supported for feature type");
+            }
         } else {
             ExpressionProcessor eproc = new ExpressionProcessor(
                     op.getExpression());
             prop = getRef(eproc, bag).value;
+            if (prop == null) {
+                prop = bag.getSpatialField();
+            }
         }
         Object any = op.getAny();
         if (any instanceof JAXBElement<?>) {
@@ -590,7 +626,7 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
         int dims = EnvelopeConverter.getDims(value);
         Envelope env;
         if (dims == 2) {
-            env = envConverter.convert(value);
+            env = BoundingBoxUtil.convert2D(value);
             SpatialRelateExpression disjoint = SpatialRestrictions.disjoint(
                     bag.filterField(prop), JTS.toGeometry(env));
             return Restrictions.not(disjoint);
@@ -598,7 +634,7 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
             String verticalField = bag.getVerticalField();
             if (verticalField == null) {
                 throw new WfsException(Code.InvalidParameterValue,
-                        "Feature does not have vertical information");
+                        "3D filter not supported for feature type");
             }
             Composite3DBoundingBox composite = BoundingBoxUtil
                     .separate3DEnvelope(value);
@@ -611,21 +647,40 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
             and.add(Restrictions.not(disjoint));
             // vert
             VerticalCoordinate vert = composite.getVertical();
-            // TODO convert units
+			Unit<?> verticalUnits = getVerticalUnits(bag, vert.getUnits());
+			vert = AltUtil.convert(verticalUnits, Reference.UNKNOWN, vert);
             String min = Integer.toString((int) Math.floor(vert.getMin()));
             String max = Integer.toString((int) Math.ceil(vert.getMax()));
             String[] path = verticalField.split("\\.");
-            Object minObj = ConvertService.get().convertAsType(min,
-                    bag.getRootEntity(),
-                    path);
-            Object maxObj = ConvertService.get().convertAsType(max,
-                    bag.getRootEntity(),
-                    path);
+			Object minObj = ConvertService.get().convertAsType(min,
+					bag.getRootEntity(), path);
+			Object maxObj = ConvertService.get().convertAsType(max,
+					bag.getRootEntity(), path);
             and.add(Restrictions.between(verticalField, minObj, maxObj));
             return and;
         } else {
             throw new Exception("Unsupported number of dimensions: " + dims);
         }
+	}
+
+	/**
+	 * Find default vertical units for type
+	 * 
+	 * @param bag
+	 * @return
+	 */
+	private Unit<?> getVerticalUnits(VisitorBag bag, Unit<?> fallback) {
+		Class<?> entity = bag.getRootEntity();
+		VerticalEnabled<?> enabled = VerticalSpatialFactory.getEnabled(entity);
+		Unit<?> rval;
+		if (enabled == null
+				|| (rval = enabled.getDefaultVerticalUnit()) == null) {
+			log.warn("Unable to find default vertical units for type: "
+					+ entity);
+			log.warn("falling back to using: " + fallback);
+			return fallback;
+		}
+		return rval;
 	}
 
     /*
@@ -639,6 +694,9 @@ public class QueryFilterVisitor extends AbstractQueryFilterVisitor {
     public Object isNil(PropertyIsNilType op, Object obj) throws Exception {
         ExpressionProcessor eproc = new ExpressionProcessor(op.getExpression());
         String field = getRef(eproc, (VisitorBag) obj).value;
+        if (field == null) {
+            return Restrictions.conjunction();
+        }
         return Restrictions.isNull(field);
     }
 

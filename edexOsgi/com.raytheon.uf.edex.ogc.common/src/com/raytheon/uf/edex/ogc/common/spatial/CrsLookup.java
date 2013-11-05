@@ -1,39 +1,29 @@
-/*
-* The following software products were developed by Raytheon:
-*
-* ADE (AWIPS Development Environment) software
-* CAVE (Common AWIPS Visualization Environment) software
-* EDEX (Environmental Data Exchange) software
-* uFrame™ (Universal Framework) software
-*
-* Copyright (c) 2010 Raytheon Co.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/org/documents/epl-v10.php
-*
-*
-* Contractor Name: Raytheon Company
-* Contractor Address:
-* 6825 Pine Street, Suite 340
-* Mail Stop B8
-* Omaha, NE 68106
-* 402.291.0100
-*
-*
-* SOFTWARE HISTORY
-*
-* Date         Ticket#    Engineer    Description
-* ------------ ---------- ----------- --------------------------
-* Feb 17, 2012            bclement     Initial creation
-*
-*/ 
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.ogc.common.spatial;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.measure.quantity.Quantity;
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -51,6 +41,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.cs.AxisDirection;
 
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate.Reference;
 
@@ -137,17 +128,31 @@ public class CrsLookup {
             // check if unit string matches reference level
             ref = Reference.fromAbbreviation(m.group(2).toUpperCase());
         }
-        AxisDirection dir = ref.equals(Reference.PRESSURE_LEVEL) ? AxisDirection.DOWN
+        return create3d(m.group(0), base2d, units, ref);
+    }
+
+    /**
+     * Create 3D CRS from horizontal and vertical components
+     * 
+     * @param base2d
+     * @param vertUnits
+     * @param vertRef
+     * @return
+     */
+    protected static CoordinateReferenceSystem create3d(String name,
+            CoordinateReferenceSystem base2d, Unit<?> vertUnits,
+            Reference vertRef) {
+        AxisDirection dir = vertRef.equals(Reference.PRESSURE_LEVEL) ? AxisDirection.DOWN
                 : AxisDirection.UP;
         DefaultCoordinateSystemAxis axis = new DefaultCoordinateSystemAxis(
-                ref.longName, dir, units);
+                vertRef.longName, dir, vertUnits);
         DefaultVerticalCS cs = new DefaultVerticalCS(axis);
-        DefaultVerticalDatum datum = new DefaultVerticalDatum(ref.longName,
+        DefaultVerticalDatum datum = new DefaultVerticalDatum(vertRef.longName,
                 DefaultVerticalDatum
-                        .getVerticalDatumTypeFromLegacyCode(ref.datumType));
-        DefaultVerticalCRS vertCrs = new DefaultVerticalCRS(ref.longName,
+                        .getVerticalDatumTypeFromLegacyCode(vertRef.datumType));
+        DefaultVerticalCRS vertCrs = new DefaultVerticalCRS(vertRef.longName,
                 datum, cs);
-        return new DefaultCompoundCRS(m.group(0), base2d, vertCrs);
+        return new DefaultCompoundCRS(name, base2d, vertCrs);
     }
 
     /**
@@ -192,6 +197,10 @@ public class CrsLookup {
 				|| crs.equalsIgnoreCase("epsg:3857")) {
 			return getGoogleCrs();
 		}
+        if (crs.equalsIgnoreCase("epsg:4979")) {
+            return create3d(crs, MapUtil.LATLON_PROJECTION, SI.METER,
+                    Reference.ABOVE_ELLIPSOID);
+        }
 		return CRS.decode(crs, true);
 	}
 
@@ -231,7 +240,7 @@ public class CrsLookup {
 			// OGC URN without version?
 			rval = constructCode(parts[4], parts[5]);
 		} else {
-			// unkown form, try it anyway
+            // unknown form, try it anyway
 			rval = crs;
 		}
 		return rval.toLowerCase();
@@ -273,8 +282,12 @@ public class CrsLookup {
      */
     protected static String createCrsURN(CoordinateReferenceSystem crs) {
         ReferenceIdentifier id = crs.getIdentifiers().iterator().next();
-        return String.format("urn:ogc:def:crs:%s::%s", id.getCodeSpace(),
-                id.getCode());
+        String codeSpace = id.getCodeSpace();
+        String code = id.getCode();
+        if (codeSpace.equalsIgnoreCase("crs") && code.equalsIgnoreCase("84")) {
+            return "urn:ogc:def:crs:OGC:2:84";
+        }
+        return String.format("urn:ogc:def:crs:%s::%s", codeSpace, code);
     }
 
     /**
