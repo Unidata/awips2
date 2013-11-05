@@ -15,9 +15,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 19, 2012 0726       djohnson     Added SW history.
  * Jun 24, 2013 2106       djohnson     Add copy constructor.
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -45,7 +46,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_datasetupdate_seq", allocationSize = 1)
 @DynamicSerialize
 public class BandwidthDataSetUpdate implements IPersistableDataObject<Long>,
-        Serializable, ISerializableObject, IDeepCopyable<BandwidthDataSetUpdate> {
+        Serializable, IDeepCopyable<BandwidthDataSetUpdate> {
 
     private static final long serialVersionUID = 20120723L;
 
@@ -92,13 +93,12 @@ public class BandwidthDataSetUpdate implements IPersistableDataObject<Long>,
      *            the instance to copy
      */
     public BandwidthDataSetUpdate(BandwidthDataSetUpdate bandwidthDataSetUpdate) {
-        this.dataSetBaseTime = BandwidthUtil
-                .copy(bandwidthDataSetUpdate.dataSetBaseTime);
+        this.dataSetBaseTime = TimeUtil.newCalendar(bandwidthDataSetUpdate.dataSetBaseTime);
         this.dataSetName = bandwidthDataSetUpdate.dataSetName;
         this.dataSetType = bandwidthDataSetUpdate.dataSetType;
         this.id = bandwidthDataSetUpdate.id;
         this.providerName = bandwidthDataSetUpdate.providerName;
-        this.updateTime = BandwidthUtil.copy(bandwidthDataSetUpdate.updateTime);
+        this.updateTime = TimeUtil.newCalendar(bandwidthDataSetUpdate.updateTime);
         this.url = bandwidthDataSetUpdate.url;
     }
 
