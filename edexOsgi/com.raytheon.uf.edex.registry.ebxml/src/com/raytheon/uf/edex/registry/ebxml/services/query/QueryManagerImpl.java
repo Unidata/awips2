@@ -122,6 +122,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/8/2013    1682       bphillip    Refactored querying
  * 10/2013      1682       bphillip    Fixed federated query invocation
  * 10/23/2013   1538       bphillip    Remove extra executeQuery method
+ * 10/30/2013   1538       bphillip    Changed to use non-static soap service client
  * 
  * </pre>
  * 
@@ -191,6 +192,8 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
      * Utility object used to resolve registry object references
      */
     private ObjectReferenceResolver referenceResolver;
+
+    private RegistrySOAPServices registrySoapClient;
 
     /**
      * Creates a new QueryManagerImpl
@@ -795,7 +798,7 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
             statusHandler.info("Submitting federated query to ["
                     + registryToQuery.getId() + "] at ["
                     + registryToQuery.getBaseURL() + "]...");
-            return RegistrySOAPServices.getQueryServiceForHost(
+            return registrySoapClient.getQueryServiceForHost(
                     registryToQuery.getBaseURL()).executeQuery(queryRequest);
 
         }
@@ -857,6 +860,10 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
 
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+    }
+
+    public void setRegistrySoapClient(RegistrySOAPServices registrySoapClient) {
+        this.registrySoapClient = registrySoapClient;
     }
 
 }
