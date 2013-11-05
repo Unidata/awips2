@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.services.rest;
+package com.raytheon.uf.edex.datadelivery.registry.web;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,8 +26,8 @@ import javax.ws.rs.Produces;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.datadelivery.registry.web.IRegistryAvailableRestService;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
-import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
 import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 
 /**
@@ -42,12 +42,13 @@ import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
  * 9/5/2013     1538        bphillip    Removed log message
+ * 10/30/2013   1538        bphillip    Moved data delivery specific services out of registry plugin
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/registryAvailable")
+@Path(IRegistryAvailableRestService.REGISTRY_AVAILABILITY_PATH_PREFIX)
 @Service
 @Transactional
 public class RegistryAvailableRestService implements
