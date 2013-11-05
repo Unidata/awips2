@@ -1,34 +1,22 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 11, 2011            bclement     Initial creation
- * May 30, 2013   753      dhladky      reverted to original
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wfs.reg;
 
 import java.io.InputStream;
@@ -72,6 +60,8 @@ public class WfsRegistryImpl implements IWfsRegistry {
 
 	protected final Map<QualifiedName, IWfsSource> byFeature = new HashMap<QualifiedName, IWfsSource>();
 
+	protected final Map<QualifiedName, IWfsSource> byAlias = new HashMap<QualifiedName, IWfsSource>();
+	
 	protected Class<?>[] jaxbClasses = new Class<?>[] { ObjectFactory.class,
 			net.opengis.wfs.v_1_1_0.ObjectFactory.class,
             net.opengis.filter.v_1_1_0.ObjectFactory.class,
@@ -103,6 +93,10 @@ public class WfsRegistryImpl implements IWfsRegistry {
 
     public static final Map<String, String> NS_MAP = new ConcurrentHashMap<String, String>();
 
+    protected String port;
+
+    protected String path;
+
 	static {
 		NS_MAP.put(OgcNamespace.EDEX, OgcPrefix.EDEX);
 		NS_MAP.put(OgcNamespace.GML, OgcPrefix.GML);
@@ -125,10 +119,12 @@ public class WfsRegistryImpl implements IWfsRegistry {
         NS_MAP.put(OgcNamespace.WSNT, OgcPrefix.WSNT);
         NS_MAP.put(OgcNamespace.WSA, OgcPrefix.WSA);
         NS_MAP.put(OgcNamespace.OWSNT, OgcPrefix.OWSNT);
+        NS_MAP.put(OgcNamespace.NAWX15, OgcPrefix.NAWX);
 	}
 
-	public WfsRegistryImpl() {
-
+    public WfsRegistryImpl(String port, String path) {
+        this.port = port;
+        this.path = path;
 	}
 
     /*
@@ -146,6 +142,7 @@ public class WfsRegistryImpl implements IWfsRegistry {
         try {
             addByKey(source);
             addByFeature(source);
+            addByAlias(source);
             jaxbClasses = (Class<?>[]) ArrayUtils.addAll(jaxbClasses,
                     source.getJaxbClasses());
             currentVersion++;
@@ -267,6 +264,25 @@ public class WfsRegistryImpl implements IWfsRegistry {
 			byFeature.put(f.getName(), source);
 		}
 	}
+	
+	protected void addByAlias(IWfsSource source) throws RegistryException {
+        for (WfsFeatureType f : source.getAliases()) {
+            QualifiedName feature = f.getName();
+            if (byAlias.containsKey(feature)) {
+                throw new RegistryException(
+                        "Already providing a feature with name: " + feature);
+            }
+            String prefix = NS_MAP.get(feature.getNamespace());
+            if (prefix == null) {
+                prefix = (feature.getPrefix() != null
+                        && !feature.getPrefix().isEmpty() ? feature.getPrefix()
+                        : feature.getName());
+                NS_MAP.put(feature.getNamespace(), prefix);
+            }
+
+            byAlias.put(f.getName(), source);
+        }
+    }
 
     /**
      * Remove source from all maps
@@ -279,6 +295,9 @@ public class WfsRegistryImpl implements IWfsRegistry {
 			for (WfsFeatureType f : removed.listFeatureTypes()) {
 				byFeature.remove(f.getName());
 			}
+			for (WfsFeatureType f : removed.getAliases()) {
+                byAlias.remove(f.getName());
+            }
 		}
 	}
 
@@ -312,14 +331,19 @@ public class WfsRegistryImpl implements IWfsRegistry {
         Lock read = lock.readLock();
         read.lock();
         try {
-            return byFeature.get(feature);
+            IWfsSource source = byFeature.get(feature);
+            if(source == null) {
+                //If a standard feature is not found see if it is an alias
+                source = byAlias.get(feature);
+            }
+            return source;
         } finally {
             read.unlock();
         }
 	}
 
     /**
-     * Get a list of all available feature types
+     * Get a list of all available feature types, no aliases should be advertised
      * 
      * @return
      */
@@ -351,5 +375,25 @@ public class WfsRegistryImpl implements IWfsRegistry {
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
 	}
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.WfsRegistry#getHttpServicePort()
+     */
+    @Override
+    public String getHttpServicePort() {
+        return port;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.WfsRegistry#getHttpServicePath()
+     */
+    @Override
+    public String getHttpServicePath() {
+        return path;
+    }
 
 }

@@ -20,11 +20,6 @@
 		<constructor-arg ref="madisWfsSource" />
 	</bean> 
 	
-	<bean id="madisWmsSource" class="com.raytheon.uf.edex.plugin.madis.ogc.MadisWmsSource" >
-		<constructor-arg ref="madisProperties" />
-		<constructor-arg ref="madisLayerTransformer"/>
-	</bean>
-	
 	<bean id="madisLayerTransformer" class="com.raytheon.uf.edex.ogc.common.db.LayerTransformer" >
   		<constructor-arg value="madis" />
   		<constructor-arg ref="madisLayerCollector" />

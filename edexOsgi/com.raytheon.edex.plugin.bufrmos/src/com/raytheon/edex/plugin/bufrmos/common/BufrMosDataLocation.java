@@ -24,10 +24,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -49,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 28, 2012 827        dgilling    Annotate id field for serialization.
  * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
  *                                     location.
+ * Nov 04, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -58,8 +55,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "bufrmos_location", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "stationId", "latitude", "longitude" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class BufrMosDataLocation extends PersistableDataObject {
     private static final long serialVersionUID = 1L;
@@ -73,19 +68,16 @@ public class BufrMosDataLocation extends PersistableDataObject {
     @Column(length = 48)
     @Index(name = "mosLocationStationIndex")
     @DataURI(position = 0)
-    @XmlAttribute
     @DynamicSerializeElement
     private String stationId;
 
     @DataURI(position = 1)
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Double latitude;
 
     @DataURI(position = 2)
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Double longitude;
 
