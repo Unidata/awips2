@@ -28,6 +28,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Jun 13, 2013 2095       djohnson    Point subscriptions don't check for dataset updates on aggregation.
  * Jun 25, 2013 2106       djohnson    CheapClone was cheap in ease, not performance.
  * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
+ * Oct 30, 2013  2448      dhladky     Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -59,18 +60,18 @@ public class BandwidthUtil {
     private BandwidthUtil() {
     };
 
-    public static int getSubscriptionLatency(Subscription subscription) {
+    public static int getSubscriptionLatency(Subscription<?, ?> subscription) {
         return instance.subscriptionLatencyCalculator.getLatency(subscription);
     }
 
     public static Calendar min(Date lhs, Calendar rhs) {
-        return min(copy(lhs), rhs);
+        return min(TimeUtil.newCalendar(lhs), rhs);
     }
 
     public static Calendar max(Date lhs, Calendar rhs) {
-        return max(copy(lhs), rhs);
+        return max(TimeUtil.newCalendar(lhs), rhs);
     }
-
+               
     public static Calendar max(Calendar lhs, Calendar rhs) {
         Calendar calendar = null;
         if (lhs != null && rhs != null) {
@@ -93,24 +94,6 @@ public class BandwidthUtil {
             }
         }
         return calendar;
-    }
-
-    public static Calendar copy(final Date date) {
-        Calendar t = null;
-        if (date != null) {
-            t = TimeUtil.newCalendar();
-            t.setTime(date);
-        }
-        return t;
-    }
-
-    public static Calendar copy(final Calendar calendar) {
-        Calendar t = null;
-        if (calendar != null) {
-            t = TimeUtil.newCalendar();
-            t.setTimeInMillis(calendar.getTimeInMillis());
-        }
-        return t;
     }
 
     /**
@@ -137,7 +120,7 @@ public class BandwidthUtil {
      * 
      * @return The delay in minutes.
      */
-    public static int getDataSetAvailablityDelay(Subscription subscription) {
+    public static int getDataSetAvailablityDelay(Subscription<?, ?> subscription) {
         return instance.dataSetAvailabilityCalculator
                 .getDataSetAvailablityDelay(subscription);
     }
@@ -205,7 +188,7 @@ public class BandwidthUtil {
      *             on error serializing the subscription
      */
     public static BandwidthSubscription getSubscriptionDaoForSubscription(
-            Subscription subscription, Calendar baseReferenceTime) {
+            Subscription<?, ?> subscription, Calendar baseReferenceTime) {
         BandwidthSubscription dao = new BandwidthSubscription();
 
         dao.setDataSetName(subscription.getDataSetName());
@@ -231,13 +214,13 @@ public class BandwidthUtil {
      * @return the dao
      */
     public static BandwidthDataSetUpdate newDataSetMetaDataDao(
-            DataSetMetaData dataSetMetaData) {
+            DataSetMetaData<?> dataSetMetaData) {
         BandwidthDataSetUpdate dao = new BandwidthDataSetUpdate();
         // Set the fields we need to have..
         dao.setDataSetName(dataSetMetaData.getDataSetName());
         dao.setProviderName(dataSetMetaData.getProviderName());
         dao.setUpdateTime(BandwidthUtil.now());
-        dao.setDataSetBaseTime(BandwidthUtil.copy(dataSetMetaData.getDate()));
+        dao.setDataSetBaseTime(TimeUtil.newCalendar(dataSetMetaData.getDate()));
         dao.setUrl(dataSetMetaData.getUrl());
 
         return dao;
@@ -280,8 +263,21 @@ public class BandwidthUtil {
      * @return true if the subscription should be rescheduled
      */
     public static boolean subscriptionRequiresReschedule(
-            Subscription subscription, Subscription old) {
+            Subscription<?, ?> subscription, Subscription<?, ?> old) {
         return instance.subscriptionRescheduleStrategy
                 .subscriptionRequiresReschedule(subscription, old);
+    }
+
+    
+    /**
+     * Sets up the activePeriod Start/End to plan Start/End calendar
+     */
+    public static Calendar planToPeriodCompareCalendar(Calendar planCalendar, Calendar activePeriod) {
+        
+        Calendar cal = TimeUtil.newCalendar(planCalendar);
+        cal.set(Calendar.MONTH, activePeriod.get(Calendar.MONTH));
+        cal.set(Calendar.DAY_OF_MONTH, activePeriod.get(Calendar.DAY_OF_MONTH));
+        
+        return cal;
     }
 }
