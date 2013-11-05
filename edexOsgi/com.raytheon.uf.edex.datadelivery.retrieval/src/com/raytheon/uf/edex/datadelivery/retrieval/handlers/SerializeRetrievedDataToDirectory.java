@@ -30,6 +30,7 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
 import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
@@ -48,7 +49,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
  * Mar 05, 2013 1647       djohnson     Apply WMO header.
  * Mar 07, 2013 1647       djohnson     Write out as hidden file, then rename.
  * Aug 09, 2013 1822       bgonzale     Added parameters to IWmoHeaderApplier.applyWmoHeader().
- * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
+ * Oct 28, 2013 2506       bgonzale     Removed request parameters.  Constructor inject IRetrievalDao.
  * 
  * </pre>
  * 
@@ -64,15 +65,19 @@ public class SerializeRetrievedDataToDirectory implements
 
     private final IWmoHeaderApplier wmoHeaderWrapper;
 
+    private final IRetrievalDao retrievalDao;
+
     /**
      * @param directory
      */
     public SerializeRetrievedDataToDirectory(File directory,
-            IWmoHeaderApplier wmoHeaderWrapper) {
+            IWmoHeaderApplier wmoHeaderWrapper, IRetrievalDao retrievalDao) {
         this.targetDirectory = directory;
         this.wmoHeaderWrapper = wmoHeaderWrapper;
+        this.retrievalDao = retrievalDao;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
+                    SbnRetrievalResponseXml.class,
                     OpenDapRetrievalResponse.class, WfsRetrievalResponse.class,
                     Coverage.class);
         } catch (JAXBException e) {
@@ -82,10 +87,12 @@ public class SerializeRetrievedDataToDirectory implements
 
     /**
      * {@inheritDoc}
+     * 
+     * @return the RetrievalRequestRecord associated with the response
+     *         processing.
      */
     @Override
-    public void processRetrievedPluginDataObjects(
-            RetrievalRequestRecord request,
+    public RetrievalRequestRecord processRetrievedPluginDataObjects(
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException {
         retrievalPluginDataObjects.prepareForSerialization();
@@ -96,8 +103,11 @@ public class SerializeRetrievedDataToDirectory implements
             final File tempHiddenFile = new File(finalFile.getParentFile(), "."
                     + finalFile.getName());
 
+            final RetrievalRequestRecord request = retrievalDao
+                    .getById(retrievalPluginDataObjects.getRequestRecord());
             final String xml = jaxbManager
-                    .marshalToXml(retrievalPluginDataObjects);
+                    .marshalToXml(new SbnRetrievalResponseXml(request,
+                            retrievalPluginDataObjects));
             final Date date = request.getInsertTime();
             final String textForFile = wmoHeaderWrapper
                     .applyWmoHeader(request.getProvider(), request.getPlugin(),
@@ -113,6 +123,7 @@ public class SerializeRetrievedDataToDirectory implements
                         + tempHiddenFile.getAbsolutePath() + "] to ["
                         + finalFile.getAbsolutePath() + "]");
             }
+            return request;
         } catch (Exception e) {
             throw new SerializationException(e);
         }

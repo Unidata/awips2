@@ -97,6 +97,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 1 2013   1797       dhladky      Time and GriddedTime separation
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
+ * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
  * 
  * </pre>
  * 
@@ -315,13 +316,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 statusHandler
                         .info("Received Subscription removal notification for Subscription ["
                                 + event.getId() + "]");
-                // Need to locate and remove all BandwidthReservations for the
-                // given subscription..
-                List<BandwidthSubscription> l = bandwidthDao
-                        .getBandwidthSubscriptionByRegistryId(event.getId());
-                if (!l.isEmpty()) {
-                    remove(l);
-                }
+                removeBandwidthSubscriptions(event.getId());
             }
         }
     }
