@@ -34,12 +34,12 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.archive.IPluginArchiveFileNameFormatter;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.maintenance.archive.IPluginArchiveFileNameFormatter;
 
 /**
- * TODO Add Description
+ * Properly stores StdTextProducts by time.
  * 
  * <pre>
  * 
@@ -48,7 +48,7 @@ import com.raytheon.uf.edex.maintenance.archive.IPluginArchiveFileNameFormatter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2012            dgilling     Initial creation
- * 
+ * Nov 05, 2013 2499       rjpeter      Moved IPluginArchiveFileNameFormatter.
  * </pre>
  * 
  * @author dgilling
@@ -70,6 +70,7 @@ public class TextArchiveFileNameFormatter implements
      * com.raytheon.uf.edex.database.plugin.PluginDao, java.util.Map,
      * java.util.Calendar, java.util.Calendar)
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public Map<String, List<PersistableDataObject>> getPdosByFile(
             String pluginName, PluginDao dao,
