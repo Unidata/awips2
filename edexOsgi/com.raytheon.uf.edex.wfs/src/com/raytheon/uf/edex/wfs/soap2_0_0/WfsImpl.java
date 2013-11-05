@@ -33,10 +33,15 @@ import net.opengis.wfs.v_2_0_0.TransactionType;
 import net.opengis.wfs.v_2_0_0.ValueCollectionType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.log.cxf.RequestLogController;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
 import com.raytheon.uf.edex.ogc.common.soap.AbstractOwsService;
 import com.raytheon.uf.edex.ogc.common.soap.ServiceExceptionReport;
-import com.raytheon.uf.edex.ogc.common.stats.OgcStatsRecorder;
+import com.raytheon.uf.edex.ogc.common.stats.IStatsRecorder;
+import com.raytheon.uf.edex.ogc.common.stats.OperationType;
+import com.raytheon.uf.edex.ogc.common.stats.ServiceType;
 import com.raytheon.uf.edex.ogc.common.stats.StatsRecorderFinder;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsException.Code;
@@ -69,6 +74,8 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
     protected Wfs2_0_0Provider provider;
 
     private static final String VERSION = "2.0.0";
+    
+    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     @Resource
     protected WebServiceContext context;
@@ -89,16 +96,19 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo info = getInfo();
         try {
-            EndpointInfo info = getInfo();
             return provider.getCapabilities(new GetCapReq(body), info);
         } catch (WfsException e) {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WFS", success);
+            		duration, ServiceType.WFS, OperationType.QUERY, success);
+
+            logRequestInfo(duration, success, info);
         }
     }
 
@@ -118,8 +128,8 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             DescribeFeatureTypeType body) throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo info = getInfo();
         try {
-            EndpointInfo info = getInfo();
             return provider.describeFeatureType(
                     new DescFeatureTypeReq(body),
                     info);
@@ -127,9 +137,12 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WFS", success);
+            		duration, ServiceType.WFS, OperationType.QUERY, success);
+
+            logRequestInfo(duration, success, info);
         }
     }
 
@@ -145,16 +158,19 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo info = getInfo();
         try {
-            EndpointInfo info = getInfo();
             return provider.getPropertyValues(body, info);
         } catch (WfsException e) {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WFS", success);
+            		duration, ServiceType.WFS, OperationType.QUERY, success);
+
+            logRequestInfo(duration, success, info);
         }
     }
 
@@ -170,17 +186,20 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo info = getInfo();
         try {
-            EndpointInfo info = getInfo();
             return provider.getFeatureGML(new GetFeatureReq(body, provider),
                     info);
         } catch (WfsException e) {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WFS", success);
+            		duration, ServiceType.WFS, OperationType.QUERY, success);
+
+            logRequestInfo(duration, success, info);
         }
     }
 
@@ -235,16 +254,19 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             ListStoredQueriesType body) throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo info = getInfo();
         try {
-            EndpointInfo info = getInfo();
             return provider.listQueries(info);
         } catch (WfsException e) {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WFS", success);
+            		duration, ServiceType.WFS, OperationType.QUERY, success);
+
+            logRequestInfo(duration, success, info);
         }
     }
 
@@ -260,16 +282,19 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
             DescribeStoredQueriesType body) throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo info = getInfo();
         try {
-            EndpointInfo info = getInfo();
             return provider.describeQueries(new DescQueryReq(body), info);
         } catch (WfsException e) {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WFS", success);
+            		duration, ServiceType.WFS, OperationType.QUERY, success);
+
+            logRequestInfo(duration, success, info);
         }
     }
 
@@ -308,5 +333,23 @@ public class WfsImpl extends AbstractOwsService implements Wfs {
     protected WebServiceContext getContext() {
         return context;
     }
+    
+    private void logRequestInfo(long durationNanos, boolean success,
+			EndpointInfo endInfo) {
+		if (endInfo != null &&
+				RequestLogController.getInstance().shouldLogRequestsInfo() &&
+				log.isPriorityEnabled(RequestLogController.getInstance().getRequestLogLevel())) {
+			String requestLog = "";
+			if(success){
+				requestLog += "Successfully processed ";
+			} else {
+				requestLog += "Failed to process ";
+			}
+			requestLog += "request from " + endInfo.getHost() + ".  ";
+			requestLog += "Duration of " + (durationNanos/1000000000.0) + "s.";
+			log.handle(RequestLogController.getInstance().getRequestLogLevel(), 
+					requestLog);
+		}
+	}
 
 }

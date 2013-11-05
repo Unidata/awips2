@@ -23,8 +23,8 @@ import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Typ
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlJaxbManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 
 /**
  * A {@link StringBasedEncoder} implementation that uses JAXB. Package-private
@@ -38,6 +38,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * ------------ ---------- ----------- --------------------------
  * Sep 07, 2012 1102      djohnson     Initial creation
  * Jun 03, 2013 2038      djohnson     Add equals/hashcode.
+ * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ class JaxbEncoder extends StringBasedEncoder {
     @Override
     Object decodeContent(String content) throws SerializationException {
         try {
-            return SerializationUtil.unmarshalFromXml(Object.class, content);
+            return EbxmlJaxbManager.getJaxbManager().unmarshalFromXml(content);
         } catch (JAXBException e) {
             throw new SerializationException("Unable to decode the object!", e);
         }
@@ -72,7 +73,8 @@ class JaxbEncoder extends StringBasedEncoder {
     @Override
     String encodeContent(Object objectToEncode) throws SerializationException {
         try {
-            return new String(SerializationUtil.marshalToXml(objectToEncode));
+            return new String(EbxmlJaxbManager.getJaxbManager().marshalToXml(
+                    objectToEncode));
         } catch (JAXBException e) {
             throw new SerializationException("Unable to encode the object!", e);
         }

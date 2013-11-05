@@ -28,15 +28,9 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -61,6 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * 
  * </pre>
@@ -77,8 +72,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @org.hibernate.annotations.Table(appliesTo = "ccfp", indexes = { @Index(name = "ccfp_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
 
@@ -86,48 +79,39 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
 
     @DataURI(position = 1)
     @Column(length = 8)
-    @XmlAttribute
     @DynamicSerializeElement
     private String producttype;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer coverage;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer conf;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer growth;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer tops;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer speed;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer direction;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Boolean canadaflag;
 
     @DataURI(position = 2, embedded = true)
     @Embedded
-    @XmlElement
     @DynamicSerializeElement
     private CcfpLocation location;
 
@@ -157,12 +141,6 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
      */
     public CcfpRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public java.lang.String getProducttype() {

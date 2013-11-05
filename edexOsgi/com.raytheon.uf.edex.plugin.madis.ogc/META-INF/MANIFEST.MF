@@ -21,7 +21,6 @@ Require-Bundle: com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",
  ogc.tools.gml;bundle-version="1.0.2",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
- com.raytheon.uf.edex.wms;bundle-version="1.0.0",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174"
