@@ -16,11 +16,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
+import com.raytheon.uf.edex.wfs.IWfsProvider;
+import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
-import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
-import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
 import com.raytheon.uf.edex.wfs.reg.IWfsSource;
+import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
 import com.raytheon.uf.edex.wfs.request.DescFeatureTypeReq;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
@@ -28,37 +29,40 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
  * TODO Add Description
  * 
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2012            bclement     Initial creation
- * 
+ *
  * </pre>
- * 
+ *
  * @author bclement
- * @version 1.0
+ * @version 1.0	
  */
 
 public class FeatureDescriber {
 
     protected WfsRegistryImpl registry;
 
-    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
+    protected IWfsProvider provider;
+
+	protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     /**
      * 
      */
-    public FeatureDescriber(WfsRegistryImpl registry) {
+    public FeatureDescriber(WfsRegistryImpl registry, IWfsProvider provider) {
         this.registry = registry;
+        this.provider = provider;
     }
 
     public String describe(DescFeatureTypeReq request,
             OgcServiceInfo<WfsOpType> serviceInfo) throws WfsException {
         List<QualifiedName> typenames = request.getTypenames();
         String xml;
-        if (typenames == null || !typenames.isEmpty()) {
+        if (typenames == null || typenames.size() == 0) {
             xml = getAllSchemas(serviceInfo);
         } else if (typenames.size() == 1) {
             xml = getOneSchema(typenames.get(0));
@@ -114,7 +118,8 @@ public class FeatureDescriber {
     protected String getBaseDescUrl(OgcServiceInfo<WfsOpType> serviceInfo) {
         for (OgcOperationInfo<WfsOpType> opinfo : serviceInfo.getOperations()) {
             if (opinfo.getType().equals(WfsOpType.DescribeFeatureType)) {
-                return opinfo.getHttpGetRes();
+                return "http://" + opinfo.getHttpBaseHostname()
+                        + provider.getHttpServiceLocation();
             }
         }
         log.error("Unable to construct describe feature URL");
