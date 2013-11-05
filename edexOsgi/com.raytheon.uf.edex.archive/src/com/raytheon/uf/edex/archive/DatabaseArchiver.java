@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.archive;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,6 +77,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Nov 17, 2011            rjpeter     Initial creation
  * Jan 18, 2013 1469       bkowal      Removed the hdf5 data directory.
  * Oct 23, 2013 2478       rferrel     Make date format thread safe.
+ *                                     Add debug information.
  * Nov 05, 2013 2499       rjpeter     Repackaged, removed config files, always compresses.
  * </pre>
  * 
@@ -113,6 +115,9 @@ public class DatabaseArchiver implements IPluginArchiver {
     /** Mapping for plug-in formatters. */
     private final Map<String, IPluginArchiveFileNameFormatter> pluginArchiveFormatters;
 
+    /** When true dump the pdos. */
+    private final boolean debugArchiver;
+
     /**
      * The constructor.
      */
@@ -120,6 +125,7 @@ public class DatabaseArchiver implements IPluginArchiver {
         pluginArchiveFormatters = new HashMap<String, IPluginArchiveFileNameFormatter>();
         pluginArchiveFormatters.put("default",
                 new DefaultPluginArchiveFileNameFormatter());
+        debugArchiver = Boolean.parseBoolean(System.getenv("DEBUG_ARCHIVER"));
     }
 
     @Override
@@ -306,19 +312,20 @@ public class DatabaseArchiver implements IPluginArchiver {
             throws SerializationException, IOException {
         int recordsSaved = 0;
 
+        StringBuilder path = new StringBuilder();
         for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
                 .entrySet()) {
-            String path = archivePath + File.separator + pluginName
-                    + File.separator + entry.getKey();
-
+            path.setLength(0);
+            path.append(archivePath).append(File.separator).append(pluginName)
+                    .append(File.separator).append(entry.getKey());
             // remove .h5
-            if (path.endsWith(".h5")) {
-                path = path.substring(0, path.length() - 3);
+            if (path.lastIndexOf(".h5") == (path.length() - 3)) {
+                path.setLength(path.length() - 3);
             }
+            int pathDebugLength = path.length();
+            path.append(".bin.gz");
 
-            path += ".bin.gz";
-
-            File file = new File(path);
+            File file = new File(path.toString());
             List<PersistableDataObject> pdosToSerialize = entry.getValue();
             recordsSaved += pdosToSerialize.size();
 
@@ -385,6 +392,11 @@ public class DatabaseArchiver implements IPluginArchiver {
                     file.getParentFile().mkdirs();
                 }
 
+                if (debugArchiver) {
+                    String debugRootName = path.substring(0, pathDebugLength);
+                    dumpPdos(pluginName, pdosToSerialize, debugRootName);
+                }
+
                 // created gzip'd stream
                 os = new GZIPOutputStream(new FileOutputStream(file), 8192);
 
@@ -404,6 +416,48 @@ public class DatabaseArchiver implements IPluginArchiver {
         }
 
         return recordsSaved;
+    }
+
+    /**
+     * Dump the record information being archived to a file.
+     */
+    @SuppressWarnings("rawtypes")
+    private void dumpPdos(String pluginName,
+            List<PersistableDataObject> pdosToSerialize, String debugRootName) {
+        StringBuilder sb = new StringBuilder(debugRootName);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sb.append("_").append(sdf.format(Calendar.getInstance().getTime()))
+                .append(".txt");
+        File file = new File(sb.toString());
+        FileWriter writer = null;
+        try {
+            PersistableDataObject<?>[] pdoArray = pdosToSerialize
+                    .toArray(new PersistableDataObject<?>[0]);
+            writer = new FileWriter(file);
+            statusHandler.info(String.format("Dumping %s records to: %s",
+                    pdoArray.length, file.getAbsolutePath()));
+            for (int i = 0; i < pdosToSerialize.size(); ++i) {
+                if (pdoArray[i] instanceof PluginDataObject) {
+                    PluginDataObject pdo = (PluginDataObject) pdoArray[i];
+                    writer.write(pdo.getDataURI());
+                } else {
+                    writer.write(pdoArray[i].toString());
+                }
+                writer.write("\n");
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (Exception e) {
+                    // Ignore
+                }
+                writer = null;
+            }
+        }
     }
 
     /**
