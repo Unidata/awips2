@@ -49,7 +49,7 @@ public class VerticalCoordinate implements Comparable<VerticalCoordinate> {
                 2005, "gravity-related height"), ABOVE_ELLIPSOID("AEH", 2002,
                 "ellipsoidal height"), PRESSURE_LEVEL("PL", 2003,
                 "barometric altitude"), FLIGHT_LEVEL("FL", 2003, "flight level"), UNKNOWN(
-                "", 2000, "unkown");
+                "", 2000, "unknown");
 
         private static final Map<String, Reference> ABB_MAP;
 
@@ -95,8 +95,8 @@ public class VerticalCoordinate implements Comparable<VerticalCoordinate> {
 
     private VerticalCoordinate(double min, double max, Unit<?> units,
             Reference ref, boolean isRange) {
-        this.min = min;
-        this.max = max;
+        this.min = Math.min(min, max);
+        this.max = Math.max(min, max);
         this.units = units;
         this.ref = ref;
         this.range = isRange;

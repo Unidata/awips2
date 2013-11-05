@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 23, 2012 1286       djohnson     Add ability to get/set the default bandwidth.
  * Nov 20, 2012 1286       djohnson     Handle null bucketIds being returned.
  * Jun 25, 2013 2106       djohnson     Separate state into other classes, promote BandwidthBucket to a class proper.
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class RetrievalPlan {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalPlan.class);
 
-    private IBandwidthDao bandwidthDao;
+    private IBandwidthDao<?, ?> bandwidthDao;
 
     // which retrieval plan
     private Network network;
@@ -110,7 +111,7 @@ public class RetrievalPlan {
         if (found) {
             Calendar currentBucket = BandwidthUtil.now();
             planStart = BandwidthUtil.now();
-            planEnd = BandwidthUtil.copy(planStart);
+            planEnd = TimeUtil.newCalendar(planStart);
             planEnd.add(Calendar.DAY_OF_YEAR, planDays);
 
             // Make the buckets...
@@ -183,7 +184,7 @@ public class RetrievalPlan {
         // The end of the plan should always be planDays from
         // now...
         Calendar currentBucket = BandwidthUtil.now();
-        Calendar newEndOfPlan = BandwidthUtil.copy(currentBucket);
+        Calendar newEndOfPlan = TimeUtil.newCalendar(currentBucket);
         newEndOfPlan.add(Calendar.DAY_OF_YEAR, planDays);
 
         resize(currentBucket, newEndOfPlan);
@@ -299,7 +300,7 @@ public class RetrievalPlan {
         this.map = map;
     }
 
-    public void setBandwidthDao(IBandwidthDao bandwidthDao) {
+    public void setBandwidthDao(IBandwidthDao<?, ?> bandwidthDao) {
         this.bandwidthDao = bandwidthDao;
     }
 
@@ -411,13 +412,13 @@ public class RetrievalPlan {
     public Calendar getPlanEnd() {
         // Don't want an inadvertent change to plan end, so make a copy of the
         // Calendar Object and return that.
-        return BandwidthUtil.copy(planEnd);
+        return TimeUtil.newCalendar(planEnd);
     }
 
     public Calendar getPlanStart() {
         // Don't want an inadvertent change to plan start, so make a copy of the
         // Calendar Object and return that.
-        return BandwidthUtil.copy(planStart);
+        return TimeUtil.newCalendar(planStart);
     }
 
     /**
@@ -577,8 +578,8 @@ public class RetrievalPlan {
         this.bucketMinutes = fromPlan.bucketMinutes;
         this.bytesPerBucket = fromPlan.bytesPerBucket;
         this.planDays = fromPlan.planDays;
-        this.planEnd = BandwidthUtil.copy(fromPlan.planEnd);
-        this.planStart = BandwidthUtil.copy(fromPlan.planStart);
+        this.planEnd = TimeUtil.newCalendar(fromPlan.planEnd);
+        this.planStart = TimeUtil.newCalendar(fromPlan.planStart);
         this.requestMap.clear();
         this.requestMap.putAll(fromPlan.requestMap);
         this.associator.copyState(fromPlan.associator);
