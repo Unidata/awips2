@@ -28,11 +28,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -59,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                     Entity  annotation to MappedSuperClass.
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Nov 04, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -68,8 +64,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @MappedSuperclass
 @SequenceGenerator(name = PluginDataObject.ID_GEN)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class BufrMosData extends PersistablePluginDataObject implements
         IPersistable, IPointData {
@@ -84,7 +78,6 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
 
     // Text of the WMO header
     @Transient
-    @XmlAttribute
     @DynamicSerializeElement
     private String wmoHeader;
 
@@ -95,7 +88,6 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @PrimaryKeyJoinColumn
     @DataURI(position = 1, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private BufrMosDataLocation location;
 

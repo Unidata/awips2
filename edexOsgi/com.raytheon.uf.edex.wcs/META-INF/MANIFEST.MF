@@ -25,7 +25,8 @@ Require-Bundle: com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",
  com.raytheon.uf.edex.plugin.unitconverter;bundle-version="1.0.0",
  com.raytheon.uf.common.spatial;bundle-version="1.0.0",
  org.eclipse.jetty;bundle-version="7.6.9",
- com.raytheon.uf.common.status;bundle-version="1.12.1174"
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.log;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.wcs,
  com.raytheon.uf.edex.wcs.format,
  com.raytheon.uf.edex.wcs.provider,

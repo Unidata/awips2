@@ -26,9 +26,13 @@ import net.opengis.wcs.v_1_1_2.GetCoverage;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.log.cxf.RequestLogController;
+import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
 import com.raytheon.uf.edex.ogc.common.soap.AbstractOwsService;
 import com.raytheon.uf.edex.ogc.common.soap.ServiceExceptionReport;
-import com.raytheon.uf.edex.ogc.common.stats.OgcStatsRecorder;
+import com.raytheon.uf.edex.ogc.common.stats.IStatsRecorder;
+import com.raytheon.uf.edex.ogc.common.stats.OperationType;
+import com.raytheon.uf.edex.ogc.common.stats.ServiceType;
 import com.raytheon.uf.edex.ogc.common.stats.StatsRecorderFinder;
 import com.raytheon.uf.edex.wcs.CoveragesHolder;
 import com.raytheon.uf.edex.wcs.WcsException;
@@ -81,17 +85,21 @@ public class WcsImpl extends AbstractOwsService implements IWcsPortType {
             throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo endInfo = getInfo();
         try {
-            return provider.getCapabilities(getInfo(), body);
+            return provider.getCapabilities(endInfo, body);
         } catch (Exception e) {
             success = false;
             log.error("Problem with get coverage", e);
             throw getReport(Code.InternalServerError.toString(),
                     "Internal Server Error", VERSION);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WCS", success);
+            		duration, ServiceType.WCS, OperationType.QUERY, success);
+            
+            logRequestInfo(duration, success, endInfo);
         }
     }
 
@@ -111,18 +119,24 @@ public class WcsImpl extends AbstractOwsService implements IWcsPortType {
             throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo endInfo = getInfo();
         try {
-            return provider.describeCoverage(getInfo(),
+            return provider.describeCoverage(endInfo,
                     new DescCoverageRequest(body));
         } catch (WcsException e) {
             success = false;
             throw getReport(e);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WCS", success);
+            		duration, ServiceType.WCS, OperationType.QUERY, success);
+            
+            logRequestInfo(duration, success, endInfo);
         }
     }
+
+	
 
     /*
      * (non-Javadoc)
@@ -136,8 +150,9 @@ public class WcsImpl extends AbstractOwsService implements IWcsPortType {
             throws ServiceExceptionReport {
         long start = System.nanoTime();
         boolean success = true;
+        EndpointInfo endInfo = getInfo();
         try {
-            CoveragesHolder holder = provider.getCoverage(getInfo(),
+            CoveragesHolder holder = provider.getCoverage(endInfo,
                     new GetCoverageRequest(body));
             Map<String, Object> attachments = getAttachments(holder);
             context.getMessageContext().put(
@@ -152,9 +167,12 @@ public class WcsImpl extends AbstractOwsService implements IWcsPortType {
             throw getReport(Code.InternalServerError.toString(),
                     "Internal Server Error", VERSION);
         } finally {
-            OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        	long duration = System.nanoTime() - start;
+            IStatsRecorder statRecorder = StatsRecorderFinder.find();
             statRecorder.recordRequest(System.currentTimeMillis(),
-                    System.nanoTime() - start, "WCS", success);
+            		duration, ServiceType.WCS, OperationType.QUERY, success);
+            
+            logRequestInfo(duration, success, endInfo);
         }
     }
 
@@ -184,5 +202,23 @@ public class WcsImpl extends AbstractOwsService implements IWcsPortType {
     protected WebServiceContext getContext() {
         return context;
     }
+    
+    private void logRequestInfo(long durationNanos, boolean success,
+			EndpointInfo endInfo) {
+		if (endInfo != null &&
+				RequestLogController.getInstance().shouldLogRequestsInfo() &&
+				log.isPriorityEnabled(RequestLogController.getInstance().getRequestLogLevel())) {
+			String requestLog = "";
+			if(success){
+				requestLog += "Successfully processed ";
+			} else {
+				requestLog += "Failed to process ";
+			}
+			requestLog += "request from " + endInfo.getHost() + ".  ";
+			requestLog += "Duration of " + (durationNanos/1000000000.0) + "s.";
+			log.handle(RequestLogController.getInstance().getRequestLogLevel(), 
+					requestLog);
+		}
+	}
 
 }

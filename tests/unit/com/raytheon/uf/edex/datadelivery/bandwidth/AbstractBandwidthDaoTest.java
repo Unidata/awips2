@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 12, 2012 1286       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Add test getting retrievals by dataset, provider, and status.
  * Oct 21, 2013 2292       mpduff       Implement multiple data types.
+ * Oct 30, 2013 2248       dhladky      Moved methods to TimeUtil
  * 
  * </pre>
  * 
@@ -238,7 +239,7 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
         alloc1.setStatus(RetrievalStatus.DEFERRED);
         alloc1.setEndTime(now);
 
-        Calendar after = BandwidthUtil.copy(now);
+        Calendar after = TimeUtil.newCalendar(now);
         after.add(Calendar.HOUR, 1);
 
         SubscriptionRetrieval alloc2 = SubscriptionRetrievalFixture.INSTANCE
@@ -451,10 +452,10 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
         // Give each a unique time
         final Calendar one = BandwidthUtil.now();
         subDao1.setBaseReferenceTime(one);
-        final Calendar two = BandwidthUtil.copy(one);
+        final Calendar two = TimeUtil.newCalendar(one);
         two.add(Calendar.HOUR, 1);
         subDao2.setBaseReferenceTime(two);
-        final Calendar three = BandwidthUtil.copy(two);
+        final Calendar three = TimeUtil.newCalendar(two);
         three.add(Calendar.HOUR, 1);
         subDao3.setBaseReferenceTime(three);
 
@@ -508,9 +509,9 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
     public void testGetSubscriptionsByProviderDataSetAndBaseReferenceTime()
             throws SerializationException {
         final Calendar one = BandwidthUtil.now();
-        final Calendar two = BandwidthUtil.copy(one);
+        final Calendar two = TimeUtil.newCalendar(one);
         two.add(Calendar.HOUR, 1);
-        final Calendar three = BandwidthUtil.copy(two);
+        final Calendar three = TimeUtil.newCalendar(two);
         three.add(Calendar.HOUR, 1);
 
         // Three entities all the same except for base reference time
@@ -784,7 +785,7 @@ public abstract class AbstractBandwidthDaoTest<T extends Time, C extends Coverag
             startTime.add(Calendar.HOUR, i);
 
             // ... and end time
-            Calendar endTime = BandwidthUtil.copy(startTime);
+            Calendar endTime = TimeUtil.newCalendar(startTime);
             endTime.add(Calendar.MINUTE, 5);
             entity.setEndTime(endTime);
 
