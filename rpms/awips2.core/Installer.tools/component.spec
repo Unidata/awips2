@@ -5,7 +5,7 @@
 Name: awips2-tools
 Summary: AWIPS II Tools Distribution
 Version: 1.0.0
-Release: 3
+Release: 4
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: i386
