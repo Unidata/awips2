@@ -122,13 +122,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.ncccfp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.ncscat"
          download-size="0"
          install-size="0"
