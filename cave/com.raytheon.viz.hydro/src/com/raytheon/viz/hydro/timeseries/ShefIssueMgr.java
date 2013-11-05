@@ -28,7 +28,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Shef Issue Configuration Manager.
@@ -39,7 +41,8 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 28, 2011            mpduff     Initial creation
+ * Mar 28, 2011            mpduff      Initial creation
+ * Nov 04, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -48,6 +51,13 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  */
 
 public class ShefIssueMgr {
+
+    private static final SingleTypeJAXBManager<ShefIssueXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ShefIssueXML.class);
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ShefIssueMgr.class);
+
     private static ShefIssueMgr instance = null;
 
     private ShefIssueXML xml = null;
@@ -69,10 +79,11 @@ public class ShefIssueMgr {
     }
 
     private void readXML() {
+        LocalizationFile file = null;
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
             Map<LocalizationLevel, LocalizationFile> shefIssueMap = pm.getTieredLocalizationFile(LocalizationType.COMMON_STATIC, "hydro" + File.separatorChar + "shefIssue.xml");
-            LocalizationFile file = null;
+
 
             if (shefIssueMap.containsKey(LocalizationLevel.SITE)) {
                 file = shefIssueMap.get(LocalizationLevel.SITE);
@@ -81,13 +92,13 @@ public class ShefIssueMgr {
             }
             
             if (file != null) {
-                xml = (ShefIssueXML) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(file.getFile().getAbsolutePath());
+                xml = jaxb
+                        .unmarshalFromXmlFile(file.getFile());
             } else {
                 xml = new ShefIssueXML();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error reading " + file.getName(), e);
         }
     }
 
@@ -119,11 +130,11 @@ public class ShefIssueMgr {
             if (xml == null) {
                 xml = new ShefIssueXML();
             }
-            SerializationUtil.jaxbMarshalToXmlFile(xml, newXmlFile
+            jaxb.marshalToXmlFile(xml, newXmlFile
                     .getFile().getAbsolutePath());
             newXmlFile.save();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error writing " + newXmlFile.getName(), e);
         }        
     }
 }

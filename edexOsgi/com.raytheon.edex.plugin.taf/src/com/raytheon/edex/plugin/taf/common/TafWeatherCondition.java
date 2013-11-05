@@ -28,14 +28,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -46,10 +42,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  *  SOFTWARE HISTORY
  * 
- *  Date        Ticket#     Engineer    Description
- *  ------------    ----------  ----------- --------------------------
- *  6/21/2007   180         Phillippe   Initial creation    
- * 20081106           1515  jkorman     Changed length of &quot;other&quot; attribute.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 6/21/2007    180        Phillippe   Initial creation    
+ * 20081106     1515       jkorman     Changed length of &quot;other&quot; attribute.
+ * Nov 01, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -59,9 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "taf_weather_conditions")
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class TafWeatherCondition extends PersistableDataObject implements
-        ISerializableObject {
+public class TafWeatherCondition extends PersistableDataObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,30 +71,25 @@ public class TafWeatherCondition extends PersistableDataObject implements
 
     /** The intensity proximity notation * */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 2)
     private String intensityProximity = "";
 
     /** The descriptor notation * */
-    @XmlAttribute
     @DynamicSerializeElement
     @Column(length = 2)
     private String descriptor = "";
 
     /** The precipitation notation * */
-    @XmlAttribute
     @DynamicSerializeElement
     @Column(length = 2)
     private String precipitation = "";
 
     /** The obscuration notation * */
-    @XmlAttribute
     @DynamicSerializeElement
     @Column(length = 2)
     private String obscuration = "";
 
     /** The other notation * */
-    @XmlAttribute
     @DynamicSerializeElement
     @Column(length = 3)
     private String other = "";
