@@ -75,6 +75,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Apr 24, 2013 1910        djohnson    RegistryResponseStatus is now an enum.
  * 8/28/2013    1538        bphillip    Removed caches, add http client preferences
  * 9/5/2013     1538        bphillip    Add HTTP header information
+ * 10/30/2013   1538        bphillip    Made methods in this class non-static
  * 
  * </pre>
  * 
@@ -143,7 +144,7 @@ public class RegistrySOAPServices {
     }
 
     /** Cache of known notification services */
-    private static LoadingCache<String, NotificationListener> notificationManagerServices = CacheBuilder
+    private LoadingCache<String, NotificationListener> notificationManagerServices = CacheBuilder
             .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, NotificationListener>() {
                 public NotificationListener load(String key) {
@@ -152,7 +153,7 @@ public class RegistrySOAPServices {
             });
 
     /** Cache of known lifecycle manager services */
-    private static LoadingCache<String, LifecycleManager> lifecycleManagerServices = CacheBuilder
+    private LoadingCache<String, LifecycleManager> lifecycleManagerServices = CacheBuilder
             .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, LifecycleManager>() {
                 public LifecycleManager load(String key) {
@@ -161,7 +162,7 @@ public class RegistrySOAPServices {
             });
 
     /** Cache of known cataloger services */
-    private static LoadingCache<String, Cataloger> catalogerServices = CacheBuilder
+    private LoadingCache<String, Cataloger> catalogerServices = CacheBuilder
             .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, Cataloger>() {
                 public Cataloger load(String key) {
@@ -170,7 +171,7 @@ public class RegistrySOAPServices {
             });
 
     /** Cache of known query services */
-    private static LoadingCache<String, QueryManager> queryServices = CacheBuilder
+    private LoadingCache<String, QueryManager> queryServices = CacheBuilder
             .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, QueryManager>() {
                 public QueryManager load(String key) {
@@ -179,7 +180,7 @@ public class RegistrySOAPServices {
             });
 
     /** Cache of known validator services */
-    private static LoadingCache<String, Validator> validatorServices = CacheBuilder
+    private LoadingCache<String, Validator> validatorServices = CacheBuilder
             .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, Validator>() {
                 public Validator load(String key) {
@@ -196,7 +197,7 @@ public class RegistrySOAPServices {
      * @throws MalformedURLException
      *             If errors occur creating the URL object
      */
-    public static String getNotificationListenerServiceUrl(final String baseURL)
+    public String getNotificationListenerServiceUrl(final String baseURL)
             throws MalformedURLException {
         return new URL(baseURL + PATH_SEPARATOR + NOTIFICATION_SERVICE_NAME)
                 .toString();
@@ -211,7 +212,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static NotificationListener getNotificationListenerServiceForHost(
+    public NotificationListener getNotificationListenerServiceForHost(
             final String host) throws RegistryServiceException {
         return getNotificationListenerServiceForUrl(host + PATH_SEPARATOR
                 + NOTIFICATION_SERVICE_NAME);
@@ -226,7 +227,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static NotificationListener getNotificationListenerServiceForUrl(
+    public NotificationListener getNotificationListenerServiceForUrl(
             final String url) throws RegistryServiceException {
         try {
             return notificationManagerServices.get(url);
@@ -245,8 +246,8 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static LifecycleManager getLifecycleManagerServiceForHost(
-            final String host) throws RegistryServiceException {
+    public LifecycleManager getLifecycleManagerServiceForHost(final String host)
+            throws RegistryServiceException {
         return getLifecycleManagerServiceForUrl(host + PATH_SEPARATOR
                 + LIFECYCLE_MANAGER_SERVICE_NAME);
     }
@@ -260,8 +261,8 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static LifecycleManager getLifecycleManagerServiceForUrl(
-            final String url) throws RegistryServiceException {
+    public LifecycleManager getLifecycleManagerServiceForUrl(final String url)
+            throws RegistryServiceException {
         try {
             return lifecycleManagerServices.get(url);
         } catch (ExecutionException e) {
@@ -279,7 +280,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static Cataloger getCatalogerServiceForHost(final String host)
+    public Cataloger getCatalogerServiceForHost(final String host)
             throws RegistryServiceException {
         return getCatalogerServiceForUrl(host + PATH_SEPARATOR
                 + CATALOGER_SERVICE_NAME);
@@ -294,7 +295,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static Cataloger getCatalogerServiceForUrl(final String url)
+    public Cataloger getCatalogerServiceForUrl(final String url)
             throws RegistryServiceException {
         try {
             return catalogerServices.get(url);
@@ -313,7 +314,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static QueryManager getQueryServiceForHost(final String host)
+    public QueryManager getQueryServiceForHost(final String host)
             throws RegistryServiceException {
         return getQueryServiceForUrl(host + PATH_SEPARATOR + QUERY_SERVICE_NAME);
     }
@@ -327,7 +328,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static QueryManager getQueryServiceForUrl(final String url)
+    public QueryManager getQueryServiceForUrl(final String url)
             throws RegistryServiceException {
         try {
             return queryServices.get(url);
@@ -346,7 +347,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static Validator getValidatorServiceForHost(final String host)
+    public Validator getValidatorServiceForHost(final String host)
             throws RegistryServiceException {
         return getValidatorServiceForUrl(host + PATH_SEPARATOR
                 + VALIDATOR_SERVICE_NAME);
@@ -361,7 +362,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur creating the URL object
      */
-    public static Validator getValidatorServiceForUrl(final String url)
+    public Validator getValidatorServiceForUrl(final String url)
             throws RegistryServiceException {
         try {
             return validatorServices.get(url);
@@ -383,7 +384,7 @@ public class RegistrySOAPServices {
      * @throws RegistryServiceException
      *             If errors occur during request submission
      */
-    public static void sendSubmitObjectsRequest(SubmitObjectsRequest request,
+    public void sendSubmitObjectsRequest(SubmitObjectsRequest request,
             String host) throws RegistryServiceException {
 
         LifecycleManager lcm;
@@ -423,7 +424,7 @@ public class RegistrySOAPServices {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Object> T getPort(String serviceUrl,
+    private <T extends Object> T getPort(String serviceUrl,
             Class<?> serviceInterface) throws RegistryServiceException {
         W3CEndpointReferenceBuilder endpointBuilder = new W3CEndpointReferenceBuilder();
         endpointBuilder.wsdlDocumentLocation(serviceUrl.toString() + WSDL);
