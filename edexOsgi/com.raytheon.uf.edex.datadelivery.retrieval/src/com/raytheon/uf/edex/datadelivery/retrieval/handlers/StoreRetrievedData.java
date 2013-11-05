@@ -62,7 +62,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
  * Feb 15, 2013 1543       djohnson     Retrieve the retrieval attributes from the database.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * Aug 06, 2013 1654       bgonzale     Added AdhocDataRetrievalEvent.
- * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
+ * Oct 01, 2013 2267       bgonzale     Removed request parameter.  Return RetrievalRequestRecord.
  * 
  * </pre>
  * 
@@ -95,19 +95,25 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      * {@inheritDoc}
      */
     @Override
-    public void processRetrievedPluginDataObjects(
-            RetrievalRequestRecord request,
+    public RetrievalRequestRecord processRetrievedPluginDataObjects(
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException, TranslationException {
         Map<String, PluginDataObject[]> pluginDataObjects = Maps.newHashMap();
         final RetrievalRequestRecordPK id = retrievalPluginDataObjects
                 .getRequestRecord();
-        final RetrievalRequestRecord requestRecord = retrievalDao.getById(id);
+        RetrievalRequestRecord requestRecord = null;
+
+        if (retrievalPluginDataObjects instanceof SbnRetrievalResponseXml) {
+            requestRecord = ((SbnRetrievalResponseXml) retrievalPluginDataObjects)
+                    .getRetrievalRequestRecord();
+        } else {
+            requestRecord = retrievalDao.getById(id);
+        }
 
         if (requestRecord == null) {
-            statusHandler.warn("Unable to find retrieval by id [" + id
-                    + "]!  Retrieval will not be processed...");
-            return;
+            throw new SerializationException(
+                    "Invalid or missing retrieval found for Response id [" + id
+                            + " ] XML from Central Registry");
         }
 
         final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
@@ -180,17 +186,17 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
 
                 EventBus.publish(event);
 
-                sendToDestinationForStorage(requestRecord, records);
+                sendToDestinationForStorage(records);
             }
         }
+        return requestRecord;
     }
 
     /**
      * Sends the plugin data objects to their configured destination for storage
      * to the database.
      */
-    public void sendToDestinationForStorage(
-            RetrievalRequestRecord requestRecord, PluginDataObject[] pdos) {
+    private void sendToDestinationForStorage(PluginDataObject[] pdos) {
         String pluginName = pdos[0].getPluginName();
 
         if (pluginName != null) {
