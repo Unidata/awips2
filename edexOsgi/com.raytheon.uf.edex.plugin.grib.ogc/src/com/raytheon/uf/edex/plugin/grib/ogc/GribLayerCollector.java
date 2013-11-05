@@ -65,9 +65,9 @@ public class GribLayerCollector extends
             } else if (GribDimension.PARAM_DIM.equals(name)) {
                 values.add(getParameter(rec));
             } else {
-                log.warn("Unkown grib dimension: " + name);
+                log.warn("Unknown grib dimension: " + name);
             }
-        }
+		}
     }
 
     /**

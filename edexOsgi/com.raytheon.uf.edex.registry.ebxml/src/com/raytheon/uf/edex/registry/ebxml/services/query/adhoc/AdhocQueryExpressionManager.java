@@ -25,8 +25,7 @@ import java.util.Map;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlJaxbManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -83,9 +82,9 @@ public class AdhocQueryExpressionManager {
 
             AdhocQueryExpression obj = null;
             try {
-                obj = (AdhocQueryExpression) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(fileList[i]);
-            } catch (SerializationException e) {
+                obj = EbxmlJaxbManager.getJaxbManager().unmarshalFromXmlFile(
+                        AdhocQueryExpression.class, fileList[i]);
+            } catch (Exception e) {
                 statusHandler.error("Error getting predefined adhoc queries.",
                         e);
             }
