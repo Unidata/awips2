@@ -11,5 +11,6 @@
 		<constructor-arg ref="RegistryReplicationManager"/>
 		<property name="registryObjectDao" ref="registryObjectDao"/>
 		<property name="registryDao" ref="registryDao"/>
+		<property name="registrySoapServices" ref="registryWebServiceClient"/>
 	</bean>
 </beans>
