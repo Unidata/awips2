@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * May 15, 2013 2000       djohnson     Include daos.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * Oct 2,  2013 1797       dhladky      Generics
+ * Oct 28, 2013 2506       bgonzale     SBN (Shared) Scheduled at the central registry.
  * 
  * </pre>
  * 
@@ -110,10 +111,9 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                     .proposeSchedule(subscriptions);
 
             // If the NCF bandwidth manager says they fit without
-            // unscheduling anything, then schedule them at the WFO level to
-            // track retrievals/graphing
+            // unscheduling anything, then schedule them at the NCF level
             if (proposeResponse.getUnscheduledSubscriptions().isEmpty()) {
-                scheduleSubscriptions(subscriptions);
+                ncfBandwidthService.schedule(subscriptions);
             }
 
             return proposeResponse;
@@ -126,12 +126,9 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
         protected Set<String> scheduleSbnSubscriptions(
                 List<Subscription<T, C>> subscriptions) throws SerializationException {
 
-            final Set<String> ncfResponse = ncfBandwidthService
-                    .schedule(subscriptions);
-            scheduleSubscriptions(subscriptions);
-
-            return ncfResponse;
+            return ncfBandwidthService.schedule(subscriptions);
         }
+
     }
 
     /**
