@@ -76,11 +76,18 @@ public class GridCompositeLayer extends GribLayer {
 
     @Override
     public Set<GribDimension> getDimensions() {
-        TreeSet<GribDimension> rval = new TreeSet<GribDimension>();
+		HashMap<String, GribDimension> byDim = new HashMap<String, GribDimension>();
         for (Entry<String, TreeSet<GribDimension>> e : dimensions.entrySet()) {
-            rval.addAll(e.getValue());
+			for (GribDimension dim : e.getValue()) {
+				GribDimension aggregate = byDim.get(dim.getName());
+				if (aggregate == null) {
+					byDim.put(dim.getName(), dim);
+					continue;
+				}
+				aggregate.getValues().addAll(dim.getValues());
+			}
         }
-        return rval;
+		return new TreeSet<GribDimension>(byDim.values());
     }
 
     /*
