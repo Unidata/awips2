@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 04/06/2010   4734       mhuang      Moved from edex server
  * 17May2010    2187       cjeanbap    Change class to be Abstract
  * 27 May 2012  #647       dgilling    Implement getIdentifier/setIdentifier.
+ * Nov 05, 2013 2499       rjpeter     Fix generics.
  * </pre>
  * 
  * @author jkorman
@@ -67,8 +68,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public abstract class StdTextProduct extends PersistableDataObject implements
-        ISerializableObject {
+public abstract class StdTextProduct extends
+        PersistableDataObject<StdTextProductId> implements ISerializableObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -185,10 +186,8 @@ public abstract class StdTextProduct extends PersistableDataObject implements
      * (java.lang.Object)
      */
     @Override
-    public void setIdentifier(Object identifier) {
-        if (identifier instanceof StdTextProductId) {
-            setProdId((StdTextProductId) identifier);
-        }
+    public void setIdentifier(StdTextProductId identifier) {
+        setProdId(identifier);
     }
 
     public String getBbbid() {
@@ -227,7 +226,7 @@ public abstract class StdTextProduct extends PersistableDataObject implements
         Matcher m = ControlCharacterPattern.matcher(this.product);
         String result = this.product;
 
-        for (int i = 0; m.find(); ++i) {
+        for (; m.find();) {
             String nonAscii = m.group();
             char[] charArr = nonAscii.toCharArray();
             if (charArr.length == 1) {
@@ -342,10 +341,12 @@ public abstract class StdTextProduct extends PersistableDataObject implements
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((bbbid == null) ? 0 : bbbid.hashCode());
-        result = prime * result + ((refTime == null) ? 0 : refTime.hashCode());
-        result = prime * result + ((prodId == null) ? 0 : prodId.hashCode());
-        result = prime * result + ((product == null) ? 0 : product.hashCode());
+        result = (prime * result) + ((bbbid == null) ? 0 : bbbid.hashCode());
+        result = (prime * result)
+                + ((refTime == null) ? 0 : refTime.hashCode());
+        result = (prime * result) + ((prodId == null) ? 0 : prodId.hashCode());
+        result = (prime * result)
+                + ((product == null) ? 0 : product.hashCode());
         return result;
     }
 
