@@ -9,7 +9,7 @@
 	</bean>
 
     <bean id="dataArchiver" class="com.raytheon.uf.edex.maintenance.archive.DataArchiver">
-        <constructor-arg value="/awips2/edex/data/archive"/>
+        <constructor-arg value="/archive"/>
     </bean>
     
     <bean id="databaseArchiver" class="com.raytheon.uf.edex.maintenance.archive.DatabaseArchiver"/>
