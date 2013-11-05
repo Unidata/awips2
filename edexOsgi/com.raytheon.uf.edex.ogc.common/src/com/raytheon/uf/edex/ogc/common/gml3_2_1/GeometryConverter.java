@@ -1,39 +1,32 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 25, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.ogc.common.gml3_2_1;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
 
@@ -61,6 +54,7 @@ import net.opengis.gml.v_3_2_1.PointPropertyType;
 import net.opengis.gml.v_3_2_1.PointType;
 import net.opengis.gml.v_3_2_1.PolygonType;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -88,6 +82,17 @@ public class GeometryConverter {
     protected final GeometryFactory factory = new GeometryFactory();
 
     protected final ObjectFactory gmlFactory = new ObjectFactory();
+    
+    private static final String DIGIT_STR = "Ee-.0123456789";
+
+    private static final Set<Character> DIGIT_SET;
+
+    static {
+        char[] arr = DIGIT_STR.toCharArray();
+        HashSet<Character> set = new HashSet<Character>(
+                Arrays.asList(ArrayUtils.toObject(arr)));
+        DIGIT_SET = Collections.unmodifiableSet(set);
+    }
 
     /**
      * Supports geometry collection, polygon, point and linestring
@@ -886,7 +891,7 @@ public class GeometryConverter {
      * @return true if c is a valid character used in representing a number
      */
     protected boolean isNumber(Character c) {
-        return Character.isDigit(c);
+        return DIGIT_SET.contains(c);
     }
 
     /**

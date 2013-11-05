@@ -16,7 +16,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * TODO Add Description
+ * Temporal PDO Filter
  * 
  * <pre>
  *
@@ -34,7 +34,7 @@ import com.raytheon.uf.common.time.TimeRange;
 public class TemporalFilter extends AbstractPdoFilter {
 
     public static enum TimeOp {
-        After, Before, Begins, BegunBy, TContains, During, TEquals, TOverlaps, Meets, OverlappedBy, MetBy, Ends, EndedBy
+        AnyInteracts, After, Before, Begins, BegunBy, TContains, During, TEquals, TOverlaps, Meets, OverlappedBy, MetBy, Ends, EndedBy
     };
 
     protected DataTime time;
@@ -70,6 +70,14 @@ public class TemporalFilter extends AbstractPdoFilter {
         Date t2Start = range.getStart();
         Date t2End = range.getEnd();
         switch (op) {
+        case AnyInteracts:
+            if (isRange(time)) {
+                return beforeOrEqual(t1Start, t2End)
+                        && afterOrEqual(t1End, t2Start);
+            } else {
+                return beforeOrEqual(t1Start, t2Start)
+                        && afterOrEqual(t1End, t2End);
+            }
         case After:
             return t1Start.after(t2End);
         case Before:
@@ -82,6 +90,7 @@ public class TemporalFilter extends AbstractPdoFilter {
                     return t1Start.equals(t2Start);
                 }
             }
+			break;
         case BegunBy:
             if (isRange(other)) {
                 if (isRange(time)) {
@@ -90,10 +99,12 @@ public class TemporalFilter extends AbstractPdoFilter {
                     return t1Start.equals(t2Start);
                 }
             }
+			break;
         case During:
             if (isRange(time)) {
                 return t1Start.after(t2Start) && t1End.before(t2End);
             }
+			break;
         case EndedBy:
             if (isRange(other)) {
                 if (isRange(time)) {
@@ -102,6 +113,7 @@ public class TemporalFilter extends AbstractPdoFilter {
                     return t1End.equals(t2End);
                 }
             }
+			break;
         case Ends:
             if (isRange(time)) {
                 if (isRange(other)) {
@@ -110,19 +122,23 @@ public class TemporalFilter extends AbstractPdoFilter {
                     return t1End.equals(t2End);
                 }
             }
+			break;
         case Meets:
             if (isRange(other) && isRange(time)) {
                 return t1End.equals(t2Start);
             }
+			break;
         case MetBy:
             if (isRange(other) && isRange(time)) {
                 return t1Start.equals(t2End);
             }
+            break;
         case OverlappedBy:
             if (isRange(other) && isRange(time)) {
                 return t1Start.after(t2Start) && t1Start.before(t2End)
                         && t1End.after(t2End);
             }
+			break;
         case TContains:
             if (isRange(other)) {
                 if (isRange(time)) {
@@ -131,6 +147,7 @@ public class TemporalFilter extends AbstractPdoFilter {
                     return t1Start.before(t2Start) && t1End.after(t2End);
                 }
             }
+			break;
         case TEquals:
             if (!(isRange(other) ^ isRange(time))) {
                 return t1Start.equals(t2Start) && t1End.equals(t2End);
@@ -140,9 +157,28 @@ public class TemporalFilter extends AbstractPdoFilter {
                 return t1Start.before(t2Start) && t1End.after(t2Start)
                         && t1End.before(t2End);
             }
+			break;
         }
 
         return false;
+    }
+
+    /**
+     * @param one
+     * @param two
+     * @return true if one is before or equal to two
+     */
+    public static boolean beforeOrEqual(Date one, Date two) {
+        return one.equals(two) || one.before(two);
+    }
+
+    /**
+     * @param one
+     * @param two
+     * @return true if one is after or equal to two
+     */
+    public static boolean afterOrEqual(Date one, Date two) {
+        return one.equals(two) || one.after(two);
     }
 
     public static boolean isRange(DataTime time) {
