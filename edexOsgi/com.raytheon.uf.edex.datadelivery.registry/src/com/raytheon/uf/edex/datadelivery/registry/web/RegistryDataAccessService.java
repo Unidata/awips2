@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.services.rest;
+package com.raytheon.uf.edex.datadelivery.registry.web;
 
 import java.io.File;
 import java.util.List;
@@ -48,8 +48,8 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.datadelivery.registry.web.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.RegistryException;
-import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -63,8 +63,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
 /**
  * 
- * Implementation of the registry data access service interface <br>
- * TODO: This class really needs to be moved to a data delivery specific plugin
+ * Implementation of the registry data access service interface
  * 
  * <pre>
  * 
@@ -76,13 +75,13 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * 9/20/2013    2385        bphillip    Added subscription backup functions
  * 10/2/2013    2385        bphillip    Fixed subscription backup queries
  * 10/8/2013    1682        bphillip    Added query queries
- * 10/23/2013   2385        bphillip    Restored subscriptions are now scheduled in the bandwidth manager
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Transactional
+@Path(IRegistryDataAccessService.DATA_ACCESS_PATH_PREFIX)
 public class RegistryDataAccessService implements IRegistryDataAccessService {
 
     /** The logger */
@@ -113,6 +112,10 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
     /** Lifecyclemanager */
     private LifecycleManager lcm;
 
+    public RegistryDataAccessService() {
+
+    }
+
     /**
      * @see 
      *      com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService
@@ -120,7 +123,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getRegistryObjectIds/{objectType}")
+    @Path("getRegistryObjectIds/{objectType}")
     public RestCollectionResponse<String> getRegistryObjectIdsOfType(
             @PathParam("objectType") String objectType) {
         statusHandler.info("Getting registry object ids of type [" + objectType
@@ -133,7 +136,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
 
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getQueries")
+    @Path("getQueries")
     public String getValidQueries() {
         statusHandler.debug("Getting valid queries...");
         List<String> ids = queryDefinitionDao.getQueryIds();
@@ -146,7 +149,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
 
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getParametersForQuery/{queryId}")
+    @Path("getParametersForQuery/{queryId}")
     public String getParametersForQuery(@PathParam("queryId") String queryId) {
         statusHandler.debug("Getting query parameters for query: " + queryId
                 + "...");
@@ -168,7 +171,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "removeSubscriptionsFor/{siteId}")
+    @Path("removeSubscriptionsFor/{siteId}")
     public void removeSubscriptionsForSite(@PathParam("siteId") String siteId) {
         statusHandler.info("Removing subscriptions for: " + siteId);
         List<SubscriptionType> subscriptions = registryObjectDao
@@ -205,7 +208,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getSubscriptions")
+    @Path("getSubscriptions")
     public String getSubscriptions() {
         String[] slotNames = new String[] { "name", "owner", "dataSetName",
                 "provider", "dataSetType", "route", "active", "groupName",
@@ -245,7 +248,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "backupSubscription/{subscriptionName}")
+    @Path("backupSubscription/{subscriptionName}")
     public String backupSubscription(
             @PathParam("subscriptionName") String subscriptionName) {
         StringBuilder response = new StringBuilder();
@@ -288,7 +291,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "backupAllSubscriptions/")
+    @Path("backupAllSubscriptions/")
     public String backupAllSubscriptions() {
         StringBuilder response = new StringBuilder();
         List<RegistryObjectType> subs = registryObjectDao
@@ -310,7 +313,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscription/{subscriptionName}")
+    @Path("restoreSubscription/{subscriptionName}")
     public String restoreSubscription(
             @PathParam("subscriptionName") String subscriptionName) {
         StringBuilder response = new StringBuilder();
@@ -367,7 +370,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      */
     @Override
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscriptions/")
+    @Path("restoreSubscriptions/")
     public String restoreSubscriptions() {
         StringBuilder response = new StringBuilder();
         if (SUBSCRIPTION_BACKUP_DIR.exists()) {
@@ -391,7 +394,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
      *      .clearSubscriptionBackupFiles()
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "clearSubscriptionBackupFiles/")
+    @Path("clearSubscriptionBackupFiles/")
     public String clearSubscriptionBackupFiles() {
         StringBuilder response = new StringBuilder();
         if (SUBSCRIPTION_BACKUP_DIR.exists()) {
