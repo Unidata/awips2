@@ -43,6 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Jan 28, 2013            bkowal     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
+ * Oct 30, 2013            mnash      Allow for no parameters to be set.
  * 
  * </pre>
  * 
@@ -152,8 +153,7 @@ public class MapsQueryAssembler {
      *            the original request that we are processing
      * @return the query
      */
-    public static String assembleGetAvailableLocationNames(
-IDataRequest request) {
+    public static String assembleGetAvailableLocationNames(IDataRequest request) {
         return assembleQuery(request, Boolean.TRUE);
     }
 
@@ -190,8 +190,10 @@ IDataRequest request) {
             // add any additional database columns the user has specified as
             // parameters
             // for additional information, refer to: http://tinyurl.com/arnayco
-            for (String parameter : request.getParameters()) {
-                columns.add(parameter);
+            if (request.getParameters() != null) {
+                for (String parameter : request.getParameters()) {
+                    columns.add(parameter);
+                }
             }
         }
         List<String> constraints = new ArrayList<String>();
