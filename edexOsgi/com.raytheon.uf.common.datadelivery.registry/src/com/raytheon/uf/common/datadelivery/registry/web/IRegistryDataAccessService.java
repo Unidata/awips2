@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.services.rest;
+package com.raytheon.uf.common.datadelivery.registry.web;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -40,14 +40,17 @@ import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResp
  * 9/20/2013    2385        bphillip    Added subscription backup functions
  * 10/8/2013    1682        bphillip    Added rest functions for use with the query web interface
  * 10/23/2013   2385        bphillip    restoreSubscriptions throws JAXBException
+ * 10/30/2013   1538        bphillip    Moved data delivery specific servics out of registry plugin
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Path(IRegistryDataAccessService.DATA_ACCESS_PATH_PREFIX)
 public interface IRegistryDataAccessService {
 
-    public static final String DATA_ACCESS_PATH_PREFIX = "/rest/dataAccess/";
+    /** Root path to this set of services */
+    public static final String DATA_ACCESS_PATH_PREFIX = "/dataAccess";
 
     /**
      * Gets the ids of registry objects of the given object type
@@ -57,7 +60,7 @@ public interface IRegistryDataAccessService {
      * @return List of ids for registry objects of the given type
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getRegistryObjectIds/{objectType}")
+    @Path("getRegistryObjectIds/{objectType}")
     public RestCollectionResponse<String> getRegistryObjectIdsOfType(
             @PathParam("objectType") String objectType);
 
@@ -67,7 +70,7 @@ public interface IRegistryDataAccessService {
      * @return The query definitions currently contained in the registry
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getQueries")
+    @Path("getQueries")
     public String getValidQueries();
 
     /**
@@ -78,7 +81,7 @@ public interface IRegistryDataAccessService {
      * @return The parameters for a given query definition
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getParametersForQuery/{queryId}")
+    @Path("getParametersForQuery/{queryId}")
     public String getParametersForQuery(@PathParam("queryId") String queryId);
 
     /**
@@ -90,7 +93,7 @@ public interface IRegistryDataAccessService {
      *             If errors occur while removing the subscriptions
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "removeSubscriptionsFor/{siteId}")
+    @Path("removeSubscriptionsFor/{siteId}")
     public void removeSubscriptionsForSite(@PathParam("siteId") String siteId)
             throws RegistryException;
 
@@ -101,7 +104,7 @@ public interface IRegistryDataAccessService {
      * @return The page containing the subscriptions
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "getSubscriptions")
+    @Path("getSubscriptions")
     public String getSubscriptions();
 
     /**
@@ -113,7 +116,7 @@ public interface IRegistryDataAccessService {
      * @return Status message about whether the backup was successful
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "backupSubscription/{subscriptionName}")
+    @Path("backupSubscription/{subscriptionName}")
     public String backupSubscription(
             @PathParam("subscriptionName") String subscriptionName);
 
@@ -123,7 +126,7 @@ public interface IRegistryDataAccessService {
      * @return Status message about whether the backup was successful
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "backupAllSubscriptions/")
+    @Path("backupAllSubscriptions/")
     public String backupAllSubscriptions();
 
     /**
@@ -134,7 +137,7 @@ public interface IRegistryDataAccessService {
      * @return Status message about whether the backup was successful
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscription/{subscriptionName}")
+    @Path("restoreSubscription/{subscriptionName}")
     public String restoreSubscription(
             @PathParam("subscriptionName") String subscriptionName);
 
@@ -144,7 +147,7 @@ public interface IRegistryDataAccessService {
      * @return Status messages relating to the success or failure of the restore
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "restoreSubscriptions/")
+    @Path("restoreSubscriptions/")
     public String restoreSubscriptions();
 
     /**
@@ -153,7 +156,7 @@ public interface IRegistryDataAccessService {
      * @return Status message
      */
     @GET
-    @Path(DATA_ACCESS_PATH_PREFIX + "clearSubscriptionBackupFiles/")
+    @Path("clearSubscriptionBackupFiles/")
     public String clearSubscriptionBackupFiles();
 
 }

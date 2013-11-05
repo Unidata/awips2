@@ -10,11 +10,11 @@
   
   	<bean id="RegistryReplicationManager" class="com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager">
   		<constructor-arg ref="ebxmlSubscriptionsEnabled"/>
-  		<constructor-arg ref="replicationConfigFileName"/>
   		<constructor-arg ref="registryObjectDao"/>
   		<constructor-arg ref="FederatedRegistryMonitor"/>
   		<constructor-arg ref="metadataTxTemplate"/>
-  		<constructor-arg value="${ebxml-federation-sync-threads}"/>
+  		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
+  		<property name="registrySoapClient" ref="registryWebServiceClient"/>
   	</bean>
   
 	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

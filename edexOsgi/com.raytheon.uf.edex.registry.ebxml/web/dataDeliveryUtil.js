@@ -261,7 +261,7 @@ function enableElement(elemName){
  */
 function splitArray(data){
 	if (data == null){
-		return new Array();
+		return new Array(); 
 	}else{
 		var tokens = String(data).split(",")
 		return tokens
@@ -271,12 +271,25 @@ function splitArray(data){
 /*
  * Adds an entry into the select box with the provided name 
  */
-function addOptionToList(selectBoxName,text,value){
+function addOptionToList(selectBoxName,text,value){ 
 	var selectBox = document.getElementById(selectBoxName)
 	var optn = document.createElement("OPTION");
 	optn.text = text;
 	optn.value = value;
 	selectBox.options.add(optn);
+}
+
+/*
+ * Removes an entry from the select box with the provided name 
+ */
+function removeOptionFromList(selectBoxName,value){
+	var selectBox = document.getElementById(selectBoxName) 
+	for(var i = 0; i < selectBox.options.length;i++){ 
+		if(selectBox.options[i].value == value){
+			selectBox.options.remove(selectBox.options[i])
+			break;
+		}
+	}
 }
 
 /*
@@ -917,4 +930,3 @@ Array.prototype.contains = function(item){
 }
 
 	
-
