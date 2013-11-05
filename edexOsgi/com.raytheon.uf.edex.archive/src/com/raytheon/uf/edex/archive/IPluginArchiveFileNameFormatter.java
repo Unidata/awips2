@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.maintenance.archive;
+package com.raytheon.uf.edex.archive;
 
 import java.util.Calendar;
 import java.util.List;
@@ -28,7 +28,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
- * TODO Add Description
+ * Interface for archive file name formatters.
  * 
  * <pre>
  * 
@@ -37,7 +37,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2012            dgilling     Initial creation
- * 
+ * Nov 05, 2013 2499       rjpeter     Repackaged
  * </pre>
  * 
  * @author dgilling
@@ -64,6 +64,7 @@ public interface IPluginArchiveFileNameFormatter {
      *             If the DAO is unable to retrieve the records from the
      *             database.
      */
+    @SuppressWarnings("rawtypes")
     public abstract Map<String, List<PersistableDataObject>> getPdosByFile(
             String pluginName, PluginDao dao,
             Map<String, List<PersistableDataObject>> pdoMap,
