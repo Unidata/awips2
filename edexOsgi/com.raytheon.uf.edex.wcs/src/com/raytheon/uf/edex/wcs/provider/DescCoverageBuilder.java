@@ -1,44 +1,35 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 9, 2011            bclement     Initial creation
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.wcs.provider;
 
 import static com.raytheon.uf.edex.wcs.provider.WcsJaxbUtils.getAsLangString;
 import static com.raytheon.uf.edex.wcs.provider.WcsJaxbUtils.getKeywords;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.xml.bind.JAXBElement;
 
@@ -73,7 +64,6 @@ import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverter;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.spatial.Composite3DBoundingBox;
 import com.raytheon.uf.edex.ogc.common.spatial.CrsLookup;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate;
@@ -193,9 +183,28 @@ public class DescCoverageBuilder {
 		return rval;
 	}
 
+    private static final ThreadLocal<SimpleDateFormat> ISO_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.ThreadLocal#initialValue()
+         */
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat rval = new SimpleDateFormat(
+                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            rval.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return rval;
+        }
+
+    };
+
 	protected TimePositionType transform(Date time) {
 		TimePositionType rval = new TimePositionType();
-		String timeStr = LayerTransformer.format(time);
+        // client can't parse all ISO 8601, and it's our problem for some reason
+        // String timeStr = LayerTransformer.format(time);
+        String timeStr = ISO_FORMAT.get().format(time);
 		rval.setValue(Arrays.asList(timeStr));
 		return rval;
 	}
@@ -212,6 +221,7 @@ public class DescCoverageBuilder {
 				TimeRange vp = time.getValidPeriod();
 				tp.setBeginPosition(transform(vp.getStart()));
 				tp.setEndPosition(transform(vp.getEnd()));
+                tp.setTimeResolution("PT0S");
 				rval.add(tp);
 			} else {
 				rval.add(transform(time.getRefTime()));
