@@ -22,6 +22,7 @@
 	<import resource="classpath:res/spring/ebxml-thrift-client.xml" />
 	<import resource="classpath:res/spring/ebxml-xacml.xml" />
 	<import resource="classpath:res/spring/ebxml-impl.xml" />
+	<import resource="classpath*:res/spring/ebxml-customQueryPlugin.xml"/>
 	<import resource="classpath:res/spring/ebxml-webservices.xml" />
 	<import resource="classpath*:res/spring/webservices.xml"/>
 
