@@ -169,7 +169,7 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.edex.log.ThreadBasedAppender">
-      <param name="ThreadPatterns" value="RadarLog:radarThreadPool.*;SatelliteLog:satelliteThreadPool.*;ShefLog:shefThreadPool.*;TextLog:textThreadPool.*;SmartInitLog:smartInit.*"/>
+      <param name="ThreadPatterns" value="RadarLog:radarThreadPool.*;SatelliteLog:satelliteThreadPool.*;ShefLog:shefThreadPool.*;TextLog:textThreadPool.*;SmartInitLog:smartInit.*;PurgeLog:Purge.*;ArchiveLog:Archive.*"/>
       <param name="DefaultAppender" value="asyncConsole"/>
       <appender-ref ref="asyncConsole"/>
       <appender-ref ref="RadarLog"/>
@@ -177,6 +177,8 @@
       <appender-ref ref="ShefLog"/>
       <appender-ref ref="SmartInitLog"/>
       <appender-ref ref="TextLog"/>
+      <appender-ref ref="PurgeLog"/>
+      <appender-ref ref="ArchiveLog"/>
    </appender>
 
    <appender name="PerformanceLog" class="org.apache.log4j.rolling.RollingFileAppender">
@@ -276,11 +278,6 @@
    <logger name="com.raytheon.edex.textdb.dao.StdTextProductDao.PurgeLogger" additivity="false">
    		<level value="INFO"/>
    		<appender-ref ref="PurgeLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.maintenance.archive" additivity="false">
-   		<level value="INFO"/>
-   		<appender-ref ref="ArchiveLog"/>
    </logger>
 
    <logger name="RouteFailedLog" additivity="false">
