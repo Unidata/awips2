@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * ------------ ----------  ----------- --------------------------
  * 9/18/2013    1705        bphillip    Initial implementation
  * 10/8/2013    1682       bphillip    Refactored querying
+ * 10/30/2013   1538       bphillip    Changed to use non-static soap service client
  * </pre>
  * 
  * @author bphillip
@@ -66,6 +67,9 @@ public class GetReferencedObject extends RegistryQueryPlugin {
 
     /** Object used to resolve object references */
     private ObjectReferenceResolver referenceResolver;
+
+    /** Registry soap service client */
+    private RegistrySOAPServices registrySoapClient;
 
     @Override
     @WebMethod(action = EXECUTE_QUERY_ACTION)
@@ -108,7 +112,7 @@ public class GetReferencedObject extends RegistryQueryPlugin {
                     query.setQuery(queryObj);
                     query.setResponseOption(new ResponseOptionType(
                             QueryReturnTypes.REGISTRY_OBJECT, true));
-                    QueryManager remoteQueryManager = RegistrySOAPServices
+                    QueryManager remoteQueryManager = registrySoapClient
                             .getQueryServiceForHost(remoteAddress);
 
                     QueryResponse remoteResponse = remoteQueryManager
@@ -128,6 +132,10 @@ public class GetReferencedObject extends RegistryQueryPlugin {
 
     public void setReferenceResolver(ObjectReferenceResolver referenceResolver) {
         this.referenceResolver = referenceResolver;
+    }
+
+    public void setRegistrySoapClient(RegistrySOAPServices registrySoapClient) {
+        this.registrySoapClient = registrySoapClient;
     }
 
 }
