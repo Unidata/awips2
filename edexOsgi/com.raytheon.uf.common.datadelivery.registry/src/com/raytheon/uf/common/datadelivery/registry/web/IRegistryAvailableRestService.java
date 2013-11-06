@@ -17,15 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml;
+package com.raytheon.uf.common.datadelivery.registry.web;
 
-import java.io.ByteArrayInputStream;
-
-import com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 /**
  * 
- * Registry specific wrapper for the remote request router
+ * Interface for the registry available service
  * 
  * <pre>
  * 
@@ -33,18 +33,26 @@ import com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 5/3/2013     1948        bphillip    Initial implementation
- * 7/26/2013    2232        mpduff      Don't override executeThrift.
- * 10/30/2013   1538        bphillip    Removed unused IRegistryRequestService interface
- * 
+ * 5/21/2013    2022        bphillip    Initial implementation
+ * 10/30/2013   1538        bphillip    Moved data delivery specific servics out of registry plugin
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class RegistryRemoteRequestWrapper extends RemoteRequestRouteWrapper {
+@Path(IRegistryAvailableRestService.REGISTRY_AVAILABILITY_PATH_PREFIX)
+public interface IRegistryAvailableRestService {
 
-    public byte[] request(byte[] data) {
-        return executeThrift(new ByteArrayInputStream(data));
-    }
+    public static final String REGISTRY_AVAILABILITY_PATH_PREFIX = "/registryAvailable";
+
+    /**
+     * Method that simply returns a string. This method is called to see if
+     * registry services are available for a registry
+     * 
+     * @return A string
+     */
+    @GET
+    @Produces("text/plain")
+    public String isRegistryAvailable();
+
 }

@@ -9,9 +9,10 @@
 		<constructor-arg ref="lcmServiceImpl" />
 		<constructor-arg value="ebxml/federation/federationConfig.xml"/>
 		<constructor-arg ref="RegistryReplicationManager"/>
-		<constructor-arg value="${NCF_ADDRESS}" />
 		<property name="registryObjectDao" ref="registryObjectDao"/>
 		<property name="registryDao" ref="registryDao"/>
 		<property name="txTemplate" ref="metadataTxTemplate"/>
+		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
+		<property name="registrySoapServices" ref="registryWebServiceClient"/>
 	</bean>
 </beans>
