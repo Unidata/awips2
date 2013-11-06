@@ -60,10 +60,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 01, 2010            jsanchez     Initial creation
- * Apr 18, 2012  #473      dgilling     Modify parser to set
- *                                      DataTime based on ingest
- *                                      file name.
+ * Feb 01, 2010            jsanchez    Initial creation
+ * Apr 18, 2012 473        dgilling    Modify parser to set  DataTime based on
+ *                                     ingest  file name.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -72,7 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class CWAParser {
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private final PointDataDescription pointDataDescription;
 
@@ -80,11 +80,11 @@ public class CWAParser {
 
     private final CWARecordDao cwaDao;
 
-    private Map<File, PointDataContainer> containerMap;
+    private final Map<File, PointDataContainer> containerMap;
 
     private final GeodeticCalculator gc = new GeodeticCalculator();
 
-    private String pluginName;
+    private final String pluginName;
 
     private String eventId;
 
@@ -98,7 +98,7 @@ public class CWAParser {
 
     private CWADimension dimension;
 
-    private List<Coordinate> coordinates = new ArrayList<Coordinate>();
+    private final List<Coordinate> coordinates = new ArrayList<Coordinate>();
 
     boolean isVicinity;
 
@@ -108,7 +108,7 @@ public class CWAParser {
 
     int currentReport = -1;
 
-    private HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
+    private final HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
 
     private static HashMap<String, Float> dirToDeg = new HashMap<String, Float>();
 
@@ -258,7 +258,8 @@ public class CWAParser {
                 String s = iRpt.getReportLine();
                 switch (iRpt.getLineType()) {
                 case ISSUANCE:
-                    if (eventId != null && dimension != CWADimension.CANCELED) {
+                    if ((eventId != null)
+                            && (dimension != CWADimension.CANCELED)) {
                         reports.add(getRecord());
                     }
                     clearData();
@@ -286,7 +287,8 @@ public class CWAParser {
                     }
                     break;
                 case END:
-                    if (eventId != null && dimension != CWADimension.CANCELED) {
+                    if ((eventId != null)
+                            && (dimension != CWADimension.CANCELED)) {
                         reports.add(getRecord());
                     }
                     clearData();
@@ -322,7 +324,7 @@ public class CWAParser {
 
     private void parseIssuanceInfo(String issuanceInfo) {
         String[] parts = issuanceInfo.split(" ");
-        if (parts != null && parts[0] != null) {
+        if ((parts != null) && (parts[0] != null)) {
             eventId = parts[0];
         }
 
@@ -412,7 +414,7 @@ public class CWAParser {
                     }
                     dimension = CWADimension.AREA;
                     distance = 0;
-                } else if (tok.length() == 0 || tok.equals("")) {
+                } else if ((tok.length() == 0) || tok.equals("")) {
                     getMoreCoords = true;
                 } else {
                     logger.error("Bad location. '" + tok
@@ -444,7 +446,7 @@ public class CWAParser {
             }
         }
 
-        if (!found && size == 0 && (isVicinity || coordinates.size() > 0)) {
+        if (!found && (size == 0) && (isVicinity || (coordinates.size() > 0))) {
             size = 2000; // 2 km = 2000 m
         }
     }
@@ -474,7 +476,6 @@ public class CWAParser {
         record.setEventId(eventId);
         record.setDimension(dimension);
         record.setMessageData(text);
-        record.setPluginName(pluginName);
         // TimeRange tr = new TimeRange(
         // startTime.getRefTimeAsCalendar(),
         // endTime.getRefTimeAsCalendar());
@@ -485,7 +486,7 @@ public class CWAParser {
         Coordinate[] coord = null;
         if (coordinates.size() == 1) {
             coord = Utility.makeArea(coordinates.get(0), size);
-        } else if (coordinates.size() == 2 && size > 0) {
+        } else if ((coordinates.size() == 2) && (size > 0)) {
             coord = Utility.makeArea(
                     coordinates.toArray(new Coordinate[coordinates.size()]),
                     size);

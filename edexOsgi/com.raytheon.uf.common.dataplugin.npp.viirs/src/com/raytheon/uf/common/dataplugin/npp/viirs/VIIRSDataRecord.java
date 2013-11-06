@@ -53,11 +53,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 30, 2011            mschenke     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Nov 30, 2011            mschenke    Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -71,12 +73,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "viirs",
-		indexes = {
-				@Index(name = "viirs_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "viirs", indexes = { @Index(name = "viirs_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class VIIRSDataRecord extends PersistablePluginDataObject implements
         ISpatialEnabled {
@@ -127,7 +125,6 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
     private VIIRSSpatialCoverage coverage;
 
     public VIIRSDataRecord() {
-        setPluginName(VIIRSDataRecord.class.getAnnotation(Table.class).name());
     }
 
     /*
@@ -256,8 +253,9 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
     @Override
     public Date getPersistenceTime() {
         Calendar c = getInsertTime();
-        if (c == null)
+        if (c == null) {
             return null;
+        }
 
         return c.getTime();
     }
@@ -296,10 +294,16 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "viirs";
     }
 }

@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.archive.data;
 
 import java.util.List;
 
+import com.raytheon.uf.common.archive.config.DisplayData;
+
 /**
  * A listener to update file/directory information.
  * 
@@ -31,6 +33,7 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 16, 2013 1966       rferrel     Initial creation
+ * Jul 29, 2012 #2220      rferrel     Change to get all data sizes only one time.
  * 
  * </pre>
  * 
@@ -43,5 +46,5 @@ public interface IUpdateListener {
      * 
      * @param dirInfos
      */
-    public void update(List<SizeJobRequest> request);
+    public void update(List<DisplayData> request);
 }

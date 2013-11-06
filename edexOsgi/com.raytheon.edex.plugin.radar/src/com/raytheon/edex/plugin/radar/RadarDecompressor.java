@@ -59,6 +59,9 @@ public class RadarDecompressor {
     private static final int Z_DEFLATED = 8;
 
     private static final int DEF_WBITS = 15;
+    
+    //max buffer for decompressed radar data, DPR is 1346648
+    private static final int MAXBUF = 2000000;
 
     /** The logger */
     private static final transient IUFStatusHandler theHandler = UFStatus
@@ -285,21 +288,34 @@ public class RadarDecompressor {
            	ByteArrayInputStream is = new ByteArrayInputStream(tmpBuf);
             BZip2InputStream bis= new BZip2InputStream(is,false);
             try {
-            	//use 10x85716 should be safe
-            	byte[] tmpBuf2= new byte[860000];
+            	byte[] tmpBuf2= new byte[MAXBUF];
                	int actualByte=bis.read(tmpBuf2);
+               	byte[] bigBuf = new byte[0];
+               	int currentSize = 0 ;
+               	//The decompressed size in header don't seems always correct
+               	// and bis.available()
+               	while (actualByte != -1) {
+               		byte[] tmpBuf3 = new byte[bigBuf.length];
+               		System.arraycopy(bigBuf, 0, tmpBuf3, 0, bigBuf.length);
+               		bigBuf = new byte[currentSize+actualByte] ;
+               		System.arraycopy(tmpBuf3, 0, bigBuf, 0, tmpBuf3.length);
+               		System.arraycopy(tmpBuf2, 0, bigBuf, currentSize, actualByte);
+               		currentSize = bigBuf.length;
+               		actualByte=bis.read(tmpBuf2);
+               	}
+               	
                	bis.close();
-               	outBuf = new byte[actualByte+120];
+               	
+               	outBuf = new byte[bigBuf.length+120];
                	//the 120 bytes:description block and symbology block
         		System.arraycopy(inBuf, offset, outBuf, 0, 8);
         		byte[] lengthMsg2=ByteBuffer.allocate(4).putInt(outBuf.length).array();
         		System.arraycopy(lengthMsg2, 0, outBuf, 8, 4);
         		System.arraycopy(inBuf, offset+8+4, outBuf, 12, 108);
 
-               	System.arraycopy(tmpBuf2, 0, outBuf, 120, actualByte);
+               	System.arraycopy(bigBuf, 0, outBuf, 120, bigBuf.length);
             } catch (Exception e) {
-            	theHandler.handle(Priority.ERROR,
-                      "Failed to decompress " + headers.get("ingestfilename"));
+            	return null;
             }
         }
         return outBuf;

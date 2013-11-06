@@ -92,6 +92,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * May 19, 2007     #1127  randerso    Implemented error handling
  * Sep 12, 2012 1167       djohnson    Add datadelivery servers.
  * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory.
+ * Aug 27, 2013 2295       bkowal      The entire jms connection string is now
+ *                                     provided by EDEX.
  * 
  * </pre>
  * 
@@ -147,8 +149,8 @@ public class LocalizationManager implements IPropertyChangeListener {
         this.overrideServer = false;
         this.overrideSite = false;
         try {
-            localizationStore = new ScopedPreferenceStore(new InstanceScope(),
-                    "localization");
+            localizationStore = new ScopedPreferenceStore(
+                    InstanceScope.INSTANCE, "localization");
             localizationStore.addPropertyChangeListener(this);
             loadHttpServer();
             loadAlertServer();
@@ -222,7 +224,7 @@ public class LocalizationManager implements IPropertyChangeListener {
                 GetServersResponse resp = (GetServersResponse) ThriftClient
                         .sendLocalizationRequest(req);
                 VizApp.setHttpServer(resp.getHttpServer());
-                VizApp.setJmsServer(resp.getJmsServer());
+                VizApp.setJmsConnectionString(resp.getJmsConnectionString());
                 VizApp.setPypiesServer(resp.getPypiesServer());
                 VizServers.getInstance().setServerLocations(
                         resp.getServerLocations());
@@ -908,40 +910,6 @@ public class LocalizationManager implements IPropertyChangeListener {
         }
 
         return responses;
-    }
-
-    /**
-     * Makes a request to the UtilitySrv
-     * 
-     * @param request
-     *            the request to make
-     * @return the responses from the request
-     * @throws VizException
-     */
-    private AbstractUtilityResponse[] makeRequest(
-            PrivilegedUtilityRequestMessage request)
-            throws LocalizationOpFailedException {
-
-        AbstractUtilityResponse[] responseList = null;
-
-        UtilityResponseMessage localizationResponse = null;
-        try {
-            localizationResponse = (UtilityResponseMessage) ThriftClient
-                    .sendLocalizationRequest(request);
-        } catch (VizException e) {
-            throw new LocalizationOpFailedException("Localization error", e);
-        }
-        if (localizationResponse != null) {
-            responseList = localizationResponse.getResponses();
-
-            for (AbstractUtilityResponse response : responseList) {
-                if (!response.successful()) {
-                    throw new LocalizationOpFailedException(
-                            response.getFormattedErrorMessage());
-                }
-            }
-        }
-        return responseList;
     }
 
     public boolean isOverrideServer() {

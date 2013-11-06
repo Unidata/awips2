@@ -92,8 +92,10 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 3/11/10      4758        bphillip    Initial Creation
- * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util into ArraysUtil
+ * Mar 11, 2010 4758        bphillip    Initial Creation
+ * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util
+ *                                      into ArraysUtil
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -236,7 +238,7 @@ public class Grib1Decoder extends AbstractDecoder {
                 .getGrib2Parameter(centerAlias, subcenterAlias, tableAlias,
                         pdsVars.getParameterNumber());
 
-        if (parameter == null || parameter.getName().equals(MISSING)) {
+        if ((parameter == null) || parameter.getName().equals(MISSING)) {
             try {
                 logger.warn("Unable to map Grib 1 parameter to equivalent Grib 2 parameter for center ["
                         + centerid
@@ -294,7 +296,7 @@ public class Grib1Decoder extends AbstractDecoder {
         // unidata does not handle isEnsemble call when
         // octet size is less than 40.
 
-        if (pdsVars.getLength() > 40 && pdsVars.isEnsemble()) {
+        if ((pdsVars.getLength() > 40) && pdsVars.isEnsemble()) {
             // rcg: added code to get perturbation
             int pos42 = pdsVars.getOctet(42);
             int pos43 = pdsVars.getOctet(43);
@@ -363,13 +365,13 @@ public class Grib1Decoder extends AbstractDecoder {
             int timeRange = pdsVars.getTimeRangeIndicator();
 
             // Check for initialization of average or accumulation parameters
-            if ((AVG_ACCUM_LIST.contains(timeRange) && dataTime
-                    .getValidPeriod().getDuration() == 0)) {
+            if ((AVG_ACCUM_LIST.contains(timeRange) && (dataTime
+                    .getValidPeriod().getDuration() == 0))) {
                 statusHandler.handle(Priority.EVENTA,
                         "Discarding empty accumulation grid");
                 return null;
-            } else if ((gdsVars != null && gdsVars.isThin())
-                    || (gdsVars == null && (gridCoverage instanceof LatLonGridCoverage && ((LatLonGridCoverage) gridCoverage)
+            } else if (((gdsVars != null) && gdsVars.isThin())
+                    || ((gdsVars == null) && ((gridCoverage instanceof LatLonGridCoverage) && ((LatLonGridCoverage) gridCoverage)
                             .isThin()))) {
                 // Unfortunately the UCAR Decoder does Cubic Spline
                 // interpolation, however we want to do simpler linear
@@ -468,7 +470,7 @@ public class Grib1Decoder extends AbstractDecoder {
 
         if (newAbbr == null) {
             if (!parameterName.equals(MISSING)
-                    && dataTime.getValidPeriod().getDuration() > 0) {
+                    && (dataTime.getValidPeriod().getDuration() > 0)) {
                 parameterAbbreviation = parameterAbbreviation
                         + String.valueOf(dataTime.getValidPeriod()
                                 .getDuration() / 3600000) + "hr";
@@ -485,7 +487,6 @@ public class Grib1Decoder extends AbstractDecoder {
             parameterAbbreviation = e.getArbitraryMapping();
         }
 
-        retVal.setPluginName("grid");
         Parameter param = new Parameter(parameterAbbreviation, parameterName,
                 parameterUnit);
         GribParamTranslator.getInstance().getParameterNameAlias(modelName,
@@ -530,7 +531,7 @@ public class Grib1Decoder extends AbstractDecoder {
 
         for (int row = 0; row < rowCount; row++) {
             for (int column = 0; column < columnCount; column++) {
-                newGrid[row][column] = data[row * columnCount + column];
+                newGrid[row][column] = data[(row * columnCount) + column];
             }
         }
 
@@ -569,8 +570,8 @@ public class Grib1Decoder extends AbstractDecoder {
                     total -= 1;
                     trail = inData[inIndex++];
                 }
-                outData[outIndex++] = inData[inIndex] * total + trail
-                        * (1 - total);
+                outData[outIndex++] = (inData[inIndex] * total)
+                        + (trail * (1 - total));
                 total += dx;
             }
             outData[outIndex++] = inData[inIndex++];
@@ -594,7 +595,7 @@ public class Grib1Decoder extends AbstractDecoder {
 
         for (int row = 0; row < rowCount; row++) {
             for (int column = 0; column < columnCount; column++) {
-                newGrid[row * columnCount + column] = data[row][column];
+                newGrid[(row * columnCount) + column] = data[row][column];
             }
         }
         return newGrid;
@@ -663,7 +664,7 @@ public class Grib1Decoder extends AbstractDecoder {
     private void correctForScanMode(float[] data, int nx, int ny,
             boolean bmsExists, int scanMode) {
         for (int i = 0; i < data.length; i++) {
-            if (bmsExists && data[i] == -9999) {
+            if (bmsExists && (data[i] == -9999)) {
                 data[i] = -999999;
             }
         }
@@ -884,7 +885,7 @@ public class Grib1Decoder extends AbstractDecoder {
 
         GridCoverage grid = GribSpatialCache.getInstance().getGrid(coverage);
 
-        if (grid == null && gridNumber != 255) {
+        if ((grid == null) && (gridNumber != 255)) {
             // 255 is specifically reserved to non-defined grids and should not
             // use the gridNumber as a lookup value
 
@@ -929,7 +930,7 @@ public class Grib1Decoder extends AbstractDecoder {
             int subcenterId, int process, GridCoverage grid) {
         GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
                 subcenterId, grid, process);
-        if (gridModel != null && gridModel.getAnalysisOnly()) {
+        if ((gridModel != null) && gridModel.getAnalysisOnly()) {
             time.getUtilityFlags().remove(FLAG.FCST_USED);
         }
     }
@@ -1175,7 +1176,7 @@ public class Grib1Decoder extends AbstractDecoder {
             level1Value = lval1;
             break;
         default:
-            if (ltype1 > 99 && ltype1 < 200) {
+            if ((ltype1 > 99) && (ltype1 < 200)) {
                 level1Type = 255;
                 logger.warn("GRIB1 level " + ltype1 + " not recognized");
             }
@@ -1234,7 +1235,7 @@ public class Grib1Decoder extends AbstractDecoder {
         }
 
         // Scale the level one value if necessary
-        if (scaleFactor1 == 0 || value1 == 0) {
+        if ((scaleFactor1 == 0) || (value1 == 0)) {
             levelOneValue = value1;
         } else {
             levelOneValue = new Double((float) (value1 * Math.pow(10,
@@ -1249,13 +1250,13 @@ public class Grib1Decoder extends AbstractDecoder {
         } else if (levelTwoNumber == 1) {
             levelTwoValue = Level.getInvalidLevelValue();
         } else {
-            if (scaleFactor2 == 0 || value2 == 0) {
+            if ((scaleFactor2 == 0) || (value2 == 0)) {
                 levelTwoValue = value2;
             } else {
                 levelTwoValue = (value2 * Math.pow(10, scaleFactor2 * -1));
             }
         }
-        if (levelName.equals("SFC") && levelOneValue != 0) {
+        if (levelName.equals("SFC") && (levelOneValue != 0)) {
             levelOneValue = 0.0;
         }
         if (levelName.equals("EATM")) {
@@ -1289,7 +1290,7 @@ public class Grib1Decoder extends AbstractDecoder {
         }
 
         if (lon >= 180) {
-            lon = (180 - lon % 180) * -1;
+            lon = (180 - (lon % 180)) * -1;
         } else if (lon < -180) {
             lon = (180 - (-lon % 180));
         }
@@ -1313,7 +1314,7 @@ public class Grib1Decoder extends AbstractDecoder {
         }
 
         if (lat > 90) {
-            lat = 90 - lat % 90;
+            lat = 90 - (lat % 90);
         } else if (lat < -90) {
             lat = (90 - (-lat % 90)) * -1;
         }

@@ -56,8 +56,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
- * 20080408           1039 jkorman     Added traceId for tracing data.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public class ProfilerDecoder extends AbstractDecoder implements
     public static final String PLUGIN_NAME = "profiler";
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private PointDataDescription pdd;
 
@@ -131,7 +132,7 @@ public class ProfilerDecoder extends AbstractDecoder implements
 
         PluginDataObject[] decodedData = null;
 
-        if (data != null && data.length > 0) {
+        if ((data != null) && (data.length > 0)) {
 
             WMOHeader wmoHeader = new WMOHeader(data, headers);
             if ((wmoHeader != null) && (wmoHeader.isValid())) {
@@ -160,7 +161,6 @@ public class ProfilerDecoder extends AbstractDecoder implements
                                         container, traceId);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
-                            soundingData.setPluginName(PLUGIN_NAME);
                             try {
                                 soundingData.constructDataURI();
                                 PointDataView view = soundingData
