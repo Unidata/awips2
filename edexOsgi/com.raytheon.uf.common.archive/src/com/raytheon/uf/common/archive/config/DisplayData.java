@@ -1,8 +1,11 @@
 package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.raytheon.uf.common.util.SizeUtil;
 
@@ -18,6 +21,9 @@ import com.raytheon.uf.common.util.SizeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2013  1966       rferrel     Initial creation
+ * Aug 02, 2013 2224       rferrel     Changes to include DataSet in configuration.
+ * Aug 06, 2013 2222       rferrel     Changes to display all selected data.
+ * Aug 14, 2013 2220       rferrel     Add priority comparator.
  * 
  * </pre>
  * 
@@ -45,7 +51,34 @@ public class DisplayData implements Comparable<DisplayData> {
     public static final Comparator<DisplayData> LABEL_ORDER = new Comparator<DisplayData>() {
         @Override
         public int compare(DisplayData o1, DisplayData o2) {
-            return o1.displayLabel.compareToIgnoreCase(o2.displayLabel);
+            int result = o1.getArchiveName().compareToIgnoreCase(
+                    o2.getArchiveName());
+            if (result == 0) {
+                result = o1.getCategoryName().compareToIgnoreCase(
+                        o2.getCategoryName());
+            }
+            if (result == 0) {
+                result = o1.displayLabel.compareToIgnoreCase(o2.displayLabel);
+            }
+            return result;
+        }
+    };
+
+    /** Comparator for priority ordering for priority queue. */
+    public static final Comparator<DisplayData> PRIORITY_ORDER = new Comparator<DisplayData>() {
+
+        @Override
+        public int compare(DisplayData o1, DisplayData o2) {
+            if (o1.visible != o2.visible) {
+                return o1.visible ? -1 : +1;
+            } else if (o1.visible) {
+                return LABEL_ORDER.compare(o1, o2);
+            }
+
+            if (o1.selected != o2.selected) {
+                return o1.selected ? -1 : +1;
+            }
+            return LABEL_ORDER.compare(o1, o2);
         }
     };
 
@@ -61,20 +94,27 @@ public class DisplayData implements Comparable<DisplayData> {
     /** The data's category configuration. */
     protected final CategoryConfig categoryConfig;
 
+    protected final List<CategoryDataSet> dataSets = new ArrayList<CategoryDataSet>(
+            1);
+
     /** The display label for this data. */
     protected final String displayLabel;
 
     /**
-     * List of directories for the display label matching the category's
-     * directory pattern and found under the archive's root directory.
+     * Mappings of a list of directories for the display label matching the data
+     * set's directory patterns and found under the archive's root directory.
      */
-    protected final List<File> dirs;
+    protected final Map<CategoryDataSet, List<File>> dirsMap = new HashMap<CategoryDataSet, List<File>>();
 
     /**
-     * For use by GUI to indicate. Use to indicate selected for retention or for
-     * placing in a case.
+     * For use by GUI to indicate display label's row is selected.
      */
     private boolean selected = false;
+
+    /**
+     * Indicates data is visible in the display.
+     */
+    private boolean visible = false;
 
     /** For use by GUI for indicating the size of the directories' contents. */
     private long size = UNKNOWN_SIZE;
@@ -84,15 +124,16 @@ public class DisplayData implements Comparable<DisplayData> {
      * 
      * @param archiveConfig
      * @param categoryConfig
+     * @param dataSet
      * @param displayLabel
-     * @param dirs
      */
     public DisplayData(ArchiveConfig archiveConfig,
-            CategoryConfig categoryConfig, String displayLabel, List<File> dirs) {
+            CategoryConfig categoryConfig, CategoryDataSet dataSet,
+            String displayLabel) {
         this.archiveConfig = archiveConfig;
         this.categoryConfig = categoryConfig;
         this.displayLabel = displayLabel;
-        this.dirs = dirs;
+        this.dataSets.add(dataSet);
     }
 
     /**
@@ -111,6 +152,14 @@ public class DisplayData implements Comparable<DisplayData> {
      */
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     /**
@@ -224,5 +273,31 @@ public class DisplayData implements Comparable<DisplayData> {
             }
         }
         return result;
+    }
+
+    public String getArchiveName() {
+        return archiveConfig.getName();
+    }
+
+    public String getCategoryName() {
+        return categoryConfig.getName();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("DisplayData[");
+        sb.append("displayLabel: ").append(displayLabel);
+        sb.append(", isVisible: ").append(isVisible());
+        sb.append(", isSlected: ").append(isSelected());
+        sb.append(", size: ").append(size);
+        sb.append(", category.name: ").append(categoryConfig.getName());
+        sb.append(", archive.name: ").append(archiveConfig.getName())
+                .append("]");
+        return sb.toString();
     }
 }

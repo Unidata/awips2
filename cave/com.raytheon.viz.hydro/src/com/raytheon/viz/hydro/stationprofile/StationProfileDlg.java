@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.hydro.stationprofile;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 15 Jun 2010  4304       mpduff      Added some null checks.
  * 30 Nov 2011  11253      lbousaidi   used List instead of TreeMap
  * 29 Mar 2013  1790       rferrel     Make dialog non-blocking.
+ * 23 Oct 2013  15183      wkwock      Fix scales and value format
  * 
  * </pre>
  * 
@@ -327,7 +329,7 @@ public class StationProfileDlg extends CaveSWTDialog {
      */
     private void calculateValues() {
         double totalElevInc = Math.abs(stationProfData.getElevationFtMax())
-                + Math.abs(stationProfData.getElevationFtMin());
+                - Math.abs(stationProfData.getElevationFtMin());
 
         // Calculate the offset between the elevation points
         double offsetDbl = totalElevInc / 5;
@@ -608,6 +610,7 @@ public class StationProfileDlg extends CaveSWTDialog {
         e.gc.setFont(font);
         int fontHeight = (e.gc.getFontMetrics().getHeight());
         int fontAveWidth = (e.gc.getFontMetrics().getAverageCharWidth());
+        DecimalFormat df = new DecimalFormat("#.##");
 
         // List of label position objects
         ArrayList<LabelPosition> labelList = new ArrayList<LabelPosition>();
@@ -633,16 +636,17 @@ public class StationProfileDlg extends CaveSWTDialog {
         // ----------------------------------------
 
         // Draw 0 miles hash and label
-        e.gc.drawLine(PROFILE_CANVAS_WIDTH / 2, BOTTOM_Y_COORD,
+/*        e.gc.drawLine(PROFILE_CANVAS_WIDTH / 2, BOTTOM_Y_COORD,
                 PROFILE_CANVAS_WIDTH / 2, BOTTOM_Y_COORD + RIVER_MILES_HASH);
         e.gc.drawString("0", PROFILE_CANVAS_WIDTH / 2 - fontAveWidth / 2,
                 BOTTOM_Y_COORD + RIVER_MILES_HASH + 3, true);
-
+*/
         // Draw 50 miles hash and label
-        int currMile = 50;
+        double maxMile = getMaxMile(stationList);
+        int currMile = (int) Math.ceil(getMinMile(stationList) / 50) * 50;
         int x;
         int y;
-        while (Double.compare(mileRange, currMile) > 0) {
+        while (maxMile > currMile) {
             x = calcRiverMileXCoord(currMile);
 
             e.gc.drawLine(x, BOTTOM_Y_COORD, x, BOTTOM_Y_COORD
@@ -680,7 +684,6 @@ public class StationProfileDlg extends CaveSWTDialog {
         if (stationList != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm MM/dd");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            int i = 0;
 
             for (Statprof station : stationList) {
                 // Skip gage if the river mile is not valid
@@ -691,7 +694,6 @@ public class StationProfileDlg extends CaveSWTDialog {
                 e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
                 x = calcRiverMileXCoord(station.getId().getMile());
                 y = calcElevationYCoord(station.getId().getZd());
-                i++;
 
                 // hash mark at each site
                 e.gc.drawLine(x, y, x, y + POINT_HASH);
@@ -743,7 +745,7 @@ public class StationProfileDlg extends CaveSWTDialog {
 
                 HydroDataReport rpt = allReports.get(station.getId().getLid());
                 if (rpt.getValue() != HydroConstants.MISSING_VALUE) {
-                    label.append(rpt.getValue() + " - ");
+                    label.append(df.format(rpt.getValue()) + " - ");
                     label.append(sdf.format(rpt.getValidTime()) + ")");
                 } else {
                     label.append("MSG/MSG)");
@@ -946,8 +948,10 @@ public class StationProfileDlg extends CaveSWTDialog {
             mileRange = 10;
         }
 
+        double maxMile = getMaxMile(stationList);
+
         int xCoord = (int) Math.round((ZERO_MILE_XCOORD + 2)
-                * (mileRange - riverMile) / mileRange);
+                * (maxMile - riverMile) / mileRange);
 
         return xCoord;
     }

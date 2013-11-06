@@ -1,15 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="geomagDao" class="gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagDao">
 		<constructor-arg ref="geomagPluginName" />
 	</bean>
 	
 	<bean id="geomagDecoder" class="gov.noaa.nws.ncep.edex.plugin.geomag.GeoMagDecoder" depends-on="geomagPluginName" >
-		<constructor-arg ref="geomagPluginName" />
 		<property name="dao" ref="geomagDao" />
 	</bean>
 	
@@ -65,7 +63,7 @@
 	        <from uri="jms-generic:topic:edex.alerts"/>
 	        <doTry>
 		          <pipeline>
-		          	<bean ref="serializationUtil" method="transformFromThrift" />
+                            <bean ref="serializationUtil" method="transformFromThrift" />
 		            <bean ref="trig1minCalc" method="trig1min"/>
 		          </pipeline>
 		          <doCatch>
