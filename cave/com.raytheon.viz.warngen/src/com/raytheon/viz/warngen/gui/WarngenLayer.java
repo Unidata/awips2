@@ -190,6 +190,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 08/19/2013   2177       jsanchez    Set a GeneralGridGeometry object in the GeospatialDataList.
  * 09/17/2013  DR 16496    D. Friedman Make editable state more consistent.
  * 10/01/2013  DR 16632    Qinglu Lin  Catch exceptions thrown while doing areaPercent computation and union().
+ * 10/15/2013   2463       jsanchez    Create a square polygon when time matched with a resource with no data.
  * 10/21/2013  DR 16632    D. Friedman Modify areaPercent exception handling.  Fix an NPE.
  *                                     Use A1 hatching behavior when no county passes the inclusion filter.
  * 10/29/2013  DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the pollygon the be used.
@@ -839,12 +840,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
 
         // TODO: Issues with frameCount == 1? Could happen if we update on all
-        // tilts where we had multiple frames then they went away
-        if ((displayState.mode == Mode.TRACK && lastMode == Mode.DRAG_ME)
-                || (frameCount == 1 && displayState.geomChanged)) {
-            if (frameCount == 1 && displayState.geomChanged) {
-                displayState.geomChanged = false;
-            }
+        // tilts where we had multiple frames then they went away.
+        if (displayState.mode == Mode.TRACK && lastMode == Mode.DRAG_ME) {
             if (warningAction == null || warningAction == WarningAction.NEW) {
                 // Initialize box
                 redrawBoxFromTrack();
@@ -2044,6 +2041,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     .getPathcastConfig() == null)
                     && !this.displayState.isNonstationary()
                     && this.displayState.displayType != DisplayType.POLY) {
+                createSquare();
+                return;
+            } else if (descriptor.getFramesInfo().getFrameCount() == 1) {
                 createSquare();
                 return;
             }

@@ -46,9 +46,12 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2011            dhladky     Initial creation
- * Aug 20, 2012 0743       djohnson    Fix cache lookup to use the model name and not hashcode.
- * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
- * Jan 30, 2013 1543       djohnson     Log exception stacktrace.
+ * Aug 20, 2012 0743       djohnson    Fix cache lookup to use the model name
+ *                                     and not hashcode.
+ * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry
+ *                                     objects.
+ * Jan 30, 2013 1543       djohnson    Log exception stacktrace.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -62,8 +65,7 @@ public class ResponseProcessingUtilities {
             .getHandler(ResponseProcessingUtilities.class);
 
     public static GridRecord getGridRecord(String name, Parameter parm,
-            Level level, String ensembleId,
-            GridCoverage gridCoverage) {
+            Level level, String ensembleId, GridCoverage gridCoverage) {
 
         com.raytheon.uf.common.parameter.Parameter parameter = new com.raytheon.uf.common.parameter.Parameter();
         parameter.setAbbreviation(parm.getName());
@@ -71,7 +73,6 @@ public class ResponseProcessingUtilities {
         parameter.setUnitString(parm.getUnits());
 
         GridRecord record = new GridRecord();
-        record.setPluginName("grid");
         record.setLocation(gridCoverage);
         record.setLevel(level);
         record.setParameter(parameter);
@@ -160,8 +161,8 @@ public class ResponseProcessingUtilities {
 
             for (int index = startLevel; index <= endLevel; index++) {
                 double levelOneValue = plevels.getLevelAt(index);
-                String masterLevelName = LevelType
-                        .getLevelTypeIdName(plevels.getLevelType());
+                String masterLevelName = LevelType.getLevelTypeIdName(plevels
+                        .getLevelType());
                 MasterLevel masterLevel = LevelFactory.getInstance()
                         .getMasterLevel(masterLevelName);
                 Level level = LevelFactory.getInstance().getLevel(
