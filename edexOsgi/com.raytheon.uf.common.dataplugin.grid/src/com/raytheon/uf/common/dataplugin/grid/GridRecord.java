@@ -61,11 +61,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 21, 2012            bsteffen     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 21, 2012            bsteffen    Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -79,12 +81,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "grid",
-		indexes = {
-				@Index(name = "grid_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class GridRecord extends PersistablePluginDataObject implements
         ISpatialEnabled {
@@ -110,7 +108,6 @@ public class GridRecord extends PersistablePluginDataObject implements
     }
 
     public GridRecord(GridRecord record) {
-        this.pluginName = record.getPluginName();
         this.dataTime = record.getDataTime();
         this.info = new GridInfoRecord(record.getInfoNotNull());
         if (record.getExtraAttributes() != null) {
@@ -236,24 +233,29 @@ public class GridRecord extends PersistablePluginDataObject implements
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((info == null) ? 0 : info.hashCode());
+        result = (prime * result) + ((info == null) ? 0 : info.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GridRecord other = (GridRecord) obj;
         if (info == null) {
-            if (other.info != null)
+            if (other.info != null) {
                 return false;
-        } else if (!info.equals(other.info))
+            }
+        } else if (!info.equals(other.info)) {
             return false;
+        }
         return true;
     }
 
@@ -262,5 +264,10 @@ public class GridRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "grid";
     }
 }
