@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2009            jkorman     Initial creation
+ * Oct 23, 2013  DR 16674  D. Friedman Prevent infinite loop
  *
  * </pre>
  *
@@ -238,8 +239,8 @@ public class InternalReport {
                 case DATE : {
                     if(currRpt != null) {
                         currRpt.subLines.add(r);
-                        reports.remove(r);
                     }
+                    reports.remove(r);
                     break;
                 }
                 case REMARK : {

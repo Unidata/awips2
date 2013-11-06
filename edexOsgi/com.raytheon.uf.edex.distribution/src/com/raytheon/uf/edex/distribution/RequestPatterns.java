@@ -51,7 +51,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * May 16, 2011 7317       cjeanbap     Added try-catch statement
  *                                      for PatternSyntaxException.
  * Mar 19, 2013 1794       djohnson     Add toString() for debugging.
- * 
+ * Sep 10, 2013 2327       rjpeter      Sized ArrayList declarations.
  * </pre>
  * 
  * @author brockwoo
@@ -60,22 +60,22 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "requestPatterns")
 @XmlAccessorType(XmlAccessType.NONE)
-public class RequestPatterns implements ISerializableObject{
-    
+public class RequestPatterns implements ISerializableObject {
+
     /**
      * List of patterns requested by a plugin.
      */
-    @XmlElements( { @XmlElement(name = "regex", type = String.class) })
-    private List<String> patterns = new ArrayList<String>();
-    
-    private final List<Pattern> compiledPatterns = new ArrayList<Pattern>();
-    
-    protected transient Log patternFailedLogger = LogFactory.getLog("PatternFailedLog");
-    
+    @XmlElements({ @XmlElement(name = "regex", type = String.class) })
+    private List<String> patterns = new ArrayList<String>(0);
+
+    private List<Pattern> compiledPatterns = new ArrayList<Pattern>(0);
+
+    protected Log patternFailedLogger = LogFactory.getLog("PatternFailedLog");
+
     /**
      * Creates a new instance of the container.
      */
-    public RequestPatterns(){
+    public RequestPatterns() {
     }
 
     /**
@@ -90,27 +90,30 @@ public class RequestPatterns implements ISerializableObject{
     /**
      * Sets the list of regex strings for this container.
      * 
-     * @param patterns an arraylist of regex strings
+     * @param patterns
+     *            an arraylist of regex strings
      */
     public void setPatterns(List<String> patterns) {
         this.patterns = patterns;
     }
-    
+
     /**
      * Inserts a single string into the list.
      * 
-     * @param pattern The regex string to insert
+     * @param pattern
+     *            The regex string to insert
      */
     public void setPattern(String pattern) {
         this.patterns.add(pattern);
     }
-    
+
     /**
      * Will compile the strings into Pattern objects.
      * 
      */
-    public void compilePatterns(){
-        for(String pattern : patterns) {
+    public void compilePatterns() {
+        compiledPatterns = new ArrayList<Pattern>(patterns.size());
+        for (String pattern : patterns) {
             try {
                 compiledPatterns.add(Pattern.compile(pattern));
             } catch (PatternSyntaxException e) {
@@ -121,19 +124,19 @@ public class RequestPatterns implements ISerializableObject{
             }
         }
     }
-    
+
     /**
-     * Takes a string and compares against the patterns in this
-     * container.  The first one that matches breaks the search and 
-     * returns true.
+     * Takes a string and compares against the patterns in this container. The
+     * first one that matches breaks the search and returns true.
      * 
-     * @param header  The string to search for
+     * @param header
+     *            The string to search for
      * @return a boolean indicating success
      */
     public boolean isDesiredHeader(String header) {
         boolean isFound = false;
-        for(Pattern headerPattern : compiledPatterns) {
-            if(headerPattern.matcher(header).find()) {
+        for (Pattern headerPattern : compiledPatterns) {
+            if (headerPattern.matcher(header).find()) {
                 isFound = true;
                 break;
             }
