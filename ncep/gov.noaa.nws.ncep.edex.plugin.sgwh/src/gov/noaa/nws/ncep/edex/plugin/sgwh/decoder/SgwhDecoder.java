@@ -1,21 +1,3 @@
-/**
- * SgwhDecoder
- *
- * This java class decodes SGWH (Significant Wave Height or IGDR - Interim Geophysical Data Record)
- * BUFR data.
- *
- ** <pre>
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#     Engineer    Description
- * -------		-------		--------	-----------
- * 08/18/2011               Chin Chen   Initial coding from BufrSgwhDecoder
- * </pre>
- *
- * @author Chin J. Chen
- * @version 1.0
- */
-
 package gov.noaa.nws.ncep.edex.plugin.sgwh.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.sgwh.SgwhRecord;
@@ -33,10 +15,28 @@ import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 
+/**
+ * SgwhDecoder
+ *
+ * This java class decodes SGWH (Significant Wave Height or IGDR - Interim Geophysical Data Record)
+ * BUFR data.
+ *
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket# Engineer  Description
+ * ------------ ------- --------- -----------
+ * 08/18/2011           Chin Chen Initial coding from BufrSgwhDecoder
+ * Aug 30, 2013 2298    rjpeter   Make getPluginName abstract
+ * </pre>
+ *
+ * @author Chin J. Chen
+ * @version 1.0
+ */
 public class SgwhDecoder extends AbstractDecoder implements IBinaryDecoder {
     private static String pluginName;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     /**
      * Empty constructor required by DecoderFactory.
@@ -54,6 +54,7 @@ public class SgwhDecoder extends AbstractDecoder implements IBinaryDecoder {
      * @throws DecoderException
      *             Thrown if no data is available.
      */
+    @Override
     public PluginDataObject[] decode(byte[] bufrData) throws DecoderException {
         SgwhRecord sgwhRec;
         SgwhSeparator sep = new SgwhSeparator();
@@ -84,7 +85,6 @@ public class SgwhDecoder extends AbstractDecoder implements IBinaryDecoder {
             sgwhRec.setWmoHeader(sep.getWmoHeader().getWmoHeader());
             if (sgwhRec != null) {
                 try {
-                    sgwhRec.setPluginName(pluginName);
                     sgwhRec.constructDataURI();
                     sgwhRec.setReportType("BUFRSGWH");
                 } catch (PluginException e) {

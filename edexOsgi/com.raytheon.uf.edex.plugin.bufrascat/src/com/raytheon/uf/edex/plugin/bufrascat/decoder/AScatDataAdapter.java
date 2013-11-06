@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 03, 2008 969        jkorman     Initial implementation.
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -118,7 +119,6 @@ public class AScatDataAdapter extends BUFRPointDataAdapter<AScatObs> {
             obsData = getHeaderData(dataList);
             if (obsData != null) {
                 // pickup the data.
-                obsData.setPluginName(getPluginName());
                 obsData.setWmoHeader(wmoHeader.getWmoHeader());
                 PointDataContainer container = getContainer(obsData);
                 if (container != null) {
