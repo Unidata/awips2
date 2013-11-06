@@ -17,20 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.services.rest;
+package com.raytheon.uf.edex.datadelivery.registry.web;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBException;
 
-import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.common.datadelivery.registry.web.IRegistryAvailableRestService;
+import com.raytheon.uf.common.registry.constants.RegistryAvailability;
+import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 
 /**
  * 
- * Interface for the QueryProtocol rest service
+ * Rest service used to check availability of a registry
  * 
  * <pre>
  * 
@@ -39,30 +41,33 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryExceptio
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
- * 10/30/2013   1538        bphillip    Changed REST path
+ * 9/5/2013     1538        bphillip    Removed log message
+ * 10/30/2013   1538        bphillip    Moved data delivery specific services out of registry plugin
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/search")
-public interface IQueryProtocolRestService {
+@Path(IRegistryAvailableRestService.REGISTRY_AVAILABILITY_PATH_PREFIX)
+@Service
+@Transactional
+public class RegistryAvailableRestService implements
+        IRegistryAvailableRestService {
 
     /**
-     * Executes a query based on the submitted query parameters
-     * 
-     * @param info
-     *            The UriInfo containing the query parameters
-     * @return The marshalled QueryResponse
-     * @throws JAXBException
-     *             If errors occur while marshalling the response
-     * @throws MsgRegistryException
-     *             If errors occur in the registry while querying for the
-     *             objects
+     * Creates a new RegistryAvailableRestService
      */
-    @GET
-    @Produces("text/xml")
-    public String executeQuery(@Context UriInfo info) throws JAXBException,
-            MsgRegistryException;
+    public RegistryAvailableRestService() {
 
+    }
+
+    @GET
+    @Produces("text/plain")
+    public String isRegistryAvailable() {
+        if (DbInit.isDbInitialized()) {
+            return RegistryAvailability.AVAILABLE;
+        } else {
+            return RegistryAvailability.DB_NOT_INITIALIZED;
+        }
+    }
 }
