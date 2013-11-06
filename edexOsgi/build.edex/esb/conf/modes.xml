@@ -234,7 +234,7 @@
         <!-- Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
-        <include>adhoc-datadelivery-wfo.xml</include>
+        <include>datadelivery-wfo-cron.xml</include>
         <exclude>.*datadelivery-ncf.*</exclude>
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
