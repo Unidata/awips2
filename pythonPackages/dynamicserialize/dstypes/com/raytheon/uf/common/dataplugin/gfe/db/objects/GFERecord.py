@@ -87,10 +87,7 @@ class GFERecord(object):
         self.dataURI = dataURI
 
     def getPluginName(self):
-        return self.pluginName
-
-    def setPluginName(self, pluginName):
-        self.pluginName = pluginName
+        return "gfe"
 
     def getDataTime(self):
         return self.dataTime
