@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.parameter.Parameter;
@@ -47,7 +46,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * Date           Ticket#    Engineer          Description
  * ------------   ---------- -----------       --------------------------
- * Jan 24, 2012   DR 14299   M. Porricelli     Initial creation
+ * Jan 24, 2012   14299      M. Porricelli     Initial creation
+ * Aug 30, 2013   2298       rjpeter           Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -108,8 +108,7 @@ public abstract class ThreeHrPrecipGridProcessor implements
         // previous grid
         else {
             for (GridRecord rec : precipInventory) {
-                if (rec.getDataTime().getFcstTime() == currentFcstTime
-                        - SECONDS_IN_3_HRS) {
+                if (rec.getDataTime().getFcstTime() == (currentFcstTime - SECONDS_IN_3_HRS)) {
                     tp3hrRecords.add(calculate3hrPrecip(rec, record));
                 }
             }
@@ -220,7 +219,6 @@ public abstract class ThreeHrPrecipGridProcessor implements
         record.setDataTime(newDataTime);
         record.setDataURI(null);
         try {
-            record.setPluginName(GridConstants.GRID);
             record.constructDataURI();
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,

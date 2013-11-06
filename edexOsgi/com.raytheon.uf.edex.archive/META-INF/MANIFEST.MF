@@ -6,4 +6,12 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.edex.archive.purge
-Import-Package: com.raytheon.uf.common.archive.config
+Import-Package: com.raytheon.uf.common.archive.config,
+ com.raytheon.uf.common.archive.request
+Require-Bundle: com.raytheon.uf.common.auth;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.auth;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174"

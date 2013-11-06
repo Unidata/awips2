@@ -57,11 +57,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            jsanchez     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Oct 28, 2009            jsanchez    Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -75,230 +77,232 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "tcg",
-		indexes = {
-				@Index(name = "tcg_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "tcg", indexes = { @Index(name = "tcg_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class TropicalCycloneGuidance extends PersistablePluginDataObject
-		implements ISpatialEnabled, IPointData {
+        implements ISpatialEnabled, IPointData {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Embedded
-	@DynamicSerializeElement
-	private PointDataView pointDataView;
+    @Embedded
+    @DynamicSerializeElement
+    private PointDataView pointDataView;
 
-	// Text of the WMO header
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String wmoHeader = "";
+    // Text of the WMO header
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String wmoHeader = "";
 
-	@XmlElement
-	@DynamicSerializeElement
-	@Transient
-	protected String stormName;
+    @XmlElement
+    @DynamicSerializeElement
+    @Transient
+    protected String stormName;
 
-	@XmlElement
-	@DynamicSerializeElement
-	@DataURI(position = 1)
-	@Column
-	protected String productType = "";
+    @XmlElement
+    @DynamicSerializeElement
+    @DataURI(position = 1)
+    @Column
+    protected String productType = "";
 
-	@XmlElement
-	@DynamicSerializeElement
-	@DataURI(position = 2)
-	@Column
-	protected String modelName = "NONE";
+    @XmlElement
+    @DynamicSerializeElement
+    @DataURI(position = 2)
+    @Column
+    protected String modelName = "NONE";
 
-	@Embedded
-	@DataURI(position = 3, embedded = true)
-	@XmlElement
-	@DynamicSerializeElement
-	private SurfaceObsLocation location;
+    @Embedded
+    @DataURI(position = 3, embedded = true)
+    @XmlElement
+    @DynamicSerializeElement
+    private SurfaceObsLocation location;
 
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	protected TCGStormType type = TCGStormType.UNKNOWN;
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    protected TCGStormType type = TCGStormType.UNKNOWN;
 
-	/**
-	 * Empty default constructor
-	 */
-	public TropicalCycloneGuidance() {
-	}
+    /**
+     * Empty default constructor
+     */
+    public TropicalCycloneGuidance() {
+    }
 
-	/**
-	 * Construct an instance of this class using the supplied datauri.
-	 * 
-	 * @param dataUri
-	 */
-	public TropicalCycloneGuidance(String dataUri) {
-		super(dataUri);
-	}
+    /**
+     * Construct an instance of this class using the supplied datauri.
+     * 
+     * @param dataUri
+     */
+    public TropicalCycloneGuidance(String dataUri) {
+        super(dataUri);
+    }
 
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getWmoHeader() {
-		return wmoHeader;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * @param wmoHeader
-	 *            the wmoHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader) {
-		this.wmoHeader = wmoHeader;
-	}
+    /**
+     * @param wmoHeader
+     *            the wmoHeader to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	public String getModelName() {
-		return modelName;
-	}
+    public String getModelName() {
+        return modelName;
+    }
 
-	public void setModelName(String modelName) {
-		this.modelName = modelName;
-	}
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
 
-	/**
-	 * Set the data uri for this observation.
-	 * 
-	 * @param dataURI
-	 */
-	@Override
-	public void setDataURI(String dataURI) {
-		super.setDataURI(dataURI);
-		identifier = dataURI;
-	}
+    /**
+     * Set the data uri for this observation.
+     * 
+     * @param dataURI
+     */
+    @Override
+    public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
+        identifier = dataURI;
+    }
 
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
-	}
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        return null;
+    }
 
-	@Override
-	public SurfaceObsLocation getSpatialObject() {
-		return location;
-	}
+    @Override
+    public SurfaceObsLocation getSpatialObject() {
+        return location;
+    }
 
-	public SurfaceObsLocation getLocation() {
-		return location;
-	}
+    public SurfaceObsLocation getLocation() {
+        return location;
+    }
 
-	public void setLocation(SurfaceObsLocation location) {
-		this.location = location;
-	}
+    public void setLocation(SurfaceObsLocation location) {
+        this.location = location;
+    }
 
-	public String getStormName() {
-		return stormName;
-	}
+    public String getStormName() {
+        return stormName;
+    }
 
-	public void setStormName(String stormName) {
-		this.stormName = stormName;
-	}
+    public void setStormName(String stormName) {
+        this.stormName = stormName;
+    }
 
-	public TCGStormType getType() {
-		return type;
-	}
+    public TCGStormType getType() {
+        return type;
+    }
 
-	public void setType(TCGStormType type) {
-		this.type = type;
-	}
+    public void setType(TCGStormType type) {
+        this.type = type;
+    }
 
-	/**
-	 * Get this observation's geometry.
-	 * 
-	 * @return The geometry for this observation.
-	 */
-	public Geometry getGeometry() {
-		return location.getGeometry();
-	}
+    /**
+     * Get this observation's geometry.
+     * 
+     * @return The geometry for this observation.
+     */
+    public Geometry getGeometry() {
+        return location.getGeometry();
+    }
 
-	/**
-	 * Get the geometry latitude.
-	 * 
-	 * @return The geometry latitude.
-	 */
-	public double getLatitude() {
-		return location.getLatitude();
-	}
+    /**
+     * Get the geometry latitude.
+     * 
+     * @return The geometry latitude.
+     */
+    public double getLatitude() {
+        return location.getLatitude();
+    }
 
-	/**
-	 * Get the geometry longitude.
-	 * 
-	 * @return The geometry longitude.
-	 */
-	public double getLongitude() {
-		return location.getLongitude();
-	}
+    /**
+     * Get the geometry longitude.
+     * 
+     * @return The geometry longitude.
+     */
+    public double getLongitude() {
+        return location.getLongitude();
+    }
 
-	/**
-	 * Get the station identifier for this observation.
-	 * 
-	 * @return the stationId
-	 */
-	public String getStationId() {
-		return location.getStationId();
-	}
+    /**
+     * Get the station identifier for this observation.
+     * 
+     * @return the stationId
+     */
+    public String getStationId() {
+        return location.getStationId();
+    }
 
-	/**
-	 * Get the elevation, in meters, of the observing platform or location.
-	 * 
-	 * @return The observation elevation, in meters.
-	 */
-	public Integer getElevation() {
-		return location.getElevation();
-	}
+    /**
+     * Get the elevation, in meters, of the observing platform or location.
+     * 
+     * @return The observation elevation, in meters.
+     */
+    public Integer getElevation() {
+        return location.getElevation();
+    }
 
-	/**
-	 * Get whether the location for this observation is defined.
-	 * 
-	 * @return Is this location defined.
-	 */
-	public Boolean getLocationDefined() {
-		return location.getLocationDefined();
-	}
+    /**
+     * Get whether the location for this observation is defined.
+     * 
+     * @return Is this location defined.
+     */
+    public Boolean getLocationDefined() {
+        return location.getLocationDefined();
+    }
 
-	@Override
-	public PointDataView getPointDataView() {
-		return pointDataView;
-	}
+    @Override
+    public PointDataView getPointDataView() {
+        return pointDataView;
+    }
 
-	@Override
-	public void setPointDataView(PointDataView pointDataView) {
-		this.pointDataView = pointDataView;
-	}
+    @Override
+    public void setPointDataView(PointDataView pointDataView) {
+        this.pointDataView = pointDataView;
+    }
 
-	public String getProductType() {
-		return productType;
-	}
+    public String getProductType() {
+        return productType;
+    }
 
-	public void setProductType(String productType) {
-		this.productType = productType;
-	}
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Calendar c = getDataTime().getRefTimeAsCalendar();
-		if (c != null) {
-			sb.append(String.format("TCG:%1$tY%1$tm%1$td%1$tH%1$tM",
-					getDataTime().getRefTimeAsCalendar()));
-		} else {
-			sb.append("TCG:YYYYMMDDHHmm");
-		}
-		sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Calendar c = getDataTime().getRefTimeAsCalendar();
+        if (c != null) {
+            sb.append(String.format("TCG:%1$tY%1$tm%1$td%1$tH%1$tM",
+                    getDataTime().getRefTimeAsCalendar()));
+        } else {
+            sb.append("TCG:YYYYMMDDHHmm");
+        }
+        sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
+        return sb.toString();
+    }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "tcg";
     }
 }
