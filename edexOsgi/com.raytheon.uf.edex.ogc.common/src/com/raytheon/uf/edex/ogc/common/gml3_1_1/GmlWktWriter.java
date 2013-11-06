@@ -50,6 +50,17 @@ import net.opengis.gml.v_3_1_1.PolygonType;
 import net.opengis.gml.v_3_1_1.RingType;
 
 /**
+ * Converts GML 3.1.1 objects to Well Known Text
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 25, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

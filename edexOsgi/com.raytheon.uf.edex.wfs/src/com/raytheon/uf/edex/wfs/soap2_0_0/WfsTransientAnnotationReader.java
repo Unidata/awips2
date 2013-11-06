@@ -14,19 +14,21 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.jaxb.TransientAnnotationReader;
 
 /**
+ * Adds transient annotations to external classes used by WFS so they can be
+ * marshalled in the SOAP response
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public class WfsTransientAnnotationReader extends TransientAnnotationReader {
