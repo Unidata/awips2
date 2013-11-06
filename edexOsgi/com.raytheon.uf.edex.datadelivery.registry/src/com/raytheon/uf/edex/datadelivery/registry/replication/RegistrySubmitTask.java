@@ -23,10 +23,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.RunnableWithTransaction;
+import com.raytheon.uf.edex.datadelivery.registry.web.DataDeliveryRESTServices;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
+ * 10/30/2013   1538        bphillip    Updated to use non-static rest client
  * </pre>
  * 
  * @author bphillip
@@ -60,21 +61,25 @@ public class RegistrySubmitTask extends RunnableWithTransaction {
     /** The URL of the remote server to get the object from */
     private String remoteURL;
 
+    private DataDeliveryRESTServices restClient;
+
     public RegistrySubmitTask(TransactionTemplate txTemplate,
-            RegistryObjectDao dao, String objectId, String remoteURL) {
+            RegistryObjectDao dao, String objectId, String remoteURL,
+            DataDeliveryRESTServices restClient) {
         super(txTemplate);
         this.dao = dao;
         this.objectId = objectId;
         this.remoteURL = remoteURL;
+        this.restClient = restClient;
 
     }
 
     @Override
     public void runWithTransaction() {
         try {
-            RegistryObjectType objectToSubmit = RegistryRESTServices
-                    .getRegistryObject(RegistryObjectType.class, remoteURL,
-                            escapeObjectId(objectId));
+            RegistryObjectType objectToSubmit = restClient.getRegistryObject(
+                    RegistryObjectType.class, remoteURL,
+                    escapeObjectId(objectId));
 
             if (objectToSubmit.getSlotByName(EbxmlObjectUtil.HOME_SLOT_NAME) == null) {
                 objectToSubmit.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME,

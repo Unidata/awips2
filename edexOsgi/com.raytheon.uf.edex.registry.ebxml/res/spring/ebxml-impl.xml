@@ -44,6 +44,7 @@
 		<property name="registryObjectDao" ref="registryObjectDao"/>
 		<property name="dynamicRefDao" ref="dynamicObjectRefDao"/>
 		<property name="queryManager" ref="queryServiceImpl"/>
+		<property name="registryRestClient" ref="registryRestClient"/>
 	</bean>
 	
 	<bean id="registryXpathProcessor" class="com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor">

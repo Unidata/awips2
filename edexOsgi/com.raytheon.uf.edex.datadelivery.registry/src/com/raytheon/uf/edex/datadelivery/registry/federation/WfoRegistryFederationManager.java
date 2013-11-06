@@ -47,12 +47,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
-import com.raytheon.uf.common.registry.services.RegistryRESTServices;
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
+import com.raytheon.uf.edex.datadelivery.registry.web.DataDeliveryRESTServices;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -70,6 +69,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 5/22/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
  * 10/20/2013   1682        bphillip    Fixed query invocation
+ * 10/30/2013   1538        bphillip    This class now uses non-static rest/soap clients
  * </pre>
  * 
  * @author bphillip
@@ -80,11 +80,11 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 public class WfoRegistryFederationManager extends RegistryFederationManager
         implements RegistryInitializedListener {
 
-    /** The address of the NCF */
-    private String ncfAddress;
-
     /** The transaction template used to manually handle transactions */
     private TransactionTemplate txTemplate;
+
+    /** Data Delivery rest client services */
+    private DataDeliveryRESTServices dataDeliveryRestClient;
 
     /**
      * Creates a new WfoRegistryFederationManager
@@ -112,11 +112,10 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
      */
     protected WfoRegistryFederationManager(boolean federationEnabled,
             LifecycleManager lcm, String federationPropertiesFileName,
-            RegistryReplicationManager replicationManager, String ncfAddress)
+            RegistryReplicationManager replicationManager)
             throws JAXBException, IOException, SerializationException {
         super(federationEnabled, lcm, federationPropertiesFileName,
                 replicationManager);
-        this.ncfAddress = ncfAddress;
         if (this.replicationManager.getServers() == null
                 || CollectionUtil.isNullOrEmpty(replicationManager.getServers()
                         .getRegistryReplicationServers())) {
@@ -198,7 +197,7 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
         request.setQuery(query);
         QueryResponse response = null;
         try {
-            response = RegistrySOAPServices.getQueryServiceForHost(ncfAddress)
+            response = registrySoapServices.getQueryServiceForHost(ncfAddress)
                     .executeQuery(request);
         } catch (Exception e) {
             throw new EbxmlRegistryException(
@@ -253,7 +252,7 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
             if (!success) {
                 try {
                     try {
-                        if (RegistryRESTServices
+                        if (dataDeliveryRestClient
                                 .isRegistryAvailable(ncfAddress)) {
                             statusHandler
                                     .info("NCF Registry is available. Attempting to join federation...");
@@ -283,6 +282,11 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
 
     public void setTxTemplate(TransactionTemplate txTemplate) {
         this.txTemplate = txTemplate;
+    }
+
+    public void setDataDeliveryRestClient(
+            DataDeliveryRESTServices dataDeliveryRestClient) {
+        this.dataDeliveryRestClient = dataDeliveryRestClient;
     }
 
 }
