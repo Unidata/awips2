@@ -212,7 +212,8 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         int idx = x + y * this.gridDims[0];
 
         // System.out.println("paintImage idx==="+idx+" x=="+ijcoord.x+"  y====="+ijcoord.y);
-
+        // System.out.println("INDEX " + idx + " : " + x + "," + y + " : "
+        // + gridDims[0] + "," + gridDims[1]);
         if (idx < 0 || idx >= (gridDims[0] * gridDims[1])) {
             return;
         }
@@ -622,5 +623,94 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             match = true;
         }
         return match;
+    }
+
+    @Override
+    /*
+     * HACK hack hack ... this version of paintImage is being used for global
+     * grids. I don't think the grid <-> latlon transforms are working, so the
+     * index calculation has been modified. This is not a good solution, but was
+     * implemented due to time crunch for 13.5.2
+     */
+    protected void paintGlobalImage(int x, int y, PaintProperties paintProps,
+            double adjSize) throws VizException {
+        int adjx = x - 1;
+        // if (x > 0)
+        // adjx = 180 + x;
+        int adjy = y + 1;
+        if (x > 0) {
+            adjx++;
+            adjy = y;
+        }
+        int idx = adjx + adjy * this.gridDims[0];
+
+        // System.out.println("paintImage idx==="+idx+" x=="+ijcoord.x+"  y====="+ijcoord.y);
+        // System.out.println("INDEX " + idx + " : " + x + "," + y + " : " +
+        // adjx
+        // + "," + adjy + " : " + gridDims[0] + "," + gridDims[1]);
+        if (idx < 0 || idx >= (gridDims[0] * gridDims[1])) {
+            return;
+        }
+        float spd = this.magnitude.get(idx);
+        float dir = this.direction.get(idx);
+
+        if (Float.isNaN(spd) || Float.isNaN(dir)) {
+            return;
+        }
+
+        if (this.isPlotted[idx]) {
+            return;
+        }
+
+        ReferencedCoordinate newrco = new ReferencedCoordinate(new Coordinate(
+                x, y), this.gridGeometryOfGrid, Type.GRID_CENTER);
+        Coordinate plotLoc = null;
+
+        try {
+            plotLoc = newrco.asPixel(this.descriptor.getGridGeometry());
+            latLon = newrco.asLatLon();
+            // System.out.println("plotloc = " + latLon);
+
+            if (latLon.x > 180 || latLon.x < -180 || latLon.y < -90
+                    || latLon.y > 90) {
+                return;
+            }
+
+            double[] stationLocation = { latLon.x, latLon.y };
+            double[] stationPixelLocation = this.descriptor
+                    .worldToPixel(stationLocation);
+
+            if (stationPixelLocation != null) {
+                stationPixelLocation[1]--;
+                double[] newWorldLocation = this.descriptor
+                        .pixelToWorld(stationPixelLocation);
+                this.gc.setStartingGeographicPoint(stationLocation[0],
+                        stationLocation[1]);
+                this.gc.setDestinationGeographicPoint(newWorldLocation[0],
+                        newWorldLocation[1]);
+            }
+
+            dir = dir + (float) MapUtil.rotation(latLon, gridLocation);
+            dir -= this.gc.getAzimuth();
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
+
+        dir = (float) Math.toRadians(dir);
+        switch (displayType) {
+        case ARROW:
+            paintArrow(plotLoc, adjSize, spd, dir);
+            break;
+        case BARB:
+            paintBarb(plotLoc, adjSize, spd, dir);
+            break;
+        case DUALARROW:
+            paintDualArrow(plotLoc, adjSize, spd, dir);
+            break;
+        default:
+            throw new VizException("Unsupported disply type: " + displayType);
+        }
+
+        this.isPlotted[idx] = true;
     }
 }

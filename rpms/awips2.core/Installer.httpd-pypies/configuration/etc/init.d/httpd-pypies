@@ -77,7 +77,7 @@ check13 () {
 start() {		
         source /etc/profile.d/awips2HDF5Tools.sh
         echo -n $"Starting logging service:"
-        nohup su awips -c "$loggingCmd > /tmp/pypiesLoggingService.log 2>&1" > /dev/null 2>&1 &
+        nohup su awips -c "$loggingCmd > /tmp/pypiesLoggingService.log 2>&1" > /dev/null &
         RC=$?
         # TODO: need better checks to ensure that the logging service actually keeps
         #       running after startup.
@@ -98,10 +98,30 @@ start() {
         return $RETVAL
 }
 
+stop() {
+	echo -n $"Stopping $prog: "
+	/awips2/httpd_pypies/usr/sbin/apachectl -k graceful-stop
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
+    echo -n $"Stopping logging service:"
+    # Stop the logging process
+    for pid in `ps aux | grep [l]ogProcess.py | awk '{print $2}'`;
+    do
+       kill -9 ${pid}
+       RC=$?
+       if [ ${RC} -ne 0 ]; then
+          failure
+          return
+       fi
+    done
+    success
+    echo
+}
 # When stopping httpd a delay of >10 second is required before SIGKILLing the
 # httpd parent; this gives enough time for the httpd parent to SIGKILL any
 # errant children.
-stop() {
+forcestop() {
 	echo -n $"Stopping $prog: "
 	killproc -d 10 $httpd
 	RETVAL=$?
@@ -128,7 +148,7 @@ reload() {
         echo $"not reloading due to configuration syntax error"
         failure $"not reloading $httpd due to configuration syntax error"
     else
-        killproc $httpd -HUP
+        /awips2/httpd_pypies/usr/sbin/apachectl -k graceful
         RETVAL=$?
     fi
     echo
@@ -142,6 +162,9 @@ case "$1" in
   stop)
 	stop
 	;;
+  forcestop)
+  	forcestop
+  	;;
   status)
         status $httpd
 	RETVAL=$?
@@ -164,7 +187,7 @@ case "$1" in
 	RETVAL=$?
 	;;
   *)
-	echo $"Usage: $prog {start|stop|restart|condrestart|reload|status|fullstatus|graceful|help|configtest}"
+	echo $"Usage: $prog {start|stop|forcestop|restart|condrestart|reload|status|fullstatus|graceful|help|configtest}"
 	exit 1
 esac
 

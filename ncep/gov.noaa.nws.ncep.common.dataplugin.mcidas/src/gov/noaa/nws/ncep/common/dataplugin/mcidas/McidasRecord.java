@@ -8,16 +8,18 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/2009      144         T. Lee      Created
- * 11/2009		144			T. Lee		Implemented area name and
- *										added file name
- * 12/2009		144			T. Lee		Added calType, satelliteId
- *										and imageTypeNumber
- * 05/2010		144			L. Lin		Migration to TO11DR11.
- * 09/2012					B. Hebbard  Merge out RTS changes from OB12.9.1
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 11/2009      144         T. Lee      Implemented area name and  added file
+ *                                      name
+ * 12/2009      144         T. Lee      Added calType, satelliteId  and
+ *                                      imageTypeNumber
+ * 05/2010      144         L. Lin      Migration to TO11DR11.
+ * 09/2012                  B. Hebbard  Merge out RTS changes from OB12.9.1
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -65,12 +67,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "mcidas",
-		indexes = {
-				@Index(name = "mcidas_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "mcidas", indexes = { @Index(name = "mcidas_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -223,7 +221,6 @@ public class McidasRecord extends PersistablePluginDataObject implements
         super(uri);
     }
 
-    
     /**
      * Set the time to be used for the persistence time for this object.
      * 
@@ -378,5 +375,10 @@ public class McidasRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "mcidas";
     }
 }
