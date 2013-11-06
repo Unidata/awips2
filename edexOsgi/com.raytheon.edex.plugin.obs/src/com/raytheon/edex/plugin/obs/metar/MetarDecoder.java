@@ -54,29 +54,30 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 
  * SOFTWARE HISTORY
  *                     
- * ate          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 2/14/07      139         bphillip    Initial creation                        
- * 20071029            505  jkorman     Changed setting of DataTime from refhour
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Feb 14, 2007 139         bphillip    Initial creation
+ * Oct 29, 2007 505         jkorman     Changed setting of DataTime from refhour
  *                                      to observation time.
- * 20071128            575  jkorman     Added future obs time threshold check in
+ * Nov 28, 2007 575         jkorman     Added future obs time threshold check in
  *                                      decode.
- * 12/07/07     452         bphillip    Retrieve lat/lon info from station table
- * 12/17/07     628         bphillip    Discarding data with no station info
- * 20071217            453  jkorman     Major restructure of the decode method
+ * Dec 07, 2007 452         bphillip    Retrieve lat/lon info from station table
+ * Dec 17, 2007 628         bphillip    Discarding data with no station info
+ * Dec 17, 2007 453         jkorman     Major restructure of the decode method
  *                                      to ensure that all sections are decoded
  *                                      properly. Added cleanMessage method.
- * 20071218            453  jkorman     Added metric winds and visibility.
- * 20071221            665  jkorman     Modified metric vis to ensure it is not
+ * Dec 18, 2007 453         jkorman     Added metric winds and visibility.
+ * Dec 21, 2007 665         jkorman     Modified metric vis to ensure it is not
  *                                      decoding alstg data. Added checks for
  *                                      NSC, NCD, and CAVOK. Added checks for
  *                                      metric sector vis.
- * 20080102            667  jkorman     Added code to properly decode/store clear
- *                                      sky conditions.                                                                            
- * 20080116            798  jkorman      Changed logging levels.
- * 20080414            996  jkorman     Rewrote sky cover decode section to handle
- *                                      CB/TCU and /// data.
- * 11/11/08           1684  chammack    Camel refactor.
+ * Jan 02, 2008 667         jkorman     Added code to properly decode/store
+ *                                      clear  sky conditions.
+ * Jan 16, 2008 798         jkorman     Changed logging levels.
+ * Apr 14, 2008 996         jkorman     Rewrote sky cover decode section to
+ *                                      handle  CB/TCU and /// data.
+ * Nov 11, 2008 1684        chammack    Camel refactor.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author bphillip
@@ -185,8 +186,6 @@ public class MetarDecoder extends AbstractDecoder {
     public static final Pattern SUNSHINE = Pattern
             .compile("(\\b)98(\\d{3}|///)");
 
-    private final String PLUGIN_NAME;
-
     private boolean useMockInfo = false;
 
     private ObStation mockInfo = null;
@@ -195,8 +194,7 @@ public class MetarDecoder extends AbstractDecoder {
 
     private String traceId = null;
 
-    public MetarDecoder(String pluginName) throws DecoderException {
-        PLUGIN_NAME = pluginName;
+    public MetarDecoder() {
         VIS_PARSER = new VisibilityParser();
     }
 
@@ -924,7 +922,6 @@ public class MetarDecoder extends AbstractDecoder {
                     record.setSunshine(value);
                 }
 
-                record.setPluginName(PLUGIN_NAME);
                 record.constructDataURI();
 
                 record.setWmoHeader(sep.getWMOHeader().getWmoHeader());
@@ -1008,7 +1005,7 @@ public class MetarDecoder extends AbstractDecoder {
         StringBuilder sb = null;
         if (data != null) {
             sb = new StringBuilder(data);
-            for (int i = 0; i < sb.length() - 1; i++) {
+            for (int i = 0; i < (sb.length() - 1); i++) {
                 if (sb.charAt(i) == '0') {
                     sb.setCharAt(i, ' ');
                 }

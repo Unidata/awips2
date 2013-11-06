@@ -69,10 +69,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/09/10      4638        bphillip    Initial Creation
+ * Apr 09, 2010 4638        bphillip    Initial Creation
  * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
  * Mar 27, 2013 1821        bsteffen    Reduce db and pypies requests in grid
  *                                      assembler.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -231,7 +232,6 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         newRecord.setEnsembleId(record.getEnsembleId());
         newRecord.setDataTime(record.getDataTime());
         newRecord.setDataURI(null);
-        newRecord.setPluginName(GridConstants.GRID);
         newRecord.setInsertTime(Calendar.getInstance());
         try {
             newRecord.constructDataURI();
@@ -319,7 +319,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         } else {
             Util.insertSubgrid(assembledData, Util.resizeDataTo2D(
                     (float[]) record.getMessageData(), coverage.getNx(),
-                    coverage.getNy()), nx * modIndex - modIndex, 0, nx, ny);
+                    coverage.getNy()), (nx * modIndex) - modIndex, 0, nx, ny);
         }
 
         assembledRecord.setMessageData(Util.resizeDataTo1D(assembledData,
