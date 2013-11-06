@@ -35,7 +35,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 4, 2012            bsteffen     Initial creation
+ * May 04, 2012            bsteffen    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -62,10 +63,9 @@ public class GridToGribConverter {
             GridRecord grid = records[i];
             GribRecord grib = new GribRecord();
             GribModel model = new GribModel();
-            grib.setPluginName("grib");
             grib.setDataTime(grid.getDataTime());
             model.setModelName(grid.getDatasetId());
-            if (grid.getSecondaryId() != null
+            if ((grid.getSecondaryId() != null)
                     && grid.getSecondaryId().startsWith("Version")) {
                 grib.setGridVersion(Integer.parseInt(grid.getSecondaryId()
                         .replace("Version", "")));
@@ -108,31 +108,31 @@ public class GridToGribConverter {
                 model.setTypeEnsemble(3);
             }
             Object centerid = grid.getExtraAttribute("centerid");
-            if (centerid != null && centerid instanceof Integer) {
+            if ((centerid != null) && (centerid instanceof Integer)) {
                 model.setCenterid((Integer) centerid);
             }
             Object subcenterid = grid.getExtraAttribute("subcenterid");
-            if (subcenterid != null && subcenterid instanceof Integer) {
+            if ((subcenterid != null) && (subcenterid instanceof Integer)) {
                 model.setSubcenterid((Integer) subcenterid);
             }
             Object genprocess = grid.getExtraAttribute("genprocess");
-            if (genprocess != null && genprocess instanceof Integer) {
+            if ((genprocess != null) && (genprocess instanceof Integer)) {
                 model.setGenprocess((Integer) genprocess);
             }
             Object backGenprocess = grid.getExtraAttribute("backGenprocess");
-            if (backGenprocess != null && backGenprocess instanceof Integer) {
+            if ((backGenprocess != null) && (backGenprocess instanceof Integer)) {
                 model.setBackGenprocess((Integer) backGenprocess);
             }
             Object pdsTemplate = grid.getExtraAttribute("pdsTemplate");
-            if (pdsTemplate != null && pdsTemplate instanceof Integer) {
+            if ((pdsTemplate != null) && (pdsTemplate instanceof Integer)) {
                 model.setPdsTemplate((Integer) pdsTemplate);
             }
             Object gridid = grid.getExtraAttribute("gridid");
-            if (gridid != null && gridid instanceof String) {
+            if ((gridid != null) && (gridid instanceof String)) {
                 model.setGridid((String) gridid);
             }
             Object numForecasts = grid.getExtraAttribute("numForecasts");
-            if (numForecasts != null && numForecasts instanceof Integer) {
+            if ((numForecasts != null) && (numForecasts instanceof Integer)) {
                 model.setNumForecasts((Integer) numForecasts);
             }
             model.setLevel(grid.getLevel());
