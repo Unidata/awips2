@@ -17,18 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.archive.data;
+package com.raytheon.uf.viz.archive.ui;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.raytheon.uf.common.archive.config.DisplayData;
 
 /**
- * This class obtains information on a File in a Job in order to remove it from
- * the UI thread.
+ * Interface for copying source files/directories to the desired type of
+ * destination.
  * 
  * <pre>
  * 
@@ -36,7 +35,7 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 15, 2013 1966       rferrel     Initial creation
+ * Aug 21, 2013 2225       rferrel     Initial creation
  * 
  * </pre>
  * 
@@ -44,39 +43,34 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * @version 1.0
  */
 
-public class SizeJobRequest {
-
-    /** Information from archive configuration manager. */
-    final DisplayData displayData;
-
-    /** Files or directories to obtain information on. */
-    final List<File> files = new ArrayList<File>();
-
-    /** Start time inclusive. */
-    final Calendar startCal;
-
-    /** End time exclusive. */
-    final Calendar endCal;
+public interface ICaseCopy {
 
     /**
-     * Create and entry and place it on the queue.
+     * Prepare copier for sending display data's archive and category
+     * selections.
      * 
+     * @param caseDir
+     *            - top level case directory file
      * @param displayData
-     * @param startCal
-     * @param endCal
+     *            - data preparing to move
+     * @param shutdown
+     *            - Flag to check for orderly shudown
+     * @throws CaseCreateException
      */
-    public SizeJobRequest(DisplayData displayData, Calendar startCal,
-            Calendar endCal) {
-        this.displayData = displayData;
-        this.startCal = startCal;
-        this.endCal = endCal;
-    }
+    public void startCase(File caseDir, DisplayData displayData,
+            AtomicBoolean shutdown) throws CaseCreateException;
 
     /**
+     * A source to copy.
      * 
-     * @return displayData
+     * @param source
+     * @throws IOException
      */
-    public DisplayData getDisplayData() {
-        return displayData;
-    }
+    public void copy(File source) throws CaseCreateException;
+
+    /**
+     * Finish the move process for the current archive and category.
+     * 
+     */
+    public void finishCase() throws CaseCreateException;
 }

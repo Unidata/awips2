@@ -71,14 +71,16 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
- * 20090413           2251 jsanchez    Implemented IDecoderGettable methods
- *                                      and plotted Profiler plots.
- * 20090610           2489 jsanchez    Updated the windSpeeed & windDirection.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * Apr 13, 2009 2251       jsanchez    Implemented IDecoderGettable methods  and
+ *                                     plotted Profiler plots.
+ * Jun 10, 2009 2489       jsanchez    Updated the windSpeeed & windDirection.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -92,12 +94,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "profiler",
-		indexes = {
-				@Index(name = "profiler_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "profiler", indexes = { @Index(name = "profiler_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -607,18 +605,20 @@ public class ProfilerObs extends PersistablePluginDataObject implements
                         // Adjust to agl heights!
                         Integer height = l.getLevelHeight() - getElevation();
 
-                        if (level == 1500 && height <= 1500 && height >= 1250) {
+                        if ((level == 1500) && (height <= 1500)
+                                && (height >= 1250)) {
                             retValue = l;
-                        } else if (level == 1250 && height <= 1500
-                                && height > 1125) {
+                        } else if ((level == 1250) && (height <= 1500)
+                                && (height > 1125)) {
                             retValue = l;
-                        } else if (level == 1000 && height <= 1125
-                                && height > 875) {
+                        } else if ((level == 1000) && (height <= 1125)
+                                && (height > 875)) {
                             retValue = l;
-                        } else if (level == 750 && height <= 875
-                                && height > 625) {
+                        } else if ((level == 750) && (height <= 875)
+                                && (height > 625)) {
                             retValue = l;
-                        } else if (level == 500 && height <= 625 && height > 0) {
+                        } else if ((level == 500) && (height <= 625)
+                                && (height > 0)) {
                             retValue = l;
                         }
                         // No need to go higher than this.
@@ -696,5 +696,10 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "profiler";
     }
 }
