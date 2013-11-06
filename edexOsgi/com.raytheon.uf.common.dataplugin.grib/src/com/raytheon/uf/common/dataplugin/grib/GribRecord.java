@@ -65,12 +65,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 04/08/13     1293        bkowal      Removed references to hdffileid.
+ * Apr 07, 2009 1994        bphillip    Initial Creation
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -84,12 +86,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "grib",
-		indexes = {
-				@Index(name = "grib_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "grib", indexes = { @Index(name = "grib_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -238,7 +236,6 @@ public class GribRecord extends PersistablePluginDataObject implements
             this.insertTime = (Calendar) recordToCopy.insertTime.clone();
         }
         this.messageData = recordToCopy.messageData;
-        this.pluginName = recordToCopy.pluginName;
         this.gridVersion = recordToCopy.gridVersion;
         if (recordToCopy.hybridCoordList != null) {
             this.hybridCoordList = Arrays.copyOf(recordToCopy.hybridCoordList,
@@ -278,8 +275,9 @@ public class GribRecord extends PersistablePluginDataObject implements
     @Override
     public Date getPersistenceTime() {
         Calendar c = getInsertTime();
-        if (c == null)
+        if (c == null) {
             return null;
+        }
 
         return c.getTime();
     }
@@ -526,6 +524,7 @@ public class GribRecord extends PersistablePluginDataObject implements
         this.resCompFlags = resCompFlags;
     }
 
+    @Override
     public void setId(int id) {
         this.id = id;
     }
@@ -566,34 +565,37 @@ public class GribRecord extends PersistablePluginDataObject implements
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + gridVersion;
-        result = prime * result + Arrays.hashCode(hybridCoordList);
-        result = prime * result + (hybridGrid ? 1231 : 1237);
-        result = prime * result + (isVector ? 1231 : 1237);
-        result = prime * result + Arrays.hashCode(localSection);
-        result = prime * result + (localSectionUsed ? 1231 : 1237);
-        result = prime * result + localTableVersion;
-        result = prime * result + masterTableVersion;
-        result = prime * result
+        result = (prime * result) + gridVersion;
+        result = (prime * result) + Arrays.hashCode(hybridCoordList);
+        result = (prime * result) + (hybridGrid ? 1231 : 1237);
+        result = (prime * result) + (isVector ? 1231 : 1237);
+        result = (prime * result) + Arrays.hashCode(localSection);
+        result = (prime * result) + (localSectionUsed ? 1231 : 1237);
+        result = (prime * result) + localTableVersion;
+        result = (prime * result) + masterTableVersion;
+        result = (prime * result)
                 + ((modelInfo == null) ? 0 : modelInfo.hashCode());
-        result = prime * result + processedDataType;
-        result = prime * result + productionStatus;
-        result = prime * result + refTimeSignificance;
-        result = prime * result
+        result = (prime * result) + processedDataType;
+        result = (prime * result) + productionStatus;
+        result = (prime * result) + refTimeSignificance;
+        result = (prime * result)
                 + ((resCompFlags == null) ? 0 : resCompFlags.hashCode());
-        result = prime * result + (thinnedGrid ? 1231 : 1237);
-        result = prime * result + Arrays.hashCode(thinnedPts);
+        result = (prime * result) + (thinnedGrid ? 1231 : 1237);
+        result = (prime * result) + Arrays.hashCode(thinnedPts);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GribRecord other = (GribRecord) obj;
         if (!this.dataTime.getRefTimeAsCalendar().equals(
                 other.getDataTime().getRefTimeAsCalendar())) {
@@ -606,42 +608,59 @@ public class GribRecord extends PersistablePluginDataObject implements
             return false;
         }
 
-        if (gridVersion != other.gridVersion)
+        if (gridVersion != other.gridVersion) {
             return false;
-        if (!Arrays.equals(hybridCoordList, other.hybridCoordList))
+        }
+        if (!Arrays.equals(hybridCoordList, other.hybridCoordList)) {
             return false;
-        if (hybridGrid != other.hybridGrid)
+        }
+        if (hybridGrid != other.hybridGrid) {
             return false;
-        if (isVector != other.isVector)
+        }
+        if (isVector != other.isVector) {
             return false;
-        if (!Arrays.equals(localSection, other.localSection))
+        }
+        if (!Arrays.equals(localSection, other.localSection)) {
             return false;
-        if (localSectionUsed != other.localSectionUsed)
+        }
+        if (localSectionUsed != other.localSectionUsed) {
             return false;
-        if (localTableVersion != other.localTableVersion)
+        }
+        if (localTableVersion != other.localTableVersion) {
             return false;
-        if (masterTableVersion != other.masterTableVersion)
+        }
+        if (masterTableVersion != other.masterTableVersion) {
             return false;
+        }
         if (modelInfo == null) {
-            if (other.modelInfo != null)
+            if (other.modelInfo != null) {
                 return false;
-        } else if (!modelInfo.equals(other.modelInfo))
+            }
+        } else if (!modelInfo.equals(other.modelInfo)) {
             return false;
-        if (processedDataType != other.processedDataType)
+        }
+        if (processedDataType != other.processedDataType) {
             return false;
-        if (productionStatus != other.productionStatus)
+        }
+        if (productionStatus != other.productionStatus) {
             return false;
-        if (refTimeSignificance != other.refTimeSignificance)
+        }
+        if (refTimeSignificance != other.refTimeSignificance) {
             return false;
+        }
         if (resCompFlags == null) {
-            if (other.resCompFlags != null)
+            if (other.resCompFlags != null) {
                 return false;
-        } else if (!resCompFlags.equals(other.resCompFlags))
+            }
+        } else if (!resCompFlags.equals(other.resCompFlags)) {
             return false;
-        if (thinnedGrid != other.thinnedGrid)
+        }
+        if (thinnedGrid != other.thinnedGrid) {
             return false;
-        if (!Arrays.equals(thinnedPts, other.thinnedPts))
+        }
+        if (!Arrays.equals(thinnedPts, other.thinnedPts)) {
             return false;
+        }
         return true;
     }
 
@@ -650,5 +669,10 @@ public class GribRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "grib";
     }
 }

@@ -1,30 +1,3 @@
-/**
- * 
- * IdftRecord.java
- * 
- * This java class performs the mapping to the database tables for the Ice Drift
- * (IDFT) Decoder Plug-In.
- *
- * <pre>
- * 
- * SOFTWARE HISTORY
- * Date			Ticket#		Engineer		Description
- * ------------	----------- --------------	-----------------------------------
- * 05/21/09		   100		F. J. Yen		Initial creation
- * 12/08/09		   100		F. J. Yen		Modified for to11d6 from to11d3
- * 05/27/10		   100		F. J. Yen		Refactored from to11dr3 for tolldr11
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013    1857     bgonzale        Added SequenceGenerator annotation.
- * 03/07/13        982      Archana         Updated getPointNum() to return an Integer
- * 
- * *
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * </pre>
- * 
- * @author F. J. Yen, SIB
- * @version 1
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.idft;
 
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
@@ -52,19 +25,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
+ * This java class performs the mapping to the database tables for the Ice Drift
+ * (IDFT) Decoder Plug-In.
  * 
- * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ *
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 07/22/2013   1977       rjpeter     Added getDataURI and annotations.
- * 
+ * ------------ --------- ----------- --------------------------
+ * May 21, 2009 100       F. J. Yen   Initial creation
+ * Dec 08, 2009 100       F. J. Yen   Modified for to11d6 from to11d3
+ * May 27, 2010 100       F. J. Yen   Refactored from to11dr3 for tolldr11
+ * Apr 04, 2013 1846      bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857      bgonzale    Added SequenceGenerator annotation.
+ * Mar 07, 2013 982       Archana     Updated getPointNum() to return an Integer
+ * Jul 22, 2013 1977      rjpeter     Added getDataURI and annotations.
+ * Aug 30, 2013 2298      rjpeter     Make getPluginName abstract
  * </pre>
+ *
  * 
- * @author rjpeter
+ * @author F. J. Yen, SIB
  * @version 1.0
  */
 @Entity
@@ -221,5 +204,10 @@ public class IdftRecord extends PluginDataObject {
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "idft";
     }
 }

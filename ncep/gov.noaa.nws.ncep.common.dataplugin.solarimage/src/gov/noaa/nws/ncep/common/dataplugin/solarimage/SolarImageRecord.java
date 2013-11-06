@@ -32,13 +32,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
- * 12/05/2012   865        sgurung, qzhou     Initial creation.
- * 01/07/2013   865        qzhou              Added "Site" for Halpha.
- * 01/28/2013   865        qzhou              Changed float to double for intTime.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013 1857       bgonzale           Added SequenceGenerator annotation.
+ * Dec 05, 2012 865        sgurung, qzhou     Initial creation.
+ * Jan 07, 2013 865        qzhou              Added "Site" for Halpha.
+ * Jan 28, 2013 865        qzhou              Changed float to double for
+ *                                            intTime.
+ * Apr 04, 2013 1846       bkowal             Added  an index on refTime and
+ *                                            forecastTime
+ * Apr 12, 2013 1857       bgonzale           Added SequenceGenerator
+ *                                            annotation.
  * May 07, 2013 1869       bsteffen           Remove dataURI column from
  *                                            PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter            Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -53,12 +57,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "solarimage",
-		indexes = {
-				@Index(name = "solarimage_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "solarimage", indexes = { @Index(name = "solarimage_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -103,7 +103,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     @DynamicSerializeElement
     @XmlAttribute
     private Double intTime;
-    
+
     /**
      * Site
      */
@@ -112,7 +112,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     @DynamicSerializeElement
     @XmlAttribute
     private String site;
-    
+
     /**
      * hdu containing image data
      */
@@ -120,16 +120,16 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     @DynamicSerializeElement
     @XmlAttribute
     private int imageHDUNum;
-  
+
     /**
      * report type
      */
     @DataURI(position = 6)
-    @Column 
+    @Column
     @DynamicSerializeElement
     @XmlAttribute
     private String reportType;
-    
+
     /**
      * raw data
      */
@@ -167,7 +167,6 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     public void setInstrument(String instrument) {
         this.instrument = instrument;
     }
-   
 
     /**
      * @return the satellite
@@ -198,7 +197,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     public void setWavelength(String wavelength) {
         this.wavelength = wavelength;
     }
-  
+
     /**
      * @return the intTime
      */
@@ -213,7 +212,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     public void setIntTime(Double intTime) {
         this.intTime = intTime;
     }
-    
+
     /**
      * @return the site
      */
@@ -228,7 +227,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     public void setSite(String site) {
         this.site = site;
     }
-    
+
     /**
      * @return the reportType
      */
@@ -250,20 +249,20 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     public int getImageHDUNum() {
         return imageHDUNum;
     }
-   
+
     /**
      * @param imageHDUNum
      *            the hdu containing image data
      */
     public void setImageHDUNum(int hduId) {
         this.imageHDUNum = hduId;
-    }  
-    
+    }
+
     @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
-      
+
     /**
      * @return the raw_data
      */
@@ -280,24 +279,29 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     }
 
     public void retrieveFromDataStore(IDataStore dataStore) {
-        
+
         try {
             IDataRecord[] dataRec = dataStore.retrieve(getDataURI());
-            for (int i = 0; i < dataRec.length; i++) {
-                if (dataRec[i].getName().equals(SolarImageRecord.RAW_DATA)) {
-                	 raw_data = (((ByteDataRecord) dataRec[i]).getByteData());
-                } 
+            for (IDataRecord element : dataRec) {
+                if (element.getName().equals(SolarImageRecord.RAW_DATA)) {
+                    raw_data = (((ByteDataRecord) element).getByteData());
+                }
             }
 
         } catch (Exception se) {
             se.printStackTrace();
         }
     }
-   
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "solarimage";
     }
 }
