@@ -47,14 +47,15 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * 20080529           1131 jkorman     Added new Separator constructor.
- * 11/11/08           1684 chammack    Refactored to camel
- * 20090327           2019 jkorman     Added code to check for non-redbook data.
- * 20120524           #647 dgilling    Update persistence time in 
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * May 29, 2008 1131       jkorman     Added new Separator constructor.
+ * Nov 11, 2008 1684       chammack    Refactored to camel
+ * Mar 27, 2009 2019       jkorman     Added code to check for non-redbook data.
+ * May 24, 2012 647        dgilling    Update persistence time in
  *                                     createdBackDatedVersionIfNeeded.
- * Mar 19, 2013       1785 bgonzale    Added performance status handler and added
- *                                     status to decode.
+ * Mar 19, 2013 1785       bgonzale    Added performance status handler and
+ *                                     added  status to decode.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author jkorman
@@ -95,6 +96,7 @@ public class RedbookDecoder extends AbstractDecoder {
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("Redbook:");
+
     private String traceId = null;
 
     /**
@@ -142,12 +144,11 @@ public class RedbookDecoder extends AbstractDecoder {
                             + "- File is not Redbook data. Type is "
                             + foreign.dataType);
                 } else {
-                    report = new RedbookParser(traceId, data,
-                            wmoHeader).getDecodedRecord();
+                    report = new RedbookParser(traceId, data, wmoHeader)
+                            .getDecodedRecord();
                 }
                 if (report != null) {
                     report.setPersistenceTime(new Date());
-                    report.setPluginName(PLUGIN_NAME);
                     try {
                         report.constructDataURI();
 
@@ -219,7 +220,6 @@ public class RedbookDecoder extends AbstractDecoder {
                 // and the Wes2Bridge archiver properly finds these backdated
                 // records
                 backDatedRecord.setPersistenceTime(new Date());
-                backDatedRecord.setPluginName(PLUGIN_NAME);
                 backDatedRecord.constructDataURI();
             } catch (PluginException e) {
                 logger.error(traceId + "Could not create back-dated copy of "

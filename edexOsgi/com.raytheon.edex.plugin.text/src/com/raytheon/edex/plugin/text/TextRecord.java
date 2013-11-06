@@ -38,9 +38,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 5, 2008            jkorman     Initial creation
+ * Dec 05, 2008            jkorman     Initial creation
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -108,4 +109,8 @@ public class TextRecord extends PluginDataObject {
         return super.getDataURI();
     }
 
+    @Override
+    public String getPluginName() {
+        return "text";
+    }
 }
