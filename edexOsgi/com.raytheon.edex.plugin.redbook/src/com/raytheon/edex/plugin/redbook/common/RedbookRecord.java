@@ -61,14 +61,17 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * 20080529           1131 jkorman     getPersistenceTime now returns system time.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 20130408           1293 bkowal      Removed references to hdffileid.
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
- * Apr 29, 2013       1958 bgonzale    Added equals and hashcode.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * May 29, 2008 1131       jkorman     getPersistenceTime now returns system
+ *                                     time.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 08, 2013 1293       bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * Apr 29, 2013 1958       bgonzale    Added equals and hashcode.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -82,17 +85,13 @@ import com.raytheon.uf.common.time.DataTime;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "redbook",
-		indexes = {
-				@Index(name = "redbook_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "redbook", indexes = { @Index(name = "redbook_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RedbookRecord extends PersistablePluginDataObject
-        implements IPersistable, Cloneable {
+public class RedbookRecord extends PersistablePluginDataObject implements
+        IPersistable, Cloneable {
 
     private static final long serialVersionUID = 1L;
 
@@ -361,7 +360,8 @@ public class RedbookRecord extends PersistablePluginDataObject
         other.id = 0;
         other.dataURI = null;
 
-        Date newRefTime = new Date(dataTime.getRefTime().getTime() - 60 * 1000);
+        Date newRefTime = new Date(dataTime.getRefTime().getTime()
+                - (60 * 1000));
         if (dataTime.getUtilityFlags().contains(DataTime.FLAG.FCST_USED)) {
             other.dataTime = new DataTime(newRefTime, dataTime.getFcstTime());
         } else {
@@ -380,22 +380,23 @@ public class RedbookRecord extends PersistablePluginDataObject
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + ((corIndicator == null) ? 0 : corIndicator.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((fcstHours == null) ? 0 : fcstHours.hashCode());
-        result = prime * result + ((fileId == null) ? 0 : fileId.hashCode());
-        result = prime * result
+        result = (prime * result) + ((fileId == null) ? 0 : fileId.hashCode());
+        result = (prime * result)
                 + ((originatorId == null) ? 0 : originatorId.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((productId == null) ? 0 : productId.hashCode());
-        result = prime * result + Arrays.hashCode(redBookData);
-        result = prime * result
+        result = (prime * result) + Arrays.hashCode(redBookData);
+        result = (prime * result)
                 + ((retentionHours == null) ? 0 : retentionHours.hashCode());
-        result = prime * result + ((timeObs == null) ? 0 : timeObs.hashCode());
-        result = prime * result
+        result = (prime * result)
+                + ((timeObs == null) ? 0 : timeObs.hashCode());
+        result = (prime * result)
                 + ((wmoCCCCdt == null) ? 0 : wmoCCCCdt.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((wmoTTAAii == null) ? 0 : wmoTTAAii.hashCode());
         return result;
     }
@@ -407,60 +408,82 @@ public class RedbookRecord extends PersistablePluginDataObject
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         RedbookRecord other = (RedbookRecord) obj;
         if (corIndicator == null) {
-            if (other.corIndicator != null)
+            if (other.corIndicator != null) {
                 return false;
-        } else if (!corIndicator.equals(other.corIndicator))
+            }
+        } else if (!corIndicator.equals(other.corIndicator)) {
             return false;
+        }
         if (fcstHours == null) {
-            if (other.fcstHours != null)
+            if (other.fcstHours != null) {
                 return false;
-        } else if (!fcstHours.equals(other.fcstHours))
+            }
+        } else if (!fcstHours.equals(other.fcstHours)) {
             return false;
+        }
         if (fileId == null) {
-            if (other.fileId != null)
+            if (other.fileId != null) {
                 return false;
-        } else if (!fileId.equals(other.fileId))
+            }
+        } else if (!fileId.equals(other.fileId)) {
             return false;
+        }
         if (originatorId == null) {
-            if (other.originatorId != null)
+            if (other.originatorId != null) {
                 return false;
-        } else if (!originatorId.equals(other.originatorId))
+            }
+        } else if (!originatorId.equals(other.originatorId)) {
             return false;
+        }
         if (productId == null) {
-            if (other.productId != null)
+            if (other.productId != null) {
                 return false;
-        } else if (!productId.equals(other.productId))
+            }
+        } else if (!productId.equals(other.productId)) {
             return false;
-        if (!Arrays.equals(redBookData, other.redBookData))
+        }
+        if (!Arrays.equals(redBookData, other.redBookData)) {
             return false;
+        }
         if (retentionHours == null) {
-            if (other.retentionHours != null)
+            if (other.retentionHours != null) {
                 return false;
-        } else if (!retentionHours.equals(other.retentionHours))
+            }
+        } else if (!retentionHours.equals(other.retentionHours)) {
             return false;
+        }
         if (timeObs == null) {
-            if (other.timeObs != null)
+            if (other.timeObs != null) {
                 return false;
-        } else if (!timeObs.equals(other.timeObs))
+            }
+        } else if (!timeObs.equals(other.timeObs)) {
             return false;
+        }
         if (wmoCCCCdt == null) {
-            if (other.wmoCCCCdt != null)
+            if (other.wmoCCCCdt != null) {
                 return false;
-        } else if (!wmoCCCCdt.equals(other.wmoCCCCdt))
+            }
+        } else if (!wmoCCCCdt.equals(other.wmoCCCCdt)) {
             return false;
+        }
         if (wmoTTAAii == null) {
-            if (other.wmoTTAAii != null)
+            if (other.wmoTTAAii != null) {
                 return false;
-        } else if (!wmoTTAAii.equals(other.wmoTTAAii))
+            }
+        } else if (!wmoTTAAii.equals(other.wmoTTAAii)) {
             return false;
+        }
         return true;
     }
 
@@ -471,4 +494,8 @@ public class RedbookRecord extends PersistablePluginDataObject
         return super.getDataURI();
     }
 
+    @Override
+    public String getPluginName() {
+        return "redbook";
+    }
 }

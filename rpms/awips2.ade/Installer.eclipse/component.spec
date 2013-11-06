@@ -9,7 +9,7 @@
 
 Name: awips2-eclipse
 Summary: AWIPS II Eclipse Distribution
-Version: 3.6.1
+Version: 3.8.2
 Release: 1
 Group: AWIPSII
 BuildRoot: %{_build_root}
@@ -46,6 +46,7 @@ mkdir -p %{_build_root}/awips2/eclipse
 %build
 
 %install
+mkdir -p %{_build_root}/awips2/eclipse
 # The location of the awips2 eclipse source directory will be
 # specified as a command line argument. Fail if the specified
 # directory cannot be found.
