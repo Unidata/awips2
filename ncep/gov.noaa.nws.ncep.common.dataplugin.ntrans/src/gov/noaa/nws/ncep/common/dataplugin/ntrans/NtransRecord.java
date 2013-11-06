@@ -18,8 +18,6 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ntrans;
 
-import java.util.Calendar;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -52,50 +50,46 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "ntrans",
-		indexes = {
-				@Index(name = "ntrans_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "ntrans", indexes = { @Index(name = "ntrans_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class NtransRecord extends PersistablePluginDataObject {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @Column
-	@DataURI(position=1)
+    @DataURI(position = 1)
     @XmlElement
     @DynamicSerializeElement
     private String modelName;
 
     @Column
-	@DataURI(position=2)
+    @DataURI(position = 2)
     @XmlElement
     @DynamicSerializeElement
-    private String metafileName ;
+    private String metafileName;
 
     @Column
-	@DataURI(position=3)
+    @DataURI(position = 3)
     @XmlElement
     @DynamicSerializeElement
     private String productName;
 
-	@Column
+    @Column
     @XmlElement
     @DynamicSerializeElement
     private String validTimeString;
-	
-	@Column
-	@XmlElement
-	@DynamicSerializeElement
-	private String reportType;
-	
-	@Transient
-	private byte[] imageData;
+
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private String reportType;
+
+    @Transient
+    private byte[] imageData;
 
     @Column
     @XmlElement
@@ -121,136 +115,140 @@ public class NtransRecord extends PersistablePluginDataObject {
     @XmlElement
     @DynamicSerializeElement
     private int totalFramesInFile;
-	
-	/**
-	 * Default Constructor
-	 */
-	public NtransRecord() { 	
-	}
 
-	/**
-	 * Constructs an NTRANS record from a dataURI
-	 * 
+    /**
+     * Default Constructor
+     */
+    public NtransRecord() {
+    }
+
+    /**
+     * Constructs an NTRANS record from a dataURI
+     * 
      * @param uri
      *            The dataURI
-	 */
-	public NtransRecord(String uri) {
-		super(uri);
-	}
+     */
+    public NtransRecord(String uri) {
+        super(uri);
+    }
 
-	public String getModelName() {
-		return modelName;
-	}
+    public String getModelName() {
+        return modelName;
+    }
 
-	public void setModelName(String model) {
-		this.modelName = model;
-	}
+    public void setModelName(String model) {
+        this.modelName = model;
+    }
 
-	public String getMetafileName() {
-		return metafileName;
-	}
+    public String getMetafileName() {
+        return metafileName;
+    }
 
-	public void setMetafileName(String inputMetaFileName) {
-		this.metafileName = inputMetaFileName;
-	}
+    public void setMetafileName(String inputMetaFileName) {
+        this.metafileName = inputMetaFileName;
+    }
 
-	public String getValidTimeString() {
-		return validTimeString;
-	}
+    public String getValidTimeString() {
+        return validTimeString;
+    }
 
-	public void setValidTimeString(String validTimeString) {
-		this.validTimeString = validTimeString;
-	}
+    public void setValidTimeString(String validTimeString) {
+        this.validTimeString = validTimeString;
+    }
 
-	public String getProductName() {
-		return productName;
-	}
+    public String getProductName() {
+        return productName;
+    }
 
-	public void setProductName(String productNameString) {
-		this.productName = productNameString;
-	}
+    public void setProductName(String productNameString) {
+        this.productName = productNameString;
+    }
 
-	public String getReportType() {
-		return reportType;
-	}
+    public String getReportType() {
+        return reportType;
+    }
 
-	public void setReportType(String reportType) {
-		this.reportType = reportType;
-	}
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
 
-	public byte[] getImageData() {
-		return imageData;
-	}
+    public byte[] getImageData() {
+        return imageData;
+    }
 
-	public void setImageData(byte[] imageData) {
-		this.imageData = imageData;
-	}
+    public void setImageData(byte[] imageData) {
+        this.imageData = imageData;
+    }
 
-	public int getImageSizeX() {
-		return imageSizeX;
-	}
+    public int getImageSizeX() {
+        return imageSizeX;
+    }
 
-	public void setImageSizeX(int imageSizeX) {
-		this.imageSizeX = imageSizeX;
-	}
+    public void setImageSizeX(int imageSizeX) {
+        this.imageSizeX = imageSizeX;
+    }
 
-	public int getImageSizeY() {
-		return imageSizeY;
-	}
+    public int getImageSizeY() {
+        return imageSizeY;
+    }
 
-	public void setImageSizeY(int imageSizeY) {
-		this.imageSizeY = imageSizeY;
-	}
+    public void setImageSizeY(int imageSizeY) {
+        this.imageSizeY = imageSizeY;
+    }
 
-	public int getImageByteCount() {
-		return imageByteCount;
-	}
+    public int getImageByteCount() {
+        return imageByteCount;
+    }
 
-	public void setImageByteCount(int imageByteCount) {
-		this.imageByteCount = imageByteCount;
-	}
+    public void setImageByteCount(int imageByteCount) {
+        this.imageByteCount = imageByteCount;
+    }
 
-	public int getFrameNumberInFile() {
-		return frameNumberInFile;
-	}
+    public int getFrameNumberInFile() {
+        return frameNumberInFile;
+    }
 
-	public void setFrameNumberInFile(int frameNumberInFile) {
-		this.frameNumberInFile = frameNumberInFile;
-	}
+    public void setFrameNumberInFile(int frameNumberInFile) {
+        this.frameNumberInFile = frameNumberInFile;
+    }
 
-	public int getTotalFramesInFile() {
-		return totalFramesInFile;
-	}
+    public int getTotalFramesInFile() {
+        return totalFramesInFile;
+    }
 
-	public void setTotalFramesInFile(int totalFramesInFile) {
-		this.totalFramesInFile = totalFramesInFile;
-	}
+    public void setTotalFramesInFile(int totalFramesInFile) {
+        this.totalFramesInFile = totalFramesInFile;
+    }
 
-	
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public IHDFFilePathProvider getHDFPathProvider() {
         return NtransPathProvider.getInstance();
     }
 
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
-	@Override
+    @Override
     public void setIdentifier(Object dataURI) {
-		this.identifier = dataURI;
-	}
+        this.identifier = dataURI;
+    }
 
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "ntrans";
     }
 }

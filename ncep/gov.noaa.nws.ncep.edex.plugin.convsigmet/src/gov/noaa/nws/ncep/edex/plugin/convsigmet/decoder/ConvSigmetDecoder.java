@@ -100,7 +100,6 @@ public class ConvSigmetDecoder extends AbstractDecoder {
          */
         if (record != null) {
             record.setTraceId(traceId);
-            record.setPluginName(pluginName);
             record.setReportType(pluginName);
             record.setForecastRegion(forecastRegion);
             try {
@@ -171,11 +170,15 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                         record.addConvSigmetSection(section);
 
                         // keep track of time range
-                        if (min == null || min.getTime().after(section.getStartTime().getTime())) {
-                        	min = section.getStartTime();
+                        if ((min == null)
+                                || min.getTime().after(
+                                        section.getStartTime().getTime())) {
+                            min = section.getStartTime();
                         }
-                        if (max == null || max.getTime().before(section.getEndTime().getTime())) {
-                        	max = section.getEndTime();
+                        if ((max == null)
+                                || max.getTime().before(
+                                        section.getEndTime().getTime())) {
+                            max = section.getEndTime();
                         }
                     } else if (whatSection.equals("VALID")) {
                         segment = "OUTLOOK".concat(segment);
@@ -199,11 +202,15 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                             ConvSigmetSection outlook = ConvSigmetParser
                                     .processOutLook(segment, region, headers);
                             record.addConvSigmetSection(outlook);
-                            if (min == null || min.getTime().after(outlook.getStartTime().getTime())) {
-                            	min = outlook.getStartTime();
+                            if ((min == null)
+                                    || min.getTime().after(
+                                            outlook.getStartTime().getTime())) {
+                                min = outlook.getStartTime();
                             }
-                            if (max == null || max.getTime().before(outlook.getEndTime().getTime())) {
-                            	max = outlook.getEndTime();
+                            if ((max == null)
+                                    || max.getTime().before(
+                                            outlook.getEndTime().getTime())) {
+                                max = outlook.getEndTime();
                             }
                         } else {
                             /*
@@ -221,21 +228,24 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                                         .processOutLook(outlookSection, region,
                                                 headers);
                                 record.addConvSigmetSection(outlook);
-                                if (min == null || min.getTime().after(
-                                		outlook.getStartTime().getTime())) {
-                                	min = outlook.getStartTime();
+                                if ((min == null)
+                                        || min.getTime().after(
+                                                outlook.getStartTime()
+                                                        .getTime())) {
+                                    min = outlook.getStartTime();
                                 }
-                                if (max == null || max.getTime().before(
-                                		outlook.getEndTime().getTime())) {
-                                	max = outlook.getEndTime();
+                                if ((max == null)
+                                        || max.getTime().before(
+                                                outlook.getEndTime().getTime())) {
+                                    max = outlook.getEndTime();
                                 }
                             }
                         }
                     }
                 }
-                record.setDataTime(new DataTime(record.getDataTime().getRefTimeAsCalendar(),
-                		new TimeRange(min.getTime(),
-                		max.getTimeInMillis() - min.getTimeInMillis())));
+                record.setDataTime(new DataTime(record.getDataTime()
+                        .getRefTimeAsCalendar(), new TimeRange(min.getTime(),
+                        max.getTimeInMillis() - min.getTimeInMillis())));
             } catch (Exception e) {
                 logger.error("Error processing decoded sigmet", e);
                 record = null;
