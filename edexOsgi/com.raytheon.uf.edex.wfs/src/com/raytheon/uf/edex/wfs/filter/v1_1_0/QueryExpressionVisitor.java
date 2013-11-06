@@ -28,6 +28,17 @@ import com.raytheon.uf.common.status.UFStatus;
 
 
 /**
+ * Parses OGC Filter Expressions to hibernate query operands
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 22, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
