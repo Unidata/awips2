@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * ------------ ----------  ----------- --------------------------
  * 8/5/2013    2191        bphillip    Initial implementation
  * 10/8/2013   1682        bphillip    Added getReferenced objects methods
+ * 10/30/2013   1538       bphillip    Changed to use non-static rest/soap clients
  * </pre>
  * 
  * @author bphillip
@@ -85,6 +86,8 @@ public class ObjectReferenceResolver {
 
     /** Validator for validating REST endpoint addresses */
     private UrlValidator urlValidator = new UrlValidator();
+
+    private RegistryRESTServices registryRestClient;
 
     /** Cache holding the fields in each class that are object references */
     private static LoadingCache<Class<?>, List<String>> OBJECT_REFERENCE_FIELD_CACHE = CacheBuilder
@@ -386,8 +389,7 @@ public class ObjectReferenceResolver {
 
         RegistryObjectType retVal = null;
         if (urlValidator.isValid(ref)) {
-            Object restResponse = RegistryRESTServices
-                    .accessXMLRestService(ref);
+            Object restResponse = registryRestClient.accessXMLRestService(ref);
             if (restResponse instanceof QueryResponse) {
                 QueryResponse queryResponse = (QueryResponse) restResponse;
                 if (responseOk(queryResponse)) {
@@ -457,6 +459,10 @@ public class ObjectReferenceResolver {
 
     public void setQueryManager(QueryManager queryManager) {
         this.queryManager = queryManager;
+    }
+
+    public void setRegistryRestClient(RegistryRESTServices registryRestClient) {
+        this.registryRestClient = registryRestClient;
     }
 
 }

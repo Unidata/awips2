@@ -74,13 +74,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.ncccfp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.ncscat"
          download-size="0"
          install-size="0"
@@ -180,13 +173,6 @@
 
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.mosaic"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncccfp"
          download-size="0"
          install-size="0"
          version="0.0.0"
