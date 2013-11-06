@@ -114,7 +114,7 @@ public class EnsembleSelectComposite extends Composite {
 		Button isPrimaryButton;
 		
 		Text[] weightText = new Text[MaxNumOfEnsembleCycles];
-		Button[] cycleButtons = new Button[MaxNumOfEnsembleCycles];
+		Button[] cycleButtons = new Button[MaxNumOfEnsembleCycles];		
 	}
 	    
 	public EnsembleSelectComposite( Composite parent ) {
@@ -294,7 +294,7 @@ public class EnsembleSelectComposite extends Composite {
     // Use the NcGridInventory with constraints on the model/ensembleId
 	@SuppressWarnings("null")
 	public Date[] getAvailCycleTimes( Date seldCycleTime, String modelName, String pertNum ) {
-		
+
 		HashMap<String, RequestConstraint> reqConstraints = 
 				new HashMap<String, RequestConstraint>();
 		reqConstraints.put( "pluginName", new RequestConstraint( GridDBConstants.GRID_TBL_NAME ) );
@@ -312,20 +312,20 @@ public class EnsembleSelectComposite extends Composite {
 		reqMsg.setReqConstraintsMap( 
 				(HashMap<String, RequestConstraint>)reqConstraints );
 		reqMsg.setUniqueValues( true );
-		
+
 		Object rslts;
-        try {
+		try {
 			rslts = ThriftClient.sendRequest( reqMsg );
 		} catch (VizException e) {
 			System.out.println("Error querying inventory "+inventoryName+" for ensemble "+
 					" component cycle times:"+e.getMessage() );
 			return new Date[0];
-		        		}
+		}
 		
 		if( !(rslts instanceof String[]) ) {
 			out.println("Inventory Request Failed: "+rslts.toString() );
 			return new Date[0];
-		        	}
+		}
 		
 		String[] rsltsList = (String[]) rslts;
 		DataTime[] dataTimeArr = new DataTime[ rsltsList.length ];
@@ -333,7 +333,7 @@ public class EnsembleSelectComposite extends Composite {
 		for( int i=0 ; i<rsltsList.length ; i++ ) {
 			dataTimeArr[i] = ( rsltsList[i] == null ? 
 						  new DataTime(new Date(0)) : new DataTime( rsltsList[i] ) );
-		        }
+		}
 		
 		ArrayList<Date> refTimes = new ArrayList<Date>();
 
@@ -347,14 +347,14 @@ public class EnsembleSelectComposite extends Composite {
 			if( !refTimes.contains( refTime ) &&
 				refTime.getTime() <= seldCycleTime.getTime() ) { 
 				refTimes.add( refTime );
-	        }	      
+			}
 		}
-        
+
 		Date[] sortedRefTimesArr = refTimes.toArray( new Date[0] );
 		Arrays.sort( sortedRefTimesArr );
 
 		Date[] availCycleTimesArray = 
-				Arrays.copyOf( sortedRefTimesArr, MaxNumOfEnsembleCycles );
+				Arrays.copyOf( sortedRefTimesArr, sortedRefTimesArr.length );
 		
 		return availCycleTimesArray;					
 	}
