@@ -35,6 +35,17 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
+ * OGC Filter parsing for comparison operators.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 20, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

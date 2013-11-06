@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.wfs.provider;
+package com.raytheon.uf.edex.wfs.v1_1_0;
 
 import java.math.BigInteger;
 import java.util.Iterator;
@@ -30,6 +30,17 @@ import net.opengis.wfs.v_1_1_0.TransactionSummaryType;
 import com.raytheon.uf.edex.wfs.request.TransReq;
 
 /**
+ * Handles transaction requests for WFS 1.1.0
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 29, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

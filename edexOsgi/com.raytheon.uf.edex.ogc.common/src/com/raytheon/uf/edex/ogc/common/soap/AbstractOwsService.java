@@ -21,20 +21,20 @@ import net.opengis.ows.v_1_1_0.ExceptionType;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
 
 /**
- * TODO Add Description
+ * Abstract base class for OGC web services. Provides common utility methods.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class AbstractOwsService {
 

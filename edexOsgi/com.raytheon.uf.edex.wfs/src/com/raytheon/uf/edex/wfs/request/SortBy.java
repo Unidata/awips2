@@ -20,8 +20,20 @@
 package com.raytheon.uf.edex.wfs.request;
 
 /**
- * @author bclement
+ * Object containing sort information from a WFS get feature request
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class SortBy {
 
