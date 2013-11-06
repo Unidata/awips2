@@ -160,7 +160,7 @@
         <name>Local</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|mesowest|qc)</dirPattern>
+            <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|qc)</dirPattern>
             <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
