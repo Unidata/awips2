@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     dimensioned size.
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class MetarPointDataTransform {
 
-	public static final String ALTIMETER = "altimeter";
+    public static final String ALTIMETER = "altimeter";
 
     public static final String SEA_LEVEL_PRESS = "seaLevelPress";
 
@@ -232,8 +233,9 @@ public class MetarPointDataTransform {
             Map<File, PointDataContainer> pointMap = new HashMap<File, PointDataContainer>();
 
             for (PluginDataObject p : pdo) {
-                if (!(p instanceof MetarRecord))
+                if (!(p instanceof MetarRecord)) {
                     continue;
+                }
 
                 File f = this.dao.getFullFilePath(p);
                 PointDataContainer pdc = pointMap.get(f);
@@ -254,7 +256,7 @@ public class MetarPointDataTransform {
             MetarRecord record) {
         PointDataView pdv = container.append();
 
-        if (record.getCorrection() != null
+        if ((record.getCorrection() != null)
                 && record.getCorrection().equals("COR")) {
             pdv.setInt(CORRECTION, 1);
         } else {
@@ -272,12 +274,12 @@ public class MetarPointDataTransform {
 
         if (record.getSkyCoverage() != null) {
             int maxSize = container.getDescription(SKY_COVER)
-            .getDimensionAsInt();
+                    .getDimensionAsInt();
             record.sort(record.getSkyCoverage());
             Iterator<SkyCover> scIterator = record.getSkyCoverage().iterator();
             int i = 0;
             while (scIterator.hasNext()) {
-                if(i >= maxSize) {
+                if (i >= maxSize) {
                     break;
                 }
                 // TODO: storing duplicate info like this, needs to be resolved
@@ -285,8 +287,9 @@ public class MetarPointDataTransform {
                 if (sc.getType() != null) {
                     StringBuffer scBuffer = new StringBuffer();
                     scBuffer.append(sc.getType());
-                    if (sc.getGenus() != null)
+                    if (sc.getGenus() != null) {
                         scBuffer.append(sc.getGenus());
+                    }
 
                     pdv.setString(SKY_COVER, scBuffer.toString(), i);
                     if (sc.getType() != null) {
@@ -346,7 +349,7 @@ public class MetarPointDataTransform {
         pdv.setFloat(SNOWFALL6_HOUR, record.getSnowFall_6Hours());
         pdv.setInt(SUNSHINE, record.getSunshine());
 
-        if (record.getWindDir() != null
+        if ((record.getWindDir() != null)
                 && !record.getWindDir().equalsIgnoreCase("VRB")) {
             pdv.setFloat("windDir", Float.parseFloat(record.getWindDir()));
         }
@@ -415,7 +418,6 @@ public class MetarPointDataTransform {
         mr.setPressChange3Hour(pdv.getNumber(PRESS_CHANGE3_HOUR).floatValue());
         mr.setPressChangeChar(pdv.getString(PRESS_CHANGE_CHAR));
 
-        mr.setPluginName("obs");
         mr.setPrecip1Hour(pdv.getNumber(PRECIP1_HOUR).floatValue());
         mr.setPrecip3Hour(pdv.getNumber(PRECIP3_HOUR).floatValue());
         mr.setPrecip6Hour(pdv.getNumber(PRECIP6_HOUR).floatValue());
@@ -427,7 +429,7 @@ public class MetarPointDataTransform {
         int i = 0;
         Set<SkyCover> scList = new HashSet<SkyCover>();
         for (String s : scType) {
-            if (s != null && !s.equals("")) {
+            if ((s != null) && !s.equals("")) {
 
                 SkyCover skyCover = new SkyCover();
                 skyCover.setType(s);
