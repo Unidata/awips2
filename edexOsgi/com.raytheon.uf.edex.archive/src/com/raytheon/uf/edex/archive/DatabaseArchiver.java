@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.archive;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -125,7 +127,7 @@ public class DatabaseArchiver implements IPluginArchiver {
         pluginArchiveFormatters = new HashMap<String, IPluginArchiveFileNameFormatter>();
         pluginArchiveFormatters.put("default",
                 new DefaultPluginArchiveFileNameFormatter());
-        debugArchiver = Boolean.parseBoolean(System.getenv("DEBUG_ARCHIVER"));
+        debugArchiver = Boolean.getBoolean("archive.debug.enable");
     }
 
     @Override
@@ -430,17 +432,21 @@ public class DatabaseArchiver implements IPluginArchiver {
         sb.append("_").append(sdf.format(Calendar.getInstance().getTime()))
                 .append(".txt");
         File file = new File(sb.toString());
-        FileWriter writer = null;
+        Writer writer = null;
         try {
             PersistableDataObject<?>[] pdoArray = pdosToSerialize
                     .toArray(new PersistableDataObject<?>[0]);
-            writer = new FileWriter(file);
+            writer = new BufferedWriter(new FileWriter(file));
             statusHandler.info(String.format("Dumping %s records to: %s",
                     pdoArray.length, file.getAbsolutePath()));
             for (int i = 0; i < pdosToSerialize.size(); ++i) {
                 if (pdoArray[i] instanceof PluginDataObject) {
                     PluginDataObject pdo = (PluginDataObject) pdoArray[i];
-                    writer.write(pdo.getDataURI());
+                    if (pdo.getId() != 0) {
+                        // otherwise was read from file
+                        writer.write("" + pdo.getId() + ":");
+                        writer.write(pdo.getDataURI());
+                    }
                 } else {
                     writer.write(pdoArray[i].toString());
                 }
