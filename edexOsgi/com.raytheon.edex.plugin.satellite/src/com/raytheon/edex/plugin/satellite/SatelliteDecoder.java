@@ -46,9 +46,9 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -79,7 +79,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 01/03/2013  15294        D. Friedman Start with File instead of byte[] to
  *                                      reduce memory usage.
  * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util into ArraysUtil
- *
+ * 
  * Mar 19, 2013 1785        bgonzale    Added performance status handler and added status
  *                                      to decode.
  * 
@@ -90,7 +90,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 public class SatelliteDecoder extends AbstractDecoder {
 
-    private String traceId = "";
+    private final String traceId = "";
 
     private static final int MAX_IMAGE_SIZE = 30000000;
 
@@ -111,8 +111,9 @@ public class SatelliteDecoder extends AbstractDecoder {
 
         SatelliteRecord record = null;
 
-        if (file == null || (file.length() < 1))
+        if ((file == null) || (file.length() < 1)) {
             return new PluginDataObject[0];
+        }
         RandomAccessFile f = new RandomAccessFile(file, "r");
         try {
             ITimer timer = TimeUtil.getTimer();
@@ -129,7 +130,8 @@ public class SatelliteDecoder extends AbstractDecoder {
                 byteBuffer = null;
             }
             if (byteBuffer != null) {
-                int offsetOfDataInFile = byteBuffer.position() + GINI_HEADER_SIZE;
+                int offsetOfDataInFile = byteBuffer.position()
+                        + GINI_HEADER_SIZE;
                 Calendar calendar = Calendar.getInstance(TimeZone
                         .getTimeZone("GMT"));
                 int intValue = 0;
@@ -140,20 +142,23 @@ public class SatelliteDecoder extends AbstractDecoder {
                 record = new SatelliteRecord();
 
                 if (isCompressed(byteBuffer)) {
-                    /* If the data is compressed, we assume it came from the SBN
+                    /*
+                     * If the data is compressed, we assume it came from the SBN
                      * and will have a reasonable size such that we can have two
-                     * copies of the data in memory at the same time.  Ideally,
+                     * copies of the data in memory at the same time. Ideally,
                      * SBN decompression should be performed upstream from EDEX
                      * and this code would be removed.
                      */
-                    byte[] data = new byte[(int) file.length() - byteBuffer.position()];
+                    byte[] data = new byte[(int) file.length()
+                            - byteBuffer.position()];
                     f.seek(byteBuffer.position());
                     f.readFully(data);
                     byte[][] retVal = decompressSatellite(data);
                     byteBuffer = ByteBuffer.wrap(retVal[0]);
                     tempBytes = retVal[1];
                 } else {
-                    /* The code bellow performs absolute gets on the buffer, so
+                    /*
+                     * The code bellow performs absolute gets on the buffer, so
                      * it needs to be compacted.
                      */
                     byteBuffer.compact();
@@ -255,7 +260,7 @@ public class SatelliteDecoder extends AbstractDecoder {
                 // Get the Satellite Height
                 int satHeight = byteBuffer.getShort(53);
 
-                if (latSub != 0 || lonSub != 0 || satHeight != 0) {
+                if ((latSub != 0) || (lonSub != 0) || (satHeight != 0)) {
                     // Correct the longitude so negative is west
                     lonSub *= -1;
                     // Correct the height to be height above ground
@@ -287,8 +292,9 @@ public class SatelliteDecoder extends AbstractDecoder {
                 // get number of points along y-axis
                 int ny = byteBuffer.getShort(18);
 
-                /* If input was SBN-compressed, we already have the data
-                 * loaded.  If not, load it now.
+                /*
+                 * If input was SBN-compressed, we already have the data loaded.
+                 * If not, load it now.
                  */
                 if (tempBytes == null) {
                     tempBytes = new byte[nx * ny];
@@ -433,7 +439,6 @@ public class SatelliteDecoder extends AbstractDecoder {
                     record.setCoverage(mapCoverage);
                     record.setPersistenceTime(TimeTools.getSystemCalendar()
                             .getTime());
-                    record.setPluginName("satellite");
                     record.constructDataURI();
                     // Create the data record.
                     IDataRecord dataRec = messageData.getStorageRecord(record,
@@ -466,10 +471,11 @@ public class SatelliteDecoder extends AbstractDecoder {
      * @throws DecoderException
      *             If WMO header is not found, or is incorrect.
      * @param messageData
-     *             Contains the start of the satellite data file.  On return,
-     *             the position is set the beginning of the GINI header.
+     *            Contains the start of the satellite data file. On return, the
+     *            position is set the beginning of the GINI header.
      */
-    private void removeWmoHeader(ByteBuffer messageData) throws DecoderException {
+    private void removeWmoHeader(ByteBuffer messageData)
+            throws DecoderException {
 
         // Copy to a char [], carefully, as creating a string from
         // a byte [] with binary data can create erroneous data
@@ -500,7 +506,7 @@ public class SatelliteDecoder extends AbstractDecoder {
      * Checks to see if the current satellite product is compressed.
      * 
      * Assumes messageData is a byte[]-backed ByteBuffer.
-     *
+     * 
      * @return A boolean indicating if the file is compressed or not
      */
     private boolean isCompressed(ByteBuffer messageData) {
@@ -508,8 +514,8 @@ public class SatelliteDecoder extends AbstractDecoder {
         byte[] placeholder = new byte[10];
         Inflater decompressor = new Inflater();
         try {
-            decompressor.setInput(messageData.array(),
-                    messageData.position(), messageData.remaining());
+            decompressor.setInput(messageData.array(), messageData.position(),
+                    messageData.remaining());
             decompressor.inflate(placeholder);
         } catch (DataFormatException e) {
             compressed = false;
@@ -539,14 +545,13 @@ public class SatelliteDecoder extends AbstractDecoder {
         // Allocate 30MB for a possible max size
         ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_IMAGE_SIZE);
         int totalBytesDecomp = 0;
-        int decompByteCounter = 0;
         byte[] inputArray = new byte[1024 * 10];
         Inflater decompressor = new Inflater();
         int index = -1;
         try {
             while (totalBytesDecomp < zSatellite.length) {
 
-                int compChunkSize = zSatellite.length - totalBytesDecomp > 10240 ? 10240
+                int compChunkSize = (zSatellite.length - totalBytesDecomp) > 10240 ? 10240
                         : zSatellite.length - totalBytesDecomp;
 
                 // copy compChunkSize compressed data from zSatellite, offset by
@@ -570,9 +575,6 @@ public class SatelliteDecoder extends AbstractDecoder {
                         throw new DecoderException(
                                 "Unable to decompress satellite data - input data appears to be truncated");
                     }
-                    // add the total bytes decompressed from inflate call
-                    decompByteCounter += inflatedBytes;
-
                     // retrieve the total compressed bytes input so far
                     totalBytesDecomp += decompressor.getTotalIn();
 
@@ -641,9 +643,9 @@ public class SatelliteDecoder extends AbstractDecoder {
 
         }
 
-        if (index != -1 && (index + 3 <= inflateArray.length - 1)) {
-            if (!(inflateArray[index] == -1 && inflateArray[index + 1] == 0
-                    && inflateArray[index + 2] == -1 && inflateArray[index + 3] == 0)) {
+        if ((index != -1) && ((index + 3) <= (inflateArray.length - 1))) {
+            if (!((inflateArray[index] == -1) && (inflateArray[index + 1] == 0)
+                    && (inflateArray[index + 2] == -1) && (inflateArray[index + 3] == 0))) {
                 index = getIndex(inflateArray, index + 1);
             }
         } else {
@@ -686,7 +688,7 @@ public class SatelliteDecoder extends AbstractDecoder {
         if (byteArray[0] < 0) {
             // remove the negative value
             byteArray[0] &= 127;
-            latitude = byteArrayToFloat(byteArray) / 10000 * -1;
+            latitude = (byteArrayToFloat(byteArray) / 10000) * -1;
         } else {
             latitude = byteArrayToFloat(byteArray) / 10000;
         }

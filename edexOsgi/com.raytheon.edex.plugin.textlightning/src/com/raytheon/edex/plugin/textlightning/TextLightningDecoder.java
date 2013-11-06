@@ -41,22 +41,23 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 25, 2010            jsanchez     Initial creation
- *
+ * Mar 25, 2010            jsanchez    Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0	
+ * @version 1.0
  */
 
 public class TextLightningDecoder extends AbstractDecoder implements
         IBinaryDecoder {
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private String traceId = null;
 
@@ -74,17 +75,18 @@ public class TextLightningDecoder extends AbstractDecoder implements
      * @throws DecoderException
      *             Thrown if no data is available.
      */
+    @Override
     public PluginDataObject[] decode(byte[] data) throws DecoderException {
         ArrayList<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
         TextLightningParser parser = new TextLightningParser(data);
-        
+
         LightningStrikePoint token;
-        while(parser.hasNext()) {
+        while (parser.hasNext()) {
             token = parser.next();
-            if(token != null) {
+            if (token != null) {
                 strikes.add(token);
             }
-        }       
+        }
         BinLightningRecord report = null;
 
         if (strikes.size() > 0) {
@@ -106,15 +108,14 @@ public class TextLightningDecoder extends AbstractDecoder implements
         Calendar cStart = report.getStartTime();
         Calendar cStop = report.getStopTime();
 
-        TimeRange range = new TimeRange(cStart.getTimeInMillis(), cStop
-                .getTimeInMillis());
+        TimeRange range = new TimeRange(cStart.getTimeInMillis(),
+                cStop.getTimeInMillis());
 
         DataTime dataTime = new DataTime(cStart, range);
         report.setDataTime(dataTime);
 
         if (report != null) {
             report.setTraceId(traceId);
-            report.setPluginName("binlightning");
             try {
                 report.constructDataURI();
             } catch (PluginException e) {
