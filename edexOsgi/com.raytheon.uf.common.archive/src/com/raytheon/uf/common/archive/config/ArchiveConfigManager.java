@@ -21,6 +21,8 @@ package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
@@ -30,10 +32,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +49,9 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
+import com.raytheon.uf.common.archive.config.select.ArchiveSelect;
+import com.raytheon.uf.common.archive.config.select.CategorySelect;
 import com.raytheon.uf.common.archive.exception.ArchiveException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -56,6 +62,7 @@ import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -78,7 +85,9 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     Added null check for topLevelDirs in purgeExpiredFromArchive.
  *                                     Changed to use File.delete() instead of Apache FileUtil.deleteQuietly().
  *                                     Added warn logging for failure to delete.
- * 
+ * Jul 24, 2013 2221       rferrel     Changes for select configuration.
+ * Aug 06, 2013 2224       rferrel     Changes to use DataSet.
+ * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns the number of files purged.
  * </pre>
  * 
  * @author rferrel
@@ -95,7 +104,7 @@ public class ArchiveConfigManager {
     public final String ARCHIVE_DIR = "archiver/purger";
 
     /** Localization manager. */
-    private IPathManager pathMgr;
+    protected IPathManager pathMgr;
 
     private final Map<String, LocalizationFile> archiveNameToLocalizationFileMap = new HashMap<String, LocalizationFile>();
 
@@ -171,9 +180,34 @@ public class ArchiveConfigManager {
     }
 
     /**
+     * Obtain the collection of Archives setting the Categories' selections
+     * based on the default retention selections.
+     * 
      * @return the Collection of Archives.
      */
     public Collection<ArchiveConfig> getArchives() {
+        String fileName = ArchiveConstants.selectFileName(Type.Retention, null);
+        SelectConfig selections = loadSelection(fileName);
+        if (selections != null && !selections.isEmpty()) {
+            try {
+                for (ArchiveSelect archiveSelect : selections.getArchiveList()) {
+                    ArchiveConfig archiveConfig = archiveMap.get(archiveSelect
+                            .getName());
+                    for (CategorySelect categorySelect : archiveSelect
+                            .getCategorySelectList()) {
+                        CategoryConfig categoryConfig = archiveConfig
+                                .getCategory(categorySelect.getName());
+                        categoryConfig.setSelectedDisplayNames(categorySelect
+                                .getSelectList());
+                    }
+                }
+            } catch (NullPointerException ex) {
+                statusHandler
+                        .handle(Priority.ERROR,
+                                "Retention selection and Archive configuration no longer in sync: ",
+                                ex);
+            }
+        }
         return archiveMap.values();
     }
 
@@ -254,18 +288,22 @@ public class ArchiveConfigManager {
      * Archive.
      * 
      * @param archive
-     * @return the list of expired Files purged
+     * @return purgeCount
      */
-    public Collection<File> purgeExpiredFromArchive(ArchiveConfig archive) {
-        Collection<File> filesPurged = new ArrayList<File>();
+    public int purgeExpiredFromArchive(ArchiveConfig archive) {
         String archiveRootDirPath = archive.getRootDir();
         File archiveRootDir = new File(archiveRootDirPath);
+
         String[] topLevelDirs = archiveRootDir.list();
+
         List<String> topLevelDirsNotPurged = new ArrayList<String>();
+        int purgeCount = 0;
 
         if (topLevelDirs != null) {
             topLevelDirsNotPurged.addAll(Arrays.asList(topLevelDirs));
+            topLevelDirs = null;
         }
+
         for (CategoryConfig category : archive.getCategoryList()) {
             Calendar purgeTime = calculateExpiration(archive, category);
             CategoryFileDateHelper helper = new CategoryFileDateHelper(
@@ -289,68 +327,92 @@ public class ArchiveConfigManager {
                 List<File> displayFiles = getDisplayFiles(display, null,
                         purgeTime);
                 for (File file : displayFiles) {
-                    filesPurged.addAll(purgeFile(file, fileDateFilter,
-                            archiveRootDirPath));
+                    purgeCount += purgeFile(file, fileDateFilter);
                 }
             }
         }
 
         // check for other expired in top level directories not covered
-        // by the categories in the archives
+        // by the categories in the archive.
         Calendar defaultPurgeTime = calculateExpiration(archive, null);
+        IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
+                .fileFileFilter(), new FileDateFilter(null, defaultPurgeTime));
         for (String topDirName : topLevelDirsNotPurged) {
-            IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
-                    .fileFileFilter(), new FileDateFilter(null,
-                    defaultPurgeTime));
             File topLevelDir = new File(archiveRootDir, topDirName);
 
-            filesPurged.addAll(purgeFile(topLevelDir, fileDateFilter,
-                    archiveRootDirPath));
+            // Keep both top level hidden files and hidden directories.
+            if (!topLevelDir.isHidden()) {
+                purgeCount += purgeFile(topLevelDir, fileDateFilter);
+            }
         }
-        return filesPurged;
+        return purgeCount;
     }
 
-    private Collection<File> purgeFile(File fileToPurge, IOFileFilter filter,
-            final String archiveRootDir) {
-        Collection<File> filesPurged = new ArrayList<File>();
+    /**
+     * Recursive method for purging files. Never pass in a directory you do not
+     * want deleted when purging makes it an empty directory.
+     * 
+     * @param fileToPurge
+     * @param filter
+     * @return purgeCount number of files and directories purged
+     */
+    private int purgeFile(File fileToPurge, IOFileFilter filter) {
+        int purgeCount = 0;
 
         if (fileToPurge.isFile() && filter.accept(fileToPurge)) {
             if (fileToPurge.delete()) {
-                filesPurged.add(fileToPurge);
+                ++purgeCount;
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.debug("Purged file: \""
+                            + fileToPurge.getAbsolutePath() + "\"");
+                }
             } else {
                 statusHandler.warn("Failed to purge file: "
                         + fileToPurge.getAbsolutePath());
             }
-        } else if (fileToPurge.isDirectory()) {
-            Collection<File> expiredFilesInDir = FileUtils.listFiles(
-                    fileToPurge, filter, FileFilterUtils.trueFileFilter());
+        } else if (fileToPurge.isDirectory() && !fileToPurge.isHidden()) {
+            // Purge only visible directories.
+            File[] expiredFilesInDir = fileToPurge.listFiles();
 
             for (File dirFile : expiredFilesInDir) {
-                filesPurged.addAll(purgeFile(dirFile, filter, archiveRootDir));
+                purgeCount += purgeFile(dirFile, filter);
             }
 
-            // if the directory is empty and not the archive root dir, then
-            // delete it
-            if (fileToPurge.list().length == 0
-                    && !fileToPurge.getAbsolutePath().equals(archiveRootDir)) {
+            // Attempt to delete empty directory.
+            if ((purgeCount >= expiredFilesInDir.length)
+                    && (fileToPurge.list().length == 0)) {
                 if (!fileToPurge.delete()) {
                     statusHandler.warn("Failed to purge directory: "
                             + fileToPurge.getAbsolutePath());
+                } else {
+                    ++purgeCount;
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler.debug("Purged directory: \""
+                                + fileToPurge.getAbsolutePath()
+                                + File.separator + "\"");
+                    }
                 }
             }
         }
-        return filesPurged;
+        return purgeCount;
     }
 
+    /**
+     * Get expiration time for the category.
+     * 
+     * @param archive
+     * @param category
+     * @return expireCal
+     */
     private Calendar calculateExpiration(ArchiveConfig archive,
             CategoryConfig category) {
-        Calendar newCal = TimeUtil.newGmtCalendar();
+        Calendar expireCal = TimeUtil.newGmtCalendar();
         int retHours = category == null || category.getRetentionHours() == 0 ? archive
                 .getRetentionHours() : category.getRetentionHours();
         if (retHours != 0) {
-            newCal.add(Calendar.HOUR, (-1) * retHours);
+            expireCal.add(Calendar.HOUR, (-1) * retHours);
         }
-        return newCal;
+        return expireCal;
     }
 
     /**
@@ -497,91 +559,79 @@ public class ArchiveConfigManager {
      */
     private List<File> getDisplayFiles(DisplayData displayData, long startTime,
             long endTime) {
+        List<File> fileList = new LinkedList<File>();
         ArchiveConfig archiveConfig = displayData.archiveConfig;
-        CategoryConfig categoryConfig = displayData.categoryConfig;
 
-        String[] indexValues = categoryConfig.getDateGroupIndices().split(
-                "\\s*,\\s*");
-        int yearIndex = Integer.parseInt(indexValues[0]);
-        int monthIndex = Integer.parseInt(indexValues[1]);
-        int dayIndex = Integer.parseInt(indexValues[2]);
-        int hourIndex = Integer.parseInt(indexValues[3]);
+        for (CategoryDataSet dataSet : displayData.dataSets) {
 
-        String filePatternStr = categoryConfig.getFilePattern();
+            int[] timeIndices = dataSet.getTimeIndices();
 
-        boolean dirOnly = (filePatternStr == null)
-                || ".*".equals(filePatternStr);
+            String filePatternStr = dataSet.getFilePattern();
 
-        List<File> dirs = displayData.dirs;
+            boolean dirOnly = dataSet.isDirOnly();
 
-        int beginIndex = archiveConfig.getRootDir().length();
+            List<File> dirs = displayData.dirsMap.get(dataSet);
 
-        Calendar fileCal = TimeUtil.newCalendar();
-        fileCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+            int beginIndex = archiveConfig.getRootDir().length();
 
-        List<File> fileList = new ArrayList<File>();
+            Calendar fileCal = TimeUtil.newCalendar();
+            fileCal.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        if (dirOnly) {
-            for (String dirPattern : categoryConfig.getDirPatternList()) {
-                Pattern pattern = Pattern.compile(dirPattern);
+            if (dirOnly) {
+                for (String dirPattern : dataSet.getDirPatterns()) {
+                    Pattern pattern = dataSet.getPattern(dirPattern);
 
-                for (File dir : dirs) {
-                    String path = dir.getAbsolutePath().substring(beginIndex);
-                    Matcher matcher = pattern.matcher(path);
-                    if (matcher.matches()) {
-                        int year = Integer.parseInt(matcher.group(yearIndex));
-                        // Adjust month value to Calendar's 0 - 11
-                        int month = Integer.parseInt(matcher.group(monthIndex)) - 1;
-                        int day = Integer.parseInt(matcher.group(dayIndex));
-                        int hour = Integer.parseInt(matcher.group(hourIndex));
-                        fileCal.set(year, month, day, hour, 0, 0);
-                        long fileTime = fileCal.getTimeInMillis();
-                        if ((startTime <= fileTime) && (fileTime < endTime)) {
-                            fileList.add(dir);
-                        }
-                    }
-                }
-            }
-        } else {
-            for (String dirPattern : categoryConfig.getDirPatternList()) {
-                Pattern pattern = Pattern.compile(dirPattern + File.separator
-                        + categoryConfig.getFilePattern());
-                final Pattern filePattern = Pattern.compile("^"
-                        + filePatternStr + "$");
-                for (File dir : dirs) {
-                    List<File> fList = FileUtil.listDirFiles(dir,
-                            new FileFilter() {
-
-                                @Override
-                                public boolean accept(File pathname) {
-                                    return filePattern.matcher(
-                                            pathname.getName()).matches();
-                                }
-                            }, false);
-                    for (File file : fList) {
-                        String path = file.getAbsolutePath().substring(
+                    for (File dir : dirs) {
+                        String path = dir.getAbsolutePath().substring(
                                 beginIndex);
                         Matcher matcher = pattern.matcher(path);
                         if (matcher.matches()) {
-                            int year = Integer.parseInt(matcher
-                                    .group(yearIndex));
-                            // Adjust month value to Calendar's 0 - 11
-                            int month = Integer.parseInt(matcher
-                                    .group(monthIndex)) - 1;
-                            int day = Integer.parseInt(matcher.group(dayIndex));
-                            int hour = Integer.parseInt(matcher
-                                    .group(hourIndex));
-                            fileCal.set(year, month, day, hour, 0, 0);
-                            long fileTime = fileCal.getTimeInMillis();
+                            Long fileTime = dataSet.getMatchTimeInMilliseconds(
+                                    timeIndices, matcher);
+                            if (fileTime == null) {
+                                fileTime = dir.lastModified();
+                            }
                             if ((startTime <= fileTime) && (fileTime < endTime)) {
-                                fileList.add(file);
+                                fileList.add(dir);
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (String dirPattern : dataSet.getDirPatterns()) {
+                    Pattern pattern = dataSet.getPattern(dirPattern);
+                    final Pattern filePattern = Pattern.compile("^"
+                            + filePatternStr + "$");
+                    for (File dir : dirs) {
+                        List<File> fList = FileUtil.listDirFiles(dir,
+                                new FileFilter() {
+
+                                    @Override
+                                    public boolean accept(File pathname) {
+                                        return filePattern.matcher(
+                                                pathname.getName()).matches();
+                                    }
+                                }, false);
+                        for (File file : fList) {
+                            String path = file.getAbsolutePath().substring(
+                                    beginIndex);
+                            Matcher matcher = pattern.matcher(path);
+                            if (matcher.matches()) {
+                                Long timestamp = dataSet
+                                        .getMatchTimeInMilliseconds(
+                                                timeIndices, matcher);
+                                long fileTime = timestamp == null ? file
+                                        .lastModified() : timestamp.longValue();
+                                if ((startTime <= fileTime)
+                                        && (fileTime < endTime)) {
+                                    fileList.add(file);
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
         return fileList;
     }
 
@@ -593,15 +643,13 @@ public class ArchiveConfigManager {
      * @param categoryConfig
      * @return dirs
      */
-    private List<File> getDirs(ArchiveConfig archiveConfig,
-            CategoryConfig categoryConfig) {
+    private List<File> getDirs(File rootFile, CategoryDataSet dataSet) {
         List<File> resultDirs = new ArrayList<File>();
-        File rootFile = new File(archiveConfig.getRootDir());
         List<File> dirs = new ArrayList<File>();
         List<File> tmpDirs = new ArrayList<File>();
         List<File> swpDirs = null;
 
-        for (String dirPattern : categoryConfig.getDirPatternList()) {
+        for (String dirPattern : dataSet.getDirPatterns()) {
             String[] subExpr = dirPattern.split(File.separator);
             dirs.clear();
             dirs.add(rootFile);
@@ -637,20 +685,6 @@ public class ArchiveConfigManager {
      * 
      * @param archiveName
      * @param categoryName
-     * @return displayInfoList order by display label
-     */
-    public List<DisplayData> getDisplayData(String archiveName,
-            String categoryName) {
-        return getDisplayData(archiveName, categoryName, false);
-    }
-
-    /**
-     * Get the Display labels matching the pattern for the archive data's
-     * category. Assumes the archive data's root directory is the mount point to
-     * start the search.
-     * 
-     * @param archiveName
-     * @param categoryName
      * @param setSelect
      *            - when true set the displayData selection base on category's
      *            selection list
@@ -661,50 +695,60 @@ public class ArchiveConfigManager {
         Map<String, List<File>> displayMap = new HashMap<String, List<File>>();
 
         ArchiveConfig archiveConfig = archiveMap.get(archiveName);
+        String rootDirName = archiveConfig.getRootDir();
         CategoryConfig categoryConfig = findCategory(archiveConfig,
                 categoryName);
-        List<String> dirPatternList = categoryConfig.getDirPatternList();
+        File rootFile = new File(rootDirName);
+        TreeMap<String, DisplayData> displays = new TreeMap<String, DisplayData>();
+        for (CategoryDataSet dataSet : categoryConfig.getDataSetList()) {
+            List<String> dataSetDirPatterns = dataSet.getDirPatterns();
 
-        // index for making directory paths' relative to the root path.
-        List<File> dirs = getDirs(archiveConfig, categoryConfig);
+            List<File> dirs = getDirs(rootFile, dataSet);
 
-        File rootFile = new File(archiveMap.get(archiveName).getRootDir());
-        int beginIndex = rootFile.getAbsolutePath().length() + 1;
-        List<Pattern> patterns = new ArrayList<Pattern>(dirPatternList.size());
+            int beginIndex = rootFile.getAbsolutePath().length() + 1;
+            List<Pattern> patterns = new ArrayList<Pattern>(
+                    dataSetDirPatterns.size());
 
-        for (String dirPattern : dirPatternList) {
-            Pattern pattern = Pattern.compile("^" + dirPattern + "$");
-            patterns.add(pattern);
-        }
+            for (String dirPattern : dataSetDirPatterns) {
+                Pattern pattern = Pattern.compile("^" + dirPattern + "$");
+                patterns.add(pattern);
+            }
 
-        TreeSet<String> displays = new TreeSet<String>(
-                String.CASE_INSENSITIVE_ORDER);
+            MessageFormat msgfmt = new MessageFormat(dataSet.getDisplayLabel());
+            StringBuffer sb = new StringBuffer();
+            FieldPosition pos0 = new FieldPosition(0);
 
-        MessageFormat msgfmt = new MessageFormat(categoryConfig.getDisplay());
-        StringBuffer sb = new StringBuffer();
-        FieldPosition pos0 = new FieldPosition(0);
+            for (File dir : dirs) {
+                String path = dir.getAbsolutePath().substring(beginIndex);
+                for (Pattern pattern : patterns) {
+                    Matcher matcher = pattern.matcher(path);
+                    if (matcher.matches()) {
+                        sb.setLength(0);
+                        String[] args = new String[matcher.groupCount() + 1];
+                        args[0] = matcher.group();
+                        for (int i = 1; i < args.length; ++i) {
+                            args[i] = matcher.group(i);
+                        }
+                        String displayLabel = msgfmt.format(args, sb, pos0)
+                                .toString();
+                        List<File> displayDirs = displayMap.get(displayLabel);
+                        if (displayDirs == null) {
+                            displayDirs = new ArrayList<File>();
+                            displayMap.put(displayLabel, displayDirs);
+                        }
+                        displayDirs.add(dir);
+                        DisplayData displayData = displays.get(displayLabel);
+                        if (displayData == null) {
+                            displayData = new DisplayData(archiveConfig,
+                                    categoryConfig, dataSet, displayLabel);
+                            displays.put(displayLabel, displayData);
+                        } else if (!displayData.dataSets.contains(dataSet)) {
+                            displayData.dataSets.add(dataSet);
+                        }
 
-        for (File dir : dirs) {
-            String path = dir.getAbsolutePath().substring(beginIndex);
-            for (Pattern pattern : patterns) {
-                Matcher matcher = pattern.matcher(path);
-                if (matcher.matches()) {
-                    sb.setLength(0);
-                    String[] args = new String[matcher.groupCount() + 1];
-                    args[0] = matcher.group();
-                    for (int i = 1; i < args.length; ++i) {
-                        args[i] = matcher.group(i);
+                        displayData.dirsMap.put(dataSet, displayDirs);
+                        break;
                     }
-                    String displayLabel = msgfmt.format(args, sb, pos0)
-                            .toString();
-                    List<File> displayDirs = displayMap.get(displayLabel);
-                    if (displayDirs == null) {
-                        displayDirs = new ArrayList<File>();
-                        displayMap.put(displayLabel, displayDirs);
-                    }
-                    displayDirs.add(dir);
-                    displays.add(displayLabel);
-                    break;
                 }
             }
         }
@@ -712,15 +756,7 @@ public class ArchiveConfigManager {
         List<DisplayData> displayDataList = new ArrayList<DisplayData>(
                 displays.size());
 
-        for (String displayLabel : displays) {
-            DisplayData displayData = new DisplayData(archiveConfig,
-                    categoryConfig, displayLabel, displayMap.get(displayLabel));
-            if (setSelect) {
-                displayData.setSelected(categoryConfig
-                        .getSelectedDisplayNames().contains(displayLabel));
-            }
-            displayDataList.add(displayData);
-        }
+        displayDataList.addAll(displays.values());
 
         return displayDataList;
     }
@@ -788,4 +824,176 @@ public class ArchiveConfigManager {
         return archiveConfig;
     }
 
+    /**
+     * Delete the selection localized site configuration file.
+     * 
+     * @param fileName
+     * @throws LocalizationOpFailedException
+     */
+    public void deleteSelection(String fileName)
+            throws LocalizationOpFailedException {
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+                ARCHIVE_DIR + "/" + fileName);
+        lFile.delete();
+    }
+
+    /**
+     * Load the localized site select configuration file.
+     * 
+     * @param fileName
+     * @return selectConfig
+     */
+    public SelectConfig loadSelection(String fileName) {
+        SelectConfig selections = null;
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+                ARCHIVE_DIR + "/" + fileName);
+        if (lFile.exists()) {
+            FileInputStream stream = null;
+            try {
+                stream = lFile.openInputStream();
+                selections = unmarshallSelectionStream(stream);
+            } catch (LocalizationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } catch (IOException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch (IOException ex) {
+                        // Ignore
+                    }
+                }
+            }
+        }
+        return selections;
+    }
+
+    // TODO possible future methods for supporting importing and exporting
+    // select configurations.
+    //
+    // public SelectConfig importSelections(File selectFile) throws IOException
+    // {
+    // SelectConfig selections = null;
+    // FileInputStream stream = new FileInputStream(selectFile);
+    // selections = unmarshallSelectionStream(stream);
+    // return selections;
+    // }
+    //
+    // public boolean exportSelections(SelectConfig selections, File selectFile)
+    // throws IOException, LocalizationException {
+    // FileOutputStream stream = null;
+    // try {
+    // stream = new FileOutputStream(selectFile);
+    // marshalSelectStream(selections, stream);
+    // } finally {
+    // if (stream != null) {
+    // try {
+    // stream.close();
+    // } catch (IOException ex) {
+    // // Ignore
+    // }
+    // }
+    // }
+    // return false;
+    // }
+
+    /**
+     * Get a list of selection names based on the select configuration files in
+     * the type's directory.
+     * 
+     * @param type
+     * @return selectNames
+     */
+    public String[] getSelectionNames(ArchiveConstants.Type type) {
+        LocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR
+                + IPathManager.SEPARATOR + type.selectionDir,
+                new String[] { ArchiveConstants.configFileExt }, false, true);
+        String[] names = new String[files.length];
+        int extLen = ArchiveConstants.configFileExt.length();
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        for (LocalizationFile lFile : files) {
+            sb.setLength(0);
+            sb.append(lFile.getName());
+            sb.setLength(sb.length() - extLen);
+            names[i] = sb.substring(sb.lastIndexOf(IPathManager.SEPARATOR) + 1);
+            ++i;
+        }
+        Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
+        return names;
+    }
+
+    /**
+     * Save the selections configuration in the desired file.
+     * 
+     * @param selections
+     * @param fileName
+     * @throws LocalizationException
+     * @throws IOException
+     */
+    public void saveSelections(SelectConfig selections, String fileName)
+            throws LocalizationException, IOException {
+        LocalizationFileOutputStream stream = null;
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+                ARCHIVE_DIR + IPathManager.SEPARATOR + fileName);
+
+        try {
+            stream = lFile.openOutputStream();
+            marshalSelectStream(selections, stream);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.closeAndSave();
+                } catch (Exception ex) {
+                    // Ignore
+                }
+            }
+        }
+    }
+
+    /**
+     * load select configuration from the stream.
+     * 
+     * @param stream
+     * @return selectConfig
+     * @throws IOException
+     */
+    private SelectConfig unmarshallSelectionStream(FileInputStream stream)
+            throws IOException {
+        SelectConfig selections = null;
+        try {
+            selections = JAXB.unmarshal(stream, SelectConfig.class);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException ex) {
+                    // ignore
+                }
+            }
+        }
+        return selections;
+    }
+
+    /**
+     * Save select configuration to the desired stream.
+     * 
+     * @param selections
+     * @param stream
+     * @throws IOException
+     * @throws LocalizationException
+     */
+    private void marshalSelectStream(SelectConfig selections,
+            FileOutputStream stream) throws IOException, LocalizationException {
+        JAXB.marshal(selections, stream);
+    }
 }

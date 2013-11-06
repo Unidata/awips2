@@ -48,52 +48,51 @@ public class NonConvSigmetDecoder extends AbstractDecoder {
             traceId = (String) headers.get("traceId");
         }
 
-            String etx = IDecoderConstants.ETX;
-            String theBulletin = null;
-            byte[] messageData = null;
+        String etx = IDecoderConstants.ETX;
+        String theBulletin = null;
+        byte[] messageData = null;
         NonConvSigmetRecord currentRecord = null;
-            NonConvSigmetSeparator sep = NonConvSigmetSeparator.separate(data,
-                    headers);
-            messageData = sep.next();
-            String theMessage = new String(messageData);
+        NonConvSigmetSeparator sep = NonConvSigmetSeparator.separate(data,
+                headers);
+        messageData = sep.next();
+        String theMessage = new String(messageData);
 
+        /*
+         * May have multiple duplicate bulletins, only get the first bulletin
+         * and eliminate the remaining bulletins after the first bulletin.
+         */
+        Scanner cc = new Scanner(theMessage).useDelimiter(etx);
+        if (cc.hasNext()) {
+            theBulletin = cc.next();
+        } else {
+            theBulletin = theMessage;
+        }
+        /*
+         * Decode by calling the NonconvSigmetParser method processRecord
+         */
+        currentRecord = NonConvSigmetParser.processRecord(theBulletin, headers);
+        if (currentRecord != null) {
+            currentRecord.setReportType(pluginName);
             /*
-             * May have multiple duplicate bulletins, only get the first bulletin
-             * and eliminate the remaining bulletins after the first bulletin.
+             * Replace special characters to a blank so that it may be readable
              */
-            Scanner cc = new Scanner(theMessage).useDelimiter(etx);
-            if (cc.hasNext()) {
-                theBulletin = cc.next();
-            } else {
-                theBulletin = theMessage;
-            }
+            currentRecord.setBullMessage(UtilN
+                    .removeLeadingWhiteSpaces((theBulletin.substring(5))
+                            .replace('\036', ' ').replace('\r', ' ')
+                            .replace('\003', ' ').replace('\000', ' ')
+                            .replace('\001', ' ')));
             /*
-             * Decode by calling the NonconvSigmetParser method processRecord
+             * Check the NonConvsigmet record object. If not, throws exception.
              */
-            currentRecord = NonConvSigmetParser.processRecord(theBulletin, headers);
-            if (currentRecord != null) {
-                currentRecord.setReportType(pluginName);
-                /*
-                 * Replace special characters to a blank so that it may be readable
-                 */
-                currentRecord.setBullMessage(UtilN
-                        .removeLeadingWhiteSpaces((theBulletin.substring(5))
-                                .replace('\036', ' ').replace('\r', ' ')
-                                .replace('\003', ' ').replace('\000', ' ')
-                                .replace('\001', ' ')));
-                /*
-                 * Check the NonConvsigmet record object. If not, throws exception.
-                 */
-                currentRecord.setTraceId(traceId);
-                currentRecord.setPluginName(pluginName);
-                try {
-                    currentRecord.constructDataURI();
+            currentRecord.setTraceId(traceId);
+            try {
+                currentRecord.constructDataURI();
 
-                } catch (PluginException e) {
-                    logger.error(traceId + "- Unable to construct dataURI", e);
-                    currentRecord = null;
-                }
+            } catch (PluginException e) {
+                logger.error(traceId + "- Unable to construct dataURI", e);
+                currentRecord = null;
             }
+        }
         /*
          * Return the NonConvsigmetRecord record object.
          */
