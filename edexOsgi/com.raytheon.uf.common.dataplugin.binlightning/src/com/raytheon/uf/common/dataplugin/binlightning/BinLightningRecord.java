@@ -62,24 +62,27 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  *  Date        Ticket#     Engineer    Description
  *  ----------  ----------  ----------- --------------------------
- * 20070810            379  jkorman     Initial Coding from prototype.
- * 20070817            379  jkorman     Fixed convert(). Was writing day into 
+ *  Aug 10, 2007 379        jkorman     Initial Coding from prototype.
+ *  Aug 17, 2007 379        jkorman     Fixed convert(). Was writing day into
  *                                      hours field of new calendar.
- * 20070920            379  jkorman     Modified getPersistenceTime.
- * 20070921            379  jkorman     Modified get/set start/stop times due
+ *  Sep 20, 2007 379        jkorman     Modified getPersistenceTime.
+ *  Sep 21, 2007 379        jkorman     Modified get/set start/stop times due
  *                                      to JiBX problems.
- * 20070924            379  jkorman     Removed Group, added insert_time and
- *                                      (set/get)ers to make DataURI work.                                                                           
- * 20071129            472  jkorman     Added IDecoderGettable interface.    
- * 20080107            720  jkorman     remove default assignments from attributes.
- * 20080708           1174  jkorman     Added persistenceTime handling.
- * 20090206           1990  bphillip    Removed populateDataStore method
- * 20130227        DCS 152  jgerth/elau Support for WWLLN and multiple sources
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 20130408           1293  bkowal      Removed references to hdffileid.
- * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
+ *  Sep 24, 2007 379        jkorman     Removed Group, added insert_time and
+ *                                      (set/get)ers to make DataURI work.
+ *  Nov 29, 2007 472        jkorman     Added IDecoderGettable interface.
+ *  Jan 07, 2008 720        jkorman     remove default assignments from
+ *                                      attributes.
+ *  Jul 08, 2008 1174       jkorman     Added persistenceTime handling.
+ *  Feb 06, 2009 1990       bphillip    Removed populateDataStore method
+ *  Feb 27, 2013 DCS 152    jgerth/elau Support for WWLLN and multiple sources
+ *  Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                      forecastTime
+ *  Apr 08, 2013 1293       bkowal      Removed references to hdffileid.
+ *  Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  *  May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -93,17 +96,13 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "binlightning",
-		indexes = {
-				@Index(name = "binlightning_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "binlightning", indexes = { @Index(name = "binlightning_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class BinLightningRecord extends
-        PersistablePluginDataObject implements IPersistable {
+public class BinLightningRecord extends PersistablePluginDataObject implements
+        IPersistable {
 
     /** Serializable id * */
     private static final long serialVersionUID = 1L;
@@ -159,7 +158,7 @@ public class BinLightningRecord extends
     @DynamicSerializeElement
     @XmlAttribute
     private Calendar stopTime;
-    
+
     // JJG - source of lightning data
     @Column(length = 5)
     @DataURI(position = 3)
@@ -221,8 +220,8 @@ public class BinLightningRecord extends
      */
     @SuppressWarnings("unused")
     private void updatePersistenceTime() {
-        if (startTimeMillis != Long.MAX_VALUE
-                && stopTimeMillis != Long.MIN_VALUE) {
+        if ((startTimeMillis != Long.MAX_VALUE)
+                && (stopTimeMillis != Long.MIN_VALUE)) {
             persistTime = (startTimeMillis + stopTimeMillis) / 2;
             setPersistenceTime(TimeTools.newCalendar(persistTime).getTime());
         } else {
@@ -238,24 +237,25 @@ public class BinLightningRecord extends
      *            A strike report to add.
      */
     public void addStrike(LightningStrikePoint strike) {
-		// jjg add
-		if (lightSource == null) {
-			if (strike.getLightSource() == null) {
-				lightSource = (String) "NLDN";
-			} else if (strike.getLightSource().isEmpty()) {
-				lightSource = (String) "UNKN";
-			} else {
-				lightSource = (String) strike.getLightSource();
-			}
-		} else {
-			if (strike.getLightSource() == null) {
-				lightSource = (String) "NLDN";
-			} else if (!lightSource.equals(strike.getLightSource()))
-				lightSource = (String) "UNKN";
-		}
-		// end
+        // jjg add
+        if (lightSource == null) {
+            if (strike.getLightSource() == null) {
+                lightSource = "NLDN";
+            } else if (strike.getLightSource().isEmpty()) {
+                lightSource = "UNKN";
+            } else {
+                lightSource = strike.getLightSource();
+            }
+        } else {
+            if (strike.getLightSource() == null) {
+                lightSource = "NLDN";
+            } else if (!lightSource.equals(strike.getLightSource())) {
+                lightSource = "UNKN";
+            }
+        }
+        // end
 
-    	if (insertIndex < obsTimes.length) {
+        if (insertIndex < obsTimes.length) {
             long t1 = startTimeMillis;
 
             Calendar c = TimeTools.getBaseCalendar(strike.getYear(),
@@ -445,7 +445,7 @@ public class BinLightningRecord extends
     public void setLightSource(String lightSource) {
         this.lightSource = lightSource;
     }
-    
+
     /**
      * Get the IDecoderGettable reference for this record.
      * 
@@ -505,5 +505,10 @@ public class BinLightningRecord extends
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "binlightning";
     }
 }

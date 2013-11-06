@@ -74,6 +74,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                     removeDuplicateCoordinate(), computeCoordinate(), adjustPolygon() prolog, and
  *                                     removeOverlaidLinesegments(); added alterVertexes() and calcShortestDistance().
  * 10/01/2013  DR 16632   Qinglu Lin   Fixed the bug in for loop range.
+ * 10/17/2013  DR 16632   Qinglu Lin   Updated removeOverlaidLinesegments().
+ * 10/18/2013  DR 16632   Qinglu Lin   Catch exception thrown when coords length is less than 4 and doing createLinearRing(coords).
  * </pre>
  * 
  * @author mschenke
@@ -1094,16 +1096,23 @@ public class PolygonUtil {
         if (polygon == null) {
             return null;
         }
+        if (polygon.getNumPoints() <= 4) 
+            return polygon;
         Coordinate[] coords = removeDuplicateCoordinate(polygon.getCoordinates());
-        GeometryFactory gf = new GeometryFactory();
-        return gf.createPolygon(gf.createLinearRing(coords), null);
+        GeometryFactory gf = new GeometryFactory(); 
+        try {
+            polygon = gf.createPolygon(gf.createLinearRing(coords), null);
+        } catch (Exception e) {
+            ;
+        }
+        return polygon;
     }
 
     public static Coordinate[] removeDuplicateCoordinate(Coordinate[] verts) {
         if (verts == null) {
             return null;
         }
-        if (verts.length <= 3)
+        if (verts.length <= 4)
             return verts;
 
         Set<Coordinate> coords = new LinkedHashSet<Coordinate>();
@@ -1119,7 +1128,10 @@ public class PolygonUtil {
             i += 1;
         }
         vertices[i] = new Coordinate(vertices[0]);
-        return vertices;
+        if (vertices.length <=3) 
+            return verts;
+        else
+            return vertices;
     }
 
     /**
@@ -1271,9 +1283,14 @@ public class PolygonUtil {
     }
 
     public static Coordinate[] removeOverlaidLinesegments(Coordinate[] coords) {
+        if (coords.length <= 4)
+            return coords;
         Coordinate[] expandedCoords = null;
         boolean flag = true;
         while (flag) {
+            if (coords.length <= 4) {
+                return coords;
+            }
             expandedCoords = new Coordinate[coords.length+1];
             flag = false;
             for (int i = 0; i < coords.length; i++) {
