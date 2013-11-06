@@ -44,6 +44,7 @@ import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -66,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ----------  ----------- --------------------------
  * 5/22/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
+ * 10/30/2013   1538        bphillip    Changed submitObjects method to submit objects to NCF by default
  * </pre>
  * 
  * @author bphillip
@@ -78,6 +80,9 @@ public abstract class RegistryFederationManager {
     /** The logger instance */
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryFederationManager.class);
+
+    /** The address of the NCF */
+    protected String ncfAddress = System.getenv("NCF_ADDRESS");
 
     /**
      * The scheduler service used for registering this registry with the
@@ -108,6 +113,9 @@ public abstract class RegistryFederationManager {
 
     /** Data Access object for RegistryType objects */
     protected RegistryDao registryDao;
+
+    /** Registry SOAP Service Client */
+    protected RegistrySOAPServices registrySoapServices;
 
     /**
      * Gets the federation object for this federation
@@ -195,6 +203,16 @@ public abstract class RegistryFederationManager {
         return association;
     }
 
+    /**
+     * Submits objects necessary for the registry/federation to operate properly
+     * to the registry. This method first submits it locally, then submits the
+     * objects to the NCF
+     * 
+     * @param objects
+     *            The objects to submit
+     * @throws EbxmlRegistryException
+     *             If object submission fails
+     */
     protected void submitObjects(List<RegistryObjectType> objects)
             throws EbxmlRegistryException {
         SubmitObjectsRequest submitObjectsRequest2 = new SubmitObjectsRequest(
@@ -209,6 +227,14 @@ public abstract class RegistryFederationManager {
                     "Error submitting federation objects to registry", e);
         }
 
+        try {
+            registrySoapServices.getLifecycleManagerServiceForHost(ncfAddress)
+                    .submitObjects(submitObjectsRequest2);
+        } catch (MsgRegistryException e) {
+            throw new EbxmlRegistryException(
+                    "Error submitting federation objects to registry", e);
+        }
+
     }
 
     public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
@@ -217,6 +243,11 @@ public abstract class RegistryFederationManager {
 
     public void setRegistryDao(RegistryDao registryDao) {
         this.registryDao = registryDao;
+    }
+
+    public void setRegistrySoapServices(
+            RegistrySOAPServices registrySoapServices) {
+        this.registrySoapServices = registrySoapServices;
     }
 
 }

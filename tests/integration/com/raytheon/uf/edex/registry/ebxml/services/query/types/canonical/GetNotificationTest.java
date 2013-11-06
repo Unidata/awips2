@@ -82,6 +82,9 @@ public class GetNotificationTest extends QueryTest {
     @Autowired
     private GetNotification getNotification;
 
+    @Autowired
+    private RegistrySOAPServices registrySoapClient;
+
     @Before
     public void createSubscription() throws Exception {
         // Set normal registry object fields
@@ -112,7 +115,7 @@ public class GetNotificationTest extends QueryTest {
 
         String endpointType = DeliveryMethodTypes.SOAP;
         W3CEndpointReferenceBuilder builder = new W3CEndpointReferenceBuilder();
-        builder.address(RegistrySOAPServices.getNotificationListenerServiceUrl(
+        builder.address(registrySoapClient.getNotificationListenerServiceUrl(
                 "http://someaddress.com").toString());
         W3CEndpointReference ref = builder.build();
         DOMResult dom = new DOMResult();

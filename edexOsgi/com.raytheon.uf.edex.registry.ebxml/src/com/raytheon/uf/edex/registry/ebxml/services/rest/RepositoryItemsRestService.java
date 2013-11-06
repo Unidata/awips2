@@ -46,12 +46,13 @@ import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
  * ------------ ----------  ----------- --------------------------
  * 4/19/2013    1931        bphillip    Initial implementation
  * 5/21/2013    2022        bphillip    Added interface and changed method name
+ * 10/30/2013   1538        bphillip    Changed root REST service path
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/repositoryItems/{repositoryItemId}")
+@Path("/repositoryItems/{repositoryItemId}")
 @Service
 @Transactional
 public class RepositoryItemsRestService implements IRepositoryItemsRestService {

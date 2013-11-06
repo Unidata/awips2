@@ -139,6 +139,7 @@
 			value="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject" />
 		<property name="classificationNodeDao" ref="classificationNodeDao" />
 		<property name="referenceResolver" ref="objectReferenceResolver" />
+		<property name="registrySoapClient" ref="registryWebServiceClient"/>
 	</bean>
 
 </beans>
