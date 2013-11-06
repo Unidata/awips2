@@ -25,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -58,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 21, 2013   2132     mpduff      Convert coordinates to East/West before drawing.
  * Oct 10, 2013   2428     skorolev    Fixed memory leak for Regions
  * Oct 24, 2013   2486     skorolev    Fixed an error of editing subset box.
+ * Nov 06, 2013   2486     skorolev    Corrected the regions and zoom handling defects.
  * 
  * </pre>
  * 
@@ -165,6 +165,7 @@ public class DrawBoxResource extends
             double[] lr = descriptor.worldToPixel(new double[] { c2.x, c2.y });
             PixelExtent pe = new PixelExtent(ul[0], lr[0], ul[1], lr[1]);
             target.drawRect(pe, boxColor, 3, 1);
+            getMapRectangle();
         }
     }
 
@@ -190,17 +191,6 @@ public class DrawBoxResource extends
         this.x360 = Math.round(point360[0]);
 
         getMapRectangle();
-
-        // Create initial regions
-        if ((c1 != null) && (c2 != null)) {
-            double[] luBox = getResourceContainer().translateInverseClick(c1);
-            x1 = (int) luBox[0];
-            y1 = (int) luBox[1];
-            double[] rbBox = getResourceContainer().translateInverseClick(c2);
-            x2 = (int) rbBox[0];
-            y2 = (int) rbBox[1];
-            createRegions();
-        }
 
     }
 
@@ -274,8 +264,10 @@ public class DrawBoxResource extends
                         if (c != null) {
                             if (boxSide == 0) {
                                 c1.y = c.y;
+                                y1 = y;
                             } else if (boxSide == 1) {
                                 c1.x = c.x;
+                                x1 = x;
                                 c1.x = spatialUtils.convertToEasting(c1.x);
                                 if (spatialUtils.getLongitudinalShift() > 0
                                         && x >= x360) {
@@ -283,8 +275,10 @@ public class DrawBoxResource extends
                                 }
                             } else if (boxSide == 2) {
                                 c2.y = c.y;
+                                y2 = y;
                             } else if (boxSide == 3) {
                                 c2.x = c.x;
+                                x2 = x;
                                 c2.x = spatialUtils.convertToEasting(c2.x);
                                 if (spatialUtils.getLongitudinalShift() > 0
                                         && x >= x360) {
@@ -310,9 +304,7 @@ public class DrawBoxResource extends
                 }
             } else if (mouseButton == 2) {
                 super.handleMouseDownMove(x, y, 1);
-
             }
-
             return true;
         }
 
@@ -406,20 +398,6 @@ public class DrawBoxResource extends
                 getMapRectangle();
             }
             return true;
-        }
-
-        /*
-         * Turn off mouse wheel.
-         * 
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.viz.ui.input.PanHandler#handleMouseWheel(org.eclipse
-         * .swt.widgets.Event, int, int)
-         */
-        @Override
-        public boolean handleMouseWheel(Event event, int x, int y) {
-            return false;
         }
     }
 
@@ -574,7 +552,7 @@ public class DrawBoxResource extends
     }
 
     /**
-     * Map's rectangle in pixels
+     * Get map's rectangle in pixels after changing.
      */
     private void getMapRectangle() {
         Coordinate top = new Coordinate();
@@ -592,5 +570,16 @@ public class DrawBoxResource extends
         int yBottom = (int) Math.round(pointBot[1]);
 
         mapRctgl = new Rectangle(xTop, yTop, (xBottom - xTop), (yBottom - yTop));
+
+        // Re-calculate regions
+        if ((c1 != null) && (c2 != null)) {
+            double[] luBox = getResourceContainer().translateInverseClick(c1);
+            x1 = (int) luBox[0];
+            y1 = (int) luBox[1];
+            double[] rbBox = getResourceContainer().translateInverseClick(c2);
+            x2 = (int) rbBox[0];
+            y2 = (int) rbBox[1];
+            createRegions();
+        }
     }
 }
