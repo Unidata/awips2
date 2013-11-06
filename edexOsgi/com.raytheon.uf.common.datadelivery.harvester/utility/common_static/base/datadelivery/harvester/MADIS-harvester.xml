@@ -8,7 +8,7 @@
 		<connection>
 			<!-- for OGC it's your FQDN 
 			 !!!!!PLACE YOUR URL HERE!!!!!!-->
-			<url>http://your.url.here:8085</url>
+			<url>http://your.url.here:8085/wfs</url>
 			<userName>user</userName>
 			<password>password</password>
 			<encryption>CLEAR</encryption>
