@@ -118,19 +118,22 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 02/14/2007   139         Phillippe   Initial creation    
- * 09/14/2007   379         jkorman     Added populateDataStore() and
- *                                      getPersistenceTime() from new IPersistable
- * 10/09/2007   465         randerso    Updated to better represent level 3 data                                   
- * 20071129            472  jkorman     Added IDecoderGettable interface.
- * 03/04/2013   DCS51       zwang       Handle MIGFA product
+ * Feb 14, 2007 139         Phillippe   Initial creation
+ * Sep 14, 2007 379         jkorman     Added populateDataStore() and
+ *                                      getPersistenceTime() from new
+ *                                      IPersistable
+ * Oct 09, 2007 465         randerso    Updated to better represent level 3 data
+ * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
+ * Mar 04, 2013 DCS51       zwang       Handle MIGFA product
  * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
  *                                      HDF5.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -144,12 +147,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "radar",
-		indexes = {
-				@Index(name = "radar_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "radar", indexes = { @Index(name = "radar_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -384,7 +383,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
     public RadarRecord(RadarRecord that) {
         this.id = that.id;
         this.dataURI = that.dataURI;
-        this.pluginName = that.pluginName;
         this.dataTime = that.dataTime;
         this.insertTime = that.insertTime;
         this.messageData = that.messageData;
@@ -614,18 +612,18 @@ public class RadarRecord extends PersistablePluginDataObject implements
 
     public void setRawDataValue(int radial, int bin, byte value) {
         byte[] rawData = getRawData();
-        if (rawData != null && numRadials != null && numBins != null) {
+        if ((rawData != null) && (numRadials != null) && (numBins != null)) {
             if ((radial < numRadials) && (bin < numBins)) {
-                rawData[radial * numBins + bin] = value;
+                rawData[(radial * numBins) + bin] = value;
             }
         }
     }
 
     public byte getRawDataValue(int radial, int bin) {
         byte[] rawData = getRawData();
-        if (rawData != null && numRadials != null && numBins != null) {
+        if ((rawData != null) && (numRadials != null) && (numBins != null)) {
             if ((radial < numRadials) && (bin < numBins)) {
-                return rawData[radial * numBins + bin];
+                return rawData[(radial * numBins) + bin];
             }
         }
         return 0;
@@ -638,9 +636,9 @@ public class RadarRecord extends PersistablePluginDataObject implements
             short[] rawShortData = getRawShortData();
             byte[] rawData = getRawData();
             if (rawShortData != null) {
-                return rawShortData[radial * numBins + bin];
+                return rawShortData[(radial * numBins) + bin];
             } else if (rawData != null) {
-                return (short) (rawData[radial * numBins + bin] & 0xFF);
+                return (short) (rawData[(radial * numBins) + bin] & 0xFF);
             }
         }
         return 0;
@@ -652,9 +650,9 @@ public class RadarRecord extends PersistablePluginDataObject implements
             short[] rawShortData = getRawShortData();
             byte[] rawData = getRawData();
             if (rawShortData != null) {
-                return rawShortData[radial * numBins + bin] & 0xFFFF;
+                return rawShortData[(radial * numBins) + bin] & 0xFFFF;
             } else if (rawData != null) {
-                return rawData[radial * numBins + bin] & 0xFF;
+                return rawData[(radial * numBins) + bin] & 0xFF;
             }
         }
         return 0;
@@ -892,7 +890,7 @@ public class RadarRecord extends PersistablePluginDataObject implements
                 pix = new double[] { 129, 149 };
             }
 
-            double[] data = { offset, offset + (nLevels - 1) * scale };
+            double[] data = { offset, offset + ((nLevels - 1) * scale) };
             rval = new PiecewisePixel(getUnitObject(), pix, data);
 
         } else {
@@ -1127,7 +1125,7 @@ public class RadarRecord extends PersistablePluginDataObject implements
         }
 
         // distance
-        double mag = Math.sqrt(i * i + j * j);
+        double mag = Math.sqrt((i * i) + (j * j));
         // 1 i or j is 1/4 km, so convert to meters
         mag *= 250;
 
@@ -1201,19 +1199,19 @@ public class RadarRecord extends PersistablePluginDataObject implements
     private <T> void addPacketData(double i, double j, String stormID,
             int type, RadarProductType productType, T currData,
             boolean needToConvert) {
-        
-    	// Convert x/y to lon/lat
-    	if (needToConvert) {
-    		Coordinate coor;
-    
-            // for MIGFA, i/j unit is 1km, for other radar products, unit is 1/4km
-        	if (type == 140) {
-        		coor = convertStormLatLon(i * 4.0, j * 4.0);
-        	}
-        	else {
+
+        // Convert x/y to lon/lat
+        if (needToConvert) {
+            Coordinate coor;
+
+            // for MIGFA, i/j unit is 1km, for other radar products, unit is
+            // 1/4km
+            if (type == 140) {
+                coor = convertStormLatLon(i * 4.0, j * 4.0);
+            } else {
                 coor = convertStormLatLon(i, j);
-        	}
-            
+            }
+
             i = coor.x;
             j = coor.y;
         }
@@ -1496,11 +1494,11 @@ public class RadarRecord extends PersistablePluginDataObject implements
                     convertLatLon = true;
 
                     Map<MapValues, String> map = new HashMap<MapValues, String>();
-                    
+
                     for (GenericDataParameter param : packet.getParams()
                             .values()) {
-                    	
-                    	GFMAttributeIDs id = null;
+
+                        GFMAttributeIDs id = null;
                         id = GFMAttributeIDs.getAttribute(param.getId());
 
                         if (id != null) {
@@ -1517,7 +1515,7 @@ public class RadarRecord extends PersistablePluginDataObject implements
                     for (GenericDataComponent currComponent : packet
                             .getFeatures().values()) {
                         currFeature = (AreaComponent) currComponent;
-                        //first point of GFM
+                        // first point of GFM
                         i = currFeature.getPoints().get(0).getCoordinate1();
                         j = currFeature.getPoints().get(0).getCoordinate2();
 
@@ -1525,7 +1523,7 @@ public class RadarRecord extends PersistablePluginDataObject implements
                                 currFeature, convertLatLon);
                     }
                     continue PACKET;
-                }else if (currPacket instanceof GenericDataPacket) {
+                } else if (currPacket instanceof GenericDataPacket) {
                     // Generic Packet will contain most of the data for the
                     // product, so, in general, nothing probably needs to be
                     // done here
@@ -1752,5 +1750,10 @@ public class RadarRecord extends PersistablePluginDataObject implements
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "radar";
     }
 }

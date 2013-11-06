@@ -1,15 +1,3 @@
-/**
- *
- * AtcfDecoder
- * 
- * Decoder Plug-In for Automated Tropical Cyclone Forecast ATCF.
- * 
- * 12 December 2008
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * 
- */
-
 package gov.noaa.nws.ncep.edex.plugin.atcf.decoder;
 
 import gov.noaa.nws.ncep.common.dataplugin.atcf.AtcfRecord;
@@ -31,13 +19,15 @@ import com.raytheon.uf.common.dataplugin.PluginException;
  * 
  * Decoder implementation for ATCF Plug-In
  * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ *
  * <pre>
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 06/23/10		208			F. J. Yen	Initial creation
- * 
+ * Date         Ticket#    Engineer     Description
+ * ------------ -------- ----------- --------------------------
+ * Jun 23, 2010 208      F. J. Yen   Initial creation
+ * Aug 30, 2013 2298     rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author Fee Jing Yen, SIB
@@ -114,7 +104,6 @@ public class AtcfDecoder extends AbstractDecoder {
         if (record != null) {
             try {
                 record.setTraceId(traceId);
-                record.setPluginName(pluginName);
                 record.constructDataURI();
             } catch (PluginException e) {
                 throw new DecoderException(

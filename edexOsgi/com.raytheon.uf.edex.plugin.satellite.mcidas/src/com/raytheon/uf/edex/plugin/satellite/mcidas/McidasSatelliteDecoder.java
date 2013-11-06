@@ -98,7 +98,8 @@ public class McidasSatelliteDecoder {
 
     /**
      * 
-     * @param data The file byte array data to be decoded.
+     * @param data
+     *            The file byte array data to be decoded.
      * @return The decoded data record(s).
      * @return
      * @throws Exception
@@ -160,13 +161,13 @@ public class McidasSatelliteDecoder {
         /* int creationHhmmss = */buf.getInt();
         int bandMap1to32 = buf.getInt();
         int bandMap33to64 = buf.getInt();
-        buf.position(buf.position() + 4 * 4); // sensor specific
-        buf.position(buf.position() + 4 * 8); // memo
+        buf.position(buf.position() + (4 * 4)); // sensor specific
+        buf.position(buf.position() + (4 * 8)); // memo
         int areaNumber = buf.getInt();
         int dataBlockOffset = buf.getInt();
         int navBlockOffset = buf.getInt();
         /* int validityCode = */buf.getInt();
-        buf.position(buf.position() + 8 * 4); // PDL
+        buf.position(buf.position() + (8 * 4)); // PDL
         buf.getInt(); // GOES AA band 8
         /* int imageYyyddd = */buf.getInt();
         /* int imageHhmmssOrMillis = */buf.getInt();
@@ -176,7 +177,7 @@ public class McidasSatelliteDecoder {
         /* int prefixBandListLength = */buf.getInt();
         buf.getInt(); // source type
         buf.getInt(); // cal type
-        buf.position(buf.position() + 3 * 4); // reserved
+        buf.position(buf.position() + (3 * 4)); // reserved
         /* int originalSourceType = */buf.getInt(); // actually a 4cc?
         /* int units = */buf.getInt(); // also 4cc?
         /* int scaling = */buf.getInt();
@@ -218,7 +219,8 @@ public class McidasSatelliteDecoder {
             rec.setCoverage(coverage);
 
             // TODO: Line pad if not a multiple of four bytes
-            if (linePrefixLength == 0 && nBytesPerElement == 1 && nBands == 1) {
+            if ((linePrefixLength == 0) && (nBytesPerElement == 1)
+                    && (nBands == 1)) {
                 byte[] imageBytes = new byte[nLines * nElementsPerLine];
                 buf.position(dataBlockOffset);
                 buf.get(imageBytes);
@@ -227,7 +229,7 @@ public class McidasSatelliteDecoder {
 
             } else if (nBytesPerElement == 1) {
                 byte[] imageBytes = new byte[nLines * nElementsPerLine];
-                int si = dataBlockOffset + ri * nBytesPerElement;
+                int si = dataBlockOffset + (ri * nBytesPerElement);
                 int di = 0;
                 int eincr = nBands * nBytesPerElement;
                 for (int y = 0; y < nLines; ++y) {
@@ -243,7 +245,6 @@ public class McidasSatelliteDecoder {
 
             rec.setTraceId(traceId);
             rec.setPersistenceTime(TimeTools.getSystemCalendar().getTime());
-            rec.setPluginName("satellite");
             rec.constructDataURI();
 
             // Set the data into the IDataRecord
@@ -303,22 +304,22 @@ public class McidasSatelliteDecoder {
             double dy = spacingAtStdLatInMeters * yImgRes;
 
             double phi0r = clat * DTR;
-            double rxp = ((double) (elementOfEquator - ulX) / xImgRes + 1.);
-            double ryp = (ny - (double) (lineOfEquator - ulY) / yImgRes);
+            double rxp = (((double) (elementOfEquator - ulX) / xImgRes) + 1.);
+            double ryp = (ny - ((double) (lineOfEquator - ulY) / yImgRes));
 
             double dxp = 1. - rxp;
             double dyp = 1. - ryp;
             double rm = dx * dyp;
             double rcos = radiusInMeters * Math.cos(phi0r);
             double arg = Math.exp(rm / rcos);
-            la1 = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
-            lo1 = (float) prnlon((clon + ((dx * dxp) / rcos) * RTD));
+            la1 = (float) (((2. * Math.atan(arg)) - HALFPI) * RTD);
+            lo1 = (float) prnlon((clon + (((dx * dxp) / rcos) * RTD)));
             dxp = nx - rxp;
             dyp = ny - ryp;
             rm = dx * dyp;
             arg = Math.exp(rm / rcos);
-            la2 = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
-            lo2 = (float) prnlon((clon + ((dx * dxp) / rcos) * RTD));
+            la2 = (float) (((2. * Math.atan(arg)) - HALFPI) * RTD);
+            lo2 = (float) prnlon((clon + (((dx * dxp) / rcos) * RTD)));
             lo2 = (float) prnlon(lo2);
 
             result = SatSpatialFactory.getInstance().getMapCoverage(
@@ -332,11 +333,11 @@ public class McidasSatelliteDecoder {
     }
 
     private static double prnlon(double lon) {
-        double dlon = lon - (int) (lon / 360.f) * 360.f;
+        double dlon = lon - ((int) (lon / 360.f) * 360.f);
         if (lon < -180.) {
             dlon = lon + 360.f;
         } else if (lon > 180.) {
-            dlon = (double) (lon - 360.);
+            dlon = lon - 360.;
         }
         return dlon;
     }
@@ -345,12 +346,12 @@ public class McidasSatelliteDecoder {
         Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         cal.setTimeInMillis(0);
 
-        cal.set(Calendar.YEAR, +1900 + yyyddd / 1000);
+        cal.set(Calendar.YEAR, +1900 + (yyyddd / 1000));
         cal.set(Calendar.DAY_OF_YEAR, yyyddd % 1000);
 
         int hh = hhmmss / 10000;
         cal.set(Calendar.HOUR_OF_DAY, hh);
-        cal.set(Calendar.MINUTE, (hhmmss - hh * 10000) / 100);
+        cal.set(Calendar.MINUTE, (hhmmss - (hh * 10000)) / 100);
         cal.set(Calendar.SECOND, hhmmss % 100);
 
         return cal;
@@ -358,9 +359,9 @@ public class McidasSatelliteDecoder {
 
     private static double unpackDdmmss(int ddmmss) {
         int dd = ddmmss / 10000;
-        int mm = (ddmmss - dd * 10000) / 100;
+        int mm = (ddmmss - (dd * 10000)) / 100;
         int ss = ddmmss % 100;
-        return dd + mm / 60.0 + ss / 3600.0;
+        return dd + (mm / 60.0) + (ss / 3600.0);
     }
 
     private static double flipLon(double lon, boolean flip) {
