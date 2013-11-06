@@ -88,6 +88,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 9/11/2013    2254       bphillip    Cleaned up handling of notifications and removed unneccessary code
  * 10/20/2013    1682       bphillip    Added synchronous notification delivery
  * 10/23/2013   1538       bphillip    Added log message denoting when processing is complete and time duration
+ * 10/30/2013   1538       bphillip    Changed to use non-static registry soap service client
  * 
  * </pre>
  * 
@@ -116,6 +117,9 @@ public class NotificationListenerImpl implements NotificationListener {
 
     /** Data access object for getting RegistryType objects */
     private RegistryDao registryDao;
+
+    /** Registry soap service client */
+    private RegistrySOAPServices registrySoapClient;
 
     @Override
     public void onNotification(NotificationType notification) {
@@ -250,7 +254,7 @@ public class NotificationListenerImpl implements NotificationListener {
             Collection<String> objIds, Mode mode) throws EbxmlRegistryException {
         try {
             // Get a the remote query service
-            QueryManager queryManager = RegistrySOAPServices
+            QueryManager queryManager = registrySoapClient
                     .getQueryServiceForHost(clientBaseURL);
             // Create a query to get the current state of the affected objects
             QueryRequest queryRequest = createGetCurrentStateQuery(
@@ -343,4 +347,9 @@ public class NotificationListenerImpl implements NotificationListener {
     public void setRegistryDao(RegistryDao registryDao) {
         this.registryDao = registryDao;
     }
+
+    public void setRegistrySoapClient(RegistrySOAPServices registrySoapClient) {
+        this.registrySoapClient = registrySoapClient;
+    }
+
 }
