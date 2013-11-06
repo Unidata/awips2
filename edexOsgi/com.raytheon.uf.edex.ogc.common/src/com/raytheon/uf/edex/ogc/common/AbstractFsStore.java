@@ -18,21 +18,23 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
- * Abstract File store
+ * Abstract File system storage. Provides basic storage location and id <-> file
+ * name encoding methods.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 4, 2013            bclement     Initial creation
  * Aug 18, 2013  #2097    dhladky      Changed to configured
- *
+ * October, 2012  #2472   dhladky/bclement     Changed back to base
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class AbstractFsStore {
 

@@ -30,6 +30,16 @@ import net.opengis.filter.v_2_0_0.LiteralType;
 /**
  * Visitor pattern support classes for filter expression operations
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */
