@@ -72,4 +72,18 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="com.raytheon.uf.common.archive"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.archive"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
