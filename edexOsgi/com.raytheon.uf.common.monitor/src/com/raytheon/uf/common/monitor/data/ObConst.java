@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.common.monitor.data;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 /**
  * Constants for Observations within the Decision Assistance Tool Suite that
@@ -29,10 +27,13 @@ import java.util.TimeZone;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 10, 2009 1999       grichard    Initial creation.
- * Jan 26, 2010 4268       skorolev    Corrected DisplayVarName according to VarName for SWELL
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 10, 2009  1999     grichard    Initial creation.
+ * Jan 26, 2010  4268     skorolev    Corrected DisplayVarName according to
+ *                                    VarName for SWELL
+ * Nov 06, 2013  2493     bsteffen    Remove unused constants.
+ * 
  * </pre>
  * 
  * @author grichard
@@ -43,16 +44,6 @@ public final class ObConst {
 
     // Private constructor -- all contents must be public static
     private ObConst() {
-    }
-
-    // Date Format
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm");
-
-    public static SimpleDateFormat obTimeFormat = DATE_FORMAT;
-
-    static {
-        obTimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     // Time Window in units of hours
@@ -85,21 +76,6 @@ public final class ObConst {
 
     public static final String SKC_SKY_STRING = "SKC";
 
-    // Image type used for Fog Monitor
-    public enum ImageType {
-        VIS, IR3_9, IR10_7, Undefined_ImageType
-    }
-
-    // Intensity Level
-    public enum IntensityLevel {
-        LIGHT, MODERATE, HEAVY
-    };
-
-    // Monitor Area
-    // public enum MonitorArea {
-    // SS, FM, SS_FM
-    // }
-
     // Chosen Application Key
     public enum ChosenAppKey {
         SNOW, FOG, SAFESEAS
@@ -114,11 +90,6 @@ public final class ObConst {
     public enum ThreatLevel {
         BLACK, GRAY, GREEN, YELLOW, RED, YELLOW_LO, YELLOW_HI, RED_LO, RED_HI, UNDEFINED_THREATLEVEL
     }
-
-    // Threat Level Strings
-    public static final String[] THREAT_LEVEL_STRINGS = { "black", "gray",
-            "green", "yellow", "red", "yellow_lo", "yellow_hi", "red_lo",
-            "red_hi" };
 
     // Report Type
     public enum ReportType {
@@ -158,19 +129,6 @@ public final class ObConst {
         VISIBILITY, WIND_SPEED, MAX_WIND_SPEED, GUST_SPEED, TEMPERATURE, WIND_CHILL, SNOW_DEPTH, PRIM_SWELL_HT, PRIM_SWELL_PD, PRIM_SWELL_DIR, SEC_SWELL_HT, SEC_SWELL_PD, SEC_SWELL_DIR, STATIONARY, WAVE_HEIGHT, WAVE_PERIOD, WAVE_STEEPNESS, LATITUDE, LONGITUDE, NOMINAL_DATETIME, OBSERVATION_DATETIME, PLATFORM_ID, PRESSURE, PRES_CHANGE, WIND_DIR, FOG, ZONE_ID, DEWPOINT, PRES_WX, SEA_SURFACE_TEMPERATURE, HOURLY_PRECIP, SNINCR_HOURLY, SNINCR_TOTAL, FROSTBITE_TIME, RELATIVE_HUMIDITY, CEILING, DEWPOINT_DEPR, SEA_LEVEL_PRESS, UNDEFINED_VARIABLE
     }
 
-    // Variable Name Strings
-    public static final String[] VAR_NAME_TEXT = { "GUST_SPEED", "LATITUDE",
-            "LONGITUDE", "NOMINAL_DATETIME", "OBSERVATION_DATETIME",
-            "PLATFORM_ID", "PRESSURE", "PRES_CHANGE", "PRIM_SWELL_DIR",
-            "PRIM_SWELL_HT", "PRIM_SWELL_PD", "SEC_SWELL_DIR", "SEC_SWELL_HT",
-            "SEC_SWELL_PD", "STATIONARY", "TEMPERATURE", "VISIBILITY",
-            "WAVE_HEIGHT", "WAVE_PERIOD", "WAVE_STEEPNESS", "WIND_DIR",
-            "WIND_SPEED", "MAX_WIND_SPEED", "FOG", "ZONE_ID", "DEWPOINT",
-            "PRES_WX", "SEA_SURFACE_TEMPERATURE", "HOURLY_PRECIP",
-            "SNOW_DEPTH", "SNINCR_HOURLY", "SNINCR_TOTAL", "WIND_CHILL",
-            "FROSTBITE_TIME", "RELATIVE_HUMIDITY", "CEILING", "DEWPOINT_DEPR",
-            "SEA_LEVEL_PRESS", "UNDEFINED_VARIABLE" };
-
     // Display Variable Names
     public enum DisplayVarName {
         SCA_WIND_SPEED, SCA_GUST_SPEED, SCA_MAX_WIND_SPEED, SCA_WAVE_HEIGHT, GALE_WIND_SPEED, GALE_GUST_SPEED, GALE_MAX_WIND_SPEED, STORM_WIND_SPEED, STORM_GUST_SPEED, STORM_MAX_WIND_SPEED, HURRICANE_WIND_SPEED, HURRICANE_GUST_SPEED, HURRICANE_MAX_WIND_SPEED, VAR_WIND_DIR, VAR_WIND_SPEED, VAR_MAX_WIND_SPEED, VAR_GUST_SPEED, VAR_VISIBILITY, VAR_TEMPERATURE, VAR_DEWPOINT, VAR_SEA_SURFACE_TEMPERATURE, VAR_WAVE_HEIGHT, VAR_WAVE_STEEPNESS, VAR_TIME, VAR_LATITUDE, VAR_LONGITUDE, VAR_PRESSURE, VAR_PRES_CHANGE, VAR_SNOW_DEPTH, VAR_SNINCR_HOURLY, VAR_SNINCR_TOTAL, VAR_WIND_CHILL, VAR_FROSTBITE_TIME, VAR_HOURLY_PRECIP, VAR_PRIM_SWELL_HT, VAR_PRIM_SWELL_PD, VAR_PRIM_SWELL_DIR, VAR_SEC_SWELL_HT, VAR_SEC_SWELL_PD, VAR_SEC_SWELL_DIR, VAR_FOG, BLIZ_WIND_SPEED, BLIZ_GUST_SPEED, BLIZ_MAX_WIND_SPEED, BLIZ_VISIBILITY, FRZ_HOURLY_PRECIP, FRZ_TEMPERATURE, HSW_SNOW_DEPTH, HSW_SNINCR_HOURLY, HSW_SNINCR_TOTAL, VAR_RELATIVE_HUMIDITY, VAR_CEILING, VAR_DEWPOINT_DEPR, VAR_SEA_LEVEL_PRESS
@@ -199,24 +157,6 @@ public final class ObConst {
             "min", "in", "ft", "sec", "deg", "ft", "sec", "deg", "", "kts",
             "kts", "kts", "nm", "in", "F", "in", "in", "in", "%", "ftx100",
             "F", "mb" };
-
-    // Remarks section delimiter in METAR
-    public static final String REMARK_EXPR = "RMK";
-
-    // Snow increasing rapidly remark expression in a METAR's remarks section
-    public static final String SNINCR_EXPR = "(SNINCR )(\\d+)/(\\d+)";
-
-    // Snow depth remark expression in a METAR's remarks section
-    public static final String SNOW_DEPTH_EXPR = "4/\\(d{3})";
-
-    // Metar plugin name
-    public static final String METAR_PLUGIN_NAME = "obs";
-
-    // Marine plugin name
-    public static final String MARINE_PLUGIN_NAME = "scfobs";
-
-    // Meso plugin name
-    public static final String MESO_PLUGIN_NAME = "mesowest";
 
     // Default station identifier
     public static final String DEFAULT_STATION_NAME = "KOMA";
