@@ -21,10 +21,22 @@ package com.raytheon.uf.edex.ogc.common;
 
 import java.util.List;
 
+
 /**
- *
+ * Styling interface for retrieving style information for layers
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 29, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public interface StyleLookup {
 
@@ -34,6 +46,9 @@ public interface StyleLookup {
 	 */
 	public String lookup(String layername);
 
+    /**
+     * @return all styles
+     */
 	public List<OgcStyle> getStyles();
 
 	public void setLoader(ClassLoader loader);
