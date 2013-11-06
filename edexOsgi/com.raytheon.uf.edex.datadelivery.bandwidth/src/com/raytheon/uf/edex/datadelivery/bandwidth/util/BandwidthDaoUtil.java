@@ -33,6 +33,7 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -70,6 +71,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Sept 24, 2013 1797      dhladky      separated time from GriddedTime
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * Oct 30, 2013  2448      dhladky      Fixed pulling data before and after activePeriod starting and ending.
+ * Nov 5, 2013  2521       dhladky      Fixed DataSetMetaData update failures for URL's in pointdata.
  * 
  * </pre>
  * 
@@ -325,6 +327,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @return the adhoc subscription, or null if no matching metadata could be
      *         found
      */
+    @SuppressWarnings("rawtypes")
     public AdhocSubscription<T,C> setAdhocMostRecentUrlAndTime(
             AdhocSubscription<T,C> adhoc, boolean mostRecent) {
         AdhocSubscription<T,C> retVal = null;
@@ -344,8 +347,19 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
             }
 
             if (dataSetMetaDatas != null && !dataSetMetaDatas.isEmpty()) {
-                // just grab the most recent one, all we need is the URL
-                adhoc.setUrl(dataSetMetaDatas.get(0).getUrl());
+                // No guarantee on ordering, have to find most recent time
+                @SuppressWarnings("unchecked")
+                DataSetMetaData<PointTime> selectedDataSet = dataSetMetaDatas.get(0);
+                Date checkDate = selectedDataSet.getDate();
+                
+                for (DataSetMetaData<PointTime> dsmd: dataSetMetaDatas) {
+                    if (dsmd.getDate().after(checkDate)) {
+                        checkDate = dsmd.getDate();
+                        selectedDataSet = dsmd;
+                    }
+                }
+                
+                adhoc.setUrl(selectedDataSet.getUrl());
                 retVal = adhoc;
             }
 
