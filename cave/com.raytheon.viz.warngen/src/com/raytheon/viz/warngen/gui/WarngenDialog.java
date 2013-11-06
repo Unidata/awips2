@@ -150,6 +150,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Aug 15, 2013 DR 16418    D. Friedman Make dialog visibility match editable state.
  *  Sep 17, 2013 DR 16496    D. Friedman Make editable state more consistent.
  *  Oct 01, 2013 DR16612 m.gamazaychikov Fixed inconsistencies with track locking and updateListSelected method
+ *  Oct 29, 2013 DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the pollygon the be used.
  * </pre>
  * 
  * @author chammack
@@ -1071,6 +1072,12 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .conWarnAreaChanged(followupData)))
                 && !polygonLocked && !trackLocked) {
             redrawFromWarned();
+        }
+
+        // Need to check again because redraw may have failed.
+        if (warngenLayer.getWarningArea() == null) {
+            setInstructions();
+            return;
         }
 
         ProgressMonitorDialog pmd = new ProgressMonitorDialog(Display
