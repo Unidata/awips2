@@ -25,6 +25,17 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 
 /**
+ * Parses OGC Filter Expression objects using visitor pattern.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 21, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

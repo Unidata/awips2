@@ -10,20 +10,20 @@
 package com.raytheon.uf.edex.wfs.filter.v2_0_0;
 
 /**
- * TODO Add Description
+ * Abstract base for parsed functions from OGC filters
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class FilterFunction {
 

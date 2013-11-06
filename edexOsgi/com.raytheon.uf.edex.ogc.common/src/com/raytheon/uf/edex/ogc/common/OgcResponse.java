@@ -21,6 +21,22 @@ package com.raytheon.uf.edex.ogc.common;
 
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
+/**
+ * Response wrapper for OGC web services
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class OgcResponse {
     public static final MimeType TEXT_XML_MIME = new MimeType("text/xml");
 
