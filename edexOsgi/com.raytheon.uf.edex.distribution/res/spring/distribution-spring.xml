@@ -3,6 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
+    <bean id="distributionPatterns" class="com.raytheon.uf.edex.distribution.DistributionPatterns" factory-method="getInstance"/>
   	<bean id="distributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" />
   	<bean id="handleoupDistributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" />
   	<bean id="radarserverDistributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" /> 
@@ -63,9 +64,7 @@
         <route id="refreshDistributionPatterns">
 			<from uri="refreshDistributionCron" />
 			<doTry>
-				<bean ref="distributionSrv" method="refresh" />
-				<bean ref="handleoupDistributionSrv" method="refresh" />
-				<bean ref="radarserverDistributionSrv" method="refresh" />
+				<bean ref="distributionPatterns" method="refresh" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to uri="log:refreshDistribution?level=ERROR"/>

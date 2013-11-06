@@ -35,7 +35,9 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
- * TODO Add Description
+ * Listens to changes to the "Disable JMS" option in the Thin Client
+ * Preferences. Will automatically connect to and disconnect from the
+ * JMS Server as the option is updated.
  * 
  * <pre>
  * 
@@ -44,6 +46,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2011            bsteffen     Initial creation
+ * Aug 27, 2013 2295       bkowal       The entire jms connection string is now
+ *                                      provided by EDEX.
  * 
  * </pre>
  * 
@@ -96,13 +100,14 @@ public class ThinClientNotificationManagerJob extends NotificationManagerJob
             if (disableJMS) {
                 disconnect(true);
             } else {
-                if (VizApp.getJmsServer() == null) {
+                if (VizApp.getJmsConnectionString() == null) {
                     GetServersRequest req = new GetServersRequest();
                     GetServersResponse resp;
                     try {
                         resp = (GetServersResponse) ThriftClient
                                 .sendLocalizationRequest(req);
-                        VizApp.setJmsServer(resp.getJmsServer());
+                        VizApp.setJmsConnectionString(resp
+                                .getJmsConnectionString());
                     } catch (VizException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);

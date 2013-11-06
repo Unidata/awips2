@@ -20,10 +20,7 @@
 
 package com.raytheon.edex.uengine.tasks.query;
 
-import java.util.List;
-
 import com.raytheon.edex.uengine.exception.MicroEngineException;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -37,12 +34,14 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date             PR#             Engineer            Description
- * -----------      ----------      ------------        --------------------------
- * Mar 27, 2007                     njensen             Initial Creation.
- * 9/21/2007        368             grichard            Added plugin operations from superclass.
- * 6/04/2008        875             bphillip            Refactored to use DatabaseQuery
- * </PRE>
+ * Date          Ticket#     Engineer      Description
+ * ------------  ----------  ------------  ----------------------------------------
+ * Mar 27, 2007              njensen       Initial Creation.
+ * Sep 21, 2007  368         grichard      Added plugin operations from
+ *                                         superclass.
+ * Jun 04, 2008  875         bphillip      Refactored to use DatabaseQuery
+ * Aug 30, 2013  2298        rjpeter       Make getPluginName abstract
+ * </pre>
  * 
  * @author njensen
  */
@@ -61,6 +60,7 @@ public class TermQuery extends TableQuery {
      * @throws PluginException
      * @deprecated
      */
+    @Deprecated
     public TermQuery(String aPlugin, String dummy1, String dummy2)
             throws DataAccessLayerException, PluginException {
         this(aPlugin);
@@ -78,19 +78,6 @@ public class TermQuery extends TableQuery {
         super(PluginFactory.getInstance().getDatabase(aPlugin), PluginFactory
                 .getInstance().getPluginRecordClass(aPlugin).getName());
         this.plugin = aPlugin;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<PluginDataObject> execute() throws Exception {
-        List<PluginDataObject> results = (List<PluginDataObject>) super
-                .execute();
-
-        if (results != null) {
-            for (int i = 0; i < results.size(); i++) {
-                results.get(i).setPluginName(plugin);
-            }
-        }
-        return results;
     }
 
     /**
