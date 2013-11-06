@@ -59,10 +59,11 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080103            384 jkorman     Initial Coding.
- * 20080128            861 jkorman     Add pirep layer data.
- * 20080408           1039 jkorman     Added traceId for tracing data. 
- * 11/13/08           1684 chammack    Camel Refactor
+ * Jan 03, 2008 384        jkorman     Initial Coding.
+ * Jan 28, 2008 861        jkorman     Add pirep layer data.
+ * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
+ * Nov 13, 2008 1684       chammack    Camel Refactor
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author jkorman
@@ -108,7 +109,6 @@ public class PirepDecoder extends AbstractDecoder {
 
             if (report != null) {
                 report.setTraceId(traceId);
-                report.setPluginName(PLUGIN_NAME);
                 try {
                     report.constructDataURI();
                 } catch (PluginException e) {
@@ -181,8 +181,7 @@ public class PirepDecoder extends AbstractDecoder {
                 record.setHorzVisibility(parser.getHorxVisibility());
 
                 // Collect the decoded icing flight conditions data
-                List<AircraftFlightCondition> icing = parser
-                        .getIcingLayers();
+                List<AircraftFlightCondition> icing = parser.getIcingLayers();
                 if (icing != null) {
                     PirepLayerData iceLayer = null;
                     for (AircraftFlightCondition layer : icing) {
@@ -250,7 +249,7 @@ public class PirepDecoder extends AbstractDecoder {
         }
         if (traceIdx >= 0) {
             newTrace = new StackTraceElement[traceIdx + 1];
-            for (int j = 0; j < traceIdx + 1; j++) {
+            for (int j = 0; j < (traceIdx + 1); j++) {
                 newTrace[j] = trace[j];
             }
             e.setStackTrace(newTrace);

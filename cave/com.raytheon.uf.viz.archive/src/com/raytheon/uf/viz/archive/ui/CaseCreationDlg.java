@@ -21,11 +21,11 @@ package com.raytheon.uf.viz.archive.ui;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -38,7 +38,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
@@ -46,17 +45,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.SizeUtil;
-import com.raytheon.uf.viz.archive.data.ArchiveInfo;
-import com.raytheon.uf.viz.archive.data.CategoryInfo;
-import com.raytheon.uf.viz.archive.data.IArchiveTotals;
-import com.raytheon.uf.viz.archive.data.IUpdateListener;
-import com.raytheon.uf.viz.archive.data.SizeJobRequest;
-import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.AwipsCalendar;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
@@ -74,14 +67,17 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 23, 2013 #1964     lvenable     Initial creation
  * Jun 10, 2013 #1966      rferrel     Implemented back in hooks for display
  *                                      and generation of cases.
+ * Jul 24, 2013 #2220      rferrel     Add recompute size button.
+ * Jul 24, 2013 #2221      rferrel     Changes for select configuration.
+ * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
+ * Aug 26, 2013 #2225      rferrel     Make perspective independent and no longer modal.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class CaseCreationDlg extends AbstractArchiveDlg implements
-        IArchiveTotals, IUpdateListener {
+public class CaseCreationDlg extends AbstractArchiveDlg {
 
     /** Start time label. */
     private Label startTimeLbl;
@@ -104,17 +100,30 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     /** Compression check box. */
     private Button compressChk;
 
-    /** Break files check box. */
-    private Button breakFilesChk;
+    // TODO restore when Multi-file implemented.
+    // /** Break files check box. */
+    // private Button breakFilesChk;
 
-    /** File size spinner control. */
-    private Spinner fileSizeSpnr;
+    /** Button to save new select case configuration. */
+    private Button saveAsBtn;
 
-    /** File size combo box. */
-    private Combo fileSizeCbo;
+    /** Button to load select case configuration. */
+    private Button loadBtn;
 
-    /** Maximum file size label. */
-    private Label maxFileSizeLbl;
+    /** Button to delete select case configuration. */
+    private Button deleteBtn;
+
+    // TODO restore when Multi-file implemented.
+    // /** File size spinner control. */
+    // private Spinner fileSizeSpnr;
+
+    // TODO restore when Multi-file implemented.
+    // /** File size combo box. */
+    // private Combo fileSizeCbo;
+
+    // TODO restore when Multi-file implemented.
+    // /** Maximum file size label. */
+    // private Label maxFileSizeLbl;
 
     /** Directory location label. */
     private Label locationLbl;
@@ -138,6 +147,21 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     /** Number of selected items. */
     private int selectedItemsSize = 0;
 
+    /** Dialog to create new select case. */
+    private CaseLoadSaveDeleteDlg saveAsDlg;
+
+    /** Dialog to load a select case. */
+    private CaseLoadSaveDeleteDlg loadDlg;
+
+    /** Dialog to delete a select case. */
+    private CaseLoadSaveDeleteDlg deleteDlg;
+
+    /** Allow only single instance of dialog. */
+    private CaseNameDialog caseNameDlg;
+
+    /** Allow only single instance of dialog. */
+    private GenerateCaseDlg generateCaseDlg;
+
     /**
      * Constructor.
      * 
@@ -146,9 +170,11 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      */
     public CaseCreationDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
-                | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+                | CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                | CAVE.INDEPENDENT_SHELL);
+        this.type = Type.Case;
         this.setSelect = false;
-        this.tableType = TableType.Case;
+        this.type = Type.Case;
     }
 
     /*
@@ -176,7 +202,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     @Override
     protected void initializeComponents(Shell shell) {
         super.initializeComponents(shell);
-        setText("Archive Case Creation");
+        setText("Archive Case Creation -");
         Composite mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
@@ -238,13 +264,29 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         gd = new GridData(220, SWT.DEFAULT);
         endTimeLbl = new Label(timeComp, SWT.BORDER);
         endTimeLbl.setLayoutData(gd);
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setRetentionTimes(long)
+     */
+    @Override
+    public void setRetentionTimes(long startRetentionHours) {
+        long startTimeOffset = startRetentionHours * TimeUtil.MILLIS_PER_HOUR;
         endDate = TimeUtil.newDate();
         long time = endDate.getTime();
-        time -= TimeUtil.MILLIS_PER_DAY;
+        time -= startTimeOffset;
         startDate = new Date(time);
-        startTimeLbl.setText(dateFmt.format(startDate));
-        endTimeLbl.setText(dateFmt.format(endDate));
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                startTimeLbl.setText(dateFmt.format(startDate));
+                endTimeLbl.setText(dateFmt.format(endDate));
+            }
+        });
     }
 
     /**
@@ -330,58 +372,60 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
          */
         compressChk = new Button(compressionComp, SWT.CHECK);
         compressChk.setText("Compress Files");
-        compressChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                handleCompressSelection();
-            }
-        });
+        // TODO restore when Multi-file implemented.
+        // compressChk.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // handleCompressSelection();
+        // }
+        // });
 
-        gd = new GridData();
-        gd.horizontalIndent = 20;
-        breakFilesChk = new Button(compressionComp, SWT.CHECK);
-        breakFilesChk.setText("Break into multiple files");
-        breakFilesChk.setLayoutData(gd);
-        breakFilesChk.setEnabled(false);
-        breakFilesChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                handleBreakFilesSelection(breakFilesChk.getSelection());
-            }
-        });
+        // TODO restore when Multi-file implemented.
+        // gd = new GridData();
+        // gd.horizontalIndent = 20;
+        // breakFilesChk = new Button(compressionComp, SWT.CHECK);
+        // breakFilesChk.setText("Break into multiple files");
+        // breakFilesChk.setLayoutData(gd);
+        // breakFilesChk.setEnabled(false);
+        // breakFilesChk.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // handleBreakFilesSelection(breakFilesChk.getSelection());
+        // }
+        // });
 
-        Composite maxFileSizeComp = new Composite(compressionComp, SWT.NONE);
-        gl = new GridLayout(3, false);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.horizontalIndent = 20;
-        maxFileSizeComp.setLayout(gl);
-        maxFileSizeComp.setLayoutData(gd);
-
-        maxFileSizeLbl = new Label(maxFileSizeComp, SWT.NONE);
-        maxFileSizeLbl.setText("Max File Size: ");
-        maxFileSizeLbl.setEnabled(false);
-
-        gd = new GridData(60, SWT.DEFAULT);
-        fileSizeSpnr = new Spinner(maxFileSizeComp, SWT.BORDER);
-        fileSizeSpnr.setIncrement(1);
-        fileSizeSpnr.setPageIncrement(50);
-        fileSizeSpnr.setMaximum(2000);
-        fileSizeSpnr.setMinimum(500);
-        fileSizeSpnr.setLayoutData(gd);
-        fileSizeSpnr.setEnabled(false);
-
-        fileSizeCbo = new Combo(maxFileSizeComp, SWT.VERTICAL | SWT.DROP_DOWN
-                | SWT.BORDER | SWT.READ_ONLY);
-        fileSizeCbo.setEnabled(false);
-        fileSizeCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                handleFileSizeChangeSelection();
-            }
-        });
-        fileSizeCbo.add("MB");
-        fileSizeCbo.add("GB");
-        fileSizeCbo.select(0);
+        // Composite maxFileSizeComp = new Composite(compressionComp, SWT.NONE);
+        // gl = new GridLayout(3, false);
+        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        // gd.horizontalIndent = 20;
+        // maxFileSizeComp.setLayout(gl);
+        // maxFileSizeComp.setLayoutData(gd);
+        //
+        // maxFileSizeLbl = new Label(maxFileSizeComp, SWT.NONE);
+        // maxFileSizeLbl.setText("Max File Size: ");
+        // maxFileSizeLbl.setEnabled(false);
+        //
+        // gd = new GridData(60, SWT.DEFAULT);
+        // fileSizeSpnr = new Spinner(maxFileSizeComp, SWT.BORDER);
+        // fileSizeSpnr.setIncrement(1);
+        // fileSizeSpnr.setPageIncrement(50);
+        // fileSizeSpnr.setMaximum(2000);
+        // fileSizeSpnr.setMinimum(500);
+        // fileSizeSpnr.setLayoutData(gd);
+        // fileSizeSpnr.setEnabled(false);
+        //
+        // fileSizeCbo = new Combo(maxFileSizeComp, SWT.VERTICAL | SWT.DROP_DOWN
+        // | SWT.BORDER | SWT.READ_ONLY);
+        // fileSizeCbo.setEnabled(false);
+        // fileSizeCbo.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // handleFileSizeChangeSelection();
+        // }
+        // });
+        // fileSizeCbo.add("MB");
+        // fileSizeCbo.add("GB");
+        // fileSizeCbo.select(0);
     }
 
     /**
@@ -425,7 +469,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     private void createBottomActionButtons() {
 
         Composite actionControlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(3, false);
+        GridLayout gl = new GridLayout(8, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionControlComp.setLayout(gl);
         actionControlComp.setLayoutData(gd);
@@ -441,6 +485,44 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         // }
         // });
 
+        saveBtn = new Button(actionControlComp, SWT.PUSH);
+        saveBtn.setText(" Save ");
+        saveBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                saveSelection(selectName);
+                clearModified();
+            }
+        });
+        saveBtn.setEnabled(false);
+
+        saveAsBtn = new Button(actionControlComp, SWT.PUSH);
+        saveAsBtn.setText(" Save As... ");
+        saveAsBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                handleSaveAsCase();
+            }
+        });
+
+        loadBtn = new Button(actionControlComp, SWT.PUSH);
+        loadBtn.setText(" Load... ");
+        loadBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                handleLoadCase();
+            }
+        });
+
+        deleteBtn = new Button(actionControlComp, SWT.PUSH);
+        deleteBtn.setText(" Delete... ");
+        deleteBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                handleDeleteCase();
+            }
+        });
+
         generateBtn = new Button(actionControlComp, SWT.PUSH);
         generateBtn.setText(" Generate ");
         generateBtn.setEnabled(false);
@@ -451,6 +533,18 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
             }
         });
 
+        createShowingSelectedBtn(actionControlComp);
+
+        Button sizeBtn = new Button(actionControlComp, SWT.PUSH);
+        sizeBtn.setText(" Recompute Sizes ");
+        sizeBtn.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                resetSizes();
+            }
+        });
+
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         Button closeBtn = new Button(actionControlComp, SWT.PUSH);
         closeBtn.setText(" Close ");
@@ -458,13 +552,91 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                close();
+                if (verifyClose()) {
+                    close();
+                } else {
+                    e.doit = false;
+                }
             }
         });
     }
 
+    private void handleSaveAsCase() {
+        if (saveAsDlg == null || saveAsDlg.isDisposed()) {
+            saveAsDlg = new CaseLoadSaveDeleteDlg(shell,
+                    CaseLoadSaveDeleteDlg.Type.SaveAs);
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String name = returnValue.toString();
+                        if (saveSelection(name)) {
+                            clearModified();
+                            loadSelect(name);
+                            setSelectName(name);
+                        }
+                    }
+                }
+            });
+            saveAsDlg.open();
+        } else {
+            saveAsDlg.bringToTop();
+        }
+    }
+
+    private void handleLoadCase() {
+        if (isModified()
+                && !MessageDialog.openConfirm(shell, "Case Confirmation",
+                        "Unsave changes will be lost.\nPress OK to continue.")) {
+            return;
+
+        }
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            loadDlg = new CaseLoadSaveDeleteDlg(shell,
+                    CaseLoadSaveDeleteDlg.Type.Load);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String name = returnValue.toString();
+                        loadSelect(name);
+                        populateTableComp();
+                        updateTotals(null);
+                        setSelectName(name);
+                        clearModified();
+                    }
+                }
+            });
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
+        }
+    }
+
+    private void handleDeleteCase() {
+        if (deleteDlg == null || deleteDlg.isDisposed()) {
+            deleteDlg = new CaseLoadSaveDeleteDlg(shell,
+                    CaseLoadSaveDeleteDlg.Type.Delete);
+            deleteDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String selectName = returnValue.toString();
+                        deleteSelect(selectName);
+                    }
+                }
+            });
+            deleteDlg.open();
+        } else {
+            deleteDlg.bringToTop();
+        }
+    }
+
     /**
-     * Display modal dialog that performs the Generation of the case.
+     * Display dialog that performs the Generation of the case.
      */
     private void generateCase() {
         setCursorBusy(true);
@@ -475,49 +647,70 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
 
         List<DisplayData> displayDatas = getSelectedData();
         boolean doCompress = compressChk.getSelection();
-        boolean doMultiFiles = breakFilesChk.getSelection();
-        int compressSize = fileSizeSpnr.getSelection();
-        String sizeType = fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex());
 
-        // Assume Model dialog.
-        GenerateCaseDlg dialog = new GenerateCaseDlg(shell, targetDir, caseDir,
-                startCal, endCal, displayDatas, doCompress, doMultiFiles,
-                compressSize, sizeType);
-        dialog.addJobChangeListener(new JobChangeAdapter() {
+        // TODO restore once Multi-file implemented.
+        // boolean doMultiFiles = breakFilesChk.getSelection();
+        // int compressSize = fileSizeSpnr.getSelection();
+        // String sizeType =
+        // fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex());
+        boolean doMultiFiles = false;
+        int compressSize = 500;
+        String sizeType = "MB";
 
-            @Override
-            public void done(IJobChangeEvent event) {
-                VizApp.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateLocationState();
-                    }
-                });
+        setCursorBusy(true);
+        if (generateCaseDlg == null || generateCaseDlg.isDisposed()) {
+            long splitSize = 0L;
+            if (doCompress && doMultiFiles) {
+                if (sizeType.equals("MB")) {
+                    splitSize = compressSize * FileUtils.ONE_MB;
+                } else {
+                    splitSize = compressSize * FileUtils.ONE_GB;
+                }
             }
-        });
-        dialog.setCloseCallback(new ICloseCallback() {
+            generateCaseDlg = new GenerateCaseDlg(shell, targetDir, caseDir,
+                    startCal, endCal, displayDatas, doCompress, doMultiFiles,
+                    splitSize);
+            generateCaseDlg.addJobChangeListener(new JobChangeAdapter() {
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                setCursorBusy(false);
-            }
-        });
-        dialog.open();
+                @Override
+                public void done(IJobChangeEvent event) {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateLocationState();
+                            setCursorBusy(false);
+                            generateCaseDlg = null;
+                        }
+                    });
+                }
+            });
+            generateCaseDlg.setCloseCallback(new ICloseCallback() {
 
-    }
-
-    /**
-     * Enable/Disable controls based on the compression check box.
-     */
-    private void handleCompressSelection() {
-        if (compressChk.getSelection()) {
-            handleBreakFilesSelection(breakFilesChk.getSelection());
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    setCursorBusy(false);
+                }
+            });
+            generateCaseDlg.open();
         } else {
-            handleBreakFilesSelection(false);
+            generateCaseDlg.bringToTop();
         }
 
-        breakFilesChk.setEnabled(compressChk.getSelection());
     }
+
+    // TODO restore when Multi-file implemented.
+    // /**
+    // * Enable/Disable controls based on the compression check box.
+    // */
+    // private void handleCompressSelection() {
+    // if (compressChk.getSelection()) {
+    // handleBreakFilesSelection(breakFilesChk.getSelection());
+    // } else {
+    // handleBreakFilesSelection(false);
+    // }
+    //
+    // breakFilesChk.setEnabled(compressChk.getSelection());
+    // }
 
     /**
      * Bring up modal dialog to get the case's directory name.
@@ -531,35 +724,43 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         }
 
         File targetDir = (File) o;
-        // Assume modal dialog.
-        CaseNameDialog dialog = new CaseNameDialog(shell, targetDir);
-        dialog.setCloseCallback(new ICloseCallback() {
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                if (returnValue instanceof File) {
-                    File caseDir = (File) returnValue;
-                    String caseName = caseDir.getAbsolutePath();
-                    caseNameLbl.setText(caseName);
-                    caseNameLbl.setData(caseDir);
-                    checkGenerateButton();
+        setCursorBusy(true);
+        if (caseNameDlg == null || caseNameDlg.isDisposed()) {
+            caseNameDlg = new CaseNameDialog(shell, targetDir);
+            caseNameDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof File) {
+                        File caseDir = (File) returnValue;
+                        String caseName = caseDir.getAbsolutePath();
+                        caseNameLbl.setText(caseName);
+                        caseNameLbl.setData(caseDir);
+                        checkGenerateButton();
+                    }
+                    caseNameDlg = null;
+                    setCursorBusy(false);
                 }
-            }
-        });
-        dialog.open();
+            });
+            caseNameDlg.open();
+        } else {
+            caseNameDlg.bringToTop();
+        }
     }
 
-    /**
-     * Enable/Disable file size controls.
-     * 
-     * @param enabled
-     *            Enabled flag.
-     */
-    private void handleBreakFilesSelection(boolean enabled) {
-        maxFileSizeLbl.setEnabled(enabled);
-        fileSizeSpnr.setEnabled(enabled);
-        fileSizeCbo.setEnabled(enabled);
-    }
+    // TODO restore when Multi-file implemented.
+    // /**
+    // * Enable/Disable file size controls.
+    // *
+    // * @param enabled
+    // * Enabled flag.
+    // */
+    // private void handleBreakFilesSelection(boolean enabled) {
+    // maxFileSizeLbl.setEnabled(enabled);
+    // fileSizeSpnr.setEnabled(enabled);
+    // fileSizeCbo.setEnabled(enabled);
+    // }
 
     /**
      * Enables the generate button will user has entered all needed elements.
@@ -571,35 +772,36 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         }
     }
 
-    /**
-     * Action performed when the file size has changed.
-     */
-    private void handleFileSizeChangeSelection() {
-        /*
-         * If the same item was selected just return.
-         */
-        if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals(
-                (String) fileSizeCbo.getData())) {
-            return;
-        }
-
-        if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals("MB")) {
-            fileSizeSpnr.setIncrement(1);
-            fileSizeSpnr.setPageIncrement(50);
-            fileSizeSpnr.setMaximum(2000);
-            fileSizeSpnr.setMinimum(500);
-            fileSizeSpnr.setSelection(500);
-        } else {
-            fileSizeSpnr.setIncrement(1);
-            fileSizeSpnr.setPageIncrement(5);
-            fileSizeSpnr.setMinimum(1);
-            fileSizeSpnr.setMaximum(10);
-            fileSizeSpnr.setSelection(1);
-        }
-
-        fileSizeCbo
-                .setData(fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()));
-    }
+    // TODO restore when Multi-file implemented.
+    // /**
+    // * Action performed when the file size has changed.
+    // */
+    // private void handleFileSizeChangeSelection() {
+    // /*
+    // * If the same item was selected just return.
+    // */
+    // if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals(
+    // (String) fileSizeCbo.getData())) {
+    // return;
+    // }
+    //
+    // if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals("MB")) {
+    // fileSizeSpnr.setIncrement(1);
+    // fileSizeSpnr.setPageIncrement(50);
+    // fileSizeSpnr.setMaximum(2000);
+    // fileSizeSpnr.setMinimum(500);
+    // fileSizeSpnr.setSelection(500);
+    // } else {
+    // fileSizeSpnr.setIncrement(1);
+    // fileSizeSpnr.setPageIncrement(5);
+    // fileSizeSpnr.setMinimum(1);
+    // fileSizeSpnr.setMaximum(10);
+    // fileSizeSpnr.setSelection(1);
+    // }
+    //
+    // fileSizeCbo
+    // .setData(fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()));
+    // }
 
     /**
      * Display the directory browser dialog.
@@ -624,6 +826,9 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      * Update location's state.
      */
     private void updateLocationState() {
+        if (isDisposed()) {
+            return;
+        }
         File dir = (File) locationLbl.getData();
         long totSpace = dir.getTotalSpace();
         long freeSpace = dir.getUsableSpace();
@@ -665,49 +870,57 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      *            True for start time, false for end time.
      */
     private void displayDateTimeControls(boolean startTimeFlag) {
+        setCursorBusy(true);
+        try {
+            Date acDate = startTimeFlag ? startDate : endDate;
+            AwipsCalendar ac = new AwipsCalendar(shell, acDate, 1);
+            ac.setTimeZone(TimeUtil.newCalendar().getTimeZone());
+            ac.setText((startTimeFlag ? "Start" : "End") + " Time Calendar");
 
-        Date acDate = startTimeFlag ? startDate : endDate;
-        AwipsCalendar ac = new AwipsCalendar(shell, acDate, 1);
-        ac.setTimeZone(TimeUtil.newCalendar().getTimeZone());
-        Date date = (Date) ac.open();
+            Date date = (Date) ac.open();
 
-        if (date == null) {
-            return;
-        }
-
-        if (startTimeFlag) {
-            if (date.after(endDate)) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                        | SWT.OK);
-                mb.setText("Date Error");
-                mb.setMessage("The selected start date is after the end date.  Resetting.");
-                mb.open();
+            if (date == null) {
                 return;
             }
 
-            if (!startDate.equals(date)) {
-                startDate = date;
-                resetSizes();
-            }
-        } else {
-            if (date.before(startDate)) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                        | SWT.OK);
-                mb.setText("Date Error");
-                mb.setMessage("The selected end date is before the start date.  Resetting.");
-                mb.open();
-                return;
-            }
-            if (!endDate.equals(date)) {
-                endDate = date;
-                resetSizes();
-            }
-        }
+            if (startTimeFlag) {
+                if (date.after(endDate)) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                            | SWT.OK);
+                    mb.setText("Date Error");
+                    mb.setMessage("The selected start date is after the end date.  Resetting.");
+                    mb.open();
+                    return;
+                }
 
-        if (startTimeFlag) {
-            startTimeLbl.setText(dateFmt.format(date));
-        } else {
-            endTimeLbl.setText(dateFmt.format(date));
+                if (!startDate.equals(date)) {
+                    startDate = date;
+                    sizeJob.resetTime(getStart(), getEnd());
+                    modified();
+                }
+            } else {
+                if (date.before(startDate)) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                            | SWT.OK);
+                    mb.setText("Date Error");
+                    mb.setMessage("The selected end date is before the start date.  Resetting.");
+                    mb.open();
+                    return;
+                }
+                if (!endDate.equals(date)) {
+                    endDate = date;
+                    sizeJob.resetTime(getStart(), getEnd());
+                    modified();
+                }
+            }
+
+            if (startTimeFlag) {
+                startTimeLbl.setText(dateFmt.format(date));
+            } else {
+                endTimeLbl.setText(dateFmt.format(date));
+            }
+        } finally {
+            setCursorBusy(false);
         }
     }
 
@@ -752,73 +965,12 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         checkGenerateButton();
     }
 
-    /**
-     * Reset all entries to unknown size, recompute the sizes for the current
-     * display table and and other selected entries.
-     */
-    private void resetSizes() {
-        List<DisplayData> selectedDatas = new ArrayList<DisplayData>();
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-            for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayDataList()) {
-                    displayData.setSize(DisplayData.UNKNOWN_SIZE);
-                    if (displayData.isSelected()) {
-                        selectedDatas.add(displayData);
-                    }
-                }
-            }
-        }
-
-        populateTableComp();
-
-        if (selectedDatas.size() > 0) {
-            String archiveName = getSelectedArchiveName();
-            String categoryName = getSelectedCategoryName();
-            Calendar startCal = getStart();
-            Calendar endCal = getEnd();
-
-            for (DisplayData displayData : selectedDatas) {
-                if (!displayData.isArchive(archiveName)
-                        || !displayData.isCategory(categoryName)) {
-                    sizeJob.queue(new SizeJobRequest(displayData, startCal,
-                            endCal));
-                }
-            }
-        }
-    }
-
-    /**
-     * Get the data information on all selected items; not just the currently
-     * displayed table.
-     * 
-     * @return selectedDatas
-     */
-    private List<DisplayData> getSelectedData() {
-        List<DisplayData> selectedDatas = new ArrayList<DisplayData>();
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-            for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayDataList()) {
-                    if (displayData.isSelected()) {
-                        selectedDatas.add(displayData);
-                    }
-                }
-            }
-        }
-        return selectedDatas;
-    }
-
     /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getStart()
      */
-    // @Override
+    @Override
     protected Calendar getStart() {
         Calendar startCal = TimeUtil.newCalendar();
         startCal.setTimeInMillis(startDate.getTime());
@@ -830,10 +982,31 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      * 
      * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getEnd()
      */
-    // @Override
+    @Override
     protected Calendar getEnd() {
         Calendar endCal = TimeUtil.newCalendar();
         endCal.setTimeInMillis(endDate.getTime());
         return endCal;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.IModifyListener#modified()
+     */
+    @Override
+    public void modified() {
+        saveBtn.setEnabled(true);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#clearModified()
+     */
+    @Override
+    public void clearModified() {
+        super.clearModified();
+        saveBtn.setEnabled(false);
     }
 }

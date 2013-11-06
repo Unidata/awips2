@@ -62,16 +62,17 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070925     391        jkorman     Initial Coding.
- * 20071107     391        jkorman     Modified findDuplicate to use a different
+ * Sep 25, 2007 391        jkorman     Initial Coding.
+ * Nov 07, 2007 391        jkorman     Modified findDuplicate to use a different
  *                                     dataURI query.
  * Dec 17, 2007 600        bphillip    Added dao pool usage
- * 20080123     758        jkorman     Added code to remove observation with a 
+ * Jan 23, 2008 758        jkorman     Added code to remove observation with a
  *                                     time in the future.
- * 20080215     887        jkorman     Added null checks in decode.
- * 20080218     887        jkorman     Reverse null checks in findDuplicate.
- * Mar 19, 2013 1785       bgonzale    Added performance status handler and added status
- *                                     to decode.
+ * Feb 15, 2008 887        jkorman     Added null checks in decode.
+ * Feb 18, 2008 887        jkorman     Reverse null checks in findDuplicate.
+ * Mar 19, 2013 1785       bgonzale    Added performance status handler and
+ *                                     added status  to decode.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author jkorman
@@ -87,7 +88,7 @@ public class SfcObsDecoder extends AbstractDecoder {
             .getHandler("SfcObs:");
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private boolean removeNILs = true;
 
@@ -169,7 +170,6 @@ public class SfcObsDecoder extends AbstractDecoder {
             }
             if (report != null) {
                 report.setTraceId(traceId);
-                report.setPluginName(PLUGIN_NAME);
                 try {
                     report.constructDataURI();
                 } catch (PluginException e) {

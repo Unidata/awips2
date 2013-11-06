@@ -62,11 +62,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303           1026 jkorman     Initial implementation.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Mar 03, 2008 1026       jkorman     Initial implementation.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -911,10 +913,16 @@ public class SoundingSite extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
     }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
     public String getDataURI() {
         return super.getDataURI();
+    }
+
+    @Override
+    public String getPluginName() {
+        return "modelsounding";
     }
 }

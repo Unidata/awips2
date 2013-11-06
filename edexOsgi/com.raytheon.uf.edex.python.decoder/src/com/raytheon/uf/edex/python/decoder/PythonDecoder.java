@@ -49,6 +49,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2008            njensen     Initial creation
  * Nov 24, 2008            chammack    Camel Refactor
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * </pre>
  * 
  * @author njensen
@@ -79,12 +80,13 @@ public class PythonDecoder extends AbstractDecoder {
 
     public PluginDataObject[] decode(File file) throws Exception {
 
-        List<PluginDataObject> decodedObjects = new ArrayList<PluginDataObject>(0);
+        List<PluginDataObject> decodedObjects = new ArrayList<PluginDataObject>(
+                0);
 
         PythonScript py = null;
         long id = Thread.currentThread().getId();
         try {
-            if (!cache || cachedInterpreters.get(id) == null) {
+            if (!cache || (cachedInterpreters.get(id) == null)) {
                 py = PythonDecoderFactory.makePythonDecoder(pluginFQN,
                         moduleName);
             } else {
@@ -130,7 +132,7 @@ public class PythonDecoder extends AbstractDecoder {
     public List<PluginDataObject> asPluginDataObjects(List<?> result)
             throws Exception {
         List<PluginDataObject> decodedObjects = null;
-        if (result == null || result.isEmpty()) {
+        if ((result == null) || result.isEmpty()) {
             decodedObjects = new ArrayList<PluginDataObject>(0);
         } else {
             if (result.get(0) instanceof Map) {
@@ -142,11 +144,9 @@ public class PythonDecoder extends AbstractDecoder {
                 ArrayList<HashMap<String, Object>> resultList = (ArrayList<HashMap<String, Object>>) result;
                 PluginDataObject record = (PluginDataObject) recordClass
                         .newInstance();
-                record.setPluginName(pluginName);
                 BeanMap bm = BeanMap.create(record);
                 for (HashMap<String, Object> map : resultList) {
                     record = (PluginDataObject) recordClass.newInstance();
-                    record.setPluginName(pluginName);
                     bm.setBean(record);
                     try {
                         for (String key : map.keySet()) {
@@ -167,17 +167,17 @@ public class PythonDecoder extends AbstractDecoder {
     private Object transformValue(String key, Object val, BeanMap bm) {
         Class<?> type = bm.getPropertyType(key);
         if (type != null) {
-            if (type.equals(Calendar.class) && val instanceof Long) {
+            if (type.equals(Calendar.class) && (val instanceof Long)) {
                 Calendar cal = Calendar.getInstance(TimeZone
                         .getTimeZone("Zulu"));
                 cal.setTimeInMillis((Long) val);
                 val = cal;
-            } else if (type.equals(DataTime.class) && val instanceof Long) {
+            } else if (type.equals(DataTime.class) && (val instanceof Long)) {
                 Calendar cal = Calendar.getInstance(TimeZone
                         .getTimeZone("Zulu"));
                 cal.setTimeInMillis((Long) val);
                 val = new DataTime(cal);
-            } else if (type.equals(Geometry.class) && val instanceof String) {
+            } else if (type.equals(Geometry.class) && (val instanceof String)) {
                 val = buildGeometry((String) val);
             }
         }
@@ -206,10 +206,10 @@ public class PythonDecoder extends AbstractDecoder {
             for (String coord : coords) {
                 counter++;
                 if ((counter % 2) == 0) {
-                    buf.append(Double.parseDouble(coord) / -100 + " "
+                    buf.append((Double.parseDouble(coord) / -100) + " "
                             + tempbuf.toString() + ", ");
                     if (counter == 2) {
-                        firstpt.append(Double.parseDouble(coord) / -100 + " "
+                        firstpt.append((Double.parseDouble(coord) / -100) + " "
                                 + tempbuf.toString() + ", ");
                     }
                     tempbuf.delete(0, tempbuf.length());

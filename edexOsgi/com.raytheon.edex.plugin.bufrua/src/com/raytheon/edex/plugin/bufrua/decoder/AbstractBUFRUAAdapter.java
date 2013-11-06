@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 03, 2008 969        jkorman     Initial implementation.
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -110,7 +111,6 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
 
             if ((obsData != null) && (wmoStaId != null)) {
                 // pickup the data.
-                obsData.setPluginName(getPluginName());
                 obsData.setWmoHeader(wmoHeader.getWmoHeader());
 
                 Calendar validTime = obsData.getValidTime();

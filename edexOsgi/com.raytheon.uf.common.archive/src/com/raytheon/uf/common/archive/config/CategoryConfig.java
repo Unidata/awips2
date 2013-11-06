@@ -39,10 +39,13 @@ import javax.xml.bind.annotation.XmlRootElement;
  *   &lt;name>redbook&lt;/name>
  *   &lt;!-- When 0 default to the parent archive's retentionHours -->
  *   &lt;retentionHours>0&lt;/retentionHours>
- *   &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
- *   &lt;displayLabel>{1}&lt;/displayLabel>
- *   &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
- *   &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
+ *   &lt;dataSet>
+ *      &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
+ *      &lt;displayLabel>{1}&lt;/displayLabel>
+ *      &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
+ *      &lt;timeType>Date&lt;/timeType>
+ *      &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
+ *   &lt;/dataSet>
  * &lt;/category>
  * </pre>
  * 
@@ -52,9 +55,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  * &lt;category>
  *   &lt;name>Model grib&lt;/name>
  *   &lt;retentionHours>0&lt;/retentionHours>
- *   &lt;dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirPattern>
- *   &lt;displayLabel>{5}&lt;/displayLabel>
- *   &lt;dateGroupIndices>1,2,3,4&lt;/dateGroupIndices>
+ *   &lt;dataSet>
+ *      &lt;dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirPattern>
+ *      &lt;displayLabel>{5}&lt;/displayLabel>
+ *      &lt;timeType>Date&lt;/timeType>
+ *      &lt;dateGroupIndices>1,2,3,4&lt;/dateGroupIndices>
+ *   &lt/dataSet>
  * &lt;/category>
  * </pre>
  * 
@@ -65,6 +71,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 1, 2013  1966       rferrel     Initial creation
+ * Aug 03, 2013 2224       rferrel     Changes to include DataSet.
  * 
  * </pre>
  * 
@@ -88,63 +95,8 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     @XmlElement(name = "extRetentionHours")
     private int retentionHours;
 
-    /**
-     * A regex pattern to find directories controlled by the category. These
-     * directories should be relative to the parent archive's directory. For
-     * example:
-     * 
-     * <pre>
-     * &lt;dirPattern>grib2/\d{8}/\d{2}/(.*)/&lt;/dirPattern>
-     * </pre>
-     */
-    @XmlElement(name = "dirPattern")
-    private List<String> dirPatternList;
-
-    /**
-     * Use to display the information found by the dirPattern. Any groups in the
-     * dirPatern may be displayed. For example:
-     * 
-     * <pre>
-     * &lt;dirName>(grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirName>
-     * &lt;displayLabel>{1} - {6}&lt;/displayLabel>
-     * </pre>
-     * 
-     * The {1} will be replaced by the first group (grib2) in the regex
-     * expression in dirName. The {6} is the sixth group (.*). {0} is the whole
-     * expression match.
-     */
-    @XmlElement(name = "displayLabel")
-    private String display;
-
-    /**
-     * A comma separated list of 4 numbers representing the group indices
-     * specifying the location of the numeric date time stamp. The indices must
-     * be in the order of year, month, day and hour. The group numbering starts
-     * with the first group in the dirPattern and continues with any grouping in
-     * the filePattern.
-     * 
-     * <pre>
-     *   &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
-     *   &lt;displayLabel>{1}&lt;/displayLabel>
-     *   &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
-     *   &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
-     * </pre>
-     */
-    @XmlElement(name = "dateGroupIndices")
-    private String dateGroupIndices;
-
-    /**
-     * A saveDir directory may contain files with data for several days. This
-     * allows any of the year, month, day and hour to be part of a file name.
-     * Default is all files in the directory. For example:
-     * 
-     * <pre>
-     * &lt;saveDir>hd5/redbook/(^/]*&#47/)&lt/saveDir>
-     * &lt;saveFile>redbook-${YYYY}-${MM}-${DD}-${HH}\..*&lt;saveFiles>
-     * </pre>
-     */
-    @XmlElement(name = "filePattern")
-    private String filePattern;
+    @XmlElement(name = "dataSet")
+    private List<CategoryDataSet> dataSetList;
 
     @XmlElement(name = "selectedDisplayName")
     private final Collection<String> selectedDisplayNames = new TreeSet<String>();
@@ -188,76 +140,12 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         this.retentionHours = retentionHours;
     }
 
-    /**
-     * Obtain the list of directory patterns.
-     * 
-     * @return dirPatternList
-     */
-    public List<String> getDirPatternList() {
-        return new ArrayList<String>(dirPatternList);
+    public List<CategoryDataSet> getDataSetList() {
+        return new ArrayList<CategoryDataSet>(dataSetList);
     }
 
-    /**
-     * Set the directory pattern list; must not be null.
-     * 
-     * @param dirPatternList
-     */
-    public void setDirPatternList(List<String> dirPatternList) {
-        this.dirPatternList = dirPatternList;
-    }
-
-    /**
-     * Get the display label pattern.
-     * 
-     * @return display
-     */
-    public String getDisplay() {
-        return display == null ? "" : display;
-    }
-
-    /**
-     * Set the display label pattern.
-     * 
-     * @param display
-     */
-    public void setDisplay(String display) {
-        this.display = display;
-    }
-
-    /**
-     * Get the save directory pattern..
-     * 
-     * @return dateGroups
-     */
-    public String getDateGroupIndices() {
-        return dateGroupIndices;
-    }
-
-    /**
-     * Set the save directory pattern; must not be null.
-     * 
-     * @param saveDir
-     */
-    public void setDateGroupIndices(String dateGroupIndices) {
-        this.dateGroupIndices = dateGroupIndices;
-    }
-
-    /**
-     * Get the save files pattern.
-     * 
-     * @return saveFiles
-     */
-    public String getFilePattern() {
-        return filePattern;
-    }
-
-    /**
-     * Set the save files pattern; may be null.
-     * 
-     * @param saveFiles
-     */
-    public void setFilePattern(String filePattern) {
-        this.filePattern = filePattern;
+    public void setDataSetList(List<CategoryDataSet> dataSetList) {
+        this.dataSetList = dataSetList;
     }
 
     public Collection<String> getSelectedDisplayNames() {
@@ -285,9 +173,9 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      */
     @Override
     public int compareTo(CategoryConfig o) {
-        return getDisplay().compareToIgnoreCase(o.getDisplay());
+        return getName().compareToIgnoreCase(o.getName());
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -298,13 +186,10 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         StringBuilder sb = new StringBuilder();
         sb.append("Category [ name: ").append(getName());
         sb.append(", retentionHours: ").append(getRetentionHours());
-        sb.append(", dirPatternList[ ");
-        for (String dirPattern : getDirPatternList()) {
-            sb.append(" \"").append(dirPattern).append("\",");
+        sb.append(", dataSetList[ ");
+        for (CategoryDataSet dataSet : getDataSetList()) {
+            sb.append(dataSet).append(", ");
         }
-        sb.append("], filePattern: ").append(getFilePattern());
-        sb.append(", displayLabel: ").append(getDisplay());
-        sb.append(", dateGroupIndices: ").append(getDateGroupIndices());
         sb.append(", selectedDisplayNames: ");
         if (selectedDisplayNames == null) {
             sb.append("null");
