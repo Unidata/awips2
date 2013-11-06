@@ -90,12 +90,13 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <threadPatterns>HarvesterLog:harvesterThreadPool.*,crawlerThreadPool.*,Crawler.*</threadPatterns>
+      <threadPatterns>HarvesterLog:harvesterThreadPool.*,crawlerThreadPool.*,Crawler.*,RetrievalLog:retrievalThreadPool.*,retrievalThreadPool.*,Retrieval.*</threadPatterns>
       <defaultAppender>console</defaultAppender>
       <appender-ref ref="console"/>
       <appender-ref ref="HarvesterLog"/>
+      <appender-ref ref="RetrievalLog"/>
    </appender>
-
+  
    <logger name="com.raytheon">
       <level value="INFO"/>
    </logger>
@@ -199,16 +200,6 @@
    <logger name="com.raytheon.uf.edex.datadelivery.retrieval" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="RetrievalLog"/>
-   </logger>
-
-   <logger name="com.raytheon.uf.common.datadelivery.registry" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.registry" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
    </logger>
 
    <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
