@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.RegistryException;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -60,6 +61,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.registry.ebxml.dao.QueryDefinitionDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
+import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
 
 /**
  * 
@@ -75,6 +77,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * 9/20/2013    2385        bphillip    Added subscription backup functions
  * 10/2/2013    2385        bphillip    Fixed subscription backup queries
  * 10/8/2013    1682        bphillip    Added query queries
+ * 11/7/2013    1678        bphillip    Added getCustomQueries method
  * </pre>
  * 
  * @author bphillip
@@ -145,6 +148,15 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
             builder.append(id).append(StringUtil.NEWLINE);
         }
         return builder.toString();
+    }
+
+    @Override
+    @GET
+    @Path("getCustomQueries")
+    public String getCustomQueries() {
+        List<String> ids = queryDefinitionDao.getQueryIds();
+        ids.removeAll(CanonicalQueryTypes.CANONICAL_QUERY_TYPES);
+        return RegistryQueryUtil.formatArrayString(ids.toArray());
     }
 
     @Override
