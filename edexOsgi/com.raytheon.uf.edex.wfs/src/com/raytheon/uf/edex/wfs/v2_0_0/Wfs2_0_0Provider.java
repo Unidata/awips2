@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.wfs.v2_0_0;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -110,21 +109,21 @@ import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
 import com.raytheon.uf.edex.wfs.util.XMLGregorianCalendarConverter;
 
 /**
- * TODO Add Description
- *
- * @author bclement
- * @version 1.0	
+ * WFS 2.0 implementation
  * 
- *  * <pre>
- *
+ * <pre>
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
  * Sep 18, 2013 #411       skorolev    Added required RESPONSE METADATA
- *
+ * 
  * </pre>
  * 
+ * @author bclement
+ * @version 1.0
  */
 public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         IStoredQueryCallback {
@@ -228,16 +227,6 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         return resp;
     }
 
-    /**
-     * Read input stream to string
-     * 
-     * @param in
-     * @return
-     * @throws IOException
-     */
-    protected String getXml(InputStream in) throws IOException {
-        return new java.util.Scanner(in).useDelimiter("\\A").next();
-    }
 
     /**
      * Decode post request from input stream

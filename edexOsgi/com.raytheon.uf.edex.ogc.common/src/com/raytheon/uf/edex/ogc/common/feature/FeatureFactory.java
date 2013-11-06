@@ -25,13 +25,31 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
+
 /**
+ * Interface for creating geotools feature objects from data records
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 16, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
 public interface FeatureFactory {
 
+    /**
+     * Create a simple feature from each plugin data object
+     * 
+     * @param pdos
+     * @return
+     */
 	public List<SimpleFeature> convert(PluginDataObject[] pdos);
 
 }

@@ -27,6 +27,16 @@ import javax.xml.bind.JAXBElement;
 /**
  * Top level visitor pattern support class for expressions
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */
