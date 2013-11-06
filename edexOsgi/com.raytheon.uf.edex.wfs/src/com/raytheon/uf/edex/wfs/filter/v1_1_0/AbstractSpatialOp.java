@@ -27,6 +27,17 @@ import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.SpatialOpsType;
 
 /**
+ * OGC Filter parsing for spatial operators.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 20, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
