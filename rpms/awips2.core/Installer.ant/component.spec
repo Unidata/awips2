@@ -5,7 +5,7 @@
 Name: awips2-ant
 Summary: AWIPS II Ant Distribution
 Version: 1.7.1
-Release: 2
+Release: 3
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: noarch

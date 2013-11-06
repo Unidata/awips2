@@ -119,7 +119,7 @@
 	}
 	
 	function callRESTService(func){
-		var url = "http://"+window.location.host+"/rest/dataAccess/"+func;
+		var url = "http://"+window.location.host+"/dataDelivery/dataAccess/"+func;
 		var client = new XMLHttpRequest();
 		client.open("GET", url, false);
 		client.setRequestHeader("Content-Type", "text/plain");
