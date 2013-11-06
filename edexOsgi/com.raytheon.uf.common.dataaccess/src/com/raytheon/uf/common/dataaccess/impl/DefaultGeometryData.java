@@ -73,7 +73,7 @@ public class DefaultGeometryData implements IGeometryData {
 
     protected String locationName;
 
-    protected Map<String, Object> attributes;
+    protected Map<String, Object> attributes = new HashMap<String, Object>();
 
     @Override
     public Object getAttribute(String key) {
@@ -275,6 +275,10 @@ public class DefaultGeometryData implements IGeometryData {
             }
         }
         this.dataMap.put(parameter, data);
+    }
+
+    public void addAttribute(String key, Object value) {
+        attributes.put(key, value);
     }
 
     public void setGeometry(Geometry geom) {

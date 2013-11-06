@@ -31,6 +31,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
+import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.listeners.EmailNotificationListener;
@@ -48,6 +49,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.listeners.WebSe
  * ------------ ---------- ----------- --------------------------
  * Apr 17, 2013 1672       djohnson     Initial creation
  * 10/20/2013    1682       bphillip    Added synchronous notification delivery
+ * 10/30/2013   1538       bphillip     Changed to use non-static web service clients
  * 
  * </pre>
  * 
@@ -94,7 +96,11 @@ public class NotificationListenerFactory implements
         }
     }
 
+    /** Email sender */
     private final EmailSender emailSender;
+
+    /** Registry soap service client */
+    private final RegistrySOAPServices registrySoapClient;
 
     /**
      * Constructor.
@@ -102,8 +108,10 @@ public class NotificationListenerFactory implements
      * @param emailSender
      *            the email sender
      */
-    public NotificationListenerFactory(EmailSender emailSender) {
+    public NotificationListenerFactory(EmailSender emailSender,
+            RegistrySOAPServices registrySoapClient) {
         this.emailSender = emailSender;
+        this.registrySoapClient = registrySoapClient;
     }
 
     /**
@@ -134,7 +142,8 @@ public class NotificationListenerFactory implements
     @VisibleForTesting
     NotificationListener getWebServiceNotificationListener(
             final NotificationDestination destination) {
-        return new WebServiceNotificationListener(destination);
+        return new WebServiceNotificationListener(destination,
+                registrySoapClient);
     }
 
     /**
