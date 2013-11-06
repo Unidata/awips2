@@ -73,12 +73,13 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * ------------ ----------  ----------- --------------------------
  * 4/19/2013    1931        bphillip    Initial implementation
  * 5/21/2013    2022        bphillip    Added interface
+ * 10/30/2013   1538        bphillip    Changed root REST service path
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/registryObjects/{objectId}")
+@Path("/registryObjects/{objectId}")
 @Service
 @Transactional
 public class RegistryObjectsRestService implements IRegistryObjectsRestService {
