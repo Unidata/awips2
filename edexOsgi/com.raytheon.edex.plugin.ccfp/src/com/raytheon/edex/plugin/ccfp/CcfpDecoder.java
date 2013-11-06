@@ -43,11 +43,12 @@ import com.vividsolutions.jts.io.WKTReader;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 03/03/2007   908         bwoodle     initial creation
- * 12/03/2008               chammack    Camel refactor
- * 09/15/2009   3027     njensen        Patterns constants
- * 09/21/2009   3072        bsteffen    Fixed Decoding of Line Records
- * 01/02/2013	DCS 135		tk			handle coverage value Line records
+ * Mar 03, 2007 908         bwoodle     initial creation
+ * Dec 03, 2008             chammack    Camel refactor
+ * Sep 15, 2009 3027        njensen     Patterns constants
+ * Sep 21, 2009 3072        bsteffen    Fixed Decoding of Line Records
+ * Jan 02, 2013 DCS 135     tk          handle coverage value Line records
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -86,7 +87,8 @@ public class CcfpDecoder extends AbstractDecoder {
 
     private static final String SPACE = " ";
 
-    private static final PluginDataObject [] EMPTY_PDO = new PluginDataObject [0];
+    private static final PluginDataObject[] EMPTY_PDO = new PluginDataObject[0];
+
     /**
      * Constructor
      * 
@@ -95,10 +97,11 @@ public class CcfpDecoder extends AbstractDecoder {
     public CcfpDecoder() throws DecoderException {
     }
 
-    public PluginDataObject[] decode(String msg, Headers headers) throws PluginException {
+    public PluginDataObject[] decode(String msg, Headers headers)
+            throws PluginException {
 
-        PluginDataObject [] data = null;
-        
+        PluginDataObject[] data = null;
+
         Calendar baseTime = null;
         WMOHeader wmoHdr = new WMOHeader(msg.getBytes());
         if (wmoHdr.isValid()) {
@@ -106,7 +109,7 @@ public class CcfpDecoder extends AbstractDecoder {
         } else {
             baseTime = TimeTools.getSystemCalendar();
         }
-        
+
         CcfpRecord record = new CcfpRecord();
         record.setMessageData(msg);
         CcfpLocation location = new CcfpLocation();
@@ -116,18 +119,20 @@ public class CcfpDecoder extends AbstractDecoder {
         try {
             WKTReader wktReader = new WKTReader();
             if (matcher.find()) {
-                Calendar start = TimeTools.getBaseCalendar(Integer
-                        .parseInt(matcher.group(1)), Integer.parseInt(matcher
-                        .group(2)), Integer.parseInt(matcher.group(3)));
-                start.set(Calendar.HOUR_OF_DAY, Integer.parseInt(matcher
-                        .group(4)));
-                Calendar valid = TimeTools.getBaseCalendar(Integer
-                        .parseInt(matcher.group(5)), Integer.parseInt(matcher
-                        .group(6)), Integer.parseInt(matcher.group(7)));
-                valid.set(Calendar.HOUR_OF_DAY, Integer.parseInt(matcher
-                        .group(8)));
-                TimeRange range = new TimeRange(start.getTime(), valid
-                        .getTime());
+                Calendar start = TimeTools.getBaseCalendar(
+                        Integer.parseInt(matcher.group(1)),
+                        Integer.parseInt(matcher.group(2)),
+                        Integer.parseInt(matcher.group(3)));
+                start.set(Calendar.HOUR_OF_DAY,
+                        Integer.parseInt(matcher.group(4)));
+                Calendar valid = TimeTools.getBaseCalendar(
+                        Integer.parseInt(matcher.group(5)),
+                        Integer.parseInt(matcher.group(6)),
+                        Integer.parseInt(matcher.group(7)));
+                valid.set(Calendar.HOUR_OF_DAY,
+                        Integer.parseInt(matcher.group(8)));
+                TimeRange range = new TimeRange(start.getTime(),
+                        valid.getTime());
                 record.setDataTime(new DataTime(start.getTime().getTime(),
                         range));
                 record.setProducttype(matcher.group(9));
@@ -147,8 +152,7 @@ public class CcfpDecoder extends AbstractDecoder {
                     record.setTops(Integer.parseInt(matcher.group(4)));
                     record.setSpeed(Integer.parseInt(matcher.group(5)));
                     record.setDirection(Integer.parseInt(matcher.group(6)));
-                    location
-                            .setBoxLat(Double.parseDouble(matcher.group(8)) * 0.1);
+                    location.setBoxLat(Double.parseDouble(matcher.group(8)) * 0.1);
                     location.setBoxLong(Double.parseDouble(matcher.group(9))
                             * -0.1);
                     String templatlonpairs = matcher.group(7);
@@ -157,8 +161,7 @@ public class CcfpDecoder extends AbstractDecoder {
                     wtk.append("POLYGON((");
                     if (matcher.find()) {
                         wtk.append(Double.toString(Integer.parseInt(matcher
-                                .group(2))
-                                * -0.1));
+                                .group(2)) * -0.1));
                         wtk.append(SPACE);
                         wtk.append(Double.toString(Integer.parseInt(matcher
                                 .group(1)) * 0.1));
@@ -167,8 +170,7 @@ public class CcfpDecoder extends AbstractDecoder {
                         wtk.append(COMMA);
                         wtk.append(SPACE);
                         wtk.append(Double.toString(Integer.parseInt(matcher
-                                .group(2))
-                                * -0.1));
+                                .group(2)) * -0.1));
                         wtk.append(SPACE);
                         wtk.append(Double.toString(Integer.parseInt(matcher
                                 .group(1)) * 0.1));
@@ -180,30 +182,30 @@ public class CcfpDecoder extends AbstractDecoder {
             } else if (record.getProducttype().equals("LINE")) {
                 matcher = LINE_PATTERN.matcher(msg);
                 if (matcher.find()) {
-                    record.setCoverage(Integer.parseInt(matcher.group(1))); // change to group 1
+                    // change to group 1
+                    record.setCoverage(Integer.parseInt(matcher.group(1)));
                     record.setConf(null);
                     record.setGrowth(null);
                     record.setTops(null);
                     record.setSpeed(null);
                     record.setDirection(null);
-                    String templatlonpairs = matcher.group(2); // change to group 2
+                    // change to group 2
+                    String templatlonpairs = matcher.group(2);
                     matcher = PAIR_PATTERN.matcher(templatlonpairs);
 
                     StringBuffer wtk = new StringBuffer();
                     wtk.append("LINESTRING(");
                     if (matcher.find()) {
-                    	
-                    	Double lon = Integer.parseInt(matcher
-                                .group(2)) * -0.1;
+
+                        Double lon = Integer.parseInt(matcher.group(2)) * -0.1;
                         String lonStr = Double.toString(lon);
 
-                        Double lat = Integer.parseInt(matcher
-                                .group(1)) * 0.1;
+                        Double lat = Integer.parseInt(matcher.group(1)) * 0.1;
                         String latStr = Double.toString(lat);
 
                         location.setBoxLong(lon);
                         location.setBoxLat(lat);
-                        
+
                         wtk.append(lonStr);
                         wtk.append(SPACE);
                         wtk.append(latStr);
@@ -212,8 +214,7 @@ public class CcfpDecoder extends AbstractDecoder {
                         wtk.append(COMMA);
                         wtk.append(SPACE);
                         wtk.append(Double.toString(Integer.parseInt(matcher
-                                .group(2))
-                                * -0.1));
+                                .group(2)) * -0.1));
                         wtk.append(SPACE);
                         wtk.append(Double.toString(Integer.parseInt(matcher
                                 .group(1)) * 0.1));
@@ -228,8 +229,7 @@ public class CcfpDecoder extends AbstractDecoder {
             logger.error("Unable to decode CCFP", e);
         }
         data = EMPTY_PDO;
-        if(record != null) {
-            record.setPluginName(PLUGIN_NAME);
+        if (record != null) {
             try {
                 record.constructDataURI();
                 record.setInsertTime(baseTime);
