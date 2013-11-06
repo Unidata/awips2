@@ -125,6 +125,8 @@ import static java.lang.System.out;
  *  10/18/2012     896     sgurung     Refactored PlotResource2 to use new generator class: NcPlotDataThreadPool. Added FrameLoaderJob to populate all frames.
  *  								   Added code to plot stations within 25% of the area outside of the current display area.
  *  05/20/2013     988     Archana.S   Refactored this class for performance improvement	
+ *  10/24/2013             sgurung     Added fix for "no data for every other frame" issue
+ *  
  * </pre>
  * 
  * @author brockwoo
@@ -1470,7 +1472,6 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
             for ( int index = frameTimesListSize - 1 ;index  >= 0 ; --index){
     			    frameLoaderTask = new FrameLoaderTask( listOfFrameTimes.get( index ) );
     			    frameRetrievalPool.schedule( frameLoaderTask );
-    			     --index;
     		}			
 		}
         else{
