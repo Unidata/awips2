@@ -14,25 +14,37 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
- * TODO Add Description
+ * Callback interface used by stylers to have access to plugin metadata.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public interface IStyleLookupCallback<R extends PluginDataObject> {
 
+    /**
+     * @param layerName
+     * @return a sample data record that supports layer
+     * @throws OgcException
+     */
     public R lookupSample(String layerName) throws OgcException;
 
+    /**
+     * Return a list of samples for plugin. One sample per layer advertised by
+     * source.
+     * 
+     * @return
+     * @throws OgcException
+     */
     public List<R> getAllSamples() throws OgcException;
 
 }

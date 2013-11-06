@@ -13,20 +13,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * TODO Add Description
+ * Default dimension object for point data that has no extra dimension
+ * information.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class DefaultPointDataDimension extends SimpleDimension {
 
