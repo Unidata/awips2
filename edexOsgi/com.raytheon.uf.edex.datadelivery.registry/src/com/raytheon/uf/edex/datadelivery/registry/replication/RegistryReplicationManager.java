@@ -23,6 +23,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +42,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
-import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
@@ -60,7 +60,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
@@ -70,15 +76,16 @@ import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistryMonitor;
+import com.raytheon.uf.edex.datadelivery.registry.web.DataDeliveryRESTServices;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.exception.NoReplicationServersAvailableException;
@@ -101,6 +108,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 8/1/2013     1693        bphillip    Switch to use rest service instead of query manager for federation synchronization
  * 9/5/2013     1538        bphillip    Changed when the registry availability monitor is started
  * 10/20/2013   1682        bphillip    Fixed query invocation
+ * 10/30/2013   1538        bphillip    Changed method visibility, added add/remove/save notification servers and updated to use non-static rest/soap clients
  * </pre>
  * 
  * @author bphillip
@@ -147,11 +155,18 @@ public class RegistryReplicationManager {
     /**
      * When a federation sync is necessary, this is the number of threads that
      * will be used for synchronization. Configurable in the
-     * com.raytheon.uf.edex.registry.ebxml.properties file. Default is 25
+     * com.raytheon.uf.edex.registry.ebxml.properties file. Default is 5
      */
     private int registrySyncThreads = 5;
 
+    /** Maximum times this registry will try to sync data before failure */
     private int maxSyncRetries = 3;
+
+    /** Data Delivery REST services client */
+    private DataDeliveryRESTServices dataDeliveryRestClient;
+
+    /** REgistry Soap client */
+    private RegistrySOAPServices registrySoapClient;
 
     /**
      * Creates a new RegistryReplicationManager
@@ -166,16 +181,23 @@ public class RegistryReplicationManager {
      * @throws MalformedURLException
      */
     public RegistryReplicationManager(boolean subscriptionProcessingEnabled,
-            String notificationServerConfigFileName, RegistryObjectDao dao,
+            RegistryObjectDao dao,
             FederatedRegistryMonitor availabilityMonitor,
-            TransactionTemplate txTemplate, int registrySyncThreads)
-            throws JAXBException, SerializationException, MalformedURLException {
+            TransactionTemplate txTemplate) throws JAXBException,
+            SerializationException, MalformedURLException {
         this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
-        this.replicationConfigFileName = notificationServerConfigFileName;
+        if (System.getProperty("edex.run.mode").equals("centralRegistry")) {
+            this.replicationConfigFileName = "ebxml/notification/notificationServers_NCF.xml";
+        } else {
+            this.replicationConfigFileName = "ebxml/notification/notificationServers_WFO.xml";
+        }
         this.dao = dao;
         this.txTemplate = txTemplate;
         this.federatedRegistryMonitor = availabilityMonitor;
-        this.registrySyncThreads = registrySyncThreads;
+        if (System.getProperty("ebxml-federation-sync-threads") != null) {
+            registrySyncThreads = Integer.valueOf(System
+                    .getProperty("ebxml-federation-sync-threads"));
+        }
         jaxbManager = new JAXBManager(NotificationServers.class,
                 SubscriptionType.class);
         File notificationServerConfigFile = PathManagerFactory.getPathManager()
@@ -187,9 +209,66 @@ public class RegistryReplicationManager {
             this.subscriptionProcessingEnabled = false;
             return;
         }
-        servers = (NotificationServers) jaxbManager
-                .unmarshalFromXmlFile(notificationServerConfigFile);
+        servers = jaxbManager.unmarshalFromXmlFile(NotificationServers.class,
+                notificationServerConfigFile);
         scheduler = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    /**
+     * Removes a notificationServer based on the URL.
+     * 
+     * @param baseURL
+     *            The URL of the server to be removed
+     */
+    public void removeNotificationServer(String baseURL) {
+        NotificationHostConfiguration toRemove = null;
+        for (NotificationHostConfiguration hostConfig : this.servers
+                .getRegistryReplicationServers()) {
+            if (hostConfig.getRegistryBaseURL().equals(baseURL)) {
+                toRemove = hostConfig;
+            }
+        }
+        if (toRemove != null) {
+            this.servers.getRegistryReplicationServers().remove(toRemove);
+        }
+    }
+
+    /**
+     * Adds a notification server to the list.
+     * 
+     * @param host
+     *            The host to be added
+     */
+    public void addNotificationServer(NotificationHostConfiguration host) {
+        for (NotificationHostConfiguration hostConfig : this.servers
+                .getRegistryReplicationServers()) {
+            if (hostConfig.getRegistryBaseURL().equals(
+                    host.getRegistryBaseURL())) {
+                return;
+            }
+        }
+        this.servers.getRegistryReplicationServers().add(host);
+    }
+
+    /**
+     * Persists the list of notification servers to the localized file
+     */
+    public void saveNotificationServers() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.EDEX_STATIC,
+                LocalizationLevel.CONFIGURED);
+        LocalizationFile lf = pm.getLocalizationFile(lc,
+                this.replicationConfigFileName);
+        File file = lf.getFile();
+
+        try {
+            jaxbManager.marshalToXmlFile(this.servers, file.getAbsolutePath());
+            lf.save();
+        } catch (SerializationException e) {
+            statusHandler.error("Unable to update replication server file!", e);
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
+        }
     }
 
     /**
@@ -234,8 +313,9 @@ public class RegistryReplicationManager {
                             statusHandler
                                     .info("Checking availability of registry at: "
                                             + config.getRegistryBaseURL());
-                            if (RegistryRESTServices.isRegistryAvailable(config
-                                    .getRegistryBaseURL())) {
+                            if (dataDeliveryRestClient
+                                    .isRegistryAvailable(config
+                                            .getRegistryBaseURL())) {
                                 registryToSyncFrom = config;
                                 break;
                             }
@@ -281,8 +361,16 @@ public class RegistryReplicationManager {
                 TimeUnit.MINUTES);
     }
 
-    private void synchronizeRegistryWithFederation(String remoteRegistryUrl)
-            throws MsgRegistryException, EbxmlRegistryException {
+    /**
+     * Synchronizes this registry's data with the registry at the specified URL
+     * 
+     * @param remoteRegistryUrl
+     *            The URL of the registry to sync with
+     * @throws EbxmlRegistryException
+     *             If the thread executor fails to shut down properly
+     */
+    public void synchronizeRegistryWithFederation(String remoteRegistryUrl)
+            throws EbxmlRegistryException {
         ExecutorService executor = Executors
                 .newFixedThreadPool(this.registrySyncThreads);
         for (String objectType : objectTypes) {
@@ -290,7 +378,7 @@ public class RegistryReplicationManager {
             Set<String> remoteIds = new HashSet<String>();
             statusHandler
                     .info("Getting registry object Ids from local registry...");
-            Collection<String> response = RegistryRESTServices
+            Collection<String> response = dataDeliveryRestClient
                     .getRegistryDataAccessService(
                             RegistryUtil.LOCAL_REGISTRY_ADDRESS)
                     .getRegistryObjectIdsOfType(objectType).getPayload();
@@ -301,7 +389,7 @@ public class RegistryReplicationManager {
                     + objectType + " present in local registry.");
             statusHandler.info("Getting registry object Ids from "
                     + remoteRegistryUrl + "...");
-            response = RegistryRESTServices
+            response = dataDeliveryRestClient
                     .getRegistryDataAccessService(remoteRegistryUrl)
                     .getRegistryObjectIdsOfType(objectType).getPayload();
             if (response != null) {
@@ -321,7 +409,7 @@ public class RegistryReplicationManager {
             for (String localId : localIds) {
                 if (remoteIds.contains(localId)) {
                     executor.submit(new RegistrySubmitTask(txTemplate, dao,
-                            localId, remoteRegistryUrl));
+                            localId, remoteRegistryUrl, dataDeliveryRestClient));
                 } else {
                     RegistryRemoveTask removeTask = new RegistryRemoveTask(
                             txTemplate, dao, localId);
@@ -337,7 +425,7 @@ public class RegistryReplicationManager {
             for (String remoteId : remoteIds) {
                 if (!localIds.contains(remoteId)) {
                     executor.submit(new RegistrySubmitTask(txTemplate, dao,
-                            remoteId, remoteRegistryUrl));
+                            remoteId, remoteRegistryUrl, dataDeliveryRestClient));
                 }
             }
         }
@@ -438,8 +526,8 @@ public class RegistryReplicationManager {
      *            The object describing the destination server to make registry
      *            replication subscriptions to
      */
-    private void submitSubscriptionsToHost(
-            NotificationHostConfiguration config, RegistryType localRegistry) {
+    public void submitSubscriptionsToHost(NotificationHostConfiguration config,
+            RegistryType localRegistry) {
         statusHandler
                 .info("Generating registry replication subscriptions for registry at ["
                         + config.getRegistrySiteName()
@@ -462,7 +550,7 @@ public class RegistryReplicationManager {
                 "Subscription Submission", "Subscription Submission", null,
                 new RegistryObjectListType(subscriptions), false,
                 Mode.CREATE_OR_REPLACE);
-        RegistrySOAPServices.sendSubmitObjectsRequest(request,
+        registrySoapClient.sendSubmitObjectsRequest(request,
                 config.getRegistryBaseURL());
 
     }
@@ -526,7 +614,7 @@ public class RegistryReplicationManager {
 
         String endpointType = DeliveryMethodTypes.SOAP;
         W3CEndpointReferenceBuilder builder = new W3CEndpointReferenceBuilder();
-        builder.address(RegistrySOAPServices.getNotificationListenerServiceUrl(
+        builder.address(registrySoapClient.getNotificationListenerServiceUrl(
                 registry.getBaseURL()).toString());
         W3CEndpointReference ref = builder.build();
         DOMResult dom = new DOMResult();
@@ -603,7 +691,7 @@ public class RegistryReplicationManager {
                 statusHandler.info("Checking if remote registry at ["
                         + remoteRegistryBaseURL + "] is available...");
 
-                if (RegistryRESTServices
+                if (dataDeliveryRestClient
                         .isRegistryAvailable(remoteRegistryBaseURL)) {
                     statusHandler.info("Registry at [" + remoteRegistryBaseURL
                             + "] is available!");
@@ -616,7 +704,7 @@ public class RegistryReplicationManager {
                 try {
                     statusHandler
                             .info("Removing remote subscriptions prior to submission of new subscriptions");
-                    RegistryRESTServices.getRegistryDataAccessService(
+                    dataDeliveryRestClient.getRegistryDataAccessService(
                             config.getRegistryBaseURL())
                             .removeSubscriptionsForSite(registry.getOwner());
                     submitSubscriptionsToHost(config, registry);
@@ -630,8 +718,9 @@ public class RegistryReplicationManager {
                             statusHandler
                                     .info("Registry shutting down. Removing subscriptions from: ["
                                             + remoteRegistryBaseURL + "]");
-                            RegistryRESTServices.getRegistryDataAccessService(
-                                    remoteRegistryBaseURL)
+                            dataDeliveryRestClient
+                                    .getRegistryDataAccessService(
+                                            remoteRegistryBaseURL)
                                     .removeSubscriptionsForSite(
                                             registry.getOwner());
                             statusHandler.info("Subscriptions removed from: ["
@@ -647,7 +736,10 @@ public class RegistryReplicationManager {
                 }
             }
         }
+    }
 
+    public static List<String> getObjectTypes() {
+        return Collections.unmodifiableList(objectTypes);
     }
 
     public void setSubscriptionProcessingEnabled(
@@ -657,6 +749,15 @@ public class RegistryReplicationManager {
 
     public NotificationServers getServers() {
         return servers;
+    }
+
+    public void setDataDeliveryRestClient(
+            DataDeliveryRESTServices dataDeliveryRestClient) {
+        this.dataDeliveryRestClient = dataDeliveryRestClient;
+    }
+
+    public void setRegistrySoapClient(RegistrySOAPServices registrySoapClient) {
+        this.registrySoapClient = registrySoapClient;
     }
 
 }

@@ -7,8 +7,8 @@
 
 		<property name="threadPool">
 			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
-				<property name="minThreads" value="2" />				
-				<property name="maxThreads" value="5" />
+				<property name="minThreads" value="${ebxml-webserver-min-threads}" />				
+				<property name="maxThreads" value="${ebxml-webserver-max-threads}" />
 			</bean>
 		</property>
 
