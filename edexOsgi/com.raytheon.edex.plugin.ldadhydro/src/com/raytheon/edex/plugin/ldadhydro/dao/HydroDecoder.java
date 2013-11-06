@@ -64,9 +64,12 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  *                     
- * ate          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 9/30/09                   vkorolev    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Sep 30, 2009             vkorolev    Initial creation
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * 10/16/13     DR 16685    M.Porricelli Add error checking for date
+ *                                       format
  * </pre>
  * 
  * @author vkorolev
@@ -74,8 +77,8 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
-
-    private final String PLUGIN_NAME;
+	
+    private static final String BAD_PROPERTY_FMT = "NumberFormatException setting property %s.%s(%s %s)";
 
     private String traceId = null;
 
@@ -84,10 +87,6 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
     public File confile;
 
     public Properties configFile = new Properties();
-
-    public HydroDecoder(String pluginName) throws DecoderException {
-        PLUGIN_NAME = pluginName;
-    }
 
     public void setTraceId(String id) {
         traceId = id;
@@ -152,7 +151,6 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                         HydroLdadRecord record = new HydroLdadRecord();
                         SurfaceObsLocation location = new SurfaceObsLocation();
                         record.setDataProvider(dd.provider);
-                        record.setPluginName(PLUGIN_NAME);
                         record.setStationType(dd.type);
                         record.setReportTime(dd.reportTime);
                         // Loop through fields
@@ -201,11 +199,13 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                         }
                         // DataTime = Observation time
                         Calendar ot = record.getObservationTime();
-                        DataTime dt = new DataTime(ot);
-                        record.setDataTime(dt);
-                        record.setLocation(location);
-                        record.constructDataURI();
-                        retVal.add(record);
+                        if (ot != null){
+                           DataTime dt = new DataTime(ot);
+                           record.setDataTime(dt);
+                           record.setLocation(location);
+                           record.constructDataURI();
+                           retVal.add(record);
+                        }
                         // logger.info("-------------------------------------------------------");
                     }
 
@@ -256,14 +256,29 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
             if (clazz == String.class) {
                 val = value.trim();
             } else if (clazz == Calendar.class) {
-                Date ot = sdf.parse(value);
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(ot);
-                val = cal;
-
+                Date ot = null;
+                try {
+                    ot = sdf.parse(value);
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+                    cal.setTime(ot);
+                    val = cal;
+                } catch(Exception e) {
+                    logger.error("Could not parse date field [" + name + ":"  + value + "]");
+                    return;
+                }
                 // only numbers
-            } else {
-                Double tval = Double.parseDouble(value);
+             } else {
+                Double tval = null;
+                try {
+                    tval = Double.parseDouble(value);
+                } catch (NumberFormatException nfe) {
+                    String msg = String.format(BAD_PROPERTY_FMT,
+                            cls.getSimpleName(), fld.getName(),
+                            clazz.getSimpleName(), value);
+                    logger.error(msg);
+                    return;
+                }
                 if (configFile.containsKey(vunit)) {
                     Unit<?> inUnit = (Unit<?>) UnitFormat.getUCUMInstance()
                             .parseObject(configFile.getProperty(vunit));
@@ -311,8 +326,7 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
             Class cls = record.getClass();
 
             Field fieldlist[] = cls.getDeclaredFields();
-            for (int i = 0; i < fieldlist.length; i++) {
-                Field fld = fieldlist[i];
+            for (Field fld : fieldlist) {
                 System.out.println("name = " + fld.getName());
                 // System.out.println("decl class = " +
                 // fld.getDeclaringClass());

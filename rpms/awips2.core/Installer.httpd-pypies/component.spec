@@ -7,11 +7,10 @@
 Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.2.15
-Release: 15.2.el6
+Release: 15.3.el6
 URL: http://httpd.apache.org/
 Source0: http://archive.apache.org/dist/httpd/httpd-%{version}.tar.gz
 Source1: index.html
-Source3: httpd-pypies.logrotate
 Source4: httpd-pypies.init
 Source5: httpd.sysconf
 Source10: httpd.conf
@@ -360,10 +359,10 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
 install -m755 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies \
    ${RPM_BUILD_ROOT}/etc/init.d
 
-# install log rotation stuff
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-install -m 644 -p $RPM_SOURCE_DIR/httpd-pypies.logrotate \
-	$RPM_BUILD_ROOT/etc/logrotate.d/httpd-pypies
+# install cron job
+mkdir -p ${RPM_BUILD_ROOT}/etc/cron.daily
+install -m755 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/cron.daily/pypiesLogCleanup.sh \
+   ${RPM_BUILD_ROOT}/etc/cron.daily
 
 # fix man page paths
 sed -e "s|/usr/local/apache2/conf/httpd.conf|/etc/httpd/conf/httpd.conf|" \
@@ -561,7 +560,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/welcome.conf
 %config(noreplace) /awips2/httpd_pypies%{_sysconfdir}/httpd/conf/magic
 
-%config(noreplace) %{_sysconfdir}/logrotate.d/httpd-pypies
+%{_sysconfdir}/cron.daily/pypiesLogCleanup.sh
 %config(noreplace) %{_sysconfdir}/init.d/httpd-pypies
 
 %dir /awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d
