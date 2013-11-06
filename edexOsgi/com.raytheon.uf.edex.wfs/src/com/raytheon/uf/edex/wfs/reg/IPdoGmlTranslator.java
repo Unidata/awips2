@@ -26,6 +26,17 @@ import javax.xml.bind.JAXBElement;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
+ * Interface for converting data records to GML jaxb objects
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 26, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

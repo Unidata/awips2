@@ -38,6 +38,16 @@ import com.raytheon.uf.common.status.UFStatus;
 /**
  * Visitor pattern support classes for comparison operators
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

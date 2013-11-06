@@ -28,20 +28,21 @@ import net.opengis.ows.v_1_1_0.RequestMethodType;
 import net.opengis.ows.v_1_1_0.ValueType;
 
 /**
- * TODO Add Description
+ * Abstract base for OGC operation descriptions. Provides common utility methods
+ * for populating OGC capabilities documents.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class AbstractOpDescriber<T> {
 

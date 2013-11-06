@@ -32,6 +32,17 @@ import com.raytheon.uf.common.json.JsonException;
 import com.raytheon.uf.common.json.JsonService;
 
 /**
+ * Converts jaxb objects to geotools feature objects
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 19, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
