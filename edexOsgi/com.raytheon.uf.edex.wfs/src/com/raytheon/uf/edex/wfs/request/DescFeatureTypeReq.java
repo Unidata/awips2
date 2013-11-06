@@ -28,8 +28,20 @@ import javax.xml.namespace.QName;
 import net.opengis.wfs.v_1_1_0.DescribeFeatureTypeType;
 
 /**
- * @author bclement
+ * Request wrapper for WFS describe feature type request
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class DescFeatureTypeReq extends WfsRequest {
 

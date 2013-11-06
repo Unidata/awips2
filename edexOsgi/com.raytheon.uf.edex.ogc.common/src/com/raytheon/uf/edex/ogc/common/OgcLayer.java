@@ -27,9 +27,24 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+
 /**
- * @author bclement
+ * Contains layer metadata used to populate capability and description OGC
+ * documents. Separate from OGC JAXB objects to support different versions of
+ * OGC services.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class OgcLayer {
 

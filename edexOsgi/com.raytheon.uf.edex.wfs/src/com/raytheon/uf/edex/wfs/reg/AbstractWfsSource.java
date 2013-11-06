@@ -48,8 +48,19 @@ import com.raytheon.uf.edex.wfs.request.SortBy;
 /**
  * Abstract base class for WFS sources
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 9, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
+ * @param <T>
  */
 public abstract class AbstractWfsSource<T> extends AbstractOgcSource implements
         IWfsSource {

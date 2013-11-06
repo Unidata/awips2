@@ -29,9 +29,23 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
+
 /**
- * @author bclement
+ * Contains CRS:84 longitudes and latitudes for OGC metadata. Should be replaced
+ * with ReferencedEnvelope.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class OgcGeoBoundingBox {
 

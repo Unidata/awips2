@@ -21,6 +21,23 @@ package com.raytheon.uf.edex.ogc.common;
 
 import com.vividsolutions.jts.geom.Envelope;
 
+/**
+ * Bounding box with arbitrary CRS that also stored resolution information.
+ * Should be replaced with GridGeometry2D.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011                    bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class OgcBoundingBox extends OgcGeoBoundingBox {
 
 	protected String crs;
