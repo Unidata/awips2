@@ -446,11 +446,12 @@ public class DatabaseArchiver implements IPluginArchiver {
                         // otherwise was read from file
                         writer.write("" + pdo.getId() + ":");
                         writer.write(pdo.getDataURI());
+                        writer.write("\n");
                     }
                 } else {
                     writer.write(pdoArray[i].toString());
+                    writer.write("\n");
                 }
-                writer.write("\n");
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
