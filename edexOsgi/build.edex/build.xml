@@ -50,6 +50,10 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.grib.feature" />
 		</antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.archive.feature" />
+        </antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.text.feature" />
@@ -101,10 +105,6 @@
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.datadelivery.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.archive.feature" />
         </antcall>
 
 		<!-- SPECIAL CASE -->
