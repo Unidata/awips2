@@ -31,6 +31,16 @@ import com.raytheon.uf.edex.wfs.provider.VisitorBag;
 /**
  * Visitor for query expressions
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

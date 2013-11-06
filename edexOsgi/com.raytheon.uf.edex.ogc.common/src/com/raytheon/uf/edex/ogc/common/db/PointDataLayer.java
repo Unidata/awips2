@@ -36,17 +36,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer.TimeFormat;
 
 /**
-* SOFTWARE HISTORY
-*
-* Date         Ticket#    Engineer    Description
-* ------------ ---------- ----------- --------------------------
-* Mar 29, 2011            bclement     Initial creation
-* 10/22/2013   2742       dhladky      @Entity made for Db dependency in AWIPS code, changed to @MappedSuperclass
-*
-*
-* @author bclement
-* @version 1.0	
-*/
+ * Layer metadata storage for point data types
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 29, 2011            bclement     Initial creation
+ * 10/22/2013   2742       dhladky      @Entity made for Db dependency in AWIPS code, changed to @MappedSuperclass
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlAccessorType(XmlAccessType.NONE)
