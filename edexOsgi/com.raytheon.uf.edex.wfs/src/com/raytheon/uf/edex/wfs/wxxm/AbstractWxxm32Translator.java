@@ -79,7 +79,7 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * Abstract base for translation between data records and WXXM GML JAXB objects
  * 
  * <pre>
  * 
