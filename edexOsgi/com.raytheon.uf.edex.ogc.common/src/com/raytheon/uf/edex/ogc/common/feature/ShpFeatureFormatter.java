@@ -54,9 +54,20 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
- *
+ * Convert simple features to shape files
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 28, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class ShpFeatureFormatter implements SimpleFeatureFormatter {
 

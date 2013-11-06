@@ -22,6 +22,17 @@ package com.raytheon.uf.edex.wfs.feature;
 import com.raytheon.uf.edex.ogc.common.OgcNamespace;
 
 /**
+ * Configuration for adapting java objects to geotools features
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 19, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

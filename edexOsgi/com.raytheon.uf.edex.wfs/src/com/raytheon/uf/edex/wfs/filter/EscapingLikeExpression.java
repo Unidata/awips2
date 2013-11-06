@@ -13,20 +13,20 @@ import org.hibernate.criterion.LikeExpression;
 import org.hibernate.criterion.MatchMode;
 
 /**
- * TODO Add Description
+ * Hibernate like expression that allows for a custom escape character
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public class EscapingLikeExpression extends LikeExpression {
