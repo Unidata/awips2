@@ -5,6 +5,7 @@
     <bean id="notificationListenerFactory"
         class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerFactory">
         <constructor-arg ref="EmailSender" />
+        <constructor-arg ref="registryWebServiceClient"/>
     </bean>
 
 	<bean name="EmailSender"

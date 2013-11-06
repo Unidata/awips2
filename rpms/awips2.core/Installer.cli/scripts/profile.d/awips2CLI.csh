@@ -6,7 +6,10 @@ set RC="$?"
 
 #if installed, set the variable
 if ( "${RC}" == "0" ) then
-	set CLI_INSTALL=/awips2/fxa
-	setenv PATH ${CLI_INSTALL}/bin:${PATH}
+	set CLI_INSTALL=`rpm -q --queryformat '%{INSTPREFIXES}' awips2-cli`
+	#if check CLI_INSTALL is set, set it in the path
+	if ( "${CLI_INSTALL}" != "" ) then
+		setenv PATH ${CLI_INSTALL}/bin:${PATH}
+	endif
 endif
 

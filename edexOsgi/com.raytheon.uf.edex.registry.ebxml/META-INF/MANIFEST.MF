@@ -34,8 +34,7 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0",
  javax.mail;bundle-version="1.0.0",
  org.apache.commons.validator;bundle-version="1.2.0",
- com.sun.xml.bind;bundle-version="1.0.0",
- org.reflections;bundle-version="0.9.9"
+ com.sun.xml.bind;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.dao,
  com.raytheon.uf.edex.registry.ebxml.exception,
@@ -45,6 +44,7 @@ Export-Package: com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.services.lifecycle,
  com.raytheon.uf.edex.registry.ebxml.services.notification,
  com.raytheon.uf.edex.registry.ebxml.services.query,
+ com.raytheon.uf.edex.registry.ebxml.services.query.plugins,
  com.raytheon.uf.edex.registry.ebxml.services.validator,
  com.raytheon.uf.edex.registry.ebxml.services.validator.types,
  com.raytheon.uf.edex.registry.ebxml.util,
