@@ -43,7 +43,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 05, 2009       3267 jkorman     Initial creation
+ * Nov 05, 2009 3267       jkorman     Initial creation
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
  * 
@@ -69,13 +70,13 @@ public class VAAParser implements Iterable<VAARecord> {
         public String shapeType;
     }
 
-    private String pluginName;
+    private final String pluginName;
 
-    private WMOHeader wmoHeader;
+    private final WMOHeader wmoHeader;
 
-    private String traceId;
+    private final String traceId;
 
-    private List<VAARecord> records = new ArrayList<VAARecord>();
+    private final List<VAARecord> records = new ArrayList<VAARecord>();
 
     private List<InternalReport> reports;
 
@@ -115,7 +116,6 @@ public class VAAParser implements Iterable<VAARecord> {
 
         VAARecord vaa = new VAARecord();
         vaa.setTraceId(traceId);
-        vaa.setPluginName(pluginName);
         vaa.setWmoHeader(wmoHeader.getWmoHeader());
         String cor = wmoHeader.getBBBIndicator();
         if (cor != null) {

@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 5, 2013  1966       rferrel     Initial creation
+ * Aug 26, 2013 2225       rferrel     Make perspective independent.
  * 
  * </pre>
  * 
@@ -65,7 +66,7 @@ public class CaseNameDialog extends CaveSWTDialog {
     /** Non-blocking modal constructor. */
     protected CaseNameDialog(Shell parent, File locationDir) {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
-                CAVE.DO_NOT_BLOCK);
+                CAVE.DO_NOT_BLOCK | CAVE.PERSPECTIVE_INDEPENDENT);
         this.locationDir = locationDir;
     }
 
@@ -98,7 +99,7 @@ public class CaseNameDialog extends CaveSWTDialog {
     }
 
     /**
-     * The xomposite with case name text field.
+     * The composite with case name text field.
      */
     private void createFieldsComp() {
         Composite fieldComp = new Composite(shell, SWT.NONE);
