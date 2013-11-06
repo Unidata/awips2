@@ -30,6 +30,17 @@ import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.PropertyNameType;
 
 /**
+ * OGC Filter parsing for expression operators.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 22, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

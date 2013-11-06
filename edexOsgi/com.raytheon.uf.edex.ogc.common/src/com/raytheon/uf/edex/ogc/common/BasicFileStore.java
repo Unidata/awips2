@@ -23,21 +23,21 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
- * Basic File Store
+ * Basic file system storage. Overlaps functionality with AbstractFsStore.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2013            bclement     Initial creation
  * Aug 18, 2013  #2097     dhladky      Moved to configured
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class BasicFileStore {
 

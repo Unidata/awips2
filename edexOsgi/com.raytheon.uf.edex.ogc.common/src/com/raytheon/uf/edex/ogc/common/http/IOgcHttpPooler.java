@@ -10,20 +10,20 @@
 package com.raytheon.uf.edex.ogc.common.http;
 
 /**
- * TODO Add Description
+ * Interface for pooling OGC http handlers.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IOgcHttpPooler {

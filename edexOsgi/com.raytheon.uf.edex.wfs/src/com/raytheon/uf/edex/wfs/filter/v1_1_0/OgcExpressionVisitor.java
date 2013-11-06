@@ -24,6 +24,17 @@ import java.util.List;
 import net.opengis.filter.v_1_1_0.PropertyNameType;
 
 /**
+ * Visitor Pattern interface for parsing OGC Filter Expressions
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 21, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
