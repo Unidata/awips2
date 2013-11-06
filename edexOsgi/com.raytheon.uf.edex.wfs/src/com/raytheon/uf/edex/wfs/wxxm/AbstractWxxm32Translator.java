@@ -73,7 +73,6 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.gml3_2_1.GeometryConverter;
-import com.raytheon.uf.edex.plugin.dataset.urn.URNLookup;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
 import com.raytheon.uf.edex.wfs.reg.AbstractWfsSource;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
@@ -120,6 +119,12 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
 
 	// FIXME guess based on aircraft URN
 	public static final String AIRFRAME_URN = "urn:icao:Airframe:type";
+
+    // From ucar.edu WXCM primer
+    public static final String FDC_AIRCRAFT_REPORT = "urn:fdc:icao:procedure:AircraftReport";
+
+    // From ucar.edu WXCM primer
+    public static final String ICAO_CODE_PREFIX = "urn:icao:code:weatherStation";
 
     // FIXME
     public static final String FLIGHT_URN = "";
@@ -760,7 +765,7 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
     protected void addAircraftObsInformation(ObservationType obs,
             AircraftObsLocation location) {
         // Add procedure, this is currently the same in AIREP, PIREP and ACARS
-        String procedure = URNLookup.getAircraftReportURN();
+        String procedure = FDC_AIRCRAFT_REPORT;
         obs.setProcedure(createProcedure(procedure));
         // Add observed property
         // This is potentially from the ontology, like
