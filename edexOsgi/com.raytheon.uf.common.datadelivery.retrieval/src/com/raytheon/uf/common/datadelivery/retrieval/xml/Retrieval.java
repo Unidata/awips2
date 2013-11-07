@@ -36,7 +36,6 @@ import com.raytheon.uf.common.datadelivery.registry.Connection;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -48,9 +47,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 07, 2011    191      dhladky     Initial creation
- * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
- * Feb 07, 2013 1543       djohnson     Never have null attributes.
+ * Jan 07, 2011  191       dhladky     Initial creation
+ * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * Feb 07, 2013 1543       djohnson    Never have null attributes.
+ * 07 Nov, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -61,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Retrieval implements ISerializableObject, Serializable {
+public class Retrieval implements Serializable {
 
     private static final long serialVersionUID = -1294387473701456892L;
 
