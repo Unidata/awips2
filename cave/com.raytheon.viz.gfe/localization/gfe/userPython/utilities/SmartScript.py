@@ -50,8 +50,10 @@
 #                                                 so mask can be used with advanced indexing
 #                                                 (e.g. grid[mask] = value)
 #    Oct 07, 2013    2424          randerso       remove use of pytz
-#    Oct 29, 2013  2476       njensen         Improved getting wx/discrete keys in _getGridResults
+#    Oct 29, 2013    2476          njensen        Improved getting wx/discrete keys in _getGridResults
 #    Oct 31, 2013    2508          randerso       Change to use DiscreteGridSlice.getKeys()
+#    Nov 07, 2013    2476          dgilling       Fix _getGridsResult() for retrieving 
+#                                                 Wx/Discrete in First mode.
 #
 ########################################################################
 import types, string, time, sys
@@ -485,7 +487,7 @@ class SmartScript(BaseTool.BaseTool):
                     if result[0].dtype != numpy.int8:
                         # scalar
                         result = result[0]
-                else:
+                    else:
                         # discrete or weather
                         keys = JUtil.javaObjToPyVal(slice.getKeyList())
                         result.append(keys)
