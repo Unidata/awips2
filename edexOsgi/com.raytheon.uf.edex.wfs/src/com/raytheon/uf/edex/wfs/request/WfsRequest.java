@@ -22,6 +22,22 @@ package com.raytheon.uf.edex.wfs.request;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
+/**
+ * Abstract base for WFS request wrappers
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 22, 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class WfsRequest {
 
 	public enum Type {

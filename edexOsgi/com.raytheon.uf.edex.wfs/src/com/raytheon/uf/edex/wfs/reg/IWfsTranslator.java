@@ -37,6 +37,17 @@ import net.opengis.gml.v_3_1_1.AbstractFeatureType;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
+ * Interface for converting data records to JAXB objects
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

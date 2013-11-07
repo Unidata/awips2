@@ -62,6 +62,16 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 /**
  * Cache and utility class for OGC JAXB
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */
