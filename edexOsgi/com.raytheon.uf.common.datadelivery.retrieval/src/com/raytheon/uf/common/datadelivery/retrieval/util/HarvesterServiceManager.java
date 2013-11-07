@@ -14,7 +14,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -29,6 +29,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Oct 27, 2012   1163     dhladky     Initial creation
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * Nov 07, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -48,6 +49,9 @@ public class HarvesterServiceManager implements ILocalizationFileObserver {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(HarvesterServiceManager.class);
 
+    private static final SingleTypeJAXBManager<ServiceConfig> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ServiceConfig.class);
+
     /**
      * Get an instance of this singleton.
      * 
@@ -63,6 +67,7 @@ public class HarvesterServiceManager implements ILocalizationFileObserver {
 
     /** Singleton instance of this class */
     private static final HarvesterServiceManager instance = new HarvesterServiceManager();
+
 
     /* Private Constructor */
     private HarvesterServiceManager() {
@@ -194,8 +199,7 @@ public class HarvesterServiceManager implements ILocalizationFileObserver {
         ServiceConfig service = null;
 
         if (file != null) {
-            service = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    ServiceConfig.class, file);
+            service = jaxb.unmarshalFromXmlFile(file);
         }
 
         return service;
