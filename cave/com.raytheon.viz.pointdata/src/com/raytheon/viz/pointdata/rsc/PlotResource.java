@@ -57,7 +57,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.IPlotDataResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.pointdata.PlotModelGenerator;
@@ -75,19 +74,23 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *  11/20/2006             brockwoo    Initial creation.
- *  02/17/2009             njensen     Refactored to new rsc architecture.
- *  03/17/2009      2105   jsanchez    Plot goessounding/poessounding availability.
- *  03/30/2009      2169   jsanchez    Updated initNewFrame.
- *  04/09/2009       952   jsanchez    Plot acars.   
- *  04/13/2009      2251   jsanchez    Plot profilers.
- *  05/12/2009      2338   jsanchez    Updated resourceChanged. Registered units.
- *  06/08/2009      2450   jsanchez    Updated inpsect method to find closest plot.
- * ======================================
- * AWIPS2 DR Work
- * 08/09/2012         1011 jkorman     Added screenToWorldRatio calc to paintInternal.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 20, 2006           brockwoo    Initial creation.
+ * Feb 17, 2009           njensen     Refactored to new rsc architecture.
+ * Mar 17, 2009  2105     jsanchez    Plot goessounding/poessounding
+ *                                    availability.
+ * Mar 30, 2009  2169     jsanchez    Updated initNewFrame.
+ * Apr 09, 2009  952      jsanchez    Plot acars.   
+ * Apr 13, 2009  2251     jsanchez    Plot profilers.
+ * May 12, 2009  2338     jsanchez    Updated resourceChanged. Registered
+ *                                    units.
+ * Jun 08, 2009  2450     jsanchez    Updated inpsect method to find closest
+ *                                    plot.
+ * Aug 09, 2012  1011     jkorman     Added screenToWorldRatio calc to
+ *                                    paintInternal.
+ * Nov 06, 2013  2493     bsteffen    Removed IPlotDataResource
+ * 
  * 
  * 
  * </pre>
@@ -97,7 +100,7 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public class PlotResource extends
         AbstractVizResource<PlotResourceData, MapDescriptor> implements
-        IPlotDataResource, IResourceDataChanged {
+        IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotResource.class);
 
@@ -108,10 +111,6 @@ public class PlotResource extends
     private PlotModelGenerator generator;
 
     private DataTime displayedObsTime;
-
-    private boolean metarEnabled;
-
-    private boolean mesowestEnabled;
 
     private VA_Advanced progDisc;
 
@@ -197,8 +196,6 @@ public class PlotResource extends
     public PlotResource(PlotResourceData data, LoadProperties props) {
         super(data, props);
         this.dataTimes = new ArrayList<DataTime>();
-        metarEnabled = true;
-        mesowestEnabled = true;
         this.progDisc = new VA_Advanced();
         this.stationsToParse = new ArrayList<PluginDataObject>();
         this.frameInfo = new HashMap<String, FrameInformation>();
@@ -444,46 +441,6 @@ public class PlotResource extends
     @Override
     protected void disposeInternal() {
         generator.shutdown();
-    }
-
-    /**
-     * Returns if mesowest data is being displayed by the layer .
-     * 
-     * @return Whether mesowest is enabled or not
-     */
-    public boolean isMesowestEnabled() {
-        return mesowestEnabled;
-    }
-
-    /**
-     * Returns if metar data is being displayed by the layer.
-     * 
-     * @return Whether metar is enabled or not
-     */
-    public boolean isMetarEnabled() {
-        return metarEnabled;
-    }
-
-    /**
-     * Enables/disables mesowest data.
-     * 
-     * @param flag
-     *            Enable or disable mesowest on the display
-     */
-    public void setMesowestMode(boolean flag) {
-        mesowestEnabled = flag;
-        // aTarget.setNeedsRefresh(true);
-    }
-
-    /**
-     * Enables/disables metar data.
-     * 
-     * @param flag
-     *            Enable or disable metar on the display
-     */
-    public void setMetarMode(boolean flag) {
-        metarEnabled = flag;
-        // aTarget.setNeedsRefresh(true);
     }
 
     @Override
