@@ -72,6 +72,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
  * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
  * Jun 13, 2013  #2044    randerso    Refactored to use IFPServer
+ * Oct 16, 2013  #2475    dgilling    Better error handling for IRT activation.
  * </pre>
  * 
  * @author njensen
@@ -306,6 +307,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
         // Doesn't need to be cluster locked
         statusHandler.info("Checking ISC configuration...");
+        boolean isIscActivated = false;
         if (config.requestISC()) {
             String host = InetAddress.getLocalHost().getCanonicalHostName();
             String gfeHost = config.getServerHost();
@@ -318,10 +320,17 @@ public class GFESiteActivation implements ISiteActivationListener {
             if (host.contains(hostNameToCompare)
                     && System.getProperty("edex.run.mode").equals("request")) {
                 statusHandler.info("Enabling ISC...");
-                IRTManager.getInstance().enableISC(siteID, config);
+                try {
+                    IRTManager.getInstance().enableISC(siteID, config);
+                    isIscActivated = true;
+                } catch (Exception e) {
+                    statusHandler
+                            .error("Error starting GFE ISC. ISC functionality will be unavailable!!",
+                                    e);
+                }
             } else {
-                statusHandler.handle(Priority.EVENTA,
-                        "ISC Enabled but will use another EDEX instance");
+                statusHandler
+                        .info("ISC Enabled but will use another EDEX instance");
             }
 
         } else {
@@ -331,7 +340,7 @@ public class GFESiteActivation implements ISiteActivationListener {
         // doesn't need to be cluster locked
         final IFPServerConfig configRef = config;
 
-        if (config.tableFetchTime() > 0) {
+        if ((config.tableFetchTime() > 0) && isIscActivated) {
             Runnable activateFetchAT = new Runnable() {
 
                 @Override

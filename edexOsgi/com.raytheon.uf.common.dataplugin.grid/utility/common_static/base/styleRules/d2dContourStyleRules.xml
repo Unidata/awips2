@@ -1027,8 +1027,11 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
 -->  
 <styleRule>
   <paramLevelMatches>
-     <parameter>TP24hr </parameter>     
-     <parameter>TP36hr </parameter>     
+     <parameter>TP24hr</parameter>     
+     <parameter>TP36hr</parameter>
+     <parameter>TP6hr_std</parameter>
+     <parameter>TP6hr_avg</parameter>
+     <parameter>TP24hr_avg</parameter>        
   </paramLevelMatches>
   <contourStyle>
      <displayUnits>in</displayUnits>  

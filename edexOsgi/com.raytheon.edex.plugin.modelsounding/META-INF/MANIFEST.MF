@@ -2,16 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Modelsounding Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.modelsounding
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
- com.google.guava;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.plugin.modelsounding,
  com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,
  com.raytheon.edex.plugin.modelsounding.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.google.guava;bundle-version="1.0.0",
+ javax.measure,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
@@ -24,8 +30,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
- org.springframework;bundle-version="3.1.4",
- com.google.guava;bundle-version="1.0.0"
+ org.springframework;bundle-version="3.1.4"
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.exception,
  com.raytheon.edex.plugin,

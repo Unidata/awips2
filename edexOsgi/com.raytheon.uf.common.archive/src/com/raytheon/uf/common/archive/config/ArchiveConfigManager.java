@@ -188,7 +188,7 @@ public class ArchiveConfigManager {
     public Collection<ArchiveConfig> getArchives() {
         String fileName = ArchiveConstants.selectFileName(Type.Retention, null);
         SelectConfig selections = loadSelection(fileName);
-        if (selections != null && !selections.isEmpty()) {
+        if ((selections != null) && !selections.isEmpty()) {
             try {
                 for (ArchiveSelect archiveSelect : selections.getArchiveList()) {
                     ArchiveConfig archiveConfig = archiveMap.get(archiveSelect
@@ -407,7 +407,8 @@ public class ArchiveConfigManager {
     private Calendar calculateExpiration(ArchiveConfig archive,
             CategoryConfig category) {
         Calendar expireCal = TimeUtil.newGmtCalendar();
-        int retHours = category == null || category.getRetentionHours() == 0 ? archive
+        int retHours = (category == null)
+                || (category.getRetentionHours() == 0) ? archive
                 .getRetentionHours() : category.getRetentionHours();
         if (retHours != 0) {
             expireCal.add(Calendar.HOUR, (-1) * retHours);
@@ -453,7 +454,7 @@ public class ArchiveConfigManager {
         for (LocalizationFile lFile : files) {
             try {
                 ArchiveConfig archiveConfig = unmarshalArhiveConfigFromXmlFile(lFile);
-                if (archiveConfig != null && archiveConfig.isValid()) {
+                if ((archiveConfig != null) && archiveConfig.isValid()) {
                     archiveNameToLocalizationFileMap.put(
                             archiveConfig.getName(), lFile);
                     archiveMap.put(archiveConfig.getName(), archiveConfig);
