@@ -1227,6 +1227,9 @@
 			<parameter>TP48hr</parameter>
 			<parameter>TPrun</parameter>
 			<parameter>TP120hr</parameter>
+            <parameter>TP6hr_std</parameter>
+            <parameter>TP6hr_avg</parameter>
+            <parameter>TP24hr_avg</parameter> 
 		</paramLevelMatches>
 		<imageStyle>
 			<!-- filterLow="true" -->
