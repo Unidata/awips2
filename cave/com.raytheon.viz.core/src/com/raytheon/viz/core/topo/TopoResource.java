@@ -25,7 +25,6 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import javax.measure.converter.UnitConverter;
-import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
@@ -40,10 +39,10 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.style.LabelingPreferences;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleManager.StyleType;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.style.image.SamplePreferences;
@@ -148,7 +147,8 @@ public class TopoResource extends
 
         // Set data unit, specify in resource data? Look up in data record?
         params.setDataUnit(SI.METER);
-        params.setDisplayUnit(NonSI.FOOT);
+        params.setDisplayUnit(SI.METER);
+        params.setColorMapUnit(SI.METER);
         params.setColorMapMin(-19);
         params.setColorMapMax(5000);
         params.setDataMin(Short.MIN_VALUE);
@@ -169,15 +169,17 @@ public class TopoResource extends
 
             DataScale scale = prefs.getDataScale();
             if (scale != null) {
+                UnitConverter displayToColorMap = params
+                        .getDisplayToColorMapConverter();
                 Double minVal = scale.getMinValue();
                 Double maxVal = scale.getMaxValue();
                 if (minVal != null) {
-                    params.setColorMapMin((float) params
-                            .getDisplayToDataConverter().convert(minVal));
+                    params.setColorMapMin((float) displayToColorMap
+                            .convert(minVal));
                 }
                 if (maxVal != null) {
-                    params.setColorMapMax((float) params
-                            .getDisplayToDataConverter().convert(maxVal));
+                    params.setColorMapMax((float) displayToColorMap
+                            .convert(maxVal));
                 }
             }
 
