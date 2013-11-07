@@ -14,20 +14,21 @@ import java.util.Arrays;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
- * TODO Add Description
+ * In memory data record filtering that combines other filters using logical
+ * operators
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class LogicFilter extends AbstractPdoFilter {
 

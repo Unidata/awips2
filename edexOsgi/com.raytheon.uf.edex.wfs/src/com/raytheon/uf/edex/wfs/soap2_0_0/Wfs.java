@@ -47,14 +47,24 @@ import org.apache.cxf.interceptor.InInterceptors;
 import com.raytheon.uf.edex.ogc.common.soap.ServiceExceptionReport;
 import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
 
-/* SOFTWARE HISTORY
-* Date         Ticket#    Engineer    Description
-* ------------ ---------- ----------- --------------------------
-* unknown                  bclements   Initial creation
-* 10/22/2013   2472        dhladky     removed FAA dependencies, fixed path for CXFlogger.
-* </pre>
-*/
 
+/**
+ * SOAP endpoint interface for WFS 2.0
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 9, 2012            bclement     Initial creation
+ * 10/22/2013   2472        dhladky     removed FAA dependencies, fixed path for CXFlogger.
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 @GZIP
 @InInterceptors(interceptors = "com.raytheon.uf.edex.log.cxf.CXFLogger")
 @WebService(name = "wfs", targetNamespace = "http://www.opengis.net/wfs/requests/2.0")

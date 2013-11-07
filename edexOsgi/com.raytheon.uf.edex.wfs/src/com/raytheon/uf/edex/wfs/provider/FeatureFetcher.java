@@ -37,15 +37,15 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
+import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsException.Code;
-import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
+import com.raytheon.uf.edex.wfs.reg.IWfsSource;
 import com.raytheon.uf.edex.wfs.reg.WfsQuery;
 import com.raytheon.uf.edex.wfs.reg.WfsQueryOptions;
 import com.raytheon.uf.edex.wfs.reg.WfsQueryResults;
 import com.raytheon.uf.edex.wfs.reg.WfsQueryResults.ResultType;
 import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
-import com.raytheon.uf.edex.wfs.reg.IWfsSource;
 import com.raytheon.uf.edex.wfs.request.FeatureQuery;
 import com.raytheon.uf.edex.wfs.request.GetFeatureReq;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
@@ -53,6 +53,17 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
+ * Abstract base for retrieving features from storage
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 29, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
