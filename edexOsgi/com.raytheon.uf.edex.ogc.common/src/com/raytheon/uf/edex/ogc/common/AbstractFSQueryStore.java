@@ -29,20 +29,21 @@ import com.raytheon.uf.common.spatial.reprojection.KeyLocker.KeyLock;
 import com.raytheon.uf.edex.ogc.common.OgcException.Code;
 
 /**
- * TODO Add Description
+ * Abstract base for file system backed query stores. Provides threadsafe
+ * list/store/delete operations.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
 
