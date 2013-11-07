@@ -2,16 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Camel Plug-in
 Bundle-SymbolicName: org.apache.camel
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.11.2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: .,
- camel-core-2.11.0.jar,
- camel-http4-2.11.0.jar,
- camel-jetty-2.11.0.jar,
- camel-jms-2.11.0.jar,
- camel-quartz-2.11.0.jar,
- camel-spring-2.11.0.jar,
- camel-http-2.11.0.jar
+ camel-core-2.11.2.jar,
+ camel-http-2.11.2.jar,
+ camel-http4-2.11.2.jar,
+ camel-jetty-2.11.2.jar,
+ camel-jms-2.11.2.jar,
+ camel-quartz-2.11.2.jar,
+ camel-spring-2.11.2.jar
 Require-Bundle: org.springframework;bundle-version="3.1.4",
  org.apache.commons.management;bundle-version="1.0.0"
 Export-Package: org.apache.camel,
