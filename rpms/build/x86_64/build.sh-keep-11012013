@@ -31,12 +31,12 @@ function buildRPM()
    return 0
 }
 
-# This script will build all of the 32-bit rpms.
+# This script will build all of the 64-bit rpms.
 # Ensure that we are on a machine with the correct architecture.
 
 architecture=`uname -i`
-if [ ! "${architecture}" = "i386" ]; then
-   echo "ERROR: This build can only be performed on a 32-bit Operating System."
+if [ ! "${architecture}" = "x86_64" ]; then
+   echo "ERROR: This build can only be performed on a 64-bit Operating System."
    exit 1
 fi
 
@@ -84,19 +84,27 @@ if [ "${2}" = "-nobinlightning" ]; then
    LIGHTNING=false
 fi
 
-if [ "${1}" = "-python-qpid" ]; then
-   buildRPM "awips2-python-qpid"
+if [ "${1}" = "-64bit" ]; then
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-alertviz"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-numpy"
    buildRPM "awips2-python-pil"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pupynere"
+   buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-tables"
@@ -106,16 +114,9 @@ if [ "${1}" = "-python-qpid" ]; then
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   buildQPID
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
+   buildJava
    buildRPM "awips2-python-shapely"
+   buildRPM "awips2-notification"
 
    exit 0
 fi
@@ -126,17 +127,13 @@ if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-tools"
 
    exit 0
 fi
 
 if [ "${1}" = "-delta" ]; then
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -146,44 +143,30 @@ if [ "${1}" = "-delta" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-
-   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-python"
    buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-qpid"
-
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-data.hdf5-gfe.climo"
    buildRPM "awips2-localapps-environment"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2-rcm"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-edex-environment"
+   buildRPM "awips2-notification"
 
    exit 0
 fi
 
 if [ "${1}" = "-full" ]; then
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
    buildRPM "awips2-alertviz"
+
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -209,37 +192,11 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
-   buildRPM "awips2-python-shapely"
-
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-data.gfe"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-localapps-environment"
-   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-rcm"
-   buildLocalizationRPMs
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   buildQPID
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   buildRPM "awips2-ant"
+   buildRPM "awips2-data.gfe"
    unpackHttpdPypies
    if [ $? -ne 0 ]; then
       exit 1
@@ -247,85 +204,26 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-httpd-pypies"
    buildJava
    buildRPM "awips2-groovy"
+   buildLocalizationRPMs
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-edex-environment"
+   buildRPM "awips2-notification"
+   buildRPM "awips2-python-shapely"
    buildRPM "awips2-postgres"
+   buildRPM "awips2-database"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-openfire"
-   buildRPM "awips2-httpd-collaboration"
-
+   buildRPM "awips2-ldm"
    exit 0
 fi
 
 if [ "${1}" = "-ade" ]; then
+   echo "INFO: AWIPS II currently does not support a 64-bit version of the ADE."
+   exit 0
    buildRPM "awips2-eclipse"
-   buildJava
-   buildRPM "awips2-ant"
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-jimporter"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pil"
-   buildRPM "awips2-python-pmw"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
-   buildRPM "awips2-python-thrift"
-   buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-pygtk"
-   buildRPM "awips2-python-pycairo"
-   buildRPM "awips2-python-shapely"
-   buildQPID -ade
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   # Package the ade.
-   # Create the containing directory.
-   ade_directory="awips2-ade-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
-   if [ -d ${WORKSPACE}/${ade_directory} ]; then
-      rm -rf ${WORKSPACE}/${ade_directory}
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   mkdir -p ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   # Copy the rpms to the directory.
-   cp -v ${AWIPSII_TOP_DIR}/RPMS/i386/* \
-      ${AWIPSII_TOP_DIR}/RPMS/noarch/* \
-      ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   awips2_ade_directory="${WORKSPACE}/rpms/awips2.ade"
-   # Copy the install and uninstall script to the directory.
-   cp -v ${awips2_ade_directory}/tar.ade/scripts/*.sh \
-      ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   # Tar the directory.
-   pushd . > /dev/null 2>&1
-   cd ${WORKSPACE}
-   tar -cvf ${ade_directory}.tar ${ade_directory}
-   popd > /dev/null 2>&1
-   RC=$?
-   if [ ${RC} -ne 0 ]; then
-      exit 1
-   fi
 
    exit 0
 fi
@@ -341,8 +239,6 @@ if [ "${1}" = "-viz" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-edex-environment"
    buildEDEX
    if [ $? -ne 0 ]; then
@@ -351,16 +247,6 @@ if [ "${1}" = "-edex" ]; then
 
    exit 0
 fi
-
-if [ "${1}" = "-localization" ]; then
-   buildLocalizationRPMs
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
 
 if [ "${1}" = "-qpid" ]; then
    buildQPID
@@ -377,6 +263,7 @@ if [ "${1}" = "-ldm" ]; then
    exit 0
 fi
 
+
 if [ "${1}" = "-awips2" ]; then
    buildRPM "awips2"
 
@@ -385,21 +272,25 @@ fi
 
 # Use the custom flag for selecting specific rpms to build
 if [ "${1}" = "-custom" ]; then
-   unpackHttpdPypies
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-httpd-pypies"
+   #unpackHttpdPypies
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi  
+   #buildRPM "awips2-httpd-pypies"
+
    buildRPM "awips2-adapt-native"
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-rcm"
    #buildRPM "awips2-ant"
+   buildRPM "awips2-common-base"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-hydroapps-shared"
    #buildRPM "awips2-java"
+   #buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-tools"
 
    exit 0
 fi
+
 
 if [ "${1}" = "-package" ]; then
    repository_directory="awips2-repository-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
@@ -421,7 +312,7 @@ if [ "${1}" = "-package" ]; then
    fi
 
    rpms_directory="${WORKSPACE}/rpms"
-   comps_xml="${rpms_directory}/common/yum/arch.x86/comps.xml"
+   comps_xml="${rpms_directory}/common/yum/arch.x86_64/comps.xml"
    cp -v ${comps_xml} ${WORKSPACE}/${repository_directory}
    if [ $? -ne 0 ]; then
       exit 1
@@ -438,7 +329,6 @@ if [ "${1}" = "-package" ]; then
 
    exit 0
 fi
-
 
 usage
 exit 0
