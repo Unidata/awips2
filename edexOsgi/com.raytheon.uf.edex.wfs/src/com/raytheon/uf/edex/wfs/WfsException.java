@@ -21,6 +21,22 @@ package com.raytheon.uf.edex.wfs;
 
 import com.raytheon.uf.edex.ogc.common.OgcException;
 
+/**
+ * Exception which includes WFS error codes
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 22, 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class WfsException extends Exception {
 
 	public enum Code {
