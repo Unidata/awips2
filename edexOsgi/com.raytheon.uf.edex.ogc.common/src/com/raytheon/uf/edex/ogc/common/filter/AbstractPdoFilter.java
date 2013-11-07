@@ -12,20 +12,20 @@ package com.raytheon.uf.edex.ogc.common.filter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
- * TODO Add Description
+ * Abstract base for in memory filtering of data records
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class AbstractPdoFilter {
 

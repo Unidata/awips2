@@ -13,20 +13,21 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 
 
 /**
- * TODO Add Description
+ * 3D bounding box composed of 2D referenced envelope for horizontal bounds and
+ * vertical coordinate for vertical bounds
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class Composite3DBoundingBox {
 
