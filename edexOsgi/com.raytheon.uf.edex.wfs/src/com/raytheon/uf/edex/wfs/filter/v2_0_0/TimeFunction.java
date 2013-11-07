@@ -16,20 +16,20 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO Add Description
+ * Function object for temporal filter functions
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class TimeFunction extends FilterFunction {
 

@@ -19,20 +19,20 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.engine.TypedValue;
 
 /**
- * TODO Add Description
+ * Hibernate criterion that allows for direct SQL restrictions
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class SQLParamRestriction implements Criterion {
 

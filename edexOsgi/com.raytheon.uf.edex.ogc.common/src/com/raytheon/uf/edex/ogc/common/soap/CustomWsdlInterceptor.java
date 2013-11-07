@@ -31,7 +31,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * WSDL reader
+ * Provides custom WSDL for CXF endpoints
  * 
  * <pre>
  * 
