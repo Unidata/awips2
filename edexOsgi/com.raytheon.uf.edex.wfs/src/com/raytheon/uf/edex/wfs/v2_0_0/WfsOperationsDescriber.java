@@ -21,20 +21,20 @@ import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
 import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
 
 /**
- * TODO Add Description
+ * Produces operations metadata for WFS 2.0 capabilities document
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class WfsOperationsDescriber extends AbstractOpDescriber<WfsOpType> {
 

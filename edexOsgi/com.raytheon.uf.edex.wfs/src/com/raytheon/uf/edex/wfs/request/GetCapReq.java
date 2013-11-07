@@ -22,8 +22,20 @@ package com.raytheon.uf.edex.wfs.request;
 import net.opengis.wfs.v_1_1_0.GetCapabilitiesType;
 
 /**
- * @author bclement
+ * Request wrapper for WFS get capabilities request
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class GetCapReq extends WfsRequest {
 

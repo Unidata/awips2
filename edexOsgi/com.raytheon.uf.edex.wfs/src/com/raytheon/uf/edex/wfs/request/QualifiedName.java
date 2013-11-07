@@ -22,8 +22,20 @@ package com.raytheon.uf.edex.wfs.request;
 import javax.xml.namespace.QName;
 
 /**
- * @author bclement
+ * Object representing an XML qualified name. Should be replaced with QName
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class QualifiedName {
 

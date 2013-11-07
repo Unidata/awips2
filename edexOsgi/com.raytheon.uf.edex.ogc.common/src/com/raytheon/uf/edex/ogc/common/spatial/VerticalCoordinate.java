@@ -20,20 +20,20 @@ import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 /**
- * TODO Add Description
+ * Vertical level information which can be a point or range.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class VerticalCoordinate implements Comparable<VerticalCoordinate> {
     
