@@ -16,20 +16,20 @@ import javax.measure.unit.Unit;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate.Reference;
 
 /**
- * TODO Add Description
+ * Altitude utility methods and constants
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 4, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class AltUtil {
 

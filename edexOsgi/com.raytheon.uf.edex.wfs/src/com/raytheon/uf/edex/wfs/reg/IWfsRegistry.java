@@ -30,8 +30,20 @@ package com.raytheon.uf.edex.wfs.reg;
 import com.raytheon.uf.common.util.registry.RegistryException;
 
 /**
- * @author bclement
+ * Spring registry for plugin specific WFS sources
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public interface IWfsRegistry {
 

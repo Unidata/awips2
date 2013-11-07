@@ -43,9 +43,22 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
 import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
 
+
 /**
- * @author bclement
+ * Abstract base for HTTP handlers. Provides common utility methods.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public abstract class OgcHttpHandler {
 
