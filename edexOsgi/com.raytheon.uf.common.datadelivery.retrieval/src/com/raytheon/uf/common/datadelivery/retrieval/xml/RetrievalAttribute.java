@@ -32,7 +32,6 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -44,9 +43,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 17, 2011    191      dhladky     Initial creation
- * Feb 15, 2013 1543       djohnson     Allow any type of Coverage instance without a JAXB adapter.
- * Oct 1, 2013  1797       dhladky      Generics
+ * Jan 17, 2011  191       dhladky     Initial creation
+ * Feb 15, 2013 1543       djohnson    Allow any type of Coverage instance without a JAXB adapter.
+ * Oct 01, 2013 1797       dhladky     Generics
+ * Nov 07, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -56,7 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RetrievalAttribute<T extends Time, C extends Coverage> implements ISerializableObject, Serializable {
+public class RetrievalAttribute<T extends Time, C extends Coverage> implements
+        Serializable {
 
     /**
      * 
