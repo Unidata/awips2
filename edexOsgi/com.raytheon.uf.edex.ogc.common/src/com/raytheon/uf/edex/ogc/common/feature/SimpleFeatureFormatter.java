@@ -28,19 +28,51 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
+ * Interface for converting simple features to different output formats
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 8, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
 public interface SimpleFeatureFormatter {
 
+    /**
+     * Format features and return in response wrapper
+     * 
+     * @param features
+     * @return
+     * @throws Exception
+     */
 	public OgcResponse format(List<List<SimpleFeature>> features)
 			throws Exception;
 
+    /**
+     * Format features and output to stream
+     * 
+     * @param features
+     * @param out
+     * @throws Exception
+     */
     public void format(List<List<SimpleFeature>> features, OutputStream out)
             throws Exception;
 
+    /**
+     * @return mime type supported by this formatter
+     */
     public MimeType getMimeType();
 
+    /**
+     * @param format
+     * @return true if this formatter is suitable for format
+     */
 	public boolean matchesFormat(MimeType format);
 }

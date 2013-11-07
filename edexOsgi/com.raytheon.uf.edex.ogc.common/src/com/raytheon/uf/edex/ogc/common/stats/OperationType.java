@@ -9,6 +9,22 @@
  */
 package com.raytheon.uf.edex.ogc.common.stats;
 
+/**
+ * Type of operation for which statistics are being measured
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2013            behemmi     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author behemmi
+ * @version 1.0
+ */
 public enum OperationType {
     STORE, QUERY, DELETE,
     // special case for encompassing all values
