@@ -32,6 +32,26 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcException.Code;
 
+/**
+ * Abstract base for layer collectors. Provides common utility methods for child
+ * classes.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ * @param <D>
+ * @param <L>
+ * @param <R>
+ */
 public abstract class LayerCollector<D extends SimpleDimension, L extends SimpleLayer<D>, R extends PluginDataObject>
         implements ILayerCache<D, L> {
 
