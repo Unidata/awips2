@@ -78,6 +78,7 @@
 		<!-- end of ncep excludes -->
 	</mode>
 	<mode name="ingest">
+		<exclude>webservices.xml</exclude>
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
 		<exclude>grib-decode.xml</exclude>
