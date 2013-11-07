@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/18/13                      mnash        Initial Creation.
+#    11/08/13        2086          bkowal       Declare lists using [] instead of list()
 #
 #
 #
@@ -110,7 +111,7 @@ class PathManager(IPathManager.IPathManager):
         else :
             jfiles = self.jpathManager.listStaticFiles(name, extArr, recursive, filesOnly)
         if jfiles is not None :
-            files = list()
+            files = []
             for file in jfiles :
                 files.append(LocalizationFile(file))
             return files
@@ -121,7 +122,7 @@ class PathManager(IPathManager.IPathManager):
         @summary: This method returns the list of available levels.
         '''
         jLevels = self.jpathManager.getAvailableLevels()
-        levels = list()
+        levels = []
         for level in jLevels :
             levels.append(level.name())
         return levels
