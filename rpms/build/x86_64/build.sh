@@ -85,7 +85,6 @@ if [ "${2}" = "-nobinlightning" ]; then
 fi
 
 if [ "${1}" = "-64bit" ]; then
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -135,7 +134,6 @@ if [ "${1}" = "-postgres" ]; then
 fi
 
 if [ "${1}" = "-delta" ]; then
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -149,8 +147,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-python-ufpy"
    buildRPM "awips2-cli"
    buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
@@ -166,12 +162,12 @@ fi
 
 if [ "${1}" = "-full" ]; then
    buildRPM "awips2"
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
    buildRPM "awips2-alertviz"
+
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -199,8 +195,6 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-pycairo"
    buildRPM "awips2-cli"
    buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
@@ -236,7 +230,6 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -247,7 +240,6 @@ if [ "${1}" = "-viz" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-common-base"
    buildRPM "awips2-edex-environment"
    buildEDEX
    if [ $? -ne 0 ]; then
@@ -286,11 +278,15 @@ if [ "${1}" = "-custom" ]; then
    #   exit 1
    #fi  
    #buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-adapt-native"
+
+   #buildRPM "awips2-adapt-native"
    #buildRPM "awips2-ant"
-   buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-common-base"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-hydroapps-shared"
    #buildRPM "awips2-java"
-   #buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-tools"
 
    exit 0
