@@ -11,20 +11,20 @@ package com.raytheon.uf.edex.wfs.request;
 
 
 /**
- * TODO Add Description
+ * Wrapper for WFS list stored queries request
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 8, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class ListQueriesReq extends WfsRequest {
 
