@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Apr 24, 2013 1628       mschenke    Added GMT TimeZone Object constant
  * Jun 05, 2013 DR 16279   D. Friedman Add timeOfDayToAbsoluteTime
  * Oct 30, 2013  2448      dhladky     Added current year addition to calendar object.
+ * Nov 05, 2013 2499       rjpeter     Added prettyDuration.
  * </pre>
  * 
  * @author njensen
@@ -165,6 +166,13 @@ public final class TimeUtil {
     static final ITimeStrategy SYSTEM_TIME_STRATEGY = new SystemTimeStrategy();
 
     static final ITimer NULL_CLOCK = new NullClock();
+
+    private static final long[] DURATION_INTERVALS = { MILLIS_PER_YEAR,
+            MILLIS_PER_WEEK, MILLIS_PER_DAY, MILLIS_PER_HOUR,
+            MILLIS_PER_MINUTE, MILLIS_PER_SECOND };
+
+    private static final String[] DURATION_QUALIFIERS = { "y", "w", "d", "h",
+            "m", "s" };
 
     /**
      * The strategy to retrieve the "current time" value from.
@@ -427,20 +435,24 @@ public final class TimeUtil {
         }
     }
 
-    /** Converts a time-of-day (in seconds) to an absolute time given an
-     * absolute reference time.  The resulting time is within a day of the
-     * reference time.
-     * @param timeOfDaySeconds The time of day in seconds past midnight
-     * @param referenceTime The reference time (should have GMT time zone)
+    /**
+     * Converts a time-of-day (in seconds) to an absolute time given an absolute
+     * reference time. The resulting time is within a day of the reference time.
+     * 
+     * @param timeOfDaySeconds
+     *            The time of day in seconds past midnight
+     * @param referenceTime
+     *            The reference time (should have GMT time zone)
      * @return
      */
-    public static Calendar timeOfDayToAbsoluteTime(int timeOfDaySeconds, Calendar referenceTime) {
+    public static Calendar timeOfDayToAbsoluteTime(int timeOfDaySeconds,
+            Calendar referenceTime) {
         Calendar targetDay = (Calendar) referenceTime.clone();
-        int refTimeTodSeconds = referenceTime.get(Calendar.HOUR_OF_DAY) * SECONDS_PER_HOUR
-                + referenceTime.get(Calendar.MINUTE) * SECONDS_PER_MINUTE
+        int refTimeTodSeconds = (referenceTime.get(Calendar.HOUR_OF_DAY) * SECONDS_PER_HOUR)
+                + (referenceTime.get(Calendar.MINUTE) * SECONDS_PER_MINUTE)
                 + referenceTime.get(Calendar.SECOND);
         int absTodDiff = Math.abs(refTimeTodSeconds - timeOfDaySeconds);
-        if (absTodDiff < SECONDS_PER_DAY - absTodDiff) {
+        if (absTodDiff < (SECONDS_PER_DAY - absTodDiff)) {
             // nothing; use current targetDay
         } else if (refTimeTodSeconds < timeOfDaySeconds) {
             targetDay.add(Calendar.DAY_OF_MONTH, -1);
@@ -452,6 +464,43 @@ public final class TimeUtil {
         targetDay.set(Calendar.SECOND, 0);
         targetDay.add(Calendar.SECOND, timeOfDaySeconds);
         return targetDay;
+    }
+
+    /**
+     * Formats millis keeping the two most significant digits.
+     * 
+     * 1y16w 2d15h 3m5s
+     * 
+     * @param durationInMillis
+     * @return
+     */
+    public static String prettyDuration(long durationInMillis) {
+        StringBuilder timeString = new StringBuilder();
+        // handle s/ms separately
+        for (int i = 0; i < (DURATION_INTERVALS.length - 1); i++) {
+            long interval = DURATION_INTERVALS[i];
+            if (durationInMillis > interval) {
+                timeString.append(durationInMillis / interval).append(
+                        DURATION_QUALIFIERS[i]);
+                durationInMillis %= interval;
+                timeString.append(durationInMillis / DURATION_INTERVALS[i + 1])
+                        .append(DURATION_QUALIFIERS[i + 1]);
+
+                return timeString.toString();
+            }
+        }
+
+        // seconds/ms
+        if (durationInMillis > MILLIS_PER_SECOND) {
+            timeString.append(durationInMillis / MILLIS_PER_SECOND).append('.');
+            durationInMillis %= MILLIS_PER_SECOND;
+            int tenth = (int) (durationInMillis / 100);
+            timeString.append(tenth).append('s');
+        } else {
+            timeString.append(durationInMillis).append("ms");
+        }
+
+        return timeString.toString();
     }
 
     /**

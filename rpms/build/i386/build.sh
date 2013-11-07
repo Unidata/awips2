@@ -85,7 +85,6 @@ if [ "${2}" = "-nobinlightning" ]; then
 fi
 
 if [ "${1}" = "-python-qpid" ]; then
-   buildRPM "awips2"
    buildRPM "awips2-python-qpid"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
@@ -116,15 +115,6 @@ if [ "${1}" = "-python-qpid" ]; then
       exit 1
    fi
 
-   #buildRPM "awips2-ant"
-   #unpackHttpdPypies
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   #buildRPM "awips2-httpd-pypies"
-   #buildRPM "awips2-java"
-   #buildRPM "awips2-ldm"
-   #buildRPM "awips2-tools"
    buildRPM "awips2-python-shapely"
 
    exit 0
@@ -164,7 +154,6 @@ if [ "${1}" = "-delta" ]; then
       exit 1
    fi
 
-   buildRPM "awips2"
    buildRPM "awips2-ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
@@ -180,7 +169,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-database-server-configuration"
    buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-notification"
@@ -188,7 +176,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
    buildRPM "awips2-rcm"
-   buildRPM "awips2-edex-environment"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
@@ -198,6 +185,7 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
+   buildRPM "awips2"
    buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -229,8 +217,8 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-shapely"
 
-   buildRPM "awips2"
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
@@ -267,14 +255,11 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-httpd-pypies"
    buildJava
    buildRPM "awips2-groovy"
-   #buildRPM "awips2-ldm"
    buildRPM "awips2-postgres"
    buildRPM "awips2-pgadmin3"
    buildRPM "awips2-tools"
-   buildRPM "awips2-edex-environment"
    buildRPM "awips2-openfire"
    buildRPM "awips2-httpd-collaboration"
-   buildRPM "awips2-python-shapely"
 
    exit 0
 fi
@@ -360,9 +345,6 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-rcm"
-   buildRPM "awips2-hydroapps-shared"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -373,13 +355,9 @@ if [ "${1}" = "-viz" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-adapt-native"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-edex-environment"
- # buildRPM "awips2-ncep-database"
- # buildRPM "awips2-python-dynamicserialize"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -421,7 +399,19 @@ fi
 
 # Use the custom flag for selecting specific rpms to build
 if [ "${1}" = "-custom" ]; then
-   #buildRPM "awips2-ldm"
+   #unpackHttpdPypies
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi
+   #buildRPM "awips2-httpd-pypies"
+   #buildRPM "awips2-ant"
+   buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-common-base"
+   buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-java"
+   #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-rcm"
+   #buildRPM "awips2-tools"
 
    exit 0
 fi
