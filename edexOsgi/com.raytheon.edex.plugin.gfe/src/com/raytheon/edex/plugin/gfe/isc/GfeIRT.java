@@ -32,10 +32,11 @@ import jep.JepException;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
@@ -61,7 +63,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * 06/13/13     2044       randerso    Refactored to use IFPServer
  * Sep 05, 2013 2307       dgilling    Use better PythonScript constructor.
- * 
+ * Oct 16, 2013 2475       dgilling    Move logic previously in IrtServer.py
+ *                                     into this class to avoid Jep memory leak.
  * </pre>
  * 
  * @author bphillip
@@ -73,16 +76,29 @@ public class GfeIRT extends Thread {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeIRT.class);
 
+    private static final String PYTHON_INSTANCE = "irt";
+
     /** The site ID associated with this IRT thread */
     private final String siteID;
-
-    private final IFPServerConfig config;
 
     /** The MHS ID associated with this IRT thread */
     private final String mhsID;
 
-    /** The script file name */
-    private final String scriptFile;
+    private final String serverHost;
+
+    private final long serverPort;
+
+    private final long serverProtocol;
+
+    private List<String> parmsWanted;
+
+    private final List<Integer> gridDims;
+
+    private final String gridProj;
+
+    private final List<Double> gridBoundBox;
+
+    private List<String> iscWfosWanted;
 
     /** The Python script object */
     private PythonScript script;
@@ -97,21 +113,82 @@ public class GfeIRT extends Thread {
      * 
      * @param siteID
      *            The site ID to create the GfeIRT object for
-     * @throws GfeException
+     * @throws GfeConfigurationException
+     *             If the GFE configuration for the specified site could not be
+     *             loaded.
      */
-    public GfeIRT(String siteid, IFPServerConfig config) throws GfeException {
+    public GfeIRT(String siteid, IFPServerConfig config)
+            throws GfeConfigurationException {
         this.setDaemon(true);
         this.siteID = siteid;
-        this.config = config;
         this.mhsID = config.getMhsid();
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext cx = pathMgr.getContext(
-                LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
 
-        scriptFile = pathMgr
-                .getLocalizationFile(cx,
-                        "gfe/isc" + File.separator + "IrtServer.py").getFile()
-                .getPath();
+        this.serverHost = config.getServerHost();
+        this.serverPort = config.getRpcPort();
+        this.serverProtocol = config.getProtocolVersion();
+
+        GridLocation domain = config.dbDomain();
+
+        this.gridProj = domain.getProjection().getProjectionID().toString();
+
+        this.gridDims = new ArrayList<Integer>(2);
+        this.gridDims.add(domain.getNy());
+        this.gridDims.add(domain.getNx());
+
+        this.gridBoundBox = new ArrayList<Double>(4);
+        this.gridBoundBox.add(domain.getOrigin().x);
+        this.gridBoundBox.add(domain.getOrigin().y);
+        this.gridBoundBox.add(domain.getExtent().x);
+        this.gridBoundBox.add(domain.getExtent().y);
+
+        this.parmsWanted = config.requestedISCparms();
+        if (this.parmsWanted.isEmpty()) {
+            List<DatabaseID> dbs = IFPServer.getActiveServer(this.siteID)
+                    .getGridParmMgr().getDbInventory().getPayload();
+            for (DatabaseID dbId : dbs) {
+                if ((dbId.getModelName().equals("ISC"))
+                        && (dbId.getDbType().equals(""))
+                        && (dbId.getSiteId().equals(this.siteID))) {
+                    GridDbConfig gdc = config.gridDbConfig(dbId);
+                    this.parmsWanted = gdc.parmAndLevelList();
+                }
+            }
+            config.setRequestedISCparms(this.parmsWanted);
+        }
+        statusHandler.info("ParmsWanted: " + this.parmsWanted);
+
+        this.iscWfosWanted = config.requestedISCsites();
+        if (this.iscWfosWanted.isEmpty()) {
+            List<String> knownSites = config.allSites();
+
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext commonStaticConfig = pathMgr.getContext(
+                    LocalizationType.COMMON_STATIC,
+                    LocalizationLevel.CONFIGURED);
+            commonStaticConfig.setContextName(this.siteID);
+            File editAreaDir = pathMgr.getFile(commonStaticConfig,
+                    "gfe/editAreas");
+
+            FilenameFilter filter = new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.trim().matches("ISC_\\p{Alnum}{3}\\.xml");
+                }
+            };
+            List<File> editAreas = FileUtil.listFiles(editAreaDir, filter,
+                    false);
+
+            this.iscWfosWanted = new ArrayList<String>();
+            for (File f : editAreas) {
+                String name = f.getName().replace("ISC_", "")
+                        .replace(".xml", "");
+                if (knownSites.contains(name)) {
+                    iscWfosWanted.add(name);
+                }
+            }
+            config.setRequestedISCsites(this.iscWfosWanted);
+        }
+
         Thread hook = new Thread() {
             @Override
             public void run() {
@@ -129,105 +206,95 @@ public class GfeIRT extends Thread {
     public void run() {
 
         try {
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext cx = pathMgr.getContext(
+                    LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
+            String scriptPath = pathMgr
+                    .getLocalizationFile(cx, "gfe/isc/IrtAccess.py").getFile()
+                    .getPath();
             String includePath = PyUtil.buildJepIncludePath(
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath(),
-                    GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
-            script = new PythonScript(scriptFile, includePath, this.getClass()
+                    GfePyIncludeUtil.getGfeConfigIncludePath(this.siteID));
+            this.script = new PythonScript(scriptPath, includePath, getClass()
                     .getClassLoader());
-            Map<String, Object> args = new HashMap<String, Object>();
-
-            GridLocation domain = config.dbDomain();
-
-            List<Integer> gridDims = new ArrayList<Integer>();
-            gridDims.add(domain.getNy());
-            gridDims.add(domain.getNx());
-
-            List<Double> gridBoundBox = new ArrayList<Double>();
-            gridBoundBox.add(domain.getOrigin().x);
-            gridBoundBox.add(domain.getOrigin().y);
-            gridBoundBox.add(domain.getExtent().x);
-            gridBoundBox.add(domain.getExtent().y);
-
-            // determine which parms are wanted
-            List<String> parmsWanted = config.requestedISCparms();
-            if (parmsWanted.isEmpty()) {
-                // TODO gridParmMgr should be passed in when GFEIRT created
-                // whole class needs clean up
-                List<DatabaseID> dbs = IFPServer.getActiveServer(siteID)
-                        .getGridParmMgr().getDbInventory().getPayload();
-
-                for (int i = 0; i < dbs.size(); i++) {
-                    if (dbs.get(i).getModelName().equals("ISC")
-                            && dbs.get(i).getDbType().equals("")
-                            && dbs.get(i).getSiteId().equals(siteID)) {
-                        GridDbConfig gdc = config.gridDbConfig(dbs.get(i));
-                        parmsWanted = gdc.parmAndLevelList();
-                    }
-                }
-            }
-            statusHandler.info("ParmsWanted: " + parmsWanted);
-
-            // reset them to actual values
-            config.setRequestedISCparms(parmsWanted);
-
-            // determine isc areas that are wanted
-            List<String> iscWfosWanted = config.requestedISCsites();
-
-            if (iscWfosWanted.isEmpty()) {
-                List<String> knownSites = config.allSites();
-
-                IPathManager pathMgr = PathManagerFactory.getPathManager();
-                LocalizationContext commonStaticConfig = pathMgr.getContext(
-                        LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.CONFIGURED);
-                commonStaticConfig.setContextName(siteID);
-                File editAreaDir = pathMgr.getFile(commonStaticConfig,
-                        "gfe/editAreas");
-
-                FilenameFilter filter = new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.trim().matches("ISC_\\p{Alnum}{3}\\.xml");
-                    }
-                };
-                List<File> editAreas = FileUtil.listFiles(editAreaDir, filter,
-                        false);
-
-                String name = "";
-                for (File f : editAreas) {
-                    name = f.getName().replace("ISC_", "").replace(".xml", "");
-                    if (knownSites.contains(name)) {
-                        iscWfosWanted.add(name);
-                    }
-                }
-                config.setRequestedISCsites(iscWfosWanted);
-            }
-
-            args.put("ancfURL", config.iscRoutingTableAddress().get("ANCF"));
-            args.put("bncfURL", config.iscRoutingTableAddress().get("BNCF"));
-            args.put("mhsid", config.getMhsid());
-            args.put("serverHost", config.getServerHost());
-            args.put("serverPort", config.getRpcPort());
-            args.put("serverProtocol", config.getProtocolVersion());
-            args.put("site", siteID);
-            args.put("parmsWanted", config.requestedISCparms());
-            args.put("gridDims", gridDims);
-            args.put("gridProj", domain.getProjection().getProjectionID()
-                    .toString());
-            args.put("gridBoundBox", gridBoundBox);
-            args.put("iscWfosWanted", iscWfosWanted);
-
-            boolean regSuccess = (Boolean) script.execute("irtReg", args);
-            if (!regSuccess) {
-                statusHandler
-                        .error("Error registering site with IRT server. ISC functionality will be unavailable. Check config and IRT connectivity.");
-                removeShutdownHook(this.mhsID, this.siteID);
-            }
+            IFPServerConfig config = IFPServerConfigManager
+                    .getServerConfig(siteID);
+            Map<String, Object> initArgs = new HashMap<String, Object>(2, 1f);
+            initArgs.put("ancfURL", config.iscRoutingTableAddress().get("ANCF"));
+            initArgs.put("bncfURL", config.iscRoutingTableAddress().get("BNCF"));
+            this.script.instantiatePythonClass(PYTHON_INSTANCE, "IrtAccess",
+                    initArgs);
+        } catch (GfeConfigurationException e) {
+            throw new RuntimeException("Could not load GFE configuration", e);
         } catch (JepException e) {
-            statusHandler
-                    .fatal("Error starting GFE ISC. ISC functionality will be unavailable!!",
-                            e);
+            throw new RuntimeException(
+                    "Could not instantiate IRT python script instance", e);
+        }
+
+        try {
+            // upon any overall failure, start thread over
+            while (IRTManager.getInstance().isRegistered(mhsID, siteID)) {
+                try {
+                    // do initial registration, keep trying until successful
+                    while (IRTManager.getInstance().isRegistered(mhsID, siteID)) {
+                        statusHandler
+                                .info("performing initial IRT registration.");
+
+                        Map<String, Object> args = new HashMap<String, Object>(
+                                10, 1f);
+                        args.put("mhsid", mhsID);
+                        args.put("serverHost", serverHost);
+                        args.put("serverPort", serverPort);
+                        args.put("serverProtocol", serverProtocol);
+                        args.put("site", siteID);
+                        args.put("parmsWanted", parmsWanted);
+                        args.put("gridDims", gridDims);
+                        args.put("gridProj", gridProj);
+                        args.put("gridBoundBox", gridBoundBox);
+                        args.put("iscWfosWanted", iscWfosWanted);
+                        Boolean okay = (Boolean) script.execute("register",
+                                PYTHON_INSTANCE, args);
+
+                        if (okay) {
+                            break;
+                        } else if (!IRTManager.getInstance().isRegistered(
+                                mhsID, siteID)) {
+                            break; // exit processing loop
+                        } else {
+                            sleep(3 * TimeUtil.MILLIS_PER_SECOND);
+                        }
+                    }
+
+                    // if we are here, we had a successful registration, check
+                    // for re-register every few seconds, check the StopIRT flag
+                    // every few seconds
+                    statusHandler.info("initial IRT registration complete.");
+                    while (IRTManager.getInstance().isRegistered(mhsID, siteID)) {
+                        sleep(3 * TimeUtil.MILLIS_PER_SECOND); // wait 3 seconds
+
+                        Boolean status1 = (Boolean) script.execute(
+                                "checkForReregister", PYTHON_INSTANCE, null);
+                        if (!status1) {
+                            statusHandler.error("FAIL on checkForRegister().");
+                            break; // break out of rereg loop, to cause another
+                                   // reg
+                        }
+                    }
+                } catch (Throwable t) {
+                    statusHandler.error("Exception in IRT register thread.", t);
+                }
+            }
+
+            // if we get here, we have been told to stop IRT, so we unregister.
+            // We try only once.
+            statusHandler.info("FINAL IRT unregister.");
+            try {
+                script.execute("unregister", PYTHON_INSTANCE, null);
+            } catch (JepException e) {
+                statusHandler.error("Exception unregister IRT.", e);
+            }
+            statusHandler.info("FINAL -- exiting IRT registration thread.");
         } finally {
             if (script != null) {
                 script.dispose();
