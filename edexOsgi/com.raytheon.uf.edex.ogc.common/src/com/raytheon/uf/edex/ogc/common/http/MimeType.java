@@ -18,19 +18,20 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 /**
+ * Data object representing a MIME type used in service requests
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 29, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public class MimeType {

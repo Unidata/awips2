@@ -26,20 +26,20 @@ import com.raytheon.uf.edex.wfs.request.DescFeatureTypeReq;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
 /**
- * TODO Add Description
+ * Generates feature type descriptions for describe feature type operation
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public class FeatureDescriber {

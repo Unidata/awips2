@@ -53,20 +53,20 @@ import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
 import com.raytheon.uf.edex.wfs.v2_0_0.Wfs2_0_0Provider;
 
 /**
- * TODO Add Description
+ * SOAP endpoint implementation for WFS 2.0
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 9, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public class WfsImpl extends AbstractOwsService implements Wfs {

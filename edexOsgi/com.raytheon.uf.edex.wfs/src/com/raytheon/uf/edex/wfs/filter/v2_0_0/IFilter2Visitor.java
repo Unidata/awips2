@@ -42,6 +42,16 @@ import net.opengis.filter.v_2_0_0.PropertyIsNullType;
 /**
  * Filter 2.0 visitor interface
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

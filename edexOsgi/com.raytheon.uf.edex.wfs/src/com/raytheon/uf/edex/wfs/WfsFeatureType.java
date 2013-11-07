@@ -26,8 +26,21 @@ import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
 /**
- * @author bclement
+ * Feature type metadata object used for capabilities document. Independent from
+ * JAXB object to support multiple WFS versions.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class WfsFeatureType {
 
