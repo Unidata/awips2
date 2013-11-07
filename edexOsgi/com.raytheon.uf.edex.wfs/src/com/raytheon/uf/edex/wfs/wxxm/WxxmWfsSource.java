@@ -28,7 +28,7 @@ import com.raytheon.uf.edex.wfs.reg.PluginWfsSource;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
 /**
- * TODO Add Description
+ * Abstract base for WFS sources that produce WXXM feature types
  * 
  * <pre>
  * 

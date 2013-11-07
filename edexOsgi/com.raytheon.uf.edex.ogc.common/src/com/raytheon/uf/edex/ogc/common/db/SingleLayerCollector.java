@@ -47,10 +47,26 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.vividsolutions.jts.geom.Envelope;
 
+
 /**
+ * Collects layer metadata from data records. Designed for use with plugins that
+ * have a single layer which all records contribute to (like pointdata)
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
+ * @param <D>
+ * @param <L>
+ * @param <R>
  */
 public abstract class SingleLayerCollector<D extends SimpleDimension, L extends SimpleLayer<D>, R extends PluginDataObject>
         extends LayerCollector<D, L, R> {

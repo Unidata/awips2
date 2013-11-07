@@ -22,9 +22,22 @@
  */
 package com.raytheon.uf.edex.ogc.common;
 
+
 /**
- * @author bclement
+ * Static constants for OGC related XML namespaces
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class OgcNamespace {
 	public static final String GML = "http://www.opengis.net/gml";
