@@ -14,7 +14,7 @@ import java.util.List;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
 
 /**
- * TODO Add Description
+ * Interface for modifying WFS feature type metadata
  * 
  * <pre>
  * 

@@ -36,7 +36,18 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
 /**
  * Source interface for WFS data adapters
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
+ * @version 1.0
  */
 public interface IWfsSource {
 

@@ -40,6 +40,26 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 
+/**
+ * Collects layer metadata from data records. Designed for use with records that
+ * contain all data for a layer at a specific time and level.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ * @param <D>
+ * @param <L>
+ * @param <R>
+ */
 public abstract class DefaultLayerCollector<D extends SimpleDimension, L extends SimpleLayer<D>, R extends PluginDataObject>
         extends LayerCollector<D, L, R> {
 
