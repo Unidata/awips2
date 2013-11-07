@@ -14,20 +14,21 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 
 /**
- * TODO Add Description
+ * Interface for retrieving geotools coordinate reference system objects using
+ * native CRS URNs
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 6, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public interface NativeCrsAuthority {
 

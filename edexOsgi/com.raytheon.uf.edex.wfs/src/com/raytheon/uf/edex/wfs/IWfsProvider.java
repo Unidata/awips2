@@ -34,6 +34,22 @@ import java.util.Map;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
 import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 
+/**
+ * Interface for WFS version specific implementations
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * November 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public interface IWfsProvider {
 
     public enum WfsOpType {

@@ -39,6 +39,16 @@ import com.vividsolutions.jts.geom.Envelope;
 /**
  * Convert GML 3.1.1 envelopes to JTS envelopes
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 26, 2011           bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

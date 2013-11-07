@@ -38,15 +38,24 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Polygon;
 
- /**
+/**
+ * Layer metadata storage object
+ * 
+ * <pre>
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2011            bclement     Initial creation
  * 04/22/2013   1746      dhladky      Removed DB dependency from WFS code
- *
- **/
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ * @param <DIMENSION>
+ */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
