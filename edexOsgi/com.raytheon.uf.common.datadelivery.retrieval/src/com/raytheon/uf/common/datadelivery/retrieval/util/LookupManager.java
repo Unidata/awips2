@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterConfig;
@@ -38,7 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -56,7 +58,8 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Mar 7, 2011    357      dhladky     Initial creation
  * Oct 27, 2012   1163     dhladky     Improved, dynamically create files, Added Units
  * Jan 18, 2013   1513     dhladky     Level lookup refit.
- * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
+ * Mar 21, 2013   1794     djohnson    ServiceLoaderUtil now requires the requesting class.
+ * Nov 07, 2013   2361     njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -65,7 +68,6 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  */
 
 public class LookupManager {
-
     /**
      * Implementation of the xml writers that writes to localization files.
      */
@@ -85,7 +87,7 @@ public class LookupManager {
             LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
             File file = lf.getFile();
 
-            SerializationUtil.jaxbMarshalToXmlFile(ll, file.getAbsolutePath());
+            getJaxbManager().marshalToXmlFile(ll, file.getAbsolutePath());
         }
 
         /**
@@ -103,7 +105,7 @@ public class LookupManager {
             LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
             File file = lf.getFile();
 
-            SerializationUtil.jaxbMarshalToXmlFile(pl, file.getAbsolutePath());
+            getJaxbManager().marshalToXmlFile(pl, file.getAbsolutePath());
         }
     }
 
@@ -146,6 +148,18 @@ public class LookupManager {
     private final ParameterXmlWriter parameterXmlWriter = ServiceLoaderUtil
             .load(LookupManager.class, ParameterXmlWriter.class,
                     new LocalizationXmlWriter());
+
+    private static JAXBManager jaxb;
+
+    private static JAXBManager getJaxbManager()
+            throws JAXBException {
+        if (jaxb == null) {
+            jaxb = new JAXBManager(LevelLookup.class, ParameterLookup.class,
+                    UnitLookup.class);
+        }
+
+        return jaxb;
+    }
 
     /* Private Constructor */
     private LookupManager() {
@@ -519,7 +533,7 @@ public class LookupManager {
         LevelLookup levelXml = null;
 
         if (file != null && file.exists()) {
-            levelXml = SerializationUtil.jaxbUnmarshalFromXmlFile(
+            levelXml = getJaxbManager().unmarshalFromXmlFile(
                     LevelLookup.class, file);
         }
 
@@ -538,7 +552,7 @@ public class LookupManager {
         ParameterLookup paramXml = null;
 
         if (file != null && file.exists()) {
-            paramXml = SerializationUtil.jaxbUnmarshalFromXmlFile(
+            paramXml = getJaxbManager().unmarshalFromXmlFile(
                     ParameterLookup.class, file);
         }
 
@@ -557,7 +571,7 @@ public class LookupManager {
         UnitLookup unitXml = null;
 
         if (file != null && file.exists()) {
-            unitXml = SerializationUtil.jaxbUnmarshalFromXmlFile(
+            unitXml = getJaxbManager().unmarshalFromXmlFile(
                     UnitLookup.class, file);
         }
 
