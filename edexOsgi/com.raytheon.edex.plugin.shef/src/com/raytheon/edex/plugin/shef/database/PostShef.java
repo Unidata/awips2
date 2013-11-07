@@ -107,6 +107,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 03/07/2013   15545      w. kwock    Added Observe time to log
  * 03/21/2013   15967      w. kwock    Fix the error in buildTsFcstRiv riverstatus table issue
  * 04/05/2013   16036      w. kwock    Fixed no ts=RZ in ingestfilter table but posted to height table 
+ * 10/28/2013   16711      lbousaidi   if the id is not in location table,but defined in geoarea table
+ *                                     data can be posted to appropriate pe-based tables only if the data 
+ *                                     type is not READING like in A1 code. 
  * 
  * </pre>
  * 
@@ -417,6 +420,18 @@ public class PostShef {
 
             if (log.isDebugEnabled()) {
                 log.debug("DataType = " + dataType);
+            }
+         
+            /*
+             *  if the station_id exists in location table and
+             *  the data type is READING then the data doesn't get posted
+             *  to the appropriate pe-based tables to match A1 logic.
+             *  DR16711  
+             */
+            
+            if ((DataType.READING.equals(dataType)) 
+            		&&(Location.LOC_GEOAREA.equals(postLocData))) {
+            	postLocData=Location.LOC_UNDEFINED;            	
             }
             
             SHEFDate d = data.getObsTime();
