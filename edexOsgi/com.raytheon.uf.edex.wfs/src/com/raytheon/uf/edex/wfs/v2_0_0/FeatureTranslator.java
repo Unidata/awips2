@@ -38,6 +38,17 @@ import com.raytheon.uf.edex.wfs.WfsFeatureType;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
 /**
+ * Converts feature type metadata objects to WFS 2.0 feature type jaxb objects
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

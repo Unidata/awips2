@@ -35,6 +35,17 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 
 /**
+ * Interface for retrieving geotools feature types
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 19, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

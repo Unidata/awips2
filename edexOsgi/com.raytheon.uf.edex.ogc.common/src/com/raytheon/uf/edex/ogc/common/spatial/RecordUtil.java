@@ -43,7 +43,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- * Removing code only used by ogc services from {@link PluginDao} to here
+ * Utility methods for reprojecting data records. Removing code only used by ogc
+ * services from {@link PluginDao} to here
  * 
  * <pre>
  * 
