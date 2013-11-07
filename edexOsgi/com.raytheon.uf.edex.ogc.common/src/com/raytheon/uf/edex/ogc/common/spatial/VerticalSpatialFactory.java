@@ -20,20 +20,21 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * TODO Add Description
+ * Factory for retrieving vertical coordinate objects from vertically enabled
+ * classes. Uses VerticalEnabled beans registered in spring.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class VerticalSpatialFactory {
     

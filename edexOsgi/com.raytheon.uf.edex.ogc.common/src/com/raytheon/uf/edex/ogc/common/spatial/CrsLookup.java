@@ -46,10 +46,21 @@ import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate.Reference;
 
 /**
- * TODO Add Description
- *
+ * Coordinate Reference System utility methods and constants. Used to parse CRS
+ * codes and URNs to geotools objects and format geotools objects for output.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class CrsLookup {
 

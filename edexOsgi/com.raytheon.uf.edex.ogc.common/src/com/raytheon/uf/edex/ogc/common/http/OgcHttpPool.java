@@ -28,9 +28,22 @@ import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
+
 /**
- * @author bclement
+ * Pooling for OGC http handlers
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class OgcHttpPool extends GenericKeyedObjectPool implements
         IOgcHttpPooler {
