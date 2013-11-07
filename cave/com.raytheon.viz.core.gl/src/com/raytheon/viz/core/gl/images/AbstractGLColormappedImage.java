@@ -26,6 +26,8 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
+import com.raytheon.viz.core.gl.ext.imaging.GLDataMappingFactory.GLDataMapping;
 import com.sun.opengl.util.texture.TextureCoords;
 
 /**
@@ -51,6 +53,8 @@ public abstract class AbstractGLColormappedImage extends AbstractGLImage
     protected ColorMapParameters colorMapParameters;
 
     protected GLCMTextureData data;
+
+    private GLDataMapping dataMapping;
 
     public AbstractGLColormappedImage(GLCMTextureData data,
             ColorMapParameters params,
@@ -144,6 +148,15 @@ public abstract class AbstractGLColormappedImage extends AbstractGLImage
     }
 
     /**
+     * Returns the GL format of the texture data
+     * 
+     * @return
+     */
+    public AbstractGLColorMapDataFormat getDataFormat() {
+        return data.getDataFormat();
+    }
+
+    /**
      * the absolute minimum value of a pixel in this image. {@link Double#NaN}
      * if no absolute minimum exists
      * 
@@ -233,6 +246,18 @@ public abstract class AbstractGLColormappedImage extends AbstractGLImage
             data.dispose();
             data = null;
         }
+        if (dataMapping != null) {
+            dataMapping.dispose();
+            dataMapping = null;
+        }
+    }
+
+    public void setDataMapping(GLDataMapping dataMapping) {
+        this.dataMapping = dataMapping;
+    }
+
+    public GLDataMapping getDataMapping() {
+        return dataMapping;
     }
 
     /*
