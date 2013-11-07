@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -43,7 +42,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20 Oct, 2012   1163      dhladky     Initial creation
+ * 20 Oct, 2012 1163       dhladky     Initial creation
+ * 07 Nov, 2013 2361       njensen      Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -54,7 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement(name = "serviceConfig")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ServiceConfig implements ISerializableObject {
+public class ServiceConfig {
 
     private static final String ALTERNATE_NAMING_SCHEMA = "ALTERNATE_NAMING_SCHEMA";
 
