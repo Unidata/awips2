@@ -183,24 +183,13 @@
     <bean id="errorHandler" class="org.apache.camel.builder.LoggingErrorHandlerBuilder"/>
     
     <!-- sets default settings of log component across all of edex -->
-    <bean id="defaultEdexLogFormatter" class="org.apache.camel.component.log.LogFormatter">
+    <!-- if log component beans are created and the exchangeFormatter property is set, they can't process URI parameters -->
+    <!-- this bean needs to be named 'logFormatter' for the log component to find it in the context -->
+    <bean id="logFormatter" class="org.apache.camel.component.log.LogFormatter" scope="prototype">
         <property name="maxChars" value="0" />
         <property name="showBody" value="false" />
         <property name="showCaughtException" value="true" />
         <property name="showStackTrace" value="true" />
-    </bean>
-    <bean id="log" class="org.apache.camel.component.log.LogComponent">
-        <property name="exchangeFormatter" ref="defaultEdexLogFormatter" />        
-    </bean>
-    
-    <!--  for those special times when you really want to see the content of the message -->
-    <bean id="showBodyLogFormatter" class="org.apache.camel.component.log.LogFormatter">
-        <property name="maxChars" value="0" />        
-        <property name="showCaughtException" value="true" />
-        <property name="showStackTrace" value="true" />
-    </bean>
-    <bean id="log-showbody" class="org.apache.camel.component.log.LogComponent">
-        <property name="exchangeFormatter" ref="showBodyLogFormatter" />        
     </bean>
 
     <bean id="serializationUtil" class="com.raytheon.uf.common.serialization.SerializationUtil" />    
