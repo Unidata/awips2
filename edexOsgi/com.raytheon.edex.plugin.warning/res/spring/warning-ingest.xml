@@ -76,7 +76,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log-showbody:warning?level=ERROR" />
+					<to uri="log:warning?level=ERROR&amp;showBody=true" />
 				</doCatch>
 			</doTry>
 		</route>
