@@ -25,7 +25,17 @@ import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
 import com.raytheon.uf.edex.wfs.v1_1_0.Wfs1_1_0Provider;
 
 /**
- * TODO Add Description
+ * Http handler factory for WFS
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 19, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

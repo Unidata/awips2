@@ -51,6 +51,23 @@ import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
 import com.raytheon.uf.edex.ogc.common.output.ServletOgcResponse;
 
+/**
+ * WFS http handler. Delegates WFS HTTP requests to providers using version
+ * negotiation.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class WfsHttpHandler extends OgcHttpHandler {
 
     protected final TreeMap<Version, IWfsProvider> providers;
