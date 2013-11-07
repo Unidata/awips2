@@ -23,20 +23,20 @@ import com.raytheon.uf.edex.ogc.common.spatial.VerticalEnabled;
 import com.raytheon.uf.edex.ogc.common.spatial.VerticalSpatialFactory;
 
 /**
- * TODO Add Description
+ * In memory data record filtering using vertical fields
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class VerticalFilter extends AbstractPdoFilter {
 

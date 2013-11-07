@@ -37,6 +37,17 @@ import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.spatial.CrsLookup;
 
 /**
+ * Creates goetools simple feature types and caches results internally.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 19, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

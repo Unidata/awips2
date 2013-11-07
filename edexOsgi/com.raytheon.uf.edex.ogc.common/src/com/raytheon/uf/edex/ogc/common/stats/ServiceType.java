@@ -13,8 +13,18 @@ package com.raytheon.uf.edex.ogc.common.stats;
  * Enumeration representing the types of operations that statistics are recorded
  * for within the IGCServiceRecorder
  * 
- * @author behemmi
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2013            behemmi     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author behemmi
+ * @version 1.0
  */
 public enum ServiceType {
     WFS, WCS, OGC, REGISTRY,

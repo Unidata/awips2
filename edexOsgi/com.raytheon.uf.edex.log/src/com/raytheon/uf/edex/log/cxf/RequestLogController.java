@@ -12,10 +12,21 @@ package com.raytheon.uf.edex.log.cxf;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * Singleton to control how incoming request information is logged.  Implemented as
- * a singleton to allow runtime control from a Web Client
+ * Singleton to control how incoming request information is logged. Implemented
+ * as a singleton to allow runtime control from a Web Client
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * September, 2013            behemmi     Initial creation
+ * 
+ * </pre>
+ * 
  * @author behemmi
- *
+ * @version 1.0
  */
 public class RequestLogController {
 
