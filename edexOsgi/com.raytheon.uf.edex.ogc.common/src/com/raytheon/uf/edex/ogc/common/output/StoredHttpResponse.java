@@ -16,20 +16,20 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * TODO Add Description
+ * OGC HTTP response adapter for capturing OGC HTTP responses as byte arrays
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 7, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class StoredHttpResponse implements IOgcHttpResponse {
 
