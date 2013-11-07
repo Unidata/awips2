@@ -42,6 +42,18 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
 import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 
 /**
+ * Utility methods and constants for forecast times. Used to find valid reftime,
+ * forecast time and valid time combinations from OGC layer metadata.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 3, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

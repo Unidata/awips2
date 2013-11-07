@@ -19,22 +19,21 @@ import com.raytheon.uf.edex.ogc.common.Version;
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
- * TODO Add Description
+ * Utility methods and constants for GML version parsing and comparison
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
-
 public class GmlUtils {
 
     public static final MimeType GML31_TYPE = new MimeType(

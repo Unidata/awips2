@@ -25,7 +25,6 @@ Require-Bundle: net.opengis;bundle-version="1.0.2",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.edex.log;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.ogc.common,
- com.raytheon.uf.edex.ogc.common.colormap,
  com.raytheon.uf.edex.ogc.common.db,
  com.raytheon.uf.edex.ogc.common.feature,
  com.raytheon.uf.edex.ogc.common.filter,

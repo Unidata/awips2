@@ -41,6 +41,17 @@ import net.opengis.filter.v_1_1_0.SpatialOpsType;
 import com.raytheon.uf.edex.wfs.filter.v1_1_0.AbstractCompOp.BinaryOp;
 
 /**
+ * Parses OGC Filter objects using visitor pattern.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 20, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

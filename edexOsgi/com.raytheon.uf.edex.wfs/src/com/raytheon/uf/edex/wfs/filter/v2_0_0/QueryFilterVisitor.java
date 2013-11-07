@@ -66,6 +66,16 @@ import com.vividsolutions.jts.geom.Geometry;
 /**
  * Visitor for building hibernate criterion from filter
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

@@ -27,10 +27,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-
 import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.PointType;
+
+import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 
 
 /**

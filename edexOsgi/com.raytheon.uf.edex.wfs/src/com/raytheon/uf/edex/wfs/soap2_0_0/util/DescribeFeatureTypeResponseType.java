@@ -17,20 +17,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.w3.xmlschema.Schema;
 
 /**
- * TODO Add Description
+ * SOAP response for WFS 2.0 describe feature type operation
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
