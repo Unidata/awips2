@@ -34,6 +34,17 @@ import net.opengis.gml.v_3_1_1.PointType;
 import com.vividsolutions.jts.geom.Point;
 
 /**
+ * Utility methods for creating JAXB objects for GML
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 15, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
