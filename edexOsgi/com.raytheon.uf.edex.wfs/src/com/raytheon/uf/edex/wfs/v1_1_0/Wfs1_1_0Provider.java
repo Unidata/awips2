@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.wfs.v1_1_0;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -68,7 +67,6 @@ import com.raytheon.uf.edex.wfs.provider.AbstractWfsProvider;
 import com.raytheon.uf.edex.wfs.provider.FeatureDescriber;
 import com.raytheon.uf.edex.wfs.provider.FeatureFetcher.CountedFeatures;
 import com.raytheon.uf.edex.wfs.provider.Gml31FeatureFetcher;
-import com.raytheon.uf.edex.wfs.provider.Transactor;
 import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
 import com.raytheon.uf.edex.wfs.request.DescFeatureTypeReq;
 import com.raytheon.uf.edex.wfs.request.FeatureQuery;
@@ -81,6 +79,22 @@ import com.raytheon.uf.edex.wfs.request.WfsRequest;
 import com.raytheon.uf.edex.wfs.request.WfsRequest.Type;
 import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
 
+/**
+ * WFS 1.1.0 implementation
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 22, 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class Wfs1_1_0Provider extends AbstractWfsProvider {
 
 	protected final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
@@ -164,17 +178,6 @@ public class Wfs1_1_0Provider extends AbstractWfsProvider {
 			resp.setError(ErrorType.BAD_REQ);
 		}
 		return resp;
-	}
-
-    /**
-     * Read input stream to string
-     * 
-     * @param in
-     * @return
-     * @throws IOException
-     */
-	protected String getXml(InputStream in) throws IOException {
-		return new java.util.Scanner(in).useDelimiter("\\A").next();
 	}
 
     /**

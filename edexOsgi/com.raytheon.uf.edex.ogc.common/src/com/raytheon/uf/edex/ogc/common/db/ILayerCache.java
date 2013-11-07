@@ -23,15 +23,39 @@ import java.util.List;
 
 import com.raytheon.uf.edex.ogc.common.OgcException;
 
+
 /**
- *
+ * Interface for retrieving layer information that may be in storage or cached
+ * in memory.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sept 11, 2012            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
+ * @param <D>
+ * @param <L>
  */
 public interface ILayerCache<D extends SimpleDimension, L extends SimpleLayer<D>> {
 
+    /**
+     * @return all layers
+     * @throws OgcException
+     */
     public List<L> getLayers() throws OgcException;
 
+    /**
+     * @param name
+     * @return layer with matching name or null if none found
+     * @throws OgcException
+     */
 	public L getLayer(String name) throws OgcException;
 
 }
