@@ -44,6 +44,16 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
 /**
  * Abstract implementation for sources backed by plugin data objects
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 26, 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

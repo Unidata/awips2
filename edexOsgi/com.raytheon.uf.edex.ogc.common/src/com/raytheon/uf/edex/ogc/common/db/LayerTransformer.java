@@ -54,15 +54,24 @@ import com.raytheon.uf.edex.ogc.common.StyleLookup;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- *
- *
+ * Converts layer objects from storage to intermediate OGC metadata layer
+ * objects.
+ * 
+ * <pre>
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 13, 2011            bclement     Initial creation
- *
- **/
+ *  Jun 13, 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ * @param <DIMENSION>
+ * @param <L>
+ */
 public class LayerTransformer<DIMENSION extends SimpleDimension, L extends SimpleLayer<DIMENSION>> {
 
     protected static IUFStatusHandler log = UFStatus

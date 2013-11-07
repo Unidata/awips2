@@ -24,20 +24,22 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 
 /**
- * TODO Add Description
+ * Factory for retrieving geotools coordinate reference system objects from
+ * native CRS URNs. Uses NativeCrsAuthority beans registered in spring to create
+ * new CRS objects. Uses an internal LRU cache.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 6, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class NativeCrsFactory {
 

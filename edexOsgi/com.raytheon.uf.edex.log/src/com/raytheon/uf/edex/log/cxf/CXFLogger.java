@@ -22,6 +22,22 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 
+/**
+ * Web Services interceptor that logs incoming requests
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * September, 2013            behemmi     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author behemmi
+ * @version 1.0
+ */
 public class CXFLogger extends org.apache.cxf.interceptor.LoggingInInterceptor {
 
 	protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());

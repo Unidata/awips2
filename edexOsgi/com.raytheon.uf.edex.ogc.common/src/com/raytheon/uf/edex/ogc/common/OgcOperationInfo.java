@@ -25,9 +25,23 @@ package com.raytheon.uf.edex.ogc.common;
 import java.util.LinkedList;
 import java.util.List;
 
+
 /**
- * @author bclement
+ * Contains operations metadata used to populated OGC capabilities documents.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ * @param <T>
  */
 public class OgcOperationInfo<T> {
 
