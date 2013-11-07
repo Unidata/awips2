@@ -44,8 +44,20 @@ import com.raytheon.uf.edex.wfs.request.FeatureQuery.QFilterType;
 import com.raytheon.uf.edex.wfs.request.SortBy.Order;
 
 /**
- * @author bclement
+ * Wrapper for WFS get feature request
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class GetFeatureReq extends WfsRequest {
 

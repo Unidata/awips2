@@ -30,6 +30,22 @@ import javax.xml.bind.annotation.XmlAttribute;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * Version object to track versions of OGC services
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class Version implements Comparable<Version>, Serializable {

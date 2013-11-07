@@ -59,12 +59,23 @@ import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
 import com.raytheon.uf.edex.ogc.common.feature.GmlUtils;
 import com.raytheon.uf.edex.ogc.common.http.MimeType;
-import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
+import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
 import com.raytheon.uf.edex.wfs.request.GetCapReq;
 
 /**
+ * Utility class for creating capabilities documents for WFS 2.0
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 17, 2012            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0
