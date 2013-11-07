@@ -48,7 +48,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
- * TODO Add Description
+ * Abstract base for filter parsing. Provides common utility methods.
  * 
  * <pre>
  * 

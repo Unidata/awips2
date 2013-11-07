@@ -23,6 +23,18 @@ import java.util.Map;
 
 
 /**
+ * Visitor pattern carry-on that allows for plugin specific configuration to be
+ * used by filter parser
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 22, 2011            bclement     Initial creation
+ * 
+ * </pre>
  * 
  * @author bclement
  * @version 1.0

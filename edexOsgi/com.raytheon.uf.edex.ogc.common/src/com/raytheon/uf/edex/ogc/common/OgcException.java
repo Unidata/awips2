@@ -20,6 +20,22 @@
 package com.raytheon.uf.edex.ogc.common;
 
 
+/**
+ * Exception class containing OGC specific error codes.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class OgcException extends Exception {
 
 	private static final long serialVersionUID = -5832661027013919871L;
