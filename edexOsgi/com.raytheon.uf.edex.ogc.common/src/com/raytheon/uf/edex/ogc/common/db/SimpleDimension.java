@@ -28,13 +28,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * 
- * Simple Dimension
+ * Layer dimension metadata storage object
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -51,7 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class SimpleDimension implements Comparable<SimpleDimension>,
-        Serializable, ISerializableObject {
+        Serializable {
 
     private static final long serialVersionUID = 4654482181227204619L;
 

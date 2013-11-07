@@ -9,6 +9,8 @@
  */
 package com.raytheon.uf.edex.wfs.provider;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +35,8 @@ import com.raytheon.uf.edex.wfs.request.SortBy;
 import com.raytheon.uf.edex.wfs.request.SortBy.Order;
 
 /**
+ * Abstract base for WFS providers for specific service versions. Provides
+ * common utility methods and constants.
  * 
  * <pre>
  * 
@@ -248,6 +252,22 @@ public abstract class AbstractWfsProvider implements IWfsProvider {
         }
 
         return otr;
+    }
+
+    /**
+     * Read input stream to string
+     * 
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    protected String getXml(InputStream in) throws IOException {
+        java.util.Scanner scanner = new java.util.Scanner(in);
+        try {
+            return scanner.useDelimiter("\\A").next();
+        } finally {
+            scanner.close();
+        }
     }
 
 }

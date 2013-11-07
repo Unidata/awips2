@@ -24,8 +24,20 @@ import net.opengis.wfs.v_1_1_0.TransactionType;
 import com.raytheon.uf.edex.wfs.reg.Unique;
 
 /**
- * @author bclement
+ * Wrapper for WFS transaction request
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class TransReq extends WfsRequest {
 

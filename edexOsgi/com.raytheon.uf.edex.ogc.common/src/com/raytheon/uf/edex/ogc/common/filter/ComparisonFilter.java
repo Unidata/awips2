@@ -18,20 +18,20 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.edex.ogc.common.util.ConvertService;
 
 /**
- * TODO Add Description
+ * In memory data record filtering by standard comparison operators
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class ComparisonFilter extends AbstractPdoFilter {
     
