@@ -195,25 +195,28 @@ public class RecordTileSetRenderable extends TileSetRenderable {
                 // All the images need staging, do bulk request
                 ColorMapData data = retrieveRecordData(bigTile);
 
-                Rectangle bigTileRect = bigTile.getRectangle();
-                for (int i = 0; i < numTiles; i += 1) {
-                    Tile tile = subTiles.get(i);
-                    DrawableImage image = images.get(i);
-                    if (image != null) {
-                        if (image.getImage().getStatus() == Status.UNLOADED) {
-                            Rectangle tileRect = tile.getRectangle();
-                            ColorMapData subData = new ColorMapData(
-                                    BufferSlicer.slice(data.getBuffer(),
-                                            tileRect, bigTileRect), new int[] {
-                                            tileRect.width, tileRect.height },
-                                    data.getDataType(), data.getDataUnit());
+                if (data != null) {
+                    Rectangle bigTileRect = bigTile.getRectangle();
+                    for (int i = 0; i < numTiles; i += 1) {
+                        Tile tile = subTiles.get(i);
+                        DrawableImage image = images.get(i);
+                        if (image != null) {
+                            if (image.getImage().getStatus() == Status.UNLOADED) {
+                                Rectangle tileRect = tile.getRectangle();
+                                ColorMapData subData = new ColorMapData(
+                                        BufferSlicer.slice(data.getBuffer(),
+                                                tileRect, bigTileRect),
+                                        new int[] { tileRect.width,
+                                                tileRect.height },
+                                        data.getDataType(), data.getDataUnit());
 
-                            callbacks.get(i).setRetrievedData(subData);
-                            try {
-                                image.getImage().stage();
-                            } catch (VizException e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        e.getLocalizedMessage(), e);
+                                callbacks.get(i).setRetrievedData(subData);
+                                try {
+                                    image.getImage().stage();
+                                } catch (VizException e) {
+                                    statusHandler.handle(Priority.PROBLEM,
+                                            e.getLocalizedMessage(), e);
+                                }
                             }
                         }
                     }

@@ -13,20 +13,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * TODO Add Description
+ * Interface for OGC HTTP output
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 7, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public interface IOgcHttpResponse {
 
