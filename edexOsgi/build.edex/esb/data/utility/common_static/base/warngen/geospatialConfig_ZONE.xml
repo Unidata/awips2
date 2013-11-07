@@ -198,10 +198,4 @@
   	</sortBy>
  </pointSource>
  
-<!-- Include Various geospatial XML files to create their objects. These are *NOT*
-turned on unless the corresponding .vm file is turned on in a given template's .vm file
--->  
-<include file="mileMarkers.xml"/>
-<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
-<include file="pointMarkers.xml"/>
-<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
