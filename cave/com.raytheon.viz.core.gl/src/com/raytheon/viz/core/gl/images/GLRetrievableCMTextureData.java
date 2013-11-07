@@ -38,8 +38,9 @@ import com.raytheon.viz.core.gl.internal.cache.ImageCache;
 import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
 
 /**
- * Object that represents a colormapped texture that can be unloaded and
- * reloaded from main/graphics memory using a retrieval callback
+ * {@link GLCMTextureData} that's backed by a {@link Buffer} that represents a
+ * colormapped texture that is cacheable and can be unloaded and reloaded from
+ * main/graphics memory using a retrieval callback
  * 
  * <pre>
  * 
@@ -47,7 +48,8 @@ import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 24, 2013            mschenke     Initial creation
+ * Jun 24, 2013            mschenke    Initial creation
+ * Oct 23, 2013 2492       mschenke    Extracted Buffer backing into super class   
  * 
  * </pre>
  * 
@@ -55,7 +57,7 @@ import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
  * @version 1.0
  */
 
-public class GLRetrievableCMTextureData extends GLCMTextureData implements
+public class GLRetrievableCMTextureData extends GLBufferCMTextureData implements
         IImageCacheable {
 
     private static Map<IColorMapDataRetrievalCallback, GLRetrievableCMTextureData> texMap = new HashMap<IColorMapDataRetrievalCallback, GLRetrievableCMTextureData>();
@@ -93,11 +95,6 @@ public class GLRetrievableCMTextureData extends GLCMTextureData implements
     private GLRetrievableCMTextureData(IColorMapDataRetrievalCallback callback) {
         super(null);
         this.callback = callback;
-    }
-
-    @Override
-    protected GLBufferColorMapData getDataObject() {
-        return (GLBufferColorMapData) super.getDataObject();
     }
 
     /*
@@ -224,18 +221,6 @@ public class GLRetrievableCMTextureData extends GLCMTextureData implements
         return 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.images.GLCMTextureData#isStaged()
-     */
-    @Override
-    public boolean isStaged() {
-        GLBufferColorMapData data = getDataObject();
-        // Override since we have our required data
-        return data != null && data.getData() != null;
-    }
-
     public double getValue(int x, int y) {
         GLBufferColorMapData data = getDataObject();
         double value = Double.NaN;
@@ -265,27 +250,4 @@ public class GLRetrievableCMTextureData extends GLCMTextureData implements
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.images.GLCMTextureData#uploadTexture2D(javax
-     * .media.opengl.GL, int, int, int)
-     */
-    @Override
-    protected void createTexture2D(GL gl, int type, int w, int h) {
-        gl.glTexImage2D(type, 0, getTextureInternalFormat(), w, h, 0,
-                getTextureFormat(), getTextureType(), getDataObject().getData()
-                        .rewind());
-    }
-
-    /**
-     * Returns the {@link Unit} associated with the data
-     * 
-     * @return the dataUnit
-     */
-    public Unit<?> getDataUnit() {
-        GLBufferColorMapData data = getDataObject();
-        return data != null ? data.getDataUnit() : null;
-    }
 }

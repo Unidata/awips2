@@ -15,20 +15,20 @@ import java.util.List;
 import net.opengis.wfs.v_2_0_0.DescribeStoredQueriesType;
 
 /**
- * TODO Add Description
+ * Request wrapper for WFS describe stored query request
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 8, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public class DescQueryReq extends WfsRequest {
 
