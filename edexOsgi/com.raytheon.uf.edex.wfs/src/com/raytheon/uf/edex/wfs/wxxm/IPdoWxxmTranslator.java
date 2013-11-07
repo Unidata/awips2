@@ -16,7 +16,7 @@ import com.raytheon.uf.edex.wfs.WfsFeatureType;
 import com.raytheon.uf.edex.wfs.reg.IPdoGmlTranslator;
 
 /**
- * TODO Add Description
+ * Interface for translating between data records and WXXM GML JAXB objects
  * 
  * <pre>
  * 

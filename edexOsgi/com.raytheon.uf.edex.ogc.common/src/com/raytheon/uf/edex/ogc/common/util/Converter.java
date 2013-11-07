@@ -12,20 +12,20 @@ package com.raytheon.uf.edex.ogc.common.util;
 import java.lang.reflect.Field;
 
 /**
- * TODO Add Description
+ * Generic object converter interface for OGC
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public interface Converter {
 
