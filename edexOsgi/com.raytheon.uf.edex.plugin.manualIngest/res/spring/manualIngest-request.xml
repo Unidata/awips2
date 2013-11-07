@@ -15,7 +15,7 @@
 		        <to uri="jms-durable:queue:external.dropbox"/>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log-showbody:manual?level=ERROR" />
+					<to uri="log:manual?level=ERROR&amp;showBody=true" />
 				</doCatch>
 			</doTry>
 		</route>
