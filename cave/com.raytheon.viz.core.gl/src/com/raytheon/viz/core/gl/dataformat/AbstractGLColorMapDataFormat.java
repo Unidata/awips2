@@ -217,7 +217,7 @@ public abstract class AbstractGLColorMapDataFormat {
     protected Buffer handleBufferSizing(GLColorMapData data, Buffer buffer,
             int[] dimensions) {
         int sliceWidth = dimensions[0] * getValuesPerPixel();
-        int sliceHeight = dimensions[1];
+        int sliceHeight = dimensions.length > 1 ? dimensions[1] : 1;
         int paddedSliceWidth = getAlignedWidth(sliceWidth);
 
         int totalDataSize = buffer.capacity();
