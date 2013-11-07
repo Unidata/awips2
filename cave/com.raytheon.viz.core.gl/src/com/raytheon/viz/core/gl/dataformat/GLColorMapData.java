@@ -54,6 +54,10 @@ public class GLColorMapData {
         this.dimensions = dimensions;
     }
 
+    public AbstractGLColorMapDataFormat getDataFormat() {
+        return dataFormat;
+    }
+
     public int getTextureFormat() {
         return dataFormat.getTextureFormat();
     }
@@ -91,6 +95,10 @@ public class GLColorMapData {
             return 0;
         }
         return dimensions[index];
+    }
+
+    public int getNumDimensions() {
+        return dimensions.length;
     }
 
     public int[] getDimensions() {
