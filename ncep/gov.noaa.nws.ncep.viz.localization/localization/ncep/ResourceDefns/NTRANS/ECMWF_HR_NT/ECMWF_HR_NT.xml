@@ -5,7 +5,7 @@
     <resourceCategory>NTRANS</resourceCategory>
 	<resourceParameters>
 pluginName=ntrans
-modelName=ecmwf_hr
+modelName=ecmwf-hr
 	</resourceParameters>
     <rscImplementation>NTRANS</rscImplementation>
     <subTypeGenerator>metafileName,productName</subTypeGenerator>
