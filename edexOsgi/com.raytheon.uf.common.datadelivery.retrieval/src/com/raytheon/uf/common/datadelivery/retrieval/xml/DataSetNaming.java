@@ -29,6 +29,7 @@ package com.raytheon.uf.common.datadelivery.retrieval.xml;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20 Oct, 2012   1163      dhladky     Initial creation
+ * 07 Nov, 2013   2361      njensen      Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -40,13 +41,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DataSetNaming implements ISerializableObject {
+public class DataSetNaming {
 
     @XmlAttribute(name = "name")
     @DynamicSerializeElement
