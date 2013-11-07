@@ -34,7 +34,7 @@
 * a text file requires no code change as long as the parameters don't change.
 * That logic could perhaps change as well.
 *
-* The routine first uses standard C calls to read the netcdf file.  The structure
+* The routine first uses standard C calls to read the NetCDF file.  The structure
 * of that file can be reviewed by reading the GFE help reference section on the
 * ifpnetCDF command.
 *
@@ -61,11 +61,15 @@
 *
 * Version 4 allows users to combine all GRIB messages into one file.  This becomes useful
 * when dealing with a lot of files for a parameter such as 1 hour QPF or temperature that
-* goes out to 240 hours.
+* goes out to num_hours hours.
 *
 * This is still a work in progress and code can always be improved to increase efficiency.
 *
 * Oct 2011 - PTilles - added read of new token for defining number of days of data to process
+*
+* Mar 2012 - PTilles - added functionality to allow for more than 10 days (more than 240
+*            hours) of data in one file to be processed. This looks for a value of '10'
+*            in the 5th parameter of gfe2grib.txt.
 *
 * Sep 2012 -Dan Stein - The original nc2grib program assumed the first variable in the
 * NetCDF file (variable[0]) would be the data variable to be converted to grib format. The
@@ -93,8 +97,13 @@
 #include "packgrib.h"
 #include "getopt.h"
 
-
 #include "cmapf.h"
+
+/*#include "version_info.h"*/
+#define VERSION_NAME "AWIPS II"
+#define VERSION_NUMBER "13.5.2"
+#define VERSION_DATE "(Oct 30, 2013)"
+
 
 #define SECINHR         3600.
 #define PATH_LEN        500
@@ -200,23 +209,24 @@ int nc2grib_main (int argc, char *argv[])
    char adayhrmin[7]={'\0'};            /* day, hour, minute info attached to WMO header */
 
 
-
-
    int numgfeparms=0;
 
-
+   char cnum[3] = {'\0'};
+   int num_hours = 0;  /* (num_days * 24) */
+   /* number of days of data to process - read from token - previously hard coded as 10 */
+   /* default value = 10 - if token not found then default value used */
+   int num_days = 0;
 
    int numgfiles=0;    /* number of grib files for combining files into one if desired */
-   char *gfiles[240];  /* array of char pointers for holding grib filenames if combining files */
 
 
 
    /* for reading the NetCDF file */
-   int NetCDF_ID;                /* Netcdf id */
-   int ndims;                /* number of dimensions */
+   int NetCDF_ID;              /* NetCDF id */
+   int numDims;                /* number of dimensions */
    int numVars;                /* number of variables */
-   int ngatts;               /* number of attributes */
-   int recdim;
+   int numGlobalAttributes;    /* number of attributes */
+   int unlimitedDimensionID;
    long start[] = {0, 0, 0}; /* start at first value */
    long start1r[] = {0, 0};  /* accounts for netcdf with only 1 record and 2 dimensions of y,x */
 
@@ -261,9 +271,9 @@ int nc2grib_main (int argc, char *argv[])
    double *latlonLL, *latlonUR, lonOrigin,*domainOrigin, *domainExtent, *latLonOrigin;
    int *gridPointLL, *gridPointUR;
    double x1, y1, x2, y2, lat1, lon1, lat2, lon2;
-   nc_type vt_type, dn_type, ll_type, d_type, g_type;
+   nc_type dataType, dn_type, ll_type, d_type, g_type;
    nc_type varDataType;
-   int vt_len, ll_len, d_len, g_len;
+   int attributeLength, ll_len, d_len, g_len;
    int variableID, *gridSize;
    int numberOfVariableDimensions;
    int dimensionIDVector[MAX_VAR_DIMS];
@@ -274,7 +284,7 @@ int nc2grib_main (int argc, char *argv[])
    char cdfunits[MAX_NC_NAME]={'\0'};
    char projection[MAX_NC_NAME]={'\0'};
    long dim_size;
-   float *cdfvargrid=NULL;   /* this is the main array holding the actual data values */
+   float *cdfDataArray=NULL;   /* this is the main array holding the actual data values */
    float arraysize;
 
    long *validTimes;
@@ -361,7 +371,7 @@ int nc2grib_main (int argc, char *argv[])
 
    output_buffer = (size_t *) malloc (sizeof(size_t)*odim);  /* output buffer used when writing GRIB message */
 
-   int variableFound = FALSE; /* Is the variable present in the NetCDF file? Stein Sep 2012 */
+   int variableFound = FALSE; /* Is the variable present in the NetCDF file? */
 
 /*   output_buffer = (int *) malloc (sizeof(int)*odim);  /* output buffer used when writing GRIB message */
 
@@ -378,7 +388,7 @@ int nc2grib_main (int argc, char *argv[])
 
 /* parse command line arguments */
 
-   while ((c = getopt(argc, argv, ":n:i:t:o::b:p:g:Nfrqhv1")) != -1) {
+   while ((c = getopt(argc, argv, ":n:i:t:o::b:p:g:Nfrqhv1V")) != -1) {
 
 
         switch (c) {
@@ -710,6 +720,10 @@ int nc2grib_main (int argc, char *argv[])
 	case '1':            /* process only one record of NetCDF, useful for debugging */
 	      time1flag++;
 	   break;
+        case 'V':
+	      printf("version number = %s-%s\n",VERSION_NAME,VERSION_NUMBER);
+              exit(0);
+           break;
         case ':':       /* for options that need an operand */
 	   if(optopt != 'o')
 	   {
@@ -738,7 +752,8 @@ int nc2grib_main (int argc, char *argv[])
            printf("Unrecognized program command line option: -%c\n", optopt);
            errflag++;
         }
-    }
+    
+   } /* while c = getopt */
 
 
     if (errflag || helpflag || argc==1 || ( iflag==0 || pflag==0) )
@@ -753,6 +768,24 @@ int nc2grib_main (int argc, char *argv[])
 	return USAGE;
     }
 
+/* Print CHPS build number */
+   printf("version number = %s-%s\n",VERSION_NAME,VERSION_NUMBER);
+   
+   if(getAppsDefaults("nc2g_num_days",cnum) == -1)
+   {
+      num_days = 10;
+   }
+   else
+   {
+
+      num_days = atoi(cnum);
+   }
+
+   num_hours = num_days * 24;
+
+   char *gfiles[num_hours];  /* array of char pointers for holding grib filenames if combining files */
+
+   printf("\n number of days to process = %d \n", num_days);
 
    if(nc_getAppsDefaults("nc2g_app_dir",appsdir) == -1)
    {
@@ -805,7 +838,7 @@ int nc2grib_main (int argc, char *argv[])
 /**************************************************************************/
 /* debugflag > 0; debug option is on */
 
-   if(debugflag>0)
+   if(debugflag)
       printf("\n Debug option on...reading from GFE to GRIB configuation file:\n" \
              " %s\n\n",file_path);
 
@@ -817,9 +850,11 @@ int nc2grib_main (int argc, char *argv[])
       if(fileline[0] != '#')   /* check for comments */
       {
 
-         sscanf(fileline,"%s%s%d%d%d%d%d",gfe2grib.GFEParameterName, gfe2grib.gfename, &gfe2grib.processid,
-                &gfe2grib.gribnum,&gfe2grib.decscale, &gfe2grib.timerange, &gfe2grib.timeunit);
-         if(debugflag>0)
+         sscanf(fileline,"%s%s%d%d%d%d%d",gfe2grib.GFEParameterName,
+        		gfe2grib.gfename, &gfe2grib.processid,
+                &gfe2grib.gribnum,&gfe2grib.decscale, &gfe2grib.timerange,
+                &gfe2grib.timeunit);
+         if(debugflag)
             printf(" DEBUG: Read in from gfe2grib.txt %s %s %d %d %d %d %d	\n",gfe2grib.GFEParameterName, gfe2grib.gfename, gfe2grib.processid,
                    gfe2grib.gribnum,gfe2grib.decscale, gfe2grib.timerange, gfe2grib.timeunit);
 
@@ -828,12 +863,12 @@ int nc2grib_main (int argc, char *argv[])
 
          if (!(strcmp(gfe2grib.GFEParameterName, process)))
          {
-
             found = 1;
             break;
          }
-      }
-   }
+      }  /* If not a comment */
+
+   }  /* While we haven't reach the end of the gfe2grib.txt file */
 
 
 
@@ -851,12 +886,11 @@ int nc2grib_main (int argc, char *argv[])
    fclose(fp);
 
 
-   /*   open the Netcdf file*/
+   /*   open the NetCDF file*/
 
    if(inpath==NULL)
    {
       inpath=(char *) malloc(sizeof(char)*(FILE_LEN+1));
-
 
       if(inpath==NULL)
       {
@@ -871,12 +905,13 @@ int nc2grib_main (int argc, char *argv[])
    	   printf(" ERROR: Invalid token value for token \"netcdf_dir\".\n\t Program exit.");
 	   return APSDEFERR;
       }
-      else if (debugflag>0)
+      else if (debugflag)
       {
            printf(" Default path for the input NetCDF file not specified...Will use the following:\n" \
 	          " %s\n",inpath);
       }
-   }
+   }  /* if inpath is NULL */
+
 /***************************************************************************/
    else if(debugflag)
       printf(" Will attempt to read NetCDF file from this path:\n" \
@@ -895,32 +930,21 @@ int nc2grib_main (int argc, char *argv[])
 
    if (NetCDF_ID==-1)
    {
-      printf("\n ERROR: Could not open the netcdf file: %s\n", fn);
+      printf("\n ERROR: Could not open the NetCDF file: %s\n", fn);
       return CDFERR;
    }
    else
    {
-      printf ("\n Netcdf file %s was opened successfully.\n\n",fn);
+      printf ("\n NetCDF file %s was opened successfully.\n\n",fn);
    }
 
-   /* Inquire about the Netcdf file: No.of dimensions, No.of variables,
-                                   No. of global attributes etc.*/
+   /* Inquire about the NetCDF file: No.of dimensions, No.of variables, No.of
+    * global attributes etc.
+    */
 
-   ncinquire (NetCDF_ID, &ndims, &numVars, &ngatts, &recdim);
-/*************************************************************************/
-/* debug */
+   ncinquire (NetCDF_ID, &numDims, &numVars, &numGlobalAttributes, &unlimitedDimensionID);
 
-if (debugflag >0)
-{
-      printf("\n Debug option on.  Debug info from reading the netcdf file follows:\n\n");
-      printf (" Number of dimensions for this netcdf file is: %d\n",ndims);
-      printf (" Number of variables for this netcdf file is: %d\n",numVars);
-      printf (" Number of global attributes for this netcdf file is: %d\n",ngatts);
-}
-/*************************************************************************/
-
-   /**************************************************************************
-    * Sep 2012 - Stein The utility that takes GFE data and converts it to
+   /* Sep 2012 - Stein The utility that takes GFE data and converts it to
     * NetCDF format is ifpNetCDF. To the best of my knowledge, this utility
     * always puts exactly one variable and exactly one history variable into
     * each NetCDF file. The section of code below originally assumed that the
@@ -930,7 +954,7 @@ if (debugflag >0)
     * For whatever reason, this order was changed in AWIPS-II so that the
     * history variable showed up first and the program wouldn't work. I was
     * tasked with correcting this program to make it order independent. My
-    * solution was to loop through all the variables to see whether the
+    * solution is to loop through all the variables to see whether the
     * variable we're looking for is in the NetCDF file.  If it is, variableID
     * is set to it's value. If not found, the program will exit as it did
     * before.
@@ -989,11 +1013,6 @@ if (debugflag >0)
     * end of the section of code that I changed.
     */
 
-
-
-
-
-
    if(numberOfVariableDimensions==3)  /* in some cases, this may not be true if file is produced from MPE/DQC */
    {
      for (i=0; i<numberOfVariableDimensions; i++)
@@ -1014,17 +1033,18 @@ if (debugflag >0)
 	   return CDFERR;
         }
 /*************************************************************************/
-if (debugflag >0)
+		if (debugflag)
 {
     printf(" DEBUG: cdfvar dimension %d: name=%s size=%ld\n",i+1,dimname,dim_size);
 }
 /*************************************************************************/
 
-      }
-   }
+      }  /* for i */
+
+   }  /* if (numberOfVariableDimensions == 3) */
+
    else if (numberOfVariableDimensions==2)
    {
-
 
      for (i=0; i<numberOfVariableDimensions; i++)
      {
@@ -1036,14 +1056,16 @@ if (debugflag >0)
         else if (i==1)
            x=dim_size;
 /*************************************************************************/
-if (debugflag >0)
+if (debugflag)
 {
     printf(" DEBUG: cdfvar dimension %d: name=%s size=%ld\n",i+1,dimname,dim_size);
 }
 /*************************************************************************/
 
-     }
-   }
+     }  /* for i */
+
+   }  /* else if (numberOfVariableDimensions == 2) */
+
    else
    {
       printf("\n nc2grib is not coded to handle %d number of dimensions for variable %s.\n" \
@@ -1055,17 +1077,29 @@ if (debugflag >0)
 
 
    /* get variable attributes */
+   /* get the values of NetCDF attributes given the variable ID and name */
 
    arraysize = x * y;
 
-   cdfvargrid = (float *) malloc (sizeof(float)*arraysize);
+   cdfDataArray = (float *) malloc (sizeof(float) * arraysize);
 
    long count[]={1,y,x};
    long count1r[]={y,x};
 
-   ncattinq(NetCDF_ID,variableID,"validTimes",&vt_type,&vt_len);
+if (debugflag)
+{
+   printf ("DEBUG: ncattinq call Before\n"); 
+}
 
-   validTimes = (long *) malloc(vt_len * nctypelen(vt_type));
+   /* Get Information about an Attribute (att inquiry) */
+   ncattinq(NetCDF_ID, variableID, "validTimes", &dataType, &attributeLength);
+   
+if (debugflag)
+{
+   printf ("DEBUG: ncattinq call After\n"); 
+}
+
+   validTimes = (long *) malloc (attributeLength * nctypelen(dataType));
 
    ncattget(NetCDF_ID, variableID, "validTimes", validTimes);
 
@@ -1077,6 +1111,8 @@ if (debugflag >0)
 
    ncattget(NetCDF_ID, variableID, "projectionType", projection);
 
+
+   /* Get Information about an Attribute (att inquiry) */
    ncattinq(NetCDF_ID,variableID,"latLonLL",&ll_type,&ll_len);
 
    latlonLL = (double *) malloc(ll_len * nctypelen(ll_type));
@@ -1087,30 +1123,40 @@ if (debugflag >0)
 
    ncattget(NetCDF_ID, variableID, "latLonUR", (void *) latlonUR);
 
+
+   /* Get Information about an Attribute (att inquiry) */
    ncattinq(NetCDF_ID,variableID,"domainOrigin",&d_type,&d_len);
 
    domainOrigin = (double *) malloc(d_len * nctypelen(d_type));
 
    ncattget(NetCDF_ID, variableID, "domainOrigin", (void *) domainOrigin);
 
+
+   /* Get Information about an Attribute (att inquiry) */
    ncattinq(NetCDF_ID,variableID,"domainExtent",&d_type,&d_len);
 
    domainExtent = (double *) malloc(d_len * nctypelen(d_type));
 
    ncattget(NetCDF_ID, variableID, "domainExtent", (void *) domainExtent);
 
+
+   /* Get Information about an Attribute (att inquiry) */
    ncattinq(NetCDF_ID,variableID,"gridSize",&g_type,&g_len);
 
    gridSize = (int *) malloc(g_len * nctypelen(g_type));
 
    ncattget(NetCDF_ID, variableID, "gridSize", (void *) gridSize);
 
+
+   /* Get Information about an Attribute (att inquiry) */
    ncattinq(NetCDF_ID,variableID,"gridPointLL",&g_type,&g_len);
 
    gridPointLL = (int *) malloc(g_len * nctypelen(g_type));
 
    ncattget(NetCDF_ID, variableID, "gridPointLL", (void *) gridPointLL);
 
+
+   /* Get Information about an Attribute (att inquiry) */
    ncattinq(NetCDF_ID,variableID,"gridPointUR",&g_type,&g_len);
 
    gridPointUR = (int *) malloc(g_len * nctypelen(g_type));
@@ -1119,8 +1165,8 @@ if (debugflag >0)
 
    /* initialize the array to missing value */
 
-   for (i=0;i<arraysize;i++)
-      (*(cdfvargrid+i)) = xmissing;
+   for (i = 0; i < arraysize; ++i)
+	  cdfDataArray[i] = xmissing;
 
 
 /*************************************************************************/
@@ -1128,7 +1174,7 @@ if (debugflag >0)
 {
 
        printf(" DEBUG: siteID = %s\n",siteID);
-       printf(" DEBUG: number of valid times = %d type = %d\n",vt_len, vt_type);
+       printf(" DEBUG: number of valid times = %d type = %d\n",attributeLength, dataType);
        printf(" DEBUG: descriptName = %s\n",descriptName);
        printf(" DEBUG: projection = %s\n",projection);
 
@@ -1344,7 +1390,7 @@ if (debugflag >0)
    }
    else
    {
-	   printf(" Unknown projection read from netcdf...Exiting");
+	   printf(" Unknown projection read from NetCDF...Exiting");
 	   return CDFERR;
 
 	   /* might account for this as this is a lat,lon grid */
@@ -1602,16 +1648,15 @@ if (debugflag>0)
     */
 
 
-   if (time1flag>0)   /* for testing only to do just the first valid time from the netcdf file */
-      vt_len=2;
+   if (time1flag>0)   /* for testing only to do just the first valid time from the NetCDF file */
+      attributeLength=2;
 /****************************************************************************/
 if (debugflag>0)
    printf("\n ***Entering main loop to process NetCDF records(s) into GRIB files*** \n\n");
 /****************************************************************************/
 
 
-   for (m=0; m<vt_len; m+=2)
-
+   for (m = 0; m < attributeLength; m += 2)  
    {
 
 	status = timet_to_yearsec_ansi((time_t) *(validTimes+m+1), validtime);
@@ -1699,7 +1744,7 @@ if (debugflag>0)
 
 	   fcsth=0;
 
-	   /* In the case of multiple accumulation periods in the same netcdf file, will need to attach this to the
+	   /* In the case of multiple accumulation periods in the same NetCDF file, will need to attach this to the
 	      filename in both cases.  Can't reuse fcsth as it might be needed to determine the WMO header for any
 	      future NPVU estimate/observed grids.
 	   */
@@ -1714,14 +1759,14 @@ if (debugflag>0)
 
 
 
-	   if (esth > 240 || esth < 0)
+	   if (esth > num_hours || esth < 0)
            {
-              printf(" The estimated/observed time period is either less than 0 or greater than 10 days (240 hours).\n" \
+              printf(" The estimated/observed time period is either less than 0 or greater than %d hours.\n" \
                      " Therefore, valid times within the input NetCDF filename may not have been generated \n" \
 		     " correctly.  Or this is actually a forecast grid and the -b option should be used so it \n" \
 		     " will be processed correctly.  Check your options and ensure this is an estimate or observed grid\n" \
 		     " You could also try to generate the file again.\n" \
-		     " For debug esth = %d\n",esth);
+		     " For debug esth = %d\n",num_hours, esth);
               return FILEERR;
            }
 
@@ -1784,13 +1829,13 @@ if (debugflag>0)
    printf(" DEBUG: fcsth = %d timediff=%f valid time = %ld basis time_t = %ld\n",fcsth, timediff,(*(validTimes+m+1)), basetime_t);
 /*************************************************************/
 
-	   if (fcsth > 240 || fcsth < 0)
+	   if (fcsth > num_hours || fcsth < 0)
            {
-              printf(" The forecast time is either less than 0 or greater than 10 days (240 hours).\n" \
+              printf(" The forecast time is either less than 0 or greater than %d hours.\n" \
                      " Therefore, the basis time may not be specified correctly or may need to be specified \n" \
 		     " on the command line according to guidance.  Please check your command options or \n" \
 		     " or the NetCDF file creation and try again.\n" \
-		     " for debug fcsth = %d\n",fcsth);
+		     " for debug fcsth = %d\n",num_hours, fcsth);
               return FILEERR;
            }
 
@@ -1816,10 +1861,12 @@ if (debugflag >0)
 	       grib_lbl[16]=fcsth-(int)(timediff/SECINHR); /* P1 */
 	       grib_lbl[17]=fcsth;                         /* P2 */
 	   }
-	   else if (gfe2grib.timerange==0)
+	   else if (gfe2grib.timerange==0 || gfe2grib.timerange == 10)
 	   {
 	       /* this is for a forecast product valid at reference time + P1 and
 	          at present using this for PETF
+                  OR
+                  case of forecast hour > 255
 	       */
 
 	       grib_lbl[16]=fcsth;                     /* P1 */
@@ -1842,13 +1889,13 @@ if (debugflag >0)
 
            start[0]=(long) (m/2);
 
-           status = ncvarget(NetCDF_ID,variableID,start,count,cdfvargrid);
+           status = ncvarget(NetCDF_ID,variableID,start,count,cdfDataArray);
 	}
 	else if (numberOfVariableDimensions==2)
 	{
 	   start1r[0]=(long) (m/2);
 
-           status = ncvarget(NetCDF_ID,variableID,start1r,count1r,cdfvargrid);
+           status = ncvarget(NetCDF_ID,variableID,start1r,count1r,cdfDataArray);
 	}
 
         if (status != NC_NOERR)
@@ -1862,7 +1909,7 @@ if (debugflag >0)
         for (i=0;i<arraysize;i++)
         {
 
-           if((*(cdfvargrid+i))> xmissing)
+           if((*(cdfDataArray+i))> xmissing)
 	   {
 	      mischek=1;
 	      break;
@@ -1880,7 +1927,7 @@ if (debugflag >0)
         for (i=0;i<arraysize;i++)
         {
 
-           if((*(cdfvargrid+i))!= 0.)
+           if((*(cdfDataArray+i))!= 0.)
 	   {
 	      zerochek=1;
 	      break;
@@ -1904,9 +1951,9 @@ if (debugflag >0)
 
               for (i=0;i<arraysize;i++)
               {
-	         if((*(cdfvargrid+i))> xmissing)
+	         if((*(cdfDataArray+i))> xmissing)
 
-                	*(cdfvargrid+i) *= 25.4; /* convert inches to mm */
+                	*(cdfDataArray+i) *= 25.4; /* convert inches to mm */
 
               }
 	   }
@@ -1920,9 +1967,9 @@ if (debugflag >0)
 
               for (i=0;i<arraysize;i++)
               {
-	         if((*(cdfvargrid+i))> xmissing)
+	         if((*(cdfDataArray+i))> xmissing)
 
-	                *(cdfvargrid+i) =  ((*(cdfvargrid+i)-32) * 5/9) + 273.16; /* convert F to K */
+	                *(cdfDataArray+i) =  ((*(cdfDataArray+i)-32) * 5/9) + 273.16; /* convert F to K */
 
               }
 
@@ -1931,9 +1978,9 @@ if (debugflag >0)
 	   {
               for (i=0;i<arraysize;i++)
               {
-	         if((*(cdfvargrid+i))> xmissing)
-
-                	*(cdfvargrid+i) +=  273.16; /* convert C to K */
+	         if((*(cdfDataArray+i))> xmissing)
+	     	      
+                	*(cdfDataArray+i) +=  273.16; /* convert C to K */
 
               }
 	   }
@@ -1953,9 +2000,9 @@ if (debugflag >0)
 
               for (i=0;i<arraysize;i++)
               {
-	         if((*(cdfvargrid+i))> xmissing)
+	         if((*(cdfDataArray+i))> xmissing)
 
-                	*(cdfvargrid+i) *= 0.3048; /* convert feet to meters */
+                	*(cdfDataArray+i) *= 0.3048; /* convert feet to meters */
 
               }
 	   }
@@ -1983,9 +2030,8 @@ if (debugflag >0)
 }
 /*************************************************************************/
 
-
-        status = packgrib(grib_lbl,pds_ext,&iplen,cdfvargrid,&idim,&xmissing,
-                          output_buffer,&odim,&length);
+    status = packgrib(grib_lbl, pds_ext, &iplen, cdfDataArray, &idim,
+        		          &xmissing, output_buffer,&odim,&length);
 
    	if (status !=0)
    	{
@@ -2206,7 +2252,7 @@ if(debugflag)
 
 		       sprintf(ofn,ofn,fcsth);    /* standard forecast product using forecast hours past basis time */
 
-              }
+		  }  /* if (bflag) */
 	      else       /* without a basis time, this has to be an estimated/observed product using the valid time in
 	                    the output file.  Note that if "%%" is NULL and bflag == 0, specifying esth here is
 			    ignored in the output filename.
@@ -2340,7 +2386,7 @@ if(debugflag>0)
 
 
 
-		if(bflag && qflag==0)     /* old - strstr(process,"QPE")==NULL && strstr(process,"qpe")==NULL) */
+		if(bflag && qflag==0)     /* old - strstr(GFEParameterName,"QPE")==NULL && strstr(process,"qpe")==NULL) */
 		{
 
 		   if(debugflag>0)
@@ -2357,6 +2403,7 @@ if(debugflag>0)
            /* first write out the main GRIB file using the copygb command without the header determined above
 		   to a temporary holding file.  This file will now contain the QPF forecast on GRID218 at 10km
 		   resolution */
+
 		   copygb_main_(command);
 		   /* status = system(command); */
 		}
@@ -2768,8 +2815,8 @@ if (debugflag >0)
 
    if(output_buffer!=NULL)
       free(output_buffer);
-   if(cdfvargrid!=NULL)
-      free(cdfvargrid);
+   if(cdfDataArray!=NULL)
+      free(cdfDataArray);
    if(gribdir!=NULL)
       free(gribdir);
 
@@ -2868,15 +2915,15 @@ int timet_to_userformat_ansi(time_t timet, char *ansi, char* userformat)
 int display_usage(void)
 {
         printf("\n\n nc2grib GFE NetCDF to GRIB1 translator, usage:\n\n" \
-              "./nc2grib.LX -n (input netcdf path) -i (netcdf file) -t (output grib path) -o (output grib file) \n" \
+              "./nc2grib.LX -n (input NetCDF path) -i (NetCDF file) -t (output grib path) -o (output grib file) \n" \
 	      "             -b (basis time) -p (process ID) -g (one GRIB filename) -f -N -v -h\n" \
 	      "where:\n" \
-	      "-n (input netcdf path)            Refers to the path containing the NetCDF file\n" \
-	      "   Optional, requires argument    generated by the GFE routine ifpnetCDF.\n" \
+	      "-n (input NetCDF path)            Refers to the path containing the NetCDF file\n" \
+	      "   Optional, requires argument    generated by the GFE routine ifpNetCDF.\n" \
 	      "                                  If not used, the token netcdf_dir will be used \n" \
 	      "                                  to retrieve this information\n\n" \
-	      "-i (input netcdf file)            Refers to the NetCDF file generated in the format\n" \
-	      "   Required, requires argument    used by the GFE routine ifpnetCDF.\n\n" \
+	      "-i (input NetCDF file)            Refers to the NetCDF file generated in the format\n" \
+	      "   Required, requires argument    used by the GFE routine ifpNetCDF.\n\n" \
 	      "                                  NOTE that this command line option and its argument\n" \
 	      "                                  must be specified in the call to nc2grib.\n\n" \
 	      "-t (output grib path)             Refers to the path of the GRIB file(s) generated by nc2grib.\n" \
@@ -2893,7 +2940,7 @@ int display_usage(void)
 	      "   Required for forecast          Example: -b 2009051412 \n" \
 	      "   grids and QPE grids going to   \n" \
 	      "   NPVU,requires argument         \n\n" \
-	      "-p (process ID)                   Refers to the parameter process ID relating to a GFE parameter\n" \
+	      "-p (GFEParameterName ID)                   Refers to the parameter process ID relating to a GFE parameter\n" \
 	      "   Required, requires argument    such as QPF. Needs to match against a process in the gfe2grib.txt\n" \
 	      "                                  configuration file.\n" \
 	      "                                  NOTE that this command line option and its argument \n" \
@@ -2935,10 +2982,6 @@ int display_usage(void)
 
 	      return 0;
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob9d/ohd/pproc/src/nc2grib/RCS/main_nc2grib.c,v $";
- static char rcs_id2[] = "$Id: main_nc2grib.c,v 1.2 2010/06/14 15:04:32 millerd Exp $";}
-/*  ===================================================  */
-
 }
+
 
