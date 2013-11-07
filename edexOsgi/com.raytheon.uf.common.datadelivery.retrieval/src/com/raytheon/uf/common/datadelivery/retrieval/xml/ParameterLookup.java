@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -43,8 +42,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            jpiatt     Initial creation.
- * Oct 20, 2012  1163     dhladky    speed it up
+ * Mar 1, 2012             jpiatt      Initial creation.
+ * Oct 20, 2012  1163      dhladky     speed it up
+ * Nov 07, 2013  2361      njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -55,7 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement(name = "ParameterLookup")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ParameterLookup implements ISerializableObject {
+public class ParameterLookup {
 
     @XmlElements({ @XmlElement(name = "parameterConfig", type = ParameterConfig.class) })
     @DynamicSerializeElement
