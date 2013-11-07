@@ -66,9 +66,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * Jul 23, 2013            bclement     Initial creation
  * Aug 08, 2013 2097       dhladky      Made operational
  * Aug 30, 2013 2098       dhladky      Improved
- * Spet 2, 2013 2098       dhladky      Updated how times are managed.
+ * Sept 2, 2013 2098       dhladky      Updated how times are managed.
  * Sept 30, 2013 1797      dhladky      Generics
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Nov 6,  2013 2525       dhladky      Stop appending "/wfs"
  * 
  * </pre>
  * 
@@ -316,8 +317,6 @@ public class WfsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
             StringBuilder sb2 = new StringBuilder();
             sb2.append(getConfiguration().getProvider().getConnection()
                     .getUrl());
-            sb2.append("/");
-            sb2.append(getAgent().getWfs());
             pdsmd.setUrl(sb2.toString());
         }
     }

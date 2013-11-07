@@ -32,6 +32,7 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0",
+ com.raytheon.uf.edex.datadelivery.event;bundle-version="1.0.0",
  org.apache.http;bundle-version="4.1.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
