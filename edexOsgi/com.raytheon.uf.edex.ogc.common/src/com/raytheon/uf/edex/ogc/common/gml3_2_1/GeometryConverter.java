@@ -74,6 +74,16 @@ import com.vividsolutions.jts.io.ParseException;
 /**
  * Converts between GML 3.2.1 and JTS geometries
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 25, 2011             bclement     Initial creation
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */

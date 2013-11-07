@@ -10,20 +10,20 @@
 package com.raytheon.uf.edex.ogc.common;
 
 /**
- * TODO Add Description
+ * Exception thrown when parsing version numbers
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 public class InvalidVersionException extends Exception {
@@ -34,7 +34,6 @@ public class InvalidVersionException extends Exception {
      * 
      */
     public InvalidVersionException() {
-        // TODO Auto-generated constructor stub
     }
 
     /**

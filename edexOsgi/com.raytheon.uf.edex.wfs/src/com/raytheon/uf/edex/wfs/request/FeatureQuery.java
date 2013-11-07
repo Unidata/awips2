@@ -28,12 +28,24 @@ import javax.xml.namespace.QName;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.wfs.v_2_0_0.QueryType;
 
-import com.raytheon.uf.edex.wfs.request.SortBy.Order;
 import com.raytheon.uf.edex.ogc.common.OgcTimeRange;
+import com.raytheon.uf.edex.wfs.request.SortBy.Order;
 
 /**
- * @author bclement
+ * Wrapper object for WFS feature query information from a get feature request
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * April 2011            bclement     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
  */
 public class FeatureQuery {
 

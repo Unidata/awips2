@@ -27,20 +27,21 @@ import com.sun.xml.bind.v2.model.annotation.RuntimeAnnotationReader;
 import com.sun.xml.bind.v2.model.annotation.RuntimeInlineAnnotationReader;
 
 /**
- * TODO Add Description
+ * JAXB utility to allow for Transient annotation to be added to fields and
+ * methods of classes
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 11, 2012            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 
 @SuppressWarnings("rawtypes")

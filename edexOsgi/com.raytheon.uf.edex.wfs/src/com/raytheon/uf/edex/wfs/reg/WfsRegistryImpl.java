@@ -51,6 +51,17 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
 /**
  * Wfs registry implementation. Handles wfs sources and the JAXB context
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 11, 2011            bclement     Initial creation        
+ * May 30, 2013   753      dhladky      reverted to original
+ * 
+ * </pre>
+ * 
  * @author bclement
  * @version 1.0
  */
