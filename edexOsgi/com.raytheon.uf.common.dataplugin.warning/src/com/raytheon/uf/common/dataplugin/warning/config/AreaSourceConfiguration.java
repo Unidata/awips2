@@ -23,6 +23,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
  *    ------------ ----------  ----------- --------------------------
  *    Mar 29, 2012 #14691      Qinglu Lin  Added feAreaField and its getter and setter, etc.
  *    Apr 24, 2014  1943       jsanchez    Removed unused areaType.
+ *    Oct 23, 2013  DR 16632   D. Friedman Added inclusionFallback field.
  * 
  * </pre>
  * 
@@ -88,6 +89,9 @@ public class AreaSourceConfiguration {
 
     @XmlElement
     private double includedWatchAreaBuffer;
+
+    @XmlElement
+    private boolean inclusionFallback = true;
 
     public AreaSourceConfiguration() {
 
@@ -269,6 +273,14 @@ public class AreaSourceConfiguration {
 
     public void setType(AreaType type) {
         this.type = type;
+    }
+
+    public boolean isInclusionFallback() {
+        return inclusionFallback;
+    }
+
+    public void setInclusionFallback(boolean inclusionFallback) {
+        this.inclusionFallback = inclusionFallback;
     }
 
 }
