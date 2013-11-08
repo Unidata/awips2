@@ -51,6 +51,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
@@ -98,6 +99,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
  * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
+ *                                      Added subscriptionNotificationService field.
  * 
  * </pre>
  * 
@@ -115,6 +117,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     private final ISubscriptionHandler subscriptionHandler;
 
     private final ScheduledExecutorService scheduler;
+
+    private final ISubscriptionNotificationService subscriptionNotificationService;
 
     @VisibleForTesting
     final Runnable watchForConfigFileChanges = new Runnable() {
@@ -136,17 +140,20 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * @param bandwidthDao
      * @param retrievalManager
      * @param bandwidthDaoUtil
+     * @param subscriptionNotificationService
      */
     public EdexBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager,
             BandwidthDaoUtil<T, C> bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
 
         this.dataSetMetaDataHandler = dataSetMetaDataHandler;
         this.subscriptionHandler = subscriptionHandler;
+        this.subscriptionNotificationService = subscriptionNotificationService;
 
         // schedule maintenance tasks
         scheduler = Executors.newScheduledThreadPool(1);
@@ -317,6 +324,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                         .info("Received Subscription removal notification for Subscription ["
                                 + event.getId() + "]");
                 removeBandwidthSubscriptions(event.getId());
+
             }
         }
     }
@@ -359,7 +367,6 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 statusHandler.error("No DataSetMetaData found for id [" + id
                         + "]");
             }
-
         }
     }
 
