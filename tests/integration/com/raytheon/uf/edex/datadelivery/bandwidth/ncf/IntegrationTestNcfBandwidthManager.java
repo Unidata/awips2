@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.ncf;
 
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 18, 2013 1543       djohnson     Initial creation
  * Feb 27, 2013 1644       djohnson     Extend NCF bandwidth manager.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Nov 08, 2013 2506       bgonzale     Added notification service to bandwidth manager.
  * 
  * </pre>
  * 
@@ -71,9 +73,11 @@ public class IntegrationTestNcfBandwidthManager extends NcfBandwidthManager {
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                dataSetMetaDataHandler, subscriptionHandler);
+                dataSetMetaDataHandler, subscriptionHandler,
+                subscriptionNotificationService);
     }
 
     /**
