@@ -31,7 +31,6 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -94,6 +93,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * Oct 12, 2013 2460       dhladky      restored adhoc subscriptions to registry storage.
  * Oct 22, 2013  2292      mpduff       Removed subscriptionOverlapService.
+ * Nov 07, 2013  2291      skorolev     Used showText() method for "Shared Subscription" message.
  * 
  * </pre>
  * 
@@ -151,8 +151,8 @@ public class SubscriptionService implements ISubscriptionService {
             shell.getDisplay().syncExec(new Runnable() {
                 @Override
                 public void run() {
-                    DataDeliveryUtils.showMessage(shell, SWT.OK,
-                            "Shared Subscription", message);
+                    DataDeliveryUtils.showText(shell, "Shared Subscription",
+                            message);
                 }
             });
         }
