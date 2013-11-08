@@ -94,6 +94,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 5/14/08      1076        brockwoo    Fix for distinct with multiple properties
  * Oct 10, 2012 1261        djohnson    Incorporate changes to DaoConfig, add generic to {@link IPersistableDataObject}.
  * Apr 15, 2013 1868        bsteffen    Rewrite mergeAll in PluginDao.
+ * Nov 08, 2013 2361        njensen     Changed method signature of saveOrUpdate to take Objects, not PersistableDataObjects
  * 
  * </pre>
  * 
@@ -182,7 +183,7 @@ public class CoreDao extends HibernateDaoSupport {
      * @param obj
      *            The object to be persisted to the database
      */
-    public <T> void saveOrUpdate(final PersistableDataObject<T> obj) {
+    public void saveOrUpdate(final Object obj) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {

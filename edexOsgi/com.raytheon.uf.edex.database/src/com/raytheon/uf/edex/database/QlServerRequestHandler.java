@@ -28,7 +28,6 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.tasks.HqlQueryTask;
 import com.raytheon.uf.edex.database.tasks.HqlStatementTask;
-import com.raytheon.uf.edex.database.tasks.SaveOrUpdateTask;
 import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
 import com.raytheon.uf.edex.database.tasks.SqlStatementTask;
 
@@ -41,6 +40,7 @@ import com.raytheon.uf.edex.database.tasks.SqlStatementTask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 16, 2011 #8070      ekladstrup  Initial creation
+ * Nov 08, 2013  2361      njensen     Removed saveOrUpdate mode
  * 
  * </pre>
  * 
@@ -125,15 +125,6 @@ public class QlServerRequestHandler implements IRequestHandler<QlServerRequest> 
             result = task.execute();
         } else if (mode.equals("hqlstatement")) {
             HqlStatementTask task = new HqlStatementTask(query, dbName);
-            result = task.execute();
-        } else if (mode.equals("saveOrUpdateObject")) {
-            SaveOrUpdateTask task = new SaveOrUpdateTask(dbName);
-            for (String key : map.keySet()) {
-                String value = map.get(key).getConstraintValue();
-                if (key.startsWith("obj")) {
-                    task.addObject(value);
-                }
-            }
             result = task.execute();
         }
 
