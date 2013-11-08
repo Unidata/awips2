@@ -46,6 +46,7 @@ mkdir -p %{_build_root}/awips2/eclipse
 %build
 
 %install
+mkdir -p %{_build_root}/awips2/eclipse
 # The location of the awips2 eclipse source directory will be
 # specified as a command line argument. Fail if the specified
 # directory cannot be found.

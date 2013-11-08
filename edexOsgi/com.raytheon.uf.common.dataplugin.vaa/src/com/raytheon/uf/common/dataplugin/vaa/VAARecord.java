@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 
  *                                     PluginDataObject.
  * Oct 22, 2013 2361       njensen     Remove XML annotations
  * 
