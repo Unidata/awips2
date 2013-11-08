@@ -95,6 +95,9 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     Changes for non-blocking ZoneColorEditorDlg.
  * Mar 14, 2013 1794       djohnson    Consolidate common FilenameFilter implementations.
  * Sep 05, 2013 2329       randerso    Removed obsolete methods, added ApplyZoneCombo method
+ * Oct 17, 2013 2481       randerso    Fixed regression which cause configured level combinations 
+ *                                     files to not be found. Removed message when combinations file 
+ *                                     not found to match A1.
  * 
  * </pre>
  * 
@@ -781,7 +784,7 @@ public class ZoneCombinerComp extends Composite implements
         colorMap = getColorsFromFile();
 
         String comboName = theFile;
-        if (comboName == null || comboName.isEmpty()) {
+        if ((comboName == null) || comboName.isEmpty()) {
             comboName = getCombinationsFileName();
         }
         Map<String, Integer> comboDict = loadCombinationsFile(comboName);
@@ -911,18 +914,16 @@ public class ZoneCombinerComp extends Composite implements
     public Map<String, Integer> loadCombinationsFile(String comboName) {
         Map<String, Integer> dict = new HashMap<String, Integer>();
         try {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext ctx = pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-            File localFile = pm.getFile(ctx, FileUtil.join(
-                    CombinationsFileUtil.COMBO_DIR_PATH, comboName + ".py"));
+            File localFile = PathManagerFactory.getPathManager().getStaticFile(
+                    FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH,
+                            comboName + ".py"));
 
             List<List<String>> combolist = new ArrayList<List<String>>();
-            if (localFile != null && localFile.exists()) {
+            if ((localFile != null) && localFile.exists()) {
                 combolist = CombinationsFileUtil.init(comboName);
             } else {
-                statusHandler.error("Combinations file does not found: "
-                        + comboName);
+                // statusHandler
+                // .error("Combinations file not found: " + comboName);
             }
 
             // reformat combinations into combo dictionary
@@ -1004,7 +1005,7 @@ public class ZoneCombinerComp extends Composite implements
 
     @Override
     public void applyButtonState(final boolean enabled) {
-        if (this.applyZoneComboBtn != null
+        if ((this.applyZoneComboBtn != null)
                 && !this.applyZoneComboBtn.isDisposed()) {
             VizApp.runAsync(new Runnable() {
                 @Override
@@ -1017,7 +1018,7 @@ public class ZoneCombinerComp extends Composite implements
 
     private boolean buttonState() {
         final boolean[] state = { false };
-        if (this.applyZoneComboBtn != null
+        if ((this.applyZoneComboBtn != null)
                 && !this.applyZoneComboBtn.isDisposed()) {
             VizApp.runSync(new Runnable() {
                 @Override
