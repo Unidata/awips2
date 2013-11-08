@@ -43,6 +43,12 @@
   	<constructor-arg ref="timeQueryHandlerSet"/>
   </bean>
   
+  <bean id="saveOrUpdateHandler" class="com.raytheon.uf.edex.database.handlers.SaveOrUpdateHandler" />
+  <bean factory-bean="handlerRegistry" factory-method="register">
+    <constructor-arg value="com.raytheon.uf.common.dataquery.requests.SaveOrUpdateRequest"/>
+    <constructor-arg ref="saveOrUpdateHandler"/>
+  </bean>    
+  
   <bean id="pluginFactory" class="com.raytheon.uf.edex.database.plugin.PluginFactory" factory-method="getInstance"/>
     
   <bean id="pluginFactoryRegisteredToDataURIUtil"
