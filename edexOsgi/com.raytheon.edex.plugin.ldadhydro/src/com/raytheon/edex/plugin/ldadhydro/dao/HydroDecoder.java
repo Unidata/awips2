@@ -68,6 +68,8 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ----------  ----------- --------------------------
  * Sep 30, 2009             vkorolev    Initial creation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * 10/16/13     DR 16685    M.Porricelli Add error checking for date
+ *                                       format
  * </pre>
  * 
  * @author vkorolev
@@ -75,7 +77,8 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
-
+	
+    private static final String BAD_PROPERTY_FMT = "NumberFormatException setting property %s.%s(%s %s)";
     private String traceId = null;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
@@ -195,11 +198,13 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                         }
                         // DataTime = Observation time
                         Calendar ot = record.getObservationTime();
-                        DataTime dt = new DataTime(ot);
-                        record.setDataTime(dt);
-                        record.setLocation(location);
-                        record.constructDataURI();
-                        retVal.add(record);
+                        if (ot != null){
+                           DataTime dt = new DataTime(ot);
+                           record.setDataTime(dt);
+                           record.setLocation(location);
+                           record.constructDataURI();
+                           retVal.add(record);
+                        }
                         // logger.info("-------------------------------------------------------");
                     }
 
@@ -250,14 +255,29 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
             if (clazz == String.class) {
                 val = value.trim();
             } else if (clazz == Calendar.class) {
-                Date ot = sdf.parse(value);
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(ot);
-                val = cal;
-
+                Date ot = null;
+                try {
+                    ot = sdf.parse(value);
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+                    cal.setTime(ot);
+                    val = cal;
+                } catch(Exception e) {
+                    logger.error("Could not parse date field [" + name + ":"  + value + "]");
+                    return;
+                }
                 // only numbers
-            } else {
-                Double tval = Double.parseDouble(value);
+             } else {
+                Double tval = null;
+                try {
+                    tval = Double.parseDouble(value);
+                } catch (NumberFormatException nfe) {
+                    String msg = String.format(BAD_PROPERTY_FMT,
+                            cls.getSimpleName(), fld.getName(),
+                            clazz.getSimpleName(), value);
+                    logger.error(msg);
+                    return;
+                }
                 if (configFile.containsKey(vunit)) {
                     Unit<?> inUnit = (Unit<?>) UnitFormat.getUCUMInstance()
                             .parseObject(configFile.getProperty(vunit));
