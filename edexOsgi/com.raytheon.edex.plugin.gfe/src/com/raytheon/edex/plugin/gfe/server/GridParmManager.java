@@ -112,6 +112,9 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Changed to call D2DGridDatabase.getDatabase instead of calling 
  *                                     the constructor directly to ensure the data exists before creating
  *                                     the D2DGridDatabase object
+ * 10/02/13     #2444      randerso    Fix error handling when creating IFPGridDatabases. 
+ *                                     DO NOT ATTEMPT TO MERGE THIS CHANGE INTO 14.2 as the GFE
+ *                                     server code has been significantly refactored.
  * 10/10/13     #2446      randerso    Added cluster lock to prevent two threads from attempting to publish
  *                                     the same parm simultaneously.
  *                                     Added code to check the purge times when publishing and not publish

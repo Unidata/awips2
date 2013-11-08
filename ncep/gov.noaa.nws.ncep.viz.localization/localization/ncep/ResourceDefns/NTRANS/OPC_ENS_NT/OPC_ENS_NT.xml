@@ -5,7 +5,7 @@
     <resourceCategory>NTRANS</resourceCategory>
 	<resourceParameters>
 pluginName=ntrans
-modelName=opc_ens
+modelName=opc-ens
 	</resourceParameters>
     <rscImplementation>NTRANS</rscImplementation>
     <subTypeGenerator>metafileName,productName</subTypeGenerator>

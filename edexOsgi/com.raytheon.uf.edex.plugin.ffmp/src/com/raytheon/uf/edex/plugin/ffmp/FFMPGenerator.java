@@ -47,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
