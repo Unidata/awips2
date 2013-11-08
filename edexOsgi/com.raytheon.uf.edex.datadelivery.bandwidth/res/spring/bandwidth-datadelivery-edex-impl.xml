@@ -59,6 +59,7 @@
         <!-- Registry handlers required for EdexBandwidthManager -->
         <constructor-arg ref="DataSetMetaDataHandler" />
         <constructor-arg ref="SubscriptionHandler" />
+        <constructor-arg ref="subscriptionNotificationService" />
     </bean>
 
     <bean id="dataSetAvailabilityCalculator"
