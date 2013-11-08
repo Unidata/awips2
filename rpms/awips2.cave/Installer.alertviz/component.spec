@@ -70,6 +70,10 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+/bin/mkdir -p %{_build_root}/etc/gdm/PostSession
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 build_arch=%{_build_arch}
 if [ "${build_arch}" = "i386" ]; then
@@ -90,6 +94,10 @@ alertviz_project="${viz_rpm_dir}/Installer.alertviz"
 script_="${alertviz_project}/scripts/autostart/awips2-alertviz.desktop"
 /bin/cp ${script_} %{_build_root}/etc/xdg/autostart
 
+# install the gnome session kill script for cave and alertviz
+script_="%{_baseline_workspace}/build/static/linux/cave/awips2VisualizeUtility.sh"
+/bin/cp ${script_} %{_build_root}/etc/gdm/PostSession
+
 # add the license information.
 license_dir="%{_baseline_workspace}/rpms/legal"
 cp "${license_dir}/license.txt" \
@@ -107,6 +115,8 @@ fi
 %pre
 
 %post
+echo -e "\nInstalling A2 gdm PostSession Default script"
+scp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
 
 %preun
 %postun
@@ -140,3 +150,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/alertviz/*.sh
 
 %attr(644,root,root) /etc/xdg/autostart/awips2-alertviz.desktop
+%attr(644,root,root) /etc/gdm/PostSession/awips2VisualizeUtility.sh

@@ -41,11 +41,12 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-//import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.vividsolutions.jts.geom.Coordinate;
+
+//import com.raytheon.uf.viz.core.drawables.IRenderable;
 
 /**
  * An abstract resource for displays where each grid cell is an individual
@@ -68,10 +69,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
+public abstract class AbstractGriddedDisplay<T> { // implements IRenderable
 
-    private static final IUFStatusHandler statusHandler = UFStatus.getHandler(AbstractGriddedDisplay.class); 
-    
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractGriddedDisplay.class);
+
     private final Queue<Coordinate> calculationQueue;
 
     private CalculationJob calculationJob;
@@ -89,13 +91,15 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
     protected RGB color;
 
     protected int skipx;
+
     protected int skipy;
+
     protected double filter;
 
     protected double magnification = 1.0;
 
     private boolean async = true;
-    
+
     protected boolean[] isPlotted;
 
     /**
@@ -105,22 +109,19 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
      * @param size
      */
     public AbstractGriddedDisplay(IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid,int nx, int ny) {
+            GeneralGridGeometry gridGeometryOfGrid, int nx, int ny) {
 
         this.calculationQueue = new ConcurrentLinkedQueue<Coordinate>();
 
         this.descriptor = descriptor;
         this.gridGeometryOfGrid = gridGeometryOfGrid;
-        
-//        this.size = size;
 
-        this.gridDims = new int[] {
-                nx,
-                ny };
-        
+        // this.size = size;
+
+        this.gridDims = new int[] { nx, ny };
+
         isPlotted = new boolean[gridDims[0] * gridDims[1]];
-        
-        
+
     }
 
     public void setASync(boolean async) {
@@ -134,106 +135,104 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
      */
-   // @Override
-    public void paint(NcgridResourceData gridRscData, IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
-    	
-    	boolean globalModel = isGlobalModel();    	
-    	
-    	/**
-         *  Get filter attribute
+    // @Override
+    public void paint(NcgridResourceData gridRscData, IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+
+        boolean globalModel = isGlobalModel();
+
+        /**
+         * Get filter attribute
          */
-    	String den = gridRscData.getFilter(); 
-    	String noFilter = "";
-    	if (den != null ){
-    		try {
-    			if (den.equalsIgnoreCase("YES") || den.equalsIgnoreCase("Y")) {
-    				filter = 1.0;
-    			}
-    			else if (den.equalsIgnoreCase("NO") || den.equalsIgnoreCase("N") || den.equalsIgnoreCase("")) {
-    				filter = 0.0;
-    				noFilter = "NO";
-    			}
-    			else {
-    				filter = Double.parseDouble(den);  
-    			}
-    			
-    			if (filter == 0)
-    				noFilter = "NO";
-    			if (filter <0.1)
-    				filter = 0.1;
-    		}
-    		catch (NumberFormatException e) {
-    			System.out.println("The filter is not a double number");
-    			filter = 1.0;
-    		}
-    	}
-    	else {
-    		filter = 1.0;
-    	}
-    	
-//        /**
-//         *  Get skip attribute
-//         */
-//        
-//    	String[] skip = null;
-//    	int skipx = 0;
-//    	int skipy = 0;
-//    	
-//    	String skipString = gridRscData.getSkip(); //now for positive skip
-//    	if (skipString != null && noFilter.equalsIgnoreCase("NO")) {
-//    		int ind = skipString.indexOf("/");
-//    		if (ind != -1) {
-//    			skipString = skipString.substring(ind +1);
-//    			
-//    			if (skipString.trim().startsWith("-"))  //temp fix for negative value
-//    				skipString = skipString.substring(1);
-//    			
-//    			skip = skipString.split(";");
-//    	    	
-//    	    	if (skip != null && skip.length !=0){
-//    	    		try {
-//    	    			skipx = Integer.parseInt(skip[0]);
-//    	    		}
-//    	    		catch (NumberFormatException e) {
-//    	    			System.out.println("The skip is not an interger");
-//    	    			skipx = 0;        		
-//    	    		}
-//    	    			
-//    	    		if (skip.length ==1 ) {
-//    	    			skipy = skipx;
-//    	    		}
-//    	    		if (skip.length >1 && skip[0] != skip[1]) {
-//    	    			try {
-//    	    				skipy = Integer.parseInt(skip[1]);
-//    	    			}
-//    	    			catch (NumberFormatException e) {
-//    	    				System.out.println("The skip is not an interger");    				
-//    	    				skipy = skipx;
-//    	    			}
-//    	    		}
-//    	    	}
-//    	    	else {
-//    	    		skipx = 0;
-//    	    		skipy = 0;
-//    	    	}
-//    		}
-//    		else {
-//    			skipx = 0;
-//    			skipy = 0;
-//    		}
-//    	}    	
-//    	else {
-//			skipx = 0;
-//			skipy = 0;
-//		}	
-//           
-    	
-    	for (int i = 0; i < (gridDims[0] * gridDims[1]); i++)
-        	isPlotted[i] = false;
-    	
+        String den = gridRscData.getFilter();
+        String noFilter = "";
+        if (den != null) {
+            try {
+                if (den.equalsIgnoreCase("YES") || den.equalsIgnoreCase("Y")) {
+                    filter = 1.0;
+                } else if (den.equalsIgnoreCase("NO")
+                        || den.equalsIgnoreCase("N")
+                        || den.equalsIgnoreCase("")) {
+                    filter = 0.0;
+                    noFilter = "NO";
+                } else {
+                    filter = Double.parseDouble(den);
+                }
+
+                if (filter == 0)
+                    noFilter = "NO";
+                if (filter < 0.1)
+                    filter = 0.1;
+            } catch (NumberFormatException e) {
+                System.out.println("The filter is not a double number");
+                filter = 1.0;
+            }
+        } else {
+            filter = 1.0;
+        }
+
+        // /**
+        // * Get skip attribute
+        // */
+        //
+        // String[] skip = null;
+        // int skipx = 0;
+        // int skipy = 0;
+        //
+        // String skipString = gridRscData.getSkip(); //now for positive skip
+        // if (skipString != null && noFilter.equalsIgnoreCase("NO")) {
+        // int ind = skipString.indexOf("/");
+        // if (ind != -1) {
+        // skipString = skipString.substring(ind +1);
+        //
+        // if (skipString.trim().startsWith("-")) //temp fix for negative value
+        // skipString = skipString.substring(1);
+        //
+        // skip = skipString.split(";");
+        //
+        // if (skip != null && skip.length !=0){
+        // try {
+        // skipx = Integer.parseInt(skip[0]);
+        // }
+        // catch (NumberFormatException e) {
+        // System.out.println("The skip is not an interger");
+        // skipx = 0;
+        // }
+        //
+        // if (skip.length ==1 ) {
+        // skipy = skipx;
+        // }
+        // if (skip.length >1 && skip[0] != skip[1]) {
+        // try {
+        // skipy = Integer.parseInt(skip[1]);
+        // }
+        // catch (NumberFormatException e) {
+        // System.out.println("The skip is not an interger");
+        // skipy = skipx;
+        // }
+        // }
+        // }
+        // else {
+        // skipx = 0;
+        // skipy = 0;
+        // }
+        // }
+        // else {
+        // skipx = 0;
+        // skipy = 0;
+        // }
+        // }
+        // else {
+        // skipx = 0;
+        // skipy = 0;
+        // }
+        //
+
+        for (int i = 0; i < (gridDims[0] * gridDims[1]); i++)
+            isPlotted[i] = false;
+
         // Controls whether to draw images or debugging output on the map
-//        boolean debug = false;
+        // boolean debug = false;
         this.target = target;
 
         PaintProperties pp = new PaintProperties(paintProps);
@@ -242,8 +241,8 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
         IExtent viewPixelExtent = paintProps.getView().getExtent();
         double ratio = viewPixelExtent.getWidth()
                 / paintProps.getCanvasBounds().width;
-                
-        //double interval = size * .75 * ratio / Math.min(2.0, filter);
+
+        // double interval = size * .75 * ratio / Math.min(2.0, filter);
         double interval = size * .75 * ratio * filter;
 
         double adjSize = size * ratio * magnification;
@@ -284,18 +283,15 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
                     }
                     jcount++;
                     /*
-                     if (debug == true) {
-                        // Draw a red labeled square over the area where
-                        // we will look for grid points
-                        target.drawString(null, icount + "," + jcount, i, j,
-                                0.0, TextStyle.NORMAL, new RGB(255, 0, 0),
-                                HorizontalAlignment.CENTER,
-                                VerticalAlignment.MIDDLE, 0.0);
-                        target.drawRect(new PixelExtent(i - halfInterval, i
-                                + halfInterval, j - halfInterval, j
-                                + halfInterval), new RGB(255, 0, 0), 1, 1);
-                    }
-                    */
+                     * if (debug == true) { // Draw a red labeled square over
+                     * the area where // we will look for grid points
+                     * target.drawString(null, icount + "," + jcount, i, j, 0.0,
+                     * TextStyle.NORMAL, new RGB(255, 0, 0),
+                     * HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE,
+                     * 0.0); target.drawRect(new PixelExtent(i - halfInterval, i
+                     * + halfInterval, j - halfInterval, j + halfInterval), new
+                     * RGB(255, 0, 0), 1, 1); }
+                     */
                     // Get a grid coordinate near i, j
                     ReferencedCoordinate coordToTry = new ReferencedCoordinate(
                             this.descriptor.getGridGeometry(), new Coordinate(
@@ -304,23 +300,27 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
                             gridGeometryOfGrid, PixelInCell.CELL_CORNER);
                     gridCell.y = Math.round(gridCell.y);
                     gridCell.x = Math.round(gridCell.x);
-                    
-                    
+
+                    // System.out.println("Look--" + i + " , " + j);
+                    // System.out.println("grid--" + gridCell.x + " , "
+                    // + gridCell.y);
                     /*
                      * Convert negative longitude
                      */
                     Coordinate coord = coordToTry.asLatLon();
                     double x = coord.x;
                     if (globalModel && x < 0) {
-                    	x = x + 360;
+                        x = x + 360;
                     }
-                    
+
                     Coordinate newCoord = new Coordinate(x, coord.y);
-                    ReferencedCoordinate newrco = new ReferencedCoordinate(newCoord);
+                    // System.out.println("latlon: " + newCoord);
+                    ReferencedCoordinate newrco = new ReferencedCoordinate(
+                            newCoord);
                     Coordinate newGridCell = newrco.asGridCell(
                             gridGeometryOfGrid, PixelInCell.CELL_CORNER);
                     newGridCell.x = Math.round(newGridCell.x);
-                    
+
                     /*
                      * Check for bounds
                      */
@@ -328,33 +328,33 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
                             || (gridCell.y < 0 || gridCell.y >= gridDims[1])) {
                         thisRow.put(j, i);
                         continue;
-                        
+
                     }
-                    
+
                     ReferencedCoordinate rco = new ReferencedCoordinate(
-            				new Coordinate((int)gridCell.x, (int)gridCell.y),
-            				this.gridGeometryOfGrid, Type.GRID_CORNER);
-            		Coordinate plotLoc = rco.asPixel(this.descriptor.getGridGeometry());
-            		Coordinate gridCell2 = rco.asGridCell(
-                            gridGeometryOfGrid, PixelInCell.CELL_CORNER);
-                    
-//                    Coordinate plotLoc = coordToTry.asPixel(this.descriptor
-//                            .getGridGeometry());
-                    
-                    
+                            new Coordinate((int) gridCell.x, (int) gridCell.y),
+                            this.gridGeometryOfGrid, Type.GRID_CORNER);
+                    Coordinate plotLoc = rco.asPixel(this.descriptor
+                            .getGridGeometry());
+                    Coordinate gridCell2 = rco.asGridCell(gridGeometryOfGrid,
+                            PixelInCell.CELL_CORNER);
+
+                    // System.out.println("gridcell: " + gridCell);
+                    // System.out.println("gridcell2: " + gridCell2);
+                    // Coordinate plotLoc = coordToTry.asPixel(this.descriptor
+                    // .getGridGeometry());
+
                     /*
-                    if (debug == true) {
-                        // draw a blue dot where the gridpoints are found.
-                        target.drawString(null, ".", plotLoc.x, plotLoc.y, 0.0,
-                                TextStyle.NORMAL, new RGB(0, 0, 255),
-                                HorizontalAlignment.CENTER,
-                                VerticalAlignment.BOTTOM, 0.0);
-                    }
-                    */
+                     * if (debug == true) { // draw a blue dot where the
+                     * gridpoints are found. target.drawString(null, ".",
+                     * plotLoc.x, plotLoc.y, 0.0, TextStyle.NORMAL, new RGB(0,
+                     * 0, 255), HorizontalAlignment.CENTER,
+                     * VerticalAlignment.BOTTOM, 0.0); }
+                     */
                     // If the real loc of this grid coordinate is close to the
                     // loc we wanted go with it
-                    if (Math.abs(plotLoc.y - j) < (interval/2)
-                            && Math.abs(plotLoc.x - i) < (interval/2)) {
+                    if (Math.abs(plotLoc.y - j) < (interval / 2)
+                            && Math.abs(plotLoc.x - i) < (interval / 2)) {
                         j = plotLoc.y;
                         thisRow.put(j, plotLoc.x);
                     } else {
@@ -362,21 +362,24 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
                         continue;
                     }
                     /*
-                    if (debug == true) {
-                        // Draw a green label where the image will actually be
-                        // drawn
-                        target.drawString(null, icount + "," + jcount,
-                                plotLoc.x, plotLoc.y, 0.0, TextStyle.NORMAL,
-                                new RGB(0, 255, 0), HorizontalAlignment.CENTER,
-                                VerticalAlignment.MIDDLE, 0.0);
-                    }
-                    */
-                    
+                     * if (debug == true) { // Draw a green label where the
+                     * image will actually be // drawn target.drawString(null,
+                     * icount + "," + jcount, plotLoc.x, plotLoc.y, 0.0,
+                     * TextStyle.NORMAL, new RGB(0, 255, 0),
+                     * HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE,
+                     * 0.0); }
+                     */
+
                     T oldImage = getImage(gridCell2);
                     if (oldImage != null) {
-//                        if (debug == false) {
-                            paintImage((int)gridCell.x, (int)gridCell.y, pp, adjSize);
-//                        }
+                        // if (debug == false) {
+                        if (globalModel)
+                            paintGlobalImage((int) gridCell.x,
+                                    (int) gridCell.y, pp, adjSize);
+                        else
+                            paintImage((int) gridCell.x, (int) gridCell.y, pp,
+                                    adjSize);
+                        // }
                     } else {
                         if (async) {
                             if (!this.calculationQueue.contains(gridCell2)) {
@@ -384,17 +387,22 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
                             }
                         } else {
                             T image = createImage(gridCell2);
-                            if (image != null /*&& debug == false*/) {
-                                paintImage((int)gridCell.x, (int)gridCell.y, pp, adjSize);
+                            if (image != null /* && debug == false */) {
+                                if (globalModel)
+                                    paintGlobalImage((int) gridCell.x,
+                                            (int) gridCell.y, pp, adjSize);
+                                else
+                                    paintImage((int) gridCell.x,
+                                            (int) gridCell.y, pp, adjSize);
                             }
                         }
-                    }   
+                    }
                 }
-            } //while               
+            } // while
         } catch (Exception e) {
             throw new VizException("Error occured during paint", e);
         }
-        
+
         if (calculationQueue.size() > 0) {
             if (this.calculationJob == null) {
                 this.calculationJob = new CalculationJob();
@@ -429,8 +437,13 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
      */
     protected abstract void disposeImages();
 
-    protected abstract void paintImage(int x, int y, PaintProperties paintProps,
-            double adjustedSize) throws VizException;
+    protected abstract void paintImage(int x, int y,
+            PaintProperties paintProps, double adjustedSize)
+            throws VizException;
+
+    protected abstract void paintGlobalImage(int x, int y,
+            PaintProperties paintProps, double adjustedSize)
+            throws VizException;
 
     public void dispose() {
         disposeImages();
@@ -451,7 +464,7 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
 
     /**
      * @param filter
-     *            the filter to set.  Changed from density.
+     *            the filter to set. Changed from density.
      */
     public boolean setFilter(double filter) {
         if (this.filter != filter) {
@@ -461,16 +474,15 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
         return false;
     }
 
-    
     public float getSize() {
-		return size;
-	}
+        return size;
+    }
 
-	public void setSize(float size) {
-		this.size = size;
-	}
+    public void setSize(float size) {
+        this.size = size;
+    }
 
-	/**
+    /**
      * @param magnification
      *            the magnification to set
      */
@@ -482,38 +494,36 @@ public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
         return false;
     }
 
-    
     private boolean isGlobalModel() throws VizException {
-    	
-    	 ReferencedCoordinate newrco0 = new ReferencedCoordinate(
- 				new Coordinate(0, 0),
- 				this.gridGeometryOfGrid, Type.GRID_CORNER);
-    	 ReferencedCoordinate newrco1 = new ReferencedCoordinate(
-  				new Coordinate(gridDims[0] - 1, 0),
-  				this.gridGeometryOfGrid, Type.GRID_CORNER);
-    	 ReferencedCoordinate newrco2 = new ReferencedCoordinate(
-  				new Coordinate(1, 0),
-  				this.gridGeometryOfGrid, Type.GRID_CORNER);
 
-         try {
-             Coordinate latLon0 = newrco0.asLatLon();
-             Coordinate latLon1 = newrco1.asLatLon();
-             Coordinate latLon2 = newrco2.asLatLon();
-             
-             double dx1 = latLon2.x - latLon0.x;
-             double dx2 = (360 - latLon1.x) + latLon0.x;
-             
-             int dx = (int) Math.round(dx2/dx1);
-             int dlat = (int) Math.round(latLon1.y - latLon0.y);
+        ReferencedCoordinate newrco0 = new ReferencedCoordinate(new Coordinate(
+                0, 0), this.gridGeometryOfGrid, Type.GRID_CORNER);
+        ReferencedCoordinate newrco1 = new ReferencedCoordinate(new Coordinate(
+                gridDims[0] - 1, 0), this.gridGeometryOfGrid, Type.GRID_CORNER);
+        ReferencedCoordinate newrco2 = new ReferencedCoordinate(new Coordinate(
+                1, 0), this.gridGeometryOfGrid, Type.GRID_CORNER);
 
-             if (dx <= 2 && dlat == 0) return true;
-             
-         } catch (Exception e) {
-             throw new VizException(e);
-         }
-    	
-    	return false;
+        try {
+            Coordinate latLon0 = newrco0.asLatLon();
+            Coordinate latLon1 = newrco1.asLatLon();
+            Coordinate latLon2 = newrco2.asLatLon();
+
+            double dx1 = latLon2.x - latLon0.x;
+            double dx2 = (360 - latLon1.x) + latLon0.x;
+
+            int dx = (int) Math.round(dx2 / dx1);
+            int dlat = (int) Math.round(latLon1.y - latLon0.y);
+
+            if (dx <= 2 && dlat == 0)
+                return true;
+
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
+
+        return false;
     }
+
     /**
      * Off UI Thread job for calculating the wind images
      * 
