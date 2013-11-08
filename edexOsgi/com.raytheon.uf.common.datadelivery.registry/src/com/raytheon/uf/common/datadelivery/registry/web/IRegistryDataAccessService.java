@@ -41,6 +41,7 @@ import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResp
  * 10/8/2013    1682        bphillip    Added rest functions for use with the query web interface
  * 10/23/2013   2385        bphillip    restoreSubscriptions throws JAXBException
  * 10/30/2013   1538        bphillip    Moved data delivery specific servics out of registry plugin
+ * 11/7/2013    1678        bphillip    Added get custom query method
  * </pre>
  * 
  * @author bphillip
@@ -72,6 +73,15 @@ public interface IRegistryDataAccessService {
     @GET
     @Path("getQueries")
     public String getValidQueries();
+
+    /**
+     * Gets the list of non-canonical query types contained in the registry
+     * 
+     * @return The non-canonical query definitions
+     */
+    @GET
+    @Path("getCustomQueries")
+    public String getCustomQueries();
 
     /**
      * Gets the valid parameters for a given query definition
