@@ -70,6 +70,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    08/09/2013      1571          randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
 #    09/20/13        2405          dgilling       Clip grids before inserting into cache.
+#    10/22/13        2405          rjpeter        Remove WECache and store directly to cube.
 #    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #
 
@@ -100,59 +101,96 @@ def logDebug(*msg):
     logVerbose(iscUtil.tupleToString(*msg))
 
 
-class WECache(object):
-    def __init__(self, we, inv, clipArea):
-        self._we = we
-        self._clipArea = clipArea
-        self._inv = OrderedDict()
-        lst = list(inv)
-        while len(lst):
-            i = lst[:BATCH_WRITE_COUNT]
-            javaTRs = ArrayList()
-            for tr in i:
-                javaTRs.add(iscUtil.toJavaTimeRange(tr))
-            gridsAndHist = self._we.get(javaTRs, True)
-            for idx, tr in enumerate(i):
-                pair = gridsAndHist.get(idx)
-                g = self.__encodeGridSlice(pair.getFirst(), clipArea)
-                h = self.__encodeGridHistory(pair.getSecond())
-                self._inv[tr] = (g, h)
-            lst = lst[BATCH_WRITE_COUNT:]
-            time.sleep(BATCH_DELAY)
+def retrieveData(we, inv, clipArea):
+    lst = list(inv)
+    trs=[]
+    histDict = OrderedDict()
+    cube = None
+    keyList = None
+    gridType = str(we.getGpi().getGridType())
 
-    def keys(self):
-        return tuple(self._inv.keys())
-
-    def __getitem__(self, key):
-        try:
-            return self._inv[key]
-        except KeyError:
-            logEvent("Cache miss for key:", str(key))
-            grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
-            pyGrid = self.__encodeGridSlice(grid, self._clipArea)
-            history = grid.getGridDataHistory()
-            pyHist = self.__encodeGridHistory(history)
-            return (pyGrid, pyHist)
+    # clipped size
+    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
+    gridCount = len(inv)
     
-    def __encodeGridSlice(self, grid, clipArea):
-        gridType = grid.getGridInfo().getGridType().toString()
+    if gridType == "SCALAR":
+        cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
+    elif gridType == "VECTOR":
+        magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+        dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+        cube = (magCube, dirCube)
+    elif gridType == "WEATHER" or gridType == "DISCRETE":
+        cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
+        keyList = []
+        
+    cubeIdx = 0
+    while len(lst):
+        i = lst[:BATCH_WRITE_COUNT]
+        javaTRs = ArrayList()
+        for tr in i:
+            javaTRs.add(iscUtil.toJavaTimeRange(tr))
+        gridsAndHist = we.get(javaTRs, True)
+        size = gridsAndHist.size()
+        for idx in xrange(size):
+            pair = gridsAndHist.get(idx)
+            grid = pair.getFirst()
+            tr = iscUtil.transformTime(grid.getValidTime())
+            encodeGridSlice(grid, gridType, clipArea, cube, cubeIdx, keyList)
+            cubeIdx += 1
+            histDict[tr] = encodeGridHistory(pair.getSecond())
+        lst = lst[BATCH_WRITE_COUNT:]
+        time.sleep(BATCH_DELAY)
+
+    if len(histDict) != gridCount:
+        # retrieved less grids than originally expected, purge ran?
+        gridCount = len(histDict)
+
         if gridType == "SCALAR":
-            return clipToExtrema(grid.__numpy__[0], clipArea)
+            oldCube = cube
+            cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
+            for idx in xrange(gridCount):
+                cube[idx] = oldCube[idx]
         elif gridType == "VECTOR":
-            vecGrids = grid.__numpy__
-            return (clipToExtrema(vecGrids[0], clipArea), clipToExtrema(vecGrids[1], clipArea))
-        elif gridType == "WEATHER" or gridType =="DISCRETE":
-            keys = grid.getKeys()
-            keyList = []
-            for theKey in keys:
-                keyList.append(theKey.toString())
-            return (clipToExtrema(grid.__numpy__[0], clipArea), keyList)
-    
-    def __encodeGridHistory(self, histories):
-        retVal = []
-        for i in xrange(histories.size()):
-            retVal.append(histories.get(i).getCodedString())
-        return tuple(retVal)
+            oldMagCube = magCube
+            magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+            oldDirCube = dirCube
+            dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+            cube = (magCube, dirCube)
+            for idx in xrange(gridCount):
+                magCube[idx] = oldMagCube[idx]
+                dirCube[idx] = oldDirCube[idx]
+        elif gridType == "WEATHER" or gridType == "DISCRETE":
+            oldCube = cube
+            cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
+            for idx in xrange(gridCount):
+                cube[idx] = oldCube[idx]
+    return (cube, histDict, keyList)
+
+###-------------------------------------------------------------------------###
+### cube and keyList are out parameters to be filled by this method, idx is the index into cube to use
+def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
+    if gridType == "SCALAR":
+        cube[idx] = clipToExtrema(grid.__numpy__[0], clipArea)
+    elif gridType == "VECTOR":
+        vecGrids = grid.__numpy__
+        cube[0][idx] = clipToExtrema(vecGrids[0], clipArea)
+        cube[1][idx] = clipToExtrema(vecGrids[1], clipArea)
+    elif gridType == "WEATHER" or gridType == "DISCRETE":
+        if gridType == "DISCRETE":
+           keys = grid.getKeys()
+        gridKeys = []
+
+        for theKey in keys:
+            gridKeys.append(theKey.toString())
+
+        keyList.append(gridKeys)
+        cube[idx]= clipToExtrema(grid.__numpy__[0], clipArea)
+
+def encodeGridHistory(histories):
+    retVal = []
+    for i in xrange(histories.size()):
+        retVal.append(histories.get(i).getCodedString())
+    return tuple(retVal)
 
 
 ###-------------------------------------------------------------------------###
@@ -525,19 +563,18 @@ def storeTopoGrid(client, file, databaseID, invMask, clipArea):
 
 ###-------------------------------------------------------------------------###
 ###
-def storeGridDataHistory(file, we, wec, trList):
+def storeGridDataHistory(file, we, histDict):
     "Stores the Grid Data history string for each grid in we."
     
     # get the maximum size of the history string 
     maxHistSize = 0
     histList = []
-    for tr in trList:
-        his = wec[tr][1]
+    for (tr, his) in histDict.items():
         hisString = ''
         for i,h in enumerate(his):
             hisString = hisString + str(h)
             if i != len(his) - 1:
-               hisString = hisString + " ^"
+                hisString = hisString + " ^"
         histList.append(hisString)
         maxHistSize = max(maxHistSize,len(hisString))
         
@@ -723,21 +760,17 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     # get the data and store it in a Numeric array.
     timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
 
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-    gridCount = len(overlappingTimes)
+    (cube, histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
+    gridCount = len(cube)
+    for i in xrange(len(overlappingTimes) -1, -1, -1):
+        ot = overlappingTimes[i]
+        if not ot in histDict:
+            del overlappingTime[i]
+            del timeList[i]
+        elif we.getGpi().isRateParm():
+            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((ot[1]-ot[0]))
+            cube[i] *= durRatio
     
-    cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
-
-    wec = WECache(we, overlappingTimes, clipArea)
-    for i,t in enumerate(overlappingTimes):
-        grid = wec[t][0]
-        #adjust for time changes
-        if we.getGpi().isRateParm():
-            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((t[1]-t[0]))
-            grid *= durRatio
-        cube[i]= grid
-
     ### Make sure we found some grids
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -791,8 +824,8 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, overlappingTimes)
-    
+    storeGridDataHistory(file, we, histDict)
+
     logEvent("Saved", gridCount, varName, " grids")
 
     return gridCount
@@ -807,23 +840,16 @@ def storeVectorWE(we, trList, file, timeRange,
     # get the data and store it in a Numeric array.
     timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
 
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-    gridCount = len(overlappingTimes)
-
-    magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
-    dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
-    
-    wec = WECache(we, overlappingTimes, clipArea)
-    for i,t in enumerate(overlappingTimes):
-        vecData = wec[t][0]
-        mag = vecData[0]
-        dir = vecData[1]
-        if we.getGpi().isRateParm():
-            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((t[1]-t[0]))
-            mag *= durRatio
-        magCube[i] = mag
-        dirCube[i] = dir
+    ((magCube, dirCube), histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
+    gridCount = len(magCube)
+    for i in xrange(len(overlappingTimes) -1, -1, -1):
+        ot = overlappingTimes[i]
+        if not ot in histDict:
+            del overlappingTime[i]
+            del timeList[i]
+        elif we.getGpi().isRateParm():
+            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((ot[1]-ot[0]))
+            magCube[i] *= durRatio
 
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
     
@@ -920,8 +946,8 @@ def storeVectorWE(we, trList, file, timeRange,
     setattr(dirVar, "fillValue", dfillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, overlappingTimes)
-    
+    storeGridDataHistory(file, we, histDict)
+
     logEvent("Saved", gridCount, varName, "grids")
 
     return gridCount * 2   #vector has two grids
@@ -966,19 +992,14 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
 
     # get the data and store it in a Numeric array.
     timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
-    
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-    gridCount = len(overlappingTimes)
 
-    byteCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
-
-    keyList = []
-    wec = WECache(we, overlappingTimes, clipArea)
-    for i,t in enumerate(overlappingTimes):
-        wx = wec[t][0]
-        byteCube[i] = wx[0]
-        keyList.append(wx[1])
+    (byteCube, histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
+    gridCount = len(histDict)
+    for i in xrange(len(overlappingTimes) -1, -1, -1):
+        ot = overlappingTimes[i]
+        if not ot in histDict:
+            del overlappingTime[i]
+            del timeList[i]
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1042,7 +1063,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, overlappingTimes)
+    storeGridDataHistory(file, we, histDict)
 
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1057,19 +1078,13 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     # get the data and store it in a Numeric array.
     timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
 
-    # clipped size
-    clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
-    gridCount = len(overlappingTimes)
-
-    byteCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
-    
-    keyList = []
-    wec = WECache(we, overlappingTimes, clipArea)
-    for i,t in enumerate(overlappingTimes):
-        dis = wec[t][0]
-        byteCube[i] = dis[0]
-        keyList.append(dis[1])
-
+    (byteCube, histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
+    gridCount = len(histDict)
+    for i in xrange(len(overlappingTimes) -1, -1, -1):
+        ot = overlappingTimes[i]
+        if not ot in histDict:
+            del overlappingTime[i]
+            del timeList[i]
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1131,7 +1146,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
-    storeGridDataHistory(file, we, wec, overlappingTimes)
+    storeGridDataHistory(file, we, histDict)
 
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1321,7 +1336,7 @@ def main(outputFilename, parmList, databaseID, startTime,
     clipArea = extremaOfSetBits(maskGrid)
     maskGrid = clipToExtrema(maskGrid, clipArea)
     clippedGridSize = maskGrid.shape
-    validPointCount = numpy.add.reduce(numpy.add.reduce(maskGrid)) 
+    validPointCount = float(numpy.add.reduce(numpy.add.reduce(maskGrid)))
 
     #invert the mask grid
     invMask = numpy.logical_not(maskGrid)

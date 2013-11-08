@@ -307,43 +307,137 @@ if [ "${1}" = "-full" ]; then
    exit 0
 fi
 
+#if [ "${1}" = "-ade" ]; then
+#   echo "INFO: AWIPS II currently does not support a 64-bit version of the ADE."
+#   exit 0
+#   buildRPM "awips2-eclipse"
+#
+#   exit 0
+#fi
+
 if [ "${1}" = "-ade" ]; then
-   echo "INFO: AWIPS II currently does not support a 64-bit version of the ADE."
-   exit 0
    buildRPM "awips2-eclipse"
+   buildJava
+   buildRPM "awips2-ant"
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-cherrypy"
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-h5py"
+   buildRPM "awips2-python-jimporter"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pil"
+   buildRPM "awips2-python-pmw"
+   buildRPM "awips2-python-pupynere"
+   buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-tables"
+   buildRPM "awips2-python-thrift"
+   buildRPM "awips2-python-tpg"
+   buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-pygtk"
+   buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-shapely"
+   buildQPID -ade
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   
+   # Package the ade.
+   # Create the containing directory.
+   ade_directory="awips2-ade-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
+   if [ -d ${WORKSPACE}/${ade_directory} ]; then
+      rm -rf ${WORKSPACE}/${ade_directory}
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   mkdir -p ${WORKSPACE}/${ade_directory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   # Copy the rpms to the directory.
+   cp -v ${AWIPSII_TOP_DIR}/RPMS/x86_64/* \
+      ${AWIPSII_TOP_DIR}/RPMS/noarch/* \
+      ${WORKSPACE}/${ade_directory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   awips2_ade_directory="${WORKSPACE}/rpms/awips2.ade"
+   # Copy the install and uninstall script to the directory.
+   cp -v ${awips2_ade_directory}/tar.ade/scripts/*.sh \
+      ${WORKSPACE}/${ade_directory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+    # Build the source jar file
+    #ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB14.1.1-CM"
+    #cd $ade_work_dir
+    #./build_source_jar.sh
+    #cp -v /tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
+
+   # Tar the directory.
+   pushd . > /dev/null 2>&1
+   cd ${WORKSPACE}
+   tar -cvf ${ade_directory}.tar ${ade_directory}
+   popd > /dev/null 2>&1
+   RC=$?
+   if [ ${RC} -ne 0 ]; then
+      exit 1
+   fi
 
    exit 0
 fi
 
+
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-cli"
+   #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-adapt-native"
+   #unpackHttpdPypies
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi
+   #buildRPM "awips2-httpd-pypies"
+   #buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-rcm"
+   #buildRPM "awips2-tools"
+   #buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-alertviz"
+   #buildRPM "awips2-alertviz"
 
    exit 0
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-common-base"
+   ##buildRPM "awips2-common-base"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-python-dynamicserialize"
 
    exit 0
 fi
 
 if [ "${1}" = "-custom" ]; then
-   buildQPID
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
+   #buildQPID
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi
+   buildRPM "awips2-python"
+   #buildRPM "awips2-alertviz"
+   #buildRPM "awips2-eclipse"
 
    exit 0
 fi

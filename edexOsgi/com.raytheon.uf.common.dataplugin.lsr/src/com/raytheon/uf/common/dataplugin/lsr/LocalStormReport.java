@@ -410,6 +410,7 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     }
 
     @Override
+    @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
     }
@@ -476,6 +477,7 @@ public class LocalStormReport extends PersistablePluginDataObject implements
         return location.getLocationDefined();
     }
 
+    @Override
     @Override
     public PointDataView getPointDataView() {
         return pointDataView;
