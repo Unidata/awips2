@@ -382,6 +382,7 @@ public class UAObs extends PersistablePluginDataObject implements
     }
 
     /**
+    /**
      * Get the station pressure at the observation site.
      * 
      * @return the pressure_station
@@ -487,6 +488,7 @@ public class UAObs extends PersistablePluginDataObject implements
     }
 
     /**
+    /**
      * 
      */
     @Override
@@ -585,6 +587,7 @@ public class UAObs extends PersistablePluginDataObject implements
     public String toString() {
         return wmoHeader;
     }
+
 
     @Override
     @Column

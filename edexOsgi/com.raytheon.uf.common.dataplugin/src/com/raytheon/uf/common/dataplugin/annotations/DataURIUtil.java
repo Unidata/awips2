@@ -73,6 +73,7 @@ public class DataURIUtil {
     private static final Pattern FIELD_SEPARATOR_PATTERN = Pattern.compile("["
             + FIELD_SEPARATOR + "]");
 
+
     private static final String DATAURI_SEPARATOR_ENCODED = "%2F";
 
     private static final String DATAURI_SEPARATOR_ESCAPE_CHAR = "%";
@@ -324,6 +325,7 @@ public class DataURIUtil {
                 Object data = dataMap.get(dataKey);
                 DataURIFieldAccess access = cache.getFieldAccess(dataKey, data);
                 if (access != null) {
+
                     access.setFieldValue(object, data);
                 }
             }
