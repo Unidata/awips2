@@ -142,6 +142,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Oct 15, 2013   2477     mpduff      Fix bug in group settings.
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * Oct 21, 2013   2292     mpduff      Close dialog on OK.
+ * Nov 07, 2013   2291     skorolev    Used showText() method for "Unable to Create Subscription" message.
  * 
  * </pre>
  * 
@@ -1206,9 +1207,11 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                                                 close();
                                             } else {
                                                 setStatus(Status.CANCEL);
-                                                displayPopup(
-                                                        "Unable to Create Subscription",
-                                                        status.getMessage());
+                                                DataDeliveryUtils
+                                                        .showText(
+                                                                getShell(),
+                                                                "Unable to Create Subscription",
+                                                                status.getMessage());
                                             }
                                         }
                                     }
