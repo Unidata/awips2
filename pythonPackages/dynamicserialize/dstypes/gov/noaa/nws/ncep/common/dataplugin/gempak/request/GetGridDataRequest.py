@@ -34,7 +34,7 @@ class GetGridDataRequest(object):
     def getFcstsec(self):
         return self.fcstsec
 
-    def setFcstSec(self, reftime):
+    def setFcstSec(self, fcstsec):
         self.fcstsec = fcstsec
 
     def getLevel1(self):
