@@ -90,9 +90,12 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                     .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY);
             LocalizationManager.getInstance().setCurrentServer(servicesProxy);
             if (!disableJMS) {
-                GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
-                        servicesProxy, false);
-                VizApp.setJmsConnectionString(resp.getJmsConnectionString());
+                GetServersRequest req = new GetServersRequest();
+                GetServersResponse resp = (GetServersResponse) ThriftClient
+                        .sendLocalizationRequest(req);
+                if (!disableJMS) {
+                    VizApp.setJmsConnectionString(resp.getJmsConnectionString());
+                }
             }
             VizApp.setHttpServer(servicesProxy);
             VizApp.setPypiesServer(store
