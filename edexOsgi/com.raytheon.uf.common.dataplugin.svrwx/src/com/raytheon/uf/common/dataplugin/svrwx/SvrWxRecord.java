@@ -154,6 +154,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
     }
 
     @Override
+    @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
     }
