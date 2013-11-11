@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
 /**
  * Implementation of a colormap
@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *                                       usable
  *  Jan 10, 2013 15648       ryu         Added removeDuplicates() method.
  *  Apr 18, 2013  1920       mpduff      Default changed to true.
+ *  Nov 11, 2013  2361       njensen     Added JAXB
  * 
  * </pre>
  * 
@@ -59,7 +60,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "colorMap")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ColorMap extends AbstractColorMap implements ISerializableObject {
+public class ColorMap extends AbstractColorMap {
+
+    public static final SingleTypeJAXBManager<ColorMap> JAXB = SingleTypeJAXBManager
+            .createWithoutException(ColorMap.class);
 
     @XmlElements({ @XmlElement(name = "color", type = Color.class) })
     List<Color> colors;
@@ -71,7 +75,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
     private boolean changed = true;
 
     /**
-     * Constructor used by JiBX
+     * Constructor
      */
     public ColorMap() {
         this.colors = new ArrayList<Color>();

@@ -21,7 +21,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -43,6 +42,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 										 load/check for locked colormaps.
  * 04/10/2013   #958         qzhou       Added SolarImage in getColorMapCategories.
  * 08/06/2013   2210         njensen     Moved colormaps to common_static
+ * Nov 11, 2013 2361         njensen     Use ColorMap.JAXB for XML processing
  * </pre>
  * 
  * @author Q. Zhou
@@ -77,8 +77,8 @@ public class ColorMapUtil {
                                 + cmapCat + File.separator + name + ".cmap");
 
                 if (f != null) {
-                    ColorMap cm = (ColorMap) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(f.getAbsolutePath());
+                    ColorMap cm = ColorMap.JAXB.unmarshalFromXmlFile(f
+                            .getAbsolutePath());
 
                     cm.setName(name);
                     return cm;
@@ -179,8 +179,8 @@ public class ColorMapUtil {
         File cmapFile = lclFile.getFile();
 
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(colorMap,
-                    cmapFile.getAbsolutePath());
+            ColorMap.JAXB
+                    .marshalToXmlFile(colorMap, cmapFile.getAbsolutePath());
 
             lclFile.save();
 
@@ -299,8 +299,8 @@ public class ColorMapUtil {
                 if (files.containsKey(LocalizationLevel.SITE)) {
                     f = files.get(LocalizationLevel.SITE).getFile();
                 }
-                ColorMap cm = (ColorMap) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(f.getAbsolutePath());
+                ColorMap cm = ColorMap.JAXB.unmarshalFromXmlFile(f
+                        .getAbsolutePath());
                 cm.setName(name);
                 return cm;
             } else {

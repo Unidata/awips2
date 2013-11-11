@@ -39,7 +39,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -54,6 +53,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Aug 20, 2008			   dglazesk    Updated for the new ColorMap interface
  * 									   and for the JiBX to JaXB transition
  * Aug 06, 2013    2210    njensen     Moved colormaps to common_static
+ * Nov 11, 2013    2361    njensen     Use ColorMap.JAXB for XML processing
  * 
  * </pre>
  * 
@@ -181,7 +181,7 @@ public class ColorUtil {
         }
 
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(aColorMap, path.toString());
+            ColorMap.JAXB.marshalToXmlFile(aColorMap, path.toString());
         } catch (SerializationException e) {
             throw new VizException("Unable to serialize ColorMap "
                     + aColorMap.getName(), e);
@@ -250,7 +250,7 @@ public class ColorUtil {
         String xml;
         try {
             // JAXB marshaling
-            xml = SerializationUtil.marshalToXml(aColorMap);
+            xml = ColorMap.JAXB.marshalToXml(aColorMap);
         } catch (JAXBException e1) {
             throw new LocalizationOpFailedException(
                     "Unable to Marshal colormap " + aColorMap.getName(), e1);
