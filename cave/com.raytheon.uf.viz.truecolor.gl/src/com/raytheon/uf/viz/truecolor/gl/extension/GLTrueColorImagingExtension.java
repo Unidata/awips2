@@ -52,7 +52,8 @@ import com.raytheon.viz.core.gl.images.AbstractGLImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 6, 2012            mschenke     Initial creation
+ * Aug  6, 2012            mschenke    Initial creation
+ * Nov  4, 2013 2492       mschenke    Reworked to use GLSL Data mapping
  * 
  * </pre>
  * 
