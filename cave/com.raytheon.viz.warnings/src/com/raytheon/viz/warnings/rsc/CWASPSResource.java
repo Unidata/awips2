@@ -56,6 +56,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 10, 2013 1951       rjpeter     Initial history entry, updated ugcZones references
+ * Nov 08, 2013	16758	   mgamazaychikov Added mergeWatches to simplify SPS processing 
+ * 										  and getEventKey to create SPS-unique key
  * </pre>
  * 
  * @author rjpeter
@@ -286,4 +288,27 @@ public class CWASPSResource extends WatchesResource {
 
         return textToPrint;
     }
+    
+	/**
+	 * Groups all the ugc zones with the same 'product.act.phensig.etn'
+	 * 
+	 * Since there are no ugc zones in SPSs return the input watch records
+	 * without changing them.
+	 */
+	protected List<AbstractWarningRecord> mergeWatches(
+			List<AbstractWarningRecord> watchrecs) {
+		return watchrecs;
+	}
+
+	/**
+	 * Create unique enough key to be used in paint method entryMap
+	 * 
+	 * Use wmoId and countyHeader fields
+	 **/
+	@Override
+	protected String getEventKey(WarningEntry entry) {
+		AbstractWarningRecord rec = entry.record;
+		return rec.getWmoid().replaceAll(" ", "_") + ':'
+				+ rec.getInsertTime().getTimeInMillis();
+	}
 }
