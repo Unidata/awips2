@@ -133,6 +133,7 @@ public class ColorMapParameters {
     protected Unit<?> colorMapUnit;
 
     /** Units of the data values to colormap */
+    @Deprecated
     protected Unit<?> dataUnit;
 
     /** The maximum value used to apply the colormap */
@@ -142,9 +143,11 @@ public class ColorMapParameters {
     protected float colorMapMin;
 
     /** The maximum (usually theoretical) value of the data */
+    @Deprecated
     protected float dataMax;
 
     /** The minimum (usually theoretical) value of the data */
+    @Deprecated
     protected float dataMin;
 
     /** The intervals upon which to apply labeling to the color bar */
@@ -162,15 +165,19 @@ public class ColorMapParameters {
     protected String colorMapName;
 
     /** The converter that converts data values to {@link #displayUnit} * */
+    @Deprecated
     protected UnitConverter dataToDisplayConverter;
 
     /** The converter that converts display values to {@link #dataUnit} * */
+    @Deprecated
     protected UnitConverter displayToDataConverter;
 
     /** The converter that converts data values to {@link #colorMapUnit} */
+    @Deprecated
     protected UnitConverter dataToColorMapConverter;
 
     /** The converter that converts color map unit values to {@link #dataUnit} */
+    @Deprecated
     protected UnitConverter colorMapToDataConverter;
 
     /** The converter that converts color map unit values to {@link #displayUnit} */
@@ -491,32 +498,40 @@ public class ColorMapParameters {
     }
 
     /**
+     * @deprecated data max is not important for general colormapping use
      * @return the dataMax
      */
+    @Deprecated
     public float getDataMax() {
         return dataMax;
     }
 
     /**
+     * @deprecated data max is not important for general colormapping use
      * @param dataMax
      *            the dataMax to set
      */
+    @Deprecated
     public void setDataMax(float dataMax) {
         this.dataMax = dataMax;
         notifyListener();
     }
 
     /**
+     * @deprecated data min is not important for general colormapping use
      * @return the dataMin
      */
+    @Deprecated
     public float getDataMin() {
         return dataMin;
     }
 
     /**
+     * @deprecated data min is not important for general colormapping use
      * @param dataMin
      *            the dataMin to set
      */
+    @Deprecated
     public void setDataMin(float dataMin) {
         this.dataMin = dataMin;
         notifyListener();
@@ -563,8 +578,10 @@ public class ColorMapParameters {
     /**
      * Returns the unit data values to be colormapped are in
      * 
+     * @deprecated data unit is not important for general colormapping use
      * @return the dataUnit
      */
+    @Deprecated
     public Unit<?> getDataUnit() {
         return dataUnit;
     }
@@ -572,9 +589,11 @@ public class ColorMapParameters {
     /**
      * Sets the unit data values to be colormapped are in
      * 
+     * @deprecated data unit is not important for general colormapping use
      * @param dataUnit
      *            the dataUnit to set
      */
+    @Deprecated
     public void setDataUnit(Unit<?> dataUnit) {
         this.dataUnit = dataUnit;
 
@@ -595,8 +614,10 @@ public class ColorMapParameters {
      * Returns the {@link UnitConverter} from {@link #dataUnit} to
      * {@link #displayUnit}
      * 
+     * @deprecated data unit is not important for general colormapping use
      * @return the dataToDisplayConverter
      */
+    @Deprecated
     public UnitConverter getDataToDisplayConverter() {
         if (dataToDisplayConverter == null) {
             dataToDisplayConverter = constructConverter(dataUnit, displayUnit);
@@ -611,8 +632,10 @@ public class ColorMapParameters {
      * Returns the {@link UnitConverter} from {@link #displayUnit} to
      * {@link #dataUnit}
      * 
+     * @deprecated data unit is not important for general colormapping use
      * @return the displayToDataConverter
      */
+    @Deprecated
     public UnitConverter getDisplayToDataConverter() {
         if (displayToDataConverter == null) {
             displayToDataConverter = constructConverter(displayUnit, dataUnit);
@@ -667,8 +690,10 @@ public class ColorMapParameters {
      * Returns a {@link UnitConverter} converting {@link #dataUnit} values to
      * the {@link #colorMapUnit} if compatible or null otherwise
      * 
+     * @deprecated data unit is not important for general colormapping use
      * @return
      */
+    @Deprecated
     public UnitConverter getDataToColorMapConverter() {
         if (dataToColorMapConverter == null) {
             dataToColorMapConverter = constructConverter(dataUnit, colorMapUnit);
@@ -773,8 +798,10 @@ public class ColorMapParameters {
      * Returns a {@link UnitConverter} converting {@link #colorMapUnit} values
      * to the {@link #dataUnit} if compatible or null otherwise
      * 
+     * @deprecated data unit is not important for general colormapping use
      * @return
      */
+    @Deprecated
     public UnitConverter getColorMapToDataConverter() {
         if (colorMapToDataConverter == null) {
             colorMapToDataConverter = constructConverter(colorMapUnit, dataUnit);
