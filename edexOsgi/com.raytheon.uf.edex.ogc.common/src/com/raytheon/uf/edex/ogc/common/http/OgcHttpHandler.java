@@ -22,11 +22,15 @@
  */
 package com.raytheon.uf.edex.ogc.common.http;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.ws.rs.core.Response.Status;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -42,6 +46,7 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
 import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
+import com.raytheon.uf.edex.ogc.common.output.ServletOgcResponse;
 
 
 /**
@@ -53,7 +58,8 @@ import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 2011            bclement     Initial creation
+ * 2011                     bclement     Initial creation
+ * Nov 11, 2013 2539        bclement    added accept encoding parsing
  * 
  * </pre>
  * 
@@ -71,6 +77,8 @@ public abstract class OgcHttpHandler {
     public static final String VERSION_HEADER = "version";
 
     public static final String ACCEPT_VERSIONS_HEADER = "acceptversions";
+
+    public static final String ACCEPT_ENC_HEADER = "accept-encoding";
 
     public abstract void handle(OgcHttpRequest request);
 
@@ -285,4 +293,67 @@ public abstract class OgcHttpHandler {
         return rval;
     }
 
+    /**
+     * Check if accept encoding header is present and modify response
+     * accordingly.
+     * 
+     * @param headers
+     * @param response
+     * @throws OgcException
+     *             on internal server error
+     * @throws OgcHttpErrorException
+     *             on HTTP protocol error condition
+     */
+    protected void acceptEncodingCheck(Map<String, Object> headers,
+            ServletOgcResponse response) throws OgcException,
+            OgcHttpErrorException {
+        Object obj = headers.get(ACCEPT_ENC_HEADER);
+        if (obj == null) {
+            // omitted accept encoding signifies that they accept anything
+            return;
+        }
+        if (!(obj instanceof String)) {
+            log.error("Unsupported header type encountered: " + obj.getClass());
+            throw new OgcException(Code.InternalServerError);
+        }
+        String encoding = (String) obj;
+        boolean gzipAcceptable = false;
+        boolean anyAcceptable = false;
+        for (AcceptHeaderValue value : new AcceptHeaderParser(encoding)) {
+            if (value.getEncoding().toLowerCase().contains("gzip")
+                    && value.isAcceptable()) {
+                gzipAcceptable = true;
+            } else if (value.getEncoding().trim().equals("*")) {
+                anyAcceptable = true;
+            }
+        }
+        if (gzipAcceptable) {
+            response.enableGzip();
+        } else if (!anyAcceptable) {
+            throw new OgcHttpErrorException(406);
+        }
+    }
+
+    /**
+     * Output HTTP protocol error
+     * 
+     * @param response
+     * @param errorCode
+     * @throws IOException
+     */
+    protected void outputHttpError(ServletOgcResponse response, int errorCode)
+            throws IOException {
+        response.setStatus(errorCode);
+        response.setContentType("text/plain");
+        Writer writer = null;
+        try {
+            writer = new OutputStreamWriter(response.getOutputStream());
+            writer.write(Status.fromStatusCode(errorCode).toString());
+        } finally {
+            if (writer != null) {
+                writer.flush();
+                writer.close();
+            }
+        }
+    }
 }
