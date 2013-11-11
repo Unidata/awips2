@@ -38,7 +38,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -57,6 +56,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Aug 06, 2013  2210     njensen     Moved colormaps to common_static
  * Sep 18, 2013  2421     bsteffen    Moved some listing capabilities into
  *                                    ColorMapTree.
+ * Nov 11, 2013  2361     njensen     Use ColorMap.JAXB for XML processing
  * 
  * </pre>
  * 
@@ -263,8 +263,8 @@ public class ColorMapLoader {
     private static IColorMap loadColorMap(String name,
             LocalizationFile colorMapFile) throws SerializationException {
         if (colorMapFile != null) {
-            ColorMap cm = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    ColorMap.class, colorMapFile.getFile().getAbsolutePath());
+            ColorMap cm = ColorMap.JAXB.unmarshalFromXmlFile(colorMapFile
+                    .getFile().getAbsolutePath());
             cm.setName(name);
             cm.setChanged(false);
             return cm;
