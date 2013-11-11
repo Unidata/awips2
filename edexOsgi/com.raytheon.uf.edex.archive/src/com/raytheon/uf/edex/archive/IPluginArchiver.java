@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.maintenance.archive;
+package com.raytheon.uf.edex.archive;
 
 /**
- * TODO Add Description
+ * Interface for archiving data based on plugins.
  * 
  * <pre>
  * 
@@ -29,12 +29,13 @@ package com.raytheon.uf.edex.maintenance.archive;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2011            rjpeter     Initial creation
- * 
+ * Nov 05, 2013 2499       rjpeter     Repackaged
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 
-public interface IDataArchiver {
+public interface IPluginArchiver {
+    public void archivePlugin(String pluginName, String archivePath);
 }
