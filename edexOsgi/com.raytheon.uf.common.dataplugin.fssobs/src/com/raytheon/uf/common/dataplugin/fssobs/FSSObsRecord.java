@@ -12,7 +12,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -1033,7 +1032,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
         return totCloudAmount;
     }
 
-    @Override
     @Override
     public ISpatialObject getSpatialObject() {
         return location;
