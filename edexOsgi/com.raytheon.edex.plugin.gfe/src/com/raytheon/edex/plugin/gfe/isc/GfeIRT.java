@@ -32,6 +32,7 @@ import jep.JepException;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -81,8 +82,6 @@ public class GfeIRT extends Thread {
     /** The site ID associated with this IRT thread */
     private final String siteID;
 
-    private final IFPServerConfig config;
-
     /** The MHS ID associated with this IRT thread */
     private final String mhsID;
 
@@ -119,20 +118,15 @@ public class GfeIRT extends Thread {
      *             If the GFE configuration for the specified site could not be
      *             loaded.
      */
-    public GfeIRT(String mhsid, String siteid) throws GfeConfigurationException {
+    public GfeIRT(String siteid, IFPServerConfig config)
+            throws GfeConfigurationException {
         this.setDaemon(true);
         this.siteID = siteid;
-        this.config = config;
         this.mhsID = config.getMhsid();
-
-        IFPServerConfig config = IFPServerConfigManager.getServerConfig(siteID);
-        shutdownHooks.put(mhsID + siteID, hook);
 
         this.serverHost = config.getServerHost();
         this.serverPort = config.getRpcPort();
         this.serverProtocol = config.getProtocolVersion();
-            script = new PythonScript(scriptFile, includePath, this.getClass()
-                    .getClassLoader());
 
         GridLocation domain = config.dbDomain();
 
@@ -147,13 +141,11 @@ public class GfeIRT extends Thread {
         this.gridBoundBox.add(domain.getOrigin().y);
         this.gridBoundBox.add(domain.getExtent().x);
         this.gridBoundBox.add(domain.getExtent().y);
-                List<DatabaseID> dbs = IFPServer.getActiveServer(siteID)
-                        .getGridParmMgr().getDbInventory().getPayload();
 
         this.parmsWanted = config.requestedISCparms();
         if (this.parmsWanted.isEmpty()) {
-            List<DatabaseID> dbs = GridParmManager.getDbInventory(this.siteID)
-                    .getPayload();
+            List<DatabaseID> dbs = IFPServer.getActiveServer(this.siteID)
+                    .getGridParmMgr().getDbInventory().getPayload();
             for (DatabaseID dbId : dbs) {
                 if ((dbId.getModelName().equals("ISC"))
                         && (dbId.getDbType().equals(""))
@@ -208,7 +200,7 @@ public class GfeIRT extends Thread {
             }
         };
         java.lang.Runtime.getRuntime().addShutdownHook(hook);
-        shutdownHooks.put(mhsid + siteid, hook);
+        shutdownHooks.put(mhsID + siteID, hook);
     }
 
     @Override
