@@ -23,7 +23,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 
 /**
- * Factory for creating GLSL struct mappings
+ * Factory for creating API defined GLSL structs in a {@link GLShaderProgram}.
  * 
  * <pre>
  * 
