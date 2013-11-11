@@ -163,7 +163,6 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
     }
 
     @Override
-    @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
     }
