@@ -27,7 +27,8 @@ import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 
 /**
- * TODO Add Description
+ * Default GL imaging extension. Renders RGB images in GL applying alpha,
+ * brightness, and contrast settings.
  * 
  * <pre>
  * 
