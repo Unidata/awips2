@@ -1361,7 +1361,7 @@ public class ContourSupport {
         // for ( int kk = 0; kk < 365; kk++ ){
         // System.out.println( kk + "  " + adjustedUw[kk]+ "  " + uW[kk]);
         // }
-        
+
         uW = null;
         vW = null;
 
@@ -1431,6 +1431,7 @@ public class ContourSupport {
 
                         rastPosToWorldGrid.transform(
                                 new double[] { f, point.getY() + minY }, 0,
+                                out, 0, 1);
 
                         pts.add(new Coordinate(f, point.getY() + minY));
 
