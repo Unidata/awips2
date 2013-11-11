@@ -107,6 +107,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Nov 08, 2013 2506       bgonzale     Added RegistryObjectType to RemoveRegistryEvent.
  * 
  * </pre>
  * 
@@ -1000,7 +1001,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     private void sendDeletedSubscriptionEvent(Subscription subscription) {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
-                subscription.getOwner(), subscription.getId());
+                subscription.getOwner(), subscription.getId(), null);
         event.setObjectType(DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION);
         bandwidthManager.subscriptionRemoved(event);
     }
