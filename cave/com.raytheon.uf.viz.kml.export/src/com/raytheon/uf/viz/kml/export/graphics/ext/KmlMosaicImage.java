@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.kml.export.graphics.ext;
 
 import java.util.Comparator;
 
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
@@ -144,6 +146,16 @@ class KmlMosaicImage implements IMosaicImage {
     @Override
     public void setImageExtent(IExtent imageExtent) {
         this.imageExtent = imageExtent;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getDataUnit()
+     */
+    @Override
+    public Unit<?> getDataUnit() {
+        return getColorMapParameters().getColorMapUnit();
     }
 
 }
