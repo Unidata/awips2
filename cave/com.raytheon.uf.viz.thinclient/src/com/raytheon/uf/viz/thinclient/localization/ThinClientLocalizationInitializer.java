@@ -25,13 +25,14 @@ import org.apache.commons.collections.map.DefaultedMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
-import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
