@@ -321,8 +321,7 @@ public class GFESiteActivation implements ISiteActivationListener {
                     && System.getProperty("edex.run.mode").equals("request")) {
                 statusHandler.info("Enabling ISC...");
                 try {
-                    IRTManager.getInstance().enableISC(siteID,
-                            config.getMhsid());
+                    IRTManager.getInstance().enableISC(siteID, config);
                     isIscActivated = true;
                 } catch (Exception e) {
                     statusHandler
