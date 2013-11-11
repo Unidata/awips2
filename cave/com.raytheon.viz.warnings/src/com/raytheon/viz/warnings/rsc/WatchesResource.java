@@ -50,6 +50,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * May 06, 2013 1930       bsteffen    Check for null in WatchesResource.
  * May 10, 2013 1951       rjpeter     Updated ugcZones references
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
+ * Nov  8, 2013 16758      mgamazaychikov Changed access modifier of mergeWatches to protected 
+ * 										  so a child class can override the implementation.
  * </pre>
  * 
  * @author jsanchez
@@ -377,7 +379,7 @@ public class WatchesResource extends AbstractWWAResource {
     /**
      * Groups all the ugc zones with the same 'product.act.phensig.etn'
      */
-    private List<AbstractWarningRecord> mergeWatches(
+    protected List<AbstractWarningRecord> mergeWatches(
             List<AbstractWarningRecord> watchrecs) {
         Map<String, AbstractWarningRecord> watches = new HashMap<String, AbstractWarningRecord>();
         for (AbstractWarningRecord watchrec : watchrecs) {
