@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.maintenance.archive;
+package com.raytheon.uf.edex.archive;
 
 import java.io.File;
 import java.util.Calendar;
@@ -51,7 +51,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Mar 12, 2013 1783       rferrel      Replace ArrayList with LinkedList to
  *                                       remove excess capacity and reduce
  *                                       time to resize a growing list.
- * 
+ * Nov 05, 2013 2499       rjpeter      Repackaged
  * </pre>
  * 
  * @author dgilling
