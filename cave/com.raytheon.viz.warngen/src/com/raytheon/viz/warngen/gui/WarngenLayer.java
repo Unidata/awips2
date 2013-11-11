@@ -396,6 +396,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Polygon oldWarningPolygon;
 
+        private boolean haveInput;
+
         public AreaHatcher(PolygonUtil polygonUtil) {
             super("Hatching Warning Area");
             setSystem(true);
@@ -513,6 +515,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 this.warningPolygon = warningPolygon;
                 this.warningArea = warningArea;
                 this.oldWarningPolygon = oldWarningPolygon;
+                this.haveInput = true;
             }
             schedule();
         }
@@ -520,12 +523,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
         public synchronized Geometry[] getHatchedAreas() {
             Polygon hatchedArea = null;
             Geometry hatchedWarningArea = null;
-            if (getState() == Job.RUNNING) {
+            while (getState() != Job.NONE) {
                 try {
                     join();
                 } catch (InterruptedException e) {
+                    break;
                 }
             }
+            if (! this.haveInput)
+                return null;
             hatchedArea = this.hatchedArea;
             hatchedWarningArea = this.hatchedWarningArea;
             return new Geometry[] { hatchedArea, hatchedWarningArea };
@@ -2254,13 +2260,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     /**
-     * 
+     * @return true if the box has been redraw successfully
      */
-    public void redrawBoxFromHatched() throws VizException {
+    public boolean redrawBoxFromHatched() {
+        boolean result = true;
         if (state.snappedToArea == false) {
             if (state.getWarningArea() == null
                     || state.getWarningArea().isEmpty()) {
-                return;
+                return true;
             }
 
             try {
@@ -2269,6 +2276,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 Geometry hatchedArea = state.getWarningArea();
                 if (areaHatcher != null) {
                     Geometry[] areas = areaHatcher.getHatchedAreas();
+                    if (areas == null) {
+                        // Somehow, the hatcher has not been run.  Try it now.
+                        warningAreaChanged();
+                        areas = areaHatcher.getHatchedAreas();
+                        // If still null, give up.
+                        if (areas == null)
+                            return false;
+                    }
                     hatched = (Polygon) areas[0];
                     hatchedArea = areas[1];
                 }
@@ -2302,15 +2317,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     issueRefresh();
                     statusHandler.handle(Priority.PROBLEM,
                             "Could not redraw box from warned area");
+                    result = false;
                 }
                 System.out.println("Time to createWarningPolygon: "
                         + (System.currentTimeMillis() - t0) + "ms");
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error hatching polygon", e);
+                result = false;
             }
             issueRefresh();
         }
+        return result;
     }
 
     public void createDamThreatArea(Coordinate[] coordinates) {
