@@ -23,7 +23,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -37,6 +46,7 @@ import com.raytheon.uf.common.pointdata.elements.FloatPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.IntPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.LongPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.StringPointDataObject;
+import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -49,8 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009             chammack    Initial creation
- * Oct 9, 2013  2361       njensen     Removed XML annotations
+ * Apr 8, 2009            chammack     Initial creation
  * 
  * </pre>
  * 
@@ -58,17 +67,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class PointDataContainer {
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class PointDataContainer implements ISerializableObject {
 
     protected static final int DEFAULT_SZ = 2048;
 
     @DynamicSerializeElement
+    @XmlAttribute
     protected int currentSz;
 
     @DynamicSerializeElement
+    @XmlAttribute
     protected int allocatedSz;
 
     @DynamicSerializeElement
+    @XmlElement
+    @XmlJavaTypeAdapter(value = PointDataMarshaller.class)
     protected HashMap<String, AbstractPointDataObject<?>> pointDataTypes;
 
     public PointDataContainer() {
@@ -409,6 +424,55 @@ public class PointDataContainer {
      */
     public void setCurrentSz(int currentSz) {
         this.currentSz = currentSz;
+    }
+
+    public static class PointDataMarshaller
+            extends
+            XmlAdapter<PointDataSerializable, HashMap<String, AbstractPointDataObject<?>>> {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * javax.xml.bind.annotation.adapters.XmlAdapter#marshal(java.lang.Object
+         * )
+         */
+        @Override
+        public PointDataSerializable marshal(
+                HashMap<String, AbstractPointDataObject<?>> v) throws Exception {
+            PointDataSerializable serializable = new PointDataSerializable();
+            PointDataSerializable.PointDataItemSerializable[] items = new PointDataSerializable.PointDataItemSerializable[v
+                    .size()];
+            int i = 0;
+            for (Entry<String, AbstractPointDataObject<?>> entry : v.entrySet()) {
+                items[i] = new PointDataSerializable.PointDataItemSerializable();
+                items[i].key = entry.getKey();
+                items[i].value = entry.getValue();
+                i++;
+            }
+            serializable.items = items;
+            return serializable;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * javax.xml.bind.annotation.adapters.XmlAdapter#unmarshal(java.lang
+         * .Object)
+         */
+        @Override
+        public HashMap<String, AbstractPointDataObject<?>> unmarshal(
+                PointDataSerializable v) throws Exception {
+            HashMap<String, AbstractPointDataObject<?>> map = new HashMap<String, AbstractPointDataObject<?>>(
+                    v.items.length);
+            for (PointDataSerializable.PointDataItemSerializable item : v.items) {
+                map.put(item.key, item.value);
+            }
+
+            return map;
+        }
+
     }
 
     protected AbstractPointDataObject<?> getParamSafe(String parameter) {
