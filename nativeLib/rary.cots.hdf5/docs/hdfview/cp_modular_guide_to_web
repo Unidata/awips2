@@ -1,7 +1,0 @@
-
-cp -r ModularGuide  /afs/ncsa.uiuc.edu/web/HDF/htdocs/hdf-java-html/hdfview/
-
-chmod -R 755 /afs/ncsa.uiuc.edu/web/HDF/htdocs/hdf-java-html/hdfview
-
-ls -l /afs/ncsa.uiuc.edu/web/HDF/htdocs/hdf-java-html/hdfview
-
