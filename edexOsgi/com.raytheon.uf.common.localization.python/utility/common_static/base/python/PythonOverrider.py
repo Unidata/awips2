@@ -30,15 +30,13 @@
 #    03/12/13                      mnash        Initial Creation.
 #    11/04/13        2086          bkowal       Updated to merge classes - both legacy and non-legacy.
 #                                               Minimum to Maximum level of retrieval can now be specified.
+#    11/12/13        2540          bkowal       Relocated common methods to PythonOverriderCore.py.
 #
 #
 #
 
-import os
-import imp
-import types
+import PythonOverriderCore
 from PathManager import PathManager
-import LocalizationUtil
 
 def importModule(name, loctype='COMMON_STATIC', level=None):
     """
@@ -56,134 +54,11 @@ def importModule(name, loctype='COMMON_STATIC', level=None):
     pathManager = PathManager()
     tieredFiles = pathManager.getTieredLocalizationFile(loctype, name)
     availableLevels = pathManager.getAvailableLevels()
-    if level == None:
-        levels = availableLevels
-    else:
-        # ensure that the specified level is actually a legitimate level
-        if level not in availableLevels:
-            raise LookupError('An invalid level has been specified!')
-        
-        levels = []
-        try:
-            levelIdx = availableLevels.index(level)
-            levels = availableLevels[:levelIdx + 1]
-        except ValueError:
-            # ignore; the exception should never be thrown, we verify that the specified level
-            # is valid in the previous if statement
-            pass
+    levels = PythonOverriderCore._buildLocalizationLevelsList(availableLevels, level)
         
     lfiles = []
     for _level in levels :
         if _level in tieredFiles:
             lfiles.append(tieredFiles[_level].getPath())
-    themodule = _internalOverride(lfiles)
+    themodule = PythonOverriderCore._internalOverride(lfiles)
     return themodule
-    
-def _internalOverride(files):
-    """
-    Takes the files and overrides them
-    
-    Args:
-            files : the files that are to be overridden
-    
-    Returns:
-            a new module that contains all the necessary elements
-    """    
-    themodule = imp.new_module('tmpmodule')
-    # modules = list of all the modules
-    for module in files :
-        # load each module, temporarily
-        tmpmodule = LocalizationUtil.loadModule(module)
-        themodule = _combineMembers(tmpmodule, themodule)
-    return themodule
-
-def _combineMembers(tocombine, combinationresult):
-    for attr in dir(tocombine):
-        if attr.startswith('__') or attr.startswith('_') or isType(attr, types.BuiltinFunctionType):
-            # skip
-            continue
-        
-        # is the element a class?
-        if isType(getattr(tocombine, attr), types.ClassType):
-            combinationresult = _mergeClasses(tocombine, combinationresult, attr)
-        else:
-            # absolute override
-            combinationresult = _mergeAttributes(tocombine, combinationresult, attr)
-        
-    return combinationresult
-
-def _mergeClasses(source, target, className):
-    sourceClass = getattr(source, className)
-    targetClass = getattr(target, className, None)
-    
-    if (targetClass == None):
-        return _mergeAttributes(source, target, className)
-    
-    legacyMode = (hasattr(sourceClass, '__class__') == False)
-    
-    # verify that both classes are either legacy for current style.
-    if ((hasattr(targetClass, '__class__') == False) != legacyMode):
-        raise Exception("A legacy python class cannot be merged with a non-legacy python class!")
-    
-    # ensure that the classes are not exactly the same (breaks the legacy merge).
-    if compareClasses(sourceClass, targetClass):
-        # nothing to merge
-        return target
-    
-    for attr in dir(sourceClass):
-         # include private attributes because this is a class? 
-         # methods cannot just be merged into a class, so skip them.
-         if isType(attr, types.BuiltinFunctionType) or isType(attr, types.MethodType) or \
-         attr.startswith('__') or attr.startswith('_'):
-             continue
-         
-         # do we need to worry about nested classes?
-         if isType(getattr(sourceClass, attr), types.ClassType):
-             target = _mergeClasses(source, target, attr)
-         
-         attributeName = className + '.' + attr
-         target = _mergeAttributes(source, target, attributeName)
-         
-    # complete the merge / override of methods.
-    exec(_buildMergeDirective(className, legacyMode))
-    return _mergeAttributes(source, target, className)
-
-def _buildMergeDirective(className, legacyMode):
-    if (legacyMode):
-        return 'source.' + className + '.__bases__ = (target.' + className + ',)'
-    else:
-        return 'source.' + className + ' = type("' + className + \
-            '", (target.' + className + ',), dict(source.' + className + '.__dict__))'
-
-def isType(object, type):
-    return type(object) == type
-            
-def compareClasses(clazz1, clazz2):
-    clazz1Attr = dir(clazz1)
-    clazz2Attr = dir(clazz2)
-
-    if (len(clazz1Attr) != len(clazz2Attr)):
-        return False
-
-    i = 0
-    while i < len(clazz1Attr):
-        # compare the names
-        if (clazz1Attr[i] != clazz2Attr[i]):
-            return False
-
-        # compare the attributes directly
-        attr1 = getattr(clazz1, clazz1Attr[i])
-        attr2 = getattr(clazz2, clazz2Attr[i])
-        if (attr1 != attr2):
-            return False
-
-        i += 1
-
-    return True
-
-def _mergeAttributes(source, target, attributeName):
-    
-    mergeDirective = 'target.' + attributeName + ' = source.' + attributeName
-    exec(mergeDirective)
-    
-    return target
