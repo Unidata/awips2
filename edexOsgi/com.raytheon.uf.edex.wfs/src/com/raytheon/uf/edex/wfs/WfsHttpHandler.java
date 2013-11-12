@@ -45,9 +45,9 @@ import com.raytheon.uf.edex.ogc.common.OgcException.Code;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.Version;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
+import com.raytheon.uf.edex.ogc.common.http.OgcHttpErrorException;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpHandler;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpRequest;
-import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
 import com.raytheon.uf.edex.ogc.common.output.ServletOgcResponse;
 
@@ -106,7 +106,8 @@ public class WfsHttpHandler extends OgcHttpHandler {
 
     protected void handleInternal(OgcHttpRequest req) throws Exception {
         Map<String, Object> headers = req.getHeaders();
-        IOgcHttpResponse response = new ServletOgcResponse(req.getResponse());
+        ServletOgcResponse response = new ServletOgcResponse(req.getResponse());
+
         HttpServletRequest httpReq = req.getRequest();
         int port = httpReq.getLocalPort();
         String host = httpReq.getServerName();
@@ -114,6 +115,13 @@ public class WfsHttpHandler extends OgcHttpHandler {
         // TODO dynamic path and protocol
         EndpointInfo info = new EndpointInfo(host, port, path);
         try {
+            try {
+                acceptEncodingCheck(headers, response);
+            } catch (OgcHttpErrorException e) {
+                // there was a problem with the acceptable encodings
+                outputHttpError(response, e.getCode());
+                return;
+            }
             if (req.isPost()) {
                 InputStream is = req.getInputStream();
                 BufferedInputStream bufin = new BufferedInputStream(is);
