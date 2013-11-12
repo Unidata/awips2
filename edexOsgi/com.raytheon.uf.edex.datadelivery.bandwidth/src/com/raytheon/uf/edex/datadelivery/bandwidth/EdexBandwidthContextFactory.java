@@ -25,6 +25,7 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -52,7 +53,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Add IEdexBandwidthManagerCreator.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
- * Oct 3,  2013 1797       dhladky      Some generics
+ * Oct 03, 2013 1797       dhladky      Some generics
+ * Nov 07, 2013 2506       bgonzale     Added notification handler to bandwidth context.
  * 
  * </pre>
  * 
@@ -82,7 +84,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
                 IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
-                ISubscriptionHandler subscriptionHandler);
+                ISubscriptionHandler subscriptionHandler,
+                ISubscriptionNotificationService notificationService);
     }
 
     private static EdexBandwidthManager instance;
@@ -101,6 +104,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
 
     private final ISubscriptionHandler subscriptionHandler;
 
+    private final ISubscriptionNotificationService notificationService;
+
     /**
      * Intentionally package-private constructor, as it is created from Spring
      * which is able to reflectively instantiate.
@@ -112,6 +117,7 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
      * @param dbInit
      * @param dataSetMetaDataHandler
      * @param subscriptionHandler
+     * @param notificationService
      */
     EdexBandwidthContextFactory(IBandwidthDao<T, C> bandwidthDao,
             IBandwidthBucketDao bandwidthBucketDao,
@@ -119,7 +125,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
             IEdexBandwidthManagerCreator<T, C> bandwidthManagerCreator,
             IBandwidthDbInit dbInit,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService notificationService) {
         this.bandwidthDao = bandwidthDao;
         this.bandwidthBucketDao = bandwidthBucketDao;
         this.bandwidthInitializer = bandwidthInitializer;
@@ -127,6 +134,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
         this.dbInit = dbInit;
         this.dataSetMetaDataHandler = dataSetMetaDataHandler;
         this.subscriptionHandler = subscriptionHandler;
+        this.notificationService = notificationService;
+
     }
 
     /**
@@ -138,7 +147,7 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
      *            the {@link BandwidthManager} instance
      */
     EdexBandwidthContextFactory(EdexBandwidthManager<T, C> instance) {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
         EdexBandwidthContextFactory.instance = instance;
     }
 
@@ -229,6 +238,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
         return bandwidthManagerCreator.getBandwidthManager(dbInit,
-                bandwidthDao, retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler);
+                bandwidthDao, retrievalManager, bandwidthDaoUtil,
+                dataSetMetaDataHandler, subscriptionHandler,
+                notificationService);
     }
 }
