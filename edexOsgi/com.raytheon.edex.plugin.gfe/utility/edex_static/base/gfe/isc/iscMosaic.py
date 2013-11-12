@@ -87,7 +87,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 # 
 
 
-BATCH_WRITE_COUNT = 10
+BATCH_WRITE_COUNT = 20
 BATCH_DELAY = 0.0
 
 ISC_USER="isc"
@@ -113,15 +113,20 @@ class WECache(object):
             for i in tokill:
                 del pyInv[i]
 
-        javaTRs = ArrayList()
-        for tr in pyInv:
-            javaTRs.add(iscUtil.toJavaTimeRange(tr))
-        gridsAndHist = self._we.get(javaTRs, True)
-        for idx, tr in enumerate(pyInv):
-            pair = gridsAndHist.get(idx)
-            g = self.__encodeGridSlice(pair.getFirst())
-            h = self.__encodeGridHistory(pair.getSecond())
-            self._inv[tr] = (g, h)
+        lst = list(pyInv)
+        while len(lst):
+            i = lst[:BATCH_WRITE_COUNT]
+            javaTRs = ArrayList()
+            for tr in i:
+                javaTRs.add(iscUtil.toJavaTimeRange(tr))
+            gridsAndHist = self._we.get(javaTRs, True)
+            for idx, tr in enumerate(i):
+                pair = gridsAndHist.get(idx)
+                g = self.__encodeGridSlice(pair.getFirst())
+                h = self.__encodeGridHistory(pair.getSecond())
+                self._inv[tr] = (g, h)
+            lst = lst[BATCH_WRITE_COUNT:]
+            time.sleep(BATCH_DELAY)
 
     def keys(self):
         if not self._invCache:

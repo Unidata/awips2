@@ -225,8 +225,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
  * 01/09/2013   15528       zhao        Modified saveFile() and restoreFile()
  * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * 09/04/2013   2322        lvenable    Added CAVE style so this dialog is perspective independent
  * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
- * 04Sep2013    #2322       lvenable    Added CAVE style so this dialog is perspective independent
  * 
  * </pre>
  * 

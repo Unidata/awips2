@@ -30,12 +30,16 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/12/13                      mnash        Initial Creation.
+#    11/06/13        2086          bkowal       Add the containing directory to the
+#                                               PYTHONPATH long enough to import
+#                                               the module.
 #    
 # 
 #
 
 import os
 import imp
+import sys
 
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as JavaLocalizationType, LocalizationContext_LocalizationLevel as JavaLocalizationLevel
 
@@ -80,7 +84,19 @@ def loadModule(filename):
     @summary: This function takes a filename and find the module,
     loads it and returns that module
     '''
+    addedToPath = False
+    
     path = os.path.splitext(filename)[0]
+    directory = os.path.dirname(filename)
+    # ensure the module containing directory is on the python path.
+    if sys.path.count(directory) == 0:
+        sys.path.append(directory)
+        addedToPath = True
     filename = os.path.split(path)[1]
     fp, pathname, description = imp.find_module(filename)
-    return imp.load_module(filename, fp, pathname, description)
+    module = imp.load_module(filename, fp, pathname, description)
+    
+    if addedToPath:
+        sys.path.remove(directory)
+    
+    return module

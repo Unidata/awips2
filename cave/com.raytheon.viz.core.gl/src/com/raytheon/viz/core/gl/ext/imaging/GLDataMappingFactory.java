@@ -256,6 +256,10 @@ public class GLDataMappingFactory {
                     float currDelta = (float) (currEndValue - dataMapping[0]);
                     for (int i = 2; i < dataMapping.length; ++i) {
                         double nextValue = dataMapping[i];
+                        // Deltas are compared in float space because it
+                        // minimizes the precision errors and the mapping will
+                        // occur in floats in GLSL so no need for the extra
+                        // precision
                         float nextDelta = (float) ((nextValue - currEndValue) / (i - currEndIndex));
                         if (nextDelta == currDelta) {
                             // Remove linear entries

@@ -176,13 +176,11 @@ def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
         cube[0][idx] = clipToExtrema(vecGrids[0], clipArea)
         cube[1][idx] = clipToExtrema(vecGrids[1], clipArea)
     elif gridType == "WEATHER" or gridType == "DISCRETE":
-        if gridType == "DISCRETE":
-           keys = grid.getKeys()
+        keys = grid.getKeys()
         gridKeys = []
 
         for theKey in keys:
             gridKeys.append(theKey.toString())
-
         keyList.append(gridKeys)
         cube[idx]= clipToExtrema(grid.__numpy__[0], clipArea)
 
