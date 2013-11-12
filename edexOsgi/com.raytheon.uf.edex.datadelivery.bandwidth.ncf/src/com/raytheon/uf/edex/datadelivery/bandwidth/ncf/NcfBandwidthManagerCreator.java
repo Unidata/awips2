@@ -28,6 +28,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
@@ -54,6 +55,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * May 15, 2013 2000       djohnson     Include daos.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * Oct 3   2013 1797       dhladky      Generics added  
+ * Nov 08, 2013 2506       bgonzale     Added subscription notification service to bandwidth manager.
  * 
  * </pre>
  * 
@@ -88,9 +90,11 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                 IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
-                ISubscriptionHandler subscriptionHandler) {
+                ISubscriptionHandler subscriptionHandler,
+                ISubscriptionNotificationService subscriptionNotificationService) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                    dataSetMetaDataHandler, subscriptionHandler);
+                    dataSetMetaDataHandler, subscriptionHandler,
+                    subscriptionNotificationService);
         }
 
         @Override
@@ -125,9 +129,11 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
         return new NcfBandwidthManager(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler);
+                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler,
+                subscriptionNotificationService);
     }
 
 }
