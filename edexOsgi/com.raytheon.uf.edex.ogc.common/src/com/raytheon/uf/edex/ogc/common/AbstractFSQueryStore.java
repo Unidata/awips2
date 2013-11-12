@@ -24,8 +24,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
 
-import com.raytheon.uf.common.spatial.reprojection.KeyLocker;
-import com.raytheon.uf.common.spatial.reprojection.KeyLocker.KeyLock;
+import com.raytheon.uf.common.util.concurrent.KeyLock;
+import com.raytheon.uf.common.util.concurrent.KeyLocker;
 import com.raytheon.uf.edex.ogc.common.OgcException.Code;
 
 /**
@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.ogc.common.OgcException.Code;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2013            bclement     Initial creation
+ * Nov  8, 2013 1314       bclement     updated lock to use read/write
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
     private final Map<String, String> strCache = Collections
             .synchronizedMap(new LRUMap(2));
 
-    private final KeyLocker locker = new KeyLocker();
+    private final KeyLocker<String> locker = new KeyLocker<String>();
 
     /**
      * @param id
@@ -70,13 +71,12 @@ public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
      * @throws Exception
      */
     public void store(String id, T query) throws OgcException {
-        KeyLock lock = locker.getLock(id);
+        KeyLock<String> lock = locker.getLock(id);
         lock.lock();
         try {
             storeObject(id, query);
         } finally {
             lock.unlock();
-            lock.release();
         }
     }
 
@@ -130,13 +130,12 @@ public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
      */
     public T retrieve(String id) throws OgcException {
         T rval;
-        KeyLock lock = locker.getLock(id);
-        lock.lock();
+        KeyLock<String> lock = locker.getLock(id);
+        lock.readLock();
         try {
             rval = retrieveObject(id);
         } finally {
-            lock.unlock();
-            lock.release();
+            lock.readUnlock();
         }
         return rval;
     }
@@ -199,13 +198,12 @@ public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
      * @throws Exception
      */
     protected String retrieveString(String id) throws OgcException {
-        KeyLock lock = locker.getLock(id);
-        lock.lock();
+        KeyLock<String> lock = locker.getLock(id);
+        lock.readLock();
         try {
             return retrieveStringInternal(id);
         } finally {
-            lock.unlock();
-            lock.release();
+            lock.readUnlock();
         }
     }
 
@@ -216,7 +214,7 @@ public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
      * com.raytheon.uf.edex.wfs.querystore.QueryStore#remove(java.lang.String)
      */
     public void remove(String id) {
-        KeyLock lock = locker.getLock(id);
+        KeyLock<String> lock = locker.getLock(id);
         lock.lock();
         try {
             objCache.remove(id);
@@ -227,7 +225,6 @@ public abstract class AbstractFSQueryStore<T> extends AbstractFsStore {
             }
         } finally {
             lock.unlock();
-            lock.release();
         }
     }
 

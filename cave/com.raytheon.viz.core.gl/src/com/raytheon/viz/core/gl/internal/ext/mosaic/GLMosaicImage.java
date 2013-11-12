@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.core.gl.internal.ext.mosaic;
 
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
@@ -170,6 +172,16 @@ public class GLMosaicImage extends GLDelegateImage<GLOffscreenColormappedImage>
     public void setWrappedImage(GLOffscreenColormappedImage wrappedImage) {
         this.image.dispose();
         this.image = wrappedImage;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getDataUnit()
+     */
+    @Override
+    public Unit<?> getDataUnit() {
+        return image.getDataUnit();
     }
 
 }
