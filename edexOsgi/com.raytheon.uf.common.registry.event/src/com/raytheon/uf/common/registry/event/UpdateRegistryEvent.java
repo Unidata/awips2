@@ -33,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jsanchez     Initial creation
+ * Nov 08, 2013 2506       bgonzale     Added constructors.
  * 
  * </pre>
  * 
@@ -48,9 +49,6 @@ public class UpdateRegistryEvent extends RegistryEvent {
     }
 
     public UpdateRegistryEvent(String id, String lid, String objectType) {
-        this.id = id;
-        setLid(lid);
-        setObjectType(objectType);
-        setAction(Action.UPDATE);
+        super(id, lid, objectType, Action.UPDATE);
     }
 }

@@ -29,6 +29,8 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
 import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
 import com.raytheon.uf.edex.wmo.message.WMOMessage;
+import com.raytheon.uf.edex.wmo.message.XmlWMOMessage;
+
 /**
  * Deserializes the retrieved data in a retrievalQueue.
  * 
@@ -42,6 +44,9 @@ import com.raytheon.uf.edex.wmo.message.WMOMessage;
  * Mar 05, 2013 1647       djohnson     Remove WMO header.
  * Mar 19, 2013 1794       djohnson     Read from a queue rather than the file system.
  * Oct 04, 2013 2267       bgonzale     Added WfsRetrieval to unmarshal classes.
+ * Nov 04, 2013 2506       bgonzale     Added SbnRetrievalResponseXml to unmarshal classes.
+ *                                      Trim content after last xml tag during 
+ *                                      marshaling from xml.
  * 
  * </pre>
  * 
@@ -62,6 +67,7 @@ public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
         this.retrievalQueue = retrievalQueue;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
+                    SbnRetrievalResponseXml.class,
                     OpenDapRetrievalResponse.class, WfsRetrievalResponse.class,
                     Coverage.class);
         } catch (JAXBException e) {
@@ -80,9 +86,9 @@ public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
         if (xml == null) {
             return null;
         } else {
-            WMOMessage message = new WMOMessage(xml, new Headers());
-            return (RetrievalResponseXml) jaxbManager
-                    .unmarshalFromXml(new String(message.getMessageBody()));
+            WMOMessage message = new XmlWMOMessage(xml, new Headers());
+            return (RetrievalResponseXml) jaxbManager.unmarshalFromXml(message
+                    .getBodyText());
         }
 
     }

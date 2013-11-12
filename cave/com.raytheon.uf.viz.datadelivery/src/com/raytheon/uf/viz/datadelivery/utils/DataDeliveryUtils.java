@@ -81,8 +81,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
  * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
  * Aug 30, 2013 2288       bgonzale     Added latency to details display.
- * Sept 30, 2013 1797      dhladky      Time GriddedTime separation
+ * Sep 30, 2013 1797       dhladky      Time GriddedTime separation
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Nov 07, 2013   2291     skorolev     Added showText() method for messages with many lines.
  * </pre>
  * 
  * @author mpduff
@@ -612,6 +613,20 @@ public class DataDeliveryUtils {
     public static void showChangesWereAppliedMessage(Shell shell) {
         showMessage(shell, SWT.OK, "Changes Applied",
                 "The changes were successfully applied.");
+    }
+
+    /**
+     * Show message with long list of lines.
+     * 
+     * @param shell
+     * @param messageTitle
+     * @param messageText
+     */
+    public static void showText(Shell shell, String messageTitle,
+            String messageText) {
+        TextMessageDlg textMsgDlgdlg = new TextMessageDlg(shell, messageTitle,
+                messageText);
+        textMsgDlgdlg.open();
     }
 
     /**

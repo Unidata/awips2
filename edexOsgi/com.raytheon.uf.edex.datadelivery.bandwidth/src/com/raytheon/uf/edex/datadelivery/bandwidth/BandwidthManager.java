@@ -121,9 +121,10 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Sep 17, 2013 2383       bgonzale     Reverted back to how BandwidthManager. handles
  *                                      case for no matching dataset metadata for an 
  *                                      adhoc subscription.
- * Sept 25, 2013 1797      dhladky      separated time from gridded time
- * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
- * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
+ * Sep 25, 2013 1797       dhladky      separated time from gridded time
+ * Oct 23, 2013 2385       bphillip     Change schedule method to scheduleAdhoc
+ * Oct 30, 2013 2448       dhladky      Moved methods to TimeUtil.
+ * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
  * </pre>
  * 
  * @author dhladky
@@ -645,6 +646,26 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         }
 
         return unscheduled;
+    }
+
+    /**
+     * Remove bandwidth subscriptions for the given id.
+     * 
+     * @param subscriptionId
+     *            the bandwidth subscriptions to remove
+     */
+    protected void removeBandwidthSubscriptions(String subscriptionId) {
+        statusHandler
+                .info("Received Subscription removal notification for Subscription ["
+                        + subscriptionId
+                        + "], removing BandwidthSubscriptions.");
+        // Need to locate and remove all BandwidthReservations for the
+        // given subscription..
+        List<BandwidthSubscription> l = bandwidthDao
+                .getBandwidthSubscriptionByRegistryId(subscriptionId);
+        if (!l.isEmpty()) {
+            remove(l);
+        }
     }
 
     /**

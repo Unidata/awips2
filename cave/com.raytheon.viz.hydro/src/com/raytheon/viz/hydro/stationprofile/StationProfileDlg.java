@@ -328,8 +328,8 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Calculate pixel and offset values.
      */
     private void calculateValues() {
-        double totalElevInc = Math.abs(stationProfData.getElevationFtMax())
-                - Math.abs(stationProfData.getElevationFtMin());
+        double totalElevInc = stationProfData.getElevationFtMax()
+                - stationProfData.getElevationFtMin();
 
         // Calculate the offset between the elevation points
         double offsetDbl = totalElevInc / 5;

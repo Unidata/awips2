@@ -40,6 +40,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.LogConverter;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
@@ -159,27 +160,6 @@ public class Colormapper {
     }
 
     /**
-     * Sets an index value into the indexArray for use in a Raster with
-     * IndexColorModel set
-     * 
-     * @param dataArray
-     * @param idx
-     * @param idxValue
-     */
-    public static void setIndexValue(Object dataArray, int idx, int idxValue) {
-        if (dataArray instanceof byte[]) {
-            ((byte[]) dataArray)[idx] = (byte) idxValue;
-        } else if (dataArray instanceof short[]) {
-            ((short[]) dataArray)[idx] = (short) idxValue;
-        } else if (dataArray instanceof int[]) {
-            ((int[]) dataArray)[idx] = idxValue;
-        } else {
-            throw new IllegalArgumentException("Unsupported dataArray type: "
-                    + (dataArray != null ? dataArray.getClass() : null));
-        }
-    }
-
-    /**
      * Returns the double representation of the data value for the Buffer at the
      * given index
      * 
@@ -250,64 +230,70 @@ public class Colormapper {
      */
     public static double getLogIndex(double cmapValue, double cmapMin,
             double cmapMax, boolean mirror) {
+        boolean inverted = false;
+        double rangeMin = Math.abs(cmapMin);
+        double rangeMax = Math.abs(cmapMax);
+        double rangeValue = Math.abs(cmapValue);
+        if (rangeMin > rangeMax) {
+            // Inverted colormapping range (cmapMax is closest to 0)
+            inverted = true;
+            double tmp = rangeMin;
+            rangeMin = rangeMax;
+            rangeMax = tmp;
+        }
+        
         double index = 0.0;
-        // is this strictly negative, strictly positive or neg to pos scaling?
-        if (cmapMin >= 0.0 && cmapMax >= 0.0 && !mirror) {
-            if (cmapValue < cmapMin) {
-                index = 0.0;
-            } else {
-                // simple calculation
-                index = ((Math.log(cmapValue) - Math.log(cmapMin)) / Math
-                        .abs(Math.log(cmapMax) - Math.log(cmapMin)));
+        // Flag if min/max values are on opposite sides of zero
+        boolean minMaxOpposite = (cmapMin < 0 && cmapMax > 0)
+                || (cmapMin > 0 && cmapMax < 0);
+
+        if (mirror || minMaxOpposite) {
+            if (cmapMax < 0) {
+                // Invert colormapping if negative range was given
+                cmapValue = -cmapValue;
             }
-        } else if (cmapMin <= 0.0 && cmapMax <= 0.0 && !mirror) {
-            index = ((Math.log(cmapValue) - Math.log(cmapMax)) / Math.abs(Math
-                    .log(cmapMin) - Math.log(cmapMax)));
-        } else {
-            // special case, neg to pos:
-            double colorMapMin = cmapMin;
-            double colorMapMax = cmapMax;
-            double zeroVal = Math.max(colorMapMax, Math.abs(colorMapMin)) * 0.0001;
-            if (mirror && (colorMapMin > 0.0 || colorMapMax < 0.0)) {
-                if (colorMapMax < 0.0) {
-                    colorMapMax = -cmapMax;
-                    cmapValue = -cmapValue;
-                    zeroVal = -colorMapMin;
-                } else {
-                    zeroVal = cmapMin;
-                }
-                colorMapMin = -cmapMax;
+            // Log scaling is happening on both sides of zero, need to compute
+            // our zero index value
+            double zeroVal = rangeMin;
+            if (minMaxOpposite) {
+                // Min/Max are on opposite sides of zero, compute a zero value
+                zeroVal = Math.max(rangeMin, rangeMax) * 0.0001;
             }
-            double leftZero = 0.0;
-            double rightZero = 0.0;
+
+            double negCmapMax = rangeMin;
+            double posCmapMax = rangeMax;
+            if (mirror) {
+                negCmapMax = posCmapMax = rangeMax;
+            }
+
+            // Compute log zero val and log neg/pos max vals
             double absLogZeroVal = Math.abs(Math.log(zeroVal));
-
-            rightZero = absLogZeroVal + Math.log(colorMapMax);
-
-            double cmapMax2 = Math.abs(colorMapMin);
-
-            leftZero = absLogZeroVal + Math.log(cmapMax2);
-
-            double zeroIndex = leftZero / (leftZero + rightZero);
-
-            // figure out index for texture val
-            double absTextureColor = Math.abs(cmapValue);
-            if (absTextureColor <= zeroVal) {
-                index = zeroIndex;
-            } else if (cmapValue > 0.0) {
-                // positive texture color value, find index from 0 to
-                // cmapMax:
-                double logTexColor = absLogZeroVal + Math.log(cmapValue);
-
-                double texIndex = logTexColor / rightZero;
-                index = (zeroIndex + ((1.0 - zeroIndex) * texIndex));
+            double logNegCmapMax = absLogZeroVal + Math.log(negCmapMax);
+            double logPosCmapMax = absLogZeroVal + Math.log(posCmapMax);
+            // Calculate index which zeroVal is at based on neg max and pos max
+            double zeroValIndex = logNegCmapMax
+                    / (logNegCmapMax + logPosCmapMax);
+            if (cmapValue > 0) {
+                index = LogConverter.valueToIndex(rangeValue, zeroVal,
+                        posCmapMax);
+                index = zeroValIndex + (1 - zeroValIndex) * index;
             } else {
-                // negative texture color value, find index from 0 to
-                // cmapMax:
-                double logTexColor = absLogZeroVal + Math.log(absTextureColor);
-
-                double texIndex = logTexColor / leftZero;
-                index = (zeroIndex - (zeroIndex * texIndex));
+                index = LogConverter.valueToIndex(rangeValue, zeroVal,
+                        negCmapMax);
+                index = zeroValIndex - zeroValIndex * index;
+            }
+            if (inverted) {
+                index = 1.0 - index;
+            }
+        } else {
+            // Simple case, just use log converter to get index
+            index = LogConverter.valueToIndex(rangeValue, rangeMin, rangeMax);
+            if (inverted) {
+                index = 1.0 - index;
+            }
+            if (cmapMin > 0 && cmapValue < rangeMin
+                    || (cmapMin < 0 && cmapValue > -rangeMin)) {
+                index = -index;
             }
         }
         return index;
