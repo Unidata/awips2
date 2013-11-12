@@ -67,8 +67,6 @@ import org.w3.xmlschema.Schema;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
@@ -119,6 +117,7 @@ import com.raytheon.uf.edex.wfs.util.XMLGregorianCalendarConverter;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2012            bclement     Initial creation
  * Sep 18, 2013 #411       skorolev    Added required RESPONSE METADATA
+ * Nov 11, 2013 2539        bclement    moved registry/marshal to parent
  * 
  * </pre>
  * 
@@ -128,13 +127,9 @@ import com.raytheon.uf.edex.wfs.util.XMLGregorianCalendarConverter;
 public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         IStoredQueryCallback {
 
-    protected final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
-
     public static final String version = "2.0.0";
 
     public static final MimeType GML_MIME = GmlUtils.GML32_TYPE;
-
-    protected WfsRegistryImpl registry;
 
     protected final Capabilities capabilities;
 
@@ -151,10 +146,10 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
     protected final NamespaceContext nsContext;
 
     public Wfs2_0_0Provider(WfsRegistryImpl registry) {
+        super(registry);
         this.capabilities = new Capabilities(registry);
         this.features = new Gml32FeatureFetcher(registry);
         this.describer = new FeatureDescriber(registry, this);
-        this.registry = registry;
         // this name must match preloaded store in utility directory
         this.queryStore = new FileSystemQueryStore(registry, "wfsQueryStore");
         Map<String, Object> reverseNsMap = new HashMap<String, Object>(
@@ -169,10 +164,10 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
      * Unit tests
      */
     protected Wfs2_0_0Provider() {
+        super(null);
         this.capabilities = null;
         this.features = null;
         this.describer = null;
-        this.registry = null;
         this.queryStore = null;
         this.nsContext = null;
     }
@@ -384,34 +379,7 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         return rval;
     }
 
-    /**
-     * Marshal object through response. Response cannot be reused after this
-     * method is called.
-     * 
-     * @param jaxbobject
-     * @param mimeType
-     * @param response
-     * @throws Exception
-     *             on unrecoverable error attempting to send response
-     */
-    protected void marshalResponse(Object jaxbobject, MimeType mimeType,
-            IOgcHttpResponse response) throws Exception {
-        OutputStream out = null;
-        try {
-            out = response.getOutputStream();
-            response.setContentType(mimeType.toString());
-            registry.marshal(jaxbobject, response.getOutputStream());
-        } catch (Exception e) {
-            log.error("Unable to marshal WFS response", e);
-            OgcResponse err = getError(new WfsException(
-                    Code.OperationProcessingFailed), null);
-            OgcResponseOutput.sendText(err, response, out);
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
+
 
     /**
      * Get features as JAXB object
