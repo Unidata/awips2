@@ -21,7 +21,9 @@ package com.raytheon.uf.edex.registry.ebxml.services.query;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -51,6 +53,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/8/2013    1682        bphillip    Initial implementation
+ * 11/7/2013    1678        bphillip    Added formatArrayString
  * </pre>
  * 
  * @author bphillip
@@ -69,6 +72,12 @@ public class RegistryQueryUtil {
      */
     private static final Pattern REPLACE_LIKE_CHARS_PATTERN = Pattern
             .compile("\\?");
+
+    /**
+     * Pattern used to format the string representation of arrays
+     */
+    private static final Pattern ARRAY_STRING_PATTERN = Pattern
+            .compile("(\\[)(.*)(\\])");
 
     /**
      * Replaces the registry character wilcard (?) with the database wildcard
@@ -223,5 +232,21 @@ public class RegistryQueryUtil {
                             + desiredType + "] is currently unsupported");
 
         }
+    }
+
+    /**
+     * Formats the string representation of an array as a comma separated list
+     * 
+     * @param arrayString
+     *            The array string to format
+     * @return The formatted string
+     */
+    public static String formatArrayString(Object[] arr) {
+        String arrayString = Arrays.toString(arr);
+        Matcher matcher = ARRAY_STRING_PATTERN.matcher(arrayString);
+        if (matcher.find()) {
+            return matcher.group(2);
+        }
+        return arrayString;
     }
 }
