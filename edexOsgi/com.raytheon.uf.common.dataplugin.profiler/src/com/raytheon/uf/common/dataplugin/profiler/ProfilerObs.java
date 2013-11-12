@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataplugin.profiler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -40,9 +41,15 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -74,7 +81,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
  * 
  * </pre>
  * 
@@ -90,9 +96,12 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @org.hibernate.annotations.Table(appliesTo = ProfilerObs.PLUGIN_NAME, indexes = { @Index(name = "profiler_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ProfilerObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData, IPersistable, Comparable<ProfilerObs> {
+        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable,
+        Comparable<ProfilerObs> {
 
     private static final long serialVersionUID = 1L;
 
@@ -117,6 +126,18 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
 
     public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
+
+    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
+
+    private static final String PROF_ID = "profid";
+
+    static {
+        PARM_MAP.put("NLAT", STA_LAT);
+        PARM_MAP.put("NLON", STA_LON);
+        PARM_MAP.put("WS", SFC_WNDSPD);
+        PARM_MAP.put("WD", SFC_WNDDIR);
+        PARM_MAP.put("PROF_ID", PROF_ID);
+    }
 
     private static final String PRESS = "PRESS";
 
@@ -145,20 +166,24 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     private Integer levelId;
 
     @DataURI(position = 1)
+    @XmlAttribute
     @DynamicSerializeElement
     private Integer reportType;
 
     // The profiler observation time.
     @Column
+    @XmlAttribute
     @DynamicSerializeElement
     private Calendar timeObs;
 
     @Embedded
     @DataURI(position = 2, embedded = true)
+    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     @Column
+    @XmlAttribute
     @DynamicSerializeElement
     private String profilerId;
 
@@ -167,23 +192,28 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     private PointDataView pointDataView;
 
     // Text of the WMO header
+    @XmlAttribute
     @DynamicSerializeElement
     private String wmoHeader;
 
     // the level data
+    @XmlElement
     @DynamicSerializeElement
     @Transient
     private String profilerName;
 
     // the level data
+    @XmlElement
     @DynamicSerializeElement
     @Transient
     private List<ProfilerLevel> levels;
 
+    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Double sfcWindSpeed;
 
+    @XmlAttribute
     @DynamicSerializeElement
     @Transient
     private Double sfcWindDir;
@@ -353,6 +383,75 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         return wmoHeader;
     }
 
+    @Override
+    public String getString(String paramName) {
+        String value = null;
+        String pName = PARM_MAP.get(paramName);
+        if (PROF_ID.equals(pName)) {
+            value = profilerId;
+        }
+        return value;
+    }
+
+    @Override
+    public String[] getStrings(String paramName) {
+        return null;
+    }
+
+    @Override
+    public Amount getValue(String paramName) {
+        Amount a = null;
+
+        if (parseParameter(paramName)) {
+            String pName = PARM_MAP.get(parameterName);
+            if (unit.equals(AGL) && (levelId == 0)) {
+                Double dValue = null;
+                if (SFC_WNDSPD.equals(pName)) {
+                    dValue = getSfcWindSpeed();
+                    if (dValue != null) {
+                        a = new Amount(dValue, WIND_SPEED_UNIT);
+                    }
+                } else if (SFC_WNDDIR.equals(pName)) {
+                    dValue = getSfcWindDir();
+                    if (dValue != null) {
+                        a = new Amount(dValue, WIND_DIR_UNIT);
+                    }
+                }
+            } else {
+                if ((pName != null) && (levels != null) && (levels.size() > 0)) {
+                    profLevel = getLevel(levelId);
+                    if (profLevel != null) {
+                        Double dValue = null;
+                        if (SFC_WNDSPD.equals(pName)) {
+                            dValue = getWindSpeed();
+                            if (dValue != null) {
+                                a = new Amount(dValue, WIND_SPEED_UNIT);
+                            }
+                        } else if (SFC_WNDDIR.equals(pName)) {
+                            dValue = getWindDirection();
+                            if (dValue != null) {
+                                a = new Amount(dValue, WIND_DIR_UNIT);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            String pName = PARM_MAP.get(paramName);
+            if (STA_LAT.equals(pName)) {
+                a = new Amount(getLatitude(), LOCATION_UNIT);
+            } else if (STA_LON.equals(pName)) {
+                a = new Amount(getLongitude(), LOCATION_UNIT);
+            }
+        }
+        return a;
+    }
+
+    @Override
+    public Collection<Amount> getValues(String paramName) {
+        return null;
+    }
+
     /**
      * Get the WMOHeader of the file that contained this data.
      * 
@@ -407,6 +506,17 @@ public class ProfilerObs extends PersistablePluginDataObject implements
      */
     public void setLevels(List<ProfilerLevel> levels) {
         this.levels = levels;
+    }
+
+    /**
+     * Get the IDecoderGettable interface implementation. This class does not
+     * currently support this interface.
+     * 
+     * @return Returns null.
+     */
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        return this;
     }
 
     @Override
