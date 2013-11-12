@@ -60,6 +60,8 @@ import org.apache.commons.io.IOUtils;
  * Mar 11, 2013 1645       djohnson    Added file modification watcher.
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * May 16, 2013 1966       rferrel     Add sizeOfDirectory and listDirFiles method.
+ * Oct  9, 2013 2467       randerso    Change coypFile to use apache instead of FileChannel 
+ *                                     to improve memory utilization
  * Oct 18, 2013 2267       bgonzale    Add listPaths method.
  *                                     to improve memory utilization
  * 
