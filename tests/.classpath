@@ -161,5 +161,6 @@
 	<classpathentry kind="lib" path="lib/jetty-util-7.6.14.v20131031.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-security-7.6.14.v20131031.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.taf"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
