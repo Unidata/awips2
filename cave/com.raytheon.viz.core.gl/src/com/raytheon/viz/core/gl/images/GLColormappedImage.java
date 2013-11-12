@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.core.gl.images;
 
+import javax.measure.unit.Unit;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
@@ -100,6 +101,14 @@ public class GLColormappedImage extends AbstractGLColormappedImage {
     public void usaAsFrameBuffer() throws VizException {
         data.disposeTextureData();
         super.usaAsFrameBuffer();
+    }
+
+    @Override
+    public Unit<?> getDataUnit() {
+        if (data != null && data.getDataUnit() != null) {
+            return data.getDataUnit();
+        }
+        return getColorMapParameters().getDataUnit();
     }
 
 }
