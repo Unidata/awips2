@@ -45,8 +45,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.context.ApplicationContext;
 import org.w3.xmlschema.Schema;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
@@ -89,6 +87,7 @@ import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2011            bclement     Initial creation
+ * Nov 11, 2013 2539        bclement    moved registry/marshal to parent
  * 
  * </pre>
  * 
@@ -97,13 +96,9 @@ import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
  */
 public class Wfs1_1_0Provider extends AbstractWfsProvider {
 
-	protected final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
-
     public static final String version = "1.1.0";
 
     public static final MimeType GML_MIME = GmlUtils.GML311_OLD_TYPE;
-
-    protected final WfsRegistryImpl registry;
 
 	protected final Capabilities capabilities;
 
@@ -116,18 +111,21 @@ public class Wfs1_1_0Provider extends AbstractWfsProvider {
 	protected final ObjectFactory wfsFactory = new ObjectFactory();
 
 	public Wfs1_1_0Provider(WfsRegistryImpl registry) {
+        super(registry);
 		this.capabilities = new Capabilities(registry);
         this.features = new Gml31FeatureFetcher(registry);
         this.describer = new FeatureDescriber(registry, this);
-		this.registry = registry;
 		this.transactor = new Transactor();
 	}
 
+    /**
+     * Unit tests
+     */
 	protected Wfs1_1_0Provider() {
+        super(null);
         this.capabilities = null;
         this.features = null;
         this.describer = null;
-        this.registry = null;
         this.transactor = null;
 	}
 
@@ -337,35 +335,6 @@ public class Wfs1_1_0Provider extends AbstractWfsProvider {
         rval.addFormat(OgcResponse.TEXT_XML_MIME.toString());
         return rval;
     }
-
-    /**
-     * Marshal object through response. Response cannot be reused after this
-     * method is called.
-     * 
-     * @param jaxbobject
-     * @param mimeType
-     * @param response
-     * @throws Exception
-     *             on unrecoverable error attempting to send response
-     */
-    protected void marshalResponse(Object jaxbobject, MimeType mimeType,
-            IOgcHttpResponse response) throws Exception {
-        OutputStream out = null;
-		try {
-            out = response.getOutputStream();
-            response.setContentType(mimeType.toString());
-            registry.marshal(jaxbobject, response.getOutputStream());
-        } catch (Exception e) {
-			log.error("Unable to marshal WFS response", e);
-            OgcResponse err = getError(new WfsException(
-                    Code.OperationProcessingFailed), null);
-            OgcResponseOutput.sendText(err, response, out);
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-		}
-	}
 
     /**
      * Get features as JAXB object
