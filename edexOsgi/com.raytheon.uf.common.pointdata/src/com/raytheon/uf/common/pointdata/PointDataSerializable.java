@@ -22,18 +22,20 @@ package com.raytheon.uf.common.pointdata;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.pointdata.elements.AbstractPointDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * Provides metadata (primarily the size) of a named dimension
+ * A serialization helper class for serializing pointdata maps
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 27, 2009            chammack     Initial creation
+ * Apr 16, 2009            chammack     Initial creation
  * 
  * </pre>
  * 
@@ -41,42 +43,18 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class Dimension implements ISerializableObject {
+public class PointDataSerializable implements ISerializableObject {
 
-    @XmlAttribute(name = "name")
-    private String dimensionName;
+    @XmlElement(name = "item")
+    public PointDataItemSerializable[] items;
 
-    @XmlAttribute(name = "length")
-    private int dimensionLength;
+    public static class PointDataItemSerializable implements
+            ISerializableObject {
 
-    /**
-     * @return the dimensionName
-     */
-    public String getDimensionName() {
-        return dimensionName;
+        @XmlAttribute
+        public String key;
+
+        @XmlElement
+        public AbstractPointDataObject<?> value;
     }
-
-    /**
-     * @param dimensionName
-     *            the dimensionName to set
-     */
-    public void setDimensionName(String dimensionName) {
-        this.dimensionName = dimensionName;
-    }
-
-    /**
-     * @return the dimensionLength
-     */
-    public int getDimensionLength() {
-        return dimensionLength;
-    }
-
-    /**
-     * @param dimensionLength
-     *            the dimensionLength to set
-     */
-    public void setDimensionLength(int dimensionLength) {
-        this.dimensionLength = dimensionLength;
-    }
-
 }
