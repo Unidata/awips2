@@ -67,6 +67,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Apr 08, 2013  1826      djohnson    Remove delivery options.
  * May 14, 2013  1040      mpduff      Changed to add office Id rather than setting it.
  * May 21, 2013  2020      mpduff      Rename UserSubscription to SiteSubscription.
+ * Nov 08, 2013   2506     bgonzale    Removed send notification when a subscription is created.
  * 
  * </pre>
  * 
@@ -278,9 +279,6 @@ public class GroupAddDlg extends CaveSWTDialog {
                     "Error saving subscription data to the registry.", e);
             return false;
         }
-
-        subscriptionNotificationService.sendCreatedSubscriptionNotification(
-                subscription, username);
 
         // refresh table
         callback.handleRefresh();
