@@ -65,7 +65,6 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 05, 2013 2307       dgilling    Use better PythonScript constructor.
  * Oct 16, 2013 2475       dgilling    Move logic previously in IrtServer.py
  *                                     into this class to avoid Jep memory leak.
- * 
  * </pre>
  * 
  * @author bphillip
@@ -205,6 +204,7 @@ public class GfeIRT extends Thread {
 
     @Override
     public void run() {
+
         try {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext cx = pathMgr.getContext(
