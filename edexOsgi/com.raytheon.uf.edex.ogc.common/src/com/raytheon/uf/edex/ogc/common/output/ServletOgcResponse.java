@@ -11,6 +11,7 @@ package com.raytheon.uf.edex.ogc.common.output;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 7, 2013            bclement     Initial creation
+ * Nov 11, 2013 2539        bclement    added GZIP support
  * 
  * </pre>
  * 
@@ -32,7 +34,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ServletOgcResponse implements IOgcHttpResponse {
 
+    public static final String CONTENT_ENC_HEADER = "Content-Encoding";
+
     private final HttpServletResponse response;
+
+    private boolean gzip = false;
+
+    private volatile OutputStream out = null;
 
     /**
      * 
@@ -46,7 +54,13 @@ public class ServletOgcResponse implements IOgcHttpResponse {
      */
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return response.getOutputStream();
+        if (out == null) {
+            out = response.getOutputStream();
+            if (gzip) {
+                out = new GZIPOutputStream(out);
+            }
+        }
+        return out;
     }
 
     /* (non-Javadoc)
@@ -71,6 +85,22 @@ public class ServletOgcResponse implements IOgcHttpResponse {
     @Override
     public void setCharacterEncoding(String encoding) {
         response.setCharacterEncoding(encoding);
+    }
+
+    /**
+     * @return true if response Content-Encoding is GZIP
+     */
+    public boolean isGzip() {
+        return gzip;
+    }
+
+    /**
+     * Turn on GZIP Content Encoding
+     * 
+     */
+    public void enableGzip() {
+        response.addHeader(CONTENT_ENC_HEADER, "gzip");
+        this.gzip = true;
     }
 
 }
