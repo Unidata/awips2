@@ -34,7 +34,8 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 30, 2012            mschenke     Initial creation
+ * Oct 30, 2012            mschenke    Initial creation
+ * Nov 12, 2013 2361       njensen     call setDisplayName()
  * 
  * </pre>
  * 
@@ -53,6 +54,7 @@ public class OSGIXmlApplicationContext extends AbstractXmlApplicationContext {
         super(parent);
         setClassLoader(new OSGIXmlClassLoader(bundle, getClassLoader()));
         setConfigLocations(configLocations);
+        this.setDisplayName(bundle.getSymbolicName());
         refresh();
     }
 
