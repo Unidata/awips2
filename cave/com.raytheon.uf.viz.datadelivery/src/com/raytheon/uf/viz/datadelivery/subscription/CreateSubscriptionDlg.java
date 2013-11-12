@@ -143,6 +143,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * Oct 21, 2013   2292     mpduff      Close dialog on OK.
  * Nov 07, 2013   2291     skorolev    Used showText() method for "Unable to Create Subscription" message.
+ * Nov 08, 2013   2506     bgonzale    Removed send notification when a subscription is updated and created.
  * 
  * </pre>
  * 
@@ -1179,12 +1180,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                     public void done(final IJobChangeEvent event) {
                         try {
                             final IStatus status = event.getResult();
-
                             final boolean subscriptionCreated = status.isOK();
-                            if (subscriptionCreated) {
-                                sendSubscriptionNotification(subscription,
-                                        username);
-                            }
 
                             if (!Strings.isNullOrEmpty(status.getMessage())) {
                                 guiThreadTaskExecutor.runAsync(new Runnable() {
@@ -1285,10 +1281,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                     if (response.isAllowFurtherEditing()) {
                         return false;
                     }
-
-                    subscriptionNotificationService
-                            .sendUpdatedSubscriptionNotification(subscription,
-                                    username);
 
                 } catch (RegistryHandlerException e) {
                     statusHandler.handle(Priority.PROBLEM,
