@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -34,6 +35,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Sep 05, 2013 2330       bgonzale     On WFO registry init, only subscribe to local site subscriptions.
  * Sep 06, 2013 2344       bgonzale     Removed attempt to add to immutable empty set.
  * Oct 16, 2013 2267       bgonzale     executeAfterRegistryInit subscribes to all local.  Removed is shared checks.
+ * Nov 04, 2013 2506       bgonzale     added site field.  facilitates testing.
  * 
  * </pre>
  * 
@@ -47,6 +49,8 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
 
     private final IFindSubscriptionsForScheduling findSubscriptionsStrategy;
 
+    private final String site;
+
     private IBandwidthManager instance;
 
     /**
@@ -54,7 +58,18 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     public HibernateBandwidthInitializer(
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
+        this(findSubscriptionsStrategy, SiteUtil.getSite());
+    }
+
+    /**
+     * @param string
+     * @param strategy
+     */
+    HibernateBandwidthInitializer(
+            IFindSubscriptionsForScheduling findSubscriptionsStrategy,
+            String site) {
         this.findSubscriptionsStrategy = findSubscriptionsStrategy;
+        this.site = site;
     }
 
     @Override
@@ -87,20 +102,24 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
         Set<Subscription> activeSubscriptions = new HashSet<Subscription>();
         try {
             final String localOffice = SiteUtil.getSite();
+            final boolean isRegistry = System.getProperty("edex.run.mode")
+                    .equals("registry");
+            final boolean isCentralRegistry = System.getProperty(
+                    "edex.run.mode").equals("centralRegistry");
 
             // Load active subscriptions
             for (Subscription sub : findSubscriptionsStrategy
                     .findSubscriptionsToSchedule()) {
+                boolean isShared = (sub instanceof SharedSubscription);
                 boolean isLocalOffice = sub.getOfficeIDs()
                         .contains(localOffice);
 
-                if (isLocalOffice) {
+                if ((isCentralRegistry && isShared)
+                        || (isRegistry && isLocalOffice && !isShared)) {
                     activeSubscriptions.add(sub);
                     statusHandler.info("Scheduling Subscription: " + sub);
                 } else {
-                    statusHandler
-                            .info("Not Scheduling Non-local Subscription: "
-                                    + sub);
+                    statusHandler.info("Not Scheduling Subscription: " + sub);
                 }
             }
         } catch (Exception e) {

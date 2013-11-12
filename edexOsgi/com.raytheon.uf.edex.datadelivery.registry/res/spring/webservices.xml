@@ -31,6 +31,10 @@
 		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
 		<property name="registrySoapServices" ref="registryWebServiceClient"/>
 	</bean>
+	
+	<bean id="defineRegistryQuery" class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryQueryDefinitionService">
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+	</bean>
 
 
 	<!-- REST Service Definitions -->
@@ -42,6 +46,7 @@
 			<ref bean="registryDataAccessService" />
 			<ref bean="registryAvailabilityService" />
 			<ref bean="registryStatus"/>
+			<ref bean="defineRegistryQuery"/>
 		</jaxrs:serviceBeans>
 	</jaxrs:server>
 </beans>
