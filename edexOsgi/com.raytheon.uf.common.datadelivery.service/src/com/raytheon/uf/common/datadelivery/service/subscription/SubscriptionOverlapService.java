@@ -49,11 +49,12 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 07, 2013 2000       djohnson     Initial creation
+ * May 07, 2013  2000      djohnson     Initial creation
  * Jun 04, 2013  223       mpduff       Get base file if site doesn't exist.
  * Sept 23, 2013 2283      dhladky      Updated for multiple configs
  * Oct 03, 2013  2386      mpduff       Moved the subscription overlap rules files into the rules directory.
  * Oct 25, 2013  2292      mpduff       Move overlap checks to edex.
+ * Nov 12, 2013  2361      njensen      Made JAXBManager static and initialized on first use
  * </pre>
  * 
  * @author djohnson
@@ -62,6 +63,7 @@ import com.raytheon.uf.common.util.FileUtil;
 
 public class SubscriptionOverlapService<T extends Time, C extends Coverage>
         implements ISubscriptionOverlapService<T, C> {
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionOverlapService.class);
 
@@ -73,7 +75,22 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
     private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = FileUtil
             .join("datadelivery", "systemManagement", "rules", File.separator);
 
-    private final JAXBManager jaxbManager;
+    private static JAXBManager jaxbManager;
+
+    private static synchronized JAXBManager getJaxbManager() {
+        if (jaxbManager == null) {
+            try {
+                Class<?>[] clazzes = new Class<?>[] {
+                        SubscriptionOverlapConfig.class,
+                        GridSubscriptionOverlapConfig.class,
+                        PointSubscriptionOverlapConfig.class };
+                jaxbManager = new JAXBManager(clazzes);
+            } catch (JAXBException e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
+        return jaxbManager;
+    }
 
     /**
      * Constructor.
@@ -81,15 +98,7 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
      * @param duplicateChecker
      */
     public SubscriptionOverlapService() {
-        try {
-            @SuppressWarnings("rawtypes")
-            Class[] clazzes = new Class[] { SubscriptionOverlapConfig.class,
-                    GridSubscriptionOverlapConfig.class,
-                    PointSubscriptionOverlapConfig.class };
-            jaxbManager = new JAXBManager(clazzes);
-        } catch (JAXBException e) {
-            throw new ExceptionInInitializerError(e);
-        }
+
     }
 
     /**
@@ -119,7 +128,7 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
 
         final LocalizationFile configFile = pathManager.getLocalizationFile(
                 context, fileName);
-        configFile.jaxbMarshal(config, jaxbManager);
+        configFile.jaxbMarshal(config, getJaxbManager());
     }
 
     /**
@@ -148,11 +157,11 @@ public class SubscriptionOverlapService<T extends Time, C extends Coverage>
 
             if (type == DataType.GRID) {
                 config = localizationFile.jaxbUnmarshal(
-                        GridSubscriptionOverlapConfig.class, jaxbManager);
+                        GridSubscriptionOverlapConfig.class, getJaxbManager());
 
             } else if (type == DataType.POINT) {
                 config = localizationFile.jaxbUnmarshal(
-                        PointSubscriptionOverlapConfig.class, jaxbManager);
+                        PointSubscriptionOverlapConfig.class, getJaxbManager());
 
             }
 
