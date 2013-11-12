@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.core.gl.images;
 
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
@@ -64,6 +66,11 @@ public class GLOffscreenColormappedImage extends AbstractGLColormappedImage {
     public double getValue(int x, int y) {
         // TODO: Read value off of graphics card?
         return Double.NaN;
+    }
+
+    @Override
+    public Unit<?> getDataUnit() {
+        return getColorMapParameters().getColorMapUnit();
     }
 
 }

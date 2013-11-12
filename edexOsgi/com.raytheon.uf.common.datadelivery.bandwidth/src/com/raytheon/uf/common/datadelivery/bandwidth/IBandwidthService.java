@@ -45,7 +45,7 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
  * Jul 11, 2013 2106       djohnson     Bandwidth service now returns names of subscriptions for proposing bandwidth availability.
  * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
- * Oct 2, 2013  1797       dhladky      Generics
+ * Oct 2, 2013 1797       dhladky      Generics
  * 
  * </pre>
  * 
