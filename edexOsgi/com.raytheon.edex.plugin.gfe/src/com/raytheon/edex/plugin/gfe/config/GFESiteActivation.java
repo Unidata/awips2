@@ -329,8 +329,8 @@ public class GFESiteActivation implements ISiteActivationListener {
                                     e);
                 }
             } else {
-                statusHandler.handle(Priority.EVENTA,
-                        "ISC Enabled but will use another EDEX instance");
+                statusHandler
+                        .info("ISC Enabled but will use another EDEX instance");
             }
 
         } else {
@@ -340,7 +340,7 @@ public class GFESiteActivation implements ISiteActivationListener {
         // doesn't need to be cluster locked
         final IFPServerConfig configRef = config;
 
-        if (config.tableFetchTime() > 0 && isIscActivated) {
+        if ((config.tableFetchTime() > 0) && isIscActivated) {
             Runnable activateFetchAT = new Runnable() {
 
                 @Override

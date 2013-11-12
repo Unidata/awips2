@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.objects;
 
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.IColorMapParametersListener;
@@ -148,6 +150,16 @@ public class DispatchingColormappedImage<T extends IColormappedImage> extends
         if (params != null) {
             params.removeListener(this);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getDataUnit()
+     */
+    @Override
+    public Unit<?> getDataUnit() {
+        return wrappedObject.getDataUnit();
     }
 
 }

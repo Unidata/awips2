@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -43,6 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20 Oct, 2012   1163      dhladky     Initial creation
+ * 07 Nov, 2013   2361      njensen      Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -53,7 +53,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "dataSetConfig")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DataSetConfig implements ISerializableObject {
+public class DataSetConfig {
 
     @XmlElements({ @XmlElement(name = "pattern", type = com.raytheon.uf.common.datadelivery.retrieval.xml.Pattern.class) })
     private List<com.raytheon.uf.common.datadelivery.retrieval.xml.Pattern> patterns;

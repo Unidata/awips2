@@ -92,6 +92,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * Sep 18, 2012 1019       randerso    improved error handling
  * Aug 12, 2013 1133       bsteffen    Better error handling for invalid
  *                                     polygons in map resource.
+ * Nov 06, 2013 2361       njensen     Prepopulate fields in initInternal
+ *                                     instead of constructor for speed
  * 
  * </pre>
  * 
@@ -295,9 +297,10 @@ public class DbMapResource extends
                             fields.add(column.toString());
                         }
                     }
+                    double[] lev = getLevels();
                     QueryResult mappedResult = DbMapQueryFactory.getMapQuery(
                             resourceData.getTable(),
-                            getGeomField(levels[levels.length - 1]))
+                            getGeomField(lev[lev.length - 1]))
                             .queryWithinEnvelope(req.envelope, fields,
                                     constraints);
                     Map<Integer, Geometry> gidMap = new HashMap<Integer, Geometry>(
@@ -533,7 +536,7 @@ public class DbMapResource extends
 
     protected Map<Object, RGB> colorMap;
 
-    protected double[] levels;
+    private double[] levels;
 
     protected double lastSimpLev;
 
@@ -543,16 +546,11 @@ public class DbMapResource extends
 
     private MapQueryJob queryJob;
 
-    protected String geometryType;
+    private String geometryType;
 
     public DbMapResource(DbMapResourceData data, LoadProperties loadProperties) {
         super(data, loadProperties);
         queryJob = new MapQueryJob();
-
-        // Prepopulate fields
-        getGeometryType();
-        getLabelFields();
-        getLevels();
     }
 
     @Override
@@ -571,6 +569,13 @@ public class DbMapResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
+
+        // Prepopulate fields in initInternal since this is not on the UI
+        // thread
+        getGeometryType();
+        getLabelFields();
+        getLevels();
+
         getCapability(ShadeableCapability.class).setAvailableShadingFields(
                 getLabelFields().toArray(new String[0]));
     }

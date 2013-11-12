@@ -79,6 +79,7 @@ import com.raytheon.uf.common.time.DataTime;
 public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
 	
     private static final String BAD_PROPERTY_FMT = "NumberFormatException setting property %s.%s(%s %s)";
+
     private String traceId = null;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
