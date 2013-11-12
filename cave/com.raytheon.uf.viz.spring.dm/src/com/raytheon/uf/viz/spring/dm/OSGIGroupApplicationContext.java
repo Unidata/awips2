@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.spring.dm;
 
 import java.util.List;
 
+import org.osgi.framework.Bundle;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -35,7 +36,8 @@ import org.springframework.context.support.GenericApplicationContext;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 1, 2012            mschenke     Initial creation
+ * Nov 01, 2012            mschenke    Initial creation
+ * Nov 12, 2013 2361       njensen     call setDisplayName()
  * 
  * </pre>
  * 
@@ -45,8 +47,9 @@ import org.springframework.context.support.GenericApplicationContext;
 
 public class OSGIGroupApplicationContext extends GenericApplicationContext {
 
-    public OSGIGroupApplicationContext(
+    public OSGIGroupApplicationContext(Bundle child,
             List<OSGIXmlApplicationContext> contextGroup) {
+        this.setDisplayName("parent of " + child.getSymbolicName());
         refresh(); // refresh first to avoid recreating bean definitions
         DefaultListableBeanFactory factory = getDefaultListableBeanFactory();
         // Register all bean definitions from other contexts into our factory
