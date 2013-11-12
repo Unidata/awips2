@@ -34,6 +34,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Oct 11, 2013 2460       dhladky      Restored Adhoc to registry store, WFO only.
+ * Nov 12, 2013 2506       bgonzale     Added is recurring subscription method.
  * 
  * </pre>
  * 
@@ -65,4 +66,19 @@ public final class DataDeliveryRegistryObjectTypes {
 
     public static final String PROVIDER = RegistryUtil
             .getObjectType(Provider.class);
+
+    /**
+     * Is the object type a recurring subscription type, excluding adhoc
+     * subscriptions.
+     * 
+     * @param objectType
+     * @return true if the objectType is a recurring subscription type; false
+     *         otherwise.
+     */
+    public static final boolean isRecurringSubscription(String objectType) {
+        return DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
+                .equals(objectType)
+                || DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION
+                        .equals(objectType);
+    }
 }
