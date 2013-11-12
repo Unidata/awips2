@@ -21,6 +21,11 @@ package com.raytheon.uf.common.dataplugin.bufrua;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+
+import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,14 +42,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * 20071127            382 jkorman     Initial Coding.
  * 20080630           1215 jkorman     Implemented Serializable.
- * 20131022           2361 njensen     Remove XML annotations
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class UAObsLevel implements Serializable {
+public class UAObsLevel implements Serializable, ISerializableObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -58,41 +63,50 @@ public class UAObsLevel implements Serializable {
     // 5 Significant level, temperature and/or relative humidity
     // 6 Significant level, wind
     // All 7 Missing value
+    @XmlAttribute
     @DynamicSerializeElement
     private Integer vertSig = null;
 
     // Observation pressure in Pascals
+    @XmlAttribute
     @DynamicSerializeElement
     private Integer pressure = null;
 
     // Observation geopotential height in meters.
+    @XmlAttribute
     @DynamicSerializeElement
     private Integer geoHeight = null;
 
     // Observation dry air temperature in degrees Kelvin.
+    @XmlAttribute
     @DynamicSerializeElement
     private Double temp = null;
 
     // Observation dewpoint temperature in degrees Kelvin.
+    @XmlAttribute
     @DynamicSerializeElement
     private Double dwpt = null;
 
     // Observation wind direction in angular degrees. Integer
+    @XmlAttribute
     @DynamicSerializeElement
     private Integer windDirection = null;
 
     // Observation wind speed in meters per second.
     // Decimal(5,2)
+    @XmlAttribute
     @DynamicSerializeElement
     private Double windSpeed = null;
 
     // Observation 1 KM below level wind shear in meters per second.
     // Decimal(5,2)
+    @XmlAttribute
     @DynamicSerializeElement
     private Double loShear = null;
 
     // Observation 1 KM above level wind shear in meters per second.
     // Decimal(5,2)
+    @XmlAttribute
     @DynamicSerializeElement
     private Double hiShear = null;
 
