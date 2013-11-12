@@ -245,8 +245,8 @@ public class HttpProxiedValidClientCredentialsTest {
     
     private Time getTime() throws ParseException {
         
-        String startDateString = "2013-08-30T12:40:00.000";
-        String endDateString = "2013-08-30T14:15:00.000";
+        String startDateString = "2013-11-12T18:00:00.000";
+        String endDateString = "2013-11-12T19:00:00.000";
                 
         PointTime time = new PointTime();
         time.setFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
