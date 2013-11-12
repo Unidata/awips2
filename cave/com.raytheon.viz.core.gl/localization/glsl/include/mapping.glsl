@@ -162,68 +162,110 @@ float getLinearIndex(float cmapValue, float cmapMin, float cmapMax) {
 }
 
 /**
+ * Converts a colormap value to a log index
+ */
+float valueToLogIndex(float value, float rangeMin, float rangeMax) {
+	// Account for 0 min index
+	if (rangeMin == 0) {
+		rangeMin = 0.0000001;
+		if (rangeMax < 0) {
+			rangeMin = -rangeMin;
+		}
+	}
+
+	int reverse = 0;
+	if ((value < rangeMin && rangeMin > 0)
+			|| (value > rangeMin && rangeMin < 0)) {
+		reverse = 1;
+	}
+
+	value = abs(value);
+	rangeMin = abs(rangeMin);
+	rangeMax = abs(rangeMax);
+
+	// Check uncomputable index value, everything between this range is 0,
+	// rangeMin->rangeMax 0 -> 1, -rangeMin->-rangeMax 0 -> -1
+	if (value <= rangeMin && value >= -rangeMin) {
+		return 0;
+	}
+
+	double index = (log(value) - log(rangeMin))
+			/ (log(rangeMax) - log(rangeMin));
+	if (reverse != 0) {
+		index = -index;
+	}
+
+	return index;
+}
+
+/**
  * This function logarithmically finds the index for the cmapValue into 
  * cmapMin/cmapMax (capped at 0-1).
  */
 float getLogIndex(float cmapValue, float cmapMin, float cmapMax, int mirror) {
+	int inverted = 0;
+	float rangeMin = abs(cmapMin);
+	float rangeMax = abs(cmapMax);
+	float rangeValue = abs(cmapValue);
+	if (rangeMin > rangeMax) {
+		// Inverted colormapping range (cmapMax is closest to 0)
+		inverted = 1;
+		float tmp = rangeMin;
+		rangeMin = rangeMax;
+		rangeMax = tmp;
+	}
+
 	float index = 0.0;
-	// is this strictly negative, strictly positive or neg to pos scaling?
-	if (cmapMin >= 0.0 && cmapMax >= 0.0 && mirror != 1) {
-		if (cmapValue < cmapMin) {
-			index = 0.0;
-		} else {
-			// simple calculation
-			index = ((log(cmapValue) - log(cmapMin))
-					/ abs(log(cmapMax) - log(cmapMin)));
+	// Flag if min/max values are on opposite sides of zero
+	int minMaxOpposite = 0;
+	if ((cmapMin < 0 && cmapMax > 0) || (cmapMin > 0 && cmapMax < 0)) {
+		minMaxOpposite = 1;
+	}
+
+	if (mirror != 0 || minMaxOpposite != 0) {
+		if (cmapMax < 0) {
+			// Invert colormapping if negative range was given
+			cmapValue = -cmapValue;
 		}
-	} else if (cmapMin <= 0.0 && cmapMax <= 0.0 && mirror != 1) {
-		index = ((log(cmapValue) - log(cmapMax))
-				/ abs(log(cmapMin) - log(cmapMax)));
-	} else {
-		// special case, neg to pos:
-		float colorMapMin = cmapMin;
-		float colorMapMax = cmapMax;
-		float zeroVal = max(colorMapMax, abs(colorMapMin)) * 0.0001;
-		if (mirror == 1 && (colorMapMin > 0.0 || colorMapMax < 0.0)) {
-			if (colorMapMax < 0.0) {
-				colorMapMax = -cmapMax;
-				cmapValue = -cmapValue;
-				zeroVal = -colorMapMin;
-			} else {
-				zeroVal = cmapMin;
-			}
-			colorMapMin = -cmapMax;
+		// Log scaling is happening on both sides of zero, need to compute
+		// our zero index value
+		float zeroVal = rangeMin;
+		if (minMaxOpposite == 1) {
+			// Min/Max are on opposite sides of zero, compute a zero value
+			zeroVal = max(rangeMin, rangeMax) * 0.0001;
 		}
-		float leftZero = 0.0;
-		float rightZero = 0.0;
+
+		float negCmapMax = rangeMin;
+		float posCmapMax = rangeMax;
+		if (mirror != 0) {
+			negCmapMax = posCmapMax = rangeMax;
+		}
+
+		// Compute log zero val and log neg/pos max vals
 		float absLogZeroVal = abs(log(zeroVal));
-
-		rightZero = absLogZeroVal + log(colorMapMax);
-
-		float cmapMax2 = abs(colorMapMin);
-
-		leftZero = absLogZeroVal + log(cmapMax2);
-
-		float zeroIndex = leftZero / (leftZero + rightZero);
-
-		// figure out index for texture val
-		float absTextureColor = abs(cmapValue);
-		if (absTextureColor <= zeroVal) {
-			index = zeroIndex;
-		} else if (cmapValue > 0.0) {
-			// positive texture color value, find index from 0 to
-			// cmapMax:
-			float logTexColor = absLogZeroVal + log(cmapValue);
-
-			float texIndex = logTexColor / rightZero;
-			index = (zeroIndex + ((1.0 - zeroIndex) * texIndex));
+		float logNegCmapMax = absLogZeroVal + log(negCmapMax);
+		float logPosCmapMax = absLogZeroVal + log(posCmapMax);
+		// Calculate index which zeroVal is at based on neg max and pos max
+		float zeroValIndex = logNegCmapMax / (logNegCmapMax + logPosCmapMax);
+		if (cmapValue > 0) {
+			index = valueToLogIndex(rangeValue, zeroVal, posCmapMax);
+			index = zeroValIndex + (1 - zeroValIndex) * index;
 		} else {
-			// negative texture color value, find index from 0 to
-			// cmapMax:
-			float logTexColor = absLogZeroVal + log(absTextureColor);
-
-			float texIndex = logTexColor / leftZero;
-			index = (zeroIndex - (zeroIndex * texIndex));
+			index = valueToLogIndex(rangeValue, zeroVal, negCmapMax);
+			index = zeroValIndex - zeroValIndex * index;
+		}
+		if (inverted != 0) {
+			index = 1.0 - index;
+		}
+	} else {
+		// Simple case, just use log converter to get index
+		index = valueToLogIndex(rangeValue, rangeMin, rangeMax);
+		if (inverted == 1) {
+			index = 1.0 - index;
+		}
+		if (cmapMin > 0 && cmapValue < rangeMin
+				|| (cmapMin < 0 && cmapValue > -rangeMin)) {
+			index = -index;
 		}
 	}
 	return capIndex(index);

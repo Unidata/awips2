@@ -33,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jsanchez     Initial creation
+ * Nov 08, 2013 2506       bgonzale     Added constructors.
  * 
  * </pre>
  * 
@@ -51,11 +52,8 @@ public class RemoveRegistryEvent extends RegistryEvent {
     }
 
     public RemoveRegistryEvent(String username, String id) {
-        this.id = id;
+        super(id, null, null, Action.DELETE);
         this.username = username;
-        setLid(null);
-        setObjectType(null);
-        setAction(Action.DELETE);
     }
 
     public String getUsername() {

@@ -39,7 +39,8 @@ import com.sun.opengl.util.texture.TextureCoords;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 16, 2013       2333 mschenke    Initial creation
+ * Oct 16, 2013 2333       mschenke    Initial creation
+ * Nov  4, 2013 2492       mschenke    Reworked to use GLSL Data mapping
  * 
  * </pre>
  * 
