@@ -73,6 +73,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Mon 07, 2013  DR 15294  D. Friedman Stream large requests
  * Feb 11, 2013      1526   njensen    use HttpClient.postDynamicSerialize() for memory efficiency
  * Feb 12, 2013     #1608  randerso    Added explicit deletes for groups and datasets
+ * Nov 14, 2013  2393     bclement    removed interpolation
  * 
  * </pre>
  * 
@@ -202,23 +203,8 @@ public class PyPiesDataStore implements IDataStore {
     @Override
     public IDataRecord[] retrieve(final String group) throws StorageException,
             FileNotFoundException {
-        return retrieve(group, false);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#retrieve(java.lang.String,
-     * boolean)
-     */
-    @Override
-    public IDataRecord[] retrieve(final String group,
-            final boolean includeInterpolated) throws StorageException,
-            FileNotFoundException {
         RetrieveRequest req = new RetrieveRequest();
         req.setGroup(group);
-        req.setIncludeInterpolated(includeInterpolated);
         RetrieveResponse resp = (RetrieveResponse) cachedRequest(req);
         return resp.getRecords();
     }
@@ -448,7 +434,8 @@ public class PyPiesDataStore implements IDataStore {
     protected Object deserializeResponse(final byte[] response)
             throws StorageException {
         try {
-            return SerializationUtil.transformFromThrift(response);
+            return SerializationUtil
+                    .transformFromThrift(Object.class, response);
         } catch (SerializationException e) {
             throw new StorageException(
                     "Error deserializing response from pypies server", null, e);

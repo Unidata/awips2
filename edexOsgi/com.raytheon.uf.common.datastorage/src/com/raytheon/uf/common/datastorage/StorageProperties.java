@@ -22,7 +22,6 @@ package com.raytheon.uf.common.datastorage;
 
 import org.apache.commons.lang.Validate;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *   Date         Ticket#     Engineer    Description
  *   ------------ ----------  ----------- --------------------------
  *   Feb 8, 2007              chammack    Initial Creation.
+ *   Nov 14, 2013  2393     bclement    removed interpolation
  * 
  * </pre>
  * 
@@ -43,7 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class StorageProperties implements Cloneable, ISerializableObject {
+public class StorageProperties implements Cloneable {
 
     /**
      * Compression types:
@@ -65,10 +65,6 @@ public class StorageProperties implements Cloneable, ISerializableObject {
     /** Is the data chunked (required for compression) */
     @DynamicSerializeElement
     private boolean chunked;
-
-    /** Is the data progressively downsampled */
-    @DynamicSerializeElement
-    private boolean downscaled;
 
     /**
      * Construct a default storage properties. Default is all features disabled.
@@ -114,21 +110,6 @@ public class StorageProperties implements Cloneable, ISerializableObject {
         }
     }
 
-    /**
-     * @return the isDownscaled
-     */
-    public boolean isDownscaled() {
-        return downscaled;
-    }
-
-    /**
-     * @param isDownscaled
-     *            the isDownscaled to set
-     */
-    public void setDownscaled(boolean isDownscaled) {
-        this.downscaled = isDownscaled;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -138,7 +119,6 @@ public class StorageProperties implements Cloneable, ISerializableObject {
     public StorageProperties clone() {
         StorageProperties sp = new StorageProperties();
         sp.chunked = chunked;
-        sp.downscaled = downscaled;
         sp.compression = compression;
         return sp;
     }

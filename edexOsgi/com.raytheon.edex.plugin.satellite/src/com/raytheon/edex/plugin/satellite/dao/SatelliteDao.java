@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.opengis.referencing.operation.TransformException;
-
 import com.raytheon.edex.plugin.satellite.gini.SatelliteCreatingEntity;
 import com.raytheon.edex.plugin.satellite.gini.SatellitePhysicalElement;
 import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
@@ -43,18 +41,16 @@ import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageProperties;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
+import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
+import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
@@ -75,6 +71,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                      input arguments.
  * 06/24/2013    2044       randerso    Added methods to get data by TimeRange and 
  *                                      getInventory with maxRecord limit
+ * Nov 14, 2013  2393       bclement    moved interpolation code to parent class
  * </pre>
  * 
  * @author bphillip
@@ -124,79 +121,61 @@ public class SatelliteDao extends PluginDao {
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable record) throws StorageException {
-        SatelliteRecord satRecord = (SatelliteRecord) record;
+        final SatelliteRecord satRecord = (SatelliteRecord) record;
 
         IDataRecord storageRecord = (IDataRecord) satRecord.getMessageData();
         if (storageRecord != null) {
-            StorageProperties props = new StorageProperties();
+            final StorageProperties props = new StorageProperties();
             String compression = PluginRegistry.getInstance()
                     .getRegisteredObject(pluginName).getCompression();
             if (compression != null) {
                 props.setCompression(StorageProperties.Compression
                         .valueOf(compression));
             }
-            props.setDownscaled(false);
             storageRecord.setProperties(props);
             storageRecord.setCorrelationObject(satRecord);
+            final Map<String, Object> attributes = storageRecord
+                    .getDataAttributes();
+            final Float fillValue = getAttribute(attributes,
+                    SatelliteRecord.SAT_FILL_VALUE, 0.0f);
+
             // Store the base record.
             dataStore.addDataRecord(storageRecord);
 
-            Map<String, Object> attributes = storageRecord.getDataAttributes();
-
-            Float fillValue = getAttribute(attributes,
-                    SatelliteRecord.SAT_FILL_VALUE, 0.0f);
-
             SatMapCoverage coverage = satRecord.getCoverage();
-            AbstractDataWrapper dataSource = getSource(storageRecord,
-                    coverage.getNx(), coverage.getNy());
-            dataSource.setFillValue(fillValue);
+
             GridDownscaler downScaler = new GridDownscaler(
                     coverage.getGridGeometry());
 
-            // How many interpolation levels do we need for this data?
-            int levels = downScaler.getNumberOfDownscaleLevels();
+            Rectangle fullScale = downScaler.getDownscaleSize(0);
+            DataWrapper1D dataSource = DataRecordWrapUtil.wrap(
+                    storageRecord, fullScale.width, fullScale.height, true);
+
+            int levels = DownscaleStoreUtil.storeInterpolated(dataStore,
+                    downScaler, dataSource,
+                    new IDataRecordCreator() {
+
+                        @Override
+                        public IDataRecord create(Object data,
+                                int downScaleLevel, Rectangle size)
+                                throws StorageException {
+                            IDataRecord dr = createDataRecord(satRecord, data,
+                                    downScaleLevel, size);
+                            // Set the attributes and properties from the parent
+                            // data.
+                            dr.setDataAttributes(attributes);
+                            dr.setProperties(props);
+                            return dr;
+                        }
+
+                        @Override
+                        public double getFillValue() {
+                            // always the same fill value
+                            return fillValue;
+                        }
+                    });
             // set the number of levels in the 'parent' satellite data.
-            // Subtract one for the base level data.
-            satRecord.setInterpolationLevels(levels - 1);
-
-            // How many interpolation levels do we need for this data? Includes
-            // the base level!
-            // Subtract one for the base level data.
-            int downScaleLevels = downScaler.getNumberOfDownscaleLevels() - 1;
-            // set the number of downscale levels in the satellite metadata.
-            satRecord.setInterpolationLevels(downScaleLevels);
-            if (DataStoreFactory.isInterpolated(levels)) {
-                for (int level = 0; level < downScaleLevels; level++) {
-                    int downScaleLevel = level + 1;
-                    Rectangle size = downScaler
-                            .getDownscaleSize(downScaleLevel);
-
-                    AbstractDataWrapper dest = getDestination(storageRecord,
-                            size);
-                    dest.setFillValue(fillValue);
-                    try {
-                        // Downscale from previous level
-                        downScaler.downscale(downScaleLevel - 1,
-                                downScaleLevel, dataSource, dest);
-
-                        IDataRecord dr = createDataRecord(satRecord, dest,
-                                downScaleLevel, size);
-                        // Set the attributes and properties from the parent
-                        // data.
-                        dr.setDataAttributes(attributes);
-                        dr.setProperties(props);
-                        dataStore.addDataRecord(dr);
-
-                        // Set source to current level
-                        dataSource = dest;
-                    } catch (TransformException e) {
-                        throw new StorageException(
-                                "Error creating downscaled data",
-                                storageRecord, e);
-                    }
-                }
-            }
-
+            satRecord.setInterpolationLevels(levels);
         }
         return dataStore;
     }
@@ -519,52 +498,6 @@ public class SatelliteDao extends PluginDao {
     }
 
     /**
-     * Create an {@link AbstractDataWrapper} destination from the supplied
-     * {@link IDataRecord} with given dimensions.
-     * 
-     * @param rec
-     *            The record containing data to be wrapped.
-     * @param size
-     *            A {@link Rectangle} containing the size of the input data.
-     * @return The wrapped data.
-     */
-    private AbstractDataWrapper getDestination(IDataRecord rec, Rectangle size) {
-        AbstractDataWrapper dest = null;
-
-        if (rec instanceof ByteDataRecord) {
-            dest = new UnsignedByteArrayWrapper(size.width, size.height);
-        } else if (rec instanceof ShortDataRecord) {
-            dest = new ShortArrayWrapper(size.width, size.height);
-        }
-        return dest;
-    }
-
-    /**
-     * Create an {@link AbstractDataWrapper} source from the supplied
-     * {@link IDataRecord} with given dimensions.
-     * 
-     * @param rec
-     *            The record containing data to be wrapped.
-     * @param nx
-     *            Number of items on the x axis.
-     * @param ny
-     *            Number of items on the y axis.
-     * @return The wrapped data.
-     */
-    private AbstractDataWrapper getSource(IDataRecord rec, int nx, int ny) {
-        AbstractDataWrapper source = null;
-
-        if (rec instanceof ByteDataRecord) {
-            byte[] b = ((ByteDataRecord) rec).getByteData();
-            source = new UnsignedByteArrayWrapper(b, nx, ny);
-        } else if (rec instanceof ShortDataRecord) {
-            short[] s = ((ShortDataRecord) rec).getShortData();
-            source = new ShortArrayWrapper(s, nx, ny);
-        }
-        return source;
-    }
-
-    /**
      * Create the {@link IDataRecord} from the {@link DataDestination} using the
      * original satellite data, size and
      * 
@@ -577,19 +510,12 @@ public class SatelliteDao extends PluginDao {
      * @param size
      *            Size of the down-scaled data.
      * @return The created data record to be stored.
+     * @throws PluginException
      */
-    private IDataRecord createDataRecord(SatelliteRecord satRec,
-            DataDestination data, int downscaleLevel, Rectangle size) {
+    private IDataRecord createDataRecord(SatelliteRecord satRec, Object data,
+            int downscaleLevel, Rectangle size) throws StorageException {
         SatelliteMessageData msgData = null;
-        Object o = null;
-        if (data instanceof ByteArrayWrapper) {
-            o = ((ByteArrayWrapper) data).getArray();
-        } else if (data instanceof ShortArrayWrapper) {
-            o = ((ShortArrayWrapper) data).getArray();
-        }
-        if (o != null) {
-            msgData = new SatelliteMessageData(o, size.width, size.height);
-        }
+        msgData = new SatelliteMessageData(data, size.width, size.height);
         IDataRecord rec = msgData.getStorageRecord(satRec,
                 String.valueOf(downscaleLevel));
         rec.setCorrelationObject(satRec);
