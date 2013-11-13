@@ -18,7 +18,6 @@
 
     <bean id="groupDefinitionServiceHandler"
         class="com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionServiceHandler">
-        <constructor-arg ref="subscriptionNotificationService" />
     </bean>
 
     <bean factory-bean="handlerRegistry" factory-method="register">

@@ -65,6 +65,7 @@ import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RegistryEvent.Action;
 import com.raytheon.uf.common.registry.event.RegistryStatisticsEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
+import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -103,6 +104,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor;
  * 8/1/2013     1693       bphillip    Added check references and refactored submit objects to conform to EBXML 4.0 spec
  * 9/11/2013    2254       bphillip    Cleaned up creation of auditable events
  * 10/23/2013   1538       bphillip    Changed QueryRequest constructor call
+ * Nov 08, 2013 2506       bgonzale    Added RegistryObjectType to RemoveRegistryEvent.
+ *                                     Separate update from create notifications.
  * 
  * 
  * </pre>
@@ -300,7 +303,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
             if (objectType != null
                     && !objectType.equals(RegistryObjectTypes.ASSOCIATION)) {
                 RemoveRegistryEvent event = new RemoveRegistryEvent(
-                        request.getUsername(), obj.getId());
+                        request.getUsername(), obj.getId(), obj);
                 event.setAction(Action.DELETE);
                 event.setLid(obj.getLid());
                 event.setObjectType(objectType);
@@ -485,11 +488,19 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
         // gives a close estimate to amount taken on each object
         // individually, this will be millis in most cases, hopefully
-        long avTimePerRecord = 0;
-        if (!objs.isEmpty()) {
-            avTimePerRecord = totalTime / objs.size();
-            for (RegistryObjectType obj : objs) {
+        long avTimePerRecord = objs.isEmpty() ? 0 : totalTime / objs.size();
+        if (!objsCreated.isEmpty()) {
+            for (RegistryObjectType obj : objsCreated) {
                 EventBus.publish(new InsertRegistryEvent(obj.getId(), obj
+                        .getLid(), obj.getObjectType()));
+                EventBus.publish(new RegistryStatisticsEvent(obj
+                        .getObjectType(), obj.getStatus(), obj.getOwner(),
+                        avTimePerRecord));
+            }
+        }
+        if (!objsUpdated.isEmpty()) {
+            for (RegistryObjectType obj : objsUpdated) {
+                EventBus.publish(new UpdateRegistryEvent(obj.getId(), obj
                         .getLid(), obj.getObjectType()));
                 EventBus.publish(new RegistryStatisticsEvent(obj
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
