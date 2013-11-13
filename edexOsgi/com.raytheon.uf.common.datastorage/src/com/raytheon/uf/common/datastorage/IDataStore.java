@@ -25,7 +25,6 @@ import java.util.Map;
 
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Defines the interface for operating against a hierarchical datastore
@@ -41,6 +40,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Feb 12, 2013  1608     randerso    Added explicit methods for deleting
  *                                    groups and datasets
  * Sep 19, 2013  2309     bsteffen    Deprecate retrieve(String, boolean)
+ * Nov 14, 2013  2393     bclement    removed interpolation
  * 
  * 
  * </pre>
@@ -48,7 +48,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @author chammack
  * @version 1.0
  */
-public interface IDataStore extends ISerializableObject {
+public interface IDataStore {
 
     public static enum HDF5_ITEM {
         DATASET, GROUP
@@ -142,26 +142,6 @@ public interface IDataStore extends ISerializableObject {
      */
     public abstract IDataRecord[] retrieve(String group)
             throws StorageException, FileNotFoundException;
-
-    /**
-     * Convenience method for retrieve
-     * 
-     * Retrieves all data at a given group, with the option to retrieve
-     * interpolated tilesets.
-     * 
-     * @param group
-     *            the group of data to retrieve
-     * @param includeInterpolated
-     *            a flag indicating whether interpolated tilesets should be
-     *            retrieved
-     * @return the data records
-     * @throws StorageException
-     * @throws FileNotFoundException
-     */
-    @Deprecated
-    public abstract IDataRecord[] retrieve(String group,
-            boolean includeInterpolated) throws StorageException,
-            FileNotFoundException;
 
     /**
      * Retrieve a single dataset with optional subsetting
