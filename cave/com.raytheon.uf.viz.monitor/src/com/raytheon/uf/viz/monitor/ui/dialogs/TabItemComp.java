@@ -49,7 +49,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr.ThresholdKey;
  * ------------ ---------- ----------- --------------------------
  * Apr 6, 2009            lvenable     Initial creation
  * Aug 5, 2010  6396       wkwock      Change the layout of threshold edit dialog
- *
+ * Nov 7, 2013  DR 16703   gzhang	   Check in code for Lee for FFMP and Safeseas
+ * 
  * </pre>
  *
  * @author lvenable
@@ -206,7 +207,7 @@ public abstract class TabItemComp extends Composite
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.heightHint = 250;
         dataList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        dataList.setFont(smFont);
+        dataList.setFont(bigFont); //dataList.setFont(smFont);
         dataList.setLayoutData(gd);
         
         populateList();
