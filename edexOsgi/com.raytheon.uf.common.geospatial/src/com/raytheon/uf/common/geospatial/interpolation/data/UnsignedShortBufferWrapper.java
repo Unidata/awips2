@@ -25,7 +25,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 
 /**
  * 
- * ShortBuffer data wrapper
+ * Unsigned ShortBuffer data wrapper
  * 
  * <pre>
  * 
@@ -34,50 +34,51 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2012            bsteffen     Initial creation
+ * Nov 19, 2013  2393      bclement    changed to extend ShortBufferWrapper
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class UnsignedShortBufferWrapper extends DataWrapper1D {
+public class UnsignedShortBufferWrapper extends ShortBufferWrapper {
 
-    protected final ShortBuffer buffer;
+    /**
+     * @param geometry
+     */
+    public UnsignedShortBufferWrapper(GeneralGridGeometry geometry) {
+        super(geometry);
+    }
 
+    /**
+     * @param nx
+     * @param ny
+     */
+    public UnsignedShortBufferWrapper(int nx, int ny) {
+        super(nx, ny);
+    }
+
+    /**
+     * @param buffer
+     * @param geometry
+     */
     public UnsignedShortBufferWrapper(ShortBuffer buffer,
             GeneralGridGeometry geometry) {
-        super(geometry);
-        this.buffer = buffer;
+        super(buffer, geometry);
     }
 
+    /**
+     * @param buffer
+     * @param nx
+     * @param ny
+     */
     public UnsignedShortBufferWrapper(ShortBuffer buffer, int nx, int ny) {
-        super(nx, ny);
-        this.buffer = buffer;
-    }
-
-    public UnsignedShortBufferWrapper(int nx, int ny) {
-        this(ShortBuffer.allocate(nx * ny), nx, ny);
-    }
-
-    public UnsignedShortBufferWrapper(GeneralGridGeometry geometry) {
-        // assume this is going to be a destination and avoid passing
-        // geometry to super to save time on checking for wrapping.
-        this(geometry.getGridRange().getSpan(0), geometry.getGridRange()
-                .getSpan(1));
-    }
-
-    public ShortBuffer getBuffer() {
-        return buffer;
+        super(buffer, nx, ny);
     }
 
     @Override
     protected double getDataValueInternal(int index) {
         return buffer.get(index) & 0xFFFF;
-    }
-
-    @Override
-    public void setDataValueInternal(double dataValue, int index) {
-        buffer.put(index, (short) dataValue);
     }
 
 }
