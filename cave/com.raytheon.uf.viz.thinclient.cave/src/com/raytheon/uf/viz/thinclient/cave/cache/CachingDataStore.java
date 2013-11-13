@@ -50,6 +50,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * Feb 12, 2013  1608     randerso    Added explicit deletes for groups and
  *                                    datasets
  * Sep 18, 2013  2309     bsteffen    Move disk acces to DataStoreCache
+ * Nov 14, 2013  2393     bclement    removed datastore interpolation
  * 
  * </pre>
  * 
@@ -105,24 +106,6 @@ public class CachingDataStore implements IDataStore {
             IDataRecord[] records = delegate.retrieve(group);
             cacheDatasets(group, Arrays.asList(records), Request.ALL);
             return records;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#retrieve(java.lang.String,
-     * boolean)
-     */
-    @Override
-    public IDataRecord[] retrieve(String group, boolean includeInterpolated)
-            throws StorageException, FileNotFoundException {
-        if (includeInterpolated == false) {
-            return retrieve(group);
-        } else {
-            /* This is deprecated and unused so caching is not implemented. */
-            return delegate.retrieve(group, includeInterpolated);
         }
     }
 
