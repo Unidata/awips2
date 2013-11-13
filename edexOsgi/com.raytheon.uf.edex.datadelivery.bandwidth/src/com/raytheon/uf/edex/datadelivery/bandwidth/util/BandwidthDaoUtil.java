@@ -72,6 +72,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * Oct 30, 2013  2448      dhladky      Fixed pulling data before and after activePeriod starting and ending.
  * Nov 5, 2013  2521       dhladky      Fixed DataSetMetaData update failures for URL's in pointdata.
+ * Nov 12, 2013 2448       dhladky      Fixed stop/start subscription scheduling problem.
  * 
  * </pre>
  * 
@@ -236,6 +237,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                 subscriptionStart.set(Calendar.HOUR_OF_DAY, cycle);
                 for (Integer minute : minutes) {
                     subscriptionStart.set(Calendar.MINUTE, minute);
+                    // Check for nonsense 
                     if (subscriptionStart.after(subscriptionEnd)) {
                         break outerloop;
                     }
@@ -243,14 +245,25 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                         Calendar time = TimeUtil.newCalendar();
                         time.setTimeInMillis(subscriptionStart
                                 .getTimeInMillis());
-                        // Last check for time window, this checks fine grain by hour and minute
-                        if (activePeriodStart != null && activePeriodEnd != null) {
-                            if (time.after(activePeriodEnd) || time.before(activePeriodStart)) {
-                                // discard this retrieval time, outside activePeriod window
+                        /** 
+                         * Fine grain check by hour and minute, for subscription(start/end),
+                         * activePeriod(start/end) 
+                         **/
+                        // Subscription Start and End time first
+                        if (subscriptionStart != null && subscriptionEnd != null) {
+                            if (time.after(subscriptionEnd) || time.before(subscriptionStart)) {
+                                // don't schedule this retrieval time, outside subscription window
                                 continue;
                             }
                         } 
-                       
+                        // Check Active Period Second
+                        if (activePeriodStart != null && activePeriodEnd != null) {
+                            if (time.after(activePeriodEnd) || time.before(activePeriodStart)) {
+                                // don't schedule this retrieval time, outside activePeriod window
+                                continue;
+                            }
+                        } 
+
                         subscriptionTimes.add(time);
                     }
                 }
