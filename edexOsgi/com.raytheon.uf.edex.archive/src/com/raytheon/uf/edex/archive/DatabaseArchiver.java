@@ -17,16 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.maintenance.archive;
+package com.raytheon.uf.edex.archive;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -64,10 +66,9 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.handler.CurrentTimeClusterLockHandler;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
-import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
 
 /**
- * TODO Add Description
+ * This class handles moving processed data to the archiver directory.
  * 
  * <pre>
  * 
@@ -77,7 +78,9 @@ import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            rjpeter     Initial creation
  * Jan 18, 2013 1469       bkowal      Removed the hdf5 data directory.
- * 
+ * Oct 23, 2013 2478       rferrel     Make date format thread safe.
+ *                                     Add debug information.
+ * Nov 05, 2013 2499       rjpeter     Repackaged, removed config files, always compresses.
  * </pre>
  * 
  * @author rjpeter
@@ -87,32 +90,48 @@ public class DatabaseArchiver implements IPluginArchiver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DatabaseArchiver.class);
 
-    private final SimpleDateFormat DATE_FORMAT;
+    /** Thread safe date format. */
+    private static final ThreadLocal<SimpleDateFormat> TL_DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
-    // Minimum time increment to archive, note based off of insertTime
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat df = new SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss.SSS");
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df;
+        }
+    };
+
+    /** Minimum time increment to archive, note based off of insertTime. */
     private static final int MIN_DURATION_MILLIS = 1000 * 60 * 30;
 
-    // Maximum time increment to archive, note based off of insertTime
+    /** Maximum time increment to archive, note based off of insertTime. */
     private static final int MAX_DURATION_MILLIS = 1000 * 60 * 60;
 
+    /** Job's name. */
     private static final String TASK_NAME = "DB Archiver";
 
+    /** Cluster time out on lock. */
     private static final int CLUSTER_LOCK_TIMEOUT = 60000;
 
+    /** Mapping for plug-in formatters. */
     private final Map<String, IPluginArchiveFileNameFormatter> pluginArchiveFormatters;
 
-    public DatabaseArchiver() {
-        DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    /** When true dump the pdos. */
+    private final boolean debugArchiver;
 
+    /**
+     * The constructor.
+     */
+    public DatabaseArchiver() {
         pluginArchiveFormatters = new HashMap<String, IPluginArchiveFileNameFormatter>();
         pluginArchiveFormatters.put("default",
                 new DefaultPluginArchiveFileNameFormatter());
+        debugArchiver = Boolean.getBoolean("archive.debug.enable");
     }
 
     @Override
-    public void archivePlugin(String pluginName, String archivePath,
-            DataArchiveConfig conf) {
+    public void archivePlugin(String pluginName, String archivePath) {
         PluginProperties props = PluginRegistry.getInstance()
                 .getRegisteredObject(pluginName);
         if ((props != null) && (props.getRecord() != null)
@@ -121,7 +140,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             if (recordClass != null) {
                 try {
                     recordClass.asSubclass(PluginDataObject.class);
-                    archivePluginData(pluginName, archivePath, conf);
+                    archivePluginData(pluginName, archivePath);
                 } catch (ClassCastException e) {
                     // not an error, using asSubClass to filter non
                     // PluginDataObjects
@@ -131,8 +150,8 @@ public class DatabaseArchiver implements IPluginArchiver {
     }
 
     @SuppressWarnings("rawtypes")
-    public boolean archivePluginData(String pluginName, String archivePath,
-            DataArchiveConfig conf) {
+    public boolean archivePluginData(String pluginName, String archivePath) {
+        SimpleDateFormat dateFormat = TL_DATE_FORMAT.get();
         // set archive time
         Calendar runTime = Calendar.getInstance();
         runTime.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -140,7 +159,7 @@ public class DatabaseArchiver implements IPluginArchiver {
 
         // cluster lock, grabbing time of last successful archive
         CurrentTimeClusterLockHandler lockHandler = new CurrentTimeClusterLockHandler(
-                CLUSTER_LOCK_TIMEOUT, DATE_FORMAT.format(runTime.getTime()),
+                CLUSTER_LOCK_TIMEOUT, dateFormat.format(runTime.getTime()),
                 false);
         ClusterTask ct = ClusterLockUtils.lock(TASK_NAME, pluginName,
                 lockHandler, false);
@@ -169,7 +188,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             Set<String> datastoreFilesToArchive = new HashSet<String>();
 
             startTime = determineStartTime(pluginName, ct.getExtraInfo(),
-                    runTime, dao, conf);
+                    runTime, dao);
             Calendar endTime = determineEndTime(startTime, runTime);
             Map<String, List<PersistableDataObject>> pdoMap = new HashMap<String, List<PersistableDataObject>>();
 
@@ -186,7 +205,7 @@ public class DatabaseArchiver implements IPluginArchiver {
 
                 if ((pdosToSave != null) && !pdosToSave.isEmpty()) {
                     recordCount += savePdoMap(pluginName, archivePath,
-                            pdosToSave, conf.getCompressionEnabled());
+                            pdosToSave);
                     for (Map.Entry<String, List<PersistableDataObject>> entry : pdosToSave
                             .entrySet()) {
                         List<PersistableDataObject> pdoList = entry.getValue();
@@ -202,8 +221,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             }
 
             if ((pdoMap != null) && !pdoMap.isEmpty()) {
-                recordCount += savePdoMap(pluginName, archivePath, pdoMap,
-                        conf.getCompressionEnabled());
+                recordCount += savePdoMap(pluginName, archivePath, pdoMap);
                 // don't forget to archive the HDF5 for the records that weren't
                 // saved off by the prior while block
                 for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
@@ -242,15 +260,11 @@ public class DatabaseArchiver implements IPluginArchiver {
 
                     try {
                         // data must be older than 30 minutes, and no older than
-                        // hours
-                        // to keep hours need to lookup plugin and see if
-                        // compression
-                        // matches, or embed in configuration the compression
-                        // level on
-                        // archive, but would still need to lookup plugin
-                        ds.copy(outputDir, compRequired, "lastArchived",
-                                1800000,
-                                conf.getHoursToKeep() * 60000 + 1800000);
+                        // hours to keep hours need to lookup plugin and see if
+                        // compression matches, or embed in configuration the
+                        // compression level on archive, but would still need to
+                        // lookup plugin
+                        ds.copy(outputDir, compRequired, "lastArchived", 0, 0);
                     } catch (StorageException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage());
@@ -261,14 +275,16 @@ public class DatabaseArchiver implements IPluginArchiver {
             // set last archive time to startTime
             if (startTime != null) {
                 lockHandler
-                        .setExtraInfo(DATE_FORMAT.format(startTime.getTime()));
+                        .setExtraInfo(dateFormat.format(startTime.getTime()));
             }
 
             if (recordCount > 0) {
-                statusHandler.info(pluginName + ": successfully archived "
-                        + recordCount + " records in "
-                        + (System.currentTimeMillis() - timimgStartMillis)
-                        + " ms");
+                statusHandler.info(pluginName
+                        + ": successfully archived "
+                        + recordCount
+                        + " records in "
+                        + TimeUtil.prettyDuration(System.currentTimeMillis()
+                                - timimgStartMillis));
             } else {
                 statusHandler
                         .info(pluginName + ": Found no records to archive");
@@ -277,7 +293,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             // previous run time needs to be reset
             if (startTime != null) {
                 lockHandler
-                        .setExtraInfo(DATE_FORMAT.format(startTime.getTime()));
+                        .setExtraInfo(dateFormat.format(startTime.getTime()));
             }
 
             statusHandler.error(pluginName + ": Error occurred archiving data",
@@ -294,24 +310,24 @@ public class DatabaseArchiver implements IPluginArchiver {
 
     @SuppressWarnings("rawtypes")
     protected int savePdoMap(String pluginName, String archivePath,
-            Map<String, List<PersistableDataObject>> pdoMap,
-            boolean compressMetadata) throws SerializationException,
-            IOException {
+            Map<String, List<PersistableDataObject>> pdoMap)
+            throws SerializationException, IOException {
         int recordsSaved = 0;
 
+        StringBuilder path = new StringBuilder();
         for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
                 .entrySet()) {
-            String path = archivePath + File.separator + pluginName
-                    + File.separator + entry.getKey();
-
+            path.setLength(0);
+            path.append(archivePath).append(File.separator).append(pluginName)
+                    .append(File.separator).append(entry.getKey());
             // remove .h5
-            if (path.endsWith(".h5")) {
-                path = path.substring(0, path.length() - 3);
+            if (path.lastIndexOf(".h5") == (path.length() - 3)) {
+                path.setLength(path.length() - 3);
             }
+            int pathDebugLength = path.length();
+            path.append(".bin.gz");
 
-            path += (compressMetadata ? ".bin.gz" : ".bin");
-
-            File file = new File(path);
+            File file = new File(path.toString());
             List<PersistableDataObject> pdosToSerialize = entry.getValue();
             recordsSaved += pdosToSerialize.size();
 
@@ -322,10 +338,7 @@ public class DatabaseArchiver implements IPluginArchiver {
                 try {
 
                     // created gzip'd stream
-                    is = (compressMetadata ? new GZIPInputStream(
-                            new FileInputStream(file), 8192)
-                            : new BufferedInputStream(
-                                    new FileInputStream(file), 8192));
+                    is = new GZIPInputStream(new FileInputStream(file), 8192);
 
                     // transform back for list append
                     @SuppressWarnings("unchecked")
@@ -381,11 +394,13 @@ public class DatabaseArchiver implements IPluginArchiver {
                     file.getParentFile().mkdirs();
                 }
 
+                if (debugArchiver) {
+                    String debugRootName = path.substring(0, pathDebugLength);
+                    dumpPdos(pluginName, pdosToSerialize, debugRootName);
+                }
+
                 // created gzip'd stream
-                os = (compressMetadata ? new GZIPOutputStream(
-                        new FileOutputStream(file), 8192)
-                        : new BufferedOutputStream(new FileOutputStream(file),
-                                8192));
+                os = new GZIPOutputStream(new FileOutputStream(file), 8192);
 
                 // Thrift serialize pdo list
                 SerializationUtil.transformToThriftUsingStream(pdosToSerialize,
@@ -405,15 +420,72 @@ public class DatabaseArchiver implements IPluginArchiver {
         return recordsSaved;
     }
 
+    /**
+     * Dump the record information being archived to a file.
+     */
+    @SuppressWarnings("rawtypes")
+    private void dumpPdos(String pluginName,
+            List<PersistableDataObject> pdosToSerialize, String debugRootName) {
+        StringBuilder sb = new StringBuilder(debugRootName);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sb.append("_").append(sdf.format(Calendar.getInstance().getTime()))
+                .append(".txt");
+        File file = new File(sb.toString());
+        Writer writer = null;
+        try {
+            PersistableDataObject<?>[] pdoArray = pdosToSerialize
+                    .toArray(new PersistableDataObject<?>[0]);
+            writer = new BufferedWriter(new FileWriter(file));
+            statusHandler.info(String.format("Dumping %s records to: %s",
+                    pdoArray.length, file.getAbsolutePath()));
+            for (int i = 0; i < pdosToSerialize.size(); ++i) {
+                if (pdoArray[i] instanceof PluginDataObject) {
+                    PluginDataObject pdo = (PluginDataObject) pdoArray[i];
+                    if (pdo.getId() != 0) {
+                        // otherwise was read from file
+                        writer.write("" + pdo.getId() + ":");
+                        writer.write(pdo.getDataURI());
+                        writer.write("\n");
+                    }
+                } else {
+                    writer.write(pdoArray[i].toString());
+                    writer.write("\n");
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (Exception e) {
+                    // Ignore
+                }
+                writer = null;
+            }
+        }
+    }
+
+    /**
+     * Get the plug-in's start time for a query.
+     * 
+     * @param pluginName
+     * @param extraInfo
+     * @param runTime
+     * @param dao
+     * @return startTime
+     * @throws DataAccessLayerException
+     */
     protected Calendar determineStartTime(String pluginName, String extraInfo,
-            Calendar runTime, PluginDao dao, DataArchiveConfig conf)
-            throws DataAccessLayerException {
+            Calendar runTime, PluginDao dao) throws DataAccessLayerException {
         Calendar startTime = null;
+        SimpleDateFormat dateFormat = TL_DATE_FORMAT.get();
 
         // get previous run time
         if ((extraInfo != null) && !extraInfo.isEmpty()) {
             try {
-                Date prevDate = DATE_FORMAT.parse(extraInfo);
+                Date prevDate = dateFormat.parse(extraInfo);
 
                 // cloning runTime as it already has the correct time zone
                 startTime = (Calendar) runTime.clone();
@@ -447,14 +519,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             }
         }
 
-        // earliest time based on default retention
-        Calendar earliestTime = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
-        earliestTime
-                .add(Calendar.HOUR, (-1 * conf.getHoursToKeep().intValue()));
-
-        return (startTime.compareTo(earliestTime) < 0) ? earliestTime
-                : startTime;
+        return startTime;
     }
 
     /**
@@ -484,6 +549,14 @@ public class DatabaseArchiver implements IPluginArchiver {
         return endTime;
     }
 
+    /**
+     * Register archive formatter for a plug-in; and issue a warning if plug-in
+     * is already registered.
+     * 
+     * @param pluginName
+     * @param archiveFormatter
+     * @return databaseArchiver
+     */
     public Object registerPluginArchiveFormatter(String pluginName,
             IPluginArchiveFileNameFormatter archiveFormatter) {
         if (!pluginArchiveFormatters.containsKey(pluginName)) {
