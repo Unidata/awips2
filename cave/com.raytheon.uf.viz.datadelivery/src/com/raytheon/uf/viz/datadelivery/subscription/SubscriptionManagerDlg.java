@@ -142,6 +142,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Sep 25. 2013   2409     mpduff     Add check for widget disposed after calling configuration.
  * Oct 25, 2013   2292     mpduff     Move overlap checks to edex.
  * Nov 06, 2013   2358     mpduff     Resurrected file management code.
+ * Nov 08, 2013   2506     bgonzale   Removed send notification when a subscription is deleted.
  * </pre>
  * 
  * @author mpduff
@@ -1330,12 +1331,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 .get(ISubscriptionHandler.class);
         try {
             handler.delete(username, subscriptions);
-
-            for (Subscription subscription : subscriptions) {
-                subscriptionNotificationService
-                        .sendDeletedSubscriptionNotification(subscription,
-                                username);
-            }
         } catch (RegistryHandlerException e) {
             exceptions.add(e);
         }
