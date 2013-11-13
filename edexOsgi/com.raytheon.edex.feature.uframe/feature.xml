@@ -69,6 +69,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.edex.archive.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.edex.text.feature"
          version="0.0.0"/>
 
@@ -122,10 +126,6 @@
 
    <includes
          id="com.raytheon.uf.edex.registry.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.archive.feature"
          version="0.0.0"/>
 
 </feature>
