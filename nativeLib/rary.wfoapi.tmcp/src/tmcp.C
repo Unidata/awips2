@@ -900,7 +900,7 @@ static void events_handler( Widget w, XtPointer client_data, XtPointer call_data
 {
     int rc;
     int	pc;  // pre-condition flag
-    int which = (int) client_data;
+    int which = (long) client_data;
     XmString label;
     XmString button_label;
     char 	command[512];
