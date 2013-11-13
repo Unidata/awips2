@@ -839,7 +839,10 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
             DescribeStoredQueriesResponseType descriptions = describeQueries(
                     request, serviceInfo);
             try {
-                marshalResponse(descriptions, GML_MIME, response);
+                marshalResponse(
+                        wfsFactory
+                                .createDescribeStoredQueriesResponse(descriptions),
+                        GML_MIME, response);
             } catch (Exception e) {
                 log.error("Unable to marshal response", e);
                 throw new WfsException(Code.OperationProcessingFailed);
@@ -917,7 +920,9 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
         try {
             ListStoredQueriesResponseType queries = listQueries(serviceInfo);
             try {
-                marshalResponse(queries, GML_MIME, response);
+                marshalResponse(
+                        wfsFactory.createListStoredQueriesResponse(queries),
+                        GML_MIME, response);
             } catch (Exception e) {
                 log.error("Unable to marshal response", e);
                 throw new WfsException(Code.OperationProcessingFailed);
