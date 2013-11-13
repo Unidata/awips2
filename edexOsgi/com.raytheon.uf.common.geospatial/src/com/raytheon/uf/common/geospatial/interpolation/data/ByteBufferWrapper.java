@@ -34,6 +34,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2012            bsteffen     Initial creation
+ * Nov 19, 2013  2393      bclement    added getArray
  * 
  * </pre>
  * 
@@ -77,6 +78,20 @@ public class ByteBufferWrapper extends DataWrapper1D {
     @Override
     public void setDataValueInternal(double dataValue, int index) {
         buffer.put(index, (byte) dataValue);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D#
+     * getPrimitiveArray()
+     */
+    @Override
+    public byte[] getArray() {
+        if (buffer.hasArray()) {
+            return buffer.array();
+        }
+        return null;
     }
 
 }
