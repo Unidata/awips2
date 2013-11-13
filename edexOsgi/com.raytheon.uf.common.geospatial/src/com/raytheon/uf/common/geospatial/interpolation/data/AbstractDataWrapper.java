@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.geospatial.interpolation.data;
 
+import java.awt.Rectangle;
+import java.lang.reflect.Constructor;
+
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
@@ -35,6 +38,7 @@ import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2012            bsteffen     Initial creation
+ * Nov 19, 2013  2393      bclement     added createNew method
  * 
  * </pre>
  * 
@@ -112,5 +116,27 @@ public abstract class AbstractDataWrapper implements DataSource,
     protected abstract double getDataValueInternal(int x, int y);
 
     protected abstract void setDataValueInternal(double dataValue, int x, int y);
+
+    /**
+     * Create a new data wrapper of type c with the provided size
+     * 
+     * @param c
+     *            desired implementation class
+     * @param size
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public static <T extends AbstractDataWrapper> T createNew(
+            Class<? extends T> c, Rectangle size)
+            throws IllegalArgumentException {
+        try {
+            Constructor<? extends T> constructor = c.getConstructor(int.class,
+                    int.class);
+            return constructor.newInstance(size.width, size.height);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Unable to instatiate instance of class: " + c, e);
+        }
+    }
 
 }
