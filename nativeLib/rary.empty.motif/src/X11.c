@@ -7,8 +7,6 @@
 
 #include "error.h"
 
-void XDestroyRegion () {nolibError("Motif");}
-
 void XFreeFont () {nolibError("Motif");}
 
 void XGetWindowAttributes () {nolibError("Motif");}
@@ -17,8 +15,6 @@ void XGrabButton () {nolibError("Motif");}
 void XLoadFont () {nolibError("Motif");}
 
 void XMapWindow () {nolibError("Motif");}
-void XPointInRegion () {nolibError("Motif");}
-void XPolygonRegion () {nolibError("Motif");}
 void XQueryColor () {nolibError("Motif");}
 void XQueryFont () {nolibError("Motif");}
 void XReadBitmapFile () {nolibError("Motif");}
