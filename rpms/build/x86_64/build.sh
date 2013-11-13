@@ -214,6 +214,7 @@ if [ "${1}" = "-postgres" ]; then
 fi
 
 if [ "${1}" = "-delta" ]; then
+   buildRPM "awips2"
    buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -224,22 +225,32 @@ if [ "${1}" = "-delta" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+
+   buildRPM "awips2-ncep-database"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-ufpy"
+
+   buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
+   buildRPM "awips2-database"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-data.hdf5-gfe.climo"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-notification"
+   buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2"
+   buildRPM "awips2-rcm"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-edex-environment"
-   buildRPM "awips2-notification"
 
    exit 0
 fi
