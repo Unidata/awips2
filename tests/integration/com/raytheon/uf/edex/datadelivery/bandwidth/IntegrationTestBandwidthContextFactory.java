@@ -23,6 +23,7 @@ import java.io.File;
 
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
@@ -41,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Feb 20, 2013 1543       djohnson     Pass additional super-class constructor arguments.
  * Jun 25, 2013 2106       djohnson     Add {@link IBandwidthBucketDao}.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Nov 07, 2013 2506       bgonzale     Added notification handler to bandwidth context.
  * 
  * </pre>
  * 
@@ -68,11 +70,12 @@ public class IntegrationTestBandwidthContextFactory extends
             IEdexBandwidthManagerCreator bandwidthManagerCreator,
             IBandwidthDbInit dbInit,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService notificationService) {
         super(bandwidthDao, bandwidthBucketsDao,
                 new IntegrationTestBandwidthInitializer(),
                 bandwidthManagerCreator, dbInit, dataSetMetaDataHandler,
-                subscriptionHandler);
+                subscriptionHandler, notificationService);
     }
 
     /**
@@ -90,6 +93,6 @@ public class IntegrationTestBandwidthContextFactory extends
      */
     public static File getIntegrationTestBandwidthMapConfigFile() {
         return new IntegrationTestBandwidthContextFactory(null, null, null,
-                null, null, null).getBandwidthMapConfigFile();
+                null, null, null, null).getBandwidthMapConfigFile();
     }
 }
