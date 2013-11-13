@@ -6,7 +6,7 @@
 # set to one of: {-m32, -m64} to specify the architecture.
 # setting the flag to anything other than -m32 or -m64 will
 # cause unknown, potentially chaotic, build results.
-ARCHFLAGS = -m64
+ARCHFLAGS = -m32
 
 # ARCHFLAGS is set into the build environment so that scripts
 # that utilize this script can execute their own architecture
