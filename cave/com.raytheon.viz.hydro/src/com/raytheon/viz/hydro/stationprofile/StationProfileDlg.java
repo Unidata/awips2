@@ -328,8 +328,8 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Calculate pixel and offset values.
      */
     private void calculateValues() {
-        double totalElevInc = Math.abs(stationProfData.getElevationFtMax())
-                - Math.abs(stationProfData.getElevationFtMin());
+        double totalElevInc = stationProfData.getElevationFtMax()
+                - stationProfData.getElevationFtMin();
 
         // Calculate the offset between the elevation points
         double offsetDbl = totalElevInc / 5;
@@ -684,6 +684,7 @@ public class StationProfileDlg extends CaveSWTDialog {
         if (stationList != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm MM/dd");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            int i = 0;
 
             for (Statprof station : stationList) {
                 // Skip gage if the river mile is not valid
@@ -694,6 +695,7 @@ public class StationProfileDlg extends CaveSWTDialog {
                 e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
                 x = calcRiverMileXCoord(station.getId().getMile());
                 y = calcElevationYCoord(station.getId().getZd());
+                i++;
 
                 // hash mark at each site
                 e.gc.drawLine(x, y, x, y + POINT_HASH);
