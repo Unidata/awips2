@@ -53,7 +53,7 @@ public class HttpProxyTestConstants extends HttpTestConstants {
 
     public static final String HOST = "dev11";
     
-    public static final String REMOTE_HOST = "dev11";
+    public static final String REMOTE_HOST = "stormy";
 
     public static final int HTTP_PORT = 8085;
 

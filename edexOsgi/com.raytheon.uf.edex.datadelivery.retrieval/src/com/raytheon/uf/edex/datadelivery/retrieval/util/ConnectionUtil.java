@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.comm.ProxyUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -47,6 +46,7 @@ import dods.dap.DConnect;
  * Apr 01, 2013 1786       mpduff       Pulled proxy settings out to util class.
  * May 12, 2013 753        dhladky      Expanded for use with other connection types
  * Aug 30, 2013  2314      mpduff       Added null checks.
+ * Nov 12, 2013  *         dhladky      Fixed copy paste error
  * </pre>
  * 
  * @author djohnson
@@ -54,8 +54,9 @@ import dods.dap.DConnect;
  */
 
 public class ConnectionUtil {
+    
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ColorMapManager.class);
+            .getHandler(ConnectionUtil.class);
 
     private static final String PROXY_PROPERTIES_FILE = "datadelivery"
             + File.separator + "proxy.properties";
