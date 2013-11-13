@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 8, 2010            njensen     Initial creation
+ * Nov 14, 2013  2393     bclement    removed get all interpolated
  * 
  * </pre>
  * 
@@ -46,9 +47,6 @@ public class RetrieveRequest extends AbstractRequest {
     private String group;
 
     @DynamicSerializeElement
-    private boolean includeInterpolated;
-
-    @DynamicSerializeElement
     private String dataset;
 
     @DynamicSerializeElement
@@ -60,14 +58,6 @@ public class RetrieveRequest extends AbstractRequest {
 
     public void setGroup(String group) {
         this.group = group;
-    }
-
-    public boolean isIncludeInterpolated() {
-        return includeInterpolated;
-    }
-
-    public void setIncludeInterpolated(boolean includeInterpolated) {
-        this.includeInterpolated = includeInterpolated;
     }
 
     public String getDataset() {

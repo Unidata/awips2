@@ -32,21 +32,22 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSSpatialCoverage;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageProperties;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedShortArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
+import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
+import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.plugin.npp.viirs.VIIRSMessageData;
@@ -129,12 +130,12 @@ public class VIIRSDao extends PluginDao {
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
-        VIIRSDataRecord record = (VIIRSDataRecord) obj;
+        final VIIRSDataRecord record = (VIIRSDataRecord) obj;
         VIIRSSpatialCoverage spatialRecord = record.getCoverage();
         int nx = spatialRecord.getNx();
         int ny = spatialRecord.getNy();
 
-        StorageProperties props = new StorageProperties();
+        final StorageProperties props = new StorageProperties();
         String compression = PluginRegistry.getInstance()
                 .getRegisteredObject(pluginName).getCompression();
         if (compression != null) {
@@ -142,71 +143,27 @@ public class VIIRSDao extends PluginDao {
                     .valueOf(compression));
         }
 
-        VIIRSMessageData messageData = (VIIRSMessageData) record
+        final VIIRSMessageData messageData = (VIIRSMessageData) record
                 .getMessageData();
         float[] missingValues = messageData.getMissingValues();
-        float fillValue = missingValues[0];
+        final float fillValue = missingValues[0];
         Object rawData = messageData.getRawData();
-        AbstractDataWrapper ds = null;
-        // Data sources are create anonymously here to avoid having the
-        // fillValue/validMin/validMax even checked when getting values but
-        // still getting the getDataValueInternal functionality
-        if (rawData instanceof short[]) {
-            ds = new UnsignedShortArrayWrapper((short[]) rawData, nx, ny);
-        } else if (rawData instanceof float[]) {
-            ds = new FloatArrayWrapper((float[]) rawData, nx, ny);
-        }
+        
+        IDataRecordCreator creator = new IDataRecordCreator() {
 
-        if (ds != null) {
-            ds.setFillValue(fillValue);
-
-            // Wrap the source and replace set each value which will replace
-            // anything in missingValues with fillValue
-            DataSource source = new VIIRSDataSourceWrapper(ds, missingValues);
-            for (int y = 0; y < ny; ++y) {
-                for (int x = 0; x < nx; ++x) {
-                    ds.setDataValue(source.getDataValue(x, y), x, y);
-                }
+            @Override
+            public double getFillValue() {
+                return fillValue;
             }
 
-            GridDownscaler downscaler = new GridDownscaler(
-                    spatialRecord.getGridGeometry(),
-                    new BilinearInterpolation());
-
-            int levels = downscaler.getNumberOfDownscaleLevels();
-            for (int i = 0; i < levels; ++i) {
-                Rectangle bounds = downscaler.getDownscaleSize(i);
-                AbstractDataWrapper dd = null;
-
-                if (i == 0) {
-                    // No interpolation needed for level 0
-                    dd = ds;
-                } else {
-                    if (ds instanceof UnsignedShortArrayWrapper) {
-                        dd = new UnsignedShortArrayWrapper(bounds.width,
-                                bounds.height);
-                    } else if (ds instanceof FloatArrayWrapper) {
-                        dd = new FloatArrayWrapper(bounds.width, bounds.height);
-                    }
-
-                    dd.setFillValue(fillValue);
-                    downscaler.downscale(i - 1, i, ds, dd);
-                    ds = dd;
-                }
-
-                IDataRecord idr = null;
-                if (dd instanceof UnsignedShortArrayWrapper) {
-                    idr = new ShortDataRecord(VIIRSDataRecord.getDataSet(i),
-                            record.getDataURI(),
-                            ((UnsignedShortArrayWrapper) dd).getArray(), 2,
-                            new long[] { bounds.width, bounds.height });
-                } else if (dd instanceof FloatArrayWrapper) {
-                    idr = new FloatDataRecord(VIIRSDataRecord.getDataSet(i),
-                            record.getDataURI(),
-                            ((FloatArrayWrapper) dd).getArray(), 2, new long[] {
-                                    bounds.width, bounds.height });
-                }
-
+            @Override
+            public IDataRecord create(Object data,
+                    int downScaleLevel, Rectangle size)
+                    throws StorageException {
+                long[] sizes = new long[] { size.width, size.height };
+                IDataRecord idr = DataStoreFactory.createStorageRecord(
+                        VIIRSDataRecord.getDataSet(downScaleLevel),
+                        record.getDataURI(), data, 2, sizes);
                 Map<String, Object> attributes = new HashMap<String, Object>();
                 attributes.put(VIIRSDataRecord.MISSING_VALUE_ID, fillValue);
                 attributes.put(VIIRSDataRecord.OFFSET_ID,
@@ -220,13 +177,34 @@ public class VIIRSDao extends PluginDao {
                 idr.setDataAttributes(attributes);
                 idr.setProperties(props);
                 idr.setCorrelationObject(record);
-                dataStore.addDataRecord(idr);
-                dataStore.store();
+                return idr;
             }
-        } else {
-            throw new Exception("Unrecognized type for rawData: "
-                    + (rawData != null ? rawData.getClass() : null));
+        };
+        
+        IDataRecord fullSize = creator
+                .create(rawData, 0, new Rectangle(nx, ny));
+        dataStore.addDataRecord(fullSize);
+        // Data sources are create anonymously here to avoid having the
+        // fillValue/validMin/validMax even checked when getting values but
+        // still getting the getDataValueInternal functionality
+        DataWrapper1D ds = DataRecordWrapUtil.wrap(fullSize, nx, ny, true);
+
+        ds.setFillValue(fillValue);
+
+        // Wrap the source and replace set each value which will replace
+        // anything in missingValues with fillValue
+        DataSource source = new VIIRSDataSourceWrapper(ds, missingValues);
+        for (int y = 0; y < ny; ++y) {
+            for (int x = 0; x < nx; ++x) {
+                ds.setDataValue(source.getDataValue(x, y), x, y);
+            }
         }
+
+        GridDownscaler downscaler = new GridDownscaler(
+                spatialRecord.getGridGeometry(), new BilinearInterpolation());
+
+        DownscaleStoreUtil.storeInterpolated(dataStore, downscaler, ds,
+                creator, true);
         return dataStore;
     }
 
