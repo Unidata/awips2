@@ -22,6 +22,8 @@ package com.raytheon.uf.edex.registry.ebxml.services.query.plugins;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -71,6 +73,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 10/8/2013    1682       bphillip    Refactored querying
+ * 11/13/2013   1686       bphillip    Fixed the arguments of this query
  * 
  * </pre>
  * 
@@ -99,10 +102,24 @@ public class GetAuditTrailByTimeInterval extends RegistryQueryPlugin {
             @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest queryRequest)
             throws MsgRegistryException {
         QueryType queryType = queryRequest.getQuery();
-        XMLGregorianCalendar startTime = queryType
-                .getSlotValue(QueryConstants.START_TIME);
-        XMLGregorianCalendar endTime = queryType
-                .getSlotValue(QueryConstants.END_TIME);
+
+        XMLGregorianCalendar startTime = null;
+        XMLGregorianCalendar endTime = null;
+        try {
+            startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+                    (String) queryType.getSlotValue(QueryConstants.START_TIME));
+        } catch (DatatypeConfigurationException e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error parsing start time", e);
+        }
+
+        try {
+            endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+                    (String) queryType.getSlotValue(QueryConstants.END_TIME));
+        } catch (DatatypeConfigurationException e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error parsing end time", e);
+        }
 
         // Start time defaults to current Time
         long currentTime = TimeUtil.currentTimeMillis();
