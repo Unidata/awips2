@@ -153,6 +153,7 @@ if [ "${1}" = "-postgres" ]; then
 fi
 
 if [ "${1}" = "-delta" ]; then
+   buildRPM "awips2"
    buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -168,10 +169,8 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-python"
    buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-qpid"
 
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-aviation-shared"

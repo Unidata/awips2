@@ -17,9 +17,10 @@
       [Enter License Description here.]
    </license>
 
-    <requires>
-         <import feature="com.raytheon.uf.edex.datadelivery.core.feature" version="0.0.0"/>
-    </requires>
+   <requires>
+      <import feature="com.raytheon.uf.edex.datadelivery.core.feature" version="0.0.0"/>
+      <import feature="com.raytheon.uf.common.base.feature" version="0.0.0"/>
+   </requires>
 
    <plugin
          id="com.raytheon.uf.edex.ogc.registry"

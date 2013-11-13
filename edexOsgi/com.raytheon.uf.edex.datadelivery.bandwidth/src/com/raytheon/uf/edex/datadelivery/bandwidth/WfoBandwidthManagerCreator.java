@@ -29,6 +29,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * Oct 2,  2013 1797       dhladky      Generics
  * Oct 28, 2013 2506       bgonzale     SBN (Shared) Scheduled at the central registry.
+ *                                      Added subscription notification service to bandwidth manager.
  * 
  * </pre>
  * 
@@ -85,14 +87,17 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
          * @param bandwidthDao
          * @param retrievalManager
          * @param bandwidthDaoUtil
+         * @param subscriptionNotificationService
          */
         public WfoBandwidthManager(IBandwidthDbInit dbInit,
                 IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
                 BandwidthDaoUtil bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
-                ISubscriptionHandler subscriptionHandler) {
+                ISubscriptionHandler subscriptionHandler,
+                ISubscriptionNotificationService subscriptionNotificationService) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                    dataSetMetaDataHandler, subscriptionHandler);
+                    dataSetMetaDataHandler, subscriptionHandler,
+                    subscriptionNotificationService);
         }
 
         @Override
@@ -139,9 +144,11 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
-        return new WfoBandwidthManager<T, C>(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler);
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
+        return new WfoBandwidthManager<T, C>(dbInit, bandwidthDao,
+                retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
+                subscriptionHandler, subscriptionNotificationService);
     }
 
 }
