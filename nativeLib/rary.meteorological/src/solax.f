@@ -1,9 +1,9 @@
 	SUBROUTINE SOLAX (  JULDAY,       !Julian day (ddd)
-     .			    MONTH,        !Month number of year
-     .			    SLAT,	  !Station latitude (deg)
-     .			    TYMINC,	  !Summation time increment (min)
-     .			    TSTART,	  !Local time to start summation (hr)
-     .			    TSTOP,	  !Local time (24 hr clock) to stop
+     .				MONTH,        !Month number of year
+     .				SLAT,	  !Station latitude (deg)
+     .				TYMINC,	  !Summation time increment (min)
+     .				TSTART,	  !Local time to start summation (hr)
+     .				TSTOP,	  !Local time (24 hr clock) to stop
      .			    TSRAD)	  !Output: solar rad. @ top of atm (ly)
 
 C==========================================================================
@@ -41,9 +41,9 @@ c ----------------
      .			  .196,.205,.207,.201,
      .			  .177,.160,.149,.142/,
 
-     .		  SDF /.058,.060,.071,.097,
-     .		       .121,.134,.136,.122,
-     .		       .092,.073,.063,.057/
+     .			SDF /.058,.060,.071,.097,
+     .				.121,.134,.136,.122,
+     .				.092,.073,.063,.057/
 
 
 C---------------------------------------------------------------------------
