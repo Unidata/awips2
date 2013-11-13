@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type.JAXB;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -51,9 +54,13 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.event.EventBus;
+import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
+import com.raytheon.uf.common.registry.event.RegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
+import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -98,6 +105,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
  * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
+ *                                      Added subscriptionNotificationService field.
+ *                                      Send notifications.
  * 
  * </pre>
  * 
@@ -115,6 +124,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     private final ISubscriptionHandler subscriptionHandler;
 
     private final ScheduledExecutorService scheduler;
+
+    private final ISubscriptionNotificationService subscriptionNotificationService;
 
     @VisibleForTesting
     final Runnable watchForConfigFileChanges = new Runnable() {
@@ -136,17 +147,20 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * @param bandwidthDao
      * @param retrievalManager
      * @param bandwidthDaoUtil
+     * @param subscriptionNotificationService
      */
     public EdexBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager,
             BandwidthDaoUtil<T, C> bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
-            ISubscriptionHandler subscriptionHandler) {
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
 
         this.dataSetMetaDataHandler = dataSetMetaDataHandler;
         this.subscriptionHandler = subscriptionHandler;
+        this.subscriptionNotificationService = subscriptionNotificationService;
 
         // schedule maintenance tasks
         scheduler = Executors.newScheduledThreadPool(1);
@@ -317,6 +331,18 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                         .info("Received Subscription removal notification for Subscription ["
                                 + event.getId() + "]");
                 removeBandwidthSubscriptions(event.getId());
+
+                try {
+                    Subscription<T, C> sub = (Subscription<T, C>) RegistryEncoders
+                            .ofType(JAXB).decodeObject(
+                                    ((RemoveRegistryEvent) event).getRemovedObject());
+                    sendSubscriptionNotificationEvent(event, sub);
+                } catch (SerializationException e) {
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Failed to retrieve deleted object from RemoveRegistryEvent",
+                                    e);
+                }
             }
         }
     }
@@ -359,7 +385,59 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 statusHandler.error("No DataSetMetaData found for id [" + id
                         + "]");
             }
+        }
+        Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
+                re.getId());
+        sendSubscriptionNotificationEvent(re, sub);
+    }
 
+    /**
+     * Create a hook into the EDEX Notification sub-system to receive
+     * UpdateRegistryEvents. Filter for subscription specific events.
+     * 
+     * @param event
+     */
+    @Subscribe
+    @AllowConcurrentEvents
+    public void registryEventListener(UpdateRegistryEvent event) {
+        Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
+                event.getId());
+        sendSubscriptionNotificationEvent(event, sub);
+    }
+
+    private void sendSubscriptionNotificationEvent(RegistryEvent event,
+            Subscription<T, C> sub) {
+        final String objectType = event.getObjectType();
+
+        if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(objectType)) {
+            if (sub != null) {
+                boolean isApplicableForTheLocalSite = sub.getOfficeIDs()
+                        .contains(SiteUtil.getSite());
+                if (isApplicableForTheLocalSite) {
+                    switch (event.getAction()) {
+                    case UPDATE:
+                        subscriptionNotificationService
+                                .sendUpdatedSubscriptionNotification(sub,
+                                        sub.getOwner());
+                        break;
+                    case INSERT:
+                        subscriptionNotificationService
+                                .sendCreatedSubscriptionNotification(sub,
+                                        sub.getOwner());
+                        break;
+                    case DELETE:
+                        subscriptionNotificationService
+                                .sendDeletedSubscriptionNotification(sub,
+                                        sub.getOwner());
+                        break;
+                    default:
+                        statusHandler.handle(
+                                Priority.PROBLEM,
+                                "Invalid RegistryEvent action: "
+                                        + event.getAction());
+                    }
+                }
+            }
         }
     }
 
