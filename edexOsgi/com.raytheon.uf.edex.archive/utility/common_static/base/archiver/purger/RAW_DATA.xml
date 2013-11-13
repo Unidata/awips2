@@ -25,7 +25,7 @@
  * ============ ========== =========== ==========================
  * Jun 20, 2013 1966       rferrel     Initial creation
  * Aug 05, 2013 2224       rferrel     Changes to add dataSet tags.
- * Oct 01, 2013 2147       rfrrel      Date time stamp no longer requires an hour field.
+ * Oct 01, 2013 2147       rferrel     Date time stamp no longer requires an hour field.
  * 
  * @author rferrel
  * @version 1.0
