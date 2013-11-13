@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
 import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.NcUnits;
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
 import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
@@ -17,6 +19,7 @@ import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -46,14 +49,15 @@ import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.style.AbstractStylePreferences;
 import com.raytheon.uf.common.style.MatchCriteria;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.style.StyleRuleset;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.style.image.SamplePreferences;
@@ -110,6 +114,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  04/30/2013      *886     sgilbert    Changed number of levels from 4 to 2 for native
  *                                       satellite projections in the McidasFileBasedTileSet
  *  05/20/2013      862      ghull       implement IAreaProviderCapable
+ *  Nov 14, 2013    2393     bclement    changed how numLevels is calculated for mcidas
  * </pre>
  * 
  * @author chammack
@@ -486,14 +491,30 @@ public abstract class AbstractSatelliteResource extends
         getCapability(ImagingCapability.class).setSuppressingMenuItems(true);
         getCapability(ColorMapCapability.class).setSuppressingMenuItems(true);
 
-        numLevels = 1;
-        int newSzX = ((ISpatialEnabled) record).getSpatialObject().getNx();
-        int newSzY = ((ISpatialEnabled) record).getSpatialObject().getNy();
+        if (record instanceof McidasRecord) {
+            // mcidas is interpolated using the GridDownscaler, get number of
+            // levels stored in HDF5
+            McidasRecord mcidas = (McidasRecord) record;
+            McidasMapCoverage cov = mcidas.getCoverage();
+            try {
+                Rectangle[] downscaleSizes = GridDownscaler
+                        .getDownscaleSizes(cov.getGridGeometry());
+                numLevels = downscaleSizes.length;
+            } catch (Exception e) {
+                throw new VizException(
+                        "Unable to get grid geometry for record: " + record);
+            }
 
-        while ((newSzX > 512 && newSzY > 512)) {
-            newSzX /= 2;
-            newSzY /= 2;
-            numLevels++;
+        } else {
+            numLevels = 1;
+            int newSzX = ((ISpatialEnabled) record).getSpatialObject().getNx();
+            int newSzY = ((ISpatialEnabled) record).getSpatialObject().getNy();
+
+            while ((newSzX > 512 && newSzY > 512)) {
+                newSzX /= 2;
+                newSzY /= 2;
+                numLevels++;
+            }
         }
 
     }

@@ -30,6 +30,7 @@
 #    07/21/10                      njensen       Initial Creation.
 #    09/19/13        2309          bsteffen      Fix group name in returned
 #                                                records.
+#   Nov 14, 2013     2393          bclement      removed interpolation
 #    
 # 
 #
@@ -102,7 +103,6 @@ def createStorageRecord(rawData, ds):
     if compression != 'LZF' and compression != 'ZLIB':
         compression = 'NONE'
     props.setCompression(compression)
-    # TODO downscaled?
     inst.setProps(props)
     
     t1=time.time()
