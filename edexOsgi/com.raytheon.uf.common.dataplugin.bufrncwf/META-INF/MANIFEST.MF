@@ -6,7 +6,7 @@ Bundle-Version: 1.12.1174.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.raytheon.uf.common.dataplugin.ncwf
+Export-Package: com.raytheon.uf.common.dataplugin.bufrncwf
 Require-Bundle: com.raytheon.uf.common.serialization,
  javax.persistence,
  javax.measure,
