@@ -36,8 +36,6 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Abstract style preferences
  * 
@@ -46,13 +44,14 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 21, 2007            njensen     Initial creation
+ * Nov 14, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
  * @author njensen
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractStylePreferences implements ISerializableObject {
+public abstract class AbstractStylePreferences {
 
     @XmlRootElement(name = "displayUnits")
     public static class DisplayUnit {
