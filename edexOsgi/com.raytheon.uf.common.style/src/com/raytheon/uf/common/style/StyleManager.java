@@ -20,19 +20,26 @@
 
 package com.raytheon.uf.common.style;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
+import com.raytheon.uf.common.serialization.reflect.ISubClassLocator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.level.Level;
 
 /**
  * Manages the visualization styles
@@ -41,10 +48,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 24, 2007                 njensen     Initial creation
- * May 21, 2012 DR 14833        gzhang		Adding a getter for StyleRuleset
+ * Sep 24, 2007            njensen     Initial creation
+ * May 21, 2012 DR 14833   gzhang      Adding a getter for StyleRuleset
  * Sep 06, 2013 2251       mnash       Add ability to plug in new style types
- * Sep 24, 2013 2404        bclement        changed to look in common for files
+ * Sep 24, 2013 2404       bclement    changed to look in common for files
+ * Nov 13, 2013 2361       njensen     Use ISubClassLocator instead of SerializationUtil
  * </pre>
  * 
  * @author njensen
@@ -73,6 +81,10 @@ public class StyleManager {
 
     // although HashMap allows null keys, would rather use this than Hashtable
     private Map<IStyleType, StyleRuleset> rules = new HashMap<IStyleType, StyleRuleset>();
+
+    private JAXBManager jaxbMgr;
+
+    private ISubClassLocator subClassLocator;
 
     private StyleManager() {
     }
@@ -112,10 +124,44 @@ public class StyleManager {
         if (files == null) {
             return;
         }
+
+        synchronized (this) {
+            if (jaxbMgr == null) {
+                jaxbMgr = buildJaxbManager();
+            }
+        }
+
         for (LocalizationFile lf : files) {
-            rules.addStyleRules((StyleRuleset) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(StyleRuleset.class, lf.getFile()
-                            .getPath()));
+            rules.addStyleRules(jaxbMgr.unmarshalFromXmlFile(
+                    StyleRuleset.class, lf.getFile().getPath()));
+        }
+    }
+
+    /**
+     * Uses the subClassLocator to build a JAXBManager with classes related to
+     * unmarshalling style rules.
+     * 
+     * @return a new JAXBManager for style rules
+     * @throws SerializationException
+     */
+    private JAXBManager buildJaxbManager() throws SerializationException {
+        if (subClassLocator == null) {
+            throw new IllegalStateException(
+                    "StyleManager must have an ISubClassLocator set on it, cannot detect and process style rules");
+        }
+        Collection<Class<?>> clz = new ArrayList<Class<?>>(20);
+        clz.add(JaxbDummyObject.class);
+        clz.add(StyleRuleset.class);
+        clz.addAll(subClassLocator
+                .locateSubClasses(AbstractStylePreferences.class));
+        clz.addAll(subClassLocator.locateSubClasses(MatchCriteria.class));
+        clz.addAll(subClassLocator.locateSubClasses(Level.class));
+        subClassLocator.save();
+        try {
+            return new JAXBManager(clz.toArray(new Class[0]));
+        } catch (JAXBException e) {
+            throw new SerializationException(
+                    "Error initializing StyleManager's JAXB Context", e);
         }
     }
 
@@ -193,5 +239,18 @@ public class StyleManager {
         }
 
         return rules.get(st);
+    }
+
+    /**
+     * Sets the sub class locator to detect style rules. Also clears out any
+     * rules already loaded, though this should really only be called at
+     * startup.
+     * 
+     * @param locator
+     */
+    public void setSubClassLocator(ISubClassLocator locator) {
+        this.subClassLocator = locator;
+        jaxbMgr = null;
+        rules.clear();
     }
 }
