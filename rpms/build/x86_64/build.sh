@@ -425,7 +425,7 @@ if [ "${1}" = "-viz" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   #buildRPM "awips2-alertviz"
+   buildRPM "awips2-alertviz"
 
    exit 0
 fi
@@ -436,7 +436,7 @@ if [ "${1}" = "-edex" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-python-dynamicserialize"
 
    exit 0
 fi
@@ -446,7 +446,8 @@ if [ "${1}" = "-custom" ]; then
    #if [ $? -ne 0 ]; then
    #   exit 1
    #fi
-   buildRPM "awips2-python"
+   buildRPM "awips2-alertviz"
+   #buildRPM "awips2-python"
    #buildRPM "awips2-alertviz"
    #buildRPM "awips2-eclipse"
 
