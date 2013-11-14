@@ -19,5 +19,5 @@ Export-Package: com.raytheon.edex.plugin.text,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.db,
- com.raytheon.uf.common.dataplugin.text.request,
+ com.raytheon.uf.common.dataplugin.text.request
  org.apache.commons.logging
