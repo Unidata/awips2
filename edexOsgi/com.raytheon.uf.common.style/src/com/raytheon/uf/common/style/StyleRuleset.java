@@ -21,13 +21,12 @@
 package com.raytheon.uf.common.style;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Contains a set of style rules.
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 21, 2007            njensen     Initial creation
+ * Nov 14, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -44,15 +44,15 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "styleRuleset")
 @XmlAccessorType(XmlAccessType.NONE)
-public class StyleRuleset implements ISerializableObject {
+public class StyleRuleset {
 
     @XmlElement(name = "styleRule")
-    private ArrayList<StyleRule> styleRules = new ArrayList<StyleRule>();
+    private List<StyleRule> styleRules = new ArrayList<StyleRule>();
 
     /**
      * @return the styleRules
      */
-    public ArrayList<StyleRule> getStyleRules() {
+    public List<StyleRule> getStyleRules() {
         return styleRules;
     }
 
@@ -60,7 +60,7 @@ public class StyleRuleset implements ISerializableObject {
      * @param styleRules
      *            the styleRules to set
      */
-    public void setStyleRules(ArrayList<StyleRule> styleRules) {
+    public void setStyleRules(List<StyleRule> styleRules) {
         this.styleRules = styleRules;
     }
 
