@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            mpduff      Initial creation.
  * Dec 17, 2012   1434     mpduff      Don't allow underscores in name.
+ * Nov 14, 2013   2538     mpduff      Check for same name entered.
  * 
  * </pre>
  * 
@@ -159,23 +160,25 @@ public class FileNameDlg extends CaveSWTDialog {
      * OK Button action handler.
      */
     private boolean handleOk() {
-        if ((nameTxt.getText() != null) && (!nameTxt.getText().isEmpty())
-                && (!nameTxt.getText().contains("_"))) {
-            setReturnValue(nameTxt.getText());
-            return true;
-        } else {
-            String title;
-            String message;
-            if (nameTxt.getText() == null || nameTxt.getText().isEmpty()) {
-                title = "Name Required";
-                message = "Name required. A Subscription Name must be entered.";
-            } else {
-                title = "Name Invalid";
-                message = "Underscore is not a valid character for a subscription name.";
-            }
+        String name = nameTxt.getText().trim();
 
-            DataDeliveryUtils.showMessage(getShell(), SWT.OK, title, message);
-            return false;
+        String title;
+        String message;
+        if (name == null || name.isEmpty()) {
+            title = "Name Required";
+            message = "Name required. A Subscription Name must be entered.";
+        } else if (name.equals(origName)) {
+            title = "Different Name Required";
+            message = "A different name must be used.";
+        } else if (name.contains("_") || name.contains(" ")) {
+            title = "Name Invalid";
+            message = "Underscore/space is not a valid character for a subscription name.";
+        } else {
+            setReturnValue(name);
+            return true;
         }
+
+        DataDeliveryUtils.showMessage(getShell(), SWT.OK, title, message);
+        return false;
     }
 }
