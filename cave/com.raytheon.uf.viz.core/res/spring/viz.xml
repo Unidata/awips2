@@ -71,5 +71,10 @@
 	</bean>
 	
     <bean id="procedureXmlManagerInit" class="com.raytheon.uf.viz.core.procedures.ProcedureXmlManager" factory-method="inititializeAsync"/>
+    
+    <bean id="vizSubClassLocator" class="com.raytheon.uf.viz.core.reflect.SubClassLocator"/>
+    <bean class="com.raytheon.uf.common.style.StyleManager" factory-method="getInstance">
+        <property name="subClassLocator" ref="vizSubClassLocator" />
+    </bean>
 
 </beans>
