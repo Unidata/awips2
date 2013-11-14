@@ -136,11 +136,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 15, 2013   2477     mpduff       Remove debug code.
  * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
  * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
-<<<<<<< HEAD
  * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
-=======
  * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
->>>>>>> Issue #2548 - Add a subscription type slot for uniqueness.
  * </pre>
  * 
  * @author mpduff
