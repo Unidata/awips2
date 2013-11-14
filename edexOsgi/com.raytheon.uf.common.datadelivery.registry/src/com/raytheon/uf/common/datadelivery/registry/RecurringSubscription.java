@@ -61,7 +61,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Sept 30,2013 1797       dhladky      Generics
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
- * Oct 30, 2013  2448      dhladky      Fixed pulling data before and after activePeriod starting and ending.
+ * Oct 30, 2013   2448     dhladky      Fixed pulling data before and after activePeriod starting and ending.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -72,8 +73,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlSeeAlso({ PendingSiteSubscription.class, PendingSharedSubscription.class,
         AdhocSubscription.class, SiteSubscription.class,
         SharedSubscription.class })
-public abstract class RecurringSubscription<T extends Time, C extends Coverage> implements 
-        Serializable, Subscription<T, C> {
+public abstract class RecurringSubscription<T extends Time, C extends Coverage>
+        implements Serializable, Subscription<T, C> {
 
     private static final long serialVersionUID = -6422673887457060034L;
 
@@ -118,6 +119,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
         this.setLatencyInMinutes(sub.getLatencyInMinutes());
         this.setEnsemble(sub.getEnsemble());
         this.setOriginatingSite(sub.getOriginatingSite());
+        this.setSubscriptionType(sub.getSubscriptionType());
 
         // Set the registry id
         this.setId(RegistryUtil.getRegistryObjectKey(this));
@@ -253,11 +255,16 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
     @XmlAttribute
     @DynamicSerializeElement
     private int latencyInMinutes;
-    
+
     @XmlAttribute
     @DynamicSerializeElement
     @SlotAttribute(Subscription.ORIGINATING_SITE_SLOT)
     private String originatingSite;
+
+    @XmlAttribute
+    @DynamicSerializeElement
+    @SlotAttribute(Subscription.SUBSCRIPTION_TYPE_SLOT)
+    private SubscriptionType subscriptionType;
 
     /**
      * Get subscription name.
@@ -813,7 +820,8 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
     @Override
     public String toString() {
         return getName() + "::" + getProvider() + "::" + getDataSetName()
-                + "::" + getOwner()+ "::"+getOriginatingSite();
+                + "::" + getOwner() + "::" + getOriginatingSite() + "::"
+                + getSubscriptionType().name();
     }
 
     /**
@@ -877,7 +885,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
                     Calendar.MILLISECOND);
             // add the current year for true comparison
             startCal = TimeUtil.addCurrentYearCalendar(startCal);
-           
+
             activePeriodStart = startCal.getTime();
 
             Calendar endCal = TimeUtil.newGmtCalendar();
@@ -893,14 +901,14 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
 
             activePeriodEnd = endCal.getTime();
 
-            // Only concerned with month and day, need to set the 
+            // Only concerned with month and day, need to set the
             // years on equal footing for comparison sake.
             Calendar c = TimeUtil.newGmtCalendar();
             c.setTime(checkDate);
             // set the date to compare with the current date from the start
             c.set(Calendar.YEAR, startCal.get(Calendar.YEAR));
             Date date = c.getTime();
-  
+
             return (activePeriodStart.before(date) && activePeriodEnd
                     .after(date));
         }
@@ -948,12 +956,31 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage> 
     public void setEnsemble(Ensemble ensemble) {
         this.ensemble = ensemble;
     }
-    
+
+    @Override
     public void setOriginatingSite(String originatingSite) {
         this.originatingSite = originatingSite;
     }
-    
+
+    @Override
     public String getOriginatingSite() {
         return originatingSite;
+    }
+
+    /**
+     * @return the subscriptionType
+     */
+    @Override
+    public SubscriptionType getSubscriptionType() {
+        return subscriptionType;
+    }
+
+    /**
+     * @param subscriptionType
+     *            the subscriptionType to set
+     */
+    @Override
+    public void setSubscriptionType(SubscriptionType subscriptionType) {
+        this.subscriptionType = subscriptionType;
     }
 }
