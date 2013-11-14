@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.registry.schemas.ebxml.util;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
@@ -29,6 +30,8 @@ import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
 
@@ -42,6 +45,9 @@ import com.raytheon.uf.common.serialization.JAXBManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2013 2361       njensen     Initial creation
+ * Nov 14, 2013 2252       bkowal      Added the ability to dynamically inject packages
+ *                                     that this jaxb implementation should support.
+ *                                     Eliminated use of System.out.
  * 
  * </pre>
  * 
@@ -51,53 +57,70 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 
 public class EbxmlJaxbManager {
 
+    /** The logger */
+    private static Log theLogger = LogFactory.getLog(EbxmlJaxbManager.class);
+
+    private static EbxmlJaxbManager instance;
+
     private static JAXBManager jaxb;
 
-    /**
-     * Uses reflections to scan for ebxml datadelivery registry classes that can
-     * be transformed to/from xml, and then adds in the ebxml object factories.
-     * 
-     * @return the classes it found without any duplicates
-     */
-    private static Class<?>[] getClasses() {
-        String[] packageNames = new String[] {
-                "com.raytheon.uf.common.datadelivery.registry" };
+    private static Set<Class<?>> jaxables;
+
+    public static synchronized EbxmlJaxbManager getInstance() {
+        if (instance == null) {
+            instance = new EbxmlJaxbManager();
+        }
+        return instance;
+    }
+
+    public String findJaxables(String packageName) {
+        theLogger.info("Scanning package ... " + packageName);
 
         long t0 = System.currentTimeMillis();
         ConfigurationBuilder cb = new ConfigurationBuilder();
-        for (String pkg : packageNames) {
-            cb.addUrls(ClasspathHelper.forPackage(pkg));
-        }
+        cb.addUrls(ClasspathHelper.forPackage(packageName));
         cb.setScanners(new TypeAnnotationsScanner());
         // the call to build() will do the actual scanning so the separate
         // calls to getTypesAnnotatedWith(class, false) will not slow it down
+
         Reflections reflecs = cb.build();
         Set<Class<?>> set = reflecs.getTypesAnnotatedWith(
                 XmlAccessorType.class, false);
-        set.addAll(reflecs.getTypesAnnotatedWith(XmlRegistry.class, false));
+        synchronized (jaxables) {
+            // add them to set for auditing purposes initially
+            set.addAll(reflecs.getTypesAnnotatedWith(XmlRegistry.class, false));
+            // copy set to jaxables
+            jaxables.addAll(set);
+        }
         long t1 = System.currentTimeMillis();
-        System.out.println("Found " + set.size() + " classes for ebxml in "
+        theLogger.info("Found " + set.size() + " classes for ebxml in "
                 + (t1 - t0) + " ms");
+        // if jaxb has already been initialized, reset it so that it will be
+        // recreated with the latest set of jaxable classes.
+        synchronized (this) {
+            jaxb = null;
+        }
 
-        set.add(oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory.class);
-        set.add(oasis.names.tc.ebxml.regrep.xsd.query.v4.ObjectFactory.class);
-        set.add(oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class);
-        set.add(oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectFactory.class);
-        set.add(oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class);
-
-        return set.toArray(new Class[0]);
+        return packageName;
     }
 
-    public static synchronized JAXBManager getJaxbManager()
-            throws JAXBException {
+    public synchronized JAXBManager getJaxbManager() throws JAXBException {
         if (jaxb == null) {
-            jaxb = new JAXBManager(getClasses());
+            jaxb = new JAXBManager(jaxables.toArray(new Class[0]));
         }
         return jaxb;
     }
 
     private EbxmlJaxbManager() {
+        jaxables = new HashSet<Class<?>>();
 
+        // add the default jaxables
+        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory.class);
+        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.query.v4.ObjectFactory.class);
+        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class);
+        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectFactory.class);
+        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class);
+
+        theLogger.info("Initialization Complete.");
     }
-
 }
