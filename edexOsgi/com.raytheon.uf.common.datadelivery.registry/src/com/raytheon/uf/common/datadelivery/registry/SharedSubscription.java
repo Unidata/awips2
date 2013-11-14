@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 29, 2013 1650       djohnson    Add setOwner() so reflection works.
  * Sept 30, 2013 1797      dhladky     Generics
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -50,10 +51,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlAccessorType(XmlAccessType.NONE)
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
-        Subscription.OWNER_SLOT,
-        Subscription.ORIGINATING_SITE_SLOT})
+        Subscription.OWNER_SLOT, Subscription.ORIGINATING_SITE_SLOT,
+        Subscription.SUBSCRIPTION_TYPE_SLOT })
 @DynamicSerialize
-public class SharedSubscription<T extends Time, C extends Coverage> extends RecurringSubscription<T, C> {
+public class SharedSubscription<T extends Time, C extends Coverage> extends
+        RecurringSubscription<T, C> {
 
     private static final long serialVersionUID = -7221500266253493273L;
 
