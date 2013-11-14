@@ -53,6 +53,7 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
@@ -133,9 +134,13 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * Oct 15, 2013   2477     mpduff       Remove debug code.
- * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
  * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
+<<<<<<< HEAD
  * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
+=======
+ * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
+>>>>>>> Issue #2548 - Add a subscription type slot for uniqueness.
  * </pre>
  * 
  * @author mpduff
@@ -525,6 +530,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
                 return;
             }
             try {
+                as.setSubscriptionType(SubscriptionType.QUERY);
                 SubscriptionServiceResult result = subscriptionService.store(
                         as, this);
 
@@ -562,6 +568,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
                 .getCurrentUser() : this.subscription.getOwner());
         sub.setOriginatingSite(LocalizationManager.getInstance()
                 .getCurrentSite());
+        sub.setSubscriptionType(SubscriptionType.RECURRING);
 
         return setupCommonSubscriptionAttributes(sub, defaultRoute);
     }
