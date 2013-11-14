@@ -34,6 +34,7 @@ import java.util.Collection;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 23, 2013  2491     bsteffen    Initial creation
+ * Nov 14, 2013  2361     njensen     Promoted save() to interface
  * 
  * </pre>
  * 
@@ -50,4 +51,9 @@ public interface ISubClassLocator {
      * @return all subclasses of base.
      */
     public Collection<Class<?>> locateSubClasses(Class<?> base);
+
+    /**
+     * Store a cache of the located classes.
+     */
+    public void save();
 }
