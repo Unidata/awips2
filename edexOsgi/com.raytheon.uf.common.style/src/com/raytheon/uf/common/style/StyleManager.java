@@ -157,6 +157,7 @@ public class StyleManager {
         clz.addAll(subClassLocator.locateSubClasses(MatchCriteria.class));
         clz.addAll(subClassLocator.locateSubClasses(Level.class));
         subClassLocator.save();
+        this.subClassLocator = null;
         try {
             return new JAXBManager(clz.toArray(new Class[0]));
         } catch (JAXBException e) {
