@@ -23,8 +23,6 @@ package com.raytheon.uf.common.style;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Abstract class of criteria to match against rules.
  * 
@@ -33,13 +31,14 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 21, 2007            njensen     Initial creation
+ * Nov 14, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
  * @author njensen
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class MatchCriteria implements ISerializableObject {
+public abstract class MatchCriteria {
 
     /**
      * Checks if the match criteria parameter is a match for this match
@@ -53,6 +52,5 @@ public abstract class MatchCriteria implements ISerializableObject {
      * @return the rating of the match, where a higher value is a stronger match
      *         than a lower value
      */
-    public abstract int matches(MatchCriteria aCriteria)
-            throws StyleException;
+    public abstract int matches(MatchCriteria aCriteria) throws StyleException;
 }
