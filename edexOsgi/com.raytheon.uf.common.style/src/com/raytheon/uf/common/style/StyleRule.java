@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * A rule for visualization style.
  * 
@@ -34,6 +32,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                         chammack    Initial creation
+ * Nov 14, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -41,7 +40,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class StyleRule implements ISerializableObject {
+public class StyleRule {
 
     @XmlElementRef
     private MatchCriteria matchCriteria;
