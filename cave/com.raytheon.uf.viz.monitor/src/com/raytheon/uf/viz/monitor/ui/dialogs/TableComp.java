@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009             lvenable    Initial creation
  * Oct 7, 2013  #2436      lvenable    Disposed of the sort color.
+ * Nov 7, 2013  DR 16703   gzhang      Check in code for Lee for FFMP and Safeseas
  * 
  * </pre>
  * 
@@ -272,6 +273,9 @@ public abstract class TableComp extends Composite {
                 event.gc.setLineWidth(1);
                 event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1, rect.x
                         + rect.width - 2, rect.y - 1 + rect.height);
+
+                // Draw a top line
+                event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
 
                 if (tableIndex >= 0) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
