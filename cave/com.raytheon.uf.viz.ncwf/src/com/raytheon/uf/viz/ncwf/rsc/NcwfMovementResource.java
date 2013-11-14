@@ -26,8 +26,8 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.ncwf.BUFRncwf;
-import com.raytheon.uf.common.dataplugin.ncwf.NCWFFeature;
+import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
+import com.raytheon.uf.common.dataplugin.bufrncwf.NCWFFeature;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
