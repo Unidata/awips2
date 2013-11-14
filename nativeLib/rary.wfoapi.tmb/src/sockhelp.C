@@ -8,6 +8,7 @@
 // ---*************************************************************************
 #include <stdio.h>
 #include <errno.h>
+#include <iostream>
 #include <sys/times.h>
 #include <sys/types.h>
 #include <limits.h>
@@ -15,7 +16,6 @@
 #include <X11/Intrinsic.h>
 #include <time.h>
 #include "sockhelp.H"
-#include "LogStream.H"
 #include "testmode.H"
 
 // +++ 	Function Name: atoport
@@ -263,7 +263,7 @@ int getTestModeQuery(char *hostname, int port)
     ssize_t status = -1;
 
     sock = make_connection(DEFAULT_PORT_NUM, SOCK_STREAM, hostname, port);
-    logVerbose << "Connected on socket " << sock << std::endl;
+    std::cout << "Connected on socket " << sock << std::endl;
     if (sock == -1) {
         close(sock);
         return OPERATION_MODE;
@@ -273,13 +273,13 @@ int getTestModeQuery(char *hostname, int port)
     sprintf(input_buf.msg,"RequestForTestModeInfo");
 
     send(sock,(const void*) &input_buf, sizeof(input_buf),0);
-    logVerbose << "Sent socket msg """ << input_buf.msg << """" << std::endl;
+    std::cout << "Sent socket msg """ << input_buf.msg << """" << std::endl;
 
     status = recv(sock, (void*) &output_buf,sizeof(output_buf),0);
     close(sock);
 
     if (status != -1) {
-	  logVerbose << "Received socket msg """ << output_buf.msg
+	  std::cout << "Received socket msg """ << output_buf.msg
 	      << """" << std::endl;
 	  if (strcmp(output_buf.msg,"Test")== 0) {
 		  return TEST_MODE;
@@ -296,7 +296,7 @@ int getTestModeQuery(char *hostname, int port)
     }
     else
     {
-    	logVerbose << "Warning - No socket msg was received; everything will crash!" << std::endl;
+    	std::cout << "Warning - No socket msg was received; everything will crash!" << std::endl;
     	return PANIC_MODE;
     }
 }
