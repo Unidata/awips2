@@ -54,10 +54,12 @@ import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -133,6 +135,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 15, 2013   2477     mpduff       Remove debug code.
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
+ * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
  * </pre>
  * 
  * @author mpduff
@@ -498,6 +501,22 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         boolean valid = this.validated(false);
 
         if (valid) {
+            // Check for existing subscription
+            ISubscriptionHandler handler = RegistryObjectHandlers
+                    .get(ISubscriptionHandler.class);
+            try {
+                if (handler.getByName(nameText.getText()) != null) {
+                    String message = "A query with this name already exists.\n\nPlease enter a different query name.";
+                    DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
+                            "Duplicate Query Name", message);
+                    return;
+                }
+            } catch (RegistryHandlerException e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Unable to check for an existing subscription by name.",
+                                e);
+            }
 
             AdhocSubscription as = createSubscription(new AdhocSubscription(),
                     Network.OPSNET);
