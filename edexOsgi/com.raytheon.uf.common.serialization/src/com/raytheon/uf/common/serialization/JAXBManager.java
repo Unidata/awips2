@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * May 22, 2013 1917       rjpeter      Added non-pretty print option to jaxb serialize methods.
  * Aug 18, 2013 #2097      dhladky      Allowed extension by OGCJAXBManager
  * Sep 30, 2013 2361       njensen      Refactored for cleanliness
+ * Nov 14, 2013 2361       njensen      Added lazy init option, improved unmarshal error message
  * </pre>
  * 
  * @author chammack
@@ -109,7 +110,9 @@ public class JAXBManager {
         }
     }
 
-    private final JAXBContext jaxbContext;
+    private volatile JAXBContext jaxbContext;
+
+    private Class<?>[] clazz;
 
     protected final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
 
@@ -127,10 +130,33 @@ public class JAXBManager {
      * @throws JAXBException
      */
     public JAXBManager(Class<?>... clazz) throws JAXBException {
-        long t0 = System.currentTimeMillis();
-        jaxbContext = JAXBContext.newInstance(clazz);
-        System.out.println("JAXB context with " + clazz.length
-                + " classes inited in: " + (System.currentTimeMillis() - t0));
+        this(false, clazz);
+    }
+
+    /**
+     * Constructor. Clazz should include any classes that this JAXBManager needs
+     * to marshal to XML or unmarshal from XML. Does not need to include classes
+     * contained as fields or inner classes of other classes already passed to
+     * the constructor.
+     * 
+     * If lazyInit is true, then the underlying JAXBContext (a potentially slow
+     * operation) will be constructed when first used, ie the first marshal or
+     * unmarshal operation.
+     * 
+     * @param lazyInit
+     *            whether or not to immediately initialize the underlying
+     *            JAXBContext
+     * @param clazz
+     *            classes that this instance must know about for
+     *            marshalling/unmarshalling
+     * @throws JAXBException
+     */
+    public JAXBManager(boolean lazyInit, Class<?>... clazz)
+            throws JAXBException {
+        this.clazz = clazz;
+        if (!lazyInit) {
+            getJaxbContext();
+        }
     }
 
     /**
@@ -146,6 +172,18 @@ public class JAXBManager {
      */
     @Deprecated
     public JAXBContext getJaxbContext() throws JAXBException {
+        if (jaxbContext == null) {
+            synchronized (this) {
+                if (jaxbContext == null) {
+                    long t0 = System.currentTimeMillis();
+                    jaxbContext = JAXBContext.newInstance(clazz);
+                    System.out.println("JAXB context with " + clazz.length
+                            + " classes inited in: "
+                            + (System.currentTimeMillis() - t0));
+                    clazz = null;
+                }
+            }
+        }
         return jaxbContext;
     }
 
@@ -507,7 +545,8 @@ public class JAXBManager {
             Object obj = msh.unmarshal(reader);
             return obj;
         } catch (Exception e) {
-            throw new SerializationException(e.getLocalizedMessage(), e);
+            throw new SerializationException("Error reading " + file.getName()
+                    + "\n" + e.getLocalizedMessage(), e);
         } finally {
             if (msh != null) {
                 handleEvents(msh, file.getName());
