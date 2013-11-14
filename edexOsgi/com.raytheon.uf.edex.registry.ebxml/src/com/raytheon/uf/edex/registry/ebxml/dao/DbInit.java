@@ -89,6 +89,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Jun 24, 2013 2106        djohnson    Invoke registry initialized listeners in their own transaction so 
  *                                      they can't fail the ebxml schema creation/population.
  * Nov 01, 2013 2361        njensen     Use EbxmlJaxbManager instead of SerializationUtil
+ * Nov 14, 2013 2552        bkowal      EbxmlJaxbManager is now accessed via getInstance
  * </pre>
  * 
  * @author bphillip
@@ -167,8 +168,11 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
 
             SubmitObjectsRequest obj = null;
             try {
-                obj = EbxmlJaxbManager.getJaxbManager().unmarshalFromXmlFile(
-                        SubmitObjectsRequest.class, fileList[i]);
+                obj = EbxmlJaxbManager
+                        .getInstance()
+                        .getJaxbManager()
+                        .unmarshalFromXmlFile(SubmitObjectsRequest.class,
+                                fileList[i]);
             } catch (JAXBException e) {
                 throw new SerializationException(
                         "Error unmarshalling from file: "
@@ -360,8 +364,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
                 listener.executeAfterRegistryInit();
             }
         } catch (Throwable t) {
-            throw new RuntimeException(
-                    "Error initializing EBXML database!", t);
+            throw new RuntimeException("Error initializing EBXML database!", t);
         }
     }
 

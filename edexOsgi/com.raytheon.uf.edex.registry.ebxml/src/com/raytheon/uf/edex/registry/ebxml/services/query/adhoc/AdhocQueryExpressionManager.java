@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 29, 2012            bphillip     Initial creation
+ * Nov 14, 2013 2552       bkowal       EbxmlJaxbManager is now accessed via getInstance
  * 
  * </pre>
  * 
@@ -82,8 +83,11 @@ public class AdhocQueryExpressionManager {
 
             AdhocQueryExpression obj = null;
             try {
-                obj = EbxmlJaxbManager.getJaxbManager().unmarshalFromXmlFile(
-                        AdhocQueryExpression.class, fileList[i]);
+                obj = EbxmlJaxbManager
+                        .getInstance()
+                        .getJaxbManager()
+                        .unmarshalFromXmlFile(AdhocQueryExpression.class,
+                                fileList[i]);
             } catch (Exception e) {
                 statusHandler.error("Error getting predefined adhoc queries.",
                         e);
