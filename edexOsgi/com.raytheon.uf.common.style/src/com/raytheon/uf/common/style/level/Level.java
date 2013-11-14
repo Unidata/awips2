@@ -27,23 +27,22 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * Represents a level on the earth
+ * Represents a level on the earth for style rule purposes
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2007            njensen     Initial creation
+ * Nov 14, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
  * @author njensen
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class Level implements ISerializableObject {
+public abstract class Level {
 
     public static enum LevelType {
         THETA, HEIGHT_AGL, HEIGHT_MSL, PRESSURE, SURFACE, TILT, MB_AGL, MAXW, TW0, TEMP, FRZ, DEFAULT
