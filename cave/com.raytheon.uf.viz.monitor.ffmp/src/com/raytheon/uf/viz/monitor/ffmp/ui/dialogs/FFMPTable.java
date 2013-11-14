@@ -74,6 +74,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  *                                     issue on the images being blank and throwing errors.
  *                                     Also cleaned up some code.
  * Jun 11, 2013 2075      njensen      Optimized createTableItems()
+ * Nov 07, 2013 DR 16703  gzhang	   Check in code for Lee for FFMP Table line
  * </pre>
  * 
  * @author lvenable
@@ -260,7 +261,10 @@ public abstract class FFMPTable extends Composite {
                 event.gc.setLineWidth(1);
                 event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1, rect.x
                         + rect.width - 2, rect.y - 1 + rect.height);
-
+                
+                // Draw a top line
+                event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y); 
+                
                 if ((tableIndex >= 0) && (tableIndex < table.getItemCount())) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
                             SWT.COLOR_BLUE));

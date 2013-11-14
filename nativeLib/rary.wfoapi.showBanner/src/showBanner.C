@@ -24,7 +24,6 @@
 #include <signal.h>	    // for signal 
 #include "tmbUtil.H"
 #include "testmode.H"
-#include "LogStream.H"
 #define MAX_DISPLAYS 5
 #define FONT_NAME           "-*-helvetica-bold-r-normal--12-*"
 #define INTERVAL 2000       // number of milliseconds to go off 
