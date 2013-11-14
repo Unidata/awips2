@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Jul 11, 2013 2106       djohnson     SubscriptionPriority allows comparison.
  * Sept 30,2013 1797       dhladky      Abstracted and genericized.
  * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type information.
  * 
  * </pre>
  * 
@@ -49,6 +50,11 @@ import javax.xml.bind.annotation.XmlEnumValue;
  */
 
 public interface Subscription<T extends Time, C extends Coverage> {
+
+    @XmlEnum
+    public enum SubscriptionType {
+        QUERY, RECURRING;
+    }
 
     /** Enumeration to use for subscription priorities */
     @XmlEnum
@@ -142,9 +148,12 @@ public interface Subscription<T extends Time, C extends Coverage> {
 
     /** Route slot */
     String ROUTE_SLOT = "route";
-    
+
     /** Originating Site slot */
     String ORIGINATING_SITE_SLOT = "originatingSite";
+
+    /** Subscription type slot (query, recurring) */
+    String SUBSCRIPTION_TYPE_SLOT = "subscriptionType";
 
     /**
      * Get subscription name.
@@ -618,16 +627,32 @@ public interface Subscription<T extends Time, C extends Coverage> {
      *            Office Id to add
      */
     void addOfficeID(String officeId);
-    
+
     /**
      * Gets the original site the subscription was created as
+     * 
      * @return
      */
     String getOriginatingSite();
-    
+
     /**
      * Sets the originating Site the subscription was created as
+     * 
      * @param originatingSite
      */
     void setOriginatingSite(String originatingSite);
+
+    /**
+     * Get the subscription type (Recurring or Query)
+     * 
+     * @return the SubscriptionType
+     */
+    SubscriptionType getSubscriptionType();
+
+    /**
+     * Set the subscription type.
+     * 
+     * @param subType
+     */
+    void setSubscriptionType(SubscriptionType subType);
 }
