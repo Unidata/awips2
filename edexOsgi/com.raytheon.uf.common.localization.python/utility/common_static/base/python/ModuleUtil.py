@@ -19,9 +19,8 @@
 # #
 
 #
-# Methods to aid in using the path manager from Python as well as other features.  
-# Contains internal classes to help with the transition from strings in Python
-# to Java Localizationlevel and LocalizationType
+# Provides a method to dynamically load a python module into memory. The method
+# was relocated to this module from LocalizationUtil. 
 #   
 #
 #    
@@ -29,54 +28,10 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    03/12/13                      mnash        Initial Creation.
-#    11/06/13        2086          bkowal       Add the containing directory to the
-#                                               PYTHONPATH long enough to import
-#                                               the module.
-#    
-# 
+#    11/11/13                      bkowal         Initial Creation.
 #
-
-import os
-import imp
-import sys
-
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as JavaLocalizationType, LocalizationContext_LocalizationLevel as JavaLocalizationLevel
-
-class LocalizationLevel(object):
-    '''
-    @summary: Can use cmp() to compare the levels, and can use values() to get all possible levels
-    '''
-    @staticmethod
-    def cmp(level1, level2):
-        return JavaLocalizationLevel.compare(level1,level2)
+import os, sys, imp
     
-    @staticmethod
-    def values():
-        jvals = JavaLocalizationLevel.values()
-        vals = list()
-        for val in jvals :
-            vals.append(val.name())
-        return vals
-
-    @staticmethod
-    def valueOf(value):
-        return JavaLocalizationLevel.valueOf(value)
-
-class LocalizationType(object):
-
-    @staticmethod
-    def values():
-        jvals = JavaLocalizationType.values()
-        vals = list()
-        for val in jvals :
-            vals.append(val.name())
-        return vals
-    
-    @staticmethod
-    def valueOf(value):
-        return JavaLocalizationType.valueOf(value)
-
 def loadModule(filename):
     '''
     @param filename: the fully qualified name of the file
