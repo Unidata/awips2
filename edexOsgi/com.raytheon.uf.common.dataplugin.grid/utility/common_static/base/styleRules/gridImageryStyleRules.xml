@@ -55,7 +55,7 @@
 		<imageStyle>
 			<displayUnits>ft</displayUnits>
 			<defaultColormap>Grid/gridded data</defaultColormap>
-			<range scale="SURFACE">
+			<range scale="LINEAR">
 				<minValue>0</minValue>
 				<maxValue>4000</maxValue>
 			</range>
@@ -4778,7 +4778,7 @@
             <defaultColormap>Grid/warm to cold</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&lt;" label="NONE" />
-                <entry pixelValue="30" operator="&gt;" displayValue='`100.0' label="100" />
+                <entry pixelValue="30" operator="&gt;" displayValue='100.0' label="100" />
                 <entry pixelValue="70" operator="&gt;" displayValue='200.0' label="200" />
                 <entry pixelValue="150" operator="&gt;" displayValue='5000.0' label="5000" />
                 <entry pixelValue="222" operator="&gt;" displayValue='11999.0' label="12k" />
