@@ -14,6 +14,8 @@ struct DataTexture {
 	int isScaled;
 	float scaleMin;
 	float scaleMax;
+	float width;
+	float height;
 };
 
 /** 
@@ -51,7 +53,7 @@ struct ColorMapping {
 /**
  * Returns the data value for the DataTexture at location.
  */
-float getDataValue(DataTexture texture, vec2 location) {
+float textureToDataValue(DataTexture texture, vec2 location) {
 	vec4 textureValue = texture2D(texture.rawTex, location);
 	float dataValue = textureValue.r;
 
@@ -61,6 +63,18 @@ float getDataValue(DataTexture texture, vec2 location) {
 				+ texture.scaleMin);
 	}
 	return dataValue;
+}
+
+/**
+ * Returns the data value for the DataTexture at location.
+ */
+float dataToTextureValue(DataTexture texture, float dataValue) {
+	float textureValue = dataValue;
+	if (texture.isScaled == 1) {
+		textureValue = (dataValue - texture.scaleMin)
+				/ (texture.scaleMax - texture.scaleMin);
+	}
+	return textureValue;
 }
 
 /**
@@ -80,7 +94,7 @@ float dataToColorMapValue(float dataValue, DataMapping mapping) {
 		// Short circuit if no mapping is needed
 		return dataValue;
 	}
-	
+
 	// Convert to colormap value
 	int lowIndex = 0;
 	int highIndex = numMappingValues - 1;
@@ -103,8 +117,8 @@ float dataToColorMapValue(float dataValue, DataMapping mapping) {
 		int nextIndex = lowIndex + ((highIndex - lowIndex) / 2);
 		if (nextIndex > lowIndex && nextIndex < highIndex) {
 			// Look up next value and determine if it is a high or low
-			float nextValue = lookupMappingValue(mapping.dataMappingValues, nextIndex,
-					numMappingValues);
+			float nextValue = lookupMappingValue(mapping.dataMappingValues,
+					nextIndex, numMappingValues);
 			if (nextValue < dataValue) {
 				if (reversed == 0) {
 					lowIndex = nextIndex;
@@ -132,10 +146,10 @@ float dataToColorMapValue(float dataValue, DataMapping mapping) {
 		factor = 1.0 - factor;
 	}
 
-	float lowCmapValue = lookupMappingValue(mapping.colorMappingValues, lowIndex,
-			numMappingValues);
-	float highCmapValue = lookupMappingValue(mapping.colorMappingValues, highIndex,
-			numMappingValues);
+	float lowCmapValue = lookupMappingValue(mapping.colorMappingValues,
+			lowIndex, numMappingValues);
+	float highCmapValue = lookupMappingValue(mapping.colorMappingValues,
+			highIndex, numMappingValues);
 
 	return lowCmapValue + (highCmapValue - lowCmapValue) * factor;
 }
