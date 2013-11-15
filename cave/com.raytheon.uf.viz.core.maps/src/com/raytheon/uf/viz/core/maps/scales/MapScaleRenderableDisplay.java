@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 
 /**
  * MapRenderableDisplay associated with a {@link MapScale}
@@ -47,10 +48,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 22, 2013            mschenke    Initial creation
- * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 22, 2013           mschenke    Initial creation
+ * Oct 10, 2013  2104     mschenke    Switched to use MapScalesManager
+ * Nov 20, 2013  2492     bsteffen    Recycle resources in clear.
  * 
  * </pre>
  * 
@@ -133,9 +135,13 @@ public class MapScaleRenderableDisplay extends PlainMapRenderableDisplay
             // non-map/system layers and reset display
             ResourceList list = descriptor.getResourceList();
             for (ResourcePair rp : list) {
-                if (rp.getProperties().isMapLayer() == false
-                        && rp.getProperties().isSystemResource() == false) {
+                ResourceProperties props = rp.getProperties();
+                if (props.isMapLayer() == false
+                        && props.isSystemResource() == false) {
                     list.remove(rp);
+                } else {
+                    props.setVisible(true);
+                    rp.getResource().recycle();
                 }
             }
 
