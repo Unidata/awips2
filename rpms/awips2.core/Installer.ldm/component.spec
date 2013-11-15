@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 7
+Release: 9
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -21,7 +21,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 Requires: awips2-qpid-lib
-Requires: zlib-devel
+requires: awips2-python
 requires: awips2-python
 provides: awips2-ldm
 provides: awips2-base-component
@@ -40,40 +40,34 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-/bin/mkdir -p %{_build_root}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+
+%build
+
+%install
 
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%build
 
-%install
 _ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
@@ -182,7 +176,9 @@ fi
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
-   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
+   echo 'umask 002' > \
+      /usr/local/ldm/.bash_profile
+   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' >> \
       /usr/local/ldm/.bash_profile
    echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
       /usr/local/ldm/.bash_profile
