@@ -28,6 +28,8 @@ import javax.measure.unit.Unit;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -42,7 +44,6 @@ import com.raytheon.uf.common.style.level.RangeLevel;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.util.GridUtil;
 
-
 /**
  * ColorMapParameterFactory
  * 
@@ -53,10 +54,11 @@ import com.raytheon.uf.common.util.GridUtil;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Jul 25, 2007             chammack    Initial Creation.
- *    Mar 26, 2009     2086    jsanchez    Added a entityList to the match criteria.
+ *    Mar 26, 2009 2086        jsanchez    Added a entityList to the match criteria.
  *    Feb 15, 2013 1638        mschenke    Moved GRID_FILL_VALUE from edex.common Util into GridUtil
  *    Jun 24, 2013 2122        mschenke    Added method for constructing {@link ColorMapParameters} from {@link StyleRule}
  *    Sep 24, 2013 2404        bclement    moved to common.style from viz.core, added build method that takes ParamLevelMatchCriteria, removed unused methods
+ *    Nov 13, 2013 2492        mschenke    Create build that does not take data for adaptive building
  * </pre>
  * 
  * @author chammack
@@ -129,7 +131,17 @@ public class ColorMapParameterFactory {
         }
 
         // If a record to convert units exists, use it
-        params.setDataUnit(parameterUnits);
+        Unit<?> colorMapUnit = null;
+        try {
+            colorMapUnit = preferences.getColorMapUnitsObject();
+        } catch (StyleException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        if (colorMapUnit == null) {
+            params.setColorMapUnit(parameterUnits);
+        } else {
+            params.setColorMapUnit(colorMapUnit);
+        }
         params.setDisplayUnit(preferences.getDisplayUnits());
         params.setDataMapping(preferences.getDataMapping());
 
@@ -237,9 +249,10 @@ public class ColorMapParameterFactory {
                     .convert(colormapMax) : colormapMax;
 
             if (preferences.getColorbarLabeling() != null) {
-                extractLabelValues(sr, displayMax, displayMin, params);
+                extractLabelValues(preferences, displayMax, displayMin, params);
             } else if (preferences.getDataMapping() == null) {
-                calculateLabelValues(sr, displayMax, displayMin, params);
+                calculateLabelValues(preferences, displayMax, displayMin,
+                        params);
                 if (scale != null) {
                     params.setMirror(scale.isMirror());
                 }
@@ -325,8 +338,8 @@ public class ColorMapParameterFactory {
             params.setColorMapMin((float) dataMin);
             params.setDataMin((float) dataMin);
 
-            extractLabelValues(sr, (float) displayMax, (float) displayMin,
-                    params);
+            extractLabelValues(preferences, (float) displayMax,
+                    (float) displayMin, params);
             params.setColorMapName(preferences.getDefaultColormap());
         }
         if (preferences.getDataScale() != null) {
@@ -336,6 +349,154 @@ public class ColorMapParameterFactory {
         }
         return params;
 
+    }
+
+    /**
+     * Does the same thing as {@link #build(ImagePreferences, Unit)} but first
+     * unpacks the ImagePreference from a {@link StyleRule}.
+     * 
+     * @param sr
+     * @param defaultColorMapUnit
+     * @return
+     * @throws StyleException
+     */
+    public static ColorMapParameters build(StyleRule sr,
+            Unit<?> defaultColorMapUnit) throws StyleException {
+        if (sr == null) {
+            throw new IllegalArgumentException(
+                    "StyleRule must not be null when building ColorMapParameters");
+        }
+        if (sr.getPreferences() instanceof ImagePreferences == false) {
+            throw new IllegalArgumentException(
+                    "ImagePreferences are only supported for building ColorMapParameters");
+        }
+        return build((ImagePreferences) sr.getPreferences(),
+                defaultColorMapUnit);
+    }
+
+    /**
+     * Builds a {@link ColorMapParameters} given {@link ImagePreferences} and a
+     * unit to colormap in. This method provides for the simplest color mapping
+     * case. No data or level information is input so the
+     * {@link ImagePreferences} must specify an exact range or data mapping and
+     * also no lableing is added unless the colorbar labeling is specifically
+     * set in the style rule.
+     * 
+     * @param preferences
+     * @param defaultColorMapUnit
+     * @return
+     * @throws StyleException
+     */
+    public static ColorMapParameters build(ImagePreferences preferences,
+            Unit<?> defaultColorMapUnit) throws StyleException {
+        ColorMapParameters params = new ColorMapParameters();
+
+        Unit<?> colorMapUnit = preferences.getColorMapUnitsObject();
+        if (colorMapUnit == null) {
+            colorMapUnit = defaultColorMapUnit;
+        }
+
+        Unit<?> displayUnit = preferences.getDisplayUnits();
+        if (displayUnit == null) {
+            displayUnit = colorMapUnit;
+        } else if (colorMapUnit == null) {
+            colorMapUnit = displayUnit;
+        }
+
+        params.setColorMapUnit(colorMapUnit);
+        params.setDisplayUnit(displayUnit);
+        params.setDataMapping(preferences.getDataMapping());
+        params.setColorMapName(preferences.getDefaultColormap());
+
+        Float displayMin = null, displayMax = null;
+        DataScale scale = preferences.getDataScale();
+        boolean mirrored = false;
+        Type scaleType = Type.LINEAR;
+        if (scale != null) {
+            if (scale.getMinValue() != null) {
+                displayMin = scale.getMinValue().floatValue();
+            }
+            if (scale.getMaxValue() != null) {
+                displayMax = scale.getMaxValue().floatValue();
+            }
+
+            mirrored = scale.isMirror();
+            scaleType = scale.getScaleType();
+
+        }
+
+        if (displayMin == null || displayMax == null) {
+            // Could not find min/max in DataScale, attempt to get from
+            // DataMappingPreferences if set
+            if (params.getDataMapping() != null) {
+                DataMappingPreferences mapping = params.getDataMapping();
+                List<DataMappingEntry> entries = mapping.getEntries();
+                if (entries != null && entries.isEmpty() == false) {
+                    if (displayMin == null) {
+                        DataMappingEntry min = entries.get(0);
+                        if (min.getPixelValue() != null
+                                && min.getDisplayValue() != null) {
+                            displayMin = min.getDisplayValue().floatValue();
+                        }
+                    }
+                    if (displayMax == null) {
+                        DataMappingEntry max = entries.get(entries.size() - 1);
+                        if (max.getPixelValue() != null
+                                && max.getDisplayValue() != null) {
+                            displayMax = max.getDisplayValue().floatValue();
+                        }
+                    }
+
+                }
+            } else if (mirrored && (displayMin != null || displayMax != null)) {
+                // Mirror value set
+                if (displayMin == null) {
+                    displayMin = -displayMax;
+                } else {
+                    displayMax = -displayMin;
+                }
+            }
+        }
+
+        if (displayMin == null || displayMax == null) {
+            throw new StyleException("Unable to determine colormap min/max.");
+        }
+
+        params.setMirror(mirrored);
+        params.setLogarithmic(scaleType == Type.LOG);
+
+        // Convert to colormap min/max
+        float colorMapMin = displayMin;
+        float colorMapMax = displayMax;
+
+        UnitConverter displayToColorMap = params
+                .getDisplayToColorMapConverter();
+        if (displayToColorMap != null) {
+            colorMapMin = (float) displayToColorMap.convert(displayMin);
+            colorMapMax = (float) displayToColorMap.convert(displayMax);
+        }
+
+        params.setColorMapMin(colorMapMin);
+        params.setColorMapMax(colorMapMax);
+
+        LabelingPreferences labeling = preferences.getColorbarLabeling();
+        if (labeling != null) {
+            if (labeling.getValues() != null) {
+                params.setColorBarIntervals(labeling.getValues());
+            } else if (labeling.getIncrement() != 0) {
+                float increment = labeling.getIncrement();
+                float initialPoint = (float) (Math
+                        .ceil(colorMapMin / increment) * increment);
+                float finalPoint = (float) (Math.floor(colorMapMin / increment) * increment);
+                int count = (int) ((finalPoint - initialPoint) / increment) + 1;
+                float[] vals = new float[count];
+                for (int i = 0; i < count; i += 1) {
+                    vals[i] = initialPoint + increment * i;
+                }
+            }
+        }
+
+        return params;
     }
 
     private static Number[] repackData(Object data) {
@@ -375,33 +536,27 @@ public class ColorMapParameterFactory {
         return build(data, parameter, parameterUnits, level, null);
     }
 
-    private static void extractLabelValues(StyleRule sr, float max, float min,
-            ColorMapParameters parameters) {
-        if (sr != null) {
-            ImagePreferences preferences = (ImagePreferences) sr
-                    .getPreferences();
-            if (preferences.getColorbarLabeling() != null) {
-                DataScale dataScale = preferences.getDataScale();
-                if (dataScale != null
-                        && dataScale.isMirror()
-                        && !dataScale.isAdaptive()
-                        && preferences.getColorbarLabeling().getValues() != null) {
-                    // if its mirror and not adaptive and the upper half labels
-                    // have been provided.
-                    createMirror(preferences, parameters);
-                    parameters.setMirror(dataScale.isMirror());
-                } else if (preferences.getColorbarLabeling().getValues() != null) {
-                    // If a list is provided, use it
-                    float[] vals = preferences.getColorbarLabeling()
-                            .getValues();
+    private static void extractLabelValues(ImagePreferences preferences,
+            float max, float min, ColorMapParameters parameters) {
+        if (preferences.getColorbarLabeling() != null) {
+            DataScale dataScale = preferences.getDataScale();
+            if (dataScale != null && dataScale.isMirror()
+                    && !dataScale.isAdaptive()
+                    && preferences.getColorbarLabeling().getValues() != null) {
+                // if its mirror and not adaptive and the upper half labels
+                // have been provided.
+                createMirror(preferences, parameters);
+                parameters.setMirror(dataScale.isMirror());
+            } else if (preferences.getColorbarLabeling().getValues() != null) {
+                // If a list is provided, use it
+                float[] vals = preferences.getColorbarLabeling().getValues();
 
-                    parameters.setColorBarIntervals(vals);
-                } else {
-                    // Populate the list using min and max
-                    calculateLabelValues(sr, max, min, parameters);
-                    if (dataScale != null) {
-                        parameters.setMirror(dataScale.isMirror());
-                    }
+                parameters.setColorBarIntervals(vals);
+            } else {
+                // Populate the list using min and max
+                calculateLabelValues(preferences, max, min, parameters);
+                if (dataScale != null) {
+                    parameters.setMirror(dataScale.isMirror());
                 }
             }
         }
@@ -432,29 +587,23 @@ public class ColorMapParameterFactory {
     /**
      * Derived from ImageDepictable.C::adaptGridImageStyle
      */
-    private static void calculateLabelValues(StyleRule sr, float max,
-            float min, ColorMapParameters parameters) {
+    private static void calculateLabelValues(ImagePreferences preferences,
+            float max, float min, ColorMapParameters parameters) {
 
         boolean haveIncrement = false;
         float increment = 0.1f;
         Type dataScaleType = Type.LINEAR;
         boolean isMirror = false;
-        if (sr != null) {
-            ImagePreferences preferences = (ImagePreferences) sr
-                    .getPreferences();
-            if (preferences != null) {
-                LabelingPreferences prefs = preferences.getColorbarLabeling();
-                if (prefs != null) {
-                    increment = prefs.getIncrement();
-                    haveIncrement = true;
-                }
+        LabelingPreferences prefs = preferences.getColorbarLabeling();
+        if (prefs != null) {
+            increment = prefs.getIncrement();
+            haveIncrement = true;
+        }
 
-                DataScale dataScale = preferences.getDataScale();
-                if (dataScale != null) {
-                    dataScaleType = dataScale.getScaleType();
-                    isMirror = dataScale.isMirror();
-                }
-            }
+        DataScale dataScale = preferences.getDataScale();
+        if (dataScale != null) {
+            dataScaleType = dataScale.getScaleType();
+            isMirror = dataScale.isMirror();
         }
         if (Math.abs(max - min) / increment > 16) {
             increment *= 2;
