@@ -34,47 +34,47 @@
 # This script will kill any running AlertViz and/or Cave
 # processes when a user logs off.
 
-if [ ! -f ${HOME}/vizUtility.log ]; then
-    touch ${HOME}/vizUtility.log
+if [ ! -f /tmp/vizUtility.log ]; then
+    touch /tmp/vizUtility.log
 else
-    echo "" >> ${HOME}/vizUtility.log
+    echo "" > /tmp/vizUtility.log
 fi
 
-date >> ${HOME}/vizUtility.log
+date >> /tmp/vizUtility.log
 
 function findAlertvizProcesses {
 # Find all the alertviz processes.
-echo "Searching for alertviz processes." >> ${HOME}/vizUtility.log
+echo "Searching for alertviz processes." >> /tmp/vizUtility.log
 zpid=` ps u -u $USER | grep '[a]lertviz' | awk '{print $2}' `
 npid=` echo $zpid | wc -w `
 if [ $npid -le 0 ]
 then
-    echo "There are no alertviz processes found." >> ${HOME}/vizUtility.log
-    date >> ${HOME}/vizUtility.log
+    echo "There are no alertviz processes found." >> /tmp/vizUtility.log
+    date >> /tmp/vizUtility.log
 fi
 }
 
 function findAlertvizShProcesses {
 # Find all the alertviz.sh processes.
-echo "Searching for alertviz.sh processes." >> ${HOME}/vizUtility.log
+echo "Searching for alertviz.sh processes." >> /tmp/vizUtility.log
 zpid=` ps u -u $USER | grep '[a]lertviz.sh' | awk '{print $2}'  `
 npid=` echo $zpid | wc -w `
 if [ $npid -le 0 ]
 then
-    echo "There are no alertviz.sh processes found." >> ${HOME}/vizUtility.log
-    date >> ${HOME}/vizUtility.log
+    echo "There are no alertviz.sh processes found." >> /tmp/vizUtility.log
+    date >> /tmp/vizUtility.log
 fi
 }
 
 function findCaveProcesses {
 # Find all the Cave processes.
-echo "Searching for cave processes." >> ${HOME}/vizUtility.log
+echo "Searching for cave processes." >> /tmp/vizUtility.log
 zpid=` ps u -u $USER | grep '[c]ave' | awk '{print $2}' `
 npid=` echo $zpid | wc -w `
 if [ $npid -le 0 ]
 then
-    echo "There are no cave processes found." >> ${HOME}/vizUtility.log
-    date >> ${HOME}/vizUtility.log
+    echo "There are no cave processes found." >> /tmp/vizUtility.log
+    date >> /tmp/vizUtility.log
 fi
 }
 
@@ -83,22 +83,22 @@ fi
 findAlertvizShProcesses
 for pid in $zpid 
 do
-    echo "Attempting to kill 'alertviz.sh' process with pid ${pid}." >> ${HOME}/vizUtility.log
-    kill ${pid}  2>> ${HOME}/vizUtility.log
+    echo "Attempting to kill 'alertviz.sh' process with pid ${pid}." >> /tmp/vizUtility.log
+    kill ${pid}  2>> /tmp/vizUtility.log
 done
 
 findAlertvizProcesses
 for pid in $zpid 
 do
-    echo "Attempting to kill 'alertviz' process with pid ${pid}." >> ${HOME}/vizUtility.log
-    kill ${pid}  2>> ${HOME}/vizUtility.log
+    echo "Attempting to kill 'alertviz' process with pid ${pid}." >> /tmp/vizUtility.log
+    kill ${pid}  2>> /tmp/vizUtility.log
 done
 
 findCaveProcesses
 for pid in $zpid 
 do
-    echo "Attempting to kill 'cave' process with pid ${pid}." >> ${HOME}/vizUtility.log
-    kill ${pid}  2>> ${HOME}/vizUtility.log
+    echo "Attempting to kill 'cave' process with pid ${pid}." >> /tmp/vizUtility.log
+    kill ${pid}  2>> /tmp/vizUtility.log
 done
 
 
@@ -112,14 +112,14 @@ while [[ $npid -ne 0  &&  $ntoomany -ne 0 ]]
 do
     for pid in $zpid 
     do
-        echo "Attempting to kill 'alertviz.sh' process with pid ${pid}." >> ${HOME}/vizUtility.log
-        kill -9 ${pid}  2>> ${HOME}/vizUtility.log
+        echo "Attempting to kill 'alertviz.sh' process with pid ${pid}." >> /tmp/vizUtility.log
+        kill -9 ${pid}  2>> /tmp/vizUtility.log
     done
     npid=0
     ((ntoomany-=1))
     if [ $ntoomany -le 1 ]
     then
-        echo "The kill alertviz portion of this script $0 has been unable preform its duties. 02" >> ${HOME}/vizUtility.log
+        echo "The kill alertviz portion of this script $0 has been unable preform its duties. 02" >> /tmp/vizUtility.log
         break
     fi
     sleep 1
@@ -131,20 +131,20 @@ sleep 1
 findAlertvizProcesses
 for pid in $zpid 
 do
-    echo "Attempting to kill 'alertviz' process with pid ${pid}." >> ${HOME}/vizUtility.log
-    kill -9 ${pid}  2>> ${HOME}/vizUtility.log
+    echo "Attempting to kill 'alertviz' process with pid ${pid}." >> /tmp/vizUtility.log
+    kill -9 ${pid}  2>> /tmp/vizUtility.log
 done
 
 
 findCaveProcesses
 for pid in $zpid 
 do
-    echo "Attempting to kill 'cave' process with pid ${pid}." >> ${HOME}/vizUtility.log
-    kill -9 ${pid}  2>> ${HOME}/vizUtility.log
+    echo "Attempting to kill 'cave' process with pid ${pid}." >> /tmp/vizUtility.log
+    kill -9 ${pid}  2>> /tmp/vizUtility.log
 done
 
 
-date >> ${HOME}/vizUtility.log
-echo >> ${HOME}/vizUtility.log
+date >> /tmp/vizUtility.log
+echo >> /tmp/vizUtility.log
 
 
