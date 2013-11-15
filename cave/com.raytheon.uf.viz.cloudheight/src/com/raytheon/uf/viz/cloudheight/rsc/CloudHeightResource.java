@@ -76,10 +76,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 18, 2011       2190 mschenke    Initial creation
- * Oct  2, 2013       2333 mschenke    Converted to use IGridGeometryProvider
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 18, 2011  2190     mschenke    Initial creation
+ * Oct  2, 2013  2333     mschenke    Converted to use IGridGeometryProvider
+ * Nov 20, 2013  2492     bsteffen    Refactor deprecated references to
+ *                                    ColorMapParameters.getDataUnit
  * 
  * </pre>
  * 
@@ -389,8 +391,8 @@ public class CloudHeightResource extends
         if (rsc != null && rsc.hasCapability(ColorMapCapability.class)) {
             ColorMapParameters params = rsc.getCapability(
                     ColorMapCapability.class).getColorMapParameters();
-            if (params != null && params.getDataUnit() != null
-                    && TEMP_UNIT.isCompatible(params.getDataUnit())) {
+            if (params != null && params.getColorMapUnit() != null
+                    && TEMP_UNIT.isCompatible(params.getColorMapUnit())) {
                 return true;
             }
         }
