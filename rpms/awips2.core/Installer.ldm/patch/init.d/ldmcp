@@ -30,12 +30,12 @@ function handle_ramdisk() {
 	if ! mount | grep ram0 > /dev/null 
 	then
 		echo -ne "Creating RAMDISK:\t"
-		if mkfs -t ext2 -m 0 -q /dev/ramdisk 1500000 && success || failure	
+		if mkfs -t ext2 -m 0 -q /dev/ram0 1500000 && success || failure	
 		then
 			echo
 			# mount to /data/ldm/data
 			echo -ne "Mounting to /data/ldm/data:\t"
-			if ! mount /dev/ramdisk /data/ldm/data && failure 
+			if ! mount /dev/ram0 /data/ldm/data && failure 
 			then
 				echo
 				return 1
