@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 8
+Release: 9
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -177,7 +177,9 @@ chown -R ldm:fxalpha ${_ldm_dir}
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
-   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
+   echo 'umask 002' > \
+      /usr/local/ldm/.bash_profile
+   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' >> \
       /usr/local/ldm/.bash_profile
    echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
       /usr/local/ldm/.bash_profile
