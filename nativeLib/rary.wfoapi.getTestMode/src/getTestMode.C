@@ -102,7 +102,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <ctype.h>
-#include "LogStream.H"
 #include "testmode.H"
 
 #define DEVRUN true
@@ -209,7 +208,7 @@ int main(int argc, char *argv[])
     int rc = 0;
     int  runLocal = 0; // Meaning both xt and lx workstations are present
 
-    logVerbose << "Startup" << std::endl;
+    std::cout << "Startup" << std::endl;
 
     if (argc > 3) ExitWithHelp();
 
