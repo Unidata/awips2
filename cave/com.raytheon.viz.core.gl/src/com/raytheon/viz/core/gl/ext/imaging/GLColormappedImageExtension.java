@@ -54,14 +54,16 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 18, 2011            mschenke    Initial creation
- * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
- *                                     parameters, disable colormap interpolation
- *                                     by default.
- * Oct 16, 2013 2333       mschenke    Cleaned up load shader method, used isScaled.
- *                                     Added support for colormapping in non-data unit.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 18, 2011           mschenke    Initial creation
+ * Feb 14, 2013  1616     bsteffen    Add option for interpolation of colormap
+ *                                    parameters, disable colormap interpolation
+ *                                    by default.
+ * Oct 16, 2013  2333     mschenke    Cleaned up load shader method, used isScaled.
+ *                                    Added support for colormapping in non-data unit.
+ * Nov 20, 2013  2492     bsteffen    Mosaic in image units.
+ * 
  * 
  * </pre>
  * 
@@ -174,7 +176,8 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
     }
 
     /**
-     * Sets up a {@link GLDataMapping} for use in image rendering
+     * Sets up a {@link GLDataMapping} for use in image rendering. Data will be
+     * mapped to the image's {@link ColorMapParameters#getColorMapUnit()}
      * 
      * @param gl
      * @param glImage
@@ -185,14 +188,32 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
     public static void setupDataMapping(GL gl,
             AbstractGLColormappedImage glImage, int dataMappedTexBinding,
             int colorMappedTexBinding) throws VizException {
+        setupDataMapping(gl, glImage, glImage.getColorMapParameters()
+                .getColorMapUnit(), dataMappedTexBinding, colorMappedTexBinding);
+    }
+
+    /**
+     * Sets up a {@link GLDataMapping} for use in image renderingData will be
+     * mapped to the unit provided
+     * 
+     * @param gl
+     * @param glImage
+     * @param colorMapUnit
+     * @param dataMappedTexBinding
+     * @param colorMappedTexBinding
+     * @throws VizException
+     */
+    public static void setupDataMapping(GL gl,
+            AbstractGLColormappedImage glImage, Unit<?> colorMapUnit,
+            int dataMappedTexBinding, int colorMappedTexBinding)
+            throws VizException {
         ColorMapParameters colorMapParameters = glImage.getColorMapParameters();
         // Get GLDataMapping and generate if datamapping is not set. If
         // datamapping is not set, the data has already been mapped to
         // colorMapUnits and we need not do anything
         GLDataMapping dataMapping = glImage.getDataMapping();
         if (dataMapping == null && colorMapParameters.getDataMapping() == null) {
-            Unit<?> colorMapUnit = colorMapParameters.getColorMapUnit();
-            Unit<?> dataUnit = colorMapParameters.getDataUnit();
+            Unit<?> dataUnit = glImage.getDataUnit();
             int colorMapSize = colorMapParameters.getColorMap().getSize();
             float colorMapMin = colorMapParameters.getColorMapMin();
             float colorMapMax = colorMapParameters.getColorMapMax();
@@ -290,8 +311,7 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
 
         ColorMapParameters colorMapParameters = image.getColorMapParameters();
 
-        GLSLStructFactory.createDataTexture(program, "rawData", 0,
-                image.getDataFormat(), colorMapParameters.getNoDataValue());
+        GLSLStructFactory.createDataTexture(program, "rawData", 0, image);
 
         int numMappingValues = 0;
         GLDataMapping mapping = image.getDataMapping();
