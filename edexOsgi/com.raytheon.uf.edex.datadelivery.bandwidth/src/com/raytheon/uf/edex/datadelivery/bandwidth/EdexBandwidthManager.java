@@ -107,6 +107,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
  *                                      Added subscriptionNotificationService field.
  *                                      Send notifications.
+ * Nov 15, 2013 2545       bgonzale     Added check for subscription events before sending
+ *                                      notifications.
  * 
  * </pre>
  * 
@@ -323,10 +325,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     public void subscriptionRemoved(RemoveRegistryEvent event) {
         String objectType = event.getObjectType();
         if (objectType != null) {
-            if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION
-                    .equals(objectType)
-                    || DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
-                            .equals(objectType)) {
+            if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(event
+                    .getObjectType())) {
                 statusHandler
                         .info("Received Subscription removal notification for Subscription ["
                                 + event.getId() + "]");
@@ -386,9 +386,12 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                         + "]");
             }
         }
-        Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
-                re.getId());
-        sendSubscriptionNotificationEvent(re, sub);
+        if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(re
+                .getObjectType())) {
+            Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
+                    re.getId());
+            sendSubscriptionNotificationEvent(re, sub);
+        }
     }
 
     /**
@@ -400,9 +403,12 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     @Subscribe
     @AllowConcurrentEvents
     public void registryEventListener(UpdateRegistryEvent event) {
-        Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
-                event.getId());
-        sendSubscriptionNotificationEvent(event, sub);
+        if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(event
+                .getObjectType())) {
+            Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
+                    event.getId());
+            sendSubscriptionNotificationEvent(event, sub);
+        }
     }
 
     private void sendSubscriptionNotificationEvent(RegistryEvent event,
