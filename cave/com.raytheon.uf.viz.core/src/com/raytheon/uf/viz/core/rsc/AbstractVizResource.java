@@ -62,12 +62,14 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 4, 2009             chammack    Initial creation from original IVizResource
- * Mar 3, 2009      2032   jsanchez    Added getDescriptor and paintProps.
- * Mar 29, 2013     1638   mschenke    Fixed leak of data change listener
- * Jun 24, 2013     2140   randerso    Added getSafeName method
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 04, 2009           chammack    Initial creation from original IVizResource
+ * Mar 03, 2009  2032     jsanchez    Added getDescriptor and paintProps.
+ * Mar 29, 2013  1638     mschenke    Fixed leak of data change listener
+ * Jun 24, 2013  2140     randerso    Added getSafeName method
+ * Nov 18, 2013  2544     bsteffen    Add recycleInternal so IResourceGroups
+ *                                    can recycle better.
  * 
  * </pre>
  * 
@@ -754,13 +756,23 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     public final void recycle() {
         if (status == ResourceStatus.INITIALIZED) {
-            disposeInternal();
+            recycleInternal();
         }
         status = ResourceStatus.NEW;
         initJob = null;
         if (dataTimes.isEmpty() == false) {
             dataTimes.clear();
         }
+    }
+
+    /**
+     * Internally recycle all the graphics objects used by the resource. The
+     * default implementation will simply call disposeInternal to remove
+     * graphics resources and allow init to recreate them. Complex resources may
+     * need more sophisticated behavior.
+     */
+    protected void recycleInternal() {
+        disposeInternal();
     }
 
     public ResourceOrder getResourceOrder() {
