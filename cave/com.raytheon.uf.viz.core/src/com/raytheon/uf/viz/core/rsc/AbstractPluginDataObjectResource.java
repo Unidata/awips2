@@ -45,11 +45,14 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 21, 2011            mschenke    Initial creation
- * Jun 24, 2013       2122 mschenke    Made use built in resource data changed listener 
- *                                     updates will not be lost from construction to initInternal
+ * Date          Ticket#    Engineer    Description
+ * ------------- ---------- ----------- --------------------------
+ * Dec 21, 2011             mschenke    Initial creation
+ * Jun 24, 2013  2122       mschenke    Made use built in resource data changed
+ *                                      listener updates will not be lost from
+ *                                      construction to initInternal
+ * Nov 18, 2013  2544       bsteffen    Clear dataTimes in disposeInternal to
+ *                                      fix recycle.
  * 
  * </pre>
  * 
@@ -354,6 +357,11 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
             // Copy Frames and clear member
             frames = new HashMap<DataTime, Frame>(this.frames);
             this.frames.clear();
+
+            /* Must clear dataTimes for recycle to work correctly. */
+            if (!dataTimes.isEmpty()) {
+                dataTimes.clear();
+            }
         }
 
         // Dispose frame one by one
