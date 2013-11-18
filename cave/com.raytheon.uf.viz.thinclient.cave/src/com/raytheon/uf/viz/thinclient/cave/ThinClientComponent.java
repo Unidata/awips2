@@ -25,16 +25,12 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -70,6 +66,7 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * ------------ ---------- ----------- --------------------------
  * Aug  4, 2011            njensen     Initial creation
  * Apr 23, 2013 1939       randerso    Return null from initializeSerialization
+ * Nov 14, 2013 2361       njensen     Remove initializeSerialization()
  * 
  * </pre>
  * 
@@ -120,11 +117,17 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                 com.raytheon.uf.viz.thinclient.cave.Activator.PLUGIN_ID, "",
                 "ThinClientPluginBlacklist.txt");
         if (blacklistFile != null && blacklistFile.exists()) {
-            BufferedReader reader = new BufferedReader(new FileReader(
-                    blacklistFile));
-            String line = null;
-            while (null != (line = reader.readLine())) {
-                pluginBlacklist.add(line.trim());
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(blacklistFile));
+                String line = null;
+                while (null != (line = reader.readLine())) {
+                    pluginBlacklist.add(line.trim());
+                }
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
             }
         }
         try {
@@ -201,18 +204,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
 
         // Shutdown stats job
         statsJob.shutdown();
-    }
-
-    @Override
-    protected Job initializeSerialization() {
-        try {
-            SerializationUtil.getJaxbContext();
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.CRITICAL,
-                    "An error occured initializing Serialization", e);
-        }
-
-        return null;
     }
 
 }

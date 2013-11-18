@@ -26,14 +26,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXBException;
-
 import org.eclipse.core.internal.runtime.InternalPlatform;
 import org.eclipse.core.runtime.ILogListener;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
@@ -46,7 +41,6 @@ import org.eclipse.ui.statushandlers.StatusAdapter;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.pypies.PyPiesDataStoreFactory;
 import com.raytheon.uf.common.pypies.PypiesProperties;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -99,6 +93,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  *                                      before connecting to JMS to avoid deadlock
  * May 23, 2013   #2005    njensen      Shutdown on spring initialization errors
  * Oct 15, 2013    2361    njensen      Added startupTimer
+ * Nov 14, 2013    2361    njensen      Removed initializing serialization at startup
  * 
  * </pre>
  * 
@@ -197,7 +192,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         }
         UFStatus.setHandlerFactory(new VizStatusHandlerFactory());
 
-        Job serializationJob = initializeSerialization();
         initializeDataStoreFactory();
         initializeObservers();
 
@@ -237,12 +231,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         // launch cave normally, should cave be registered as component?
         try {
             initializeSimulatedTime();
-
-            // wait for serialization initialization to complete before
-            // opening JMS connection to avoid deadlock in class loaders
-            if (serializationJob != null) {
-                serializationJob.join();
-            }
 
             // open JMS connection to allow alerts to be received
             NotificationManagerJob.connect();
@@ -421,25 +409,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     protected void initializeLocalization(boolean nonui) throws Exception {
         new LocalizationInitializer(!nonui,
                 !LocalizationManager.internalAlertServer).run();
-    }
-
-    protected Job initializeSerialization() {
-        Job job = new Job("Loading Serialization") {
-
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                try {
-                    SerializationUtil.getJaxbContext();
-                } catch (JAXBException e) {
-                    statusHandler.handle(Priority.CRITICAL,
-                            "An error occured initializing Serialization", e);
-                }
-                return Status.OK_STATUS;
-            }
-
-        };
-        job.schedule();
-        return job;
     }
 
     /**
