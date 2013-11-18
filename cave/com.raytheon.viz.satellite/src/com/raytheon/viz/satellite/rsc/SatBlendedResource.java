@@ -55,14 +55,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 18, 2009     2032   jsanchez    Initial Creation.
- *                                      Updated inspect to display a single value.
- * Mar 17, 2009      800   jsanchez    Avoided displaying unnecessary 0.0.
- * Jul 31, 2013     2190   mschenke    Removed arbitrary check for 0.0 and instead 
- *                                     only check for NaN.  SatResource handles fill
- *                                     values and returns NaN now
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 18, 2009  2032     jsanchez    Initial Creation.
+ *                                    Updated inspect to display a single value.
+ * Mar 17, 2009  800      jsanchez    Avoided displaying unnecessary 0.0.
+ * Jul 31, 2013  2190     mschenke    Removed arbitrary check for 0.0 and instead 
+ *                                    only check for NaN.  SatResource handles fill
+ *                                    values and returns NaN now
+ * Nov 18, 2013  2544     bsteffen    Override recycleInternal
  * 
  * </pre>
  * 
@@ -99,6 +100,14 @@ public class SatBlendedResource extends
         }
         disposeImage();
         resourceData.removeChangeListener(this);
+    }
+
+    @Override
+    protected void recycleInternal() {
+        for (ResourcePair rp : this.resourceData.getResourceList()) {
+            rp.getResource().recycle();
+        }
+        disposeImage();
     }
 
     /*
