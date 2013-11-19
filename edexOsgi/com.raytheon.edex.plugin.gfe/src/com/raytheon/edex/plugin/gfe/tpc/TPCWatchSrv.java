@@ -92,7 +92,8 @@ public class TPCWatchSrv {
 
     protected transient Log logger = LogFactory.getLog(getClass());
 
-    public void handleTpcWatch(PluginDataObject[] pdos) throws EdexException {
+    public void handleTpcWatch(List<PluginDataObject> pdos)
+            throws EdexException {
 
         EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
         String primarySite = env.getEnvValue("SITENAME");
