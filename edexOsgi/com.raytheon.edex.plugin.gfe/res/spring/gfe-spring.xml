@@ -30,16 +30,6 @@
         <constructor-arg ref="smartInitSrvCfg"/>
     </bean>
 
-    <bean factory-bean="pluginNotifier" factory-method="register">
-       <constructor-arg value="warning" />
-       <constructor-arg value="jms-warning:queue:edex.spcWatch" />
-    </bean>
-
-    <bean factory-bean="pluginNotifier" factory-method="register">
-       <constructor-arg value="warning" />
-       <constructor-arg value="jms-warning:queue:edex.tpcWatch" />
-    </bean>
- 
     <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.spc.SPCWatchSrv"/>
     <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.tpc.TPCWatchSrv"/>
     <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.wcl.WCLWatchSrv"/>
@@ -48,7 +38,7 @@
 
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="SPCWatch">
-            <from uri="jms-durable:queue:edex.spcWatch"/>
+            <from uri="vm:edex.spcWatch"/>
             <doTry>
                 <bean ref="spcWatch" method="handleSpcWatch"/>
                 <doCatch>
@@ -60,7 +50,7 @@
         </route>
 
         <route id="TPCWatch">
-            <from uri="jms-durable:queue:edex.tpcWatch"/>
+            <from uri="vm:edex.tpcWatch"/>
             <doTry>
                 <bean ref="tpcWatch" method="handleTpcWatch"/>
                 <doCatch>
@@ -82,6 +72,7 @@
         </route>
 
         <route id="gfeIngestNotification">
+            <!-- Data from plugin notification -->
             <from
                 uri="jms-durable:queue:gfeDataURINotification"/>
             <doTry>
@@ -141,18 +132,6 @@
         </route>
 
         <!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
-        <route id="gfeDataURINotificationQueueRoute">
-            <from
-                uri="jms-generic:topic:edex.alerts"/>
-            <doTry>
-                <to uri="jms-durable:queue:gfeDataURINotification"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:ifpServer?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
     </camelContext>
 
     <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
