@@ -29,6 +29,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 11/17/09     3580        brockwoo    Initial Creation
+ * 11/19/13     2495        bclement    changed dim arrays/lists to use npy_intp
  *
  * </pre>
  *
@@ -50,7 +51,7 @@ static int dimensions(PyObject * array) {
 	if (aDim == 3) {
 		returnValue |= 4; // 2d arrays
 	} else if (aDim == 2) {
-		npy_int * aDimList = PyArray_DIMS(array);
+		npy_intp * aDimList = PyArray_DIMS(array);
 		if (aDimList[0] == 1) {
 			returnValue |= 1; //linear array
 		}
@@ -79,9 +80,9 @@ static PyObject * defineNumpySlice(PyObject *self, PyObject* args)
     int * param3dDim;
     int levelCount;
     int vnz,  pnz, vny , pny , vnx , pnx;
-    int dimSize[2];
-    npy_int * vdimList;
-    npy_int * pdimList;
+    npy_intp dimSize[2];
+    npy_intp * vdimList;
+    npy_intp * pdimList;
      
 	if (!PyArg_ParseTuple(args, "OOfi", &vc, &param, &targetLevel, &sense)) {
 		return NULL;
@@ -211,9 +212,9 @@ static PyObject * createNumpySlice(PyObject *self, PyObject* args)
  	int * vc3dDim ;
 	int levelCount;
 	float * vc2d ;
-    int dimSize[2];
-	npy_int * vdimList;
-	npy_int * sdimList;
+	npy_intp dimSize[2];
+	npy_intp * vdimList;
+	npy_intp * sdimList;
 
 	if (!PyArg_ParseTuple(args, "OOOi|i", &vc, &s3d, &targetLevel, &sense, &hyb)) {
 		return NULL;
