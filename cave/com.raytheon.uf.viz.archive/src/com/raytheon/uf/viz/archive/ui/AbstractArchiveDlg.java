@@ -24,6 +24,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -71,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jul 24, 2013 2220       rferrel      Changes to queue size request for all data.
  * Aug 01, 2013 2221       rferrel      Changes for select configuration.
  * Aug 06, 2013 2222       rferrel      Changes to display all selected data.
+ * Nov 14, 2013 2549       rferrel      Get category data moved off the UI thread.
  * </pre>
  * 
  * @author bgonzale
@@ -452,25 +457,57 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * adjust sizes on the display table.
      */
     protected void populateTableComp() {
-        String archiveName = getSelectedArchiveName();
-        String categoryName = getSelectedCategoryName();
+        final String archiveName = getSelectedArchiveName();
+        final String categoryName = getSelectedCategoryName();
 
         setCursorBusy(true);
 
-        try {
-            setShowingSelected(false);
+        setShowingSelected(false);
+        tableComp.populateTable(archiveName, categoryName,
+                new ArrayList<DisplayData>(0));
+        tableComp.refresh();
 
-            List<DisplayData> displayDatas = sizeJob.changeDisplay(archiveName,
-                    categoryName);
-            if (displayDatas != null) {
-                tableComp
-                        .populateTable(archiveName, categoryName, displayDatas);
-            } else {
-                tableComp.refresh();
+        Job job = new Job("populate category table") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                getCategoryTableData(archiveName, categoryName);
+                return Status.OK_STATUS;
             }
-        } finally {
-            setCursorBusy(false);
-        }
+        };
+        job.schedule();
+    }
+
+    /**
+     * This gets the desired categories data. Assumed called from non-UI thread
+     * since it is possible getting the data may take time which would hang up
+     * the UI thread.
+     * 
+     * @param archiveName
+     * @param categoryName
+     */
+    private void getCategoryTableData(final String archiveName,
+            final String categoryName) {
+
+        final List<DisplayData> displayDatas = sizeJob.changeDisplay(
+                archiveName, categoryName);
+
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    if (displayDatas != null) {
+                        tableComp.populateTable(archiveName, categoryName,
+                                displayDatas);
+                    } else {
+                        tableComp.refresh();
+                    }
+                } finally {
+                    setCursorBusy(false);
+                }
+            }
+        });
     }
 
     /**
