@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Sep 07, 2012 1102      djohnson     Initial creation
  * Jun 03, 2013 2038      djohnson     Add equals/hashcode.
  * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
+ * Nov 14, 2013 2552      bkowal       EbxmlJaxbManager is now accessed via getInstance
  * 
  * </pre>
  * 
@@ -61,7 +62,8 @@ class JaxbEncoder extends StringBasedEncoder {
     @Override
     Object decodeContent(String content) throws SerializationException {
         try {
-            return EbxmlJaxbManager.getJaxbManager().unmarshalFromXml(content);
+            return EbxmlJaxbManager.getInstance().getJaxbManager()
+                    .unmarshalFromXml(content);
         } catch (JAXBException e) {
             throw new SerializationException("Unable to decode the object!", e);
         }
@@ -73,8 +75,8 @@ class JaxbEncoder extends StringBasedEncoder {
     @Override
     String encodeContent(Object objectToEncode) throws SerializationException {
         try {
-            return new String(EbxmlJaxbManager.getJaxbManager().marshalToXml(
-                    objectToEncode));
+            return new String(EbxmlJaxbManager.getInstance().getJaxbManager()
+                    .marshalToXml(objectToEncode));
         } catch (JAXBException e) {
             throw new SerializationException("Unable to encode the object!", e);
         }
