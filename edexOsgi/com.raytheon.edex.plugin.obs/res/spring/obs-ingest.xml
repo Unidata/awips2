@@ -1,67 +1,53 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="obsDecoder" class="com.raytheon.edex.plugin.obs.ObsDecoder"/>
-    
-    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform"/>
-    	
-	<bean id="obsSeparator" class="com.raytheon.edex.plugin.obs.metar.MetarSeparator" />
+    <bean id="obsDecoder" class="com.raytheon.edex.plugin.obs.ObsDecoder" />
 
-	<bean id="obsDistRegistry" factory-bean="distributionSrv"
-		factory-method="register">
-		<constructor-arg value="obs" />
-		<constructor-arg value="jms-dist:queue:Ingest.obs"/>
-	</bean>
+    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform" />
 
-    <bean id="obsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered, 
+    <bean id="obsSeparator" class="com.raytheon.edex.plugin.obs.metar.MetarSeparator" />
+
+    <bean id="obsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="obs" />
+        <constructor-arg value="jms-dist:queue:Ingest.obs" />
+    </bean>
+
+    <bean id="obsCamelRegistered" factory-bean="contextManager" factory-method="register"
+        depends-on="persistCamelRegistered, 
 		            shefCamelRegistered,
 		            metarToHMDBCamelRegistered">
-		<constructor-arg ref="obs-camel"/>
-  	</bean>
+        <constructor-arg ref="obs-camel" />
+    </bean>
 
-	<camelContext id="obs-camel"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
-		<!--
-		<endpoint id="metarFileEndpoint" uri="file:${edex.home}/data/sbn/metar?noop=true&amp;idempotent=false" />
-
-		<route id="metarFileConsumerRoute">
-			<from ref="metarFileEndpoint" />
-			<bean ref="fileToString" />
-			<setHeader headerName="pluginName">
-				<constant>obs</constant>
-			</setHeader>
-			<to uri="jms-durable:queue:Ingest.obs" />
-		</route>
-	    -->
-
-		<!-- Begin METAR routes -->
- 		<route id="metarIngestRoute">
-			<from uri="jms-durable:queue:Ingest.obs"/>
-			<setHeader headerName="pluginName">
-				<constant>obs</constant>
-			</setHeader>
-			<doTry>
-				<pipeline>
-					<bean ref="stringToFile" />
-					<bean ref="obsDecoder" method="decode" />
-					<bean ref="metarPointData" method="toPointData" />
-					<multicast>
-						<to uri="direct-vm:persistIndexAlert" />
-						<to uri="direct-vm:metarToShef" />
-						<to uri="direct-vm:metarToHMDB"/> 
-					</multicast>
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:metar?level=ERROR"/>
-				</doCatch>
-			</doTry>
-		</route>
-	</camelContext>
+    <camelContext id="obs-camel" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler" autoStartup="false">
+  
+        <!-- Begin METAR routes -->
+        <route id="metarIngestRoute">
+            <from uri="jms-durable:queue:Ingest.obs" />
+            <setHeader headerName="pluginName">
+                <constant>obs</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="obsDecoder" method="decode" />
+                    <bean ref="dupElim" />
+                    <bean ref="metarPointData" method="toPointData" />
+                    <multicast>
+                        <to uri="direct-vm:persistIndexAlert" />
+                        <to uri="direct-vm:metarToShef" />
+                        <to uri="direct-vm:metarToHMDB" />
+                    </multicast>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:metar?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
 </beans>

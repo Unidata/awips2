@@ -26,6 +26,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -82,6 +83,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      Check if geometry is null when inspecting.
  * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
  * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
+ * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
  * </pre>
  * 
  * @author jsanchez
@@ -128,7 +130,7 @@ public abstract class AbstractWWAResource extends
     protected static PreparedGeometryFactory pgf = new PreparedGeometryFactory();
 
     /** one hour ahead, entirely arbitrary/magic **/
-    private static final long LAST_FRAME_ADJ = (60 * 60 * 1000);
+    private static final long LAST_FRAME_ADJ = TimeUtil.MILLIS_PER_HOUR;
 
     protected String resourceName;
 
@@ -465,13 +467,20 @@ public abstract class AbstractWWAResource extends
 
         if (lastFrame) {
             // use current system time to determine what to display
-            Date timeToDisplay = SimulatedTime.getSystemTime().getTime();
+            Date timeToDisplay = TimeUtil.newDate();
             // change frame time
             frameTime = timeToDisplay;
             // point paint time to different time
             paintTime = new DataTime(timeToDisplay);
             // point framePeriod to new frame
-            framePeriod = new TimeRange(frameTime, LAST_FRAME_ADJ);
+            if (SimulatedTime.getSystemTime().isRealTime()) {
+                framePeriod = new TimeRange(frameTime, LAST_FRAME_ADJ);
+            } else {
+                // Prevent getting "future" records by keeping interval in the
+                // same minute.
+                framePeriod = new TimeRange(frameTime,
+                        30 * TimeUtil.MILLIS_PER_SECOND);
+            }
         }
 
         // check if the warning is cancelled
