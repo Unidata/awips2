@@ -96,6 +96,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 08/08/13     DR16485    ryu         Remove call to getDatabaseId() from getMaxInsertTimeByDbId()
  *                                     so new GFE databases aren't accidentally created.
  * 09/30/2013   #2147      rferrel     Changes to archive hdf5 files.
+ * 11/13/2013   #2517      randerso    Added ORDER BY clause to getOverlappingTimes
  * </pre>
  * 
  * @author bphillip
@@ -814,7 +815,8 @@ public class GFEDao extends DefaultPluginDao {
                                     .find("SELECT dataTime.validPeriod"
                                             + " FROM GFERecord WHERE parmId = ?"
                                             + " AND dataTime.validPeriod.start < ?"
-                                            + " AND dataTime.validPeriod.end > ?",
+                                            + " AND dataTime.validPeriod.end > ?"
+                                            + " ORDER BY dataTime.validPeriod.start",
                                             new Object[] { parmId, tr.getEnd(),
                                                     tr.getStart() });
                             return rval;
