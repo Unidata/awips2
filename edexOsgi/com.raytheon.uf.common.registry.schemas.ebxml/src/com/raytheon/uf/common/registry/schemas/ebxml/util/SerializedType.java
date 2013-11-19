@@ -42,6 +42,7 @@ import org.hibernate.usertype.UserType;
  * ------------ ---------- ----------- --------------------------
  * --/--/----                          Initial creation
  * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
+ * Nov 14, 2013 2552      bkowal       EbxmlJaxbManager is now accessed via getInstance 
  * 
  * </pre>
  * 
@@ -93,7 +94,8 @@ public class SerializedType implements UserType {
 
         if (obj != null) {
             try {
-                return EbxmlJaxbManager.getJaxbManager().unmarshalFromXml(obj);
+                return EbxmlJaxbManager.getInstance().getJaxbManager()
+                        .unmarshalFromXml(obj);
             } catch (Exception e) {
                 throw new HibernateException("Error retrieving AnyType data", e);
             }
@@ -110,8 +112,8 @@ public class SerializedType implements UserType {
         } else {
             try {
                 ;
-                statement.setString(index, EbxmlJaxbManager.getJaxbManager()
-                        .marshalToXml(value));
+                statement.setString(index, EbxmlJaxbManager.getInstance()
+                        .getJaxbManager().marshalToXml(value));
             } catch (Exception e) {
                 throw new HibernateException("Error storing AnyType data", e);
             }
