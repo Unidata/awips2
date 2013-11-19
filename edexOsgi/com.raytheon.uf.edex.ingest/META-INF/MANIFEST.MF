@@ -5,6 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.edex.ingest
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.localization,
  com.google.guava,
  org.apache.camel,
  org.apache.commons.lang,
