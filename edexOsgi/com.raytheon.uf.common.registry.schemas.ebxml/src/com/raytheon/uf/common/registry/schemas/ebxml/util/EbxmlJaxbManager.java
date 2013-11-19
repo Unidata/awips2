@@ -30,10 +30,10 @@ import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * A JAXB Manager for transforming EBXML objects to/from XML.
@@ -58,7 +58,8 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 public class EbxmlJaxbManager {
 
     /** The logger */
-    private static Log theLogger = LogFactory.getLog(EbxmlJaxbManager.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EbxmlJaxbManager.class);
 
     private static EbxmlJaxbManager instance;
 
@@ -74,7 +75,7 @@ public class EbxmlJaxbManager {
     }
 
     public String findJaxables(String packageName) {
-        theLogger.info("Scanning package ... " + packageName);
+        statusHandler.info("Scanning package ... " + packageName);
 
         long t0 = System.currentTimeMillis();
         ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -93,7 +94,7 @@ public class EbxmlJaxbManager {
             jaxables.addAll(set);
         }
         long t1 = System.currentTimeMillis();
-        theLogger.info("Found " + set.size() + " classes for ebxml in "
+        statusHandler.info("Found " + set.size() + " classes for ebxml in "
                 + (t1 - t0) + " ms");
         // if jaxb has already been initialized, reset it so that it will be
         // recreated with the latest set of jaxable classes.
@@ -121,6 +122,6 @@ public class EbxmlJaxbManager {
         jaxables.add(oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectFactory.class);
         jaxables.add(oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class);
 
-        theLogger.info("Initialization Complete.");
+        statusHandler.info("Initialization Complete.");
     }
 }
