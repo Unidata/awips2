@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.archive;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -80,7 +82,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Jan 18, 2013 1469       bkowal      Removed the hdf5 data directory.
  * Oct 23, 2013 2478       rferrel     Make date format thread safe.
  *                                     Add debug information.
- * Nov 05, 2013 2499       rjpeter     Repackaged, removed config files, always compresses.
+ * Nov 05, 2013 2499       rjpeter     Repackaged, removed config files, always compresses hdf5.
+ * Nov 11, 2013 2478       rjpeter     Updated data store copy to always copy hdf5.
  * </pre>
  * 
  * @author rjpeter
@@ -114,11 +117,16 @@ public class DatabaseArchiver implements IPluginArchiver {
     /** Cluster time out on lock. */
     private static final int CLUSTER_LOCK_TIMEOUT = 60000;
 
+    /** Chunk size for I/O Buffering and Compression */
+    private static final int CHUNK_SIZE = 8192;
+
     /** Mapping for plug-in formatters. */
     private final Map<String, IPluginArchiveFileNameFormatter> pluginArchiveFormatters;
 
     /** When true dump the pdos. */
     private final boolean debugArchiver;
+
+    private final boolean compressDatabaseFiles;
 
     /**
      * The constructor.
@@ -128,6 +136,8 @@ public class DatabaseArchiver implements IPluginArchiver {
         pluginArchiveFormatters.put("default",
                 new DefaultPluginArchiveFileNameFormatter());
         debugArchiver = Boolean.getBoolean("archive.debug.enable");
+        compressDatabaseFiles = Boolean
+                .getBoolean("archive.compression.enable");
     }
 
     @Override
@@ -259,12 +269,9 @@ public class DatabaseArchiver implements IPluginArchiver {
                             .join(archivePath, pluginName, dataStoreFile));
 
                     try {
-                        // data must be older than 30 minutes, and no older than
-                        // hours to keep hours need to lookup plugin and see if
-                        // compression matches, or embed in configuration the
-                        // compression level on archive, but would still need to
-                        // lookup plugin
-                        ds.copy(outputDir, compRequired, "lastArchived", 0, 0);
+                        // copy the changed hdf5 file, does repack if
+                        // compRequired, otherwise pure file copy
+                        ds.copy(outputDir, compRequired, null, 0, 0);
                     } catch (StorageException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage());
@@ -325,7 +332,11 @@ public class DatabaseArchiver implements IPluginArchiver {
                 path.setLength(path.length() - 3);
             }
             int pathDebugLength = path.length();
-            path.append(".bin.gz");
+            if (compressDatabaseFiles) {
+                path.append(".bin.gz");
+            } else {
+                path.append(".bin");
+            }
 
             File file = new File(path.toString());
             List<PersistableDataObject> pdosToSerialize = entry.getValue();
@@ -338,7 +349,13 @@ public class DatabaseArchiver implements IPluginArchiver {
                 try {
 
                     // created gzip'd stream
-                    is = new GZIPInputStream(new FileInputStream(file), 8192);
+                    if (compressDatabaseFiles) {
+                        is = new GZIPInputStream(new FileInputStream(file),
+                                CHUNK_SIZE);
+                    } else {
+                        is = new BufferedInputStream(new FileInputStream(file),
+                                CHUNK_SIZE);
+                    }
 
                     // transform back for list append
                     @SuppressWarnings("unchecked")
@@ -400,7 +417,12 @@ public class DatabaseArchiver implements IPluginArchiver {
                 }
 
                 // created gzip'd stream
-                os = new GZIPOutputStream(new FileOutputStream(file), 8192);
+                if (compressDatabaseFiles) {
+                    os = new GZIPOutputStream(new FileOutputStream(file), CHUNK_SIZE);
+                } else {
+                    os = new BufferedOutputStream(new FileOutputStream(file),
+                            CHUNK_SIZE);
+                }
 
                 // Thrift serialize pdo list
                 SerializationUtil.transformToThriftUsingStream(pdosToSerialize,
