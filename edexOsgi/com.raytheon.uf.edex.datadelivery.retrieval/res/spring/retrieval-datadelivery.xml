@@ -88,8 +88,7 @@
 
         <route id="dataDeliveryNotify">
             <from uri="direct-vm:dataDeliveryNotify" />
-            <bean ref="toDataURI" method="toDataURI" />
-            <to uri="vm:stageNotification" />
+            <to uri="direct-vm:stageNotification" />
         </route>
     </camelContext>
 
