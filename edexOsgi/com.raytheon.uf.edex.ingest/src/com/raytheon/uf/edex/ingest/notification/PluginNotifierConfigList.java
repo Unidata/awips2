@@ -16,48 +16,45 @@
  * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
- **/
+ */
 package com.raytheon.uf.edex.ingest.notification;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.message.PracticeDataURINotificationMessage;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Converts PluginDataObjects or arrays of PluginDataObjects into their dataURIs
+ * List of Plugin Notification Configurations.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 25, 2008            chammack    Initial creation
- * Nov 19, 2013 2170       rjpeter     Added toPracticeNotificationMsg.
+ * Nov 19, 2013 2170      rjpeter     Initial creation
+ * 
  * </pre>
  * 
- * @author chammack
+ * @author rjpeter
  * @version 1.0
  */
+@XmlRootElement(name = "pluginNotificationList")
+@XmlAccessorType(XmlAccessType.NONE)
+public class PluginNotifierConfigList {
+    @XmlElements({ @XmlElement(name = "pluginNotification") })
+    private List<PluginNotifierConfig> notificationConfigs;
 
-public class ToDataURI {
-
-    public String[] toDataURI(PluginDataObject[] pdo) {
-        String[] strs = new String[pdo.length];
-        for (int i = 0; i < strs.length; i++) {
-            strs[i] = pdo[i].getDataURI();
-        }
-
-        return strs;
+    public List<PluginNotifierConfig> getNotificationConfigs() {
+        return notificationConfigs;
     }
 
-    public String toDataURI(PluginDataObject pdo) {
-        return pdo.getDataURI();
-    }
-
-    public PracticeDataURINotificationMessage toPracticeNotificationMsg(
-            PluginDataObject[] pdos) {
-        String[] uris = toDataURI(pdos);
-        PracticeDataURINotificationMessage rval = new PracticeDataURINotificationMessage();
-        rval.setDataURIs(uris);
-        return rval;
+    public void setNotificationConfigs(
+            List<PluginNotifierConfig> notificationConfigs) {
+        this.notificationConfigs = notificationConfigs;
     }
 }

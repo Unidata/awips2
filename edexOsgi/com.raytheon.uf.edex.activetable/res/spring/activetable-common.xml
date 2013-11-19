@@ -34,9 +34,8 @@
 		<property name="recordClassname"
 			value="com.raytheon.uf.common.dataplugin.warning.WarningRecord" />
 	</bean>
-	<bean id="practiceProductOfftimeHandler" class="com.raytheon.uf.edex.activetable.PracticeProductOfftimeHandler"/>
-   <bean id="uriAggregator" class="com.raytheon.uf.edex.ingest.notification.DataUriAggregator" />
-   <bean id="toDataURI" class="com.raytheon.uf.edex.ingest.notification.ToDataURI" />
+    <bean id="practiceProductOfftimeHandler" class="com.raytheon.uf.edex.activetable.PracticeProductOfftimeHandler"/>
+    <bean id="toDataURI" class="com.raytheon.uf.edex.ingest.notification.ToDataURI" />
 	<camelContext id="activetable-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
@@ -54,9 +53,8 @@
                <filter>
                  <method bean="vtecFilter" method="hasVTEC" />
                  <bean ref="activeTableSrv" method="practiceVtecArrived" />
-                 <bean ref="toDataURI" method="toDataURI"/>
-                 <bean ref="uriAggregator" method="addDataUris" />
-                 <bean ref="uriAggregator" method="sendPracticeQueuedUris" />
+                 <bean ref="toDataURI" method="toPracticeNotificationMsg"/>
+                 <bean ref="serializationUtil" method="transformToThrift" />
                  <to uri="jms-generic:topic:edex.alerts.practicewarning?timeToLive=60000&amp;deliveryPersistent=false"/>
                </filter>
                <doCatch>
