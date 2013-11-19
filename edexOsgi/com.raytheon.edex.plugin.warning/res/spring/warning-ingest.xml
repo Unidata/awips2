@@ -65,9 +65,9 @@
 					<bean ref="stringToFile" />
 					<bean ref="warningDecoder" method="decode" />
 					<bean ref="index" method="index" />
+                    <bean ref="processUtil" method="log" />
 					<multicast parallelProcessing="false">
 						<to uri="direct-vm:warningIngestAlert" />
-						<bean ref="pluginNotifier" method="send"/>
 						<filter>
 							<method bean="vtecFilter" method="hasVTEC" />
 							<to uri="jms-warning:queue:activeTablePending"/>
@@ -83,9 +83,7 @@
 
 		<route id="warningIngestAlert">
 			<from uri="direct-vm:warningIngestAlert" />
-			<bean ref="toDataURI" method="toDataURI" />
-			<bean ref="processUtil" method="log" />
-			<to uri="vm:stageNotification" />
+			<to uri="direct-vm:stageNotification" />
 		</route>
 	</camelContext>
 </beans>
