@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -30,14 +30,15 @@ import LogStream, fcntl
 # Vector: ((magGrid, dirGrid), history)
 # Weather: ((byteGrid, key), history)
 # Discrete: ((byteGrid, key), history)
-#    
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
-#    
-# 
+#    11/05/13        2517          randerso       Improve memory utilization
+#
+#
 #
 
 
@@ -54,7 +55,7 @@ class MergeGrid:
     # gridType = 'SCALAR', 'VECTOR', 'WEATHER', 'DISCRETE'
     #---------------------------------------------------------------------
     def __init__(self, creationTime, siteID, inFillValue, outFillValue,
-      areaMask, gridType, discreteKeys = None):
+      areaMask, gridType, discreteKeys=None):
         self.__creationTime = creationTime
         self.__siteID = siteID
         self.__inFillV = inFillValue
@@ -91,13 +92,13 @@ class MergeGrid:
         gridB = wxB[0]
         key = wxA[1]
         newGrid = numpy.zeros_like(gridB)
-         
+
         for k in range(len(wxB[1])):
             index = self.__findKey(wxB[1][k], key)
-            newGrid = numpy.where(gridB == k, index, newGrid)
-        
+            newGrid[gridB == k] = index
+
         return (key, wxA[0], newGrid)
- 
+
 
     #---------------------------------------------------------------------
     # update history strings
@@ -107,17 +108,17 @@ class MergeGrid:
     # returns None if no history is present.
     #---------------------------------------------------------------------
     def __updateHistoryStrings(self, historyA, historyB):
-    
+
         out = []
-        
-        # removal any old entry 
+
+        # removal any old entry
         if historyB is not None:
             for h in historyB:
-                index = string.find(h, ":"+ self.__siteID + "_GRID")
+                index = string.find(h, ":" + self.__siteID + "_GRID")
                 if index == -1:
-                    out.append(h) 
-    
-        # if add mode, add in new entries 
+                    out.append(h)
+
+        # if add mode, add in new entries
         if historyA is not None:
             for h in historyA:
                 out.append(h)
@@ -125,33 +126,33 @@ class MergeGrid:
         if len(out) > 0:
             return out
         else:
-            return None 
+            return None
 
     #---------------------------------------------------------------------
     # merge scalar grid
     #   Note: gridA can be None, which indicates that the data
     #   is to be blanked out, i.e., made invalid.  gridB can also be
     #   none, which indicates that there is no destination grid and one must
-    #   be created.  
+    #   be created.
     #---------------------------------------------------------------------
     def __mergeScalarGrid(self, gridA, gridB):
-        if gridA is None and gridB is None: 
+        if gridA is None and gridB is None:
             return None
-    
+
         # merge the grids
         if gridA is not None:
-            inMask = numpy.not_equal(gridA, self.__inFillV)
-            mask = numpy.logical_and(inMask, self.__areaMask)
-            
+            mask = numpy.not_equal(gridA, self.__inFillV)
+            numpy.logical_and(mask, self.__areaMask, mask)
+
             if gridB is None:
-                gridB = numpy.zeros(gridA.shape) + self.__outFillV
-            return numpy.where(mask, gridA, gridB)
-    
+                return numpy.where(mask, gridA, self.__outFillV)
+            else:
+                return numpy.where(mask, gridA, gridB)
+
         # blank out the data
         else:
-            blankGrid = numpy.zeros(gridB.shape) + self.__outFillV
-            return numpy.where(self.__areaMask, blankGrid, gridB)
-    
+            return numpy.where(self.__areaMask, self.__outFillV, gridB)
+
     #---------------------------------------------------------------------
     # merge vector grid
     #   Note: gridA can be None, which indicates that the data
@@ -159,50 +160,47 @@ class MergeGrid:
     #   none, which indicates that there is no destination grid and one must
     #   be created.
     #---------------------------------------------------------------------
-    def __mergeVectorGrid(self, gridA, gridB):  
+    def __mergeVectorGrid(self, gridA, gridB):
         if gridA is None and gridB is None:
             return None
-    
+
         # merge the grids
         if gridA is not None:
-            inMask = numpy.not_equal(gridA[0], self.__inFillV)
-            mask = numpy.logical_and(inMask, self.__areaMask)
-    
+            mask = numpy.not_equal(gridA[0], self.__inFillV)
+            numpy.logical_and(mask, self.__areaMask, mask)
+
             if gridB is None:
-                gridSize = gridA[0].shape
-                gridB = (numpy.zeros(gridSize) + self.__outFillV, 
-                  numpy.zeros(gridSize) + 0.0)
-    
-            magGrid = numpy.where(mask, gridA[0], gridB[0])
-            dirGrid = numpy.where(mask, gridA[1], gridB[1]) 
+                magGrid = numpy.where(mask, gridA[0], self.__outFillV)
+                dirGrid = numpy.where(mask, gridA[1], 0.0)
+            else:
+                magGrid = numpy.where(mask, gridA[0], gridB[0])
+                dirGrid = numpy.where(mask, gridA[1], gridB[1])
             return (magGrid, dirGrid)
-    
+
         # blank out the data
         else:
-            blankGrid = numpy.zeros(gridB[0].shape) + self.__outFillV
-            blankDirGrid = numpy.zeros_like(gridB[1])
-            magGrid = numpy.where(self.__areaMask, blankGrid, gridB[0])
-            dirGrid = numpy.where(self.__areaMask, blankDirGrid, gridB[1])
+            magGrid = numpy.where(self.__areaMask, self.__outFillV, gridB[0])
+            dirGrid = numpy.where(self.__areaMask, 0.0, gridB[1])
             return (magGrid, dirGrid)
-    
-    
+
+
     #---------------------------------------------------------------------
     # merge weather grid
     #
     # Note the outFillV is ignored for now, all out-of-bounds points will
     # get the <NoWx> value.
     #---------------------------------------------------------------------
-    def __mergeWeatherGrid(self, gridA, gridB): 
-        
-        if gridA is None and gridB is None:  
+    def __mergeWeatherGrid(self, gridA, gridB):
+
+        if gridA is None and gridB is None:
             return None
-    
+
         noWx = "<NoCov>:<NoWx>:<NoInten>:<NoVis>:"
         # merge the grids
         if gridA is not None:
-            inMask = numpy.not_equal(gridA[0], self.__inFillV)
-            mask = numpy.logical_and(inMask, self.__areaMask)
-    
+            mask = numpy.not_equal(gridA[0], self.__inFillV)
+            numpy.logical_and(mask, self.__areaMask, mask)
+
             if gridB is None:   #make an empty grid
                 noWxKeys = []
                 noWxGrid = numpy.empty_like(gridA[0])
@@ -211,15 +209,15 @@ class MergeGrid:
             (commonkey, remapG, dbG) = self.__commonizeKey(gridA, gridB)
             mergedGrid = numpy.where(mask, remapG, dbG)
             return (mergedGrid, commonkey)
-    
+
         # blank out the data
-        else: 
+        else:
             blankGrid = numpy.empty_like(gridB[0])
             blankGrid.fill(self.__findKey(noWx, gridB[1]))
             key = gridB[1]
             grid = numpy.where(self.__areaMask, blankGrid, gridB[0])
             return (grid, key)
-    
+
     #---------------------------------------------------------------------
     # merge discrete grid
     #
@@ -231,23 +229,23 @@ class MergeGrid:
             return None
 
         noKey = self.__discreteKeys[0]
-    
+
         # merge the grids
         if gridA is not None:
-            inMask = numpy.not_equal(gridA[0], self.__inFillV)
-            mask = numpy.logical_and(inMask, self.__areaMask)
-    
+            mask = numpy.not_equal(gridA[0], self.__inFillV)
+            numpy.logical_and(mask, self.__areaMask)
+
             if gridB is None:   #make an empty grid
                 noKeys = []
                 noGrid = numpy.empty_like(gridA[0])
                 noGrid.fill(self.__findKey(noKey, noKeys))
                 gridB = (noGrid, noKeys)
-    
+
             (commonkey, remapG, dbG) = \
               self.__commonizeKey(gridA, gridB)
             mergedGrid = numpy.where(mask, remapG, dbG)
             return (mergedGrid, commonkey)
-    
+
         # blank out the data
         else:
             blankGrid = numpy.empty_like(gridB[0])
@@ -255,7 +253,7 @@ class MergeGrid:
             key = gridB[1]
             grid = numpy.where(self.__areaMask, blankGrid, gridB[0])
             return (grid, key)
-    
+
     #---------------------------------------------------------------------
     # mergeGrid
     # Merges the grid
@@ -270,8 +268,8 @@ class MergeGrid:
     #   none, which indicates that there is no destination grid and one must
     #   be created.
     #---------------------------------------------------------------------
-    def mergeGrid(self, gridAIn, gridBIn):   
-        # merge the grids 
+    def mergeGrid(self, gridAIn, gridBIn):
+        # merge the grids
         if gridAIn is not None:
             gridA = gridAIn[0]
             historyA = gridAIn[1]
@@ -279,28 +277,28 @@ class MergeGrid:
             gridA = None
             historyA = None
         if gridBIn is not None:
-            gridB = gridBIn[0] 
+            gridB = gridBIn[0]
             historyB = gridBIn[1]
         else:
             gridB = None
             historyB = None
 
-        if self.__gridType == 'SCALAR':  
-            mergedGrid = self.__mergeScalarGrid(gridA, gridB) 
-    
+        if self.__gridType == 'SCALAR':
+            mergedGrid = self.__mergeScalarGrid(gridA, gridB)
+
         elif self.__gridType == 'VECTOR':
             mergedGrid = self.__mergeVectorGrid(gridA, gridB)
-    
+
         elif self.__gridType == 'WEATHER':
             mergedGrid = self.__mergeWeatherGrid(gridA, gridB)
-    
+
         elif self.__gridType == 'DISCRETE':
             mergedGrid = self.__mergeDiscreteGrid(gridA, gridB)
-    
+
         else:
             mergedGrid = None
 
         # merge History
         history = self.__updateHistoryStrings(historyA, historyB)
-    
+
         return (mergedGrid, history)
