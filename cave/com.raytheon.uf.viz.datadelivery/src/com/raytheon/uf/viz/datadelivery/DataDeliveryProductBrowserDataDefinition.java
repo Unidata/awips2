@@ -32,6 +32,7 @@ import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -69,6 +71,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * Sep 17, 2013  2391      mpduff      Initial creation
  * Sept 22, 2013 2246      dhladky     Setup binoffset for time into +-5 min intervals
  * Oct 13,  2013 2460      dhladky     Added display of Adhoc subscriptions
+ * Nov 19, 2013  2458      mpduff      Only pull subscriptions for the local site
  * 
  * </pre>
  * 
@@ -113,12 +116,12 @@ public class DataDeliveryProductBrowserDataDefinition
     private final String[] GRID_ORDER = new String[] {
             GridInventory.MODEL_NAME_QUERY, GridInventory.PARAMETER_QUERY,
             GridInventory.MASTER_LEVEL_QUERY, GridInventory.LEVEL_ID_QUERY };
-    
+
     /**
      * Setup as 5 mins +- (60x5=300) from a reference time
      */
     private final int frameOffset = 300;
-    
+
     /**
      * Constructor.
      */
@@ -396,11 +399,13 @@ public class DataDeliveryProductBrowserDataDefinition
         activeSubList.clear();
         final List<String> subNames = new ArrayList<String>();
 
-        List<Subscription> activeSubs = getSubscriptions();
-        for (Subscription s : activeSubs) {
-            if (s.getDataSetType() == dataType) {
-                activeSubList.add(s);
-                subNames.add(s.getName());
+        List<Subscription> subList = getSubscriptions();
+        for (Subscription s : subList) {
+            if (SubscriptionStatus.ACTIVE.toString().equals(s.getStatus())) {
+                if (s.getDataSetType() == dataType) {
+                    activeSubList.add(s);
+                    subNames.add(s.getName());
+                }
             }
         }
 
@@ -431,21 +436,22 @@ public class DataDeliveryProductBrowserDataDefinition
         final ISubscriptionHandler handler = RegistryObjectHandlers
                 .get(ISubscriptionHandler.class);
         try {
-            subList = handler.getActive();
+            subList = handler.getByFilters(null, LocalizationManager
+                    .getInstance().getCurrentSite());
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        
+
         final IAdhocSubscriptionHandler adhochandler = RegistryObjectHandlers
                 .get(IAdhocSubscriptionHandler.class);
         List<AdhocSubscription> adhocSubs = null;
-        
+
         try {
             adhocSubs = adhochandler.getAll();
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        
+
         if (adhocSubs != null) {
             subList.addAll(adhocSubs);
         }
