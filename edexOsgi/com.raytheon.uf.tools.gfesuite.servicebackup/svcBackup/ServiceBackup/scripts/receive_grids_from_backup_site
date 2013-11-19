@@ -105,7 +105,7 @@ then
     log_msg "Finished running iscMosaic..."
     # Generate a GFE message saying new Grids have arrived in Restore database.
     cd ${GFESUITE_BIN}
-    sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -u -m "Restore database has been populated with new grids."
+    ./sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -u -m "Restore database has been populated with new grids."
 else
    log_msg "Unable to locate the gridded data of the site,${import_file} You will need to request your backup site to send grids again."
    log_msg 100
