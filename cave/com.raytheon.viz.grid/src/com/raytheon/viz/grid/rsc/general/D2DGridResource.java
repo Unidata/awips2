@@ -47,7 +47,9 @@ import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -86,10 +88,12 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                    constructor to avoid duplicate data
  *                                    requests.
  * Jul 15, 2013  2107     bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by error
- *                                    in Maputil.rotation
+ * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
+ *                                    error in Maputil.rotation
  * Sep 12, 2013  2309     bsteffen    Request subgrids whenever possible.
- * Sep 24, 2013  DR 15972 D. Friedman Make reprojection of grids configurable.
+ * Sep 24, 2013  15972    D. Friedman Make reprojection of grids configurable.
+ * Nov 19, 2013  2532     bsteffen    Special handling of grids larger than the
+ *                                    world.
  * 
  * </pre>
  * 
@@ -156,14 +160,27 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             throws VizException {
         Unit<?> dataUnit = gridRecord.getParameter().getUnit();
         GridCoverage location = gridRecord.getLocation();
+        /*
+         * Detect a special case. Several of the D2D specific "enhancements" do
+         * not handle grids larger than the world. Since this is a rare edge
+         * case, and fixing it would be very complicated just don't apply the
+         * "enhancements".
+         */
+        boolean gridLargerThanWorld = location instanceof LatLonGridCoverage
+                && location.getNx() * location.getDx() > 360;
         GridGeometry2D gridGeometry = location.getGridGeometry();
 
         /* Request data for tilts if this is Std Env sampling. */
         IDataRecord[] dataRecs = GridResourceData.getDataRecordsForTilt(
                 gridRecord, descriptor);
         if (dataRecs == null) {
-            GridGeometry2D subGridGeometry = calculateSubgrid(gridGeometry);
-            if (subGridGeometry.equals(gridGeometry)) {
+            GridGeometry2D subGridGeometry = gridGeometry;
+            if (!gridLargerThanWorld) {
+                subGridGeometry = calculateSubgrid(gridGeometry);
+            }
+            if (subGridGeometry == null) {
+                return null;
+            } else if (subGridGeometry.equals(gridGeometry)) {
                 dataRecs = DataCubeContainer.getDataRecord(gridRecord);
             } else if (subGridGeometry != null) {
                 /* transform subgrid envelope into a slab request. */
@@ -195,7 +212,10 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         // more evenly spaced near the pole.
         if (ReprojectionUtil.shouldReproject(gridRecord, gridGeometry,
                 getDisplayType(), descriptor.getGridGeometry())) {
-            data = reprojectData(data);
+            if (!gridLargerThanWorld
+                    || GridGeometryWrapChecker.checkForWrapping(gridGeometry) != -1) {
+                data = reprojectData(data);
+            }
         }
         /*
          * Wind Direction(and possibly others) can be set so that we rotate the
