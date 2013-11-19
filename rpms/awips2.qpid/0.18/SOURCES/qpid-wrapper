@@ -48,4 +48,4 @@ if [ ! -f ${JAVA} ]; then
    exit 1
 fi
 
-$JAVA -jar ${QPID_HOME}/bin/yajsw/wrapper.jar -c ${QPID_HOME}/conf/${CONF_FILE}
+$JAVA -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -jar ${QPID_HOME}/bin/yajsw/wrapper.jar -c ${QPID_HOME}/conf/${CONF_FILE}
