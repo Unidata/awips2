@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  * Jan 25, 2013   1528     djohnson     Subscription priority is now an enum on subscriptions.
  * Jan 28, 2013   1529     djohnson    Add hasSubscriptionNameChecked().
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
+ * Nov 19, 2013   1531     mpduff      Update the settings.
  * 
  * </pre>
  * 
@@ -140,6 +141,10 @@ public class BandwidthImageMgr implements IGraphOptions {
 
     private int[] bandwidthThreholdValues = new int[] { 33, 66 };
 
+    private final Composite parentComp;
+
+    private final BandwidthGraphData graphData;
+
     /**
      * Constructor.
      * 
@@ -156,7 +161,9 @@ public class BandwidthImageMgr implements IGraphOptions {
             Map<CanvasImages, CanvasSettings> canvasSettingsMap,
             BandwidthGraphData graphData, long currentTime) {
         this.currentTimeMillis = currentTime;
-        init(parentComp, graphData, canvasSettingsMap);
+        this.parentComp = parentComp;
+        this.graphData = graphData;
+        init(canvasSettingsMap);
     }
 
     /**
@@ -167,8 +174,7 @@ public class BandwidthImageMgr implements IGraphOptions {
      * @param graphData
      *            Graph Data
      */
-    private void init(Composite parentComp, BandwidthGraphData graphData,
-            Map<CanvasImages, CanvasSettings> canvasSettingsMap) {
+    private void init(Map<CanvasImages, CanvasSettings> canvasSettingsMap) {
         priorityColorMap = new EnumMap<SubscriptionPriority, RGB>(
                 SubscriptionPriority.class);
         priorityColorMap.put(SubscriptionPriority.LOW, new RGB(6, 122, 255));
@@ -581,6 +587,7 @@ public class BandwidthImageMgr implements IGraphOptions {
     public void setPercentColor(GraphSection percentString, RGB rgb) {
         this.percentageColorMap.put(percentString, rgb);
     }
+
     /**
      * Set the bandwidth used graph type.
      * 
@@ -632,5 +639,49 @@ public class BandwidthImageMgr implements IGraphOptions {
      */
     public void setBandwidthThreholdValues(int[] bandwidthThreholdValues) {
         this.bandwidthThreholdValues = bandwidthThreholdValues;
+    }
+
+    /**
+     * Update the image map with new settings.
+     * 
+     * @param canvasSettingsMap
+     */
+    public void updateImageMap(
+            Map<CanvasImages, CanvasSettings> canvasSettingsMap) {
+        // Graph image
+        CanvasSettings cs = canvasSettingsMap.get(CanvasImages.GRAPH);
+        AbstractCanvasImage aci = new GraphImage(parentComp, cs, graphData,
+                this);
+        canvasImgMap.get(CanvasImages.GRAPH).disposeImage();
+        canvasImgMap.put(CanvasImages.GRAPH, aci);
+
+        // X label image
+        cs = canvasSettingsMap.get(CanvasImages.X_LABEL);
+        aci = new XLabelImage(parentComp, cs, graphData);
+        canvasImgMap.get(CanvasImages.X_LABEL).disposeImage();
+        canvasImgMap.put(CanvasImages.X_LABEL, aci);
+
+        // Y label image
+        cs = canvasSettingsMap.get(CanvasImages.Y_LABEL);
+        aci = new YLabelImage(parentComp, cs, graphData, this);
+        canvasImgMap.get(CanvasImages.Y_LABEL).disposeImage();
+        canvasImgMap.put(CanvasImages.Y_LABEL, aci);
+
+        // X header image
+        cs = canvasSettingsMap.get(CanvasImages.X_HEADER);
+        aci = new XHeaderImage(parentComp, cs, graphData, this);
+        canvasImgMap.get(CanvasImages.X_HEADER).disposeImage();
+        canvasImgMap.put(CanvasImages.X_HEADER, aci);
+
+        // Y header image
+        cs = canvasSettingsMap.get(CanvasImages.Y_HEADER);
+        aci = new YHeaderImage(parentComp, cs, graphData);
+        canvasImgMap.get(CanvasImages.Y_HEADER).disposeImage();
+        canvasImgMap.put(CanvasImages.Y_HEADER, aci);
+
+        // Regenerate all of the images
+        for (CanvasImages ci : CanvasImages.values()) {
+            canvasImgMap.get(ci).regenerateImage();
+        }
     }
 }
