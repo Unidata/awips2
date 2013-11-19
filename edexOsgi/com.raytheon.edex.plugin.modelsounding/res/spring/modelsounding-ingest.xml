@@ -74,8 +74,7 @@
             <from uri="direct-vm:modelSoundingPersistIndexAlert"/>
             <bean ref="persist" method="persist"/>
             <bean ref="index" method="index"/>
-            <bean ref="toDataURI" method="toDataURI"/>
-            <to uri="vm:stageNotification"/> 
+            <to uri="direct-vm:stageNotification"/> 
         </route>
     </camelContext>
 </beans>
