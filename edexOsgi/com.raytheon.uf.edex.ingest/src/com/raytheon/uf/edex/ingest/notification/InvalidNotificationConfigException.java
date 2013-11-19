@@ -16,48 +16,42 @@
  * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
- **/
+ */
 package com.raytheon.uf.edex.ingest.notification;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.message.PracticeDataURINotificationMessage;
-
 /**
- * Converts PluginDataObjects or arrays of PluginDataObjects into their dataURIs
+ * Thrown if a configuration is invalid.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 25, 2008            chammack    Initial creation
- * Nov 19, 2013 2170       rjpeter     Added toPracticeNotificationMsg.
+ * Nov 19, 2013 2170       rjpeter     Initial creation
+ * 
  * </pre>
  * 
- * @author chammack
+ * @author rjpeter
  * @version 1.0
  */
+public class InvalidNotificationConfigException extends Exception {
 
-public class ToDataURI {
+    private static final long serialVersionUID = 1L;
 
-    public String[] toDataURI(PluginDataObject[] pdo) {
-        String[] strs = new String[pdo.length];
-        for (int i = 0; i < strs.length; i++) {
-            strs[i] = pdo[i].getDataURI();
-        }
-
-        return strs;
+    public InvalidNotificationConfigException() {
+        super();
     }
 
-    public String toDataURI(PluginDataObject pdo) {
-        return pdo.getDataURI();
+    public InvalidNotificationConfigException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public PracticeDataURINotificationMessage toPracticeNotificationMsg(
-            PluginDataObject[] pdos) {
-        String[] uris = toDataURI(pdos);
-        PracticeDataURINotificationMessage rval = new PracticeDataURINotificationMessage();
-        rval.setDataURIs(uris);
-        return rval;
+    public InvalidNotificationConfigException(String message) {
+        super(message);
+    }
+
+    public InvalidNotificationConfigException(Throwable cause) {
+        super(cause);
     }
 }

@@ -62,7 +62,8 @@ public class SPCWatchSrv {
 
     protected transient Log logger = LogFactory.getLog(getClass());
 
-    public void handleSpcWatch(PluginDataObject[] pdos) throws EdexException {
+    public void handleSpcWatch(List<PluginDataObject> pdos)
+            throws EdexException {
         // create the appropriate SPC notification, returns null if not
         // needed.
         EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
