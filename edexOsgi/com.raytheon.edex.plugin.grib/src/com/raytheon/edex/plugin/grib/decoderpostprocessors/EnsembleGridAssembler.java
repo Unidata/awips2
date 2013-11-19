@@ -227,7 +227,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
             updateExistingRecord(record, assembledRecord, thinned, dao);
         }
         EDEXUtil.getMessageProducer().sendAsync("notificationAggregation",
-                new String[] { assembledRecord.getDataURI() });
+                record);
     }
 
     private GridRecord createAssembledRecord(GridRecord record,
