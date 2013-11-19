@@ -13,8 +13,7 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  org.apache.commons.cxf;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
- org.reflections;bundle-version="0.9.9",
- org.apache.commons.logging;bundle-version="1.1.2"
+ org.reflections;bundle-version="0.9.9"
 Export-Package: com.raytheon.uf.common.registry,
  com.raytheon.uf.common.registry.schemas.ebxml.util,
  com.raytheon.uf.common.registry.schemas.ebxml.util.annotations,
