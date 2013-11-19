@@ -27,6 +27,7 @@
  * Aug 05, 2013 2224       rferrel     Changes to add dataSet tags.
  * Oct 01, 2013 2147       rferrel     Date time stamp no longer requires an hour field.
  * Nov 05, 2013 2497       rferrel     Change root directory.
+ * Nov 13, 2013 2549       rferrel     Changes to GFE and modelsounding.
  * 
  * @author rferrel
  * @version 1.0
@@ -151,7 +152,7 @@
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
          </dataSet>
          <dataSet>
-            <dirPattern>gfe/(.*)/(Fcst|Official)</dirPattern>
+            <dirPattern>gfe/(.*)/(.*)</dirPattern>
             <filePattern>.*_(\d{4})(\d{2})(\d{2})_.*</filePattern>
             <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5</dateGroupIndices>
@@ -177,11 +178,11 @@
             <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
         </dataSet>
         <dataSet>
-            <dirPattern>(modelsounding)/(.*)</dirPattern>
+            <dirPattern>(modelsounding)/(.*)/.*</dirPattern>
             <dirPattern>(bufrmos)(.*)</dirPattern>
             <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
-            <filePattern>.*(\d{4})-(\d{2})-(\d{2})[-_](\d{2}).*</filePattern>
+            <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
         </dataSet>
     </category>
     <category>
