@@ -312,9 +312,24 @@ public class CurrentWarnings {
     public AbstractWarningRecord getNewestByTracking(String etn, String phensig) {
         AbstractWarningRecord rval = null;
         synchronized (officeId) {
-            List<AbstractWarningRecord> warnings = warningMap.get(toKey(
+            List<AbstractWarningRecord> keyWarnings = warningMap.get(toKey(
                     phensig, etn));
-            if (warnings != null) {
+            if (keyWarnings != null) {
+                // filter out "future" warnings.
+                List<AbstractWarningRecord> warnings = null;
+                if (SimulatedTime.getSystemTime().isRealTime()) {
+                    warnings = keyWarnings;
+                } else {
+                    warnings = new ArrayList<AbstractWarningRecord>(
+                            keyWarnings.size());
+                    long currentTime = TimeUtil.newCalendar().getTimeInMillis();
+                    for (AbstractWarningRecord warning : keyWarnings) {
+                        if (warning.getIssueTime().getTimeInMillis() <= currentTime) {
+                            warnings.add(warning);
+                        }
+                    }
+                }
+
                 // See if we have a NEW warning
                 for (AbstractWarningRecord warning : warnings) {
                     if (getAction(warning.getAct()) == WarningAction.NEW) {
@@ -399,8 +414,7 @@ public class CurrentWarnings {
             if (warnings != null) {
                 Calendar c = TimeUtil.newCalendar();
                 c.add(Calendar.MINUTE, -10);
-                TimeRange t = new TimeRange(c.getTime(), SimulatedTime
-                        .getSystemTime().getTime());
+                TimeRange t = new TimeRange(c.getTime(), TimeUtil.newDate());
 
                 for (AbstractWarningRecord warning : warnings) {
                     if (t.contains(warning.getIssueTime().getTime())) {
@@ -438,8 +452,7 @@ public class CurrentWarnings {
                 ArrayList<AbstractWarningRecord> conProds = new ArrayList<AbstractWarningRecord>();
                 Calendar c = TimeUtil.newCalendar();
                 c.add(Calendar.MINUTE, -10);
-                TimeRange t = new TimeRange(c.getTime(), SimulatedTime
-                        .getSystemTime().getTime());
+                TimeRange t = new TimeRange(c.getTime(), TimeUtil.newDate());
                 for (AbstractWarningRecord warning : warnings) {
                     WarningAction action = getAction(warning.getAct());
                     if (t.contains(warning.getIssueTime().getTime())
@@ -545,12 +558,20 @@ public class CurrentWarnings {
             List<AbstractWarningRecord> records = new ArrayList<AbstractWarningRecord>(
                     recordsMap.values());
 
-            // Sort by insert time
+            // Sort by issue time when null fall back to insert time.
             Collections.sort(records, new Comparator<AbstractWarningRecord>() {
                 @Override
                 public int compare(AbstractWarningRecord o1,
                         AbstractWarningRecord o2) {
-                    return o1.getInsertTime().compareTo(o2.getInsertTime());
+                    Calendar c1 = o1.getIssueTime();
+                    if (c1 == null) {
+                        c1 = o1.getInsertTime();
+                    }
+                    Calendar c2 = o2.getIssueTime();
+                    if (c2 == null) {
+                        c2 = o2.getInsertTime();
+                    }
+                    return c1.compareTo(c2);
                 }
             });
 
@@ -602,7 +623,10 @@ public class CurrentWarnings {
 
         Map<String, List<AbstractWarningRecord>> recordMap = new HashMap<String, List<AbstractWarningRecord>>();
         for (AbstractWarningRecord rec : newRecords) {
-            List<AbstractWarningRecord> recs = recordMap.get(rec.getOfficeid());
+            // This used the key rec.getOfficeid() which can be null; which
+            // can drop alerts when more then one new Record.
+            // Changed to use the same key as the put.
+            List<AbstractWarningRecord> recs = recordMap.get(rec.getXxxid());
             if (recs == null) {
                 recs = new ArrayList<AbstractWarningRecord>();
                 recordMap.put(rec.getXxxid(), recs);
