@@ -63,7 +63,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  */
 public class DataURIUtil {
 
-    private static final String PLUGIN_NAME_KEY = "pluginName";
+    public static final String PLUGIN_NAME_KEY = "pluginName";
 
     private static final String FIELD_SEPARATOR = ".";
 
