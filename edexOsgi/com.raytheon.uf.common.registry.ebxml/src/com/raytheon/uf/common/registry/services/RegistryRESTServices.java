@@ -22,8 +22,6 @@ package com.raytheon.uf.common.registry.services;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -31,12 +29,15 @@ import javax.xml.bind.JAXBException;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.ConnectionType;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.io.Resources;
+import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
 import com.raytheon.uf.common.registry.RegistryNamespaceMapper;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -58,6 +59,7 @@ import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService
  * 8/1/2013     1693        bphillip    Modified getregistry objects method to correctly handle response
  * 9/5/2013     1538        bphillip    Changed cache expiration timeout and added http header
  * 10/30/2013   1538        bphillip    Moved data delivery services out of registry plugin
+ * 11/20/2013   2534        bphillip    Added HTTPClient policy for rest connections.  Eliminated service caching.
  * </pre>
  * 
  * @author bphillip
@@ -65,29 +67,29 @@ import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService
  */
 public class RegistryRESTServices {
 
+    /** The url path to this set of services */
     private static final String REGISTRY_REST_SERVICE_PATH = "/rest";
 
-    /** Map of known registry object request services */
-    private LoadingCache<String, IRegistryObjectsRestService> registryObjectServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, IRegistryObjectsRestService>() {
-                public IRegistryObjectsRestService load(String url) {
-                    return getPort(url + REGISTRY_REST_SERVICE_PATH,
-                            IRegistryObjectsRestService.class);
-                }
-            });
-
-    /** Map of known repository item request services */
-    private LoadingCache<String, IRepositoryItemsRestService> repositoryItemServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, IRepositoryItemsRestService>() {
-                public IRepositoryItemsRestService load(String url) {
-                    return getPort(url + REGISTRY_REST_SERVICE_PATH,
-                            IRepositoryItemsRestService.class);
-                }
-            });
-
+    /** JAXB Manager */
     private RegistryJaxbManager jaxbManager;
+
+    /** Policy used for rest connections */
+    private static final HTTPClientPolicy restPolicy;
+
+    static {
+        ProxyConfiguration proxyConfig = RegistrySOAPServices
+                .getProxyConfiguration();
+        restPolicy = new HTTPClientPolicy();
+        restPolicy.setConnection(ConnectionType.CLOSE);
+        restPolicy.setConnectionTimeout(2000);
+        restPolicy.setReceiveTimeout(30000);
+        restPolicy.setMaxRetransmits(1);
+        if (proxyConfig != null) {
+            restPolicy.setProxyServer(proxyConfig.getHost());
+            restPolicy.setProxyServerPort(proxyConfig.getPort());
+            restPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
+        }
+    }
 
     public RegistryRESTServices() throws JAXBException {
         jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
@@ -101,12 +103,8 @@ public class RegistryRESTServices {
      * @return The service implementation
      */
     public IRegistryObjectsRestService getRegistryObjectService(String baseURL) {
-        try {
-            return registryObjectServiceMap.get(baseURL);
-        } catch (ExecutionException e) {
-            throw new RegistryServiceException(
-                    "Error getting Registry Object Rest Service", e);
-        }
+        return getPort(baseURL + REGISTRY_REST_SERVICE_PATH,
+                IRegistryObjectsRestService.class);
     }
 
     /**
@@ -143,12 +141,8 @@ public class RegistryRESTServices {
      * @return The service implementation
      */
     public IRepositoryItemsRestService getRepositoryItemService(String baseURL) {
-        try {
-            return repositoryItemServiceMap.get(baseURL);
-        } catch (ExecutionException e) {
-            throw new RegistryServiceException(
-                    "Error getting Repository Item Rest Service", e);
-        }
+        return getPort(baseURL + REGISTRY_REST_SERVICE_PATH,
+                IRepositoryItemsRestService.class);
     }
 
     /**
@@ -192,8 +186,13 @@ public class RegistryRESTServices {
     }
 
     protected <T extends Object> T getPort(String url, Class<T> serviceClass) {
+
         T service = JAXRSClientFactory.create(url, serviceClass);
         Client client = (Client) Proxy.getInvocationHandler((Proxy) service);
+        ClientConfiguration config = WebClient.getConfig(service);
+        HTTPConduit conduit = config.getHttpConduit();
+        conduit.setClient(restPolicy);
+
         // Create HTTP header containing the calling registry
         client.header(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
                 RegistryUtil.LOCAL_REGISTRY_ADDRESS);
