@@ -14,7 +14,7 @@
 
 		<property name="connectors">
 			<list>
-				<bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+				<bean id="Connector" class="org.eclipse.jetty.server.nio.NetworkTrafficSelectChannelConnector">
 					<property name="port" value="${EBXML_REGISTRY_WEBSERVER_PORT}" />
 					<property name="maxIdleTime" value="5000" />
 					<property name="acceptors" value="8" />
