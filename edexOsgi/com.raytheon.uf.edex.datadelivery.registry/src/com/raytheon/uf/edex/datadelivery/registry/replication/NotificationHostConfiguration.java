@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlElement;
  * ------------ ----------  ----------- --------------------------
  * 4/9/2013     1802        bphillip    Initial implementation
  * 6/4/2013     1707        bphillip    Renamed and changed fields for clarity
+ * 11/20/2013   2534        bphillip    Added reciprocate field
  * </pre>
  * 
  * @author bphillip
@@ -54,6 +55,10 @@ public class NotificationHostConfiguration {
     /** The name of the host */
     @XmlElement
     private String registryBaseURL;
+
+    /** True if subscriptions should be reciprocated */
+    @XmlElement
+    private boolean reciprocate = false;
 
     public NotificationHostConfiguration() {
 
@@ -90,4 +95,11 @@ public class NotificationHostConfiguration {
         this.registryBaseURL = registryBaseURL;
     }
 
+    public boolean isReciprocate() {
+        return reciprocate;
+    }
+
+    public void setReciprocate(boolean reciprocate) {
+        this.reciprocate = reciprocate;
+    }
 }
