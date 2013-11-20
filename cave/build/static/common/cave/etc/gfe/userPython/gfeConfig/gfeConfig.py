@@ -24,11 +24,12 @@
 
 #------*-python-*-------------------------------------------------------------
 # Config file for the GFE (Graphical Forecast Editor).
-#
-# $Id$
-#-----------------------------------------------------------------------------
-# Heading
-#-----------------------------------------------------------------------------
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/20/2013      2488          randerso       Changed to use DejaVu fonts
 
 GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
@@ -262,11 +263,11 @@ MapBackgrounds_default = ['States','CWA']
 #       style is a font style (one of "regular", "bold", "italic", or "bold italic") 
 #       height is an integer representing the font height. 
 # Example: Times New Roman-bold-36. 
-TextFont0 =  "Bitstream Vera Sans Mono-regular-9"
-TextFont1 =  "Bitstream Vera Sans Mono-regular-9"
-TextFont2 =  "Bitstream Vera Sans Mono-bold-12"
-TextFont3 =  "Bitstream Vera Sans Mono-bold-14"
-TextFont4 =  "Bitstream Vera Sans Mono-bold-20"
+TextFont0 =  "DejaVu Sans Mono-regular-9"
+TextFont1 =  "DejaVu Sans Mono-regular-9"
+TextFont2 =  "DejaVu Sans Mono-bold-12"
+TextFont3 =  "DejaVu Sans Mono-bold-14"
+TextFont4 =  "DejaVu Sans Mono-bold-20"
 
 # The color which will be used as the background for all of the display
 # panes.
