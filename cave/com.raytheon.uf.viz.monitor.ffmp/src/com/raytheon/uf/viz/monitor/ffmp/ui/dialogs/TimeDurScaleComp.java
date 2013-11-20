@@ -41,6 +41,22 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * Time Duration Scale Composite
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 20, 2013      #2488 randerso    Changed to use DejaVu font
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public class TimeDurScaleComp extends Composite {
     /**
      * Parent composite.
@@ -252,13 +268,10 @@ public class TimeDurScaleComp extends Composite {
      */
     private void init() {
         // Create the font
-        // canvasFont = new Font(parentComp.getDisplay(), "Courier", 10,
-        // SWT.NORMAL);
-        // canvasFont = new Font(parentComp.getDisplay(), "Monospace", 10,
-        // SWT.NORMAL);
 
         FontData fd = parentComp.getDisplay().getSystemFont().getFontData()[0];
-        fd.setName("Bitstream Vera Sans Mono");
+        // TODO not have hard coded font name
+        fd.setName("DejaVu Sans Mono");
         canvasFont = new Font(parentComp.getDisplay(), fd);
 
         // Create the time bar colors
@@ -307,6 +320,7 @@ public class TimeDurScaleComp extends Composite {
         this.pack();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 greyColor.dispose();
                 yellowColor.dispose();
@@ -328,6 +342,7 @@ public class TimeDurScaleComp extends Composite {
         timeSliderCanvas.setLayoutData(new GridData(CANVAS_WIDTH + 10,
                 CANVAS_HEIGHT));
         timeSliderCanvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawTimeSliderCanvas(e.gc);
             }

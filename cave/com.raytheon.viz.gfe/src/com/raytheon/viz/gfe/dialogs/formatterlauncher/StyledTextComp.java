@@ -65,11 +65,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ProductEditorComp.PTypeCategory;
+import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
 
 /**
  * Composite containing the product editor.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -81,12 +82,12 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
  * 30 APR 2013  16095      ryu         Modified updateTextStyle() to not lock edited text.
  * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
- *
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
- *
+ * 
  */
 public class StyledTextComp extends Composite {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -189,7 +190,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      */
@@ -207,10 +208,12 @@ public class StyledTextComp extends Composite {
     private void init() {
         String fontSetting = Activator.getDefault().getPreferenceStore()
                 .getString("ProductOutputDialog_font");
+        FontData fontData;
         if (fontSetting.isEmpty()) {
-            fontSetting = "Bitstream Vera Sans Mono-bold-12";
+            fontData = GFEFonts.getFontData(2);
+        } else {
+            fontData = StringConverter.asFontData(fontSetting);
         }
-        FontData fontData = StringConverter.asFontData(fontSetting);
         textFont = new Font(parent.getDisplay(), fontData);
 
         createMouseListner();
@@ -227,6 +230,7 @@ public class StyledTextComp extends Composite {
         createTextControl();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 textFont.dispose();
                 bgColor.dispose();
@@ -307,7 +311,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Get the StyledText editor.
-     *
+     * 
      * @return The StyledText editor.
      */
     public StyledText getTextEditorST() {
@@ -316,7 +320,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Set the product text.
-     *
+     * 
      * @param text
      *            The product text.
      */
@@ -398,8 +402,7 @@ public class StyledTextComp extends Composite {
                 // should be unlocked. Cities list is unlocked for editing
                 // when framing codes are present.
                 if (newProduct) {
-                    if (cityTip != null &&
-                            cityTip.getText().indexOf("|*") > 0) {
+                    if (cityTip != null && cityTip.getText().indexOf("|*") > 0) {
                         unlockCitySegs.add(ugc);
                     }
                 }
@@ -411,8 +414,7 @@ public class StyledTextComp extends Composite {
 
                     lockLines(productTextArray, startLine, cityStart);
                     lockLines(productTextArray, cityEnd, endLine);
-                }
-                else {
+                } else {
                     lockLines(productTextArray, startLine, endLine);
                 }
             }
@@ -484,7 +486,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Parse the product text string.
-     *
+     * 
      * @param productText
      */
     private void parseProductText(String productText) {
@@ -564,7 +566,7 @@ public class StyledTextComp extends Composite {
                 replaceText(ff, SPC + newfield);
             }
         } else {
-        	String s = SPC + newfield;
+            String s = SPC + newfield;
             if (!ff.getText().equals(s)) {
                 replaceText(ff, s);
             }
@@ -670,7 +672,7 @@ public class StyledTextComp extends Composite {
     /**
      * Handle the verify key event. This event fires after a change has been
      * made to the control (after the text has been updated, for example)
-     *
+     * 
      * @param event
      *            Verify event that was fired.
      */
@@ -731,8 +733,7 @@ public class StyledTextComp extends Composite {
             // .getStyleRangeAtOffset(event.start + event.length + 1);
 
             // if it's in a framing code, turn it red
-            if (startRange != null
-                    && endRange != null
+            if (startRange != null && endRange != null
                     && event.start > startRange.start
                     && event.start + event.length < endRange.start
                     && startRange.similarTo(endRange)
@@ -763,7 +764,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Handle the key event when a key is released.
-     *
+     * 
      * @param ke
      *            Key event.
      */
@@ -785,7 +786,7 @@ public class StyledTextComp extends Composite {
     /**
      * Check if there is selected text and if there is locked text in the
      * selected text.
-     *
+     * 
      * @return True if there is selected text that contains locked text.
      */
     private boolean selectionHasLockedText() {
@@ -799,12 +800,12 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if there is locked text in the specified range of text.
-     *
+     * 
      * @param offset
      *            The starting point of the locked text search.
      * @param length
      *            The length of the search.
-     *
+     * 
      * @return Whether or not there is text in the range that contains locked
      *         text.
      */
@@ -822,7 +823,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Select the framing code and the text contained in the framing code.
-     *
+     * 
      * @param sr
      *            StyleRange.
      */
@@ -834,7 +835,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if the key being pressed is a "non-edit" key.
-     *
+     * 
      * @param event
      *            Verify event.
      * @return True if the key is an arrow or "non-edit" key.
@@ -856,6 +857,7 @@ public class StyledTextComp extends Composite {
     private void createMouseListner() {
         mouseListener = new Listener() {
 
+            @Override
             public void handleEvent(Event e) {
                 if (e.type == SWT.MouseDown) {
                     handleMouseDown(e);
@@ -868,7 +870,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Handle the mouse down event.
-     *
+     * 
      * @param e
      *            Event fired.
      */
@@ -903,7 +905,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Handle the mouse up event
-     *
+     * 
      * @param e
      *            Event fired.
      */
@@ -1010,7 +1012,7 @@ public class StyledTextComp extends Composite {
     /**
      * Checks if the system is editing, e.g. updating the issue time every
      * minute, vs a user typing text in the text area
-     *
+     * 
      * @return
      */
     private boolean isSystemTextChange() {
@@ -1035,17 +1037,19 @@ public class StyledTextComp extends Composite {
     }
 
     protected boolean isUpperCase(final String word) {
-        for (int index= word.length() - 1; index >= 0; index--) {
-            if (Character.isLowerCase(word.charAt(index)))
+        for (int index = word.length() - 1; index >= 0; index--) {
+            if (Character.isLowerCase(word.charAt(index))) {
                 return false;
+            }
         }
         return true;
     }
 
     protected void upper() {
         String text = textEditorST.getText();
-        if (isUpperCase(text))
+        if (isUpperCase(text)) {
             return;
+        }
         int topIdx = textEditorST.getTopIndex();
         setProductText(textEditorST.getText().toUpperCase());
         textEditorST.setTopIndex(topIdx);
@@ -1161,7 +1165,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     *
+     * 
      * @return the column number
      */
     public int getWrapColumn() {
@@ -1170,7 +1174,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     *
+     * 
      * @param wrapColumn
      *            the column number
      */
@@ -1209,7 +1213,7 @@ public class StyledTextComp extends Composite {
     /**
      * Query the prefs for setting. If it does not exist, use colorDft as its
      * value. Create an SWT Color for display from the value and return it.
-     *
+     * 
      * @param prefs
      *            A preference store which might have config values.
      * @param display
@@ -1232,7 +1236,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Send a PROBLEM message if color1 is exactly equal to color2.
-     *
+     * 
      * @param color1
      *            the first color
      * @param color2
@@ -1259,7 +1263,7 @@ public class StyledTextComp extends Composite {
      * <p>
      * The getter name is different to avoid confusion with the getFgColor()
      * method of Control.
-     *
+     * 
      * @return the foreground Color
      */
     public Color getFgndColor() {
@@ -1270,7 +1274,7 @@ public class StyledTextComp extends Composite {
      * Get the framed text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     *
+     * 
      * @return the frameColor
      */
     public Color getFrameColor() {
@@ -1281,7 +1285,7 @@ public class StyledTextComp extends Composite {
      * Get the insert color of the StyledTextComp. This is the actual color, not
      * a copy. It will be disposed when the StyledTextComp is, and should not be
      * disposed before then.
-     *
+     * 
      * @return the insertColor
      */
     public Color getInsertColor() {
@@ -1292,7 +1296,7 @@ public class StyledTextComp extends Composite {
      * Get the locked text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     *
+     * 
      * @return the lockColor
      */
     public Color getLockColor() {
@@ -1302,7 +1306,7 @@ public class StyledTextComp extends Composite {
     /**
      * Word wrap the text in the block around cursorIndex. Adjust the cursor
      * position to account for inserted or deleted whitespace.
-     *
+     * 
      * @param st
      *            The StyledText in which word wrap is to be performed
      * @param cursorIndex
@@ -1336,7 +1340,7 @@ public class StyledTextComp extends Composite {
             line = st.getLine(searchLine);
             int lineOffset = st.getOffsetAtLine(searchLine);
 
-            // if line contains locked text, quit looking.            
+            // if line contains locked text, quit looking.
             if (rangeHasLockedText(lineOffset, line.length())) {
                 break;
             }
@@ -1393,7 +1397,7 @@ public class StyledTextComp extends Composite {
         if (endIndex >= st.getCharCount()) {
             endIndex = st.getCharCount() - 1;
         }
-        
+
         if (endIndex < startIndex) {
             return new int[] { startIndex, endIndex, 0 };
         }

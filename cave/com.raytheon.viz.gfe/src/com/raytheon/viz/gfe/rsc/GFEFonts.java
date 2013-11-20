@@ -46,6 +46,7 @@ import com.raytheon.viz.gfe.GFEPreference;
  * Apr 27, 2011 #9250      bkowal       getStyle and getName are now used to
  *                                      get the style and name associated with
  *                                      a FontData object.
+ * Nov 20, 2013 #2488      randerso     Changed to use DejaVu fonts
  * 
  * </pre>
  * 
@@ -57,9 +58,9 @@ public class GFEFonts {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEFonts.class);
 
-    private static final String DEFAULT_FONT_NAME = "Bitstream Vera Sans";
+    private static final String DEFAULT_FONT_NAME = "DejaVu Sans Mono";
 
-    private static final int[] DEFAULT_FONT_SIZE = { 8, 10, 12, 14, 20 };
+    private static final int[] DEFAULT_FONT_SIZE = { 9, 9, 12, 14, 20 };
 
     private static final int DEFAULT_FONT_STYLE = SWT.BOLD;
 
