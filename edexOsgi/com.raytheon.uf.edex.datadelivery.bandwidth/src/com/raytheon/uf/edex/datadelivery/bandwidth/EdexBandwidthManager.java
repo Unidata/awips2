@@ -108,7 +108,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  *                                      Added subscriptionNotificationService field.
  *                                      Send notifications.
  * Nov 15, 2013 2545       bgonzale     Added check for subscription events before sending
- *                                      notifications.
+ *                                      notifications.  Republish dataset metadata registry
+ *                                      insert and update events as dataset metadata events.
  * 
  * </pre>
  * 
@@ -335,7 +336,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 try {
                     Subscription<T, C> sub = (Subscription<T, C>) RegistryEncoders
                             .ofType(JAXB).decodeObject(
-                                    ((RemoveRegistryEvent) event).getRemovedObject());
+                                    ((RemoveRegistryEvent) event)
+                                            .getRemovedObject());
                     sendSubscriptionNotificationEvent(event, sub);
                 } catch (SerializationException e) {
                     statusHandler
@@ -348,8 +350,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     }
 
     /**
-     * Create a hook into the EDEX Notification sub-system to receive the the
-     * necessary InsertRegistryEvents to drive Bandwidth Management.
+     * Listen for registry insert events necessary to drive Bandwidth
+     * Management.
      * 
      * @param re
      *            The <code>InsertRegistryEvent</code> Object to evaluate.
@@ -358,33 +360,9 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     @AllowConcurrentEvents
     public void registryEventListener(InsertRegistryEvent re) {
         final String objectType = re.getObjectType();
-        final String id = re.getId();
 
         if (DataDeliveryRegistryObjectTypes.DATASETMETADATA.equals(objectType)) {
-
-            DataSetMetaData dsmd = getDataSetMetaData(id);
-
-            if (dsmd != null) {
-                // Repost the Object to the BandwidthEventBus to free
-                // the notification thread.
-
-                // TODO: A hack to prevent rap_f and rap datasets being
-                // Identified as the
-                // same dataset...
-                Matcher matcher = RAP_PATTERN.matcher(dsmd.getUrl());
-                if (matcher.matches()) {
-                    statusHandler
-                            .info("Found rap_f dataset - updating dataset name from ["
-                                    + dsmd.getDataSetName() + "] to [rap_f]");
-                    dsmd.setDataSetName("rap_f");
-                }
-                // TODO: End of hack..
-
-                BandwidthEventBus.publish(dsmd);
-            } else {
-                statusHandler.error("No DataSetMetaData found for id [" + id
-                        + "]");
-            }
+            publishDataSetMetaDataEvent(re);
         }
         if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(re
                 .getObjectType())) {
@@ -394,24 +372,15 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         }
     }
 
-    /**
-     * Create a hook into the EDEX Notification sub-system to receive
-     * UpdateRegistryEvents. Filter for subscription specific events.
-     * 
-     * @param event
-     */
-    @Subscribe
-    @AllowConcurrentEvents
-    public void registryEventListener(UpdateRegistryEvent event) {
-        if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(event
-                .getObjectType())) {
-            Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
-                    event.getId());
-            sendSubscriptionNotificationEvent(event, sub);
+    protected void registryEventListener(UpdateRegistryEvent event) {
+        final String objectType = event.getObjectType();
+
+        if (DataDeliveryRegistryObjectTypes.DATASETMETADATA.equals(objectType)) {
+            publishDataSetMetaDataEvent(event);
         }
     }
 
-    private void sendSubscriptionNotificationEvent(RegistryEvent event,
+    protected void sendSubscriptionNotificationEvent(RegistryEvent event,
             Subscription<T, C> sub) {
         final String objectType = event.getObjectType();
 
@@ -447,11 +416,37 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         }
     }
 
+    private void publishDataSetMetaDataEvent(RegistryEvent re) {
+        final String id = re.getId();
+        DataSetMetaData dsmd = getDataSetMetaData(id);
+
+        if (dsmd != null) {
+            // Repost the Object to the BandwidthEventBus to free
+            // the notification thread.
+
+            // TODO: A hack to prevent rap_f and rap datasets being
+            // Identified as the
+            // same dataset...
+            Matcher matcher = RAP_PATTERN.matcher(dsmd.getUrl());
+            if (matcher.matches()) {
+                statusHandler
+                        .info("Found rap_f dataset - updating dataset name from ["
+                                + dsmd.getDataSetName() + "] to [rap_f]");
+                dsmd.setDataSetName("rap_f");
+            }
+            // TODO: End of hack..
+
+            BandwidthEventBus.publish(dsmd);
+        } else {
+            statusHandler.error("No DataSetMetaData found for id [" + id + "]");
+        }
+    }
+
     private DataSetMetaData<T> getDataSetMetaData(String id) {
         return getRegistryObjectById(dataSetMetaDataHandler, id);
     }
 
-    private static <M> M getRegistryObjectById(
+    protected static <M> M getRegistryObjectById(
             IRegistryObjectHandler<M> handler, String id) {
         try {
             return handler.getById(id);
@@ -460,6 +455,13 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                     + id + "] from Registry.", e);
             return null;
         }
+    }
+
+    /**
+     * @return the subscriptionHandler
+     */
+    public ISubscriptionHandler getSubscriptionHandler() {
+        return subscriptionHandler;
     }
 
     /**
