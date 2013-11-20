@@ -19,25 +19,14 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.ncf;
 
-import java.util.List;
-import java.util.Set;
-
-import com.google.common.eventbus.AllowConcurrentEvents;
-import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
-import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
-import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
-import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -45,7 +34,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
 /**
- * {@link IEdexBandwidthManagerCreator} for an NCF bandwidth manager.
+ * {@link IEdexBandwidthManagerCreator} A bandwidth manager creator for
+ * bandwidth managers that act standalone. They do not have parent or client
+ * registries, but handle the scheduling themselves. This creator will configure
+ * the manager with the spring files to configure SBN and OPSNET retrievals.
+ * 
+ * This is primarily for a development EDEX mode for registry so that testing
+ * can be on a standalone box.
  * 
  * <pre>
  * 
@@ -53,36 +48,30 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 20, 2013 1543       djohnson     Initial creation
- * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
- * Mar 11, 2013 1645       djohnson     Add missing Spring file.
- * May 15, 2013 2000       djohnson     Include daos.
- * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
- * Oct 3   2013 1797       dhladky      Generics added  
- * Nov 08, 2013 2506       bgonzale     Added subscription notification service to bandwidth manager.
- * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
- *                                      Reschedule updated shared subscriptions.
+ * Nov 13, 2013 2545       bgonzale    Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author bgonzale
  * @version 1.0
  */
-public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> implements IEdexBandwidthManagerCreator<T, C> {
+public class MonolithicBandwidthManagerCreator<T extends Time, C extends Coverage>
+        extends NcfBandwidthManagerCreator<T, C> {
 
     /**
      * NCF {@link BandwidthManager} implementation.
      */
-    static class NcfBandwidthManager<T extends Time, C extends Coverage> extends EdexBandwidthManager<T, C> {
+    static class MonolithicBandwidthManager<T extends Time, C extends Coverage>
+            extends NcfBandwidthManager<T, C> {
 
-        private static final String[] NCF_BANDWIDTH_MANAGER_FILES = new String[] {
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf-edex-impl.xml"),
+        private static final String[] BANDWIDTH_MANAGER_FILES = new String[] {
+                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-monolithic-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-eventbus.xml"),
                 JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf.xml") };
+                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
 
         /**
          * Constructor.
@@ -92,7 +81,7 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
          * @param retrievalManager
          * @param bandwidthDaoUtil
          */
-        public NcfBandwidthManager(IBandwidthDbInit dbInit,
+        public MonolithicBandwidthManager(IBandwidthDbInit dbInit,
                 IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
@@ -103,48 +92,11 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                     subscriptionNotificationService);
         }
 
-        /**
-         * Listen for Registry update events. Filter for subscription specific
-         * events. Sends corresponding subscription notification events.
-         * 
-         * @param event
-         */
-        @Override
-        @Subscribe
-        @AllowConcurrentEvents
-        public void registryEventListener(UpdateRegistryEvent event) {
-            super.registryEventListener(event);
-            if (DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
-                    .equals(event.getObjectType())) {
-                Subscription<T, C> subscription = getRegistryObjectById(
-                        getSubscriptionHandler(), event.getId());
-                subscriptionUpdated(subscription);
-                sendSubscriptionNotificationEvent(event, subscription);
-            }
-        }
-
         @Override
         protected String[] getSpringFilesForNewInstance() {
-            return NCF_BANDWIDTH_MANAGER_FILES;
+            return BANDWIDTH_MANAGER_FILES;
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected ProposeScheduleResponse proposeScheduleSbnSubscription(
-                List<Subscription<T, C>> subscriptions) throws Exception {
-            return proposeScheduleSubscriptions(subscriptions);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected Set<String> scheduleSbnSubscriptions(
-                List<Subscription<T, C>> subscriptions) throws SerializationException {
-            return scheduleSubscriptions(subscriptions);
-        }
     }
 
     /**
@@ -157,7 +109,8 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService) {
-        return new NcfBandwidthManager(dbInit, bandwidthDao, retrievalManager,
+        return new MonolithicBandwidthManager(dbInit, bandwidthDao,
+                retrievalManager,
                 bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler,
                 subscriptionNotificationService);
     }

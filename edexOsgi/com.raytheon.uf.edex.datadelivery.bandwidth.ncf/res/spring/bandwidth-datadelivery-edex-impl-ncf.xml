@@ -6,6 +6,36 @@
     <bean id="bandwidthManagerCreator"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.ncf.NcfBandwidthManagerCreator" />
 
+    <bean name="sharedSubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.EmptySiteSubscriptionHandler">
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.SharedSubscriptionHandler">
+                <property name="registryHandler" ref="registryHandler" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <util:list id="subscriptionRoutesToSchedule">
+        <value>SBN</value>
+    </util:list>
+
+    <bean id="bandwidthInitializer"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
+                <constructor-arg ref="sharedSubscriptionHandler" />
+                <constructor-arg ref="subscriptionRoutesToSchedule" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
     <bean id="sbnSubscriptionRetrievalAgentPrototype"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent"
         scope="prototype">
