@@ -12,7 +12,7 @@
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 	
 	<import resource="classpath:res/spring/registry-datadelivery.xml" />
-	<import resource="classpath:res/spring/registry-replication-datadelivery.xml"/>
+	<import resource="classpath:res/spring/registry-federation-datadelivery.xml"/>
 
 	<bean id="registryDataAccessService"
 		class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryDataAccessService">
@@ -27,7 +27,7 @@
 	<bean id="registryStatus" class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryFederationStatus">
 		<property name="registryDao" ref="registryDao"/>
 		<property name="subscriptionDao" ref="subscriptionTypeDao"/>
-		<property name="replicationManager" ref="RegistryReplicationManager"/>
+		<property name="federationManager" ref="RegistryFederationManager"/>
 		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
 		<property name="registrySoapServices" ref="registryWebServiceClient"/>
 	</bean>

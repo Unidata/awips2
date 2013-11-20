@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.registry.replication;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,17 +54,18 @@ public class NotificationServers {
 
     /** The server located upstream from this server */
     @XmlElements({ @XmlElement(name = "registry", type = NotificationHostConfiguration.class) })
-    private List<NotificationHostConfiguration> registryReplicationServers;
+    private CopyOnWriteArrayList<NotificationHostConfiguration> registryReplicationServers;
 
     public List<NotificationHostConfiguration> getRegistryReplicationServers() {
         if (registryReplicationServers == null) {
-            registryReplicationServers = new ArrayList<NotificationHostConfiguration>();
+            registryReplicationServers = new CopyOnWriteArrayList<NotificationHostConfiguration>();
         }
         return registryReplicationServers;
     }
 
     public void setRegistryReplicationServers(
             List<NotificationHostConfiguration> registryReplicationServers) {
-        this.registryReplicationServers = registryReplicationServers;
+        this.registryReplicationServers = new CopyOnWriteArrayList<NotificationHostConfiguration>(
+                registryReplicationServers);
     }
 }

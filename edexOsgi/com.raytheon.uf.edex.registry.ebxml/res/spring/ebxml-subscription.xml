@@ -22,7 +22,6 @@
 
 	<bean name="RegistrySubscriptionManager"
 		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager">
-		<constructor-arg ref="ebxmlSubscriptionsEnabled" /> 
 		<property name="subscriptionDao" ref="subscriptionTypeDao" />
 		<property name="notificationManager" ref="RegistryNotificationManager" />
         <property name="notificationListenerFactory" ref="notificationListenerFactory" />
