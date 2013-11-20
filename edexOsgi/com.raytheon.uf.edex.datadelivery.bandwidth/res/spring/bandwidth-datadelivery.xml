@@ -67,7 +67,7 @@
     </bean>
 
     <bean id="BandwidthMap"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap"
+        class="com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap"
         factory-method="load">
         <constructor-arg ref="bandwidthMapConfigFile" />
     </bean>
@@ -87,6 +87,15 @@
         <constructor-arg ref="retrievalAgentNotifier" />
         <property name="retrievalPlans" ref="retrievalPlans" />
     </bean>
+    
+    <bean id="registryBandwidthUtilizationListener"
+		class="com.raytheon.uf.edex.datadelivery.bandwidth.registry.RegistryBandwidthUtilizationListener"
+		depends-on="ebxmlRegistryWebServer, BandwidthMap, bandwidthBucketDao">
+		<constructor-arg ref="ebxmlRegistryWebServer"/>
+		<constructor-arg ref="ebxmlFederationEnabled"/>
+		<constructor-arg ref="BandwidthMap"/>
+		<constructor-arg ref="bandwidthBucketDao"/>
+	</bean>
     
     <camelContext id="datadelivery-bandwidth" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
