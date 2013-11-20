@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802       bphillip    Changed abstract method signature, modified return processing, and changed static variables
  * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
  * 10/8/2013    1682       bphillip    Refactored querying
+ * 11/20/2013   2534       bphillip    Changed call to getNotificationDestinations which is not in a utility class
  * 
  * </pre>
  * 
@@ -102,7 +103,7 @@ public class GetNotification extends RegistryQueryPlugin {
 
         List<NotificationDestination> destinations;
         try {
-            destinations = subscriptionManager
+            destinations = EbxmlObjectUtil
                     .getNotificationDestinations(subscription);
         } catch (EbxmlRegistryException e1) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
