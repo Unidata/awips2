@@ -73,6 +73,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Oct 30, 2013  2448      dhladky      Fixed pulling data before and after activePeriod starting and ending.
  * Nov 5, 2013  2521       dhladky      Fixed DataSetMetaData update failures for URL's in pointdata.
  * Nov 12, 2013 2448       dhladky      Fixed stop/start subscription scheduling problem.
+ * Nov 20, 2013 2448       bgonzale     Fix for subscription start time set to first cycle time.
+ *                                      Fix for subscription end time set to end of day.
  * 
  * </pre>
  * 
@@ -217,61 +219,74 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                     subscription.getSubscriptionEnd(), planEnd));
         }
 
-        // Create a Set of Calendars for all the baseReferenceTimes that a
-        // Subscription can contain...
-        TimeUtil.minCalendarFields(subscriptionStart, Calendar.MILLISECOND,
-                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
-        TimeUtil.maxCalendarFields(subscriptionEnd, Calendar.MILLISECOND,
-                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
-             
         // setup active period checks if necessary
         if (activePeriodStart != null && activePeriodEnd != null) {
             // need to add the current year in order to make the checks relevant
             activePeriodStart = TimeUtil.addCurrentYearCalendar(activePeriodStart);
             activePeriodEnd = TimeUtil.addCurrentYearCalendar(activePeriodEnd);
+
+            // Create a Set of Calendars for all the baseReferenceTimes that a
+            // Subscription can contain...
+            TimeUtil.minCalendarFields(activePeriodStart, Calendar.MILLISECOND,
+                    Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+            TimeUtil.maxCalendarFields(activePeriodEnd, Calendar.MILLISECOND,
+                    Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
         }
 
-        outerloop: while (!subscriptionStart.after(subscriptionEnd)) {
+        Calendar start = (Calendar) subscriptionStart.clone();
+        outerloop: while (!start.after(subscriptionEnd)) {
 
             for (Integer cycle : hours) {
-                subscriptionStart.set(Calendar.HOUR_OF_DAY, cycle);
-                for (Integer minute : minutes) {
-                    subscriptionStart.set(Calendar.MINUTE, minute);
-                    // Check for nonsense 
-                    if (subscriptionStart.after(subscriptionEnd)) {
-                        break outerloop;
-                    }
-                    else {
-                        Calendar time = TimeUtil.newCalendar();
-                        time.setTimeInMillis(subscriptionStart
-                                .getTimeInMillis());
-                        /** 
-                         * Fine grain check by hour and minute, for subscription(start/end),
-                         * activePeriod(start/end) 
-                         **/
-                        // Subscription Start and End time first
-                        if (subscriptionStart != null && subscriptionEnd != null) {
-                            if (time.after(subscriptionEnd) || time.before(subscriptionStart)) {
-                                // don't schedule this retrieval time, outside subscription window
-                                continue;
-                            }
-                        } 
-                        // Check Active Period Second
-                        if (activePeriodStart != null && activePeriodEnd != null) {
-                            if (time.after(activePeriodEnd) || time.before(activePeriodStart)) {
-                                // don't schedule this retrieval time, outside activePeriod window
-                                continue;
-                            }
-                        } 
+                start.set(Calendar.HOUR_OF_DAY, cycle);
 
-                        subscriptionTimes.add(time);
+                // start equal-to-or-after subscriptionStart
+                if (start.compareTo(subscriptionStart) >= 0) {
+                    for (Integer minute : minutes) {
+                        start.set(Calendar.MINUTE, minute);
+
+                        // start equal-to-or-after subscriptionStart
+                        if (start.compareTo(subscriptionStart) >= 0) {
+                            // Check for nonsense
+                            if (start.after(subscriptionEnd)) {
+                                break outerloop;
+                            } else {
+                                Calendar time = TimeUtil.newGmtCalendar();
+                                time.setTimeInMillis(start.getTimeInMillis());
+                                /**
+                                 * Fine grain check by hour and minute, for
+                                 * subscription(start/end),
+                                 * activePeriod(start/end)
+                                 **/
+                                // Subscription Start and End time first
+                                if (start != null && subscriptionEnd != null) {
+                                    if (time.after(subscriptionEnd)
+                                            || time.before(start)) {
+                                        // don't schedule this retrieval time,
+                                        // outside subscription window
+                                        continue;
+                                    }
+                                }
+                                // Check Active Period Second
+                                if (activePeriodStart != null
+                                        && activePeriodEnd != null) {
+                                    if (time.after(activePeriodEnd)
+                                            || time.before(activePeriodStart)) {
+                                        // don't schedule this retrieval time,
+                                        // outside activePeriod window
+                                        continue;
+                                    }
+                                }
+
+                                subscriptionTimes.add(time);
+                            }
+                        }
                     }
                 }
             }
 
             // Start the next day..
-            subscriptionStart.add(Calendar.DAY_OF_YEAR, 1);
-            subscriptionStart.set(Calendar.HOUR_OF_DAY, hours.first());
+            start.add(Calendar.DAY_OF_YEAR, 1);
+            start.set(Calendar.HOUR_OF_DAY, hours.first());
         }
 
         // Now walk the subscription times and throw away anything outside the
