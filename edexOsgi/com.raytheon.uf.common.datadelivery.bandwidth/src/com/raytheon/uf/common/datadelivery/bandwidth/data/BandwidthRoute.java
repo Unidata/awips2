@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
+package com.raytheon.uf.common.datadelivery.bandwidth.data;
 
 import java.util.List;
 
@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 
 /**
  * Class to describe available bandwidth for edex to manage network load using
@@ -25,6 +24,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 27, 2012 726        jspinks     Initial release.
+ * Nov 27, 2013 1736       dhladky     Moved to common plugin.
  * 
  * </pre>
  * 

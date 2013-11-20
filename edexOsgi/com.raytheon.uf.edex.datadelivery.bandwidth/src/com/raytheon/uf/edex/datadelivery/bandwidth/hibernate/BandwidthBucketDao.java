@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2013 2106       djohnson     Initial creation
+ * Dec 3,  2013  1736      dhladky      Bandwidth bucket size attenuation.
  * 
  * </pre>
  * 
@@ -150,4 +151,20 @@ public class BandwidthBucketDao extends
         return BandwidthBucket.class;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BandwidthBucket getBucketContainingTime(long millis,
+            Network network) {
+
+        List<BandwidthBucket> buckets = getWhereStartTimeIsLessThanOrEqualTo(
+                millis, network);
+        // last bucket.
+        if (!buckets.isEmpty()) {
+            return buckets.get(buckets.size() -1);
+        } else {
+            return null;
+        }
+    }
 }
