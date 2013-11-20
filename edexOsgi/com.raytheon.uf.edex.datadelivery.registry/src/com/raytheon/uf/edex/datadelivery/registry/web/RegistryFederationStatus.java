@@ -27,6 +27,7 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.xml.bind.JAXBException;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
@@ -46,6 +47,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.raytheon.uf.common.datadelivery.registry.web.IRegistryFederationService;
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
@@ -54,13 +56,13 @@ import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
+import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.datadelivery.registry.federation.RegistryFederationManager;
 import com.raytheon.uf.edex.datadelivery.registry.replication.NotificationHostConfiguration;
-import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager;
@@ -75,17 +77,15 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/30/2013    1538       bphillip    Initial Creation
+ * 11/20/2013   2534        bphillip    Added interface
  * </pre>
  * 
  * @author bphillip
  * @version 1
  **/
-@Path(RegistryFederationStatus.REGISTRY_FEDERATION_STATUS_PATH)
+@Path(IRegistryFederationService.REGISTRY_FEDERATION_STATUS_PATH)
 @Transactional
-public class RegistryFederationStatus {
-
-    /** The path to these set of services */
-    protected static final String REGISTRY_FEDERATION_STATUS_PATH = "/status/";
+public class RegistryFederationStatus implements IRegistryFederationService {
 
     /** The logger instance */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -106,7 +106,7 @@ public class RegistryFederationStatus {
     private SubscriptionDao subscriptionDao;
 
     /** The registry replication manager */
-    private RegistryReplicationManager replicationManager;
+    private RegistryFederationManager federationManager;
 
     /** Data Delivery rest services client */
     private DataDeliveryRESTServices dataDeliveryRestClient;
@@ -120,35 +120,18 @@ public class RegistryFederationStatus {
      */
     private String ncfAddress = System.getenv("NCF_ADDRESS");
 
-    /**
-     * Gets if this registry is participating in the federation
-     * 
-     * @return The value of the EBXML_REGISTRY_FEDERATION_ENABLED environment
-     *         variable
-     */
     @GET
     @Path("isFederated")
     public String isFederated() {
         return System.getenv("EBXML_REGISTRY_FEDERATION_ENABLED");
     }
 
-    /**
-     * Gets if this registry is processing registry replication subscriptions
-     * 
-     * @return The value of the EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED environment
-     *         variable
-     */
     @GET
     @Path("isProcessingSubscriptions")
     public String isProcessingSubscriptions() {
         return System.getenv("EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED");
     }
 
-    /**
-     * Gets information about this registry
-     * 
-     * @return Information pertaining to the local registry
-     */
     @GET
     @Path("getMyRegistryInfo")
     public String getMyRegistryInfo() {
@@ -160,13 +143,6 @@ public class RegistryFederationStatus {
 
     }
 
-    /**
-     * Queries the NCF registry to get a list of registries in the federation
-     * 
-     * @return The list of registries in the federation
-     * @throws MsgRegistryException
-     *             If an error occurs while querying the NCF registry
-     */
     @GET
     @Path("getFederationMembers")
     public String getFederationMembers() throws MsgRegistryException {
@@ -199,20 +175,15 @@ public class RegistryFederationStatus {
         return builder.toString();
     }
 
-    /**
-     * Gets the list of registry that the local registry is subscribed to
-     * 
-     * @return The list of registries that the local registry is subscribed to
-     */
     @GET
     @Path("getRegistriesSubscribedTo")
     public String getRegistriesSubscribedTo() {
         StringBuilder builder = new StringBuilder();
-        if (this.replicationManager.getServers() != null
-                && !CollectionUtil.isNullOrEmpty(this.replicationManager
+        if (this.federationManager.getServers() != null
+                && !CollectionUtil.isNullOrEmpty(this.federationManager
                         .getServers().getRegistryReplicationServers())) {
             List<RegistryObjectType> registries = new ArrayList<RegistryObjectType>();
-            for (NotificationHostConfiguration hostConfig : this.replicationManager
+            for (NotificationHostConfiguration hostConfig : this.federationManager
                     .getServers().getRegistryReplicationServers()) {
 
                 SlotType queryLanguageSlot = new SlotType(
@@ -259,11 +230,6 @@ public class RegistryFederationStatus {
         return builder.toString();
     }
 
-    /**
-     * Gets a list of registries that are subscribing to the local registry
-     * 
-     * @return The list of registries that are subscribing to the local registry
-     */
     @GET
     @Path("getRegistrySubscribing")
     public String getRegistrySubscribing() {
@@ -302,28 +268,16 @@ public class RegistryFederationStatus {
         return builder.toString();
     }
 
-    /**
-     * Gets the list of object types that are currently being replicated
-     * 
-     * @return The object list
-     */
     @GET
     @Path("getObjectTypesReplicated")
     public String getObjectTypesReplicated() {
         StringBuilder builder = new StringBuilder();
-        for (String objectType : RegistryReplicationManager.getObjectTypes()) {
+        for (String objectType : RegistryFederationManager.getObjectTypes()) {
             builder.append(objectType).append(StringUtil.NEWLINE);
         }
         return builder.toString();
     }
 
-    /**
-     * Kicks of a full registry sync with the specified registry
-     * 
-     * @param registryId
-     *            The registry ID to sync with
-     * @return status message
-     */
     @GET
     @Path("syncWithRegistry/{registryId}")
     public String syncWithRegistry(@PathParam("registryId") String registryId) {
@@ -334,7 +288,7 @@ public class RegistryFederationStatus {
                     + "] not in federation. Unable to synchronize.");
         } else {
             try {
-                replicationManager.synchronizeRegistryWithFederation(registry
+                federationManager.synchronizeRegistryWithFederation(registry
                         .getBaseURL());
             } catch (Exception e) {
                 statusHandler.error("Error synchronizing registry!", e);
@@ -345,43 +299,29 @@ public class RegistryFederationStatus {
         return builder.toString();
     }
 
-    /**
-     * Subscribes to replication notifications from the specified registry
-     * 
-     * @param registryId
-     *            The ID of the registry to subscribe to
-     * @return Status message
-     */
     @GET
     @Path("subscribeToRegistry/{registryId}")
-    public String subscribeToRegistry(@PathParam("registryId") String registryId) {
+    public String subscribeToRegistry(@PathParam("registryId") String registryId)
+            throws RegistryServiceException, JAXBException {
         StringBuilder builder = new StringBuilder();
-        RegistryType registry = registryDao.getById(registryId);
+        RegistryType registry = dataDeliveryRestClient.getRegistryObject(
+                RegistryType.class, ncfAddress, registryId);
         if (registry == null) {
-            builder.append("Registry [" + registryId
-                    + "] not in federation. Unable to submit subscriptions.");
+            builder.append("Registry [")
+                    .append(registryId)
+                    .append("] not in federation. Unable to submit subscriptions.");
         } else {
-            RegistryType localRegistry = registryDao
-                    .getRegistryByBaseURL(RegistryUtil.LOCAL_REGISTRY_ADDRESS);
-
-            NotificationHostConfiguration config = new NotificationHostConfiguration(
-                    registry.getId(), registry.getId(), registry.getBaseURL());
-            replicationManager.submitSubscriptionsToHost(config, localRegistry);
-            builder.append("Successfully subscribed to registry [" + registryId
-                    + "]");
-            this.replicationManager.addNotificationServer(config);
-            replicationManager.saveNotificationServers();
+            if (!federationManager.isSubscribedTo(registry)) {
+                federationManager.submitSubscriptionsToRegistry(registry);
+                builder.append("Successfully subscribed to registry [")
+                        .append(registryId).append("]");
+                this.federationManager.addNotificationServer(registry);
+                federationManager.saveNotificationServers();
+            }
         }
         return builder.toString();
     }
 
-    /**
-     * Unsubscribes from the specified registry
-     * 
-     * @param registryId
-     *            The ID of the registry to unsubscribe from
-     * @return The status message
-     */
     @GET
     @Path("unsubscribeFromRegistry/{registryId}")
     public String unsubscribeFromRegistry(
@@ -399,8 +339,8 @@ public class RegistryFederationStatus {
                     localRegistry.getOwner());
             builder.append("Successfully unsubscribed from registry ["
                     + registryId + "]");
-            replicationManager.removeNotificationServer(registry.getBaseURL());
-            replicationManager.saveNotificationServers();
+            federationManager.removeNotificationServer(registry.getBaseURL());
+            federationManager.saveNotificationServers();
         }
         return builder.toString();
     }
@@ -421,9 +361,8 @@ public class RegistryFederationStatus {
         builder.append(StringUtil.NEWLINE);
     }
 
-    public void setReplicationManager(
-            RegistryReplicationManager replicationManager) {
-        this.replicationManager = replicationManager;
+    public void setFederationManager(RegistryFederationManager federationManager) {
+        this.federationManager = federationManager;
     }
 
     public void setRegistryDao(RegistryDao registryDao) {
