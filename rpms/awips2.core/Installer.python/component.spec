@@ -9,7 +9,7 @@
 Name: awips2-python
 Summary: AWIPS II Python Distribution
 Version: 2.7.1
-Release: 9.el6
+Release: 10.el6
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
