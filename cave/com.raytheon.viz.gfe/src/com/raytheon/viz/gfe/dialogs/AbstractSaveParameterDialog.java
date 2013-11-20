@@ -63,10 +63,11 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 26, 2011            randerso     Initial creation
+ * Oct 26, 2011            randerso    Initial creation
  * Oct 30, 2012 1298       rferrel     Code clean for non-blocking dialog.
- * 02/13/2013   #1597      randerso    Made number of concurrent save threads a configurable value.
+ * Feb 13, 2013 1597       randerso    Made number of concurrent save threads a configurable value.
  *                                     Added logging to support GFE Performance metrics
+ * Nov 20, 2013 2488       randerso    Changed to use DejaVu font
  * 
  * </pre>
  * 
@@ -127,7 +128,8 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
         master.addDisposeListener(this);
 
         FontData fd = master.getDisplay().getSystemFont().getFontData()[0];
-        fd.setName("Bitstream Vera Sans Mono");
+        // TODO not have hard coded font name
+        fd.setName("DejaVu Sans Mono");
         font = new Font(master.getDisplay(), fd);
 
         initializeComponents();
