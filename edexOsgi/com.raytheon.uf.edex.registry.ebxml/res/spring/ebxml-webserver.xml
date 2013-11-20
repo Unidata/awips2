@@ -16,8 +16,8 @@
 			<list>
 				<bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
 					<property name="port" value="${EBXML_REGISTRY_WEBSERVER_PORT}" />
-					<property name="maxIdleTime" value="300000" />
-					<property name="acceptors" value="2" />
+					<property name="maxIdleTime" value="5000" />
+					<property name="acceptors" value="8" />
 					<property name="confidentialPort"
 						value="${EBXML_REGISTRY_WEBSERVER_CONFIDENTIAL_PORT}" />
 				</bean>

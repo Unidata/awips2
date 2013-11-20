@@ -21,4 +21,5 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  org.apache.commons.cxf;bundle-version="1.0.0",
  org.reflections;bundle-version="0.9.9",
  com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.3.0"
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.common.registry.event;bundle-version="1.0.0"
