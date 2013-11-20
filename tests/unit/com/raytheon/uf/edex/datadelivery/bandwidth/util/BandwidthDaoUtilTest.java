@@ -44,6 +44,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -61,7 +62,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.InMemoryBandwidthBucketAllocationAssociator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
