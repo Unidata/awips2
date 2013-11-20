@@ -22,14 +22,20 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.Subscribe;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
+import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
@@ -55,6 +61,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Oct 2,  2013 1797       dhladky      Generics
  * Oct 28, 2013 2506       bgonzale     SBN (Shared) Scheduled at the central registry.
  *                                      Added subscription notification service to bandwidth manager.
+ * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
+ *                                      Added getBandwidthGraphData.
+ *                                      Reschedule updated local subscriptions.
  * 
  * </pre>
  * 
@@ -100,6 +109,32 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                     subscriptionNotificationService);
         }
 
+        /**
+         * Listen for Registry update events. Filter for subscription specific
+         * events. Sends corresponding subscription notification events.
+         * 
+         * @param event
+         */
+        @Override
+        @Subscribe
+        @AllowConcurrentEvents
+        public void registryEventListener(UpdateRegistryEvent event) {
+            super.registryEventListener(event);
+            if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION.equals(event
+                    .getObjectType())) {
+                Subscription<T, C> subscription = getRegistryObjectById(
+                        getSubscriptionHandler(), event.getId());
+                boolean isLocalOrigination = subscription.getOriginatingSite()
+                        .equals(
+                        SiteUtil.getSite());
+
+                if (isLocalOrigination) {
+                    subscriptionUpdated(subscription);
+                }
+                sendSubscriptionNotificationEvent(event, subscription);
+            }
+        }
+
         @Override
         protected String[] getSpringFilesForNewInstance() {
             return WFO_BANDWIDTH_MANAGER_FILES;
@@ -132,6 +167,13 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                 List<Subscription<T, C>> subscriptions) throws SerializationException {
 
             return ncfBandwidthService.schedule(subscriptions);
+        }
+
+        @Override
+        protected BandwidthGraphData getBandwidthGraphData() {
+            BandwidthGraphData data = super.getBandwidthGraphData();
+            data.add(ncfBandwidthService.getBandwidthGraphData());
+            return data;
         }
 
     }
