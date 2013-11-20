@@ -236,7 +236,9 @@
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
         <include>datadelivery-wfo-cron.xml</include>
-        <exclude>.*datadelivery-ncf.*</exclude>
+        <include>bandwidth-datadelivery-edex-impl-wfo.xml</include>
+        <exclude>.*datadelivery.*-ncf.*</exclude>
+        <exclude>.*datadelivery.*-monolithic.*</exclude>
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
 	</mode>
@@ -244,7 +246,9 @@
         <!-- Central Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
-        <exclude>.*datadelivery-wfo.*</exclude>
+        <include>bandwidth-datadelivery-edex-impl-ncf.xml</include>
+        <exclude>.*datadelivery.*-wfo.*</exclude>
+        <exclude>.*datadelivery.*-monolithic.*</exclude>
     </mode>
 
     <mode name="statsTemplate" template="true">
@@ -299,9 +303,10 @@
 		are for DEVELOPMENT purposes only -->
     <mode name="devRegistry">
         <include>ebxml.*\.xml</include>
-        <include>adhoc-datadelivery-wfo.xml</include>
+        <include>datadelivery-wfo-cron.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
-        <exclude>.*datadelivery-ncf.*</exclude>
+        <include>bandwidth-datadelivery-edex-impl-monolithic.xml</include>
+        <exclude>.*datadelivery.*-ncf.*</exclude>
     </mode>
     <mode name="sbnSimulator">
         <include>.*sbn-simulator-wfo.*</include>
