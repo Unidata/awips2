@@ -35,6 +35,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2013 2106       djohnson     Initial creation
+ * Dec 2, 2013  1736       dhladky      Needed to add registry bandwidth utilization attenuation.
  * 
  * </pre>
  * 
@@ -141,4 +142,13 @@ public interface IBandwidthBucketDao {
      * @param bucketsDao
      */
     void copyState(IBandwidthBucketDao bucketsDao);
+    
+    /**
+     * Finds the Bandwidth Bucket that contains the given time, null if none exists.
+     * @param millis
+     * @param Network
+     * @return
+     */
+    public BandwidthBucket getBucketContainingTime(long millis, Network network);
+
 }
