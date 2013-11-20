@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Dec 06, 2012    1397    djohnson    Add dynamic serialize class annotation.
  * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
  * Sep 20, 2013   2397     bgonzale    Added Map of Bucket Descriptions.
+ * Nov 19, 2013   2545     bgonzale    Added 'add' method stub.  Still work to do.
  * 
  * </pre>
  * 
@@ -93,6 +94,17 @@ public class BandwidthGraphData {
         this.binTimeInMins = binTimeMins;
         dataMap = new HashMap<String, List<TimeWindowData>>();
         priorityMap = new HashMap<String, SubscriptionPriority>();
+    }
+
+    /**
+     * Add the other BandwidthGraphData data to this object.
+     * 
+     * @param other
+     */
+    public void add(BandwidthGraphData other) {
+        /*
+         * TODO merge SBN and OPSNET data into on Bandwidth Graph Data
+         */
     }
 
     /**
