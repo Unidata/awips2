@@ -1,9 +1,0 @@
-<NotificationServers>
-<!-- Default configuration for the NCF does not define any servers -->
-<!-- These are defined at the site level -->
-<!--	<registry>-->
-<!--		<registrySiteName>SITE_NAME</registrySiteName>-->
-<!--		<registryDescription>Description of registry</registryDescription>-->
-<!--		<registryBaseURL>BASE_URL</registryBaseURL>-->
-<!--	</registry>-->
-</NotificationServers>

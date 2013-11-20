@@ -35,8 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
@@ -46,11 +48,20 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;
+import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager;
 
 /**
  * General utility class containing the ebXML object factories.
@@ -65,6 +76,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 3/18/2013    1082       bphillip     Removed utility methods for VersionInfoType
  * 4/9/2013     1802       bphillip     Removed unused methods and addded a few new ones
  * 8/1/2013     1693       bphillip     Removed increment version method
+ * 11/20/2013   2534       bphillip     Added getNotificationDestinations method
  * 
  * </pre>
  * 
@@ -394,5 +406,54 @@ public class EbxmlObjectUtil {
             }
         }
         return clientHost;
+    }
+
+    /**
+     * Extracts where the notifications are to be sent from the subscription
+     * object
+     * 
+     * @param subscription
+     *            The subscriptions to get the delivery information from
+     * @return The list of destinations for the notifications
+     * @throws Exception
+     *             If errors occur while extracting the destinations
+     */
+    public static List<NotificationDestination> getNotificationDestinations(
+            final SubscriptionType subscription) throws EbxmlRegistryException {
+
+        List<DeliveryInfoType> deliveryInfos = subscription.getDeliveryInfo();
+        List<NotificationDestination> addresses = new ArrayList<NotificationDestination>(
+                deliveryInfos.size());
+        try {
+            for (DeliveryInfoType deliveryInfo : deliveryInfos) {
+                W3CEndpointReference endpointReference = deliveryInfo
+                        .getNotifyTo();
+                DOMResult dom = new DOMResult();
+                endpointReference.writeTo(dom);
+                Document doc = (Document) dom.getNode();
+                NodeList nodes = doc.getElementsByTagNameNS(
+                        EbxmlNamespaces.ADDRESSING_URI,
+                        RegistrySubscriptionManager.ADDRESS_TAG);
+                Node addressNode = nodes.item(0);
+                String serviceAddress = addressNode.getTextContent().trim();
+                String endpointType = addressNode
+                        .getAttributes()
+                        .getNamedItemNS(EbxmlNamespaces.RIM_URI,
+                                RegistrySubscriptionManager.ENDPOINT_TAG)
+                        .getNodeValue();
+                final NotificationDestination destination = new NotificationDestination(
+                        endpointType, serviceAddress);
+                if (endpointType.equals(DeliveryMethodTypes.EMAIL)) {
+                    destination
+                            .setEmailNotificationFormatter((String) deliveryInfo
+                                    .getSlotValue(EbxmlObjectUtil.EMAIL_NOTIFICATION_FORMATTER_SLOT));
+                }
+                addresses.add(destination);
+            }
+        } catch (Exception e) {
+            throw new EbxmlRegistryException(
+                    "Error getting destinations from subscription!", e);
+        }
+        return addresses;
     }
 }
