@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -27,16 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
@@ -46,14 +41,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
-import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
@@ -88,6 +78,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/8/2013    1682        bphillip    Moved getObjectsOfInterest into RegistryNotificationManager
  * 10/23/2013   1538        bphillip    Removed debug code and added a change to properly update subscription run time
  *                                      to not create duplicate slots on objects
+ * 11/20/2013   2534        bphillip    Moved method to get notification destinations to utility
  * </pre>
  * 
  * @author bphillip
@@ -150,9 +141,6 @@ public class RegistrySubscriptionManager implements
     /** The XML endpointType tag */
     public static final String ENDPOINT_TAG = "endpointType";
 
-    /** Status of whether subscriptions are being processed */
-    private boolean subscriptionProcessingEnabled;
-
     /** The notification manager */
     private RegistryNotificationManager notificationManager;
 
@@ -167,11 +155,6 @@ public class RegistrySubscriptionManager implements
 
     public RegistrySubscriptionManager() {
 
-    }
-
-    public RegistrySubscriptionManager(boolean subscriptionProcessingEnabled)
-            throws JAXBException {
-        this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
     }
 
     @Override
@@ -237,7 +220,8 @@ public class RegistrySubscriptionManager implements
         try {
             List<NotificationListenerWrapper> listeners = Lists.newArrayList();
             // Get the list of destinations for the notifications
-            final List<NotificationDestination> destinations = getNotificationDestinations(subscription);
+            final List<NotificationDestination> destinations = EbxmlObjectUtil
+                    .getNotificationDestinations(subscription);
             if (destinations.isEmpty()) {
                 statusHandler.warn("No destinations found for notification!");
             } else {
@@ -258,61 +242,10 @@ public class RegistrySubscriptionManager implements
     }
 
     /**
-     * Extracts where the notifications are to be sent from the subscription
-     * object
-     * 
-     * @param subscription
-     *            The subscriptions to get the delivery information from
-     * @return The list of destinations for the notifications
-     * @throws Exception
-     *             If errors occur while extracting the destinations
-     */
-    public List<NotificationDestination> getNotificationDestinations(
-            final SubscriptionType subscription) throws EbxmlRegistryException {
-        List<NotificationDestination> addresses = new ArrayList<NotificationDestination>();
-
-        List<DeliveryInfoType> deliveryInfos = subscription.getDeliveryInfo();
-        try {
-            for (DeliveryInfoType deliveryInfo : deliveryInfos) {
-                W3CEndpointReference endpointReference = deliveryInfo
-                        .getNotifyTo();
-                DOMResult dom = new DOMResult();
-                endpointReference.writeTo(dom);
-                Document doc = (Document) dom.getNode();
-                NodeList nodes = doc.getElementsByTagNameNS(
-                        EbxmlNamespaces.ADDRESSING_URI,
-                        RegistrySubscriptionManager.ADDRESS_TAG);
-                Node addressNode = nodes.item(0);
-                String serviceAddress = addressNode.getTextContent().trim();
-                String endpointType = addressNode
-                        .getAttributes()
-                        .getNamedItemNS(EbxmlNamespaces.RIM_URI,
-                                RegistrySubscriptionManager.ENDPOINT_TAG)
-                        .getNodeValue();
-                final NotificationDestination destination = new NotificationDestination(
-                        endpointType, serviceAddress);
-                if (endpointType.equals(DeliveryMethodTypes.EMAIL)) {
-                    destination
-                            .setEmailNotificationFormatter((String) deliveryInfo
-                                    .getSlotValue(EbxmlObjectUtil.EMAIL_NOTIFICATION_FORMATTER_SLOT));
-                }
-                addresses.add(destination);
-            }
-        } catch (Exception e) {
-            throw new EbxmlRegistryException(
-                    "Error getting destinations from subscription!", e);
-        }
-        return addresses;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public void processSubscriptions() {
-        if (!subscriptionProcessingEnabled) {
-            return;
-        }
         if (!running.compareAndSet(false, true)) {
             return;
         }
