@@ -28,17 +28,6 @@
         <constructor-arg ref="retrievalDao" />
     </bean>
 
-    <bean id="bandwidthInitializer"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
-                <constructor-arg ref="SubscriptionHandler" />
-                <constructor-arg ref="subscriptionRoutesToSchedule" />
-            </bean>
-        </constructor-arg>
-    </bean>
-
     <!-- Used as the context for creating the BandwidthManager -->
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
