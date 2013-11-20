@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
+package com.raytheon.uf.common.datadelivery.bandwidth.data;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,18 +16,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
+
 
 /**
  * Class generates a profile of available bandwidth for edex to manage using
@@ -44,6 +46,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Sep 27, 2012 726        jspinks     Initial release.
  * Oct 10, 2012 0726       djohnson    Overload the load method to support files.
  * Oct 23, 2012 1286       djohnson    Add ability to save changes to the map.
+ * Nov 27, 2013 1736       dhladky     Moved to common plugin
  * 
  * </pre>
  * 
@@ -51,14 +54,33 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class BandwidthMap implements ISerializableObject {
+public class BandwidthMap {
 
+    private static final Class<?>[] clazzess = new Class<?>[] {
+        BandwidthMap.class, BandwidthRoute.class, RelativeTime.class,
+        AvailableBandwidth.class };
+
+    private static JAXBManager jaxb = null;
+        
     private static final int DEFAULT_BUCKET_SIZE = 3;
 
     private static final int DEFAULT_PLAN_DAYS = 2;
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthMap.class);
+
+    /**
+     * marshall and unmarshall Bandwidth Map objects
+     * 
+     * @return
+     */
+    private static JAXBManager getJaxb() throws JAXBException {
+
+        if (jaxb == null) {
+            jaxb = new JAXBManager(clazzess);
+        }
+        return jaxb;
+    }
 
     /**
      * Load an XML serialized BandwidthMap from the specified file.
@@ -68,15 +90,24 @@ public class BandwidthMap implements ISerializableObject {
      * @return the map
      */
     public static BandwidthMap load(File file) {
+
+        BandwidthMap map = null;
+
         try {
-            BandwidthMap map = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                    BandwidthMap.class, file);
+            map = getJaxb().unmarshalFromXmlFile(BandwidthMap.class, file);
             map.initialize();
             map.setFile(file);
-            return map;
-        } catch (SerializationException e) {
+
+        } catch (JAXBException e) {
             throw new IllegalArgumentException(e);
+        } catch (SerializationException e) {
+            statusHandler.handle(
+                    Priority.ERROR,
+                    "Can not de-serialize the Bandwidth Map file! "
+                            + file.getAbsolutePath(), e);
         }
+
+        return map;
     }
 
     // Map to track days of the year (int) to bandwidthBucket id (long)
@@ -804,7 +835,11 @@ public class BandwidthMap implements ISerializableObject {
      *             on error serializing changes
      */
     public void save(File file) throws SerializationException {
-        SerializationUtil.jaxbMarshalToXmlFile(this, file.getAbsolutePath());
+        try {
+            getJaxb().marshalToXmlFile(this, file.getAbsolutePath());
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM, "Can not serialize Bandwidth Map to file", e);
+        }
     }
 
     /**
