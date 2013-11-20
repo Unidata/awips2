@@ -19,21 +19,15 @@
  **/
 package com.raytheon.uf.edex.datadelivery.registry.web;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryAvailableRestService;
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryDataAccessService;
+import com.raytheon.uf.common.datadelivery.registry.web.IRegistryFederationService;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.RegistryRESTServices;
-import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -47,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/30/2013    1538       bphillip    Initial Creation
+ * 11/20/2013   2534        bphillip    Eliminated service caching
  * </pre>
  * 
  * @author bphillip
@@ -63,28 +58,13 @@ public class DataDeliveryRESTServices extends RegistryRESTServices {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryRESTServices.class);
 
-    /** Map of known registry availability services */
-    private LoadingCache<String, IRegistryAvailableRestService> registryAvailabilityServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, IRegistryAvailableRestService>() {
-                public IRegistryAvailableRestService load(String url) {
-                    return getPort(url + DATA_DELIVERY_REST_SERVICE_PATH,
-                            IRegistryAvailableRestService.class);
-                }
-            });
-
-    /** Map of known registry data access services */
-    private LoadingCache<String, IRegistryDataAccessService> registryDataAccessServiceMap = CacheBuilder
-            .newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, IRegistryDataAccessService>() {
-                public IRegistryDataAccessService load(String url) {
-                    return getPort(url + DATA_DELIVERY_REST_SERVICE_PATH,
-                            IRegistryDataAccessService.class);
-                }
-            });
-
     public DataDeliveryRESTServices() throws JAXBException {
         super();
+    }
+
+    public IRegistryFederationService getFederationService(String baseURL) {
+        return getPort(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
+                IRegistryFederationService.class);
     }
 
     /**
@@ -96,12 +76,8 @@ public class DataDeliveryRESTServices extends RegistryRESTServices {
      */
     public IRegistryAvailableRestService getRegistryAvailableService(
             String baseURL) {
-        try {
-            return registryAvailabilityServiceMap.get(baseURL);
-        } catch (ExecutionException e) {
-            throw new RegistryServiceException(
-                    "Error getting Registry Availability Rest Service", e);
-        }
+        return getPort(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
+                IRegistryAvailableRestService.class);
     }
 
     /**
@@ -142,11 +118,8 @@ public class DataDeliveryRESTServices extends RegistryRESTServices {
      */
     public IRegistryDataAccessService getRegistryDataAccessService(
             String baseURL) {
-        try {
-            return registryDataAccessServiceMap.get(baseURL);
-        } catch (ExecutionException e) {
-            throw new RegistryServiceException(
-                    "Error getting Registry Availability Rest Service", e);
-        }
+        return getPort(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
+                IRegistryDataAccessService.class);
+
     }
 }
