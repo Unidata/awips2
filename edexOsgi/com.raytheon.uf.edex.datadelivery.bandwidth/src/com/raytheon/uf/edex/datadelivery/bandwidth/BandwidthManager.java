@@ -125,6 +125,8 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Oct 23, 2013 2385       bphillip     Change schedule method to scheduleAdhoc
  * Oct 30, 2013 2448       dhladky      Moved methods to TimeUtil.
  * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
+ * Nov 19, 2013 2545       bgonzale     changed getBandwidthGraphData to protected.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -879,7 +881,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      * 
      * @return the graph data
      */
-    private BandwidthGraphData getBandwidthGraphData() {
+    protected BandwidthGraphData getBandwidthGraphData() {
         return new BandwidthGraphDataAdapter(retrievalManager).get();
     }
 
