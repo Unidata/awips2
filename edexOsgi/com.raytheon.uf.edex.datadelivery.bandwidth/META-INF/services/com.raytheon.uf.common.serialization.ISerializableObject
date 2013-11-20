@@ -2,5 +2,4 @@ com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate
 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription
 com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval
 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation
-com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap
 com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes
