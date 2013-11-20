@@ -4,7 +4,23 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
     <bean id="bandwidthManagerCreator"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.WfoBandwidthManagerCreator" />
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.ncf.MonolithicBandwidthManagerCreator" />
+
+    <util:list id="subscriptionRoutesToSchedule">
+        <value>OPSNET</value>
+        <value>SBN</value>
+    </util:list>
+
+    <bean id="bandwidthInitializer"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
+                <constructor-arg ref="SubscriptionHandler" />
+                <constructor-arg ref="subscriptionRoutesToSchedule" />
+            </bean>
+        </constructor-arg>
+    </bean>
 
     <bean id="opsnetSubscriptionRetrievalAgentPrototype"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent"
