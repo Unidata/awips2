@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
- * TODO Add Description
+ * Interface for handling subscription invitation events from other users
  * 
  * <pre>
  * 
@@ -47,18 +47,18 @@ public interface ISubscriptionResponder {
      * @param fromID
      * @return The response that should be returned to the subscriber.
      */
-    IPresence.Type handleSubscribeRequest(IQualifiedID fromID);
+    public Presence.Type handleSubscribeRequest(IQualifiedID fromID);
 
     /**
      * 
      * @param fromID
      */
-    void handleSubscribed(IQualifiedID fromID);
+    public void handleSubscribed(IQualifiedID fromID);
 
     /**
      * 
      * @param fromID
      */
-    void handleUnsubscribed(IQualifiedID fromID);
+    public void handleUnsubscribed(IQualifiedID fromID);
 
 }

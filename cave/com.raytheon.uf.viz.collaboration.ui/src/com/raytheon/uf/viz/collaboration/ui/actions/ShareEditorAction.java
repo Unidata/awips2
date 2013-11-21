@@ -142,9 +142,16 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
         if (editor != null) {
             List<ISharedDisplaySession> sessions = getSessions();
             for (final ISharedDisplaySession session : sessions) {
-                IVenueInfo sessionInfo = session.getVenue().getInfo();
+                String sessionName;
+                try {
+                    IVenueInfo sessionInfo = session.getVenue().getInfo();
+                    sessionName = sessionInfo.getVenueDescription();
+                } catch (CollaborationException e1) {
+                    Activator.statusHandler.error(e1.getLocalizedMessage(), e1);
+                    sessionName = session.getVenue().getName();
+                }
                 ActionContributionItem aci = new ActionContributionItem(
-                        new Action(sessionInfo.getVenueDescription()) {
+                        new Action(sessionName) {
                             @Override
                             public void run() {
                                 try {
