@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
-import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
@@ -46,6 +45,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2013    2108    mpduff      Initial creation.
  * Sept 25, 2013  1797     dhladky     separated time from gridded time
+ * Nov 20, 2013   2554     dhladky     Generics
  * 
  * </pre>
  * 
@@ -74,20 +74,19 @@ public class GriddedDataSizeUtils extends DataSizeUtils<GriddedDataSet> {
      */
     private int calculateGridCells(ReferencedEnvelope envelope) {
         if (dataSet != null) {
-            Coverage cov = dataSet.getCoverage();
-            if (cov instanceof GriddedCoverage) {
-                GriddedCoverage griddedCov = (GriddedCoverage) cov;
 
-                GridCoverage subgridCov = griddedCov
-                        .getRequestGridCoverage(envelope);
-                if (subgridCov == null) {
-                    subgridCov = griddedCov.getGridCoverage();
-                }
-                int nx = subgridCov.getNx();
-                int ny = subgridCov.getNy();
+            GriddedCoverage griddedCov = dataSet.getCoverage();
 
-                return nx * ny;
+            GridCoverage subgridCov = griddedCov
+                    .getRequestGridCoverage(envelope);
+            if (subgridCov == null) {
+                subgridCov = griddedCov.getGridCoverage();
             }
+            int nx = subgridCov.getNx();
+            int ny = subgridCov.getNy();
+
+            return nx * ny;
+
         }
 
         return 0;
@@ -133,19 +132,18 @@ public class GriddedDataSizeUtils extends DataSizeUtils<GriddedDataSet> {
     public long getFullSizeInBytes() {
         if (dataSet != null) {
             if (fullSize == -999) {
-                GriddedCoverage griddedCov = (GriddedCoverage) dataSet
+                GriddedCoverage griddedCov = dataSet
                         .getCoverage();
                 long numCells = griddedCov.getGridCoverage().getNx()
                         * griddedCov.getGridCoverage().getNy();
                 long numEns = 1;
                 long fcstHrs = 1;
-                if (dataSet instanceof GriddedDataSet) {
-                    GriddedDataSet gDataSet = dataSet;
-                    fcstHrs = gDataSet.getForecastHours().size();
-                    if (gDataSet.getEnsemble() != null) {
-                        numEns = gDataSet.getEnsemble().getMemberCount();
-                    }
+
+                fcstHrs = dataSet.getForecastHours().size();
+                if (dataSet.getEnsemble() != null) {
+                    numEns = dataSet.getEnsemble().getMemberCount();
                 }
+
                 Map<String, Parameter> paramMap = dataSet.getParameters();
 
                 // get the number of grids available
@@ -174,7 +172,7 @@ public class GriddedDataSizeUtils extends DataSizeUtils<GriddedDataSet> {
      * {@inheritDoc}
      */
     @Override
-    public long getDataSetSizeInBytes(Subscription subscription) {
+    public long getDataSetSizeInBytes(Subscription<?, ?> subscription) {
         final Ensemble ensemble = subscription.getEnsemble();
         int numEnsemble = (ensemble == null) ? 1 : ensemble.getMemberCount();
 
