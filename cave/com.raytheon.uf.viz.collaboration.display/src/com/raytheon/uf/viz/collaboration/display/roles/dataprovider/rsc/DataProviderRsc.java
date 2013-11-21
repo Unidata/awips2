@@ -85,9 +85,16 @@ public class DataProviderRsc extends
         if (container != null) {
             session = container.getSession();
             colorManager = container.getColorManager();
-            IVenueInfo info = session.getVenue().getInfo();
-            roomName = info.getVenueDescription();
-            subject = info.getVenueSubject();
+            IVenueInfo info;
+            try {
+                info = session.getVenue().getInfo();
+                roomName = info.getVenueDescription();
+                subject = info.getVenueSubject();
+            } catch (CollaborationException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+                roomName = session.getVenue().getName();
+            }
+
         }
     }
 

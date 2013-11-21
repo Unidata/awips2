@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 /**
- * TODO Add Description
+ * User authentication specific collaboration exception
  * 
  * <pre>
  * 

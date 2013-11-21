@@ -25,7 +25,7 @@ import org.osgi.framework.BundleContext;
 import com.raytheon.uf.common.comm.NetworkStatistics;
 
 /**
- * TODO Add Description
+ * Activator for Collaboration Communication
  * 
  * <pre>
  * 

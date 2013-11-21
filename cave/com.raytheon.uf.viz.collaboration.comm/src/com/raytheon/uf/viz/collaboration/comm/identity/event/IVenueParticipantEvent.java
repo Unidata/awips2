@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Event fired when a venue participant has a change in status
  * 
  * <pre>
  * 
@@ -43,20 +43,17 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 public interface IVenueParticipantEvent {
 
     /**
-     * 
-     * @return
+     * @return type of event
      */
-    ParticipantEventType getEventType();
+    public ParticipantEventType getEventType();
 
     /**
-     * 
-     * @return
+     * @return user id of participant
      */
-    UserId getParticipant();
+    public UserId getParticipant();
 
     /**
-     * 
-     * @return
+     * @return presence of participant, may be null
      */
-    IPresence getPresence();
+    public Presence getPresence();
 }

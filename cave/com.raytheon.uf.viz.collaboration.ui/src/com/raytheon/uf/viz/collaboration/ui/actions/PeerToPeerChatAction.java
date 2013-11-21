@@ -19,18 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -59,9 +57,9 @@ public class PeerToPeerChatAction extends Action {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerChatAction.class);
 
-    private final IUser user;
+    private final UserId user;
 
-    public PeerToPeerChatAction(IUser user) {
+    public PeerToPeerChatAction(UserId user) {
         super("Chat", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "chats.gif"));
         this.user = user;
@@ -70,9 +68,9 @@ public class PeerToPeerChatAction extends Action {
 
     @Override
     public void run() {
-        IPresence presence = CollaborationConnection.getConnection()
+        Presence presence = CollaborationConnection.getConnection()
                 .getContactsManager().getPresence(user);
-        if (presence.getType() != Type.UNAVAILABLE) {
+        if (presence.getType() != Type.unavailable) {
             UserId loginUserId = CollaborationConnection.getConnection()
                     .getUser();
             if (!loginUserId.equals(user)) {
@@ -87,12 +85,12 @@ public class PeerToPeerChatAction extends Action {
      */
     public void updateEnabled() {
         boolean enabled = false;
-        IPresence presence = CollaborationConnection.getConnection()
+        Presence presence = CollaborationConnection.getConnection()
                 .getContactsManager().getPresence(user);
-        if (presence.getType() != Type.UNAVAILABLE) {
+        if (presence.getType() != Type.unavailable) {
             UserId loginUserId = CollaborationConnection.getConnection()
                     .getUser();
-            if (!loginUserId.getID().getName().equals(user.getID().getName())) {
+            if (!loginUserId.getName().equals(user.getName())) {
                 enabled = true;
             }
         }
@@ -110,12 +108,12 @@ public class PeerToPeerChatAction extends Action {
      */
     public PeerToPeerView createP2PChat(Integer viewMode) {
         try {
-            String name = user.getID().getName();
+            String name = user.getName();
             PeerToPeerView p2pView = (PeerToPeerView) CaveWorkbenchPageManager
                     .getActiveInstance().showView(PeerToPeerView.ID, name,
                             viewMode);
             if (p2pView.getPeer() == null) {
-                p2pView.setPeer(IDConverter.convertFrom(user));
+                p2pView.setPeer(user);
             }
             return p2pView;
         } catch (PartInitException e) {

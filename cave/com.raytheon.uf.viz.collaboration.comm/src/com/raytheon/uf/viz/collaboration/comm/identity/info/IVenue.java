@@ -21,9 +21,9 @@ package com.raytheon.uf.viz.collaboration.comm.identity.info;
 
 import java.util.Collection;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -47,14 +47,15 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 public interface IVenue {
 
     /**
+     * Get venue information. This contains information that may change over
+     * time
      * 
      * @return
      */
-    public IVenueInfo getInfo();
+    public IVenueInfo getInfo() throws CollaborationException;
 
     /**
-     * 
-     * @return
+     * @return list of users in venue
      */
     public Collection<UserId> getParticipants();
 
@@ -64,6 +65,11 @@ public interface IVenue {
      * @param user
      * @return
      */
-    public IPresence getPresence(IUser user);
+    public Presence getPresence(UserId user);
+
+    /**
+     * @return id of venue "name@service"
+     */
+    public String getName();
 
 }

@@ -24,9 +24,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -36,6 +33,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -45,7 +43,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 
@@ -219,9 +217,9 @@ public class PeerToPeerView extends AbstractSessionView implements
     protected String getSessionName() {
         if (peer == null) {
             return getViewSite().getSecondaryId();
-        } else if (peer instanceof IUser) {
+        } else if (peer instanceof UserId) {
             return CollaborationConnection.getConnection().getContactsManager()
-                    .getDisplayName((IUser) peer);
+                    .getDisplayName((UserId) peer);
         } else {
             return peer.getFQName();
         }
@@ -250,10 +248,10 @@ public class PeerToPeerView extends AbstractSessionView implements
     }
 
     @Subscribe
-    public void handleModifiedPresence(IRosterEntry entry) {
-        UserId id = IDConverter.convertFrom(entry.getUser());
+    public void handleModifiedPresence(RosterItem entry) {
+        UserId id = entry.getId();
         if (id.equals(peer)) {
-            if (entry.getPresence().getType() == Type.UNAVAILABLE) {
+            if (entry.getPresence().getType() == Type.unavailable) {
                 online = false;
             } else {
                 online = true;
