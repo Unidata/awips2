@@ -19,15 +19,15 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.Presence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
@@ -71,12 +71,13 @@ public class ChangeStatusMessageAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
 
-        IPresence presence = connection.getPresence();
-        presence = new Presence(presence.getType(), msg, presence.getMode(),
-                presence.getProperties());
+        Presence presence = connection.getPresence();
+        Presence newPresence = new Presence(presence.getType(), msg,
+                presence.getPriority(), presence.getMode());
+        Tools.copyProperties(presence, newPresence);
 
         try {
-            connection.getAccountManager().sendPresence(presence);
+            connection.getAccountManager().sendPresence(newPresence);
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, "Error sending presence", e);
         }

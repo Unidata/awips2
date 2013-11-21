@@ -22,25 +22,25 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
-import org.eclipse.ecf.presence.IPresenceSender;
-import org.eclipse.ecf.presence.Presence;
-import org.eclipse.ecf.presence.roster.IRosterManager;
-import org.eclipse.ecf.presence.roster.IRosterSubscriptionListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Type;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Manages account information on server
  * 
  * <ul>
  * EventBus subscription events.
@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChanged
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -64,84 +65,98 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChanged
 
 public class AccountManager implements IAccountManager {
 
-    private IRosterSubscriptionListener autoResponder = new IRosterSubscriptionListener() {
+    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
+    private PacketListener autoResponder = new PacketListener() {
+        
         @Override
-        public void handleSubscribeRequest(ID fromID) {
+        public void processPacket(Packet packet) {
+            if ( packet instanceof Presence){
+                Presence pres = (Presence) packet;
+                Type type = pres.getType();
+                if (type == null) {
+                    return;
+                }
+                UserId fromId = new UserId(pres.getFrom(), sessionManager
+                        .getXmppConnection().getHost());
+                switch (type) {
+                case subscribe:
+                    handleSubRequest(fromId);
+                    break;
+                case subscribed:
+                    if (responder != null) {
+                        responder.handleSubscribed(fromId);
+                    }
+                    break;
+                case unsubscribed:
+                    if (responder != null) {
+                        responder.handleUnsubscribed(fromId);
+                    }
+                    break;
+                default:
+                    // do nothing
+                    break;
+                }
+            }
+        }
 
-            IQualifiedID fromId = null;
-
-            IPresence.Type subscribedType = IPresence.Type.UNKNOWN;
+        private void handleSubRequest(UserId fromId) {
+            Presence.Type subscribedType;
             if (responder != null) {
                 subscribedType = responder.handleSubscribeRequest(fromId);
             } else {
-                subscribedType = IPresence.Type.SUBSCRIBED;
+                subscribedType = Presence.Type.subscribed;
             }
 
-            IPresence presence = new Presence(subscribedType, null,
-                    IPresence.Mode.AVAILABLE);
+            Presence presence = new Presence(subscribedType, null, 0,
+                    Presence.Mode.available);
             try {
-                sendPresence(fromID, presence);
+                sendPresence(fromId, presence);
             } catch (CollaborationException e) {
-                e.printStackTrace();
+                AccountManager.this.log.error("Unable to send presence", e);
             }
         }
 
-        @Override
-        public void handleSubscribed(ID fromID) {
-            System.out.println("AccountManager.handleSubscribed " + fromID);
-        }
-
-        @Override
-        public void handleUnsubscribed(ID fromID) {
-            System.out.println("AccountManager.handleUnSubscribed " + fromID);
-        }
     };
-
-    private boolean autoRespond = true;
-
-    private IPresenceContainerAdapter presenceAdapter;
 
     private ISubscriptionResponder responder;
 
     private CollaborationConnection sessionManager = null;
 
+    private org.jivesoftware.smack.AccountManager smackManager;
+
     /**
      * 
      * @param adapter
      */
-    AccountManager(IPresenceContainerAdapter adapter,
+    AccountManager(
             CollaborationConnection manager) {
         sessionManager = manager;
-        presenceAdapter = adapter;
-        presenceAdapter.getRosterManager().addRosterSubscriptionListener(
-                autoResponder);
+        smackManager = new org.jivesoftware.smack.AccountManager(
+                manager.getXmppConnection());
+        sessionManager.getXmppConnection().addPacketListener(autoResponder,
+                new PacketTypeFilter(Presence.class));
     }
 
-    /**
-     * Set the auto subscription mode to ON or OFF. If set to off then any
-     * currently assigned autoresponder is set to null.
+    /*
+     * (non-Javadoc)
      * 
-     * @param mode
-     *            The auto subscription mode.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#setAutoSubscriptionMode(boolean)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#
+     * disableAutoSubscribe()
      */
-    @Override
-    public void setAutoSubscriptionMode(boolean auto) {
-        autoRespond = auto;
-        if (!auto) {
-            responder = null;
-        }
+    public void disableAutoSubscribe() {
+        responder = null;
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#getAutoSubscriptionMode()
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#
+     * autoSubscribeEnabled()
      */
     @Override
-    public boolean getAutoSubscriptionMode() {
-        return autoRespond;
+    public boolean autoSubscribeEnabled() {
+        return responder != null;
     }
 
     /**
@@ -170,17 +185,14 @@ public class AccountManager implements IAccountManager {
      */
     @Override
     public void changePassword(char[] password) throws CollaborationException {
-        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
-                .getAccountManager();
-        if (manager != null) {
-            try {
-                manager.changePassword(new String(password));
-                // all done so clear the password.
-                Arrays.fill(password, (char) 0);
-            } catch (ECFException e) {
-                throw new CollaborationException(
-                        "Could not change account password");
-            }
+        try {
+            smackManager.changePassword(new String(password));
+        } catch (XMPPException e) {
+            throw new CollaborationException(
+                    "Could not change account password");
+        } finally {
+            // all done so clear the password.
+            Arrays.fill(password, (char) 0);
         }
     }
 
@@ -190,14 +202,10 @@ public class AccountManager implements IAccountManager {
      */
     @Override
     public void deleteAccount() throws CollaborationException {
-        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
-                .getAccountManager();
-        if (manager != null) {
-            try {
-                manager.deleteAccount();
-            } catch (ECFException e) {
-                throw new CollaborationException("Could not delete account");
-            }
+        try {
+            smackManager.deleteAccount();
+        } catch (XMPPException e) {
+            throw new CollaborationException("Could not delete account");
         }
     }
 
@@ -209,53 +217,29 @@ public class AccountManager implements IAccountManager {
      */
     @Override
     public boolean canCreateAccount() throws CollaborationException {
-        boolean canCreate = false;
-        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
-                .getAccountManager();
-        if (manager != null) {
-            try {
-                canCreate = manager.isAccountCreationSupported();
-            } catch (ECFException e) {
-                throw new CollaborationException(
-                        "Error attempting to determine if accounts may be created.");
-            }
-        }
-        return canCreate;
+        return smackManager.supportsAccountCreation();
     }
 
     /**
-     * TODO : Body of method
+     * Create a new account on the server
      * 
      * @param password
      * @param attributes
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#createAccount(java.lang.String,
      *      char[], java.util.Map)
      */
-    @SuppressWarnings("rawtypes")
     @Override
     public void createAccount(String name, char[] password,
             Map<String, String> attributes) throws CollaborationException {
-        if (name != null) {
-            if (password != null) {
-                // create the account
-                org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
-                        .getAccountManager();
-                if (manager != null) {
-                    Map map = null;
-                    if (attributes != null) {
-                        map = (Map) attributes;
-                    }
-
-                    try {
-                        manager.createAccount(name, new String(password), map);
-                    } catch (ECFException e) {
-                        throw new CollaborationException(
-                                "Could not create account ");
-                    }
-                }
-                // all done so clear the password.
-                Arrays.fill(password, (char) 0);
-            }
+        // create the account
+        try {
+            smackManager.createAccount(name, new String(password), attributes);
+        } catch (XMPPException e) {
+            throw new CollaborationException(
+                    "Could not create account for user: " + name, e);
+        } finally {
+            // all done so clear the password.
+            Arrays.fill(password, (char) 0);
         }
     }
 
@@ -266,25 +250,17 @@ public class AccountManager implements IAccountManager {
      * @throws CollaborationException
      */
     @Override
-    public void sendPresence(IPresence userPresence)
+    public void sendPresence(Presence userPresence)
             throws CollaborationException {
 
-        IRosterManager manager = presenceAdapter.getRosterManager();
-        IPresenceSender sender = manager.getPresenceSender();
-
-        try {
-            sender.sendPresenceUpdate(null, userPresence);
-            sessionManager.setPresence(userPresence);
-            for (ISession session : sessionManager.getSessions()) {
-                if (session instanceof IVenueSession) {
-                    ((IVenueSession) session).sendPresence(userPresence);
-                }
+        sessionManager.getXmppConnection().sendPacket(userPresence);
+        sessionManager.setPresence(userPresence);
+        for (ISession session : sessionManager.getSessions()) {
+            if (session instanceof IVenueSession) {
+                ((IVenueSession) session).sendPresence(userPresence);
             }
-            sessionManager
-                    .postEvent(new UserPresenceChangedEvent(userPresence));
-        } catch (ECFException e) {
-            throw new CollaborationException("Could not send presence");
         }
+        sessionManager.postEvent(new UserPresenceChangedEvent(userPresence));
     }
 
     /**
@@ -293,18 +269,12 @@ public class AccountManager implements IAccountManager {
      * @param userPresence
      * @throws CollaborationException
      */
-    public void sendPresence(ID toId, IPresence userPresence)
+    public void sendPresence(UserId toId, Presence userPresence)
             throws CollaborationException {
-
-        IRosterManager manager = presenceAdapter.getRosterManager();
-        IPresenceSender sender = manager.getPresenceSender();
-
-        try {
-            sender.sendPresenceUpdate(toId, userPresence);
-            sessionManager.setPresence(userPresence);
-        } catch (ECFException e) {
-            throw new CollaborationException("Could not send presence");
-        }
+        userPresence.setFrom(sessionManager.getUser().getFQName());
+        userPresence.setTo(toId.getNormalizedId());
+        sessionManager.setPresence(userPresence);
+        sessionManager.getXmppConnection().sendPacket(userPresence);
     }
 
 }

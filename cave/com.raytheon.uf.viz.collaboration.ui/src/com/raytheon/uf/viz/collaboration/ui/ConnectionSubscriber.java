@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
@@ -44,6 +43,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
@@ -232,9 +232,9 @@ public class ConnectionSubscriber {
             public void run() {
                 IQualifiedID peer = message.getFrom();
 
-                IUser user = null;
-                if (peer instanceof IUser) {
-                    user = (IUser) peer;
+                UserId user = null;
+                if (peer instanceof UserId) {
+                    user = (UserId) peer;
                 } else {
                     user = CollaborationConnection.getConnection()
                             .getContactsManager().getUser(peer.getFQName());
@@ -259,7 +259,7 @@ public class ConnectionSubscriber {
                 .getBoolean(
                         CollabPrefConstants.HttpCollaborationConfiguration.P_SESSION_CONFIGURED);
         boolean configured = false;
-        if ((configurationEvent.getHttpdCollaborationURL() == null) == false) {
+        if (configurationEvent.getHttpdCollaborationURL() != null) {
             // Add the httpd collaboration url to the CAVE configuration.
             Activator
                     .getDefault()

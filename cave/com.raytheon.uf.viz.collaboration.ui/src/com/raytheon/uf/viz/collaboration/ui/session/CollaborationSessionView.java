@@ -24,7 +24,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ControlContribution;
@@ -57,7 +56,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.IRemoteDisplayChangedListener;
@@ -208,11 +206,11 @@ public class CollaborationSessionView extends SessionView implements
                 if (rgb != null) {
                     IStructuredSelection selection = (IStructuredSelection) usersTable
                             .getSelection();
-                    IUser entry = (IUser) selection.getFirstElement();
-                    ColorChangeEvent event = new ColorChangeEvent(
-                            IDConverter.convertFrom(entry), rgb);
+                    UserId entry = (UserId) selection.getFirstElement();
+                    ColorChangeEvent event = new ColorChangeEvent(entry, rgb);
                     try {
                         session.sendObjectToVenue(event);
+                        CollaborationSessionView.this.modifyColors(event);
                     } catch (CollaborationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to send color change to venue", e);
@@ -562,9 +560,14 @@ public class CollaborationSessionView extends SessionView implements
         Label label = new Label(comp, SWT.NONE);
         StringBuilder labelInfo = new StringBuilder();
         if (session != null) {
-            IVenueInfo info = ((IVenueSession) session).getVenue().getInfo();
-            labelInfo.append(info.getVenueSubject());
-            label.setToolTipText(info.getVenueSubject());
+            IVenueInfo info;
+            try {
+                info = ((IVenueSession) session).getVenue().getInfo();
+                labelInfo.append(info.getVenueSubject());
+                label.setToolTipText(info.getVenueSubject());
+            } catch (CollaborationException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+            }
         }
         label.setText(labelInfo.toString());
     }
@@ -725,6 +728,8 @@ public class CollaborationSessionView extends SessionView implements
                 case ERASE:
                     layer.doneErasing();
                     break;
+                default:
+                    // not drawing
                 }
                 layer.setDrawMode(DrawMode.NONE);
             }
