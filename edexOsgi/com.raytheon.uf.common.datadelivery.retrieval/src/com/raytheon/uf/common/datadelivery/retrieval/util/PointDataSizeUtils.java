@@ -37,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2013    2108    mpduff      Initial creation.
+ * Nov 20, 2013    2554    dhladky     More Generics
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class PointDataSizeUtils extends DataSizeUtils<PointDataSet> {
      * {@inheritDoc}
      */
     @Override
-    public long getDataSetSizeInBytes(Subscription subscription) {
+    public long getDataSetSizeInBytes(Subscription<?, ?> subscription) {
         return getDataSetSizeInBytes(subscription.getCoverage()
                 .getRequestEnvelope(),
                 ((PointTime) subscription.getTime()).getInterval());
