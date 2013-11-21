@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.Occupant;
 
 /**
- * TODO Add Description
+ * Utility to parse id strings
  * 
  * <pre>
  * 
@@ -31,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -42,42 +46,39 @@ public class IDConverter {
 
     private static final String CONF_ID = "conference.";
 
-    /**
-     * 
-     * @param user
-     * @return
-     */
-    public static UserId convertFrom(org.eclipse.ecf.core.identity.ID id) {
-        String name = Tools.parseName(id.getName());
-        String host = Tools.parseHost(id.getName());
-        String rsc = Tools.parseResource(id.getName());
-
+    public static UserId convertFrom(String id) {
+        String name = StringUtils.parseName(id);
+        String host = StringUtils.parseServer(id);
+        String rsc = StringUtils.parseResource(id);
         UserId uid = new UserId(name, host, rsc);
-        uid.setId(id);
         return uid;
     }
 
-    /**
-     * 
-     * @param user
-     * @return
-     */
-    public static UserId convertFrom(org.eclipse.ecf.core.user.IUser user) {
-        UserId retVal = null;
-        if (user instanceof UserId) {
-            retVal = (UserId) user;
-        } else {
-            String name = Tools.parseName(user.getID().getName());
-            String host = Tools.parseHost(user.getID().getName());
-            retVal = new UserId(name, host);
-            retVal.setId(user.getID());
-            if (user.getNickname() != null) {
-                retVal.setAlias(user.getNickname());
-            } else {
-                retVal.setAlias(user.getName());
-            }
+    public static UserId convertFrom(RosterEntry entry) {
+        UserId rval = convertFrom(entry.getUser());
+        rval.setAlias(entry.getName());
+        return rval;
+    }
+
+    public static UserId convertFromRoom(MultiUserChat room, String id) {
+        String nickname = StringUtils.parseResource(id);
+        if (nickname == null || nickname.trim().isEmpty()) {
+            // this message is from the room itself
+            return convertFrom(id);
         }
-        return retVal;
+        String host = StringUtils.parseServer(id);
+
+        String name;
+        Occupant occupant;
+        if (room != null && (occupant = room.getOccupant(id)) != null) {
+            // get actual user name
+            name = StringUtils.parseName(occupant.getJid());
+        } else {
+            // fallback to using room nickname
+            name = nickname;
+        }
+
+        return new UserId(name, host);
     }
 
     public static String normalizeHostname(String hostname) {
@@ -85,6 +86,11 @@ public class IDConverter {
             return hostname.substring(CONF_ID.length());
         }
         return hostname;
+    }
+
+    public static boolean isFromRoom(String id) {
+        String host = StringUtils.parseServer(id);
+        return host.startsWith(CONF_ID);
     }
 
 }

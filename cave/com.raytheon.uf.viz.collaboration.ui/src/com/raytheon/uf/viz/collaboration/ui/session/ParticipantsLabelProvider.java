@@ -23,20 +23,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
@@ -51,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            mnash     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -104,10 +103,10 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
 
     @Override
     public Font getFont(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof UserId)) {
             return null;
         }
-        IUser user = (IUser) element;
+        UserId user = (UserId) element;
         boolean leader = isSessionLeader(user);
         boolean provider = isDataProvider(user);
         if (leader && provider) {
@@ -140,12 +139,11 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
 
     @Override
     public Color getForeground(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof UserId)) {
             return null;
         }
-        IUser user = ((IUser) element);
-        UserId userId = IDConverter.convertFrom(user);
-        RGB rgb = manager.getColorFromUser(userId);
+        UserId user = ((UserId) element);
+        RGB rgb = manager.getColorFromUser(user);
         if (rgb == null) {
             rgb = new RGB(0, 0, 0);
         }
@@ -174,24 +172,22 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
         return connection.getSession(sessionId);
     }
 
-    protected boolean isSessionLeader(IUser user) {
+    protected boolean isSessionLeader(UserId user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId id = IDConverter.convertFrom(user);
             UserId leader = ((SharedDisplaySession) session)
                     .getCurrentSessionLeader();
-            return id.equals(leader);
+            return user.equals(leader);
         }
         return false;
     }
 
-    protected boolean isDataProvider(IUser user) {
+    protected boolean isDataProvider(UserId user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId id = IDConverter.convertFrom(user);
             UserId provider = ((SharedDisplaySession) session)
                     .getCurrentDataProvider();
-            return id.equals(provider);
+            return user.equals(provider);
         }
         return false;
     }
@@ -203,23 +199,23 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
             return null;
         }
         StringBuilder builder = new StringBuilder(toolTip);
-        IUser user = (IUser) element;
-        IPresence presence = getPresence(user);
+        UserId user = (UserId) element;
+        Presence presence = getPresence(user);
         if (presence != null) {
-            String site = String.valueOf(presence.getProperties().get(
-                    SiteConfigInformation.SITE_NAME));
+            String site = String.valueOf(presence
+                    .getProperty(SiteConfigInformation.SITE_NAME));
             if (enabledSites != null && enabledSites.contains(site)) {
                 builder.append("\n").append("Subscribed");
             }
         }
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId id = IDConverter.convertFrom(user);
-            boolean isSessionLeader = id
+            boolean isSessionLeader = user
                     .equals(((SharedDisplaySession) session)
                             .getCurrentSessionLeader());
-            boolean isDataProvider = id.equals(((SharedDisplaySession) session)
-                    .getCurrentDataProvider());
+            boolean isDataProvider = user
+                    .equals(((SharedDisplaySession) session)
+                            .getCurrentDataProvider());
             if (isSessionLeader || isDataProvider) {
                 // TODO if transferring control is ever desired and implemented
                 // we need to distinguish these. Until then, Leader works fine.
@@ -248,7 +244,7 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
     }
 
     @Override
-    protected IPresence getPresence(IUser user) {
+    protected Presence getPresence(UserId user) {
         IVenueSession session = (IVenueSession) getSession();
         return session.getVenue().getPresence(user);
     }

@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.ISharedEditorsManagerListener;
@@ -475,8 +476,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         String err = null;
         if (name.length() <= 0) {
             err = "Must have session name.";
-        } else if (false) {
-            // TODO Above else make it a test for invalid characters.
+        } else if (!Tools.isValidId(name)) {
             err = "Name contains invalid characters.";
         } else {
             Collection<IVenueInfo> info = CollaborationConnection

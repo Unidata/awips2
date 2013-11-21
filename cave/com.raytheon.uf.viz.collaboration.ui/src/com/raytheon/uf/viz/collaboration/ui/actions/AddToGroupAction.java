@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.actions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
@@ -34,6 +33,7 @@ import org.eclipse.swt.widgets.Menu;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CreateGroupDialog;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -59,14 +59,14 @@ public class AddToGroupAction extends Action {
 
     private final String group;
 
-    private final IUser[] users;
+    private final UserId[] users;
 
     /**
      * This action will create a menu of groups to which the users will be added
      * 
      * @param users
      */
-    public AddToGroupAction(IUser... users) {
+    public AddToGroupAction(UserId... users) {
         super("Add To Group...", IconUtil.getImageDescriptor(Activator
                 .getDefault().getBundle(), "add_group.gif"));
         this.users = users;
@@ -74,7 +74,7 @@ public class AddToGroupAction extends Action {
         this.setMenuCreator(new MenuCreator());
     }
 
-    public AddToGroupAction(String group, IUser... users) {
+    public AddToGroupAction(String group, UserId... users) {
         super(group, IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "local_group.gif"));
         this.group = group;
@@ -93,7 +93,7 @@ public class AddToGroupAction extends Action {
                 return;
             }
         }
-        for (IUser user : users) {
+        for (UserId user : users) {
             CollaborationConnection.getConnection().getContactsManager()
                     .addToLocalGroup(group, user);
         }
@@ -127,7 +127,7 @@ public class AddToGroupAction extends Action {
                     .getConnection().getContactsManager();
             List<LocalGroup> groups = contactsMgr.getLocalGroups();
             List<LocalGroup> usedGroups = new ArrayList<LocalGroup>(groups);
-            for (IUser user : users) {
+            for (UserId user : users) {
                 usedGroups.retainAll(contactsMgr.getLocalGroups(user));
             }
             groups.removeAll(usedGroups);

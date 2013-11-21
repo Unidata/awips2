@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.jivesoftware.smack.packet.Presence.Mode;
 
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 
@@ -62,7 +62,7 @@ public class CollabPrefInitializer extends AbstractPreferenceInitializer {
                 System.getProperty("user.name"));
 
         store.setDefault(CollabPrefConstants.P_STATUS,
-                Mode.AVAILABLE.toString());
+                Mode.available.toString());
         store.setDefault(CollabPrefConstants.P_MESSAGE, "");
     }
 
