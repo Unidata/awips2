@@ -56,6 +56,7 @@ public class Provider {
      * Feb 16, 2012            dhladky     Initial creation
      * Aug 16, 2012 1022       djohnson    Add bytesPerParameterRequest.
      * Sept 10, 2013 2352      dhladky     Changed default size for point overhead
+     * Nov 20,  2013 2554      dhladky     Changed WFS again, added gzipping compensation
      * 
      * </pre>
      * 
@@ -65,7 +66,7 @@ public class Provider {
     public enum ServiceType {
 
         // TODO: Only OPENDAP and WFS have the correct amounts
-        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(711724,
+        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(355862,
                 OneByOneBox), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
                 BYTES_IN_FLOAT);
 
