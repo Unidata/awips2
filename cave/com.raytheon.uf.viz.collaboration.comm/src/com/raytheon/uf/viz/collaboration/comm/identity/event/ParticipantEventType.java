@@ -20,20 +20,20 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 /**
- * TODO Add Description
+ * Type of event for participant updates
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public enum ParticipantEventType {

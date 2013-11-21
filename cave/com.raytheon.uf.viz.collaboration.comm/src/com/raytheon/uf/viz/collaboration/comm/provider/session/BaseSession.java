@@ -23,21 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
-
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Base class for chat and collaboration sessions
  * 
  * <pre>
  * 
@@ -46,6 +38,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -62,12 +55,6 @@ public abstract class BaseSession implements ISession {
 
     private Map<Object, Object> eventSubscribers;
 
-    private IContainer connectionContainer;
-
-    private IPresenceContainerAdapter connectionPresence = null;
-
-    private Namespace connectionNamespace = null;
-
     private CollaborationConnection connection;
 
     /**
@@ -76,9 +63,9 @@ public abstract class BaseSession implements ISession {
      * @param externalBus
      * @param manager
      */
-    protected BaseSession(IContainer container, EventBus externalBus,
+    protected BaseSession(EventBus externalBus,
             CollaborationConnection manager) throws CollaborationException {
-        this(container, externalBus, manager, UUID.randomUUID().toString());
+        this(externalBus, manager, UUID.randomUUID().toString());
     }
 
     /**
@@ -88,30 +75,15 @@ public abstract class BaseSession implements ISession {
      * @param manager
      * @param sessionId
      */
-    protected BaseSession(IContainer container, EventBus externalBus,
+    protected BaseSession(EventBus externalBus,
             CollaborationConnection manager, String sessionId)
             throws CollaborationException {
         // Set the session identifier.
         this.sessionId = sessionId;
         managerEventBus = externalBus;
         eventBus = new EventBus();
-        connectionContainer = container;
         connection = manager;
         eventSubscribers = new HashMap<Object, Object>();
-        setup();
-    }
-
-    /**
-     * 
-     * @throws ECFException
-     */
-    void setup() {
-        // Check if the container has been set up previously.
-        if (connectionContainer != null) {
-            connectionNamespace = connectionContainer.getConnectNamespace();
-            connectionPresence = (IPresenceContainerAdapter) connectionContainer
-                    .getAdapter(IPresenceContainerAdapter.class);
-        }
     }
 
     /**
@@ -120,7 +92,7 @@ public abstract class BaseSession implements ISession {
      * @return The peer to peer chat session instance.
      * @throws CollaborationException
      */
-    PeerToPeerChat getP2PSession() throws CollaborationException {
+    protected PeerToPeerChat getP2PSession() throws CollaborationException {
         return (PeerToPeerChat) connection.getPeerToPeerSession();
     }
 
@@ -128,31 +100,7 @@ public abstract class BaseSession implements ISession {
      * 
      * @return
      */
-    IContainer getConnectionContainer() {
-        return connectionContainer;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    Namespace getConnectionNamespace() {
-        return connectionNamespace;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    IPresenceContainerAdapter getConnectionPresenceAdapter() {
-        return connectionPresence;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    EventBus getManagerEventPublisher() {
+    protected EventBus getManagerEventPublisher() {
         return managerEventBus;
     }
 
@@ -160,21 +108,8 @@ public abstract class BaseSession implements ISession {
      * 
      * @return
      */
-    CollaborationConnection getSessionManager() {
+    protected CollaborationConnection getSessionManager() {
         return connection;
-    }
-
-    /**
-     * 
-     * @param name
-     * @return
-     */
-    public ID createID(String name) throws IDCreateException {
-        ID id = null;
-        if (connectionNamespace != null) {
-            id = IDFactory.getDefault().createID(connectionNamespace, name);
-        }
-        return id;
     }
 
     // *****************
@@ -195,11 +130,7 @@ public abstract class BaseSession implements ISession {
      */
     @Override
     public boolean isConnected() {
-        boolean connected = false;
-        if (connectionContainer != null) {
-            connected = (connectionContainer.getConnectedID() != null);
-        }
-        return connected;
+        return connection.isConnected();
     }
 
     /**

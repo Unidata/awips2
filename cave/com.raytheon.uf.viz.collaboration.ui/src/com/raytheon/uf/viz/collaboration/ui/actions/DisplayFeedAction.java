@@ -92,8 +92,8 @@ public class DisplayFeedAction extends Action {
         String sessionId = null;
         for (ISession session : connection.getSessions()) {
             if (session instanceof IVenueSession) {
-                if (((IVenueSession) session).getVenue().getInfo()
-                        .getVenueName().startsWith(FEED_VENUE)) {
+                if (((IVenueSession) session).getVenue().getName()
+                        .startsWith(FEED_VENUE)) {
                     sessionId = session.getSessionId();
                 }
             }
