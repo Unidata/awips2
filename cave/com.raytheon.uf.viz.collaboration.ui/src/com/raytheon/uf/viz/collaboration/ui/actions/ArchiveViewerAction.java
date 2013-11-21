@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -28,7 +27,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -67,16 +65,16 @@ public class ArchiveViewerAction extends Action {
         setEnabled(CollaborationConnection.getConnection() != null);
     }
 
-    public ArchiveViewerAction(IUser user) {
+    public ArchiveViewerAction(UserId user) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = Tools.parseName(user.getID().getName());
+        sessionName = user.getName();
     }
 
     public ArchiveViewerAction(IVenueSession session) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = session.getVenue().getInfo().getVenueDescription();
+        sessionName = session.getVenue().getName();
     }
 
     @Override

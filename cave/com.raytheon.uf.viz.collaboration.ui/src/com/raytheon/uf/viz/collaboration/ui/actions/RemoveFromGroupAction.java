@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
@@ -46,11 +46,11 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
 
 public class RemoveFromGroupAction extends Action {
 
-    private final IUser[] users;
+    private final UserId[] users;
 
     private final String group;
 
-    public RemoveFromGroupAction(String group, IUser... users) {
+    public RemoveFromGroupAction(String group, UserId... users) {
         super("Remove From " + group, IconUtil.getImageDescriptor(Activator
                 .getDefault().getBundle(), "remove_group.gif"));
         this.users = users;
@@ -61,7 +61,7 @@ public class RemoveFromGroupAction extends Action {
     public void run() {
         ContactsManager manager = CollaborationConnection.getConnection()
                 .getContactsManager();
-        for (IUser user : users) {
+        for (UserId user : users) {
             manager.deleteFromLocalGroup(group, user);
         }
     }

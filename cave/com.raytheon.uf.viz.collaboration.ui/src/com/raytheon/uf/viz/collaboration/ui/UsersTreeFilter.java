@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -64,7 +63,7 @@ public class UsersTreeFilter extends ViewerFilter {
             if (labelText.equals(currentText)) {
                 viewer.setSelection(new StructuredSelection(element));
             }
-            if (element instanceof IUser && !(element instanceof UserId)) {
+            if (element instanceof UserId) {
                 String[] words = getWords(currentText);
                 for (String word : words) {
                     if (!labelText.toUpperCase().contains(word.toUpperCase())) {

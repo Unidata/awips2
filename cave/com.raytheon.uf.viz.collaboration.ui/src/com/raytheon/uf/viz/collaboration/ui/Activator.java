@@ -103,7 +103,7 @@ public class Activator extends AbstractUIPlugin {
     @Override
     public IPersistentPreferenceStore getPreferenceStore() {
         if (prefs == null) {
-            prefs = new ScopedPreferenceStore(new InstanceScope(), PLUGIN_ID);
+            prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, PLUGIN_ID);
         }
 
         return prefs;

@@ -20,28 +20,28 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 /**
- * TODO Add Description
+ * Event fired when the configuration has changed
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 11, 2012            bkowal     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bkowal
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IHttpdCollaborationConfigurationEvent {
     
     /**
+     * Get the url used to connect to the collaboration httpd server.
      * 
-     * @return the url used to connect to the collaboration
-     * httpd server.
+     * @return null if collaboration has been disabled
      */
-    String getHttpdCollaborationURL();
+    public String getHttpdCollaborationURL();
 }

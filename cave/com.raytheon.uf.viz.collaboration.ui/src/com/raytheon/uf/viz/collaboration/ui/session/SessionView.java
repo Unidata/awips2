@@ -22,13 +22,11 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
@@ -37,6 +35,9 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -62,6 +63,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -79,6 +81,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
@@ -94,6 +97,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -235,11 +239,17 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
 
     @Subscribe
     public void updateUserAlias(UserId id) {
-        List<IRosterEntry> entries = (List<IRosterEntry>) usersTable.getInput();
-        for (IRosterEntry entry : entries) {
-            UserId uid = (UserId) entry.getUser();
+        Collection<?> entries = (Collection<?>) usersTable.getInput();
+        for (Object obj : entries) {
+            if (!(obj instanceof UserId)) {
+                statusHandler.error("Unexpected user table input type: "
+                        + obj.getClass());
+                return;
+            }
+            UserId uid = (UserId) obj;
             if (uid.getFQName().equals(id.getFQName())) {
-                ((UserId) entry.getUser()).setName(id.getAlias());
+                // TODO update on roster?
+                uid.setAlias(id.getAlias());
                 break;
             }
         }
@@ -348,14 +358,27 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         usersTable.setSorter(new ViewerSorter() {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
-                IUser c1 = (IUser) e1;
-                IUser c2 = (IUser) e1;
+                UserId c1 = (UserId) e1;
+                UserId c2 = (UserId) e1;
 
-                return c1.getID().getName().compareTo(c2.getID().getName());
+                return c1.getName().compareTo(c2.getName());
             }
         });
 
         ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
+        usersTable.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                StructuredSelection selection = (StructuredSelection) usersTable
+                        .getSelection();
+
+                Object o = selection.getFirstElement();
+                if (o instanceof UserId) {
+                    new PeerToPeerChatAction((UserId) o).run();
+                }
+            }
+        });
+
         if (session != null) {
             usersTable.setInput(session.getVenue().getParticipants());
         } else {
@@ -560,9 +583,14 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         label.setLayoutData(data);
         StringBuilder labelInfo = new StringBuilder();
         if (session != null) {
-            IVenueInfo info = session.getVenue().getInfo();
-            labelInfo.append(info.getVenueSubject());
-            label.setToolTipText(info.getVenueSubject());
+            IVenueInfo info;
+            try {
+                info = session.getVenue().getInfo();
+                labelInfo.append(info.getVenueSubject());
+                label.setToolTipText(info.getVenueSubject());
+            } catch (CollaborationException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+            }
         }
         label.setText(labelInfo.toString());
     }
@@ -598,7 +626,14 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         if (session == null) {
             return sessionId;
         }
-        return session.getVenue().getInfo().getVenueDescription();
+        try {
+            IVenueInfo info = session.getVenue().getInfo();
+            return info.getVenueDescription();
+        } catch (CollaborationException e) {
+            statusHandler.error("Unable to get venue info", e);
+            return session.getVenue().getName();
+        }
+
     }
 
     @Subscribe
@@ -606,7 +641,7 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
             throws Exception {
 
         final ParticipantEventType type = event.getEventType();
-        final IPresence presence = event.getPresence();
+        final Presence presence = event.getPresence();
         final UserId participant = event.getParticipant();
         VizApp.runAsync(new Runnable() {
 
@@ -672,7 +707,7 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      * @param presence
      */
     protected void participantPresenceUpdated(UserId participant,
-            IPresence presence) {
+            Presence presence) {
         usersTable.refresh();
     }
 
