@@ -33,6 +33,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jul 10, 2013 2180       dhladky     Updated credential requests
  * Aug 23, 2013 2180       mpduff      Implement changes to ProviderCredentialsUtil
  * Aug 06, 2013 2097       dhladky     WFS 2.0 compliance upgrade and switched to POST
+ * Nov 20, 2013 2554       dhladky     Added GZIP capability to WFS requests.
  * 
  * </pre>
  * 
@@ -67,6 +68,8 @@ public class WfsConnectionUtil {
 
             rootUrl = providerConn.getUrl();
             http = HttpClient.getInstance();
+            // accept gzipped data for WFS
+            http.setGzipResponseHandling(true);
             URI uri = new URI(rootUrl);
             HttpPost post = new HttpPost(uri);
             // check for the need to do a username password auth check
