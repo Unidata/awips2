@@ -9,14 +9,11 @@ Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ecf,
- org.eclipse.ecf.presence,
- org.eclipse.ecf.provider.xmpp,
  org.apache.commons.lang,
  com.google.guava;visibility:=reexport,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
- org.jivesoftware.smack,
+ org.jivesoftware.smack;bundle-version="3.3.0",
  org.eclipse.swt,
  com.raytheon.uf.common.comm,
  com.raytheon.uf.common.localization,

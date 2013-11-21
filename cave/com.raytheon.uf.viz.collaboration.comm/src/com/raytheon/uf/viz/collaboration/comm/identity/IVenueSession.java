@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import java.util.List;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
@@ -104,6 +104,6 @@ public interface IVenueSession extends ISession {
      * 
      * @param presence
      */
-    public void sendPresence(IPresence presence) throws CollaborationException;
+    public void sendPresence(Presence presence) throws CollaborationException;
 
 }
