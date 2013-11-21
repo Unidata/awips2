@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import org.eclipse.ecf.presence.roster.IRosterItem;
+import org.jivesoftware.smack.RosterEntry;
 
 /**
- * TODO Add Description
+ * Event fired when the roster has changed
  * 
  * <pre>
  * 
@@ -45,13 +45,13 @@ public interface IRosterChangeEvent {
      * 
      * @return The event type.
      */
-    RosterChangeType getType();
+    public RosterChangeType getType();
 
     /**
      * Get the changed entry
      * 
      * @return The changed entry.
      */
-    IRosterItem getItem();
+    public RosterEntry getItem();
 
 }

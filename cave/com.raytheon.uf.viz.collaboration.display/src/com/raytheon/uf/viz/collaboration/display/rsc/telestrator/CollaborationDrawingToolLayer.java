@@ -153,6 +153,7 @@ public class CollaborationDrawingToolLayer extends DrawingToolLayer {
         event.setCoordinates(new ArrayList<Coordinate>(coordinates));
         resource.sendEvent(event);
         coordinates.clear();
+        resource.handleDrawEvent(event);
     }
 
     private void sendSimpleEvent(CollaborationEventType type) {
@@ -161,6 +162,7 @@ public class CollaborationDrawingToolLayer extends DrawingToolLayer {
         event.setType(type);
         event.setUserName(resource.getMyUser());
         resource.sendEvent(event);
+        resource.handleDrawEvent(event);
     }
 
     public Stack<Collection<Geometry>> getUndoStack() {

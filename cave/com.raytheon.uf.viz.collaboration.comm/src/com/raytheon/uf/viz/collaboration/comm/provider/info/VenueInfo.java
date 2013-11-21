@@ -19,9 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.info;
 
-import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
+import org.jivesoftware.smackx.muc.RoomInfo;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * 
@@ -42,9 +43,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
  */
 public class VenueInfo implements IVenueInfo {
 
-    private IChatRoomInfo info;
+    private RoomInfo info;
 
-    public VenueInfo(IChatRoomInfo info) {
+    public VenueInfo(RoomInfo info) {
         this.info = info;
     }
 
@@ -55,7 +56,7 @@ public class VenueInfo implements IVenueInfo {
 
     @Override
     public String getVenueName() {
-        return info.getName();
+        return Tools.parseName(info.getRoom());
     }
 
     @Override
@@ -65,12 +66,12 @@ public class VenueInfo implements IVenueInfo {
 
     @Override
     public String getVenueID() {
-        return info.getRoomID().toExternalForm();
+        return info.getRoom();
     }
 
     @Override
     public int getParticipantCount() {
-        return info.getParticipantsCount();
+        return info.getOccupantsCount();
     }
 
     @Override
@@ -85,7 +86,7 @@ public class VenueInfo implements IVenueInfo {
 
     @Override
     public boolean requiresPassword() {
-        return info.requiresPassword();
+        return info.isPasswordProtected();
     }
 
     @Override

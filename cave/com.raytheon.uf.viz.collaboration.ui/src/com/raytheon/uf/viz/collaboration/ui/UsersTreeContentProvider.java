@@ -24,15 +24,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -115,31 +116,29 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
         if (parentElement instanceof SessionGroupContainer) {
             SessionGroupContainer cont = (SessionGroupContainer) parentElement;
             return cont.getObjects().toArray();
-        } else if (parentElement instanceof IRosterGroup) {
-            IRosterGroup group = (IRosterGroup) parentElement;
-            List<IUser> result = new ArrayList<IUser>();
+        } else if (parentElement instanceof RosterGroup) {
+            RosterGroup group = (RosterGroup) parentElement;
+            List<UserId> result = new ArrayList<UserId>();
             UserId localUser = CollaborationConnection.getConnection()
                     .getUser();
-            Collection<?> entries = group.getEntries();
+            Collection<RosterEntry> entries = group.getEntries();
             synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
+                entries = new ArrayList<RosterEntry>(entries);
             }
-            for (Object obj : entries) {
-                if (obj instanceof IRosterEntry) {
-                    IUser user = ((IRosterEntry) obj).getUser();
-                    if (!localUser.isSameUser(user.getID().getName())) {
-                        result.add(user);
-                    }
+            for (RosterEntry entry : entries) {
+                String user = entry.getUser();
+                if (!localUser.isSameUser(user)) {
+                    result.add(IDConverter.convertFrom(entry));
                 }
             }
             return result.toArray();
         } else if (parentElement instanceof LocalGroup) {
-            List<IUser> result = new ArrayList<IUser>();
+            List<UserId> result = new ArrayList<UserId>();
             LocalGroup group = (LocalGroup) parentElement;
             UserId localUser = CollaborationConnection.getConnection()
                     .getUser();
-            for (IUser user : group.getUsers()) {
-                if (!localUser.isSameUser(user.getID().getName())) {
+            for (UserId user : group.getUsers()) {
+                if (!localUser.isSameUser(user.getNormalizedId())) {
                     result.add(user);
                 }
             }
@@ -171,21 +170,19 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
     @Override
     public boolean hasChildren(Object element) {
         boolean hasChildren = false;
-        if (element instanceof IRosterGroup) {
-            IRosterGroup group = (IRosterGroup) element;
+        if (element instanceof RosterGroup) {
+            RosterGroup group = (RosterGroup) element;
             UserId localUser = CollaborationConnection.getConnection()
                     .getUser();
-            Collection<?> entries = group.getEntries();
+            Collection<RosterEntry> entries = group.getEntries();
             synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
+                entries = new ArrayList<RosterEntry>(entries);
             }
-            for (Object obj : entries) {
-                if (obj instanceof IRosterEntry) {
-                    IUser user = ((IRosterEntry) obj).getUser();
-                    if (!localUser.isSameUser(user.getID().getName())) {
-                        hasChildren = true;
-                        break;
-                    }
+            for (RosterEntry entry : entries) {
+                String user = entry.getUser();
+                if (!localUser.isSameUser(user)) {
+                    hasChildren = true;
+                    break;
                 }
             }
         } else if (element instanceof SessionGroupContainer) {
