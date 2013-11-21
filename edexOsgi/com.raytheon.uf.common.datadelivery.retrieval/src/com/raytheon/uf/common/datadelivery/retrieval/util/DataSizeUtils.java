@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 11, 2013  2021      dhladky    WFS semi-scientific sizing.
  * Jun 14, 2013  2108      mpduff     Abstracted the class.
  * Sept 09, 2013 2351      dhladky    Fixed incorrect calculation for default pointdata overhead
+ * Nov 20, 2013   2554     dhladky    Generics
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public abstract class DataSizeUtils<DS extends DataSet> {
+public abstract class DataSizeUtils<DS extends DataSet<?, ?>> {
 
     /**
      * Factory method to get a DataSizeUtils.
@@ -67,8 +68,8 @@ public abstract class DataSizeUtils<DS extends DataSet> {
      *            The subscription
      * @return The correct implementation of DataSizeUtils
      */
-    public static DataSizeUtils<?> getInstance(DataSet dataSet,
-            Subscription subscription) {
+    public static DataSizeUtils<?> getInstance(DataSet<?, ?> dataSet,
+            Subscription<?, ?> subscription) {
         DataSizeUtils<?> dsu = null;
         if (subscription.getDataSetType() == DataType.GRID) {
             dsu = new GriddedDataSizeUtils((GriddedDataSet) dataSet);
@@ -88,7 +89,7 @@ public abstract class DataSizeUtils<DS extends DataSet> {
      *            ServiceType
      * @return dataset size
      */
-    public static long calculateSize(RetrievalAttribute ra, ServiceType st) {
+    public static long calculateSize(RetrievalAttribute<?, ?> ra, ServiceType st) {
 
         if (st == ServiceType.OPENDAP) {
             if (ra.getCoverage() instanceof GriddedCoverage) {
@@ -150,7 +151,7 @@ public abstract class DataSizeUtils<DS extends DataSet> {
      *            Subscription for calculating the size
      * @return Data size in bytes
      */
-    protected abstract long getDataSetSizeInBytes(Subscription subscription);
+    protected abstract long getDataSetSizeInBytes(Subscription<?, ?> subscription);
 
     /**
      * @return the dataSet
@@ -167,7 +168,7 @@ public abstract class DataSizeUtils<DS extends DataSet> {
      * 
      * @return the size in kB
      */
-    public long getDataSetSizeInKb(Subscription subscription) {
+    public long getDataSetSizeInKb(Subscription<?, ?> subscription) {
         return getDataSetSizeInBytes(subscription) / bytesPerKilobyte;
     }
 
