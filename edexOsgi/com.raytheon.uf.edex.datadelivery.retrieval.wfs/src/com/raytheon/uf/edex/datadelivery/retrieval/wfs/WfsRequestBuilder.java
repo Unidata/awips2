@@ -37,7 +37,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      end since the times will be correct now.
  * Oct 1, 2013   1797      dhladky      Generics
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
- * Oct 28, 2013 2448       dhladky       Request start time incorrectly used subscription start time.
+ * Oct 28, 2013 2448       dhladky      Request start time incorrectly used subscription start time.
+ * Nov 20, 2013 2554       dhladky      MaxFeatures was misplaced.
  * 
  * </pre>
  * 
@@ -167,6 +168,7 @@ public class WfsRequestBuilder<T extends Time, C extends Coverage> extends Reque
         sb.append("<?xml version=\"1.0\" ?>\n");
         sb.append("<wfs:GetFeature service=\"WFS\"\n");
         sb.append("version=\"").append(VERSION).append("\"\n");
+        sb.append("maxFeatures=\"").append(MAX).append("\"\n");
         sb.append("outputFormat=\"application/gml+xml; version=3.1\"\n");
         sb.append("xmlns:").append(typeName).append("=\"http://").append(typeName).append(".edex.uf.raytheon.com\"\n");
         sb.append("xmlns:wfs=\"http://www.opengis.net/wfs\"\n");
@@ -174,7 +176,7 @@ public class WfsRequestBuilder<T extends Time, C extends Coverage> extends Reque
         sb.append("xmlns:ogc=\"http://www.opengis.net/ogc\"\n");
         sb.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
         sb.append("xsi:schemaLocation=\"http://www.opengis.net/wfs../wfs/").append(VERSION).append("/WFS.xsd\">\n");
-        sb.append("<wfs:Query typeName=\"").append(typeName).append(":").append(typeName).append("\" maxFeatures=\"").append(MAX).append("\">\n");
+        sb.append("<wfs:Query typeName=\"").append(typeName).append(":").append(typeName).append("\">\n");
         
         return sb.toString();
     }
