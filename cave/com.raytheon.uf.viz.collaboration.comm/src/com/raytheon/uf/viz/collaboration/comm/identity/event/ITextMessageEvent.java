@@ -22,28 +22,27 @@ package com.raytheon.uf.viz.collaboration.comm.identity.event;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 
 /**
- * TODO Add Description
+ * Event indicating that a new message has been received
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface ITextMessageEvent {
     
+
     /**
-     * 
-     * @return
-     * 
+     * @return the message
      */
-    TextMessage getMessage();
+    public TextMessage getMessage();
 }

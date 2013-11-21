@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.ecf.presence.roster.IRosterGroup;
+import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
@@ -61,10 +61,9 @@ public class CollaborationGroupContainer {
         List<Object> result = new ArrayList<Object>();
         result.add(connection.getUser());
         result.add(sessionGroup);
-        for (Object obj : connection.getRosterManager().getRoster().getItems()) {
-            if (obj instanceof IRosterGroup) {
-                result.add(obj);
-            }
+        for (RosterGroup obj : connection.getRosterManager().getRoster()
+                .getGroups()) {
+            result.add(obj);
         }
         for (LocalGroup group : connection.getContactsManager()
                 .getLocalGroups()) {

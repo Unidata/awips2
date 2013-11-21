@@ -33,24 +33,12 @@ import javax.xml.bind.JAXB;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.core.user.User;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.Presence;
-import org.eclipse.ecf.presence.roster.IRoster;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
-import org.eclipse.ecf.presence.roster.IRosterItem;
-import org.eclipse.ecf.presence.roster.IRosterListener;
-import org.eclipse.ecf.presence.search.ICriteria;
-import org.eclipse.ecf.presence.search.ICriterion;
-import org.eclipse.ecf.presence.search.IResult;
-import org.eclipse.ecf.presence.search.ISearch;
-import org.eclipse.ecf.presence.search.IUserSearchManager;
-import org.eclipse.ecf.presence.search.UserSearchException;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -62,14 +50,15 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 
 /**
- * 
- * TODO Add Description
+ * Manage contacts from local groups and roster on server
  * 
  * <pre>
  * 
@@ -78,6 +67,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGro
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2012            bsteffen     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -118,6 +108,8 @@ public class ContactsManager {
 
     private final CollaborationConnection connection;
 
+    private final UserSearch search;
+
     private List<LocalGroup> localGroups;
 
     private Map<String, String> localAliases;
@@ -126,55 +118,39 @@ public class ContactsManager {
 
     public ContactsManager(CollaborationConnection connection) {
         this.connection = connection;
+        this.search = connection.createSearch();
         localAliases = UserIdWrapper.readAliasMap();
-        applyLocalAliases(getRoster());
         initLocalGroups();
-        connection.getRosterManager().addRosterListener(new IRosterListener() {
+        final RosterManager rosterManager = connection.getRosterManager();
+        final Roster roster = rosterManager.getRoster();
+        // currently don't need to listen to roster since we only allow one
+        // client
+        rosterManager.addRosterListener(new RosterListener() {
 
             @Override
-            public void handleRosterUpdate(IRoster roster,
-                    IRosterItem changedValue) {
+            public void entriesAdded(Collection<String> addresses) {
+                // TODO handle roster additions from other clients
+            }
+
+            @Override
+            public void entriesUpdated(Collection<String> addresses) {
+                // TODO Auto-generated method stub
 
             }
 
             @Override
-            public void handleRosterEntryRemove(IRosterEntry entry) {
+            public void entriesDeleted(Collection<String> addresses) {
+                // TODO Auto-generated method stub
 
             }
 
             @Override
-            public void handleRosterEntryAdd(IRosterEntry entry) {
-                applyLocalAliases(entry);
+            public void presenceChanged(
+                    org.jivesoftware.smack.packet.Presence presence) {
+                // TODO Auto-generated method stub
 
             }
         });
-    }
-
-    private void applyLocalAliases(IRosterItem item) {
-        if (item instanceof IRosterEntry) {
-            IRosterEntry entry = (IRosterEntry) item;
-            IUser user = entry.getUser();
-            String alias = localAliases.get(getUserId(user));
-            if (alias != null && user instanceof User) {
-                ((User) user).setNickname(alias);
-            }
-        } else if (item instanceof IRosterGroup) {
-            Collection<?> entries = ((IRosterGroup) item).getEntries();
-            synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
-            }
-            for (Object o : entries) {
-                applyLocalAliases((IRosterItem) o);
-            }
-        } else if (item instanceof IRoster) {
-            Collection<?> entries = ((IRoster) item).getItems();
-            synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
-            }
-            for (Object o : entries) {
-                applyLocalAliases((IRosterItem) o);
-            }
-        }
     }
 
     private void initLocalGroups() {
@@ -204,31 +180,28 @@ public class ContactsManager {
         }
     }
 
-    public void addToLocalGroup(String groupName, IUser user) {
+    public void addToLocalGroup(String groupName, UserId user) {
         synchronized (this.localGroups) {
             LocalGroup group = createLocalGroup(groupName);
-            String userId = getUserId(user);
+            String userId = user.getNormalizedId();
             List<String> userNames = group.getUserNames();
             if (!userNames.contains(userId)) {
-                List<IUser> users = group.getUsers();
+                List<UserId> users = group.getUsers();
                 group.getUserNames().add(userId);
                 users.add(user);
             }
-            IRosterEntry entry = getRosterEntry(user);
+            RosterEntry entry = getRosterEntry(user);
             if (entry == null || entry.getGroups().isEmpty()) {
                 // In order to get presence for a user they must be in the
                 // roster, we can add them to the roster by either subscribing
                 // to them using presence or adding them to the roster,
-                // subscribing to the presence will not set the name coreectly
+                // subscribing to the presence will not set the name correctly
                 // so we use the roster add method.
                 try {
-                    // IPresence presence = new Presence(Type.SUBSCRIBE);
-                    // connection.getRosterManager().getPresenceSender()
-                    // .sendPresenceUpdate(user.getID(), presence);
-
-                    connection.getRosterManager().getRosterSubscriptionSender()
-                            .sendRosterAdd(userId, user.getName(), null);
-                } catch (ECFException e) {
+                    RosterManager rosterManager = connection.getRosterManager();
+                    Roster roster = rosterManager.getRoster();
+                    roster.createEntry(userId, user.getAlias(), new String[0]);
+                } catch (XMPPException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
@@ -240,14 +213,14 @@ public class ContactsManager {
         storeLocalGroupsJob.schedule();
     }
 
-    public void deleteFromLocalGroup(String groupName, IUser user) {
+    public void deleteFromLocalGroup(String groupName, UserId user) {
         synchronized (localGroups) {
             Iterator<LocalGroup> it = localGroups.iterator();
             while (it.hasNext()) {
                 LocalGroup group = it.next();
                 if (group.getName().equals(groupName)) {
                     group.getUsers().remove(user);
-                    group.getUserNames().remove(getUserId(user));
+                    group.getUserNames().remove(user.getNormalizedId());
                     for (LocalGroupListener listener : getSafeGroupListeners()) {
                         listener.userDeleted(group, user);
                     }
@@ -257,13 +230,13 @@ public class ContactsManager {
             if (getLocalGroups(user).isEmpty()) {
                 // if the user is in no local groups and no roster groups remove
                 // them from our roster.
-                IRosterEntry entry = getRosterEntry(user);
+                RosterEntry entry = getRosterEntry(user);
                 if (entry != null && entry.getGroups().isEmpty()) {
-                    IPresence presence = new Presence(Type.UNSUBSCRIBE);
+                    Presence presence = new Presence(Type.unsubscribe);
+                    presence.setTo(user.getNormalizedId());
                     try {
-                        connection.getRosterManager().getPresenceSender()
-                                .sendPresenceUpdate(user.getID(), presence);
-                    } catch (ECFException e) {
+                        connection.getAccountManager().sendPresence(presence);
+                    } catch (CollaborationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
                     }
@@ -297,9 +270,9 @@ public class ContactsManager {
             while (it.hasNext()) {
                 LocalGroup group = it.next();
                 if (groupName.equals(group.getName())) {
-                    ArrayList<IUser> users = new ArrayList<IUser>(
+                    List<UserId> users = new ArrayList<UserId>(
                             group.getUsers());
-                    for (IUser user : users) {
+                    for (UserId user : users) {
                         deleteFromLocalGroup(groupName, user);
                     }
                     it.remove();
@@ -330,12 +303,12 @@ public class ContactsManager {
         storeLocalGroupsJob.schedule();
     }
 
-    public List<LocalGroup> getLocalGroups(IUser user) {
+    public List<LocalGroup> getLocalGroups(UserId user) {
         List<LocalGroup> results = new ArrayList<LocalGroup>();
         synchronized (localGroups) {
             for (LocalGroup group : localGroups) {
                 for (String userName : group.getUserNames()) {
-                    if (getUserId(user).equals(userName)) {
+                    if (user.getNormalizedId().equals(userName)) {
                         results.add(group);
                         break;
                     }
@@ -345,17 +318,16 @@ public class ContactsManager {
         return results;
     }
 
-    public void setNickname(IUser user, String nickname) {
+    public void setNickname(UserId user, String nickname) {
         synchronized (localAliases) {
 
-            localAliases.put(getUserId(user), nickname);
+            localAliases.put(user.getNormalizedId(), nickname);
             try {
                 UserIdWrapper.saveAliasMap(localAliases);
             } catch (LocalizationOpFailedException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
-            applyLocalAliases(getRoster());
             connection.postEvent(new UserNicknameChangedEvent(user, nickname));
         }
     }
@@ -369,23 +341,20 @@ public class ContactsManager {
      * @param user
      * @return
      */
-    public String getDisplayName(IUser user) {
-        String alias = localAliases.get(getUserId(user));
+    public String getDisplayName(UserId user) {
+        String alias = localAliases.get(user.getNormalizedId());
         if (alias == null) {
             // at this point try to get the user from roster;
-            IUser rosterUser = null;
-            if (user.getID() != null) {
-                rosterUser = getUser(user.getID());
+            UserId rosterUser = null;
+            if (user.getNormalizedId() != null) {
+                rosterUser = getUser(user.getNormalizedId());
             }
             if (rosterUser != null) {
                 user = rosterUser;
             }
-            alias = user.getNickname();
+            alias = user.getAlias();
             if (alias == null) {
                 alias = user.getName();
-                if (alias == null) {
-                    alias = user.getID().getName();
-                }
             }
             if (alias.contains("@")) {
                 alias = Tools.parseName(alias);
@@ -394,29 +363,29 @@ public class ContactsManager {
         return alias;
     }
 
-    public IUser getUser(ID id) {
-        return getUser(getUserId(id));
-    }
-
-    public IUser getUser(String userId) {
-        userId = normalizeId(userId);
-        IRosterEntry entry = searchRoster(getRoster(), userId);
+    public UserId getUser(String userId) {
+        RosterEntry entry = searchRoster(getRoster(), userId);
         if (entry == null) {
             return null;
         }
-        return entry.getUser();
+        return IDConverter.convertFrom(entry);
     }
 
-    public IRosterEntry getRosterEntry(IUser user) {
+    public RosterEntry getRosterEntry(UserId user) {
         return searchRoster(user);
     }
 
-    public IPresence getPresence(IUser user) {
-        IRosterEntry entry = searchRoster(user);
-        if (entry == null) {
-            return new Presence(Type.UNKNOWN);
+    public Presence getPresence(UserId user) {
+        UserId self = connection.getUser();
+        if (self.isSameUser(user)) {
+            return getSelfPresence();
         }
-        return entry.getPresence();
+        Roster roster = getRoster();
+        return roster.getPresence(user.getNormalizedId());
+    }
+
+    public Presence getSelfPresence() {
+        return connection.getPresence();
     }
 
     /**
@@ -426,23 +395,23 @@ public class ContactsManager {
      * @param name
      * @return
      */
-    protected IUser findAndAddUser(String name) {
-        name = normalizeId(name);
-        IUser user = null;
-        IRosterEntry entry = searchRoster(getRoster(), name);
+    protected UserId findAndAddUser(String id) {
+        UserId user = null;
+        RosterEntry entry = searchRoster(getRoster(), id);
         if (entry != null) {
-            user = entry.getUser();
+            user = IDConverter.convertFrom(entry);
         }
         if (user == null) {
-            user = findUser(name);
+            user = findUser(id);
             if (user != null) {
                 try {
-                    connection
-                            .getRosterManager()
-                            .getRosterSubscriptionSender()
-                            .sendRosterAdd(getUserId(user), user.getName(),
-                                    null);
-                } catch (ECFException e) {
+                    Roster roster = connection.getRosterManager().getRoster();
+                    String alias = user.getAlias();
+                    if (alias == null || alias.trim().isEmpty()) {
+                        alias = user.getName();
+                    }
+                    roster.createEntry(user.getFQName(), alias, new String[0]);
+                } catch (XMPPException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
@@ -452,103 +421,38 @@ public class ContactsManager {
 
     }
 
-    private IUser findUser(String name) {
-        IUserSearchManager searchManager = connection
-                .getPresenceContainerAdapter().getUserSearchManager();
-        ICriterion criterion = searchManager.createRestriction().eq("Username",
-                Tools.parseName(name));
-        ICriteria criteria = searchManager.createCriteria();
-        criteria.add(criterion);
-        try {
-            ISearch search = searchManager.search(criteria);
-            for (Object result : search.getResultList().getResults()) {
-                if (result instanceof IResult) {
-                    IUser user = ((IResult) result).getUser();
-                    String alias = localAliases.get(getUserId(user));
-                    if (alias != null && user instanceof User) {
-                        ((User) user).setNickname(alias);
-                    }
-                    return user;
-                }
-            }
-        } catch (UserSearchException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        return null;
-    }
-
-    private IRoster getRoster() {
+    /**
+     * @return
+     */
+    private Roster getRoster() {
         return connection.getRosterManager().getRoster();
     }
 
-    /**
-     * given a user return username@host.
-     * 
-     * @param user
-     * @return
-     */
-    private String getUserId(IUser user) {
-        if (user.getID() == null) {
-            return normalizeId(user.toString());
+    private UserId findUser(String idString) {
+        List<UserId> results;
+        try {
+            results = search.byId(idString);
+        } catch (XMPPException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return null;
         }
-        return getUserId(user.getID());
-    }
-
-    /**
-     * given a user ID return username@host.
-     * 
-     * @param id
-     * @return
-     */
-    private String getUserId(ID id) {
-        return normalizeId(id.getName());
-    }
-
-    private String normalizeId(String userId) {
-        String name = Tools.parseName(userId);
-        String hostname = Tools.parseHost(userId);
-        hostname = IDConverter.normalizeHostname(hostname);
-        return name + "@" + hostname;
-    }
-
-    private IRosterEntry searchRoster(IUser user) {
-        String userId = getUserId(user);
-        return searchRoster(getRoster(), userId);
-    }
-
-    private IRosterEntry searchRoster(IRosterItem item, String userName) {
-        if (item instanceof IRosterEntry) {
-            IRosterEntry entry = (IRosterEntry) item;
-            if (userName.equals(getUserId(entry.getUser()))) {
-                return entry;
+        for (UserId id : results) {
+            String alias = localAliases.get(id.getNormalizedId());
+            if (alias != null) {
+                id.setAlias(alias);
             }
-        } else if (item instanceof IRosterGroup) {
-            Collection<?> entries = ((IRosterGroup) item).getEntries();
-            synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
-            }
-            for (Object o : entries) {
-                IRosterEntry entry = searchRoster((IRosterItem) o, userName);
-                if (entry != null) {
-                    return entry;
-                }
-            }
-        } else if (item instanceof IRoster) {
-            Collection<?> entries = ((IRoster) item).getItems();
-            synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
-            }
-            for (Object o : entries) {
-                IRosterEntry entry = searchRoster((IRosterItem) o, userName);
-                if (entry != null) {
-                    return entry;
-                }
-            }
-        } else {
-            throw new IllegalStateException("Unexpected Roster entry: "
-                    + item.getClass().getSimpleName());
         }
-        return null;
+        // since we are searching by ID, there should be 0 or 1 result
+        return results.isEmpty() ? null : results.iterator().next();
+    }
+
+    private RosterEntry searchRoster(UserId user) {
+        String userId = user.getNormalizedId();
+        return searchRoster(connection.getRosterManager().getRoster(), userId);
+    }
+
+    private RosterEntry searchRoster(Roster roster, String userId) {
+        return roster.getEntry(userId);
     }
 
     public void addLocalGroupListener(LocalGroupListener listener) {
@@ -577,9 +481,9 @@ public class ContactsManager {
 
         public void groupDeleted(LocalGroup group);
 
-        public void userAdded(LocalGroup group, IUser user);
+        public void userAdded(LocalGroup group, UserId user);
 
-        public void userDeleted(LocalGroup group, IUser user);
+        public void userDeleted(LocalGroup group, UserId user);
 
     }
 }
