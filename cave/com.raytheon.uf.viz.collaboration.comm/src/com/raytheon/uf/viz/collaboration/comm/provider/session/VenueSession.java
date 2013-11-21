@@ -19,28 +19,17 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.eclipse.ecf.core.ContainerConnectException;
-import org.eclipse.ecf.core.ContainerCreateException;
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IIMMessageEvent;
-import org.eclipse.ecf.presence.IIMMessageListener;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
-import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
-import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationSender;
-import org.eclipse.ecf.presence.chatroom.IChatRoomManager;
-import org.eclipse.ecf.presence.chatroom.IChatRoomMessage;
-import org.eclipse.ecf.presence.chatroom.IChatRoomMessageEvent;
-import org.eclipse.ecf.presence.chatroom.IChatRoomMessageSender;
-import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -52,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -84,6 +74,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 17, 2012            njensen      Major refactor
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -105,13 +96,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     public static final String SEND_HISTORY = "[[HISTORY]]";
 
-    private IChatRoomInfo venueInfo = null;
+    private MultiUserChat muc = null;
 
-    private IChatRoomContainer venueContainer = null;
+    private PacketListener intListener = null;
 
-    private IIMMessageListener intListener = null;
-
-    private IChatRoomParticipantListener participantListener = null;
+    private PacketListener participantListener = null;
 
     private Venue venue;
 
@@ -120,10 +109,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(IContainer container, EventBus externalBus,
+    protected VenueSession(EventBus externalBus,
             CollaborationConnection manager, String sessionId)
             throws CollaborationException {
-        super(container, externalBus, manager, sessionId);
+        super(externalBus, manager, sessionId);
     }
 
     /**
@@ -131,9 +120,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(IContainer container, EventBus externalBus,
+    protected VenueSession(EventBus externalBus,
             CollaborationConnection manager) throws CollaborationException {
-        super(container, externalBus, manager);
+        super(externalBus, manager);
     }
 
     /**
@@ -144,22 +133,19 @@ public class VenueSession extends BaseSession implements IVenueSession {
      */
     @Override
     public void close() {
-
+        if (muc == null) {
+            return;
+        }
         if (intListener != null) {
-            venueContainer.removeMessageListener(intListener);
+            muc.removeMessageListener(intListener);
             intListener = null;
         }
         if (participantListener != null) {
-            venueContainer
-                    .removeChatRoomParticipantListener(participantListener);
+            muc.removeParticipantListener(participantListener);
             participantListener = null;
         }
-        if (venueContainer != null) {
-            venueContainer.disconnect();
-            venueContainer = null;
-        }
-
-        venueInfo = null;
+        muc.leave();
+        muc = null;
 
         super.close();
     }
@@ -193,21 +179,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
     @Override
     public void sendInvitation(UserId id, VenueInvite invite)
             throws CollaborationException {
-        IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
-                .getChatRoomManager().getInvitationSender();
-        if (sender != null) {
-            String msgBody = Tools.marshallData(invite);
-            ID roomId = venueInfo.getConnectedID();
-            ID userId = IDFactory.getDefault().createID(
-                    getConnectionNamespace(), id.getFQName());
-
-            try {
-                sender.sendInvitation(roomId, userId, invite.getSubject(),
-                        msgBody);
-            } catch (ECFException e) {
-                throw new CollaborationException("Error sending invitation", e);
-            }
-        }
+        String msgBody = Tools.marshallData(invite);
+        muc.invite(id.getNormalizedId(), msgBody);
     }
 
     /**
@@ -242,42 +215,53 @@ public class VenueSession extends BaseSession implements IVenueSession {
     protected void sendMessageToVenue(String message)
             throws CollaborationException {
         // Assume success
-        if ((venueContainer != null) && (message != null)) {
+        if ((muc != null) && (message != null)) {
             Activator.getDefault().getNetworkStats()
                     .log(Activator.VENUE, message.length(), 0);
-            IChatRoomMessageSender sender = venueContainer
-                    .getChatRoomMessageSender();
             try {
                 if (message.startsWith(SEND_CMD)) {
-                    sender.sendMessage(message);
+                    muc.sendMessage(message);
                 } else {
-                    sender.sendMessage(SEND_TXT + message);
+                    muc.sendMessage(SEND_TXT + message);
                 }
-            } catch (ECFException e) {
+            } catch (XMPPException e) {
                 throw new CollaborationException("Error sending messge", e);
             }
         }
     }
 
-    protected IChatRoomInfo joinVenue(String venueName)
+    /**
+     * Set up venue configuration and listeners. Must call
+     * {@link VenueSession#connectToRoom()} to actually join room
+     * 
+     * @param venueName
+     * @return
+     * @throws CollaborationException
+     */
+    protected IVenueInfo configureVenue(String venueName)
             throws CollaborationException {
-        // Create chat room container from manager
-        IChatRoomManager venueManager = getConnectionPresenceAdapter()
-                .getChatRoomManager();
-        if (venueManager != null) {
-            venueInfo = venueManager.getChatRoomInfo(venueName);
-            if (venueInfo == null) {
-                throw new CollaborationException("Unable to join venue "
-                        + venueName + ".  Venue may have been closed already.");
-            }
-            completeVenueConnection(venueInfo);
-        }
-        return venueInfo;
+        CollaborationConnection manager = getSessionManager();
+        XMPPConnection conn = manager.getXmppConnection();
+        String roomId = getRoomId(conn.getHost(), venueName);
+        this.muc = new MultiUserChat(conn, roomId);
+        this.venue = new Venue(conn, muc);
+        createListeners();
+        return this.venue.getInfo();
     }
 
     /**
-     * This does NOT connect to the room, it only creates the venue and returns
-     * the info. To connect, connectToRoom must be called.
+     * Construct room id from name and host
+     * 
+     * @param host
+     * @param roomName
+     * @return
+     */
+    private String getRoomId(String host, String roomName){
+        return roomName + "@conference." + host;
+    }
+
+    /**
+     * Create room and connect to it
      * 
      * @param venueName
      * @throws CollaborationException
@@ -285,117 +269,177 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#createVenue(java.lang.String,
      *      java.lang.String)
      */
-    protected IChatRoomInfo createVenue(String venueName, String subject)
+    protected IVenueInfo createVenue(String venueName, String subject)
             throws CollaborationException {
         try {
-            // Create chat room container from manager
-            IChatRoomManager venueManager = getConnectionPresenceAdapter()
-                    .getChatRoomManager();
-            if (venueManager != null) {
-                venueInfo = venueManager.getChatRoomInfo(venueName);
-                if (venueInfo == null) {
-                    Map<String, String> props = null;
-                    if (subject != null) {
-                        props = new HashMap<String, String>();
-                        props.put(Tools.VENUE_SUBJECT_PROP, subject);
-                    }
-                    venueInfo = venueManager.createChatRoom(venueName, props);
-                    completeVenueConnection(venueInfo);
-                }
-            }
-        } catch (Exception e) {
+            CollaborationConnection manager = getSessionManager();
+            XMPPConnection conn = manager.getXmppConnection();
+            String roomId = getRoomId(conn.getHost(), venueName);
+            this.muc = new MultiUserChat(conn, roomId);
+            createListeners();
+            UserId user = manager.getUser();
+            // TODO check if room already exists
+            muc.create(user.getName());
+            muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
+            muc.changeSubject(subject);
+            this.venue = new Venue(conn, muc);
+            sendPresence(CollaborationConnection.getConnection().getPresence());
+            return this.venue.getInfo();
+        } catch (XMPPException e) {
             throw new CollaborationException("Error creating venue "
                     + venueName, e);
         }
-        return venueInfo;
     }
 
     /**
-     * 
-     * @return
-     * @throws CollaborationException
+     * register chat room listeners with muc
      */
-    private void completeVenueConnection(IChatRoomInfo venueInfo)
-            throws CollaborationException {
-        if (venueInfo != null) {
-            try {
-                venueContainer = venueInfo.createChatRoomContainer();
-                this.venue = new Venue(venueContainer, venueInfo);
-            } catch (ContainerCreateException e) {
-                throw new CollaborationException(
-                        "Error completing connection to venue", e);
+    private void createListeners() {
+        muc.addParticipantStatusListener(new ParticipantStatusListener() {
+
+            @Override
+            public void voiceRevoked(String participant) {
+                // TODO Auto-generated method stub
+
             }
-        }
+
+            @Override
+            public void voiceGranted(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void ownershipRevoked(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void ownershipGranted(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void nicknameChanged(String participant, String newNickname) {
+                // TODO how do we pass along new nickname?
+                UserId user = IDConverter.convertFromRoom(muc, participant);
+                postEvent(new VenueParticipantEvent(user,
+                        ParticipantEventType.UPDATED));
+            }
+
+            @Override
+            public void moderatorRevoked(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void moderatorGranted(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void membershipRevoked(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void membershipGranted(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void left(String participant) {
+                UserId user = IDConverter.convertFromRoom(muc, participant);
+                postEvent(new VenueParticipantEvent(user,
+                        ParticipantEventType.DEPARTED));
+
+            }
+
+            @Override
+            public void kicked(String participant, String actor, String reason) {
+                this.left(participant);
+            }
+
+            @Override
+            public void joined(String participant) {
+                UserId user = IDConverter.convertFromRoom(muc, participant);
+                postEvent(new VenueParticipantEvent(user,
+                        ParticipantEventType.ARRIVED));
+            }
+
+            @Override
+            public void banned(String participant, String actor, String reason) {
+                this.left(participant);
+            }
+
+            @Override
+            public void adminRevoked(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void adminGranted(String participant) {
+                // TODO Auto-generated method stub
+
+            }
+
+        });
+        // presence listener
+        muc.addParticipantListener(new PacketListener() {
+
+            @Override
+            public void processPacket(Packet packet) {
+                if (packet instanceof Presence) {
+                    Presence p = (Presence) packet;
+                    String fromID = p.getFrom();
+                    UserId user = IDConverter.convertFromRoom(muc, fromID);
+                    venue.handlePresenceUpdated(user, p);
+                    postEvent(new VenueParticipantEvent(user, p,
+                            ParticipantEventType.PRESENCE_UPDATED));
+                }
+            }
+        });
+        // message listener
+        this.muc.addMessageListener(new PacketListener() {
+
+            @Override
+            public void processPacket(Packet packet) {
+                if (packet instanceof Message) {
+                    Message m = (Message) packet;
+                    Activator.getDefault().getNetworkStats()
+                            .log(Activator.VENUE, 0, m.getBody().length());
+                    if (accept(m)) {
+                        distributeMessage(convertMessage(m));
+                    }
+                }
+
+            }
+        });
     }
 
     /**
      * Allows users to connect after the fact so that they do not miss any
      * messages coming from the room (after the dialog/view has been
-     * instanstiated)
+     * instantiated)
      */
     public void connectToRoom() {
+        if (this.muc.isJoined()) {
+            return;
+        }
         try {
-            IChatRoomParticipantListener pListener = new IChatRoomParticipantListener() {
-                @Override
-                public void handleArrived(IUser participant) {
-                    UserId user = IDConverter.convertFrom(participant);
-                    postEvent(new VenueParticipantEvent(user,
-                            ParticipantEventType.ARRIVED));
-                }
-
-                @Override
-                public void handleUpdated(IUser participant) {
-                    UserId user = IDConverter.convertFrom(participant);
-                    postEvent(new VenueParticipantEvent(user,
-                            ParticipantEventType.UPDATED));
-                }
-
-                @Override
-                public void handleDeparted(IUser participant) {
-                    UserId user = IDConverter.convertFrom(participant);
-                    postEvent(new VenueParticipantEvent(user,
-                            ParticipantEventType.DEPARTED));
-                }
-
-                @Override
-                public void handlePresenceUpdated(ID fromID,
-                        org.eclipse.ecf.presence.IPresence presence) {
-                    venue.handlePresenceUpdated(fromID, presence);
-                    UserId user = IDConverter.convertFrom(fromID);
-                    postEvent(new VenueParticipantEvent(user, presence,
-                            ParticipantEventType.PRESENCE_UPDATED));
-
-                }
-            };
-            venueContainer.addChatRoomParticipantListener(pListener);
-
-            venueContainer.connect(venueInfo.getRoomID(), null);
-            if (venueContainer.getConnectedID() != null) {
-
-                intListener = new IIMMessageListener() {
-                    public void handleMessageEvent(IIMMessageEvent messageEvent) {
-                        if (messageEvent instanceof IChatRoomMessageEvent) {
-                            IChatRoomMessage m = ((IChatRoomMessageEvent) messageEvent)
-                                    .getChatRoomMessage();
-                            Activator
-                                    .getDefault()
-                                    .getNetworkStats()
-                                    .log(Activator.VENUE, 0,
-                                            m.getMessage().length());
-                            if (accept(m)) {
-                                distributeMessage(convertMessage(m));
-                            }
-                        }
-                    }
-                };
-                venueContainer.addMessageListener(intListener);
-
-                sendPresence(CollaborationConnection.getConnection()
-                        .getPresence());
-            }
+            UserId user = getSessionManager().getUser();
+            this.muc.join(user.getName());
+            sendPresence(CollaborationConnection.getConnection().getPresence());
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (ContainerConnectException e) {
+        } catch (XMPPException e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to connect to container", e);
         }
@@ -409,23 +453,32 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *            A message to accept.
      * @return Should the message be accepted.
      */
-    private boolean accept(IChatRoomMessage message) {
-        boolean acceptMessage = true;
-
-        String body = message.getMessage();
-        // Command data only
-        if (body.startsWith(SEND_CMD)) {
-            ID from = message.getFromID();
-
-            String name = Tools.parseName(from.getName());
-
-            UserId account = getSessionManager().getUser();
-            String aName = account.getFQName();
-            if (aName.equals(name)) {
-                acceptMessage = false;
-            }
+    private boolean accept(Message message) {
+        if (this.muc == null) {
+            // we don't seem to be in a room
+            return false;
         }
-        return acceptMessage;
+
+        String from = message.getFrom();
+        String roomName = Tools.parseName(from);
+        String thisRoom = Tools.parseName(this.muc.getRoom());
+        if (!thisRoom.equals(roomName)) {
+            // this message is for another room, they should have a listener to
+            // pick it up
+            return false;
+        }
+
+        UserId account = getSessionManager().getUser();
+        UserId fromUser = IDConverter.convertFromRoom(muc, from);
+
+        String body = message.getBody();
+
+        if (!body.startsWith(SEND_HISTORY) && fromUser.isSameUser(account)) {
+            // ignore from ourselves except for history
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -447,7 +500,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     } catch (CollaborationException ce) {
                         statusHandler.error(
                                 "Error deserializing received message on venue "
-                                        + venueInfo.getName(), ce);
+                                        + muc.getRoom(), ce);
                     }
                 } else if (body.startsWith(SEND_TXT)) {
                     body = body.substring(SEND_TXT.length());
@@ -503,25 +556,22 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *            The ECF chat room message to convert.
      * @return The converted message.
      */
-    private IMessage convertMessage(IChatRoomMessage msg) {
+    private IMessage convertMessage(Message msg) {
         IMessage message = null;
 
-        String body = msg.getMessage();
+        String body = msg.getBody();
         if (body != null) {
-            message = new CollaborationMessage(null, msg.getMessage());
-            message.setFrom(IDConverter.convertFrom(msg.getFromID()));
+            message = new CollaborationMessage(null, body);
+            message.setFrom(IDConverter.convertFromRoom(muc, msg.getFrom()));
         }
         return message;
     }
 
     @Override
-    public void sendPresence(IPresence presence) throws CollaborationException {
-        try {
-            CollaborationConnection.getConnection().getRosterManager()
-                    .getPresenceSender()
-                    .sendPresenceUpdate(venueInfo.getRoomID(), presence);
-        } catch (ECFException e) {
-            throw new CollaborationException(e);
-        }
+    public void sendPresence(Presence presence) throws CollaborationException {
+        presence.setTo(venue.getInfo().getVenueID());
+        XMPPConnection conn = getConnection().getXmppConnection();
+        conn.sendPacket(presence);
     }
+
 }

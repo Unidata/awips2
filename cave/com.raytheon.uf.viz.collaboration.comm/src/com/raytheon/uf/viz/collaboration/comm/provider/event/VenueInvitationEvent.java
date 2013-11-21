@@ -24,7 +24,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
- * TODO Add Description
+ * Event that is posted when a venue invitation is sent
  * 
  * <pre>
  * 

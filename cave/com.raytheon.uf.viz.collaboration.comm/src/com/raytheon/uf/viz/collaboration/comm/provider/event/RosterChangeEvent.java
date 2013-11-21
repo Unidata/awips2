@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.eclipse.ecf.presence.roster.IRosterItem;
+import org.jivesoftware.smack.RosterEntry;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 
 /**
- * TODO Add Description
+ * Event posted when a roster entry needs to be updated
  * 
  * <pre>
  * 
@@ -45,7 +45,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
 
     private final RosterChangeType type;
 
-    private final IRosterItem item;
+    private final RosterEntry item;
 
     /**
      * Create an instance of this event using the given type and entry.
@@ -55,7 +55,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @param entry
      *            The changed entry.
      */
-    public RosterChangeEvent(RosterChangeType type, IRosterItem item) {
+    public RosterChangeEvent(RosterChangeType type, RosterEntry item) {
         this.type = type;
         this.item = item;
     }
@@ -78,7 +78,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent#getEntry()
      */
     @Override
-    public IRosterItem getItem() {
+    public RosterEntry getItem() {
         return item;
     }
 

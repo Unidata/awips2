@@ -19,15 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.im.IChatMessage;
-import org.eclipse.ecf.presence.im.IChatMessageSender;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Message.Type;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
@@ -51,6 +48,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Cleanup
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -60,19 +58,15 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 
 public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
 
-    private IChatMessageSender chatSender = null;
-
     /**
      * 
      * @param container
      * @param externalBus
      * @param manager
      */
-    PeerToPeerChat(IContainer container, EventBus externalBus,
+    PeerToPeerChat(EventBus externalBus,
             CollaborationConnection manager) throws CollaborationException {
-        super(container, externalBus, manager);
-        chatSender = getConnectionPresenceAdapter().getChatManager()
-                .getChatMessageSender();
+        super(externalBus, manager);
     }
 
     /**
@@ -81,30 +75,33 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      */
     @Override
     public void sendPeerToPeer(IMessage message) throws CollaborationException {
-        if (chatSender != null) {
-            ID toID = createID(message.getTo().getFQName());
-            String subject = message.getSubject();
-            String body = message.getBody();
-            Collection<Property> properties = message.getProperties();
-            Map<String, String> props = null;
-            if ((properties != null) && (properties.size() > 0)) {
-                props = new HashMap<String, String>();
-                for (Property p : properties) {
-                    props.put(p.getKey(), p.getValue());
-                }
-            }
+        CollaborationConnection manager = getConnection();
+        XMPPConnection conn = manager.getXmppConnection();
+        IQualifiedID to = message.getTo();
+        String toId = to.getFQName();
+        Message xmppMessage = new Message(toId, Type.chat);
+        xmppMessage.setBody(message.getBody());
+        for (Property p : message.getProperties()) {
+            xmppMessage.setProperty(p.getKey(), p.getValue());
+        }
+        xmppMessage.setSubject(message.getSubject());
+        synchronized (this) {
+            Activator.getDefault().getNetworkStats()
+                    .log(Activator.PEER_TO_PEER, message.getBody().length(), 0);
+            // TODO this is how ECF sent messages, we should look into the
+            // side-effects of creating an empty message listener every time we
+            // send a message. Alternative would be to redesign around keeping
+            // track of the created chat
+            Chat chat = conn.getChatManager().createChat(toId,
+                    new MessageListener() {
+                        public void processMessage(Chat chat, Message message) {
+                        }
+                    });
             try {
-                Activator
-                        .getDefault()
-                        .getNetworkStats()
-                        .log(Activator.PEER_TO_PEER,
-                                message.getBody().length(), 0);
-                chatSender.sendChatMessage(toID, null, IChatMessage.Type.CHAT,
-                        subject, body, props);
-            } catch (ECFException e) {
-                throw new CollaborationException(
-                        "Error sending message to peer "
-                                + message.getTo().getName(), e);
+                chat.sendMessage(xmppMessage);
+            } catch (XMPPException e) {
+                throw new CollaborationException("Unable to send message to: "
+                        + toId, e);
             }
         }
     }

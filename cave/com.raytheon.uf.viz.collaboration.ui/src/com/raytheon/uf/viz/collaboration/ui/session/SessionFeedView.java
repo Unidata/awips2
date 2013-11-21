@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -36,13 +34,13 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
@@ -60,6 +58,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2012            mnash     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -91,8 +90,8 @@ public class SessionFeedView extends SessionView {
     public SessionFeedView() {
         super();
         String actingSite = CollaborationConnection.getConnection()
-                .getPresence().getProperties()
-                .get(SiteConfigInformation.SITE_NAME).toString();
+                .getPresence().getProperty(SiteConfigInformation.SITE_NAME)
+                .toString();
         enabledSites = SiteConfigurationManager.getSubscribeList(actingSite);
         userEnabledSites = SiteConfigurationManager.getUserSubscribeList();
     }
@@ -109,7 +108,7 @@ public class SessionFeedView extends SessionView {
         super.initComponents(parent);
         colors = SiteConfigurationManager.getSiteColors();
         if (colors != null) {
-            for (IUser user : session.getVenue().getParticipants()) {
+            for (UserId user : session.getVenue().getParticipants()) {
                 setColorForSite(user);
             }
         } else {
@@ -147,7 +146,7 @@ public class SessionFeedView extends SessionView {
                 // loop through all the entries in the list so we can set the
                 // color for all sites corresponding to "selectedSite"
                 if (site != null) {
-                    for (IUser user : session.getVenue().getParticipants()) {
+                    for (UserId user : session.getVenue().getParticipants()) {
                         setColorForSite(user);
                     }
                 }
@@ -254,11 +253,10 @@ public class SessionFeedView extends SessionView {
         Object site = null;
         if (isHistory) {
             site = msg.getSubject();
-        } else if (msg.getFrom() instanceof IUser) {
-            IPresence presence = session.getVenue().getPresence(
-                    (IUser) msg.getFrom());
-            site = presence.getProperties()
-                    .get(SiteConfigInformation.SITE_NAME);
+        } else if (msg.getFrom() instanceof UserId) {
+            Presence presence = session.getVenue().getPresence(
+                    (UserId) msg.getFrom());
+            site = presence.getProperty(SiteConfigInformation.SITE_NAME);
         }
 
         // should we append?
@@ -286,11 +284,11 @@ public class SessionFeedView extends SessionView {
     private String getSelectedSite() {
         IStructuredSelection selection = (IStructuredSelection) usersTable
                 .getSelection();
-        IUser selectedEntry = (IUser) selection.getFirstElement();
-        IPresence pres = session.getVenue().getPresence(selectedEntry);
-        Object selectedSite = pres.getProperties().get(
+        UserId selectedEntry = (UserId) selection.getFirstElement();
+        Presence pres = session.getVenue().getPresence(selectedEntry);
+        Object selectedSite = pres.getProperty(
                 SiteConfigInformation.SITE_NAME);
-        return selectedSite.toString();
+        return selectedSite == null ? "" : selectedSite.toString();
     }
 
     /**
@@ -300,10 +298,9 @@ public class SessionFeedView extends SessionView {
      * 
      * @param user
      */
-    private void setColorForSite(IUser user) {
-        UserId id = IDConverter.convertFrom(user);
-        IPresence presence = session.getVenue().getPresence(user);
-        setColorForSite(id, presence);
+    private void setColorForSite(UserId user) {
+        Presence presence = session.getVenue().getPresence(user);
+        setColorForSite(user, presence);
     }
 
     /**
@@ -312,11 +309,11 @@ public class SessionFeedView extends SessionView {
      * @param id
      * @param presence
      */
-    private void setColorForSite(UserId id, IPresence presence) {
+    private void setColorForSite(UserId id, Presence presence) {
         if (presence == null) {
             return;
         }
-        Object site = presence.getProperties().get(
+        Object site = presence.getProperty(
                 SiteConfigInformation.SITE_NAME);
         if (site != null) {
             setColorForSite(id, site.toString());
@@ -369,7 +366,7 @@ public class SessionFeedView extends SessionView {
         setColorForSite(participant);
         if (session != null && session.getVenue() != null) {
             Object siteOb = session.getVenue().getPresence(participant)
-                    .getProperties().get(SiteConfigInformation.SITE_NAME);
+                    .getProperty(SiteConfigInformation.SITE_NAME);
             String site = "";
             if (siteOb != null) {
                 site = siteOb.toString();
@@ -394,11 +391,11 @@ public class SessionFeedView extends SessionView {
      */
     @Override
     protected void participantDeparted(UserId participant) {
-        String site = session.getVenue().getPresence(participant)
-                .getProperties().get(SiteConfigInformation.SITE_NAME)
-                .toString();
+        Presence presence = session.getVenue().getPresence(participant);
+        Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
+        String siteName = siteObj == null ? "" : siteObj.toString();
         // only show sites you care about
-        if (enabledSites.contains(site) || userEnabledSites.contains(site)) {
+        if (enabledSites.contains(siteName) || userEnabledSites.contains(siteName)) {
             super.participantDeparted(participant);
         } else {
             usersTable.setInput(session.getVenue().getParticipants());
@@ -408,7 +405,7 @@ public class SessionFeedView extends SessionView {
 
     @Override
     protected void participantPresenceUpdated(UserId participant,
-            IPresence presence) {
+            Presence presence) {
         setColorForSite(participant, presence);
         super.participantPresenceUpdated(participant, presence);
     }

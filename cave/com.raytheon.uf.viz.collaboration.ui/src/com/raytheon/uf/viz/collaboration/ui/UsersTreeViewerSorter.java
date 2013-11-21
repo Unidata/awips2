@@ -20,11 +20,10 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
-import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
@@ -41,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -74,35 +74,34 @@ public class UsersTreeViewerSorter extends ViewerSorter {
         }
 
         // Groups before users.
-        if (e1 instanceof IRosterGroup) {
-            if (!(e2 instanceof IRosterGroup)) {
+        if (e1 instanceof RosterGroup) {
+            if (!(e2 instanceof RosterGroup)) {
                 return -1;
             }
-        } else if (e1 instanceof IRosterGroup) {
+        } else if (e1 instanceof RosterGroup) {
             return 1;
         }
-        if (e1 instanceof IRosterItem && e2 instanceof IRosterItem) {
+        if (e1 instanceof RosterEntry && e2 instanceof RosterEntry) {
             // Either both are groups or both are users.
-            if (e1 instanceof IRosterGroup && e2 instanceof IRosterGroup) {
-                return ((IRosterGroup) e1).getName().compareTo(
-                        ((IRosterGroup) e2).getName());
-            } else if (e1 instanceof IRosterEntry && e2 instanceof IRosterEntry) {
+            if (e1 instanceof RosterGroup && e2 instanceof RosterGroup) {
+                return ((RosterGroup) e1).getName().compareTo(
+                        ((RosterGroup) e2).getName());
+            } else if (e1 instanceof RosterEntry && e2 instanceof RosterEntry) {
                 String name;
                 String otherName;
-                IRosterEntry entry = (IRosterEntry) e1;
-                IRosterEntry otherEntry = (IRosterEntry) e2;
-                if (entry.getUser().getName() != null
-                        && !entry.getUser().getName().isEmpty()) {
-                    name = entry.getUser().getName();
-                } else {
+                RosterEntry entry = (RosterEntry) e1;
+                RosterEntry otherEntry = (RosterEntry) e2;
+                if (entry.getName() != null && !entry.getName().isEmpty()) {
                     name = entry.getName();
+                } else {
+                    name = entry.getUser();
                 }
 
-                if (otherEntry.getUser().getName() != null
-                        && !otherEntry.getUser().getName().isEmpty()) {
-                    otherName = otherEntry.getUser().getName();
-                } else {
+                if (otherEntry.getName() != null
+                        && !otherEntry.getName().isEmpty()) {
                     otherName = otherEntry.getName();
+                } else {
+                    otherName = otherEntry.getUser();
                 }
                 return name.compareTo(otherName);
             }
