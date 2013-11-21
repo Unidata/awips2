@@ -43,7 +43,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Base interface for sessions in which the client is interacting with others on
+ * the server
  * 
  * 
  * Implementations of ISession do not support polling for messages but instead
@@ -92,5 +93,8 @@ public interface ISession extends IEventPublisher {
      */
     public String getSessionId();
 
+    /**
+     * @return underlying communication connection
+     */
     public CollaborationConnection getConnection();
 }

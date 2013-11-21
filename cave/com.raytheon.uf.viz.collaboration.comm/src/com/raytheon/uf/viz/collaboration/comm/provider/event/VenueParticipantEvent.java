@@ -19,14 +19,14 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Event that is posted when a participant's status changes
  * 
  * <pre>
  * 
@@ -48,7 +48,7 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
 
     private final UserId participant;
 
-    private IPresence presence;
+    private Presence presence;
 
     public VenueParticipantEvent(UserId participant,
             ParticipantEventType eventType) {
@@ -56,7 +56,7 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
         this.eventType = eventType;
     }
 
-    public VenueParticipantEvent(UserId participant, IPresence presence,
+    public VenueParticipantEvent(UserId participant, Presence presence,
             ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
@@ -83,7 +83,7 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent#getPresence()
      */
     @Override
-    public IPresence getPresence() {
+    public Presence getPresence() {
         return presence;
     }
 

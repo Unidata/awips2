@@ -43,20 +43,24 @@ public interface IVenueInvitationEvent {
 
     /**
      * 
-     * @return
+     * @return room id for venue
      */
-    IQualifiedID getRoomId();
+    public IQualifiedID getRoomId();
 
     /**
      * 
-     * @return
+     * @return id of user that sent invitation
      */
-    IQualifiedID getInviter();
+    public IQualifiedID getInviter();
+
 
     /**
-     * 
+     * @return subject for venue, may be empty
      */
-    String getSubject();
+    public String getSubject();
 
+    /**
+     * @return
+     */
     public VenueInvite getInvite();
 }

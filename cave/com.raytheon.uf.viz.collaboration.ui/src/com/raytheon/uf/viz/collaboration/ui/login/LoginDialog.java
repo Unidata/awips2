@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,6 +40,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
@@ -193,7 +193,7 @@ public class LoginDialog extends Dialog {
         statusCombo = new Combo(body, SWT.DEFAULT);
 
         // TODO get possible status options from config file?
-        for (IPresence.Mode mode : CollaborationUtils.statusModes) {
+        for (Presence.Mode mode : CollaborationUtils.statusModes) {
             statusCombo.add(CollaborationUtils.formatMode(mode));
         }
         String status = loginData.getStatus();

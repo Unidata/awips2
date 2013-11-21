@@ -25,8 +25,9 @@ import java.util.List;
 
 import javax.xml.bind.JAXB;
 
-import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.swt.graphics.Image;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -66,10 +67,8 @@ public class CollaborationUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationUtils.class);
 
-    public static final org.eclipse.ecf.presence.IPresence.Mode[] statusModes = {
-            Mode.AVAILABLE, Mode.DND, Mode.AWAY };
-
-    private static final String PREFIX_CONFERENCE = "conference.";
+    public static final Presence.Mode[] statusModes = { Mode.available,
+            Mode.dnd, Mode.away };
 
     /**
      * Get an image associated with the node.
@@ -103,19 +102,23 @@ public class CollaborationUtils {
     }
 
     public static String formatMode(Mode mode) {
-        String name = mode.toString();
-
-        StringBuilder result = new StringBuilder(name.length());
-        String[] words = name.split("\\s");
-        for (int i = 0, l = words.length; i < l; ++i) {
-            if (i > 0)
-                result.append(" ");
-            result.append(Character.toUpperCase(words[i].charAt(0))).append(
-                    words[i].substring(1));
-
+        if (mode == null) {
+            mode = Mode.available;
         }
-
-        return result.toString();
+        switch (mode) {
+        case available:
+            return "Available";
+        case away:
+            return "Away";
+        case chat:
+            return "Chat";
+        case dnd:
+            return "Do Not Disturb";
+        case xa:
+            return "Extended Away";
+        default:
+            return mode.toString();
+        }
     }
 
     public static List<AlertWord> getAlertWords() {
@@ -178,4 +181,5 @@ public class CollaborationUtils {
                     "Unable to save alert words to localization", e);
         }
     }
+
 }
