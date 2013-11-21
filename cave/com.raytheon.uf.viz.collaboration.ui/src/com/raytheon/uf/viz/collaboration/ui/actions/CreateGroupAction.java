@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CreateGroupDialog;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -48,16 +48,16 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
 
 public class CreateGroupAction extends Action {
 
-    private final IUser[] users;
+    private final UserId[] users;
 
     public CreateGroupAction() {
         super("Create Group", IconUtil.getImageDescriptor(Activator
                 .getDefault().getBundle(), "add_group.gif"));
-        this.users = new IUser[0];
+        this.users = new UserId[0];
         setEnabled(CollaborationConnection.getConnection() != null);
     }
 
-    public CreateGroupAction(IUser... users) {
+    public CreateGroupAction(UserId... users) {
         super("New Group...", IconUtil.getImageDescriptor(Activator
                 .getDefault().getBundle(), "add_group.gif"));
         this.users = users;
@@ -72,7 +72,7 @@ public class CreateGroupAction extends Action {
         if (group == null) {
             return;
         }
-        for (IUser user : users) {
+        for (UserId user : users) {
             CollaborationConnection.getConnection().getContactsManager()
                     .addToLocalGroup(group, user);
         }

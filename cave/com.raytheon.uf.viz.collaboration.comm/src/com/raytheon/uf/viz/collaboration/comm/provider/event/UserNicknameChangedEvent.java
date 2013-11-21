@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.eclipse.ecf.core.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * An event to put on a CollaborationConnection event bus when a users nickname
@@ -42,16 +42,16 @@ import org.eclipse.ecf.core.user.IUser;
 
 public class UserNicknameChangedEvent {
 
-    public final IUser user;
+    public final UserId user;
 
     public final String nickname;
 
-    public UserNicknameChangedEvent(IUser user, String nickname) {
+    public UserNicknameChangedEvent(UserId user, String nickname) {
         this.user = user;
         this.nickname = nickname;
     }
 
-    public IUser getUser() {
+    public UserId getUser() {
         return user;
     }
 

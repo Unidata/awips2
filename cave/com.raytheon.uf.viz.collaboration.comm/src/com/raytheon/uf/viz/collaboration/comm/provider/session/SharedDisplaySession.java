@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import org.eclipse.ecf.core.IContainer;
-
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
@@ -30,7 +28,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Chat room with shared display
  * 
  * <pre>
  * 
@@ -53,15 +51,15 @@ public class SharedDisplaySession extends VenueSession implements
 
     private UserId dataProvider = null;
 
-    public SharedDisplaySession(IContainer container, EventBus externalBus,
+    public SharedDisplaySession(EventBus externalBus,
             CollaborationConnection manager) throws CollaborationException {
-        super(container, externalBus, manager);
+        super(externalBus, manager);
     }
 
-    public SharedDisplaySession(IContainer container, EventBus externalBus,
+    public SharedDisplaySession(EventBus externalBus,
             CollaborationConnection manager, String sessionId)
             throws CollaborationException {
-        super(container, externalBus, manager, sessionId);
+        super(externalBus, manager, sessionId);
     }
 
     @Override

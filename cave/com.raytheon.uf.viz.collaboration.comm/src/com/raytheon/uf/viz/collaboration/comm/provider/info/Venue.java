@@ -22,17 +22,18 @@ package com.raytheon.uf.viz.collaboration.comm.provider.info;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.Presence;
-import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
-import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -57,43 +59,60 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class Venue implements IVenue {
 
-    private final IChatRoomContainer container;
+    private final MultiUserChat muc;
 
-    private final IVenueInfo info;
+    private final XMPPConnection conn;
 
-    private Map<String, IPresence> presenceMap = new HashMap<String, IPresence>();;
+    private Map<String, Presence> presenceMap = new HashMap<String, Presence>();
 
-    public Venue(IChatRoomContainer container, IChatRoomInfo info) {
-        this.container = container;
-        this.info = new VenueInfo(info);
+    public Venue(XMPPConnection conn, MultiUserChat muc) {
+        this.muc = muc;
+        this.conn = conn;
     }
 
     @Override
-    public IVenueInfo getInfo() {
-        return info;
+    public IVenueInfo getInfo() throws CollaborationException {
+        try {
+            return new VenueInfo(MultiUserChat.getRoomInfo(conn, muc.getRoom()));
+        } catch (XMPPException e) {
+            throw new CollaborationException("Unable to get room information",
+                    e);
+        }
     }
 
     @Override
     public Collection<UserId> getParticipants() {
         Set<UserId> participants = new HashSet<UserId>();
-        ID[] ids = container.getChatRoomParticipants();
-        for (ID id : ids) {
-            participants.add(IDConverter.convertFrom(id));
+        Iterator<String> iter = muc.getOccupants();
+        while (iter.hasNext()) {
+            String id = iter.next();
+            participants.add(IDConverter.convertFromRoom(muc, id));
         }
         return participants;
     }
 
     @Override
-    public IPresence getPresence(IUser user) {
-        IPresence presence = presenceMap.get(user.getID().getName());
+    public Presence getPresence(UserId user) {
+        Presence presence = presenceMap.get(user.getNormalizedId());
         if (presence == null) {
-            presence = new Presence(Type.UNAVAILABLE);
+            presence = new Presence(Type.unavailable);
+            presence.setMode(Mode.away);
         }
         return presence;
     }
 
-    public void handlePresenceUpdated(ID fromID, IPresence presence) {
-        presenceMap.put(fromID.getName(), presence);
+    public void handlePresenceUpdated(UserId fromID, Presence presence) {
+        presenceMap.put(fromID.getNormalizedId(), presence);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getId()
+     */
+    @Override
+    public String getName() {
+        return muc.getRoom();
     }
 
 }

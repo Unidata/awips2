@@ -19,20 +19,20 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Mode;
-import org.eclipse.ecf.presence.Presence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -76,7 +76,7 @@ public class ChangeStatusAction extends Action {
                 + ".gif";
         setImageDescriptor(IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), iconName));
-        IPresence presence = CollaborationConnection.getConnection()
+        Presence presence = CollaborationConnection.getConnection()
                 .getPresence();
         if (mode.equals(presence.getMode())) {
             setChecked(true);
@@ -91,12 +91,12 @@ public class ChangeStatusAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
 
-        IPresence presence = connection.getPresence();
-        presence = new Presence(presence.getType(), presence.getStatus(), mode,
-                presence.getProperties());
-
+        Presence presence = connection.getPresence();
+        Presence newPresence = new Presence(presence.getType(),
+                presence.getStatus(), presence.getPriority(), mode);
+        Tools.copyProperties(presence, newPresence);
         try {
-            connection.getAccountManager().sendPresence(presence);
+            connection.getAccountManager().sendPresence(newPresence);
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, "Error sending presence", e);
         }
