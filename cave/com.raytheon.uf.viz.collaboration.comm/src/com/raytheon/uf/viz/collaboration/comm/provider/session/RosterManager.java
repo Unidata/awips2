@@ -17,12 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.XMPPConnection;
 
 /**
- * TODO Add Description
+ * Manages roster from server
  * 
  * <pre>
  * 
@@ -30,28 +32,47 @@ import org.eclipse.ecf.presence.IPresence;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 16, 2012            jkorman     Initial creation
+ * Nov 25, 2013 2561       bclement     Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author bclement
  * @version 1.0
  */
+public class RosterManager {
 
-public interface ISubscriptionResponseEvent {
-
-    /**
-     * How was the subscription responded to.
-     * 
-     * @return The response type.
-     */
-    IPresence.Type getResponse();
+    private final XMPPConnection connection;
 
     /**
-     * Was this response due to an auto responder.
-     * 
-     * @return Was this response due to an auto responder.
+     * @param connection
      */
-    boolean isAutoResponder();
+    public RosterManager(XMPPConnection connection) {
+        this.connection = connection;
+    }
+
+    /**
+     * @return roster from server connection
+     */
+    public Roster getRoster() {
+        return connection.getRoster();
+    }
+
+    /**
+     * Add listener for roster events
+     * 
+     * @param listener
+     */
+    public void addRosterListener(RosterListener listener) {
+        getRoster().addRosterListener(listener);
+    }
+
+    /**
+     * Remove listener for roster events
+     * 
+     * @param listener
+     */
+    public void removeRosterListener(RosterListener listener) {
+        getRoster().removeRosterListener(listener);
+    }
 
 }
