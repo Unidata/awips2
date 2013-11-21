@@ -29,10 +29,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.eclipse.ecf.core.user.IUser;
-
 /**
- * TODO Add Description
+ * Group information not stored on chat server
  * 
  * <pre>
  * 
@@ -82,7 +80,7 @@ public class LocalGroups {
         private ContactsManager manager;
 
         @XmlTransient
-        private List<IUser> users;
+        private List<UserId> users;
 
         public LocalGroup() {
         }
@@ -111,11 +109,11 @@ public class LocalGroups {
             this.userNames = userNames;
         }
 
-        public synchronized List<IUser> getUsers() {
+        public synchronized List<UserId> getUsers() {
             if (users == null) {
-                users = new ArrayList<IUser>();
+                users = new ArrayList<UserId>();
                 for (String userName : userNames) {
-                    IUser user = manager.findAndAddUser(userName);
+                    UserId user = manager.findAndAddUser(userName);
                     if (user != null) {
                         users.add(user);
                     }

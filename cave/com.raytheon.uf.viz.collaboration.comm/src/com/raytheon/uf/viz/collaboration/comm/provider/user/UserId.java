@@ -19,12 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.user.IUser;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -32,7 +27,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
- * TODO Add Description
+ * Parsed user id string
  * 
  * <pre>
  * 
@@ -42,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Major refactor
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -50,7 +46,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  */
 @DynamicSerialize
 @XmlRootElement(name = "userId")
-public class UserId implements IQualifiedID, IUser {
+public class UserId implements IQualifiedID {
 
     @DynamicSerializeElement
     protected String name;
@@ -63,8 +59,6 @@ public class UserId implements IQualifiedID, IUser {
 
     @DynamicSerializeElement
     protected String alias;
-
-    private ID id;
 
     public UserId() {
 
@@ -93,7 +87,11 @@ public class UserId implements IQualifiedID, IUser {
             String alias) {
         this.name = userName;
         setHost(hostName);
-        this.resource = resource;
+        if (resource != null && resource.trim().isEmpty()) {
+            resource = null;
+        } else {
+            this.resource = resource;
+        }
         this.alias = alias;
     }
 
@@ -108,7 +106,7 @@ public class UserId implements IQualifiedID, IUser {
 
     /**
      * @return The user name associated with this id.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getUserName()
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getUsers()
      */
     @Override
     public String getName() {
@@ -176,6 +174,13 @@ public class UserId implements IQualifiedID, IUser {
         return sb.toString();
     }
 
+    /**
+     * @return username@host.
+     */
+    public String getNormalizedId() {
+        return name + "@" + host;
+    }
+
     public String getAlias() {
         if (alias == null || alias.isEmpty()) {
             return name;
@@ -198,6 +203,8 @@ public class UserId implements IQualifiedID, IUser {
         int result = 1;
         result = prime * result + ((host == null) ? 0 : host.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        // TODO should resource be part of this since it is the same user at a
+        // different location?
         result = prime * result
                 + ((resource == null) ? 0 : resource.hashCode());
         return result;
@@ -223,39 +230,13 @@ public class UserId implements IQualifiedID, IUser {
         } else if (!name.equals(other.name))
             return false;
         if (resource == null) {
+            // TODO should resource be part of this since it is the same user at
+            // a different location?
             if (other.resource != null)
                 return false;
         } else if (!resource.equals(other.resource))
             return false;
         return true;
-    }
-
-    @Override
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
-
-    @Override
-    public String getNickname() {
-        return alias;
-    }
-
-    @Override
-    public Map getProperties() {
-        return null;
-    }
-
-    @Override
-    public ID getID() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(ID id) {
-        this.id = id;
     }
 
     /**
@@ -266,9 +247,17 @@ public class UserId implements IQualifiedID, IUser {
      * @return if it is the same user
      */
     public boolean isSameUser(String id) {
-        boolean result = false;
         String name = Tools.parseName(id);
         String host = Tools.parseHost(id);
+        return isSameUser(name, host);
+    }
+
+    public boolean isSameUser(UserId other) {
+        return isSameUser(other.getName(), other.getHost());
+    }
+
+    public boolean isSameUser(String name, String host) {
+        boolean result = false;
         if (name != null && host != null) {
             if (this.name.equals(name) && this.host.equals(host)) {
                 result = true;
@@ -276,4 +265,5 @@ public class UserId implements IQualifiedID, IUser {
         }
         return result;
     }
+
 }

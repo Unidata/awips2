@@ -19,8 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.util.Base64;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.util.Base64;
 
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -39,6 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
  * Mar 07, 2012           jkorman     Initial creation
  * Oct 31, 2013  2491     bsteffen    Use CollaborationXmlManager for xml
  *                                    serialization.
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * 
  * </pre>
@@ -102,18 +108,8 @@ public abstract class Tools {
         }
     }
 
-    /**
-     * 
-     * @param <T>
-     * @param container
-     * @param c
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T getPresenceContainerAdapter(IContainer container,
-            Class<T> c) {
-        return (T) container.getAdapter(c);
-    }
+    public static final Pattern JID_RESERVED_CHARACTERS = Pattern
+            .compile("[ \"&'/:<>@]");
 
     /**
      * 
@@ -236,7 +232,7 @@ public abstract class Tools {
      * @return The encoded data as a String.
      */
     public static String encodeToBase64(byte[] message) {
-        return Base64.encode(message);
+        return Base64.encodeBytes(message);
     }
 
     /**
@@ -390,6 +386,42 @@ public abstract class Tools {
             }
         }
         return unMarshalledData;
+    }
+
+    /**
+     * Add properties to packet
+     * 
+     * @param p
+     * @param props
+     */
+    public static void setProperties(Packet p, Map<String, String> props) {
+        for (Entry<String, String> e : props.entrySet()) {
+            p.setProperty(e.getKey(), e.getValue());
+        }
+    }
+
+    /**
+     * Copy properties from packet
+     * 
+     * @param p
+     * @param props
+     */
+    public static void copyProperties(Packet source, Packet dest) {
+        for (String key : source.getPropertyNames()) {
+            dest.setProperty(key, source.getProperty(key));
+        }
+    }
+
+    /**
+     * @param id
+     * @return true if id doesn't contain any invalid characters
+     */
+    public static boolean isValidId(String id) {
+        if (id == null) {
+            return false;
+        }
+        Matcher matcher = JID_RESERVED_CHARACTERS.matcher(id);
+        return !matcher.find();
     }
 
 }

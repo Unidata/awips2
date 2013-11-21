@@ -11,13 +11,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.collaboration.comm;bundle-version="1.0.0",
  org.eclipse.swt;bundle-version="3.6.1",
- org.eclipse.ecf;bundle-version="3.1.0",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.viz.collaboration.display;bundle-version="1.0.0",
- org.eclipse.ecf.presence;bundle-version="2.0.0",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.uf.viz.drawing;bundle-version="1.0.0",
- com.raytheon.viz.core;bundle-version="1.12.1174"
+ com.raytheon.viz.core;bundle-version="1.12.1174",
+ org.jivesoftware.smack;bundle-version="3.3.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.viz.core.maps.display

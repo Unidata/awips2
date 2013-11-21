@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.info;
 
 /**
- * TODO Add Description
+ * Information on a venue. Information may become outdated.
  * 
  * <pre>
  * 
@@ -39,53 +39,47 @@ package com.raytheon.uf.viz.collaboration.comm.identity.info;
 public interface IVenueInfo {
 
     /**
-     * 
-     * @return
+     * @return description, may be empty
      */
-    String getVenueDescription();
+    public String getVenueDescription();
 
     /**
-     * Get a long name for venue
-     * 
+     * Get venue name
      * @return
      */
-    String getVenueName();
+    public String getVenueName();
 
     /**
-     * 
-     * @return
+     * @return subject, may be empty
      */
-    String getVenueSubject();
+    public String getVenueSubject();
 
     /**
-     * 
-     * @return
+     * @return id of venue "name@service"
      */
-    String getVenueID();
+    public String getVenueID();
 
     /**
      * Get a count of the current number of room participants
      * 
      * @return Count of the current number of room participants
      */
-    int getParticipantCount();
+    public int getParticipantCount();
 
     /**
-     * 
-     * @return
+     * @return true if venue is divided into participants and occupants who
+     *         can't speak
      */
-    boolean isModerated();
+    public boolean isModerated();
 
     /**
-     * 
-     * @return
+     * @return true if venue persists after participants have left
      */
-    boolean isPersistent();
+    public boolean isPersistent();
 
     /**
-     * 
-     * @return
+     * @return true if venue is password protected
      */
-    boolean requiresPassword();
+    public boolean requiresPassword();
 
 }
