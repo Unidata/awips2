@@ -23,20 +23,20 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 
 /**
- * TODO Add Description
+ * Collaboration message wrapper interface
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IMessage extends IPropertied {
@@ -50,80 +50,80 @@ public interface IMessage extends IPropertied {
     /**
      * @return the to
      */
-    IQualifiedID getTo();
+    public IQualifiedID getTo();
 
     /**
      * @param to
      *            the to to set
      */
-    void setTo(IQualifiedID to);
+    public void setTo(IQualifiedID to);
 
     /**
      * @return the from
      */
-    IQualifiedID getFrom();
+    public IQualifiedID getFrom();
 
     /**
      * @param from
      *            the from to set
      */
-    void setFrom(IQualifiedID from);
+    public void setFrom(IQualifiedID from);
     
     /**
      * Get the subject of this message.
      * @return The subject of this message. The subject may be null.
      */
-    String getSubject();
+    public String getSubject();
     
     /**
      * Set the subject of this message. If not set the
      * subject is set to null.
      * @param subject The subject of this message.
      */
-    void setSubject(String subject);
+    public void setSubject(String subject);
     
     /**
      * 
      * @return
      */
-    MessageType getMessageType();
+    public MessageType getMessageType();
     
     /**
      * Get the body of this message.
      * @return The body of this message. The body may be null.
      */
-    String getBody();
+    public String getBody();
     
     /**
      * Set the data to be transmitted in the message. If not set the
      * body is set to null.
      * @param body The data to be transmitted in the message.
      */
-    void setBody(String body);
+    public void setBody(String body);
 
     /**
      * Returns the body of the message as a byte array.
      * @return The body of the message as binary data.
      */
-    byte [] getBodyAsBinary();
+    public byte[] getBodyAsBinary();
 
     /**
      * Set the body of the message as a byte array.
      * @param body The binary data to be transmitted in the message.
      */
-    void getBodyAsBinary(byte [] body);
+    public void getBodyAsBinary(byte[] body);
     
     /**
      * Get the status of this message.
      * @return The message status.
      */
-    String getStatus();
+    public String getStatus();
     
     /**
      * Set the status of this message.
      * @param The message status.
      */
-    void setStatus(String status);
+    public void setStatus(String status);
     
     
     /**
@@ -131,6 +131,6 @@ public interface IMessage extends IPropertied {
      * Jan 1, 1970.
      * @return The receipt time stamp. 
      */
-    long getTimeStamp();
+    public long getTimeStamp();
     
 }

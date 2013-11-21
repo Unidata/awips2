@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.SWT;
@@ -35,10 +32,15 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.packet.Presence;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -54,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -62,17 +65,16 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  */
 public class UsersTreeLabelProvider extends ColumnLabelProvider {
 
+    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
+
     private AbstractUserLabelProvider userLabelProvider = new AbstractUserLabelProvider() {
 
         @Override
-        protected IPresence getPresence(IUser user) {
+        protected Presence getPresence(UserId user) {
             CollaborationConnection connection = CollaborationConnection
                     .getConnection();
             if (connection == null) {
                 return null;
-            }
-            if (user instanceof UserId) {
-                return connection.getPresence();
             }
             return connection.getContactsManager().getPresence(user);
         }
@@ -95,9 +97,9 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             return null;
         }
         String key = "";
-        if (element instanceof IUser) {
+        if (element instanceof UserId) {
             return userLabelProvider.getImage(element);
-        } else if (element instanceof IRosterGroup) {
+        } else if (element instanceof RosterGroup) {
             key = "group";
         } else if (element instanceof IVenueSession) {
             // key = "session_group";
@@ -115,46 +117,45 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getText(Object element) {
-        if (element instanceof IRosterGroup) {
-            return ((IRosterGroup) element).getName();
+        if (element instanceof RosterGroup) {
+            return ((RosterGroup) element).getName();
+        } else if (element instanceof RosterEntry) {
+            return ((RosterEntry) element).getName();
         } else if (element instanceof SessionGroupContainer) {
             return "Active Sessions";
         } else if (element instanceof UserId) {
             UserId user = (UserId) element;
-            IPresence presence = userLabelProvider.getPresence(user);
-            String fullName = user.getName();
-            if (presence != null) {
-                if (presence.getProperties() != null) {
-                    Object site = presence.getProperties().get(
-                            SiteConfigInformation.SITE_NAME);
-                    if (site != null && !site.toString().isEmpty()) {
-                        fullName += " - " + site;
-                    }
-                    Object role = presence.getProperties().get(
-                            SiteConfigInformation.ROLE_NAME);
-                    if (role != null && !role.toString().isEmpty()) {
-                        fullName += " - " + role;
-                    }
-                }
+            String fullname = userLabelProvider.getText(element);
+            CollaborationConnection conn = CollaborationConnection
+                    .getConnection();
+            UserId me = conn.getUser();
+            if (me.isSameUser(user)) {
+                // hostname for self
+                fullname += " - " + user.getHost();
             }
-            return fullName + " - " + user.getHost();
+            return fullname;
         } else if (element instanceof IVenueSession) {
-            if (((IVenueSession) element).getVenue() == null) {
+            IVenueSession venue = (IVenueSession) element;
+            if (venue.getVenue() == null) {
                 return null;
             }
-            return ((IVenueSession) element).getVenue().getInfo()
-                    .getVenueDescription();
+            IVenueInfo info;
+            try {
+                info = venue.getVenue().getInfo();
+            } catch (CollaborationException e) {
+                log.error("Unable to get session information", e);
+                return null;
+            }
+            return info.getVenueDescription();
         } else if (element instanceof LocalGroup) {
             return ((LocalGroup) element).getName();
-        } else if (element instanceof IUser) {
-            return userLabelProvider.getText(element);
         }
         return null;
     }
 
     @Override
     public Font getFont(Object element) {
-        if (element instanceof IRosterGroup
+        if (element instanceof RosterGroup
                 || element instanceof SessionGroupContainer
                 || element instanceof LocalGroup) {
             // for this case do nothing, as it is not the top level of
@@ -175,14 +176,20 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
     @Override
     public String getToolTipText(Object element) {
         StringBuilder builder = new StringBuilder();
-        if (element instanceof IUser) {
+        if (element instanceof UserId) {
             return userLabelProvider.getToolTipText(element);
         }
         // builds the tooltip text for the session group
         // portion of the view
         else if (element instanceof IVenueSession) {
             IVenueSession sessGroup = (IVenueSession) element;
-            IVenueInfo info = sessGroup.getVenue().getInfo();
+            IVenueInfo info;
+            try {
+                info = sessGroup.getVenue().getInfo();
+            } catch (CollaborationException e) {
+                log.error("Unable to get session tool tip text", e);
+                return "";
+            }
             builder.append("ID: ").append(info.getVenueID());
             builder.append("\nName: ").append(info.getVenueDescription())
                     .append("\n");

@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
- * TODO Add Description
+ * Qualified id for a venue
  * 
  * <pre>
  * 
@@ -38,13 +38,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
  * @version 1.0
  */
 
-public class VenueId implements IVenueId {
+public class VenueId implements IQualifiedID {
 
     private String host;
 
     private String resource;
-
-    private String venueName;
 
     private String name;
 
@@ -84,9 +82,8 @@ public class VenueId implements IVenueId {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.ID#setName(java.lang.String)
      */
     @Override
-    public void setName(String userName) {
-        name = userName;
-        venueName = name;
+    public void setName(String venueName) {
+        name = venueName;
     }
 
     /**
@@ -102,15 +99,8 @@ public class VenueId implements IVenueId {
      */
     @Override
     public String getFQName() {
+        // FIXME
         return null;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId#getVenueName()
-     */
-    @Override
-    public String getVenueName() {
-        return venueName;
     }
 
 }

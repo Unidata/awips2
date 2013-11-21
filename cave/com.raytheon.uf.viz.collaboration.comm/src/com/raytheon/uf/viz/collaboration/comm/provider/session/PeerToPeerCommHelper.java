@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.Map;
-
-import org.eclipse.ecf.presence.IIMMessageEvent;
-import org.eclipse.ecf.presence.IIMMessageListener;
-import org.eclipse.ecf.presence.im.IChatMessage;
-import org.eclipse.ecf.presence.im.IChatMessageEvent;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -52,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -59,7 +57,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * @version 1.0
  */
 
-public class PeerToPeerCommHelper implements IIMMessageListener {
+public class PeerToPeerCommHelper implements PacketListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerCommHelper.class);
@@ -97,15 +95,21 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         this.manager = manager;
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see
+     * org.jivesoftware.smack.PacketListener#processPacket(org.jivesoftware.
+     * smack.packet.Packet)
      */
     @Override
-    public void handleMessageEvent(IIMMessageEvent messageEvent) {
-        if (messageEvent instanceof IChatMessageEvent) {
-            IChatMessageEvent event = (IChatMessageEvent) messageEvent;
-
-            IChatMessage msg = event.getChatMessage();
+    public void processPacket(Packet packet) {
+        if (packet instanceof Message) {
+            Message msg = (Message) packet;
+            if (IDConverter.isFromRoom(msg.getFrom())) {
+                // venues will have their own listeners
+                return;
+            }
             String body = msg.getBody();
             Activator.getDefault().getNetworkStats()
                     .log(Activator.PEER_TO_PEER, 0, body.length());
@@ -120,13 +124,14 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                 }
             }
         }
+        
     }
 
     /**
      * 
      * @param message
      */
-    private void routeData(IChatMessage message) {
+    private void routeData(Message message) {
         Object object = null;
         try {
             object = Tools.unMarshallData(message.getBody());
@@ -135,8 +140,8 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                     "Error unmarshalling PeerToPeer data", e);
         }
         if (object != null) {
-            String sessionId = (String) message.getProperties().get(
-                    Tools.PROP_SESSION_ID);
+            String sessionId = (String) message
+                    .getProperty(Tools.PROP_SESSION_ID);
             if (sessionId == null) {
                 manager.postEvent(object);
             } else {
@@ -156,27 +161,21 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
      * 
      * @param message
      */
-    private void routeMessage(IChatMessage message) {
-        IQualifiedID fromId = IDConverter.convertFrom(message.getFromID());
-        fromId.setResource(Tools.parseResource(message.getFromID().getName()));
+    private void routeMessage(Message message) {
+        IQualifiedID fromId = IDConverter.convertFrom(message.getFrom());
         TextMessage textMsg = new TextMessage(fromId, message.getBody());
         textMsg.setFrom(fromId);
         textMsg.setBody(message.getBody());
         textMsg.setSubject(message.getSubject());
-        @SuppressWarnings("unchecked")
-        Map<Object, Object> props = message.getProperties();
-        for (Object o : props.keySet()) {
-            if (o instanceof String) {
-                String key = (String) o;
-                Object v = props.get(key);
-                if (v instanceof String) {
-                    textMsg.setProperty(key, (String) v);
-                }
+        for (String key : message.getPropertyNames()) {
+            Object v = message.getProperty(key);
+            if (v instanceof String) {
+                textMsg.setProperty(key, (String) v);
             }
         }
         ITextMessageEvent chatEvent = new ChatMessageEvent(textMsg);
 
-        String sessionId = (String) message.getProperties().get(
+        String sessionId = (String) message.getProperty(
                 Tools.PROP_SESSION_ID);
         // Now find out who gets the message. If the message doesn't contain
         // a session id then assume its a straight text chat message.
@@ -256,4 +255,5 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                 null);
         manager.postEvent(configurationEvent);
     }
+
 }
