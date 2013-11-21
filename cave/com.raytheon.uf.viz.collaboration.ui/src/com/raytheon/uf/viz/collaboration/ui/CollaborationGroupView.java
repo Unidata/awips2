@@ -24,11 +24,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -79,6 +74,10 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Type;
 import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
@@ -87,6 +86,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager.LocalGroupListener;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
@@ -131,6 +131,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012             rferrel     Initial creation
  * Oct 22, 2013 #2483      lvenable    Fixed image memory leak.
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -381,43 +382,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
             manager.add(new ShowVenueAction((IVenueSession) o));
             manager.add(new ArchiveViewerAction((IVenueSession) o));
             return;
+        } else if (o instanceof RosterEntry) {
+            RosterEntry entry = (RosterEntry) o;
+            UserId user = IDConverter.convertFrom(entry);
+            fillContextMenu(manager, selection, user);
         } else if (o instanceof UserId) {
-            createMenu(manager);
-            return;
-        }
-
-        // the user, both the logged in user as well as his buddies
-        if (o instanceof IUser) {
-            IUser user = (IUser) o;
-            IPresence presence = CollaborationConnection.getConnection()
-                    .getContactsManager().getPresence(user);
-            if (presence != null && presence.getType() == Type.AVAILABLE) {
-                Action inviteAction = new InviteAction(user);
-                if (inviteAction.isEnabled()) {
-                    manager.add(inviteAction);
-                }
-                Action p2pAction = new PeerToPeerChatAction(user);
-                if (p2pAction.isEnabled()) {
-                    manager.add(p2pAction);
-                }
-                manager.add(new Separator());
-                manager.add(createSessionAction);
-            }
-            String name = CollaborationConnection.getConnection()
-                    .getContactsManager().getDisplayName(user);
-            aliasAction.setId(name);
-            aliasAction.setText("Alias");
-            manager.add(aliasAction);
-            manager.add(new ArchiveViewerAction(user));
-            manager.add(new AddToGroupAction(getSelectedUsers()));
-            String groupName = null;
-            Object group = selection.getPaths()[0].getFirstSegment();
-            if (group instanceof LocalGroup) {
-                groupName = ((LocalGroup) group).getName();
-                manager.add(new RemoveFromGroupAction(groupName,
-                        getSelectedUsers()));
-            }
-        } else if (o instanceof IRosterGroup || o instanceof LocalGroup) {
+            // the user, both the logged in user as well as his buddies
+            UserId user = (UserId) o;
+            fillContextMenu(manager, selection, user);
+        } else if (o instanceof RosterGroup || o instanceof LocalGroup) {
             manager.add(createSessionAction);
             if (o instanceof LocalGroup) {
                 LocalGroup group = (LocalGroup) o;
@@ -428,6 +401,45 @@ public class CollaborationGroupView extends CaveFloatingView implements
             }
         }
     }
+    
+    private void fillContextMenu(IMenuManager manager, TreeSelection selection,
+            UserId user) {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        UserId me = connection.getUser();
+        if (me.isSameUser(user)) {
+            createMenu(manager);
+            return;
+        }
+
+        Presence presence = CollaborationConnection.getConnection()
+                .getContactsManager().getPresence(user);
+        if (presence != null && presence.getType() == Type.available) {
+            Action inviteAction = new InviteAction(user);
+            if (inviteAction.isEnabled()) {
+                manager.add(inviteAction);
+            }
+            Action p2pAction = new PeerToPeerChatAction(user);
+            if (p2pAction.isEnabled()) {
+                manager.add(p2pAction);
+            }
+            manager.add(new Separator());
+            manager.add(createSessionAction);
+        }
+        String name = CollaborationConnection.getConnection()
+                .getContactsManager().getDisplayName(user);
+        aliasAction.setId(name);
+        aliasAction.setText("Alias");
+        manager.add(aliasAction);
+        manager.add(new ArchiveViewerAction(user));
+        manager.add(new AddToGroupAction(getSelectedUsers()));
+        String groupName = null;
+        Object group = selection.getPaths()[0].getFirstSegment();
+        if (group instanceof LocalGroup) {
+            groupName = ((LocalGroup) group).getName();
+            manager.add(new RemoveFromGroupAction(groupName, getSelectedUsers()));
+        }
+    }
 
     private void addDoubleClickListeners() {
         usersTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -436,8 +448,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 TreeSelection selection = (TreeSelection) usersTreeViewer
                         .getSelection();
                 Object o = selection.getFirstElement();
-                if (o instanceof IUser) {
-                    new PeerToPeerChatAction((IUser) o).run();
+                if (o instanceof UserId) {
+                    new PeerToPeerChatAction((UserId) o).run();
                 } else if (o instanceof IVenueSession) {
                     new ShowVenueAction((IVenueSession) o).run();
                 }
@@ -523,10 +535,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     protected void changeText(Object selectedObj, String newText) {
-        if (selectedObj instanceof IUser) {
-            IUser user = (IUser) selectedObj;
-            UserId id = IDConverter.convertFrom(user);
-            id.setAlias(treeEditor.getItem().getText());
+        if (selectedObj instanceof UserId) {
+            UserId user = (UserId) selectedObj;
+            user.setAlias(newText);
             CollaborationConnection.getConnection().getContactsManager()
                     .setNickname(user, newText);
             CollaborationConnection.getConnection().postEvent(user);
@@ -719,31 +730,31 @@ public class CollaborationGroupView extends CaveFloatingView implements
      * 
      * @return
      */
-    public IUser[] getSelectedUsers() {
-        Set<IUser> selectedUsers = new HashSet<IUser>();
+    public UserId[] getSelectedUsers() {
+        Set<UserId> selectedUsers = new HashSet<UserId>();
         IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
                 .getSelection();
         Object[] nodes = selection.toArray();
 
         for (Object node : nodes) {
-            if (node instanceof IUser) {
-                IUser user = (IUser) node;
+            if (node instanceof UserId) {
+                UserId user = (UserId) node;
                 selectedUsers.add(user);
-            } else if (node instanceof IRosterGroup) {
-                selectedUsers.addAll(getSelectedUsers((IRosterGroup) node));
+            } else if (node instanceof RosterGroup) {
+                selectedUsers.addAll(getSelectedUsers((RosterGroup) node));
             } else if (node instanceof LocalGroup) {
-                for (IUser user : ((LocalGroup) node).getUsers()) {
-                    IPresence presence = CollaborationConnection
+                for (UserId user : ((LocalGroup) node).getUsers()) {
+                    Presence presence = CollaborationConnection
                             .getConnection().getContactsManager()
                             .getPresence(user);
-                    if (presence.getType() == IPresence.Type.AVAILABLE) {
+                    if (presence.getType() == Presence.Type.available) {
                         selectedUsers.add(user);
                     }
                 }
             }
         }
 
-        return selectedUsers.toArray(new IUser[selectedUsers.size()]);
+        return selectedUsers.toArray(new UserId[selectedUsers.size()]);
     }
 
     /**
@@ -753,16 +764,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
      * @param groupNode
      * @return users
      */
-    private Set<IUser> getSelectedUsers(IRosterGroup groupNode) {
-        Set<IUser> selectedUsers = new HashSet<IUser>();
-        for (Object node : groupNode.getEntries()) {
-            if (node instanceof IRosterEntry) {
-                IRosterEntry user = (IRosterEntry) node;
-                if (user.getPresence().getType() == Type.AVAILABLE) {
-                    selectedUsers.add(((IRosterEntry) node).getUser());
-                }
-            } else if (node instanceof IRosterGroup) {
-                selectedUsers.addAll(getSelectedUsers((IRosterGroup) node));
+    private Set<UserId> getSelectedUsers(RosterGroup groupNode) {
+        Set<UserId> selectedUsers = new HashSet<UserId>();
+        ContactsManager contacts = CollaborationConnection.getConnection()
+                .getContactsManager();
+        for (RosterEntry node : groupNode.getEntries()) {
+            UserId user = IDConverter.convertFrom(node);
+            Presence presence = contacts.getPresence(user);
+            if (presence.getType() == Type.available) {
+                selectedUsers.add(user);
             }
         }
         return selectedUsers;
@@ -853,12 +863,12 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     @Override
-    public void userAdded(LocalGroup group, IUser user) {
+    public void userAdded(LocalGroup group, UserId user) {
         refreshUsersTreeViewerAsync(group);
     }
 
     @Override
-    public void userDeleted(LocalGroup group, IUser user) {
+    public void userDeleted(LocalGroup group, UserId user) {
         refreshUsersTreeViewerAsync(group);
     }
 

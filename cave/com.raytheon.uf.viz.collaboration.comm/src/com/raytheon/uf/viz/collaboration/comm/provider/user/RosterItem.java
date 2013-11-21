@@ -17,25 +17,63 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity;
+package com.raytheon.uf.viz.collaboration.comm.provider.user;
+
+import org.jivesoftware.smack.packet.Presence;
 
 /**
- * TODO Add Description
+ * Entry from local roster
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 19, 2012            jkorman     Initial creation
- *
+ * Nov 22, 2013            bclement     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * 
  * </pre>
- *
- * @author jkorman
- * @version 1.0	
+ * 
+ * @author bclement
+ * @version 1.0
  */
 
-public interface ICollaborationMessage extends IMessage {
+public class RosterItem {
+
+    private final UserId id;
+
+    private Presence presence;
+
+    /**
+     * @param id
+     * @param presence
+     */
+    public RosterItem(UserId id, Presence presence) {
+        this.id = id;
+        this.presence = presence;
+    }
+
+    /**
+     * @return the presence
+     */
+    public Presence getPresence() {
+        return presence;
+    }
+
+    /**
+     * @param presence
+     *            the presence to set
+     */
+    public void setPresence(Presence presence) {
+        this.presence = presence;
+    }
+
+    /**
+     * @return the id
+     */
+    public UserId getId() {
+        return id;
+    }
 
 }

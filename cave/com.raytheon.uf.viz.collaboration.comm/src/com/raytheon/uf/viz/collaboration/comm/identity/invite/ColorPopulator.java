@@ -31,7 +31,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Color information for a list of users
  * 
  * <pre>
  * 
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2012            mnash     Initial creation
+ * Dec  6, 2013 2561       bclement    code cleanup
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 @DynamicSerialize
 public class ColorPopulator {
     @DynamicSerializeElement
-    private List<UserId> userName;
+    private List<UserId> users;
 
     @DynamicSerializeElement
     private List<Integer> red;
@@ -61,44 +62,55 @@ public class ColorPopulator {
     @DynamicSerializeElement
     private List<Integer> blue;
 
+    /**
+     * For serialization only, use {@link ColorPopulator#ColorPopulator(Map)}
+     */
+    @Deprecated
     public ColorPopulator() {
     }
 
+    /**
+     * @param rgbs
+     *            Map of user ids to color information
+     */
     public ColorPopulator(Map<UserId, RGB> rgbs) {
-        userName = new ArrayList<UserId>();
+        users = new ArrayList<UserId>();
         red = new ArrayList<Integer>();
         green = new ArrayList<Integer>();
         blue = new ArrayList<Integer>();
         for (UserId key : rgbs.keySet()) {
-            userName.add(key);
+            users.add(key);
             red.add(rgbs.get(key).red);
             green.add(rgbs.get(key).green);
             blue.add(rgbs.get(key).blue);
         }
     }
 
+    /**
+     * @return Map of user ids to color information
+     */
     public Map<UserId, RGB> getColors() {
         Map<UserId, RGB> colors = new HashMap<UserId, RGB>();
-        for (int i = 0; i < userName.size(); i++) {
-            colors.put(userName.get(i),
+        for (int i = 0; i < users.size(); i++) {
+            colors.put(users.get(i),
                     new RGB(red.get(i), green.get(i), blue.get(i)));
         }
         return colors;
     }
 
     /**
-     * @return the userName
+     * @return the users
      */
-    public List<UserId> getUserName() {
-        return userName;
+    public List<UserId> getUsers() {
+        return users;
     }
 
     /**
-     * @param userName
-     *            the userName to set
+     * @param users
+     *            the users to set
      */
-    public void setUserName(List<UserId> userName) {
-        this.userName = userName;
+    public void setUsers(List<UserId> users) {
+        this.users = users;
     }
 
     /**

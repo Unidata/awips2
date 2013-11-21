@@ -36,9 +36,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
@@ -89,6 +92,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 
 public class SharedEditorsManager implements IRemoteDisplayContainer {
+
+    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     public class RemoteDisplayEventHandler {
         @Subscribe
@@ -443,8 +448,15 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
     private SharedEditorsManager(ISharedDisplaySession session) {
         this.session = session;
         session.registerEventHandler(eventHandler);
-        editorTitleSuffix = " ("
-                + session.getVenue().getInfo().getVenueDescription() + ")";
+        String title;
+        try {
+        IVenueInfo info = session.getVenue().getInfo();
+            title = info.getVenueDescription();
+        } catch (CollaborationException e) {
+            log.error("Unable to get venue information", e);
+            title = session.getVenue().getName();
+        }
+        editorTitleSuffix = " (" + title + ")";
     }
 
     public int getDisplayId(IRenderableDisplay display) {

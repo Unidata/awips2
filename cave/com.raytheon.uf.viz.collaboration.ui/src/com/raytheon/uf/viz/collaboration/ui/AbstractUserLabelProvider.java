@@ -22,16 +22,17 @@ package com.raytheon.uf.viz.collaboration.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Common code that is used whenever providing labels for users in a tree.
@@ -56,21 +57,21 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getText(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof UserId)) {
             return null;
         }
-        IUser user = (IUser) element;
+        UserId user = (UserId) element;
         StringBuilder name = new StringBuilder();
         name.append(getDisplayName(user));
-        IPresence presence = getPresence(user);
+        Presence presence = getPresence(user);
         if (presence != null) {
-            Object site = presence.getProperties().get(
+            Object site = presence.getProperty(
                     SiteConfigInformation.SITE_NAME);
             if (site != null) {
                 name.append(" - ");
                 name.append(site);
             }
-            Object role = presence.getProperties().get(
+            Object role = presence.getProperty(
                     SiteConfigInformation.ROLE_NAME);
             if (role != null) {
                 name.append(" - ");
@@ -82,14 +83,18 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public Image getImage(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof UserId)) {
             return null;
         }
-        IUser user = (IUser) element;
-        IPresence presence = getPresence(user);
+        UserId user = (UserId) element;
+        Presence presence = getPresence(user);
         String key = "";
-        if (presence != null && presence.getType() == Type.AVAILABLE) {
-            key = presence.getMode().toString().replaceAll("\\s+", "_");
+        if (presence != null && presence.getType() == Type.available) {
+            Mode mode = presence.getMode();
+            if (mode == null) {
+                mode = Mode.available;
+            }
+            key = mode.toString().replaceAll("\\s+", "_");
         } else {
             key = "contact_disabled";
         }
@@ -101,15 +106,15 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getToolTipText(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof UserId)) {
             return null;
         }
-        IUser user = (IUser) element;
-        IPresence presence = getPresence(user);
+        UserId user = (UserId) element;
+        Presence presence = getPresence(user);
         StringBuilder text = new StringBuilder();
         text.append("Name: ").append(getDisplayName(user)).append("\n");
         text.append("Status: ");
-        if (presence == null || presence.getType() != Type.AVAILABLE) {
+        if (presence == null || presence.getType() != Type.available) {
             text.append("Offline\n");
         } else {
             text.append(CollaborationUtils.formatMode(presence.getMode()))
@@ -118,8 +123,8 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
                 text.append("Message : \"").append(presence.getStatus())
                         .append("\"\n");
             }
-            for (Object key : presence.getProperties().keySet()) {
-                Object value = presence.getProperties().get(key);
+            for (String key : presence.getPropertyNames()) {
+                Object value = presence.getProperty(key);
                 if (value != null && key != null) {
                     text.append(key).append(" : ").append(value).append("\n");
                 }
@@ -148,11 +153,11 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         imageMap.clear();
     }
 
-    protected String getDisplayName(IUser user) {
+    protected String getDisplayName(UserId user) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
-            String name = user.getNickname();
+            String name = user.getAlias();
             if (name == null) {
                 name = user.getName();
             }
@@ -162,6 +167,6 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         }
     }
 
-    protected abstract IPresence getPresence(IUser user);
+    protected abstract Presence getPresence(UserId user);
 
 }
