@@ -73,7 +73,7 @@ public class LogService {
         LogSrvConfig config = (LogSrvConfig) m.unmarshal(new File(
                 SERVICE_CONFIG));
         config.validate();
-        DerbyDao.setConfig(config);
+        DerbyDao.getInstance().setConfig(config);
         logger.info("Logging events from " + config.getClusterName());
 
         logger.info("Starting socket listener");
