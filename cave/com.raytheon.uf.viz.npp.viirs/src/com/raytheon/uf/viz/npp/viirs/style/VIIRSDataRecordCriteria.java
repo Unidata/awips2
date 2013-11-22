@@ -32,7 +32,8 @@ import com.raytheon.uf.common.style.StyleException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 26, 2012            mschenke     Initial creation
+ * Jul 26, 2012            mschenke    Initial creation
+ * Nov 22, 2013 2361       njensen     Added no-arg constructor
  * 
  * </pre>
  * 
@@ -42,13 +43,22 @@ import com.raytheon.uf.common.style.StyleException;
 
 public class VIIRSDataRecordCriteria extends MatchCriteria {
 
-    private final String parameter;
+    private String parameter;
 
-    private final Double wavelength;
+    private Double wavelength;
 
-    private final String channelType;
+    private String channelType;
 
-    private final String region;
+    private String region;
+
+    /**
+     * Constructor that exists to keep the StyleManager's JAXBManager happy.
+     * JAXB will throw an error when introspecting this class if there's not a
+     * no-arg constructor.
+     */
+    protected VIIRSDataRecordCriteria() {
+
+    }
 
     public VIIRSDataRecordCriteria(VIIRSDataRecord record) {
         this.parameter = record.getParameter();
