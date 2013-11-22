@@ -94,7 +94,7 @@ public class DerbyDao {
 
     private static DerbyDao instance = new DerbyDao();
 
-    private static LogSrvConfig config;
+    private LogSrvConfig config;
 
     private DerbyDao() {
 
@@ -104,8 +104,12 @@ public class DerbyDao {
         return instance;
     }
 
-    public static void setConfig(LogSrvConfig cfg) {
+    public void setConfig(LogSrvConfig cfg) {
         config = cfg;
+    }
+
+    public LogSrvConfig getConfig() {
+        return config;
     }
 
     /**
