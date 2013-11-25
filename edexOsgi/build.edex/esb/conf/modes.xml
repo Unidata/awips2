@@ -171,7 +171,7 @@
 		<include>grid-staticdata-process.xml</include>
 		<include>level-common.xml</include>
 	 	<include>grid-common.xml</include>
-	 	<include>gridcoverage-.*.xml</include>
+	 	<include>gridcoverage-common.xml</include>
 	 	<include>parameter-common.xml</include>	 	
 		<include>persist-ingest.xml</include>
 		<include>management-common.xml</include>
@@ -208,7 +208,7 @@
 		<include>persist-ingest.xml</include>
 		<include>binlightning-common.xml</include>
 		<include>parameter-common.xml</include>
-		<include>gridcoverage-.*.xml</include>
+		<include>gridcoverage-common.xml</include>
 		<include>grid-common.xml</include>
 		<include>database-common.xml</include>
 		<include>radar-common.xml</include>
@@ -267,7 +267,7 @@
         <include>nwsauth-request.xml</include>
         <include>grid-common.xml</include>
         <include>grid-metadata.xml</include>
-        <include>gridcoverage-.*.xml</include>
+        <include>gridcoverage-common.xml</include>
         <include>parameter-common.xml</include>     
         <include>pointdata-common.xml</include>
         <include>obs-common.xml</include>
