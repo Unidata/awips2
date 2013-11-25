@@ -45,14 +45,46 @@ import com.raytheon.uf.logsrv.StoredMsg;
 
 public class DerbyAppender extends AppenderBase<ILoggingEvent> {
 
+    private DerbyDao dao;
+
+    private String[] ignoreThreads;
+
+    public DerbyAppender() {
+        super();
+        dao = DerbyDao.getInstance();
+        String ignore = dao.getConfig().getIgnoreThreads();
+        if (ignore != null) {
+            ignoreThreads = ignore.split(",");
+        }
+    }
+
     @Override
     protected void append(ILoggingEvent eventObject) {
-        StoredMsg msg = new StoredMsg(eventObject);
-        try {
-            DerbyDao.getInstance().insert(msg);
-        } catch (LogServiceException e) {
-            LogService.getLogger().error(
-                    "Error inserting message into derby database", e);
+        if (shouldStoreMsg(eventObject)) {
+            StoredMsg msg = new StoredMsg(eventObject);
+            try {
+                dao.insert(msg);
+            } catch (LogServiceException e) {
+                LogService.getLogger().error(
+                        "Error inserting message into derby database", e);
+            }
         }
+    }
+
+    /**
+     * Checks whether or not the appender should store the logging event
+     * 
+     * @param event
+     * @return
+     */
+    private boolean shouldStoreMsg(ILoggingEvent event) {
+        if (ignoreThreads != null) {
+            for (String ignore : ignoreThreads) {
+                if (event.getThreadName().startsWith(ignore)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
