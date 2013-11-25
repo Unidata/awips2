@@ -57,7 +57,7 @@ public class TestReportOutputter {
         LogSrvConfig config = (LogSrvConfig) m
                 .unmarshal(new File("config.xml"));
         config.validate();
-        DerbyDao.setConfig(config);
+        DerbyDao.getInstance().setConfig(config);
         LogReportContainer container = DerbyDao.getInstance().buildReport();
         String report = HtmlGenerator.generateHtml(container);
         ReportEmailer.email(report, config);
