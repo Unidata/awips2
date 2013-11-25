@@ -68,6 +68,9 @@ public class LogSrvConfig {
     @XmlElement
     private String timeToSend;
 
+    @XmlElement
+    private String ignoreThreads;
+
     public String getFromAddress() {
         return fromAddress;
     }
@@ -122,6 +125,14 @@ public class LogSrvConfig {
 
     public void setDatabaseDir(String databaseDir) {
         this.databaseDir = databaseDir;
+    }
+
+    public String getIgnoreThreads() {
+        return ignoreThreads;
+    }
+
+    public void setIgnoreThreads(String ignoreThreads) {
+        this.ignoreThreads = ignoreThreads;
     }
 
     /**
