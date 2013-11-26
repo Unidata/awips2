@@ -47,11 +47,13 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 17, 2013            bsteffen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 17, 2013           bsteffen    Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Nov 26, 2013  2537     bsteffen    Fix NPEs for dataTimes and timeRange requests.
+ * 
  * 
  * </pre>
  * 
@@ -215,7 +217,7 @@ public abstract class AbstractDataPluginFactory
         String[] dataTimeStrings = new String[dataTimes.length];
         int index = 0;
         for (DataTime dataTime : dataTimes) {
-            dataTimeStrings[index] = dataTime.toString();
+            dataTimeStrings[index] = String.valueOf(dataTime);
             ++index;
         }
         requestConstraint.setConstraintValueList(dataTimeStrings);
@@ -237,13 +239,15 @@ public abstract class AbstractDataPluginFactory
             TimeRange timeRange) {
         DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
         /* Add the TimeRange Constraint */
-        RequestConstraint requestConstraint = new RequestConstraint();
-        requestConstraint.setConstraintType(ConstraintType.BETWEEN);
-        String[] dateTimeStrings = new String[] {
-                timeRange.getStart().toString(), timeRange.getEnd().toString() };
-        requestConstraint.setBetweenValueList(dateTimeStrings);
-        dbQueryRequest.addConstraint(FIELD_DATATIME, requestConstraint);
-
+        if (timeRange != null) {
+            RequestConstraint requestConstraint = new RequestConstraint();
+            requestConstraint.setConstraintType(ConstraintType.BETWEEN);
+            String[] dateTimeStrings = new String[] {
+                    timeRange.getStart().toString(),
+                    timeRange.getEnd().toString() };
+            requestConstraint.setBetweenValueList(dateTimeStrings);
+            dbQueryRequest.addConstraint(FIELD_DATATIME, requestConstraint);
+        }
         return dbQueryRequest;
     }
 
