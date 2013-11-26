@@ -60,16 +60,20 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Aug 12, 2008 #1448       chammack    Initial creation
- * Jun 17, 2010 #5091       njensen     Optimized primitive arrays
- * Mar 01, 2011             njensen     Restructured deserializeArray()
- * Sep 14, 2012 #1169       djohnson    Add ability to write another object into the stream directly.
- * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
- * Nov 02, 2012 1302        djohnson    No more field level adapters.
- * Apr 25, 2013 1954        bsteffen    Size Collections better.
- * Jul 23, 2013 2215        njensen     Updated for thrift 0.9.0
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 12, 2008  1448     chammack    Initial creation
+ * Jun 17, 2010  5091     njensen     Optimized primitive arrays
+ * Mar 01, 2011           njensen     Restructured deserializeArray()
+ * Sep 14, 2012  1169     djohnson    Add ability to write another object into
+ *                                    the stream directly.
+ * Sep 28, 2012  1195     djohnson    Add ability to specify adapter at field
+ *                                    level.
+ * Nov 02, 2012  1302     djohnson    No more field level adapters.
+ * Apr 25, 2013  1954     bsteffen    Size Collections better.
+ * Jul 23, 2013  2215     njensen     Updated for thrift 0.9.0
+ * Nov 26, 2013  2537     bsteffen    Add support for void type lists which are
+ *                                    sometimes created by python.
  * 
  * </pre>
  * 
@@ -1180,6 +1184,29 @@ public class ThriftSerializationContext extends BaseSerializationContext {
                     }
                     for (int i = 0; i < innerList.size; i++) {
                         list.add(readString());
+                    }
+                    return list;
+                }
+            case TType.VOID:
+                if (listFieldClazz == null || listFieldClazz.isArray()) {
+                    Object[] array = new Object[innerList.size];
+                    protocol.readListEnd();
+                    return array;
+                } else {
+                    // this is a List but due to the encoded element type
+                    // we can safely assume it's all nulls
+                    List<String> list = null;
+                    if (listFieldClazz != null) {
+                        if (!listFieldClazz.isInterface()
+                                && List.class.isAssignableFrom(listFieldClazz)) {
+                            list = (List<String>) listFieldClazz.newInstance();
+                        }
+                    }
+                    if (list == null) {
+                        list = new ArrayList<String>(innerList.size);
+                    }
+                    for (int i = 0; i < innerList.size; i++) {
+                        list.add(null);
                     }
                     return list;
                 }
