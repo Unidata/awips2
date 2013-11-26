@@ -320,6 +320,16 @@ public class EnvelopeIntersectionTest {
                 19097.596365784917, 64, 49, expected);
     }
 
+    @Test
+    public final void testGeostationaryToGeostationary()
+            throws TransformException, FactoryException {
+        /* This was created using printSimplePolygon. */
+        float[] expected = { -5434871, -3799600, -5434871, -721443, -2356714,
+                -721443, -2356714, -3799600, -5434871, -3799600 };
+        test(KNOWN_ENVELOPES.GEOSTATIONARY, KNOWN_ENVELOPES.GEOSTATIONARY,
+                19097.596365784917, 64, 49, expected);
+    }
+
     /**
      * This method can be used to assist in generating test cases. It starts
      * with a known good result and minimizes the amount of text to put in the
