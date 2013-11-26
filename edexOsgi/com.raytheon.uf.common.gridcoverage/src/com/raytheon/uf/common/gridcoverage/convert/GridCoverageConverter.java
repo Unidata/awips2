@@ -61,10 +61,13 @@ public class GridCoverageConverter implements DataURIFieldConverter {
     @Override
     public GridCoverage fromString(String string) {
         try {
+            if (string == null || "null".equals(string)) {
+                return null;
+            }
             return fromInteger(Integer.parseInt(string));
         } catch (NumberFormatException e) {
             throw new UnsupportedOperationException(string
-                    + " is not a valid GridCoverage  id.");
+                    + " is not a valid GridCoverage id.");
         }
     }
 
