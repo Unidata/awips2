@@ -88,11 +88,30 @@ public class EnvelopeIntersection {
             int maxVertDivisions) throws TransformException, FactoryException {
         ReferencedEnvelope sourceREnvelope = reference(sourceEnvelope);
         ReferencedEnvelope targetREnvelope = reference(targetEnvelope);
-        Geometry border = null;
-        WorldWrapCorrector corrector = new WorldWrapCorrector(targetREnvelope);
         MathTransform sourceCRSToTargetCRS = CRS.findMathTransform(
                 sourceREnvelope.getCoordinateReferenceSystem(),
                 targetREnvelope.getCoordinateReferenceSystem());
+        if (sourceCRSToTargetCRS.isIdentity()) {
+            com.vividsolutions.jts.geom.Envelope intersection = sourceREnvelope
+                    .intersection(targetREnvelope);
+            if (intersection == null) {
+                return gf.createGeometryCollection(new Geometry[0]);
+            } else {
+                Coordinate[] border = new Coordinate[5];
+                border[0] = new Coordinate(intersection.getMinX(),
+                        intersection.getMinY());
+                border[1] = new Coordinate(intersection.getMinX(),
+                        intersection.getMaxY());
+                border[2] = new Coordinate(intersection.getMaxX(),
+                        intersection.getMaxY());
+                border[3] = new Coordinate(intersection.getMaxX(),
+                        intersection.getMinY());
+                border[4] = border[0];
+                return gf.createPolygon(gf.createLinearRing(border), null);
+            }
+        }
+        Geometry border = null;
+        WorldWrapCorrector corrector = new WorldWrapCorrector(targetREnvelope);
         MathTransform targetCRSToSourceCRS = sourceCRSToTargetCRS.inverse();
         MathTransform targetCRSToLatLon = MapUtil
                 .getTransformToLatLon(targetREnvelope

@@ -49,10 +49,11 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 27, 2013            mschenke    Initial creation
- * Oct 02, 2013 2333       mschenke    Converted from libproj to CGMS algorithm
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 27, 2013           mschenke    Initial creation
+ * Oct 02, 2013  2333     mschenke    Converted from libproj to CGMS algorithm
+ * Nov 18, 2013  2528     bsteffen    Add hashCode/equals.
  * 
  * </pre>
  * 
@@ -210,6 +211,34 @@ public class Geostationary extends MapProjection {
         }
         ptDst.setLocation(x / height_ratio, y / height_ratio);
         return ptDst;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        long temp;
+        temp = Double.doubleToLongBits(orbitalHeight);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (swapAxis ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Geostationary other = (Geostationary) obj;
+        if (Double.doubleToLongBits(orbitalHeight) != Double
+                .doubleToLongBits(other.orbitalHeight))
+            return false;
+        if (swapAxis != other.swapAxis)
+            return false;
+        return true;
     }
 
     public static class Provider extends AbstractProvider {
