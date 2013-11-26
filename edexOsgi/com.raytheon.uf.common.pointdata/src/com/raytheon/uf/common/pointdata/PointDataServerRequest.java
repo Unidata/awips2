@@ -23,7 +23,6 @@ package com.raytheon.uf.common.pointdata;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
@@ -34,9 +33,11 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 16, 2011 #8070      ekladstrup  Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 16, 2011  8070     ekladstrup  Initial creation
+ * Nov 26, 2013  2537     bsteffen    Move common constants here.
+ * 
  * 
  * </pre>
  * 
@@ -44,8 +45,15 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * @version 1.0
  */
 @DynamicSerialize
-public class PointDataServerRequest implements IServerRequest,
-        ISerializableObject {
+public class PointDataServerRequest implements IServerRequest {
+
+    public static final String REQUEST_PARAMETERS_KEY = "requestedParameters";
+
+    public static final String REQUEST_MODE_KEY = "mode";
+
+    public static final String REQUEST_MODE_2D = "select2d";
+
+    public static final String REQUEST_MODE_PARAMETERS = "getParameters";
 
     // the information needed for a PointDataQuery object
     @DynamicSerializeElement
