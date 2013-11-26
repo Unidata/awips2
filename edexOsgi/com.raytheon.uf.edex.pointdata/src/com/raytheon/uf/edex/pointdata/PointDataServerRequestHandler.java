@@ -34,11 +34,12 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 16, 2011 8070       ekladstrup  Initial creation
- * Aug 09, 2011 9696       gzhou       add handle for request from nativeLib
- * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 16, 2011  8070     ekladstrup  Initial creation
+ * Aug 09, 2011  9696     gzhou       add handle for request from nativeLib
+ * May 15, 2013  1869     bsteffen    Remove DataURI column from ldadmesonet.
+ * Nov 26, 2013  2537     bsteffen    Use constants in the request class.
  * 
  * </pre>
  * 
@@ -78,19 +79,21 @@ public class PointDataServerRequestHandler implements
 
         // get mode
         String mode = "";
-        constraint = map.get("mode");
+        constraint = map.get(PointDataServerRequest.REQUEST_MODE_KEY);
         if (constraint != null) {
             mode = constraint.getConstraintValue();
-            map.remove("mode");
+            map.remove(PointDataServerRequest.REQUEST_MODE_KEY);
         }
 
         // create PointDataQuery
         PointDataQuery query = new PointDataQuery(pluginName);
 
         // find requested parameters if applicable
-        if (map.containsKey("requestedParameters")) {
-            String params = map.get("requestedParameters").getConstraintValue();
-            map.remove("requestedParameters");
+        if (map.containsKey(PointDataServerRequest.REQUEST_PARAMETERS_KEY)) {
+            String params = map.get(
+                    PointDataServerRequest.REQUEST_PARAMETERS_KEY)
+                    .getConstraintValue();
+            map.remove(PointDataServerRequest.REQUEST_PARAMETERS_KEY);
             query.setParameters(params);
         }
 
@@ -103,7 +106,7 @@ public class PointDataServerRequestHandler implements
         }
 
         // check if requestAllLevels should be called or only specific levels
-        if (mode.equals("select2d")) {
+        if (mode.equals(PointDataServerRequest.REQUEST_MODE_2D)) {
             query.requestAllLevels();
         } else if (mode.equals("selectSpecific")) {
             query.requestSpecificLevel(levelParameter, levelValues);
@@ -111,7 +114,7 @@ public class PointDataServerRequestHandler implements
 
         // perform action based on mode
         PointDataContainer container = null;
-        if (mode.equals("getParameters")) {
+        if (mode.equals(PointDataServerRequest.REQUEST_MODE_PARAMETERS)) {
             return query.getAvailableParameters();
         } else {
             container = query.execute();
