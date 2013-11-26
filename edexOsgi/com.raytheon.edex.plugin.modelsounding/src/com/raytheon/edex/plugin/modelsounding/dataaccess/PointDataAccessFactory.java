@@ -46,7 +46,6 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -69,6 +68,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 31, 2013  2502     bsteffen    Initial creation
+ * Nov 26, 2013  2537     bsteffen    Minor code cleanup.
  * 
  * </pre>
  * 
@@ -76,15 +76,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @version 1.0
  */
 public class PointDataAccessFactory extends AbstractDataPluginFactory {
-
-    // TODO this should be in PointDataServerRequest
-    private static final String REQUEST_PARAMETERS_KEY = "requestedParameters";
-
-    // TODO this should be in PointDataServerRequest
-    private static final String REQUEST_MODE_KEY = "mode";
-
-    // TODO this should be in PointDataServerRequest
-    private static final String REQUEST_MODE_2D = "select2d";
 
     private static class TwoDimensionalParameterGroup {
 
@@ -181,10 +172,7 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
         Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
         String[] locations = request.getLocationNames();
         if (locations != null && locations.length != 0) {
-            RequestConstraint rc = new RequestConstraint();
-            rc.setConstraintType(ConstraintType.IN);
-            rc.setConstraintValueList(locations);
-            rcMap.put(locationDatabaseKey, rc);
+            rcMap.put(locationDatabaseKey, new RequestConstraint(locations));
         }
         Map<String, Object> identifiers = request.getIdentifiers();
         if (identifiers != null) {
@@ -219,6 +207,9 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
             throw new DataRetrievalException(
                     "Unable to complete the PointDataRequestMessage for request: "
                             + request, e);
+        }
+        if(pdc == null){
+            return new IGeometryData[0];
         }
         LevelFactory lf = LevelFactory.getInstance();
         /* Convert the point data container into a list of IGeometryData */
@@ -282,8 +273,8 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
             DbQueryRequest dbQueryRequest) {
         Map<String, RequestConstraint> constraints = dbQueryRequest
                 .getConstraints();
-        constraints.put(REQUEST_MODE_KEY,
-                new RequestConstraint(REQUEST_MODE_2D));
+        constraints.put(PointDataServerRequest.REQUEST_MODE_KEY,
+                new RequestConstraint(PointDataServerRequest.REQUEST_MODE_2D));
         /*
          * Figure out what parameters we actually need.
          */
@@ -312,10 +303,8 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
             parameters.add(fcstHrPointDataKey);
         }
 
-        RequestConstraint rc = new RequestConstraint();
-        rc.setConstraintType(ConstraintType.IN);
-        rc.setConstraintValueList(parameters.toArray(new String[0]));
-        constraints.put(REQUEST_PARAMETERS_KEY, rc);
+        constraints.put(PointDataServerRequest.REQUEST_PARAMETERS_KEY,
+                new RequestConstraint(parameters));
 
         return new PointDataServerRequest(constraints);
     }
@@ -342,8 +331,6 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
         Coordinate c = new Coordinate(pdv.getFloat(longitudePointDataKey),
                 pdv.getFloat(latitudePointDataKey));
         data.setGeometry(new GeometryFactory().createPoint(c));
-        // TODO python will break if attributes is null
-        data.setAttributes(new HashMap<String, Object>(0));
         return data;
     }
 
