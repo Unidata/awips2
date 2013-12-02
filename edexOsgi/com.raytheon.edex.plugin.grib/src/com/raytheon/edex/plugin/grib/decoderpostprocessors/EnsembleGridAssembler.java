@@ -74,7 +74,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Mar 27, 2013 1821        bsteffen    Reduce db and pypies requests in grid
  *                                      assembler.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
- * 
+ * Nov 19, 2013 2478        rjpeter     Make update process update database also.
  * </pre>
  * 
  * @author bphillip
@@ -112,8 +112,8 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
                 FilenameFilters.ACCEPT_FILES,
                 FilenameFilters.byFileExtension(".xml"));
 
-        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
-                filter, false);
+        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath, filter,
+                false);
 
         for (File file : thinnedModelFiles) {
             try {
@@ -274,7 +274,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
             assembledRecord.setMessageData(rec.getFloatData());
             mergeData(record, assembledRecord, thinned);
             assembledRecord.setOverwriteAllowed(true);
-            dao.persistToHDF5(assembledRecord);
+            dao.persistRecords(assembledRecord);
         } catch (PluginException e) {
             throw new GribException("Error storing assembled grid to HDF5", e);
         }
