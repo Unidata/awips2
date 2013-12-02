@@ -780,7 +780,7 @@ class IscMosaic:
                                 if tr is not None:
                                     try:
                                         logger.debug("Processing Blank: %s TR=%s",
-                                                     parmName, self.__printTR(tr))
+                                                     parmName, printTR(tr))
                                         self.__processBlankTime(mGrid, tr)
                                     except:
                                         logger.exception('Failure to process grid blanking Parm=%s Time=%s',
