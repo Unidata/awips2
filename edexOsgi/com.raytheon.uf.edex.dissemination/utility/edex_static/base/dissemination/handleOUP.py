@@ -34,6 +34,7 @@
 #    04/13/12        DR 10388      D. Friedman   Correct acknowledgment handling
 #    08/17/12        DR 15304      D. Friedman   Use unique output file names
 #    10/12/12        DR 15418      D. Friedman   Use unique attachment file names
+#    11/20/13        DR 16777      D. Friedman   Add a test mode.
 # 
 #
 
@@ -71,7 +72,7 @@ INGEST_DIR = dataDir + 'manual'
 INGEST_ROUTE = 'handleoupFilePush'
 SITE_ID = env.getEnvValue('SITENAME')
 
-def process(oup, afosID, resp, ackMgr = None):    
+def process(oup, afosID, resp, ackMgr = None, test = False):
     _Logger.info("handleOUP.py received " + str(oup.getFilename()))
     wmoTypeString = ""
     userDateTimeStamp = ""
@@ -137,7 +138,7 @@ def process(oup, afosID, resp, ackMgr = None):
         _Logger.debug(msg)
         resp.setMessage(msg)
         return
-    else:
+    elif not test:
         try:
             from com.raytheon.uf.edex.plugin.manualIngest import MessageGenerator
             if MessageGenerator.getInstance().sendFileToIngest(awipsPathname, INGEST_ROUTE):
@@ -166,7 +167,22 @@ def process(oup, afosID, resp, ackMgr = None):
         fos.write(attachedFile)
         fos.flush()
         fos.close()
-        
+
+    if test:
+        try:
+            os.remove(awipsPathname)
+        except EnvironmentError:
+            pass # ignore
+        if attachedFilename:
+            try:
+                os.remove(attachedFilename)
+            except EnvironmentError:
+                pass # ignore
+
+        resp.setSendLocalSuccess(True)
+        resp.setSendWANSuccess(True)
+        return
+
     messageIdToAcknowledge = None
     #----------
     # Check if product should be distributed over WAN via NCF
