@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransProdHeader;
  * Oct 22, 2009            njensen     Initial creation
  * Oct 12, 2012  DR 15418  D. Friedman Use clustered TransmittedProductList
  * Jun 07, 2013   1981     mpduff      This is now a priviledged request handler.
+#  Nov 20, 2013  DR 16777  D. Friedman Add a test mode.
  * 
  * </pre>
  * 
@@ -76,6 +77,10 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
 
     @Override
     public OUPResponse handleRequest(OUPRequest request) throws Exception {
+        return handleOUPRequest(request, false);
+    }
+
+    public OUPResponse handleOUPRequest(OUPRequest request, boolean test) throws Exception {
         OfficialUserProduct oup = request.getProduct();
         OUPResponse resp = new OUPResponse();
         boolean changedBbb = false;
@@ -85,7 +90,7 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
                     request = ModifyProduct.addWmoHeader(request);
                 }
                 TransProdHeader header = ModifyProduct.getProductHeader(oup);
-                if (request.isCheckBBB()) {
+                if (request.isCheckBBB() && ! test) {
                     changedBbb = ModifyProduct.checkBBBField(oup, header);
                     if (changedBbb) {
                         resp.setChangedBBB(request.getProduct().getWmoType());
@@ -104,6 +109,7 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
                     args.put("afosID", header.getProductId());
                     args.put("resp", resp);
                     args.put("ackMgr", ackManager);
+                    args.put("test", test);
                     resp.setAttempted(true);
                     py.execute("process", args);
                 } catch (JepException e) {
