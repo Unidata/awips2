@@ -97,7 +97,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      invalid product Id and user want to edit it anyway.
  * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
  * 11/26/2012	14526	mgamazaychikov	Added traverse listener for RETURN key
- * 10/07/2012	16664	mgamazaychikov	Added padProdDesignatorText method
+ * 10/07/2013	16664	mgamazaychikov	Added padProdDesignatorText method
+ * 11/21/2013   16633   mgamazaychikov  Improved consistency between AFOS PIL and WMO Heading fields.
  * </pre>
  * 
  * @author lvenable
@@ -1012,6 +1013,17 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     }
                 }
 
+                // reset WMO Heading or AFOS PIL sections to
+                // make the sections consistent with each other
+                boolean afosReset = isAfosResetRequired();
+                boolean wmoidReset = isWmoidResetRequired();
+                if (callAfosLookup && afosReset) {
+                    setAfosId(null);
+                }
+                if (!callAfosLookup && wmoidReset) {
+                    setWmoId("", "");
+                }
+
                 if (!isDisposed()) {
                     if (tf.getCaretOffset() == tf.getTextLimit()) {
                         nextTF.setFocus();
@@ -1051,4 +1063,31 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         });
 	}
+
+    private boolean isAfosResetRequired() {
+        // returns true if changes are made to WMO Heading for a complete AFOS PIL
+        boolean wmoSectionComplete = isWmoHeadingComplete();
+        boolean afosPilComplete = isAfosPilComplete();
+        return afosPilComplete && !wmoSectionComplete && lookupAllowed;
+    }
+
+    private boolean isWmoidResetRequired() {
+        // returns true if changes are made to AFOS PIL for a complete WMO Heading
+        boolean wmoSectionComplete = isWmoHeadingComplete();
+        boolean afosPilComplete = isAfosPilComplete();
+        return !afosPilComplete && wmoSectionComplete && lookupAllowed;
+    }
+
+    private boolean isWmoHeadingComplete() {
+        // returns true for a complete WMO Heading
+        return wmoTtaaiiTF.getText().length() == wmoTtaaiiTF.getTextLimit() &&
+               ccccTF.getText().length() == ccccTF.getTextLimit();
+    }
+
+    private boolean isAfosPilComplete() {
+        // returns true for a complete AFOS PIL
+        return  wsfoIdTF.getText().length() == wsfoIdTF.getTextLimit() &&
+                prodCatTF.getText().length() == prodCatTF.getTextLimit() &&
+                prodDesignatorTF.getText().length() == prodDesignatorTF.getTextLimit();
+    }
 }
