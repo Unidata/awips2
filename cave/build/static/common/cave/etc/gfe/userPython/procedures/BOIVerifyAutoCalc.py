@@ -25,11 +25,19 @@
 #                    quite finished yet - or have finished only recently.
 #  
 #   2010/04/23  ryu  Initial port to AWIPS II.
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/21/13        16770         ryu            Change name of temporary files
+#                                                 for dual domain.
 #
 #=============================================================================
 #
 #  Do not show this in any menu.  Should only be run via runProcedure after
-#  putting the parms to save in /tmp/FILE (one on each line)
+#  putting the parms to save in /tmp/<siteId>_FILE (one on each line)
 #
 #MenuItems = ["Verify"]
 #
@@ -84,7 +92,7 @@ class Procedure (SmartScript.SmartScript):
       #  Read the parms from the FILE file
       #
       parmlist=[]
-      filename="/tmp/%s"%FILE
+      filename="/tmp/%s_%s"% (self.getSiteID(), FILE)
       if ((os.path.exists(filename)) and (os.path.isfile(filename))):
          try:
             infile=file(filename,"r")
