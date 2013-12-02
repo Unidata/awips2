@@ -97,6 +97,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     called before time matching is done.
  * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * Sep 04, 2013 16519      kshresth    Fix Metar Display Problem
+ * Dec 02, 2013 2473       njensen     Prog Disclose paint frames at high priority
  * 
  * </pre>
  * 
@@ -226,7 +227,7 @@ public class PlotResource2 extends
                 || !curTime.equals(displayedTime)) {
             displayedTime = paintProps.getDataTime();
             progressiveDisclosure.update(curFrame.stationMap.values(),
-                    displayedTime);
+                    displayedTime, true);
             resourceData.getPlotInfoRetriever().updateActiveFrame(
                     paintProps.getDataTime(),
                     descriptor.pixelToWorld(paintProps.getView().getExtent(),
@@ -362,15 +363,15 @@ public class PlotResource2 extends
             List<PlotInfo> info = entry.getValue();
             FrameInformation frameInfo = frameMap.get(time);
 
-            // Sort this data in "backwards" so that the most recent observation 
+            // Sort this data in "backwards" so that the most recent observation
             // for a particular station display correctly
             if (info.size() > 1) {
                 Collections.sort(info, new Comparator<PlotInfo>() {
 
-                @Override
-                public int compare(PlotInfo o1, PlotInfo o2) {                         	  
-                   return o2.dataTime.compareTo(o1.dataTime);
-                 }
+                    @Override
+                    public int compare(PlotInfo o1, PlotInfo o2) {
+                        return o2.dataTime.compareTo(o1.dataTime);
+                    }
                 });
             }
 
