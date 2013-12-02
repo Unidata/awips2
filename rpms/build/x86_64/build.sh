@@ -402,6 +402,7 @@ if [ "${1}" = "-viz" ]; then
    #buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python"
    #buildRPM "awips2-adapt-native"
    #unpackHttpdPypies
