@@ -22,6 +22,8 @@
     <!-- Super Set of all possible WMO grib patterns -->
     <!-- Is specifically not restricting on CCCC since HPE isn't populating it -->
     <regex>^[EHLMOYZ][A-Z]{3}\d{2}</regex>
+    <!-- Exclude Data Delivery specific patterns -->
+    <regexExclude>^LZ[ABC][ABC]9[123] KWBC</regexExclude>
 
     <!-- ECMWF decrypted -->
     <regex>ecmwf_decrypted</regex>
