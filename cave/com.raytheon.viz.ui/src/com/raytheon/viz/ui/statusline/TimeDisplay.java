@@ -47,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ui.actions.ShowTimeDialog;
 
@@ -64,6 +65,8 @@ import com.raytheon.viz.ui.actions.ShowTimeDialog;
  * Nov 30,2007  461        bphillip    Initial Creation
  * 09JUL2008    1234        ebabin      Updates for color, and display issues.
  * Jan 09, 2013 1442       rferrel     Added Simulated Time Change listener.
+ * Nov 19, 2013 2439       rferrel     Adjust timer schedule to update when
+ *                                     DRT rolls over to the next minute.
  * 
  * </pre>
  * 
@@ -102,8 +105,10 @@ public class TimeDisplay extends ContributionItem {
                     td.update();
                 }
 
-                long t = System.currentTimeMillis() % 60000;
-                this.schedule(60000 - t);
+                // DR 2439 schedule when simulated time minute changes.
+                long t = TimeUtil.newDate().getTime()
+                        % TimeUtil.MILLIS_PER_MINUTE;
+                this.schedule(TimeUtil.MILLIS_PER_MINUTE - t);
             }
 
             return Status.OK_STATUS;
@@ -158,7 +163,8 @@ public class TimeDisplay extends ContributionItem {
 
             @Override
             public void timechanged() {
-                update();
+                // Force immediate update and reschedule.
+                updateJob.wakeUp();
             }
         };
         SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(
