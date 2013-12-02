@@ -2,6 +2,7 @@ package com.raytheon.viz.warnings.rsc;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -212,7 +213,8 @@ public abstract class AbstractWWAResource extends
             framePeriod = new TimeRange(time.getRefTime(),
                     frameTimes[frameIdx + 1].getRefTime());
         } else {
-            framePeriod = new TimeRange(time.getRefTime(), LAST_FRAME_ADJ);
+            framePeriod = getLastFrameTimeRange(time.getRefTime());
+
             lastFrame = true;
         }
 
@@ -333,8 +335,7 @@ public abstract class AbstractWWAResource extends
             framePeriod = new TimeRange(thisFrameTime.getRefTime(),
                     frames[index + 1].getRefTime());
         } else {
-            framePeriod = new TimeRange(thisFrameTime.getRefTime(),
-                    LAST_FRAME_ADJ);
+            framePeriod = getLastFrameTimeRange(thisFrameTime.getRefTime());
             lastFrame = true;
         }
         synchronized (paintLock) {
@@ -472,15 +473,7 @@ public abstract class AbstractWWAResource extends
             frameTime = timeToDisplay;
             // point paint time to different time
             paintTime = new DataTime(timeToDisplay);
-            // point framePeriod to new frame
-            if (SimulatedTime.getSystemTime().isRealTime()) {
-                framePeriod = new TimeRange(frameTime, LAST_FRAME_ADJ);
-            } else {
-                // Prevent getting "future" records by keeping interval in the
-                // same minute.
-                framePeriod = new TimeRange(frameTime,
-                        30 * TimeUtil.MILLIS_PER_SECOND);
-            }
+            framePeriod = getLastFrameTimeRange(frameTime);
         }
 
         // check if the warning is cancelled
@@ -508,8 +501,8 @@ public abstract class AbstractWWAResource extends
                 descFrameTimes.length);
         for (int i = 0; i < descFrameTimes.length; i++) {
             if (i == descFrameTimes.length - 1) {
-                framePeriods.add(new TimeRange(descFrameTimes[i].getRefTime(),
-                        LAST_FRAME_ADJ));
+                framePeriods.add(getLastFrameTimeRange(descFrameTimes[i]
+                        .getRefTime()));
             } else {
                 framePeriods.add(new TimeRange(descFrameTimes[i].getRefTime(),
                         descFrameTimes[i + 1].getRefTime()));
@@ -691,4 +684,27 @@ public abstract class AbstractWWAResource extends
         return name;
     }
 
+    /**
+     * Determine time range for the last frame. When in simulated time (DRT)
+     * keep end of time range the start of the base time's next minute.
+     * 
+     * @param baseTime
+     * @return timeRange
+     */
+    private TimeRange getLastFrameTimeRange(Date baseTime) {
+        TimeRange timeRange = null;
+        if (SimulatedTime.getSystemTime().isRealTime()) {
+            timeRange = new TimeRange(baseTime, LAST_FRAME_ADJ);
+        } else {
+            Calendar cal = TimeUtil.newGmtCalendar();
+            cal.setTime(baseTime);
+            // Make the end time for the last frame the start of the next minute
+            // of the base time to prevent getting "future" warnings.
+            cal.add(Calendar.MINUTE, 1);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            timeRange = new TimeRange(baseTime, cal.getTime());
+        }
+        return timeRange;
+    }
 }
