@@ -183,6 +183,7 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
+   buildRPM "awips2-common-base"
    buildRPM "awips2"
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -251,9 +252,11 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-httpd-pypies"
    buildJava
    buildRPM "awips2-groovy"
+   buildRPM "awips2-ldm"
    buildRPM "awips2-postgres"
    buildRPM "awips2-pgadmin3"
    buildRPM "awips2-tools"
+   buildRPM "awips2-edex-environment"
    buildRPM "awips2-openfire"
    buildRPM "awips2-httpd-collaboration"
 
