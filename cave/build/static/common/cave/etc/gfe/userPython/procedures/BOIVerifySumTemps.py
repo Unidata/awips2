@@ -13,6 +13,14 @@
 #   2007/10/x25 - version 2.0 - original implementation of this program
 #
 #   2010/04/23 ryu  Initial port to AWIPS II.
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/21/13        16770         ryu            Change name of temporary files
+#                                                 for dual domain.
 #=====================================================================
 #
 #  S T A R T   C O N F I G U R A T I O N   S E C T I O N
@@ -56,11 +64,6 @@ MODLIST=["Official","MOSGuideBC","MOSGuide","GFS40","GFS40BC",
 #
 EMAIL_FROM_ADDRESS="nobody.nobody@noaa.gov"
 #
-#  Temporary file where e-mail output is kept.  This is automatically
-#  deleted after the commands below are executed.
-#
-EMAIL_TEMP_FILE="/tmp/temp_email.txt"
-#
 #  Commands to be executed to send the temporary e-mail file.
 #  You probably need to reference the EMAIL_TEMP_FILE you
 #  specified above.  This works on a typical AWIPS setup, where it
@@ -68,9 +71,9 @@ EMAIL_TEMP_FILE="/tmp/temp_email.txt"
 #  then does a sendmail command on ls1, and then deletes the temporary
 #  file on ls1.
 #
-EMAIL_CMDS=["scp /tmp/temp_email.txt ldad@ls1-boi:/tmp/temp_email.txt",
-            "ssh ldad@ls1-boi sendmail -t </tmp/temp_email.txt",
-            "ssh ldad@ls1-boi rm /tmp/temp_email.txt",
+EMAIL_CMDS=["scp /tmp/{FILE} ldad@ls1:/tmp/{FILE}",
+            "ssh ldad@ls1 sendmail -t </tmp/{FILE}",
+            "ssh ldad@ls1 rm /tmp/{FILE}",
            ]
 #
 #  Always sends summary to these addresses - even if they were not
@@ -102,10 +105,10 @@ SAVE_DIR="/tmp"
 #  output is created.  You can put "{FILE}" in these and it will be
 #  replaced with the filename before execution.
 #
-SAVE_CMDS=["scp /tmp/{FILE} ldad@ls1-boi:/tmp/{FILE}",
-           "ssh ldad@ls1-boi chmod 666 /tmp/{FILE}",
-           "ssh ldad@ls1-boi cp /tmp/{FILE} /lanfiles/GridVer/{FILE}",
-           "ssh ldad@ls1-boi rm /tmp/{FILE}",
+SAVE_CMDS=["scp /tmp/{FILE} ldad@ls1:/tmp/{FILE}",
+           "ssh ldad@ls1 chmod 666 /tmp/{FILE}",
+           "ssh ldad@ls1 cp /tmp/{FILE} /lanfiles/GridVer/{FILE}",
+           "ssh ldad@ls1 rm /tmp/{FILE}",
           ]
 #
 #
@@ -159,7 +162,7 @@ class Procedure (SmartScript.SmartScript):
       self.obsModel=OBSMODEL
       grid=self._empty
       #
-      #  See if a time is provided in a /tmp/SumTemps.time file
+      #  See if a time is provided in a /tmp/<siteId>_SumTemps.time file
       #  or otherwise get the current system time
       #
       now=self.getNow()
@@ -249,8 +252,8 @@ class Procedure (SmartScript.SmartScript):
       #  Save the clean output for use on webpages
       #
       (vyea,vmon,vday,vhou,vmin,vsec,vwda,vyda,vdst)=time.gmtime(verifday)
-      outname="%4.4d%2.2d%2.2d_%s.html"%(vyea,vmon,vday,parm)
-      fullname="%s/%s"%(SAVE_DIR,outname)
+      outname="%s_%4.4d%2.2d%2.2d_%s.html"%(self.getSiteID(),vyea,vmon,vday,parm)
+      fullname="%s/%s_%s"%(SAVE_DIR, outname)
       outfile=file(fullname,"w")
       outfile.write(cleanoutput)
       outfile.close()
@@ -265,7 +268,7 @@ class Procedure (SmartScript.SmartScript):
       return
    #==================================================================
    #  getNow - sees if there is a specified time in the
-   #           /tmp/SumTemps.time file.  If no file exists, or there
+   #           /tmp/<siteId>_SumTemps.time file.  If no file exists, or there
    #           is trouble reading file, it uses the current system
    #           time as 'now'.
    #
@@ -277,7 +280,7 @@ class Procedure (SmartScript.SmartScript):
       #
       #  If the file doesn't exist or isn't a real file...return
       #
-      timeFile="/tmp/SumTemps.time"
+      timeFile="/tmp/%s_SumTemps.time" % self.getSiteID()
       if not os.path.exists(timeFile):
          return now
       if not os.path.isfile(timeFile):
@@ -363,6 +366,8 @@ class Procedure (SmartScript.SmartScript):
       (gyea,gmon,gday,ghou,gmin,gsec,gwda,gyda,gdst)=time.gmtime(verifday)
       subject="%s verification for %s, %s %d, %4.4d"%(parm,DAYS[gwda],
                MONS[gmon-1],gday,gyea)
+
+      EMAIL_TEMP_FILE="/tmp/%s_temp_email.txt" % self.getSiteID()
       outfile=open(EMAIL_TEMP_FILE,"w")
       outfile.write("To:%s\n"%to)
       outfile.write("From:%s\n"%EMAIL_FROM_ADDRESS)
@@ -372,7 +377,8 @@ class Procedure (SmartScript.SmartScript):
       outfile.close()
       if len(EMAIL_CMDS)>0:
          for cmd in EMAIL_CMDS:
-            os.system(cmd)
+            newcmd=cmd.replace("{FILE}", EMAIL_TEMP_FILE)
+            os.system(newcmd)
       #os.system("rm %s"%EMAIL_TEMP_FILE)
       return
    #==================================================================
