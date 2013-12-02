@@ -22,8 +22,6 @@ package com.raytheon.uf.common.dataplugin.vaa;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -62,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  *                                     PluginDataObject.
  * Oct 22, 2013 2361       njensen     Remove XML annotations
+ * Nov 26, 2013 2582       njensen     Remove dataURI and recordType columns
  * 
  * </pre>
  * 
@@ -71,7 +70,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "vaaseq")
-@Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "latitude", "longitude", "stationId", "refTime", "forecastTime",
+        "advisoryNumber" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -91,21 +92,12 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
     /**
      * 
      */
-    @Column(length = 8)
-    @DataURI(position = 2)
-    @DynamicSerializeElement
-    private String recordType;
-
-    /**
-     * 
-     */
     @Column(length = 16)
-    @DataURI(position = 3)
+    @DataURI(position = 2)
     @DynamicSerializeElement
     private String advisoryNumber;
 
     // Correction indicator from wmo header
-    @DataURI(position = 4)
     @Column(length = 8)
     @DynamicSerializeElement
     private String corIndicator;
@@ -286,21 +278,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
     }
 
     /**
-     * @return the recordType
-     */
-    public String getRecordType() {
-        return recordType;
-    }
-
-    /**
-     * @param recordType
-     *            the recordType to set
-     */
-    public void setRecordType(String recordType) {
-        this.recordType = recordType;
-    }
-
-    /**
      * @return the advisoryNumber
      */
     public String getAdvisoryNumber() {
@@ -458,13 +435,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
     // "\r\r\nSIGNIFICANT CHANGE IN DIRECTION OR SPEED IS" +
     // "\r\r\nANTICIPATED DURING THE NEXT 12 HOURS. ...BALDWIN" +
     // "\r\r\nNXT ADVISORY: WILL BE ISSUED BY 20091104/2315Z" +
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
 
     @Override
     public String getPluginName() {
