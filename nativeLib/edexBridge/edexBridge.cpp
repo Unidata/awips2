@@ -97,9 +97,9 @@ public:
 				uint64_t current = (((long long) tv.tv_sec) * 1000000
 						+ ((long long) tv.tv_usec)) / 1000;
                                 message.setDurable(true);
+                                message.setSubject(fileHeader);
 				message.setContent(fileLocation);
-				message.getProperties()["header"] = fileHeader;
-				message.getProperties()["enqueueTime"] = current;
+                                message.setProperty("enqueueTime", current);
                                
                                 this->sender.send(message);
 
