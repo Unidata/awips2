@@ -1493,8 +1493,10 @@ def set_string_function(f, repr=True):
     else:
         return multiarray.set_string_function(f, repr)
 
-set_string_function(array_str, 0)
-set_string_function(array_repr, 1)
+# randerso DR #2513 remove calls to non-threadsafe set_string_function
+# https://github.com/numpy/numpy/issues/3961
+# set_string_function(array_str, 0)
+# set_string_function(array_repr, 1)
 
 little_endian = (sys.byteorder == 'little')
 
