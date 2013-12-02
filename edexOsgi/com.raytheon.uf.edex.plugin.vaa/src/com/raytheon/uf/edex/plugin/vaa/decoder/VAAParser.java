@@ -36,7 +36,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * Parser for Volcanic Ash Advisories
  * 
  * <pre>
  * 
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Nov 05, 2009 3267       jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Nov 26, 2013 2582       njensen     Cleanup
  * 
  * </pre>
  * 
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 public class VAAParser implements Iterable<VAARecord> {
 
+    // TODO should use JTS coordinate
     private static class LatLon {
         public Double lat;
 
@@ -70,7 +72,21 @@ public class VAAParser implements Iterable<VAARecord> {
         public String shapeType;
     }
 
-    private final String pluginName;
+    private static final Pattern COR_P = Pattern.compile("(C[A-Z]{2})( +.*)?");
+
+    private static final Pattern SUMMIT_ELEV_P = Pattern
+            .compile("(\\d+) +FT +\\((\\d+) +[Mm]\\)");
+
+    private static final Pattern LINE_P = Pattern.compile("WID +LINE +BTN");
+
+    private static final Pattern DTG_P = Pattern.compile("(\\d{8}/\\d{4})(Z)");
+
+    private static final ThreadLocal<SimpleDateFormat> SDF = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyyMMdd/HHmmZ");
+        }
+    };
 
     private final WMOHeader wmoHeader;
 
@@ -78,17 +94,13 @@ public class VAAParser implements Iterable<VAARecord> {
 
     private final List<VAARecord> records = new ArrayList<VAARecord>();
 
-    private List<InternalReport> reports;
-
     /**
      * 
      * @param message
      * @param wmoHeader
      * @param pdd
      */
-    public VAAParser(String name, byte[] message, String traceId,
-            Headers headers) {
-        pluginName = name;
+    public VAAParser(byte[] message, String traceId, Headers headers) {
         this.traceId = traceId;
         wmoHeader = new WMOHeader(message, headers);
         setData(message, headers);
@@ -112,14 +124,15 @@ public class VAAParser implements Iterable<VAARecord> {
      */
     private void setData(byte[] message, Headers headers) {
 
-        reports = InternalReport.identifyMessage(message, headers);
+        List<InternalReport> reports = InternalReport.identifyMessage(message,
+                headers);
 
         VAARecord vaa = new VAARecord();
         vaa.setTraceId(traceId);
         vaa.setWmoHeader(wmoHeader.getWmoHeader());
         String cor = wmoHeader.getBBBIndicator();
         if (cor != null) {
-            Matcher m = Pattern.compile("(C[A-Z]{2})( +.*)?").matcher(cor);
+            Matcher m = COR_P.matcher(cor);
             if (m.find()) {
                 vaa.setCorIndicator(m.group(1));
             }
@@ -208,8 +221,7 @@ public class VAAParser implements Iterable<VAARecord> {
      */
     private LatLon parseLatLon(String latLon) {
         LatLon latlon = null;
-        Pattern p = Pattern.compile(InternalReport.LAT_LON_P);
-        Matcher m = p.matcher(latLon);
+        Matcher m = InternalReport.LAT_LON_P.matcher(latLon);
         if (m.find()) {
             latlon = new LatLon();
             latlon.lat = Double.parseDouble(m.group(2));
@@ -230,8 +242,7 @@ public class VAAParser implements Iterable<VAARecord> {
      */
     private int parseSummitElev(String summitElev) {
         int elevation = -9999;
-        Matcher m = Pattern.compile("(\\d+) +FT +\\((\\d+) +[Mm]\\)").matcher(
-                summitElev);
+        Matcher m = SUMMIT_ELEV_P.matcher(summitElev);
         if (m.find()) {
             elevation = Integer.parseInt(m.group(2));
         }
@@ -245,17 +256,15 @@ public class VAAParser implements Iterable<VAARecord> {
         DataTime dt = null;
 
         // 20091104/1708Z
-        SimpleDateFormat dtFmt = new SimpleDateFormat("yyyyMMdd/HHmmZ");
         if (dtg != null) {
-            Pattern p = Pattern.compile("(\\d{8}/\\d{4})(Z)");
-            Matcher m = p.matcher(dtg);
+            Matcher m = DTG_P.matcher(dtg);
             if (m.find()) {
                 if ("Z".equals(m.group(2))) {
                     dtg = m.group(1) + "GMT";
                 }
             }
             ParsePosition pos = new ParsePosition(0);
-            Date d = dtFmt.parse(dtg, pos);
+            Date d = SDF.get().parse(dtg, pos);
             if (pos.getErrorIndex() < 0) {
                 dt = new DataTime(d);
             }
@@ -271,9 +280,7 @@ public class VAAParser implements Iterable<VAARecord> {
      */
     private void parseAnalData(InternalReport rpt, VAARecord vaa) {
         String rptData = unPack(rpt, false);
-
-        Pattern p = Pattern.compile(InternalReport.ANAL_P);
-        Matcher m = p.matcher(rptData);
+        Matcher m = InternalReport.ANAL_P.matcher(rptData);
         if (m.find()) {
             if ("OBS".equals(m.group(1))) {
                 vaa.setAnal00Hr(unPack(rpt, true));
@@ -315,11 +322,9 @@ public class VAAParser implements Iterable<VAARecord> {
      */
     private void parseFcstData(InternalReport rpt, VAARecord vaa) {
         String rptData = unPack(rpt, false);
-
         String fcstPd = null;
 
-        Pattern p = Pattern.compile(InternalReport.FCST_P);
-        Matcher m = p.matcher(rptData);
+        Matcher m = InternalReport.FCST_P.matcher(rptData);
         if (m.find()) {
             if ("FCST".equals(m.group(1))) {
                 if ("6".equals(m.group(4))) {
@@ -368,19 +373,15 @@ public class VAAParser implements Iterable<VAARecord> {
      * @return
      */
     private List<VAAShape> parseFeature(String rptData) {
-        Pattern latLonP = Pattern.compile(InternalReport.LAT_LON_P);
-        Pattern lineP = Pattern.compile("WID +LINE +BTN");
-        Pattern areaP = Pattern.compile("  ");
-
         List<VAAShape> features = new ArrayList<VAAShape>();
 
         String[] descriptions = rptData.split("SFC/");
         if ((descriptions != null) && (descriptions.length > 1)) {
             for (String description : descriptions) {
-                Matcher m = lineP.matcher(description);
+                Matcher m = LINE_P.matcher(description);
                 if (m.find()) {
                     // parse as a line
-                    m = latLonP.matcher(description);
+                    m = InternalReport.LAT_LON_P.matcher(description);
                     int pos = 0;
                     List<LatLon> points = new ArrayList<LatLon>();
                     while (m.find(pos)) {
@@ -398,7 +399,7 @@ public class VAAParser implements Iterable<VAARecord> {
                     }
                 } else {
                     // handle as an area
-                    m = latLonP.matcher(description);
+                    m = InternalReport.LAT_LON_P.matcher(description);
                     int pos = 0;
                     List<LatLon> points = new ArrayList<LatLon>();
                     while (m.find(pos)) {
@@ -473,7 +474,7 @@ public class VAAParser implements Iterable<VAARecord> {
                 + "\r\r\n\u0003";
         Headers headers = new Headers();
         headers.put("ingestFileName", "FVXX20.20110106");
-        VAAParser p = new VAAParser("vaa", msg1.getBytes(), "TEST01", headers);
+        VAAParser p = new VAAParser(msg1.getBytes(), "TEST01", headers);
         Iterator<VAARecord> it = p.iterator();
         while (it.hasNext()) {
             VAARecord r = it.next();
@@ -481,39 +482,5 @@ public class VAAParser implements Iterable<VAARecord> {
             System.out.println(r.getMessage());
         }
 
-        // Matcher m =
-        // Pattern.compile("(\\d+) +FT +\\((\\d+) +[Mm]\\)").matcher("3002 FT (915 M)");
-        // if(m.find()) {
-        // for(int i = 0;i <= m.groupCount();i++) {
-        // System.out.println(m.group(i));
-        // }
-        // }
     }
-    // ashdescription ::= 'SFC' '/' 'FL' digit digit digit ( line | area ) (
-    // movement ) .
-    //
-    // area ::= segments .
-    //
-    // line ::= digits 'NM' 'WID' 'LINE' 'BTN' segment '.' .
-    //
-    // movement ::=
-    //
-    // segments ::= segment ( spaces - spaces latlon ) .
-    //
-    // segment ::= latlon spaces - spaces latlon.
-    //
-    // latlon ::= lat spaces lon.
-    //
-    // lat ::= ['N' | 'S'] digit digit minutes .
-    // lon ::= ['E' | 'W'] digit digit digit minutes . // 1(([0-7]\d)|(80))
-    //
-    // minutes ::= ( '0' | '1' | '2' | '3' | '4' | '5' ) digit .
-    //
-    // digits ::= digit ( digits ) .
-    //
-    // digit ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' .
-    //
-    // spaces ::= space ( spaces ) .
-    //
-    // space ::= ' ' .
 }
