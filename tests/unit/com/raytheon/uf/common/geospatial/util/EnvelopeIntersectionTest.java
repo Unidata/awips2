@@ -19,17 +19,27 @@
  **/
 package com.raytheon.uf.common.geospatial.util;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.geotools.factory.FactoryIteratorProvider;
+import org.geotools.factory.GeoTools;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.geometry.Envelope;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.projection.Geostationary;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
@@ -49,6 +59,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Sep 13, 2013  2309     bsteffen    Initial creation
+ * Nov 18, 2013  2528     bsteffen    Add test for geostationary.
  * 
  * </pre>
  * 
@@ -94,6 +105,49 @@ public class EnvelopeIntersectionTest {
                         1.0324516833231976E7,
                         MapUtil.AWIPS_POLARSTEREO_NORTHAMERICA);
             }
+        },
+
+        GEOSTATIONARY {
+            public Envelope getEnvelope() {
+                try {
+                    // Must manually register geostation
+                    GeoTools.addFactoryIteratorProvider(new FactoryIteratorProvider() {
+
+                        @Override
+                        public <T> Iterator<T> iterator(Class<T> category) {
+                            if (category
+                                    .isAssignableFrom(Geostationary.Provider.class)) {
+                                List<T> tmp = new ArrayList<T>(1);
+                                tmp.add(category
+                                        .cast(new Geostationary.Provider()));
+                                return tmp.iterator();
+                            }
+                            return null;
+                        }
+                    });
+                    ParameterValueGroup parameters = new DefaultMathTransformFactory()
+                            .getDefaultParameters(Geostationary.PROJECTION_NAME);
+
+                    parameters.parameter("semi_major").setValue(6378137.0);
+                    parameters.parameter("semi_minor").setValue(6356732.31414);
+                    parameters.parameter("latitude_of_origin").setValue(0.0);
+                    parameters.parameter("central_meridian").setValue(-137);
+                    parameters.parameter("false_easting").setValue(0);
+                    parameters.parameter("false_northing").setValue(0);
+                    parameters.parameter(Geostationary.ORBITAL_HEIGHT)
+                            .setValue(35785863.0);
+                    parameters.parameter(Geostationary.SWEEP_AXIS)
+                            .setValue(0.0);
+                    DefaultProjectedCRS crs = MapUtil.constructProjection(
+                            Geostationary.PROJECTION_NAME, parameters);
+                    return new ReferencedEnvelope(-5434870.792806381,
+                            -2356713.972039082, -3799599.721331195,
+                            -721442.9005638957, crs);
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Unable to create geostationary projection", e);
+                }
+            }
         };
 
         public abstract Envelope getEnvelope();
@@ -107,6 +161,7 @@ public class EnvelopeIntersectionTest {
             double threshold, int maxHorDivisions, int maxVertDivisions,
             float[] expectedPolygonCoords) throws TransformException,
             FactoryException {
+        long startTime = System.currentTimeMillis();
         Geometry testGeom = EnvelopeIntersection.createEnvelopeIntersection(
                 source.getEnvelope(), target.getEnvelope(), threshold,
                 maxHorDivisions, maxVertDivisions);
@@ -140,6 +195,10 @@ public class EnvelopeIntersectionTest {
          */
         // toKML(target.getEnvelope(), (Polygon) testGeom, expectedPolygon,
         // maxError);
+
+        long endTime = System.currentTimeMillis();
+        System.out.println(source + " intersected with " + target + " took: "
+                + (endTime - startTime) + "ms");
 
         Assert.assertTrue(source + " intersected with " + target
                 + " is too large.",
@@ -235,6 +294,40 @@ public class EnvelopeIntersectionTest {
                 566310, 5840161, 566310, 5840161, -10503444, 5690083, -10583137 };
         test(KNOWN_ENVELOPES.UKMET, KNOWN_ENVELOPES.NORTH_AMERICAN, 13899, 73,
                 288, expected);
+    }
+
+    @Test
+    public final void testGeostationaryToUkmet() throws TransformException,
+            FactoryException {
+        /* This was created using printSimplePolygon. */
+        float[] expected = { -803884, -836926, 5717769, -737647, 5605322,
+                -1820270, 5412823, -2767932, 5122653, -3661810, 4764378,
+                -4405659, 2533964, -4570863, -74925, -4826265, 141761,
+                -4699883, 265720, -4585495, 398396, -4374090, -401980,
+                -4451987, -214394, -4335532, -140376, -4231895, -111147,
+                -4039970, -191289, -3862333, -279094, -3778945, -431268,
+                -3701630, 203526, -3560640, 5468, -3401972, -348043, -3256781,
+                130869, -3136911, -224309, -2994515, -678028, -2942195, -31273,
+                -2816425, -277475, -2750530, 73248, -2647495, -149634,
+                -2580518, -547236, -2523641, -92802, -2417432, -447576,
+                -2357760, -82722, -2259030, -453907, -2199805, -112694,
+                -2104320, -555394, -2047966, -184709, -1952826, 22519,
+                -1866703, -312976, -1804583, -88257, -1718835, -567370,
+                -1661644, -78052, -1491513, -585469, -1433545, -305862,
+                -1348754, -19066, -1190667, -484493, -1128908, -299531,
+                -1049446, -76719, -896167, -803884, -836926, };
+        test(KNOWN_ENVELOPES.GEOSTATIONARY, KNOWN_ENVELOPES.UKMET,
+                19097.596365784917, 64, 49, expected);
+    }
+
+    @Test
+    public final void testGeostationaryToGeostationary()
+            throws TransformException, FactoryException {
+        /* This was created using printSimplePolygon. */
+        float[] expected = { -5434871, -3799600, -5434871, -721443, -2356714,
+                -721443, -2356714, -3799600, -5434871, -3799600 };
+        test(KNOWN_ENVELOPES.GEOSTATIONARY, KNOWN_ENVELOPES.GEOSTATIONARY,
+                19097.596365784917, 64, 49, expected);
     }
 
     /**
