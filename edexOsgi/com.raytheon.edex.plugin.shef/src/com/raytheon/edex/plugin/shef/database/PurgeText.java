@@ -41,113 +41,116 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Handles storing of Shef Products and updating the purge text product.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2010            jkorman     Initial creation
- *
+ * Mar 8, 2010             jkorman     Initial creation
+ * Dec 03, 2013 2051       rjpeter     Fixed storeTextProduct issue.
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class PurgeText {
     /** The logger */
     private final Log log = LogFactory.getLog(getClass());
 
-    private boolean storeText = false; 
+    private boolean storeText = false;
 
     private CoreDao dao = null;
 
     private boolean daoValid = false;
-    
-    private Date postDate;
-    
-    private SimpleDateFormat dFmt;
-    
+
+    private final Date postDate;
+
+    private final SimpleDateFormat dFmt;
+
     public PurgeText(Date date) {
         try {
             dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
             daoValid = true;
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Could not create dao ", e);
         }
         postDate = date;
         dFmt = new SimpleDateFormat(ShefConstants.POSTGRES_DATE_STRING);
         dFmt.setTimeZone(SHEFTimezone.GMT_TIMEZONE);
-        storeText = AppsDefaults.getInstance().getBoolean(ShefConstants.SHEF_STORETEXT, false);
+        storeText = AppsDefaults.getInstance().getBoolean(
+                ShefConstants.SHEF_STORETEXT, false);
     }
-    
+
     /**
      * 
      * @param separator
      */
     public void storeTextProduct(ShefSeparator separator) {
-        if(daoValid) {
+        if (daoValid) {
             String traceId = "storeTextProduct";
             String message = null;
             String prodId = "MSGPRODID";
             Date prodDate = null;
             try {
                 WMOHeader hdr = separator.getWmoHeader();
-                if((hdr != null)&&(hdr.isValid())) {
+                if ((hdr != null) && (hdr.isValid())) {
                     int start = hdr.getMessageDataStart();
                     message = separator.getRawMessage().substring(start);
 
                     String awipsHdr = separator.getAwipsHeader();
-                    if(awipsHdr != null) {
-                        if(awipsHdr.length() > 6) {
-                            log.error("AWIPS Header [" + awipsHdr + "] too long, truncating to 6 characters");
-                            awipsHdr = awipsHdr.substring(0,6);
+                    if (awipsHdr != null) {
+                        if (awipsHdr.length() > 6) {
+                            log.error("AWIPS Header [" + awipsHdr
+                                    + "] too long, truncating to 6 characters");
+                            awipsHdr = awipsHdr.substring(0, 6);
                         }
                     } else {
                         awipsHdr = "";
                     }
                     prodId = hdr.getCccc() + awipsHdr;
                     traceId = separator.getTraceId();
-                    
-                    if(hdr.getHeaderDate() != null) {
+
+                    if (hdr.getHeaderDate() != null) {
                         prodDate = hdr.getHeaderDate().getTime();
                     }
-                    
+
                 } else {
                     message = separator.getRawMessage();
                 }
-                if(prodDate == null) {
+                if (prodDate == null) {
                     prodDate = new Date();
                 }
-                if(message != null) {
-                    storeTextProduct(message,prodId,prodDate,traceId);
+                if (message != null) {
+                    storeTextProduct(message, prodId, prodDate, traceId);
                 }
-                
-            } catch(Exception e) {
+
+            } catch (Exception e) {
                 log.error(traceId + " - Error processing text data.  ");
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.error(e);
                 }
             }
         }
     }
-    
+
     /**
      * Populate the TextProduct database object product_id | character
      * varying(10) | not null producttime | timestamp without time zone | not
      * null postingtime | timestamp without time zone | not null prodtype |
      * character varying(1) | not null issnum | integer | product | text |
      */
-    private void storeTextProduct(String message, String productId, Date prodDate, String traceId) {
-        
+    private void storeTextProduct(String message, String productId,
+            Date prodDate, String traceId) {
+
         int num_to_keep = 0;
         List<Purgeproduct> products = getPurgeProduct(productId);
         Purgeproduct p = null;
         PurgeproductId id = null;
-        if((products != null) && (products.size() == 1)) {
+        if ((products != null) && (products.size() > 0)) {
             // Update the product and posting time for this product.
             p = products.get(0);
             id = p.getId();
@@ -163,7 +166,7 @@ public class PurgeText {
             id.setPostingtime(postDate);
             dao.saveOrUpdate(p);
         }
-        
+
         if (log.isDebugEnabled()) {
             log.debug("PurgeText.storeTextProduct() called...");
         }
@@ -171,39 +174,41 @@ public class PurgeText {
         try {
             // Should we attempt to store the text?
             if (storeText && (num_to_keep > 0)) {
-                
-                if(storeTextProduct(message,prodDate,productId)) {
-                    
-                    // Now that we've stored the text, we need to find out how many versions
-                    // of this productId are stored and purge any over the num_to_keep.
-                    purgeTextProduct(productId,num_to_keep);
+
+                if (storeTextProduct(message, prodDate, productId)) {
+
+                    // Now that we've stored the text, we need to find out how
+                    // many versions of this productId are stored and purge any
+                    // over the num_to_keep.
+                    purgeTextProduct(productId, num_to_keep);
                 }
             }
         } catch (Exception e) {
             log.error(traceId + " - Error processing text data.  ");
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.error(e);
             }
         }
     }
 
-    
-    //*****************************************************
-    //* Support methods.
-    //***********************
-    
+    // *****************************************************
+    // * Support methods.
+    // ***********************
+
     /**
      * 
      */
     private List<Purgeproduct> getPurgeProduct(String productId) {
 
         List<Purgeproduct> prods = null;
-        String query = String.format("select * from purgeproduct where product_id = '%s'",productId);
-        
+        String query = String
+                .format("select * from purgeproduct where product_id = '%s'",
+                        productId);
+
         Object[] oa = dao.executeSQLQuery(query);
-        if((oa != null) && (oa.length > 0)) {
+        if ((oa != null) && (oa.length > 0)) {
             prods = new ArrayList<Purgeproduct>();
-            for(Object o : oa) {
+            for (Object o : oa) {
                 Object[] oa2 = (Object[]) o;
                 PurgeproductId id = new PurgeproductId();
                 id.setProductId((String) oa2[0]);
@@ -215,24 +220,25 @@ public class PurgeText {
         }
         return prods;
     }
-    
+
     /**
      * 
      */
-    private boolean updatePurgeProduct(String productId, Date prodDate, Date postDate) {
+    private boolean updatePurgeProduct(String productId, Date prodDate,
+            Date postDate) {
         String qFmt = "update purgeproduct set producttime = '%s', postingtime = '%s' where product_id = '%s'";
-        
+
         String prDate = dFmt.format(prodDate);
         String poDate = dFmt.format(postDate);
-        String query = String.format(qFmt,prDate, poDate, productId);
-        
+        String query = String.format(qFmt, prDate, poDate, productId);
+
         int n = dao.executeSQLUpdate(query);
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Lines updated = " + n + " from Update query  = " + query);
         }
         return (n > 0);
     }
-    
+
     /**
      * 
      * @param text
@@ -240,52 +246,54 @@ public class PurgeText {
      * @param productId
      * @return
      */
-    private boolean storeTextProduct(String text, Date prodDate, String productId) {
-        
+    private boolean storeTextProduct(String text, Date prodDate,
+            String productId) {
+
         TextproductId tId = new TextproductId();
-        
+
         tId.setProductId(productId);
         tId.setProducttime(prodDate);
         tId.setPostingtime(postDate);
-        
+
         Textproduct t = new Textproduct(tId, productId);
         t.setProdtype(findProductType(productId));
         t.setIssnum(0);
         t.setProduct(convertMessage(text));
-        
+
         boolean success = false;
         try {
             dao.saveOrUpdate(t);
             success = true;
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error saving text ");
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.error(e);
             }
         }
         return success;
     }
-    
+
     /**
      * Convert carriage control to '\n'.
+     * 
      * @param message
      * @return
      */
     private String convertMessage(String message) {
         StringBuilder sbOut = new StringBuilder(message.length());
         char last = 0;
-        for(int i = 0;i < message.length();i++) {
+        for (int i = 0; i < message.length(); i++) {
             char c = message.charAt(i);
-            if(c == '\'') {
+            if (c == '\'') {
                 sbOut.append("\\");
                 sbOut.append(c);
             } else if (c == '\r') {
-                if(last != '\n') {
+                if (last != '\n') {
                     sbOut.append("\n");
                 }
                 c = '\n';
             } else if (c == '\n') {
-                if(last != '\n') {
+                if (last != '\n') {
                     sbOut.append("\n");
                 }
             } else {
@@ -295,32 +303,32 @@ public class PurgeText {
         }
         return sbOut.toString();
     }
-    
+
     private void purgeTextProduct(String productId, int numToKeep) {
         String selQuery = "select postingTime from textproduct where product_id = '%s' order by postingtime desc";
         String purQuery = "delete from textproduct where product_id = '%s' and postingtime < '%s'";
-        
-        String query = String.format(selQuery,productId);
 
-        Timestamp [] t = null; 
+        String query = String.format(selQuery, productId);
+
+        Timestamp[] t = null;
         Object[] oa = dao.executeSQLQuery(query);
-        if((oa != null) && (oa.length > 0)) {
+        if ((oa != null) && (oa.length > 0)) {
             t = new Timestamp[oa.length];
-            for(int i = 0;i < oa.length;i++) {
+            for (int i = 0; i < oa.length; i++) {
                 t[i] = (Timestamp) oa[i];
             }
         }
-        if(t != null) {
+        if (t != null) {
             // Do we need to purge?
-            if(t.length > numToKeep) {
-                String poDate = dFmt.format(toDate(t[numToKeep-1]));
-                query = String.format(purQuery,productId, poDate);
+            if (t.length > numToKeep) {
+                String poDate = dFmt.format(toDate(t[numToKeep - 1]));
+                query = String.format(purQuery, productId, poDate);
 
                 int n = dao.executeSQLUpdate(query);
             }
         }
     }
-    
+
     /**
      * 
      * @param t
@@ -328,12 +336,12 @@ public class PurgeText {
      */
     private static Date toDate(Timestamp t) {
         Date d = null;
-        if(t != null) {
+        if (t != null) {
             d = new Date(t.getTime());
         }
         return d;
     }
-    
+
     /**
      * 
      * @param productId
@@ -343,10 +351,11 @@ public class PurgeText {
         String productType = "O";
         if ((productId.indexOf("RVF") > -1) || (productId.indexOf("QPF") > -1)) {
             productType = "F";
-        } else if ((productId.indexOf("FFG") > -1) || (productId.indexOf("FFH") > -1)) {
+        } else if ((productId.indexOf("FFG") > -1)
+                || (productId.indexOf("FFH") > -1)) {
             productType = "C";
         }
         return productType;
     }
-    
+
 }
