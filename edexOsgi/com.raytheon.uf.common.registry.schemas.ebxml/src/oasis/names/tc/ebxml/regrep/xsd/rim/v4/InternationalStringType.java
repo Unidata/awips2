@@ -29,7 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -103,12 +103,12 @@ public class InternationalStringType implements Serializable {
             + ".InternationalString_sequence")
     @GeneratedValue(generator = "InternationalStringTypeGenerator")
     @XmlTransient
-    private Integer key;
+    private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "string_id", nullable = false, referencedColumnName = "id")
     @XmlElement(name = "LocalizedString")
     @DynamicSerializeElement
-    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<LocalizedStringType> localizedString;
 
     public InternationalStringType() {
@@ -199,12 +199,18 @@ public class InternationalStringType implements Serializable {
         return true;
     }
 
-    public Integer getKey() {
-        return key;
+    @Override
+    public String toString() {
+        return "InternationalStringType [id=" + id + ", localizedString="
+                + localizedString + "]";
     }
 
-    public void setKey(Integer key) {
-        this.key = key;
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
 }
