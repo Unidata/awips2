@@ -70,6 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods
  * </pre>
  * 
  * @author bphillip
@@ -95,17 +96,55 @@ public abstract class ValueType implements IPersistableDataObject<Integer> {
             + ".Value_sequence")
     @GeneratedValue(generator = "ValueTypeGenerator")
     @XmlTransient
-    protected Integer key;
+    protected Integer id;
 
-    public abstract <T extends Object> T getValue();
+    protected ValueType() {
 
-    public abstract void setValue(Object obj);
+    }
 
-    public abstract String getColumnName();
+    protected ValueType(Integer id) {
+        this.id = id;
+    }
 
     @Override
     public Integer getIdentifier() {
-        return key;
+        return id;
+    }
+
+    public abstract <T> T getValue();
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ValueType other = (ValueType) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ValueType \n[id=");
+        builder.append(id);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

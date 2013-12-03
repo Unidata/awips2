@@ -39,39 +39,13 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * ------------ ----------  ----------- --------------------------
  * 7/11/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Modified method to get orphaned slots
+ * 12/2/2013    1829        bphillip    Changed how orphans are purged
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class SlotTypeDao extends SessionManagedDao<Integer, SlotType> {
-
-    /** SQL query to get the ids of the orphaned slots */
-    private static final String ORPHANED_SLOT_QUERY = "select key from ebxml.slot where key not in "
-            + "(select child_slot_key from ebxml.action_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.personname_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.objectref_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.parameter_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.queryexpression_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.registryobject_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.query_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.slot_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.telephonenumber_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.deliveryinfo_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.emailaddress_slot "
-            + "UNION "
-            + "select child_slot_key from ebxml.postaladdress_slot "
-            + ")";
+public class SlotTypeDao extends SessionManagedDao<String, SlotType> {
 
     @Override
     protected Class<SlotType> getEntityClass() {
@@ -86,14 +60,25 @@ public class SlotTypeDao extends SessionManagedDao<Integer, SlotType> {
      * @return List of orphaned ids of size limit
      */
     @SuppressWarnings("unchecked")
-    public List<Integer> getOrphanedSlotIds(int limit) {
+    public void purgeOrphans() {
         SQLQuery query = this.getSessionFactory().getCurrentSession()
-                .createSQLQuery(ORPHANED_SLOT_QUERY);
-        query.setMaxResults(limit);
-        return query.list();
+                .createSQLQuery("select id, parent_id FROM ebxml.slot");
+        List<Object[]> results = query.list();
+
+        for (Object[] result : results) {
+            String slotId = (String) result[0];
+            String parentId = (String) result[1];
+            statusHandler.info("Checking [" + slotId + "]");
+            if (this.executeHQLQuery(
+                    "FROM ExtensibleObjectType obj where obj.id=:id", "id",
+                    parentId).isEmpty()) {
+                deleteBySlotId(slotId);
+            }
+
+        }
     }
 
-    public void deleteBySlotId(Integer id) {
+    public void deleteBySlotId(String id) {
         SlotType slot = this.getById(id);
         if (slot != null) {
             this.template.delete(slot);
