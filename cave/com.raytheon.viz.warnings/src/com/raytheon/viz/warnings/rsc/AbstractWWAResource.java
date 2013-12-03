@@ -80,6 +80,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      Check if geometry is null when inspecting.
  * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
  * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
+ * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
  * </pre>
  * 
  * @author jsanchez
@@ -404,7 +405,7 @@ public abstract class AbstractWWAResource extends
                                 .getDefaultFont().getFontName(), 11,
                                 new IFont.Style[0]);
                         emergencyFont = target.getDefaultFont().deriveWithSize(
-                                11);
+                                14);
                     }
                     // DR14992: reverse the textToPrint array to plot the
                     // strings in correct order
@@ -427,12 +428,14 @@ public abstract class AbstractWWAResource extends
                     // Draws the string again to have it appear bolder
                     if (EmergencyType.isEmergency(record.getRawmessage())) {
                         // moves over text to add EMER in a different font
-                        textToPrintReversed[2] = String.format("%1$-21" + "s",
+                        textToPrintReversed[2] = String.format("%1$-23" + "s",
                                 textToPrintReversed[2]);
                         params.setText(textToPrintReversed, color);
 
                         DrawableString emergencyString = new DrawableString(
                                 params);
+                        emergencyString.setCoordinates(d[0],
+                                d[1] + (paintProps.getZoomLevel()) * 90);
                         emergencyString.font = emergencyFont;
                         emergencyString.setText(new String[] { "", "",
                                 " " + EmergencyType.EMER, "" }, color);
