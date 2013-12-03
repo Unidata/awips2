@@ -232,8 +232,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
             parameters.put(colorMapParameters, null);
 
             GLSLStructFactory.createDataTexture(program, "rawData", 0,
-                    cmapImage.getDataFormat(),
-                    colorMapParameters.getNoDataValue());
+                    cmapImage);
 
             int numMappingValues = 0;
             GLDataMapping mapping = cmapImage.getDataMapping();

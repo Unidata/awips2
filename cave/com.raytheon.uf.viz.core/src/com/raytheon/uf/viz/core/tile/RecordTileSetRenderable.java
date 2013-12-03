@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -71,11 +70,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 19, 2013       2122 mschenke    Initial creation.
- * Oct 16, 2013       2333 mschenke    Added method for auto-unit conversion
- *                                     interrogating
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 19, 2013  2122     mschenke    Initial creation.
+ * Oct 16, 2013  2333     mschenke    Added method for auto-unit conversion
+ *                                    interrogating
+ * Nov 20, 2013  2492     bsteffen    Move unit converting interrogate into
+ *                                    TileSetRenderable.
  * 
  * </pre>
  * 
@@ -369,61 +370,12 @@ public class RecordTileSetRenderable extends TileSetRenderable {
         return interrogate(coordinate, parameters.getNoDataValue());
     }
 
-    /**
-     * Returns the raw image value from tile image that contains the lat/lon
-     * coordinate in units of desiredUnit
-     * 
-     * @param coordinate
-     *            in lat/lon space
-     * @param desiredUnit
-     *            unit to convert data value to if not nanValue
-     * @return
-     * @throws VizException
-     */
-    public double interrogate(Coordinate coordinate, Unit<?> desiredUnit)
+    @Override
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit)
             throws VizException {
         ColorMapParameters parameters = colormapping.getColorMapParameters();
-        return interrogate(coordinate, parameters.getNoDataValue(), desiredUnit);
-    }
-
-    /**
-     * Returns the raw image value from tile image that contains the lat/lon
-     * coordinate in units of desiredUnit
-     * 
-     * @param coordinate
-     *            in lat/lon space
-     * @param nanValue
-     *            if interrogated value is equal to nanValue, {@link Double#NaN}
-     *            will be returned
-     * @param desiredUnit
-     *            unit to convert data value to if not nanValue
-     * @return
-     * @throws VizException
-     */
-    public double interrogate(Coordinate coordinate, double nanValue,
-            Unit<?> desiredUnit) throws VizException {
-        double dataValue = super.interrogate(coordinate, nanValue);
-        if (Double.isNaN(dataValue) == false) {
-            ColorMapParameters params = colormapping.getColorMapParameters();
-            Unit<?> dataUnit = params.getDataUnit();
-            if (dataUnit != null && desiredUnit != null
-                    && dataUnit != desiredUnit) {
-                if (dataUnit.isCompatible(desiredUnit)) {
-                    dataValue = dataUnit.getConverterTo(desiredUnit).convert(
-                            dataValue);
-                } else {
-                    throw new IllegalArgumentException(
-                            "Unable to interrogate tile set. "
-                                    + String.format(
-                                            "Desired unit (%s) is not compatible with data unit (%s).",
-                                            UnitFormat.getUCUMInstance()
-                                                    .format(desiredUnit),
-                                            UnitFormat.getUCUMInstance()
-                                                    .format(dataUnit)));
-                }
-            }
-        }
-        return dataValue;
+        return super.interrogate(coordinate, resultUnit,
+                parameters.getNoDataValue());
     }
 
     /**
