@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -48,6 +48,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012 0743       djohnson     Initial creation
  * Jun 24, 2013 2106       djohnson     Pass encoder to result formatters.
+ * 12/2/2013    1829       bphillip     Changed slot field in ExtensibleObjectType to be List instead of Set
  * 
  * </pre>
  * 
@@ -58,8 +59,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class DataSetMetaDataDatesQuery extends
-        DataSetMetaDataFilterableQuery<ImmutableDate>
-        implements
+        DataSetMetaDataFilterableQuery<ImmutableDate> implements
         IResultFormatter<ImmutableDate> {
 
     /**
@@ -67,14 +67,13 @@ public class DataSetMetaDataDatesQuery extends
      */
     @Override
     public ImmutableDate decodeObject(RegistryObjectType registryObjectType,
-            IRegistryEncoder encoder)
-            throws SerializationException {
-        Set<SlotType> returnedSlots = registryObjectType.getSlot();
+            IRegistryEncoder encoder) throws SerializationException {
+        List<SlotType> returnedSlots = registryObjectType.getSlot();
 
         for (SlotType s : returnedSlots) {
             if (DataSetMetaData.DATE_SLOT.equals(s.getName())) {
                 IntegerValueType value = (IntegerValueType) s.getSlotValue();
-                return new ImmutableDate(value.getValue().longValue());
+                return new ImmutableDate(value.getIntegerValue().longValue());
             }
         }
 

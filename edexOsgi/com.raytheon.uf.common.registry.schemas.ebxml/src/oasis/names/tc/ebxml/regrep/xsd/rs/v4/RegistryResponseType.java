@@ -25,6 +25,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -44,7 +51,11 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilterObjectsResponse;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -83,6 +94,9 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -96,18 +110,27 @@ import com.raytheon.uf.common.util.CollectionUtil;
 @XmlSeeAlso({ ValidateObjectsResponse.class, CatalogObjectsResponse.class,
         FilterObjectsResponse.class, QueryResponse.class })
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RegistryResponse")
 public class RegistryResponseType extends ExtensibleObjectType {
+
+    private static final long serialVersionUID = 3258800433937559672L;
 
     @XmlElement(name = "Exception")
     @DynamicSerializeElement
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "exception_id", nullable = false, referencedColumnName = "id")
     protected List<RegistryExceptionType> exception;
 
     @XmlElement(name = "RegistryObjectList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected RegistryObjectListType registryObjectList;
 
     @XmlElement(name = "ObjectRefList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected ObjectRefListType objectRefList;
 
     @XmlAttribute(required = true)
@@ -118,6 +141,10 @@ public class RegistryResponseType extends ExtensibleObjectType {
     @XmlSchemaType(name = "anyURI")
     @DynamicSerializeElement
     protected String requestId;
+
+    public RegistryResponseType() {
+        super();
+    }
 
     public boolean isOk() {
         return status.equals(RegistryResponseStatus.SUCCESS);
@@ -280,6 +307,79 @@ public class RegistryResponseType extends ExtensibleObjectType {
      */
     public void setRequestId(String value) {
         this.requestId = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((exception == null) ? 0 : exception.hashCode());
+        result = prime * result
+                + ((objectRefList == null) ? 0 : objectRefList.hashCode());
+        result = prime
+                * result
+                + ((registryObjectList == null) ? 0 : registryObjectList
+                        .hashCode());
+        result = prime * result
+                + ((requestId == null) ? 0 : requestId.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RegistryResponseType other = (RegistryResponseType) obj;
+        if (exception == null) {
+            if (other.exception != null)
+                return false;
+        } else if (!exception.equals(other.exception))
+            return false;
+        if (objectRefList == null) {
+            if (other.objectRefList != null)
+                return false;
+        } else if (!objectRefList.equals(other.objectRefList))
+            return false;
+        if (registryObjectList == null) {
+            if (other.registryObjectList != null)
+                return false;
+        } else if (!registryObjectList.equals(other.registryObjectList))
+            return false;
+        if (requestId == null) {
+            if (other.requestId != null)
+                return false;
+        } else if (!requestId.equals(other.requestId))
+            return false;
+        if (status != other.status)
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryResponseType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nexception=");
+        builder.append(exception);
+        builder.append(", \nregistryObjectList=");
+        builder.append(registryObjectList);
+        builder.append(", \nobjectRefList=");
+        builder.append(objectRefList);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nrequestId=");
+        builder.append(requestId);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
