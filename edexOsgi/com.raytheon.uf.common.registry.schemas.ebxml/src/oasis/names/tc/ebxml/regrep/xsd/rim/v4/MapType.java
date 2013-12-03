@@ -26,10 +26,11 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -79,6 +80,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -100,16 +103,12 @@ public class MapType implements Serializable {
             + ".Map_sequence")
     @GeneratedValue(generator = "MapTypeGenerator")
     @XmlTransient
-    protected Integer key;
-
-    public Integer getKey() {
-        return key;
-    }
+    protected Integer id;
 
     @XmlElement(name = "Entry")
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = false, referencedColumnName = "id")
     protected List<EntryType> entry;
 
     public MapType() {
@@ -154,6 +153,14 @@ public class MapType implements Serializable {
         this.entry = entry;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -182,6 +189,11 @@ public class MapType implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "MapType [id=" + id + ", entry=" + entry + "]";
     }
 
 }

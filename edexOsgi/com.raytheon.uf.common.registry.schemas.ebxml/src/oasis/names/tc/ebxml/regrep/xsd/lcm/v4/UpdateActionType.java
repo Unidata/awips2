@@ -20,6 +20,10 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embeddable;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -73,6 +77,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -82,6 +87,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UpdateActionType", propOrder = { "valueHolder", "selector" })
 @DynamicSerialize
+@Embeddable
 public class UpdateActionType {
 
     public enum UPDATE_MODE {
@@ -90,10 +96,14 @@ public class UpdateActionType {
 
     @XmlElement(name = "ValueHolder")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "valueHolder_id", referencedColumnName = "id")
     protected ValueType valueHolder;
 
     @XmlElement(name = "Selector", required = true)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "selector_id", referencedColumnName = "id")
     protected QueryExpressionType selector;
 
     @XmlAttribute(required = true)

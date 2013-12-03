@@ -69,6 +69,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -83,6 +86,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ClassificationNode")
 public class ClassificationNodeType extends TaxonomyElementType {
 
+    private static final long serialVersionUID = 7182901250532204989L;
+
     @XmlAttribute
     @DynamicSerializeElement
     @RegistryObjectReference
@@ -96,6 +101,22 @@ public class ClassificationNodeType extends TaxonomyElementType {
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String code;
+
+    public ClassificationNodeType() {
+        super();
+
+    }
+
+    public ClassificationNodeType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public ClassificationNodeType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the parent property.
@@ -172,38 +193,68 @@ public class ClassificationNodeType extends TaxonomyElementType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (!super.equals(obj)) {
+        if (!super.equals(obj))
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         ClassificationNodeType other = (ClassificationNodeType) obj;
         if (code == null) {
-            if (other.code != null) {
+            if (other.code != null)
                 return false;
-            }
-        } else if (!code.equals(other.code)) {
+        } else if (!code.equals(other.code))
             return false;
-        }
         if (parent == null) {
-            if (other.parent != null) {
+            if (other.parent != null)
                 return false;
-            }
-        } else if (!parent.equals(other.parent)) {
+        } else if (!parent.equals(other.parent))
             return false;
-        }
         if (path == null) {
-            if (other.path != null) {
+            if (other.path != null)
                 return false;
-            }
-        } else if (!path.equals(other.path)) {
+        } else if (!path.equals(other.path))
             return false;
-        }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ClassificationNodeType \n[classificationNode=");
+        builder.append(classificationNode);
+        builder.append(", \nname=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nparent=");
+        builder.append(parent);
+        builder.append(", \npath=");
+        builder.append(path);
+        builder.append(", \ncode=");
+        builder.append(code);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
