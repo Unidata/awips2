@@ -68,6 +68,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -82,59 +85,73 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "BooleanValue")
 public class BooleanValueType extends ValueType {
 
-    @Column(name = COLUMN_NAME)
+    @Column
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     protected Boolean booleanValue;
 
-    private static final String COLUMN_NAME = "booleanValue";
-
     public BooleanValueType() {
+        super();
+    }
 
+    public BooleanValueType(Integer id) {
+        super(id);
     }
 
     public BooleanValueType(Boolean booleanValue) {
+        super();
+        this.booleanValue = booleanValue;
+    }
+
+    public BooleanValueType(Integer id, Boolean booleanValue) {
+        super(id);
+        this.booleanValue = booleanValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getValue() {
+        return (T) getBooleanValue();
+    }
+
+    public Boolean getBooleanValue() {
+        return booleanValue;
+    }
+
+    public void setBooleanValue(Boolean booleanValue) {
         this.booleanValue = booleanValue;
     }
 
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
-    }
-
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link Boolean }
-     * 
-     */
-    public Boolean isValue() {
-        return booleanValue;
-    }
-
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link Boolean }
-     * 
-     */
-    @Override
-    public void setValue(Object value) {
-        this.booleanValue = (Boolean) value;
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((booleanValue == null) ? 0 : booleanValue.hashCode());
+        return result;
     }
 
     @Override
-    public Boolean getValue() {
-        return isValue();
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BooleanValueType other = (BooleanValueType) obj;
+        if (booleanValue == null) {
+            if (other.booleanValue != null)
+                return false;
+        } else if (!booleanValue.equals(other.booleanValue))
+            return false;
+        return true;
     }
 
-    public Boolean getBooleanValue() {
-        return isValue();
-    }
-
-    public void setBooleanValue(Boolean booleanValue) {
-        setValue(booleanValue);
+    @Override
+    public String toString() {
+        return "BooleanValueType [booleanValue=" + booleanValue + ", id=" + id
+                + "]";
     }
 
 }

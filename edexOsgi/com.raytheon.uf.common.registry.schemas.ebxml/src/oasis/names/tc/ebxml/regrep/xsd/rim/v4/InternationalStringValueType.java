@@ -22,6 +22,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -70,6 +71,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -87,54 +91,33 @@ public class InternationalStringValueType extends ValueType {
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "internationalstring_id", referencedColumnName = "id")
     protected InternationalStringType internationalStringValue;
 
-    private static final String COLUMN_NAME = "internationalStringValue";
-
     public InternationalStringValueType() {
+        super();
+    }
 
+    public InternationalStringValueType(Integer id) {
+        super(id);
     }
 
     public InternationalStringValueType(
             InternationalStringType internationalStringValue) {
+        super();
         this.internationalStringValue = internationalStringValue;
     }
 
-    public InternationalStringValueType(String internationalStringValue) {
-        this.internationalStringValue = new InternationalStringType(
-                internationalStringValue);
+    public InternationalStringValueType(Integer id,
+            InternationalStringType internationalStringValue) {
+        super(id);
+        this.internationalStringValue = internationalStringValue;
     }
 
-    public InternationalStringValueType(String lang,
-            String internationalStringValue) {
-        this.internationalStringValue = new InternationalStringType(lang,
-                internationalStringValue);
-    }
-
-    @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
-    }
-
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link InternationalStringType }
-     * 
-     */
-    @Override
     @SuppressWarnings("unchecked")
-    public InternationalStringType getValue() {
-        return internationalStringValue;
-    }
-
-    public void setValue(InternationalStringType obj) {
-        this.internationalStringValue = obj;
-    }
-
     @Override
-    public void setValue(Object obj) {
-        this.internationalStringValue = (InternationalStringType) obj;
+    public <T> T getValue() {
+        return (T) getInternationalStringValue();
     }
 
     public InternationalStringType getInternationalStringValue() {
@@ -144,6 +127,41 @@ public class InternationalStringValueType extends ValueType {
     public void setInternationalStringValue(
             InternationalStringType internationalStringValue) {
         this.internationalStringValue = internationalStringValue;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((internationalStringValue == null) ? 0
+                        : internationalStringValue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        InternationalStringValueType other = (InternationalStringValueType) obj;
+        if (internationalStringValue == null) {
+            if (other.internationalStringValue != null)
+                return false;
+        } else if (!internationalStringValue
+                .equals(other.internationalStringValue))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "InternationalStringValueType [internationalStringValue="
+                + internationalStringValue + ", id=" + id + "]";
     }
 
 }

@@ -20,9 +20,12 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
-import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -35,7 +38,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -69,6 +76,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -78,10 +86,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "", propOrder = { "registryObjectList" })
 @XmlRootElement(name = "SubmitObjectsRequest")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "SubmitObjectsRequest")
 public class SubmitObjectsRequest extends RegistryRequestType {
+
+    private static final long serialVersionUID = -6900232373438206618L;
 
     @XmlElement(name = "RegistryObjectList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected RegistryObjectListType registryObjectList;
 
     @XmlAttribute
@@ -93,13 +107,12 @@ public class SubmitObjectsRequest extends RegistryRequestType {
     protected Mode mode;
 
     public SubmitObjectsRequest() {
-
+        super();
     }
 
     public SubmitObjectsRequest(String id, String comment,
-            Collection<SlotType> slots,
-            RegistryObjectListType registryObjectList, Boolean checkReferences,
-            Mode mode) {
+            List<SlotType> slots, RegistryObjectListType registryObjectList,
+            Boolean checkReferences, Mode mode) {
         super(id, comment, slots);
         this.registryObjectList = registryObjectList;
         this.checkReferences = checkReferences;
@@ -187,6 +200,63 @@ public class SubmitObjectsRequest extends RegistryRequestType {
      */
     public void setMode(Mode value) {
         this.mode = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((checkReferences == null) ? 0 : checkReferences.hashCode());
+        result = prime * result + ((mode == null) ? 0 : mode.hashCode());
+        result = prime
+                * result
+                + ((registryObjectList == null) ? 0 : registryObjectList
+                        .hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SubmitObjectsRequest other = (SubmitObjectsRequest) obj;
+        if (checkReferences == null) {
+            if (other.checkReferences != null)
+                return false;
+        } else if (!checkReferences.equals(other.checkReferences))
+            return false;
+        if (mode != other.mode)
+            return false;
+        if (registryObjectList == null) {
+            if (other.registryObjectList != null)
+                return false;
+        } else if (!registryObjectList.equals(other.registryObjectList))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SubmitObjectsRequest \n[comment=");
+        builder.append(comment);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nregistryObjectList=");
+        builder.append(registryObjectList);
+        builder.append(", \ncheckReferences=");
+        builder.append(checkReferences);
+        builder.append(", \nmode=");
+        builder.append(mode);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -3,12 +3,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
   
 	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
-        <property name="lcm" ref="lcmServiceImpl" />
         <property name="dao" ref="registryObjectDao" />
 		<property name="sessionFactory" ref="metadataSessionFactory" />
+		        <property name="lcm" ref="lcmServiceImpl" />
 	</bean>
+	
 	
 	<bean id="ebxmlDbValidationStrategy"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.EbxmlPostgresValidationStrategy" />
+		
 	
 </beans>

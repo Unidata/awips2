@@ -148,6 +148,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
  * 10/30/2013   1538        bphillip    Changed submitObjects method to submit objects to NCF by default
  * 11/20/2013   2534        bphillip    Consolidated RegistryReplicationManager into this class and added reciprocal subscriptions.  Added remote subscription monitor.
+ * 12/2/2013    1829        bphillip    Modified to use correct getters for slot values
  * </pre>
  * 
  * @author bphillip
@@ -408,8 +409,8 @@ public class RegistryFederationManager implements RegistryInitializedListener {
             statusHandler
                     .info("Retrieving Federation object from NCF registry at ["
                             + ncfAddress + "]...");
-            federation = dataDeliveryRestClient.getRegistryObject(
-                    FederationType.class, ncfAddress, FEDERATION_ID);
+            federation = dataDeliveryRestClient.getRegistryObject(ncfAddress,
+                    FEDERATION_ID);
             statusHandler
                     .info("Federation object successfully retrieved from NCF!");
 
@@ -681,7 +682,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
         SlotType expressionSlot = new SlotType();
         StringValueType expressionValue = new StringValueType();
         expressionValue
-                .setValue("FROM RegistryObjectType obj where obj.objectType='"
+                .setStringValue("FROM RegistryObjectType obj where obj.objectType='"
                         + objectType + "'");
         expressionSlot.setName(QueryConstants.QUERY_EXPRESSION);
         expressionSlot.setSlotValue(expressionValue);
@@ -689,7 +690,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
 
         SlotType languageSlot = new SlotType();
         StringValueType languageValue = new StringValueType();
-        languageValue.setValue(QueryLanguages.HQL);
+        languageValue.setStringValue(QueryLanguages.HQL);
         languageSlot.setName(QueryConstants.QUERY_LANGUAGE);
         languageSlot.setSlotValue(languageValue);
         selectorQuery.getSlot().add(languageSlot);
