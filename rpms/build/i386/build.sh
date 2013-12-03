@@ -266,7 +266,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-httpd-pypies"
    buildJava
    buildRPM "awips2-groovy"
-   #buildRPM "awips2-ldm"
+   buildRPM "awips2-ldm"
    buildRPM "awips2-postgres"
    buildRPM "awips2-pgadmin3"
    buildRPM "awips2-tools"
