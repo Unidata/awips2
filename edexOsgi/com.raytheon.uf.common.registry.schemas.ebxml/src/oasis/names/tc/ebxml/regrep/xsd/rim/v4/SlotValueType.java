@@ -20,8 +20,10 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,7 +33,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -69,6 +70,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -85,50 +89,32 @@ public class SlotValueType extends ValueType {
 
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
-    @Column(name = COLUMN_NAME, columnDefinition = "text")
-    @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.SerializedType")
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    @JoinColumn(name = "slot_id", referencedColumnName = "id")
     protected SlotType slotValue;
 
-    private static final String COLUMN_NAME = "slotValue";
-
     public SlotValueType() {
+        super();
+    }
 
+    public SlotValueType(Integer id) {
+        super(id);
     }
 
     public SlotValueType(SlotType slotValue) {
+        super();
         this.slotValue = slotValue;
     }
 
-    @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
+    public SlotValueType(Integer id, SlotType slotValue) {
+        super(id);
+        this.slotValue = slotValue;
     }
 
-    /**
-     * Gets the value of the slot property.
-     * 
-     * @return possible object is {@link SlotType }
-     * 
-     */
-    public SlotType getSlot() {
-        return slotValue;
-    }
-
-    /**
-     * Sets the value of the slot property.
-     * 
-     * @param value
-     *            allowed object is {@link SlotType }
-     * 
-     */
-    public void setSlot(SlotType value) {
-        this.slotValue = value;
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
-    public SlotType getValue() {
-        return slotValue;
+    @Override
+    public <T> T getValue() {
+        return (T) getSlotValue();
     }
 
     public SlotType getSlotValue() {
@@ -140,8 +126,34 @@ public class SlotValueType extends ValueType {
     }
 
     @Override
-    public void setValue(Object slotValue) {
-        this.slotValue = (SlotType) slotValue;
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((slotValue == null) ? 0 : slotValue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SlotValueType other = (SlotValueType) obj;
+        if (slotValue == null) {
+            if (other.slotValue != null)
+                return false;
+        } else if (!slotValue.equals(other.slotValue))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "SlotValueType [slotValue=" + slotValue + ", id=" + id + "]";
     }
 
 }

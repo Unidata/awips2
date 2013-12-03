@@ -69,6 +69,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -135,6 +137,44 @@ public class VocabularyTermType implements Serializable {
      */
     public void setTerm(String value) {
         this.term = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((term == null) ? 0 : term.hashCode());
+        result = prime * result
+                + ((vocabulary == null) ? 0 : vocabulary.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VocabularyTermType other = (VocabularyTermType) obj;
+        if (term == null) {
+            if (other.term != null)
+                return false;
+        } else if (!term.equals(other.term))
+            return false;
+        if (vocabulary == null) {
+            if (other.vocabulary != null)
+                return false;
+        } else if (!vocabulary.equals(other.vocabulary))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "VocabularyTermType [vocabulary=" + vocabulary + ", term="
+                + term + "]";
     }
 
 }
