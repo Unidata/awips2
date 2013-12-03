@@ -6,9 +6,6 @@ package gov.noaa.nws.ncep.common.dataplugin.pirep;
  **/
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,10 +34,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -76,7 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify pirep and ncpirep.
- * 
+ * Dec 03, 2013 2551       rjpeter     Extend PersistablePluginDataObject.
  * </pre>
  * 
  * @author jkorman
@@ -94,8 +90,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable, IPointData, IPersistable {
+public class PirepRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -111,51 +107,11 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
 
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-
-    private static final HashMap<String, Integer> ICING_MAP = new HashMap<String, Integer>();
-
-    private static final HashMap<String, Integer> TURB_MAP = new HashMap<String, Integer>();
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("FLT_LVL", UA_FLTLVL);
-        PARM_MAP.put("ICT", UA_ICETYPE);
-        PARM_MAP.put("ICI", UA_ICEINTENSE);
-        PARM_MAP.put("TBF", UA_TURBFREQ);
-        PARM_MAP.put("TBI", UA_TURBINTENSE);
-        PARM_MAP.put("TOP_HGT", UA_TOPHGT);
-        PARM_MAP.put("BOT_HGT", UA_BOTHGT);
-
-        ICING_MAP.put("", new Integer(0));
-        ICING_MAP.put("NEG", new Integer(1));
-        ICING_MAP.put("TRACE", new Integer(2));
-        ICING_MAP.put("TRACELGT", new Integer(3));
-        ICING_MAP.put("LGT", new Integer(4));
-        ICING_MAP.put("LGTMOD", new Integer(5));
-        ICING_MAP.put("MOD", new Integer(6));
-        ICING_MAP.put("MODSEV", new Integer(7));
-        ICING_MAP.put("SEV", new Integer(8));
-
-        TURB_MAP.put("", new Integer(0));
-        TURB_MAP.put("NEG", new Integer(1));
-        TURB_MAP.put("SMOOTHLGT", new Integer(2));
-        TURB_MAP.put("LGT", new Integer(3));
-        TURB_MAP.put("LGTMOD", new Integer(4));
-        TURB_MAP.put("MOD", new Integer(5));
-        TURB_MAP.put("MODSEV", new Integer(6));
-        TURB_MAP.put("SEV", new Integer(7));
-        TURB_MAP.put("EXTRM", new Integer(8));
-    }
+    @Transient
+    private final PirepLayerData maxPirepLayerData = null;
 
     @Transient
-    private PirepLayerData maxPirepLayerData = null;
-
-    @Transient
-    private boolean display = true;
+    private final boolean display = true;
 
     @Transient
     @XmlAttribute
@@ -601,160 +557,6 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         identifier = dataURI;
     }
 
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        String retData = null;
-        if ("STA".matches(paramName)) {
-            retData = getStationId();
-        } else if ("TEXT".equals(paramName)) {
-            retData = obsText;
-        }
-        return retData;
-    }
-
-    /**
-     * Get the value and units of a named parameter within this observation.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = PARM_MAP.get(paramName);
-        if (display) {
-            if (SFC_TEMP.equals(pName) && (temp != null)) {
-                a = new Amount(temp, TEMPERATURE_UNIT);
-            } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-                a = new Amount(windSpeed, WIND_SPEED_UNIT);
-            } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-                a = new Amount(windDirection, WIND_DIR_UNIT);
-            } else if (STA_LAT.equals(pName)) {
-                a = new Amount(this.getLatitude(), LOCATION_UNIT);
-            } else if (STA_LON.equals(pName)) {
-                a = new Amount(this.getLongitude(), LOCATION_UNIT);
-            } else if (UA_FLTLVL.equals(pName) && (getFlightLevel() != null)) {
-                a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
-                // if used, need to modify raytheon code
-                // } else if (UA_TOPHGT.equals(pName) && maxPirepLayerData !=
-                // null
-                // && maxPirepLayerData.getTopLayerHeight() != null) {
-                // a = new
-                // Amount(maxPirepLayerData.getTopLayerHeight().intValue(),
-                // ALTITUDE_UNIT);
-                // } else if (UA_BOTHGT.equals(pName) && maxPirepLayerData !=
-                // null
-                // && maxPirepLayerData.getBaseLayerHeight() != null) {
-                // a = new
-                // Amount(maxPirepLayerData.getBaseLayerHeight().intValue(),
-                // ALTITUDE_UNIT);
-            }
-        }
-        return a;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        if ("ICI".matches(paramName)) {
-            int rank = -1;
-            String iceIntensity = null;
-            for (PirepLayerData layer : this.ancPirepData) {
-                String intensity = "";
-                if (layer.getLayerType().equals(
-                        PirepLayerData.LAYER_TYP_ICING)) {
-                    if (layer.getIceInten() != null) {
-                        intensity = layer.getIceInten();
-                    }
-                    // if (layer.getSecondValue() != null) {
-                    // intensity += layer.getSecondValue();
-                    // }
-
-                    if (ICING_MAP.get(intensity).intValue() > rank) {
-                        rank = ICING_MAP.get(intensity).intValue();
-                        iceIntensity = intensity;
-                        maxPirepLayerData = layer;
-                    }
-                }
-            }
-            if (iceIntensity != null) {
-                String[] maxIntensity = { iceIntensity };
-                return maxIntensity;
-            } else {
-                display = false;
-            }
-        } else if ("ICT".matches(paramName) && (maxPirepLayerData != null)) {
-            String[] maxType = { maxPirepLayerData.getIceType() };
-            return maxType;
-        } else if ("TBI".matches(paramName)) {
-            int rank = -1;
-            String turbIntensity = null;
-            for (PirepLayerData layer : this.ancPirepData) {
-                String intensity = "";
-                if (layer.getLayerType().equals(
-                        PirepLayerData.LAYER_TYP_TURBC)) {
-                    if (layer.getTurbInten() != null) {
-                        intensity = layer.getTurbInten();
-                    }
-                    // if (layer.getSecondValue() != null) {
-                    // intensity += layer.getSecondValue();
-                    // }
-
-                    if (TURB_MAP.get(intensity).intValue() > rank) {
-                        rank = TURB_MAP.get(intensity).intValue();
-                        turbIntensity = intensity;
-                        maxPirepLayerData = layer;
-                    }
-                }
-            }
-            if (turbIntensity != null) {
-                String[] maxIntensity = { turbIntensity };
-                return maxIntensity;
-            } else {
-                display = false;
-            }
-        } else if ("TBT".matches(paramName) && (maxPirepLayerData != null)) {
-            String[] maxType = { maxPirepLayerData.getTurbType() };
-            return maxType;
-        } else if ("TBF".matches(paramName) && (maxPirepLayerData != null)) {
-            // Turbulence Frequency Types do not get stored.
-        }
-        return null;
-    }
-
     @Override
     public AircraftObsLocation getSpatialObject() {
         return location;
@@ -815,15 +617,6 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
             return false;
         }
         return true;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
     }
 
     /*
