@@ -10,9 +10,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Angle;
@@ -39,10 +36,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -78,7 +74,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify airep and ncairep.
- * 
+ * Dec 03, 2013 2551       rjpeter     Extend PersistablePluginDataObject
  * </pre>
  * 
  * @author jkorman
@@ -97,8 +93,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable, IPointData, IPersistable {
+public class AirepRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -115,30 +111,8 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI
             .HECTO(NonSI.FOOT));
 
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-
     // private static final HashMap<Integer, String> WX_MAP = new
     // HashMap<Integer, String>();
-
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("FLT_LVL", UA_FLTLVL);
-
-        // WX_MAP.put(0, "CLR");
-        // WX_MAP.put(1, "SCT");
-        // WX_MAP.put(2, "BKN");
-        // WX_MAP.put(3, "CONT");
-        // WX_MAP.put(4, "LIGHTNING");
-        // WX_MAP.put(5, "DZRA");
-        // WX_MAP.put(6, "CONT RA");
-        // WX_MAP.put(7, "CONT SN");
-        // WX_MAP.put(8, "SH");
-        // WX_MAP.put(9, "TSRA");
-    }
 
     @Transient
     @DynamicSerializeElement
@@ -647,85 +621,6 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         identifier = dataURI;
     }
 
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        if ("STA".matches(paramName)) {
-            return this.getStationId();
-        }
-        return null;
-    }
-
-    /**
-     * Get the value and units of a named parameter within this observation.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = PARM_MAP.get(paramName);
-
-        if (SFC_TEMP.equals(pName) && (temp != null)) {
-            a = new Amount(temp, TEMPERATURE_UNIT);
-        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-            a = new Amount(windDirection, WIND_DIR_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(this.getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        } else if (UA_FLTLVL.equals(pName) && (getFlightLevel() != null)) {
-            a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
-
-        }
-        return a;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        if ("FLT_HZD".matches(paramName) && (flightHazard != null)) {
-            String[] flightHazards = { flightHazard.toString() };
-            return flightHazards;
-        }
-        return null;
-    }
-
     @Override
     public AircraftObsLocation getSpatialObject() {
         return location;
@@ -858,15 +753,6 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             return false;
         }
         return true;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
     }
 
     /*
