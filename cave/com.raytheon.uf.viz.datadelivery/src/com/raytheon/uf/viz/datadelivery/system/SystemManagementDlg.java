@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -63,6 +65,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jul 16, 2013 1655       mpduff      Add system status tab.
  * Aug 08, 2013 2180       mpduff      Redesigned UI.
  * Oct 03, 2013 2386       mpduff      Implemented multiple data types for overlap rules
+ * Nov 19, 2013 2387       skorolev    Add timer for status refresh.
  * 
  * </pre>
  * 
@@ -194,6 +197,8 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         comp.setLayoutData(gd);
 
         gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumWidth = 220;
         treeComp = new Composite(comp, SWT.BORDER);
@@ -202,12 +207,14 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
         gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        tree = new Tree(treeComp, SWT.BORDER);
+        tree = new Tree(treeComp, SWT.NO_SCROLL);
         tree.setLayout(gl);
         tree.setLayoutData(gd);
         populateTree();
 
         gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         Composite c = new Composite(comp, SWT.BORDER);
         c.setLayout(gl);
@@ -221,6 +228,17 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
         createComposites();
         createBottomButtons();
+
+        systemStatusComp.createTimer();
+
+        comp.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                systemStatusComp.timer.shutdown();
+                SystemRuleManager.getInstance().deregisterAsRefreshListener(
+                        systemStatusComp);
+            }
+        });
     }
 
     /**
@@ -318,7 +336,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         GridLayout gl = new GridLayout(1, false);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 
-        systemStatusComp = new StatusComposite(stackComp, SWT.BORDER);
+        systemStatusComp = new StatusComposite(stackComp, SWT.NONE);
         systemStatusComp.setLayout(gl);
         systemStatusComp.setLayoutData(gd);
         compMap.put(
@@ -327,14 +345,14 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
         gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        bandwidthComp = new BandwidthComposite(stackComp, SWT.BORDER);
+        bandwidthComp = new BandwidthComposite(stackComp, SWT.NONE);
         bandwidthComp.setLayout(gl);
         bandwidthComp.setLayoutData(gd);
         compMap.put(SystemManagementSettings.BANDWIDTH.getName(), bandwidthComp);
 
         gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        systemLatencyComp = new SystemLatencyComposite(stackComp, SWT.BORDER);
+        systemLatencyComp = new SystemLatencyComposite(stackComp, SWT.NONE);
         systemLatencyComp.setLayout(gl);
         systemLatencyComp.setLayoutData(gd);
         compMap.put(SystemManagementSettings.LATENCY_RULES.getName(),
@@ -342,7 +360,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
         gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        systemPriorityComp = new SystemPriorityComposite(stackComp, SWT.BORDER);
+        systemPriorityComp = new SystemPriorityComposite(stackComp, SWT.NONE);
         systemPriorityComp.setLayout(gl);
         systemPriorityComp.setLayoutData(gd);
         compMap.put(SystemManagementSettings.PRIORITY_RULES.getName(),
@@ -350,7 +368,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
         gl = new GridLayout(1, false);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        passwdComp = new DataProviderPasswordComposite(stackComp, SWT.BORDER);
+        passwdComp = new DataProviderPasswordComposite(stackComp, SWT.NONE);
         passwdComp.setLayout(gl);
         passwdComp.setLayoutData(gd);
         compMap.put(SystemManagementSettings.DATA_PROVIDER_PASSWORD.getName(),
@@ -393,7 +411,10 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     @Override
     protected void disposed() {
         super.disposed();
+        systemStatusComp.timer.shutdownNow();
         SystemRuleManager.getInstance().deregisterAsListener(this);
+        SystemRuleManager.getInstance().deregisterAsRefreshListener(
+                systemStatusComp);
     }
 
     /**
