@@ -71,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -84,6 +85,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Association")
 public class AssociationType extends RegistryObjectType {
+
+    private static final long serialVersionUID = 2987540344551300053L;
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
@@ -100,6 +103,19 @@ public class AssociationType extends RegistryObjectType {
     @DynamicSerializeElement
     @RegistryObjectReference
     protected String targetObject;
+
+    public AssociationType() {
+        super();
+    }
+
+    public AssociationType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+    }
+
+    public AssociationType(String id, String lid) {
+        super(id, lid);
+    }
 
     /**
      * Gets the value of the type property.
@@ -162,6 +178,82 @@ public class AssociationType extends RegistryObjectType {
      */
     public void setTargetObject(String value) {
         this.targetObject = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((sourceObject == null) ? 0 : sourceObject.hashCode());
+        result = prime * result
+                + ((targetObject == null) ? 0 : targetObject.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AssociationType other = (AssociationType) obj;
+        if (sourceObject == null) {
+            if (other.sourceObject != null)
+                return false;
+        } else if (!sourceObject.equals(other.sourceObject))
+            return false;
+        if (targetObject == null) {
+            if (other.targetObject != null)
+                return false;
+        } else if (!targetObject.equals(other.targetObject))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("AssociationType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \ntype=");
+        builder.append(type);
+        builder.append(", \nsourceObject=");
+        builder.append(sourceObject);
+        builder.append(", \ntargetObject=");
+        builder.append(targetObject);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -205,7 +205,7 @@ public class RegistryNotificationManagerTest extends AbstractRegistryTest {
         selectorQuery.setQueryDefinition(CanonicalQueryTypes.BASIC_QUERY);
         SlotType slot = new SlotType();
         StringValueType valType = new StringValueType();
-        valType.setValue(REGISTRY_OBJECT_TYPE);
+        valType.setStringValue(REGISTRY_OBJECT_TYPE);
         slot.setName("objectType");
         slot.setSlotValue(valType);
         selectorQuery.getSlot().add(slot);
