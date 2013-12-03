@@ -20,14 +20,14 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Arrays;
+
 import javax.activation.DataHandler;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -84,6 +84,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -100,6 +103,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ExtrinsicObject")
 public class ExtrinsicObjectType extends RegistryObjectType {
 
+    private static final long serialVersionUID = -2572225450725363471L;
+
     @XmlElement(name = "ContentVersionInfo")
     @DynamicSerializeElement
     @AttributeOverrides({
@@ -110,7 +115,7 @@ public class ExtrinsicObjectType extends RegistryObjectType {
 
     @XmlElement(name = "RepositoryItemRef")
     @DynamicSerializeElement
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Embedded
     protected SimpleLinkType repositoryItemRef;
 
     @XmlElement(name = "RepositoryItem")
@@ -129,12 +134,19 @@ public class ExtrinsicObjectType extends RegistryObjectType {
     protected String mimeType;
 
     public ExtrinsicObjectType() {
+        super();
 
     }
 
     public ExtrinsicObjectType(String id, String lid, String objectType,
             String owner, String status, String name, String description) {
         super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public ExtrinsicObjectType(String id, String lid) {
+        super(id, lid);
+
     }
 
     /**
@@ -219,6 +231,92 @@ public class ExtrinsicObjectType extends RegistryObjectType {
      */
     public void setMimeType(String value) {
         this.mimeType = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((contentVersionInfo == null) ? 0 : contentVersionInfo
+                        .hashCode());
+        result = prime * result
+                + ((mimeType == null) ? 0 : mimeType.hashCode());
+        result = prime * result + Arrays.hashCode(repositoryItem);
+        result = prime
+                * result
+                + ((repositoryItemRef == null) ? 0 : repositoryItemRef
+                        .hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ExtrinsicObjectType other = (ExtrinsicObjectType) obj;
+        if (contentVersionInfo == null) {
+            if (other.contentVersionInfo != null)
+                return false;
+        } else if (!contentVersionInfo.equals(other.contentVersionInfo))
+            return false;
+        if (mimeType == null) {
+            if (other.mimeType != null)
+                return false;
+        } else if (!mimeType.equals(other.mimeType))
+            return false;
+        if (!Arrays.equals(repositoryItem, other.repositoryItem))
+            return false;
+        if (repositoryItemRef == null) {
+            if (other.repositoryItemRef != null)
+                return false;
+        } else if (!repositoryItemRef.equals(other.repositoryItemRef))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ExtrinsicObjectType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \ncontentVersionInfo=");
+        builder.append(contentVersionInfo);
+        builder.append(", \nrepositoryItemRef=");
+        builder.append(repositoryItemRef);
+        builder.append(", \nrepositoryItem=");
+        builder.append(Arrays.toString(repositoryItem));
+        builder.append(", \nmimeType=");
+        builder.append(mimeType);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
