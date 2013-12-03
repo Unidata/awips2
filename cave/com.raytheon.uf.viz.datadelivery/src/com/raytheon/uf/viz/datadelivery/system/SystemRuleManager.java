@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * Jun 04, 2013    223      mpduff     Implement point data types.
  * Jul 11, 2013   2106      djohnson   setAvailableBandwidth service now returns names of subscriptions.
  * Oct 03, 2013   2386      mpduff     Add overlap rules.
+ * Nov 19, 2013   2387      skorolev   Add system status refresh listeners.
  * 
  * </pre>
  * 
@@ -140,6 +141,9 @@ public class SystemRuleManager {
 
     /** List of listeners */
     private final List<IRulesUpdateListener> listeners = new ArrayList<IRulesUpdateListener>();
+
+    /** List of system refresh listeners */
+    private final List<ISystemStatusListener> refListeners = new ArrayList<ISystemStatusListener>();
 
     /**
      * Constructor.
@@ -897,5 +901,47 @@ public class SystemRuleManager {
         }
 
         return false;
+    }
+
+    /**
+     * Notify the listeners the system status change.
+     */
+    public void fireStatusChangeListener() {
+        for (ISystemStatusListener listener : refListeners) {
+            listener.statusRefresh();
+        }
+
+    }
+
+    /**
+     * Notify the listeners the time change.
+     */
+    public void fireTimeChangeListener() {
+        for (ISystemStatusListener listener : refListeners) {
+            listener.timeLabelRefresh();
+        }
+
+    }
+
+    /**
+     * Register as a listener for status refresh.
+     * 
+     * @param listener
+     */
+    public void registerAsRefreshListener(ISystemStatusListener listener) {
+        if (!refListeners.contains(listener)) {
+            refListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregister as a listener for status refresh.
+     * 
+     * @param listener
+     */
+    public void deregisterAsRefreshListener(ISystemStatusListener listener) {
+        if (refListeners.contains(listener)) {
+            refListeners.remove(listener);
+        }
     }
 }
