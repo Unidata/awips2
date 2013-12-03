@@ -65,7 +65,7 @@ public class ColorMapSliderComp extends Composite {
 
     private static final int SLIDER_MIN = 0;
 
-    private static final int SLIDER_MAX = 255;
+    private static final int SLIDER_MAX = 250;
 
     private static final int SLIDER_INC = 1;
 
@@ -79,9 +79,9 @@ public class ColorMapSliderComp extends Composite {
 
     private Text maxValueText;
 
-    private final float cmapAbsoluteMin;
+    private float cmapAbsoluteMin;
 
-    private final float cmapAbsoluteMax;
+    private float cmapAbsoluteMax;
 
     private final float origCmapMin;
 
@@ -92,8 +92,6 @@ public class ColorMapSliderComp extends Composite {
     private float currentCmapMax;
 
     private final DecimalFormat format;
-
-    private final boolean dataInverted;
 
     private UnitConverter displayToColorMap;
 
@@ -106,8 +104,10 @@ public class ColorMapSliderComp extends Composite {
     public ColorMapSliderComp(Composite parent, ColorMapParameters cmap) {
         super(parent, SWT.NONE);
         this.cmap = cmap;
-        this.currentCmapMin = this.origCmapMin = cmap.getColorMapMin();
-        this.currentCmapMax = this.origCmapMax = cmap.getColorMapMax();
+        this.cmapAbsoluteMin = this.currentCmapMin = this.origCmapMin = cmap
+                .getColorMapMin();
+        this.cmapAbsoluteMax = this.currentCmapMax = this.origCmapMax = cmap
+                .getColorMapMax();
         this.displayToColorMap = cmap.getDisplayToColorMapConverter();
         this.colorMapToDisplay = cmap.getColorMapToDisplayConverter();
         if (displayToColorMap == null) {
@@ -116,34 +116,9 @@ public class ColorMapSliderComp extends Composite {
         if (colorMapToDisplay == null) {
             colorMapToDisplay = Unit.ONE.getConverterTo(Unit.ONE);
         }
-        float cmapAbsoluteMin, cmapAbsoluteMax;
-        if (cmap.getDataMapping() != null) {
-            cmapAbsoluteMin = cmap.getColorMapMin();
-            cmapAbsoluteMax = cmap.getColorMapMax();
-        } else {
-            UnitConverter dataToColorMap = cmap.getDataToColorMapConverter();
-            cmapAbsoluteMin = cmap.getDataMin();
-            cmapAbsoluteMax = cmap.getDataMax();
-            if (dataToColorMap != null) {
-                cmapAbsoluteMin = (float) dataToColorMap.convert(cmap
-                        .getDataMin());
-                cmapAbsoluteMax = (float) dataToColorMap.convert(cmap
-                        .getDataMax());
-            }
-        }
 
-        this.cmapAbsoluteMin = cmapAbsoluteMin;
-        this.cmapAbsoluteMax = cmapAbsoluteMax;
+        updateAbsolutes(cmapAbsoluteMin, cmapAbsoluteMax);
 
-        boolean dataInverted = false;
-        if ((cmapAbsoluteMin > cmapAbsoluteMax && cmap.getDataMin() < cmap
-                .getDataMax())
-                || (cmapAbsoluteMin < cmapAbsoluteMax && cmap.getDataMin() > cmap
-                        .getDataMax())) {
-            dataInverted = true;
-        }
-
-        this.dataInverted = dataInverted;
         this.format = getTextFormat();
 
         initializeComponents();
@@ -205,6 +180,7 @@ public class ColorMapSliderComp extends Composite {
             }
         });
 
+
         minSlider.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -217,8 +193,7 @@ public class ColorMapSliderComp extends Composite {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.character == SWT.CR) {
-                    setColorMapMax(textToColorMapValue(maxValueText.getText()
-                            .trim()));
+                    updateMinMaxFromText(maxValueText);
                 }
             }
         });
@@ -227,14 +202,55 @@ public class ColorMapSliderComp extends Composite {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.character == SWT.CR) {
-                    setColorMapMin(textToColorMapValue(minValueText.getText()
-                            .trim()));
+                    updateMinMaxFromText(minValueText);
                 }
             }
         });
 
         setColorMapMin(currentCmapMin);
         setColorMapMax(currentCmapMax);
+    }
+
+    private void updateMinMaxFromText(Text text) {
+        float newCmapValue = textToColorMapValue(text);
+        if (Float.isNaN(newCmapValue)) {
+            // Change nothing
+            if (text == minValueText) {
+                newCmapValue = currentCmapMin;
+            } else {
+                newCmapValue = currentCmapMax;
+            }
+        } else {
+            // Update colormap range
+            if (text == minValueText) {
+                currentCmapMin = newCmapValue;
+            } else {
+                currentCmapMax = newCmapValue;
+            }
+        }
+
+        updateAbsolutes(currentCmapMin, currentCmapMax);
+
+        setColorMapMin(currentCmapMin);
+        setColorMapMax(currentCmapMax);
+    }
+
+    /**
+     * 
+     */
+    private void updateAbsolutes(float cmapAbsoluteMin, float cmapAbsoluteMax) {
+        double displayAbsMax = colorMapToDisplay.convert(cmapAbsoluteMax);
+        double displayAbsMin = colorMapToDisplay.convert(cmapAbsoluteMin);
+        if (displayAbsMax < displayAbsMin) {
+            float tmp = cmapAbsoluteMax;
+            cmapAbsoluteMax = cmapAbsoluteMin;
+            cmapAbsoluteMin = tmp;
+        }
+
+        // Add a 1/16 buffer on either side for fine tuning
+        float buffer = (cmapAbsoluteMax - cmapAbsoluteMin) * .0625f;
+        this.cmapAbsoluteMin = cmapAbsoluteMin - buffer;
+        this.cmapAbsoluteMax = cmapAbsoluteMax + buffer;
     }
 
     /**
@@ -246,9 +262,6 @@ public class ColorMapSliderComp extends Composite {
     private float selectionToColorMapValue(int selection) {
         double indexValue = Colormapper.getLinearIndex(selection, SLIDER_MIN,
                 SLIDER_MAX);
-        if (dataInverted) {
-            indexValue = 1 - indexValue;
-        }
         double colorMapValue = cmapAbsoluteMin
                 + (cmapAbsoluteMax - cmapAbsoluteMin) * indexValue;
         return (float) colorMapValue;
@@ -263,9 +276,6 @@ public class ColorMapSliderComp extends Composite {
     private int colorMapValueToSelection(float colorMapValue) {
         double indexValue = Colormapper.getLinearIndex(colorMapValue,
                 cmapAbsoluteMin, cmapAbsoluteMax);
-        if (dataInverted) {
-            indexValue = 1 - indexValue;
-        }
         return (int) (SLIDER_MIN + (SLIDER_MAX - SLIDER_MIN) * indexValue);
     }
 
@@ -275,7 +285,8 @@ public class ColorMapSliderComp extends Composite {
      * @param text
      * @return
      */
-    private float textToColorMapValue(String text) {
+    private float textToColorMapValue(Text textControl) {
+        String text = textControl.getText().trim();
         if (cmap.getDataMapping() != null && text.isEmpty() == false) {
             // First check for data mapping entries
             for (DataMappingEntry entry : cmap.getDataMapping().getEntries()) {
@@ -285,13 +296,28 @@ public class ColorMapSliderComp extends Composite {
             }
         }
         if (NaN_STRING.equals(text)) {
-            // If special NaN String, try to find first NaN value
+            // If special NaN String, try to find closest NaN value
+            float currentColorMapValue = textControl == maxValueText ? currentCmapMax
+                    : currentCmapMin;
+            int currentSliderValue = colorMapValueToSelection(currentColorMapValue);
+            int minDist = Integer.MAX_VALUE;
+            float bestNanValue = currentColorMapValue;
             for (int i = SLIDER_MIN; i < SLIDER_MAX; i += SLIDER_INC) {
                 float colorMapValue = selectionToColorMapValue(i);
                 if (Double.isNaN(colorMapToDisplay.convert(colorMapValue))) {
-                    return colorMapValue;
+                    int dist = Math.abs(i - currentSliderValue);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestNanValue = colorMapValue;
+                    } else if (i > currentSliderValue) {
+                        break;
+                    }
+                } else {
+                    // For now, assume NaN will live on low end of slider
+                    break;
                 }
             }
+            return bestNanValue;
         } else {
             // Attempt to parse and convert
             try {
