@@ -20,8 +20,11 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,7 +33,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -68,6 +70,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -75,6 +80,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity(name = "MapValue")
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "MapValue")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MapValueType", propOrder = { "mapValue" })
@@ -83,61 +89,71 @@ public class MapValueType extends ValueType {
 
     @XmlElement(name = "Map")
     @DynamicSerializeElement
-    @Column(name = COLUMN_NAME, columnDefinition = "text")
-    @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.SerializedType")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "value_id", referencedColumnName = "id")
     protected MapType mapValue;
 
-    private static final String COLUMN_NAME = "mapValue";
-
     public MapValueType() {
+        super();
+    }
 
+    public MapValueType(Integer id) {
+        super(id);
     }
 
     public MapValueType(MapType mapValue) {
+        super();
+        this.mapValue = mapValue;
+    }
+
+    public MapValueType(Integer id, MapType mapValue) {
+        super(id);
+        this.mapValue = mapValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getValue() {
+        return (T) getMapValue();
+    }
+
+    public MapType getMapValue() {
+        return mapValue;
+    }
+
+    public void setMapValue(MapType mapValue) {
         this.mapValue = mapValue;
     }
 
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
-    }
-
-    /**
-     * Gets the value of the map property.
-     * 
-     * @return possible object is {@link MapType }
-     * 
-     */
-    public MapType getMap() {
-        return mapValue;
-    }
-
-    /**
-     * Sets the value of the map property.
-     * 
-     * @param value
-     *            allowed object is {@link MapType }
-     * 
-     */
-    public void setMap(MapType value) {
-        this.mapValue = value;
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((mapValue == null) ? 0 : mapValue.hashCode());
+        return result;
     }
 
     @Override
-    public MapType getValue() {
-        return getMap();
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MapValueType other = (MapValueType) obj;
+        if (mapValue == null) {
+            if (other.mapValue != null)
+                return false;
+        } else if (!mapValue.equals(other.mapValue))
+            return false;
+        return true;
     }
 
     @Override
-    public void setValue(Object obj) {
-        this.mapValue = (MapType) obj;
+    public String toString() {
+        return "MapValueType [mapValue=" + mapValue + ", id=" + id + "]";
     }
 
-    public MapType getMapValue() {
-        return getValue();
-    }
-
-    public void setMapValue(MapType mapValue) {
-        setValue(mapValue);
-    }
 }

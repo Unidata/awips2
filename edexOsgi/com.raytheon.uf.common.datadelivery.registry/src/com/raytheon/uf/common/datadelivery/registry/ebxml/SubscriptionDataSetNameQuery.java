@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 24, 2012 0743       djohnson     Initial creation
  * Jun 24, 2013 2106       djohnson     Pass encoder to result formatters.
  * Jul 18, 2013 2193       mpduff       Updated to work with site and shared subscriptions.
+ * 12/2/2013    1829       bphillip    Changed slot field in ExtensibleObjectType to be List instead of Set
  * 
  * </pre>
  * 
@@ -89,7 +90,7 @@ public class SubscriptionDataSetNameQuery extends
     @Override
     public String decodeObject(RegistryObjectType registryObjectType,
             IRegistryEncoder encoderStrategy) throws SerializationException {
-        Set<SlotType> returnedSlots = registryObjectType.getSlot();
+        List<SlotType> returnedSlots = registryObjectType.getSlot();
 
         // Cherry pick the values to return...
         for (SlotType s : returnedSlots) {

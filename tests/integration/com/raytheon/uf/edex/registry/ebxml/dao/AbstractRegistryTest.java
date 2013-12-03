@@ -28,10 +28,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
@@ -212,7 +211,7 @@ public class AbstractRegistryTest {
         final QueryType queryType = new QueryType();
         queryType
                 .setQueryDefinition("urn:oasis:names:tc:ebxml-regrep:query:GetObjectsByLid");
-        Set<SlotType> slots = new HashSet<SlotType>();
+        List<SlotType> slots = new ArrayList<SlotType>(1);
         final SlotType slot = new SlotType();
         slot.setName(QueryConstants.LID);
         final StringValueType slotValue = new StringValueType();

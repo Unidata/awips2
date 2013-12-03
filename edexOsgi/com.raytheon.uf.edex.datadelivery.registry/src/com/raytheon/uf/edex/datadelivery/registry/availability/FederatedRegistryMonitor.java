@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
+ * 12/2/2013    1829        bphillip    Uses correct getter for getting date time value
  * </pre>
  * 
  * @author bphillip
@@ -89,7 +90,7 @@ public class FederatedRegistryMonitor extends RunnableWithTransaction {
         } else {
             DateTimeValueType value = (DateTimeValueType) regObj.getSlotByName(
                     REGISTRY_AVAILABLE_ID).getSlotValue();
-            cal = value.getValue().toGregorianCalendar();
+            cal = value.getDateTimeValue().toGregorianCalendar();
         }
         return cal.getTimeInMillis();
     }
