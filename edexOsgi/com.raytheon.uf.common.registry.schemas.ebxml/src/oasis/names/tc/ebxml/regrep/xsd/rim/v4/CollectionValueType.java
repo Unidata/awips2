@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
@@ -77,6 +77,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -93,30 +96,52 @@ public class CollectionValueType extends ValueType {
 
     @XmlElement(name = "Element")
     @DynamicSerializeElement
-    @Column(name = COLUMN_NAME)
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
-    protected List<ValueType> collectionValue;
+    private List<ValueType> collectionValue;
 
     @XmlAttribute
     @DynamicSerializeElement
-    protected String collectionType;
-
-    private static final String COLUMN_NAME = "collectionValue";
+    private String collectionType;
 
     public CollectionValueType() {
+        super();
+    }
 
+    public CollectionValueType(Integer id) {
+        super(id);
     }
 
     public CollectionValueType(List<ValueType> collectionValue,
             String collectionType) {
+        super();
         this.collectionValue = collectionValue;
         this.collectionType = collectionType;
     }
 
+    public CollectionValueType(Integer id, List<ValueType> collectionValue,
+            String collectionType) {
+        super(id);
+        this.collectionValue = collectionValue;
+        this.collectionType = collectionType;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
+    public <T> T getValue() {
+        return (T) getCollectionValue();
+    }
+
+    public List<ValueType> getCollectionValue() {
+        return collectionValue;
+    }
+
+    public void setCollectionValue(List<ValueType> collectionValue) {
+        this.collectionValue = collectionValue;
+    }
+
+    public void setCollectionType(String collectionType) {
+        this.collectionType = collectionType;
     }
 
     /**
@@ -163,34 +188,43 @@ public class CollectionValueType extends ValueType {
         }
     }
 
-    /**
-     * Sets the value of the collectionType property.
-     * 
-     * @param value
-     *            allowed object is {@link String }
-     * 
-     */
-    public void setCollectionType(String value) {
-        this.collectionType = value;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((collectionType == null) ? 0 : collectionType.hashCode());
+        result = prime * result
+                + ((collectionValue == null) ? 0 : collectionValue.hashCode());
+        return result;
     }
 
     @Override
-    public List<ValueType> getValue() {
-        return getElement();
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CollectionValueType other = (CollectionValueType) obj;
+        if (collectionType == null) {
+            if (other.collectionType != null)
+                return false;
+        } else if (!collectionType.equals(other.collectionType))
+            return false;
+        if (collectionValue == null) {
+            if (other.collectionValue != null)
+                return false;
+        } else if (!collectionValue.equals(other.collectionValue))
+            return false;
+        return true;
     }
 
     @Override
-    public void setValue(Object obj) {
-        this.collectionValue = (List<ValueType>) obj;
-
-    }
-
-    public List<ValueType> getCollectionValue() {
-        return collectionValue;
-    }
-
-    public void setCollectionValue(List<ValueType> collectionValue) {
-        this.collectionValue = collectionValue;
+    public String toString() {
+        return "CollectionValueType [collectionValue=" + collectionValue
+                + ", collectionType=" + collectionType + ", id=" + id + "]";
     }
 
 }

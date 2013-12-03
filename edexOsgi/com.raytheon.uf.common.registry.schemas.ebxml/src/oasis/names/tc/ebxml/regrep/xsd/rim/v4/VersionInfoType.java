@@ -62,6 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added hashcode and equals
  * </pre>
  * 
  * @author bphillip
@@ -192,6 +193,39 @@ public class VersionInfoType implements Serializable,
 
     public boolean lessThanEquals(VersionInfoType obj) {
         return this.compareTo(obj) <= 0 ? true : false;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((userVersionName == null) ? 0 : userVersionName.hashCode());
+        result = prime * result
+                + ((versionName == null) ? 0 : versionName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VersionInfoType other = (VersionInfoType) obj;
+        if (userVersionName == null) {
+            if (other.userVersionName != null)
+                return false;
+        } else if (!userVersionName.equals(other.userVersionName))
+            return false;
+        if (versionName == null) {
+            if (other.versionName != null)
+                return false;
+        } else if (!versionName.equals(other.versionName))
+            return false;
+        return true;
     }
 
 }
