@@ -49,7 +49,7 @@ vec4 applyColorBand(int colorband) {
 			vec2((xy.x / width), (xy.y / height)));
 
 	// Lookup raw data value
-	float dataValue = getDataValue(rawData, gl_TexCoord[0].st);
+	float dataValue = textureToDataValue(rawData, gl_TexCoord[0].st);
 
 	float r = curVal.r;
 	float g = curVal.g;
