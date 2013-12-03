@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -66,7 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 28, 2013 2037       njensen     Made imageMap concurrent to fix leak
  * Jun 20, 2013 2122       mschenke    Fixed null pointer in interrogate and made 
  *                                     canceling jobs safer
- * Oct 16, 2013 2333       mschenke    Added auto NaN checking for interrogation 
+ * Oct 16, 2013 2333       mschenke    Added auto NaN checking for interrogation
+ * Nov 14, 2013 2492       mschenke    Added more interrogate methods that take units
  * 
  * </pre>
  * 
@@ -475,12 +479,33 @@ public class TileSetRenderable implements IRenderable {
      * @throws VizException
      */
     public double interrogate(Coordinate coordinate) throws VizException {
-        return interrogate(coordinate, Double.NaN);
+        return interrogate(coordinate, null);
     }
 
     /**
      * Returns the raw image value from tile image that contains the lat/lon
-     * coordinate. Any values matching nanValue will return {@link Double#NaN}
+     * coordinate
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param resultUnit
+     *            unit result from interrogate will be returned is. If unit is
+     *            not compatible with data unit, {@link Double#NaN} will be
+     *            returned. Null indicates data will not be converted
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit)
+            throws VizException {
+        return interrogate(coordinate, resultUnit, Double.NaN);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate
      * 
      * @param coordinate
      *            in lat/lon space
@@ -492,6 +517,27 @@ public class TileSetRenderable implements IRenderable {
      */
     public double interrogate(Coordinate coordinate, double nanValue)
             throws VizException {
+        return interrogate(coordinate, null, nanValue);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate. Any values matching nanValue will return {@link Double#NaN}
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param resultUnit
+     *            unit result from interrogate will be returned is. If unit is
+     *            not compatible with data unit, {@link Double#NaN} will be
+     *            returned. Null indicates data will not be converted
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit,
+            double nanValue) throws VizException {
         double dataValue = Double.NaN;
         try {
             double[] local = new double[2];
@@ -515,8 +561,27 @@ public class TileSetRenderable implements IRenderable {
                                         % tileSize);
                         if (dataValue == nanValue) {
                             dataValue = Double.NaN;
+                        } else {
+                            Unit<?> dataUnit = cmapImage.getDataUnit();
+                            if (resultUnit != null && dataUnit != null
+                                    && dataUnit.equals(resultUnit) == false) {
+                                if (resultUnit.isCompatible(dataUnit)) {
+                                    dataValue = dataUnit.getConverterTo(
+                                            resultUnit).convert(dataValue);
+                                } else {
+                                    throw new IllegalArgumentException(
+                                            "Unable to interrogate tile set. "
+                                                    + String.format(
+                                                            "Desired unit (%s) is not compatible with data unit (%s).",
+                                                            UnitFormat
+                                                                    .getUCUMInstance()
+                                                                    .format(resultUnit),
+                                                            UnitFormat
+                                                                    .getUCUMInstance()
+                                                                    .format(dataUnit)));
+                                }
+                            }
                         }
-
                     }
                 }
             }

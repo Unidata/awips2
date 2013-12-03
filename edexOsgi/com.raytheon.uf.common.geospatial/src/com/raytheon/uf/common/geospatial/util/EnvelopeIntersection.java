@@ -55,8 +55,10 @@ import com.vividsolutions.jts.geom.Polygon;
  * Sep 13, 2013  2309     bsteffen    Corrected Lines that are extrapolated to
  *                                    intersect the border will use projection
  *                                    factor from all 4 corners instead of 3.
- * Oct  8, 2013  2104     mschenke    Added case for where actual border is 
+ * Oct 08, 2013  2104     mschenke    Added case for where actual border is 
  *                                    inside out by checking interior point
+ * Nov 18, 2013  2528     bsteffen    Fall back to brute force when corner
+ *                                    points are not found.
  * 
  * </pre>
  * 
@@ -86,11 +88,30 @@ public class EnvelopeIntersection {
             int maxVertDivisions) throws TransformException, FactoryException {
         ReferencedEnvelope sourceREnvelope = reference(sourceEnvelope);
         ReferencedEnvelope targetREnvelope = reference(targetEnvelope);
-        Geometry border = null;
-        WorldWrapCorrector corrector = new WorldWrapCorrector(targetREnvelope);
         MathTransform sourceCRSToTargetCRS = CRS.findMathTransform(
                 sourceREnvelope.getCoordinateReferenceSystem(),
                 targetREnvelope.getCoordinateReferenceSystem());
+        if (sourceCRSToTargetCRS.isIdentity()) {
+            com.vividsolutions.jts.geom.Envelope intersection = sourceREnvelope
+                    .intersection(targetREnvelope);
+            if (intersection == null) {
+                return gf.createGeometryCollection(new Geometry[0]);
+            } else {
+                Coordinate[] border = new Coordinate[5];
+                border[0] = new Coordinate(intersection.getMinX(),
+                        intersection.getMinY());
+                border[1] = new Coordinate(intersection.getMinX(),
+                        intersection.getMaxY());
+                border[2] = new Coordinate(intersection.getMaxX(),
+                        intersection.getMaxY());
+                border[3] = new Coordinate(intersection.getMaxX(),
+                        intersection.getMinY());
+                border[4] = border[0];
+                return gf.createPolygon(gf.createLinearRing(border), null);
+            }
+        }
+        Geometry border = null;
+        WorldWrapCorrector corrector = new WorldWrapCorrector(targetREnvelope);
         MathTransform targetCRSToSourceCRS = sourceCRSToTargetCRS.inverse();
         MathTransform targetCRSToLatLon = MapUtil
                 .getTransformToLatLon(targetREnvelope
@@ -135,6 +156,19 @@ public class EnvelopeIntersection {
         LL = findNearestValidPoint(LL,
                 new double[] { sourceREnvelope.getMinimum(0), midY }, null,
                 sourceCRSToTargetCRS, true);
+
+        if (UL == null || UR == null || LR == null || LL == null) {
+            /*
+             * If entire edges of the tile are invalid in target space then the
+             * algorithms below are not that good. For most cases they produce
+             * overly large polygons but there are cases where they completely
+             * miss intersections. For these cases the BruteForce method is
+             * worth the extra time to get a really accurate envelope.
+             */
+            return BruteForceEnvelopeIntersection.createEnvelopeIntersection(
+                    sourceEnvelope, targetEnvelope, maxHorDivisions,
+                    maxVertDivisions);
+        }
 
         List<Coordinate> borderPoints = new ArrayList<Coordinate>(
                 maxVertDivisions * 2 + maxHorDivisions * 2);
@@ -544,7 +578,9 @@ public class EnvelopeIntersection {
             try {
                 double[] tmp = new double[maxPoint.length];
                 mt.transform(maxPoint, 0, tmp, 0, 1);
-                return maxPoint;
+                if (!Double.isNaN(tmp[0]) && !Double.isNaN(tmp[1])) {
+                    return maxPoint;
+                }
             } catch (TransformException e) {
                 // Ignore
             }
@@ -553,13 +589,15 @@ public class EnvelopeIntersection {
         try {
             double[] tmp = new double[point.length];
             mt.transform(point, 0, tmp, 0, 1);
-            // point is valid, keep looking
-            double deltaX = (maxPoint[0] - point[0]) / 2.0;
-            double deltaY = (maxPoint[1] - point[1]) / 2.0;
-            double[] newPoint = new double[] { point[0] + deltaX,
-                    point[1] + deltaY };
-            return findNearestValidPoint(maxPoint, newPoint, point, mt,
-                    checkMax);
+            if (!Double.isNaN(tmp[0]) && !Double.isNaN(tmp[1])) {
+                // point is valid, keep looking
+                double deltaX = (maxPoint[0] - point[0]) / 2.0;
+                double deltaY = (maxPoint[1] - point[1]) / 2.0;
+                double[] newPoint = new double[] { point[0] + deltaX,
+                        point[1] + deltaY };
+                return findNearestValidPoint(maxPoint, newPoint, point, mt,
+                        checkMax);
+            }
         } catch (TransformException e) {
             // Ignore
         }
