@@ -4,7 +4,6 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
@@ -31,7 +30,7 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -62,7 +61,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 04, 2013 1293     bkowal    Removed references to hdffileid.
  * Apr 12, 2013 1857     bgonzale  Added SequenceGenerator annotation.
  * May 07, 2013 1869     bsteffen  Remove dataURI column from PluginDataObject.
- * Aug 30, 2013 2298     rjpeter   Make getPluginName abstract
+ * Aug 30, 2013 2298     rjpeter   Make getPluginName abstract.
+ * Dec 03, 2013 2551     rjpeter   Extend PersistablePluginDataObject.
  * </pre>
  * 
  * @author T.Lee
@@ -81,8 +81,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class NcScdRecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable, IPointData, IPersistable {
+public class NcScdRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IDecoderGettable, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -494,15 +494,6 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled,
      * @return An Amount with value and units. If the parameter is unknown, a
      *         null reference is returned.
      */
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
 
     /*
      * (non-Javadoc)
