@@ -69,6 +69,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -83,51 +86,33 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "StringValue")
 public class StringValueType extends ValueType {
 
-    @Column(name = COLUMN_NAME, columnDefinition = "text")
+    @Column(columnDefinition = "text")
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     protected String stringValue;
 
     public StringValueType() {
+        super();
+    }
 
+    public StringValueType(Integer id) {
+        super(id);
     }
 
     public StringValueType(String stringValue) {
+        super();
         this.stringValue = stringValue;
     }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link String }
-     * 
-     */
-    @Override
-    public String getValue() {
-        return stringValue;
+    public StringValueType(Integer id, String stringValue) {
+        super(id);
+        this.stringValue = stringValue;
     }
 
-    private static final String COLUMN_NAME = "stringValue";
-
+    @SuppressWarnings("unchecked")
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
-    }
-
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link String }
-     * 
-     */
-    @Override
-    public void setValue(Object value) {
-        this.stringValue = (String) value;
-    }
-
-    public void generateKey() {
-        this.key = hashCode();
+    public <T> T getValue() {
+        return (T) getStringValue();
     }
 
     public String getStringValue() {
@@ -138,45 +123,36 @@ public class StringValueType extends ValueType {
         this.stringValue = stringValue;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
+        int result = super.hashCode();
         result = prime * result
                 + ((stringValue == null) ? 0 : stringValue.hashCode());
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (!super.equals(obj))
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         StringValueType other = (StringValueType) obj;
         if (stringValue == null) {
-            if (other.stringValue != null) {
+            if (other.stringValue != null)
                 return false;
-            }
-        } else if (!stringValue.equals(other.stringValue)) {
+        } else if (!stringValue.equals(other.stringValue))
             return false;
-        }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "StringValueType [stringValue=" + stringValue + ", id=" + id
+                + "]";
     }
 
 }

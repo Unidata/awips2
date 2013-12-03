@@ -1,6 +1,6 @@
 package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,6 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
  * Aug 15, 2012 0743       djohnson    Type-safe result formatters.
  * Jun 24, 2013 2106       djohnson    Pass encoder to result formatters.
+ * 12/2/2013    1829       bphillip    Changed slot field in ExtensibleObjectType to be List instead of Set
  * 
  * </pre>
  * 
@@ -42,7 +43,7 @@ public class ParameterNameQuery extends ParameterFilterableQuery<String>
 
         String object = null;
 
-        Set<SlotType> returnedSlots = registryObjectType.getSlot();
+        List<SlotType> returnedSlots = registryObjectType.getSlot();
 
         // Cherry pick the values to return...
         for (SlotType s : returnedSlots) {

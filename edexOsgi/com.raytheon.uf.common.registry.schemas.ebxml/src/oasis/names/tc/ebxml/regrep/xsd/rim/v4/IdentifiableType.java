@@ -20,10 +20,12 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.util.Collection;
+import java.util.List;
 
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -37,7 +39,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * 
@@ -70,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode and equals
  * </pre>
  * 
  * @author bphillip
@@ -80,23 +82,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "IdentifiableType")
 @XmlSeeAlso({ RegistryObjectType.class })
 @DynamicSerialize
-@MappedSuperclass
+@Entity
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Identifiable")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 public abstract class IdentifiableType extends ExtensibleObjectType implements
         IPersistableDataObject<String> {
 
-    @Id
-    @XmlAttribute(required = true)
-    @DynamicSerializeElement
-    protected String id;
+    private static final long serialVersionUID = -4589394594867000988L;
 
     protected IdentifiableType() {
-
+        super();
     }
 
-    protected IdentifiableType(Collection<SlotType> slots, String id) {
-        super(slots);
-        this.id = id;
+    protected IdentifiableType(List<SlotType> slots, String id) {
+        super(id, slots);
     }
 
     /**
@@ -105,48 +105,14 @@ public abstract class IdentifiableType extends ExtensibleObjectType implements
      * @return possible object is {@link String }
      * 
      */
+    @XmlAttribute(required = true)
     public String getId() {
         return id;
     }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *            allowed object is {@link String }
-     * 
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
-
-    public String getIdentifier() {
-        return id;
-    }
-
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        IdentifiableType other = (IdentifiableType) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
+    public void setId(String id) {
+        super.setId(id);
     }
 
 }

@@ -22,6 +22,10 @@ package com.raytheon.uf.common.registry.services;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -36,6 +40,9 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.io.Resources;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
@@ -60,6 +67,7 @@ import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService
  * 9/5/2013     1538        bphillip    Changed cache expiration timeout and added http header
  * 10/30/2013   1538        bphillip    Moved data delivery services out of registry plugin
  * 11/20/2013   2534        bphillip    Added HTTPClient policy for rest connections.  Eliminated service caching.
+ * 12/2/2013    1829        bphillip    Removed expectedType argument on getRegistryObject method
  * </pre>
  * 
  * @author bphillip
@@ -91,6 +99,8 @@ public class RegistryRESTServices {
         }
     }
 
+    private Map<Class<?>, LoadingCache<String, ?>> serviceCache = new HashMap<Class<?>, LoadingCache<String, ?>>();
+
     public RegistryRESTServices() throws JAXBException {
         jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
     }
@@ -121,9 +131,8 @@ public class RegistryRESTServices {
      *             If errors occur while serializing the object
      */
     @SuppressWarnings("unchecked")
-    public <T extends RegistryObjectType> T getRegistryObject(
-            Class<T> expectedType, String baseURL, String objectId)
-            throws JAXBException, RegistryServiceException {
+    public <T extends RegistryObjectType> T getRegistryObject(String baseURL,
+            String objectId) throws JAXBException, RegistryServiceException {
         String objStr = getRegistryObjectService(baseURL).getRegistryObject(
                 objectId);
         Object retVal = jaxbManager.unmarshalFromXml(objStr);
@@ -185,8 +194,30 @@ public class RegistryRESTServices {
         }
     }
 
-    protected <T extends Object> T getPort(String url, Class<T> serviceClass) {
+    @SuppressWarnings("unchecked")
+    protected <T extends Object> T getPort(String serviceUrl,
+            final Class<T> serviceInterface) {
+        LoadingCache<String, ?> cache = serviceCache.get(serviceInterface);
+        if (cache == null) {
+            cache = CacheBuilder.newBuilder()
+                    .expireAfterAccess(1, TimeUnit.MINUTES)
+                    .build(new CacheLoader<String, T>() {
+                        public T load(String key) {
+                            return createService(key, serviceInterface);
+                        }
+                    });
+            serviceCache.put(serviceInterface, cache);
+        }
+        try {
+            return (T) cache.get(serviceUrl);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Error getting service at ["
+                    + serviceUrl + "]", e);
+        }
+    }
 
+    protected <T extends Object> T createService(String url,
+            Class<T> serviceClass) {
         T service = JAXRSClientFactory.create(url, serviceClass);
         Client client = (Client) Proxy.getInvocationHandler((Proxy) service);
         ClientConfiguration config = WebClient.getConfig(service);

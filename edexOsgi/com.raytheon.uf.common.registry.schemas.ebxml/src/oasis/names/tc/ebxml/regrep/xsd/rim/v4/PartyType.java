@@ -25,8 +25,8 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -70,6 +70,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -84,23 +87,41 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @MappedSuperclass
 public abstract class PartyType extends RegistryObjectType {
 
+    private static final long serialVersionUID = 4326656165028413864L;
+
     @XmlElement(name = "PostalAddress")
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<PostalAddressType> postalAddress;
 
     @XmlElement(name = "TelephoneNumber")
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<TelephoneNumberType> telephoneNumber;
 
     @XmlElement(name = "EmailAddress")
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<EmailAddressType> emailAddress;
+
+    public PartyType() {
+        super();
+
+    }
+
+    public PartyType(String id, String lid, String objectType, String owner,
+            String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public PartyType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the postalAddress property.
@@ -202,6 +223,83 @@ public abstract class PartyType extends RegistryObjectType {
 
     public void setEmailAddress(List<EmailAddressType> emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((emailAddress == null) ? 0 : emailAddress.hashCode());
+        result = prime * result
+                + ((postalAddress == null) ? 0 : postalAddress.hashCode());
+        result = prime * result
+                + ((telephoneNumber == null) ? 0 : telephoneNumber.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PartyType other = (PartyType) obj;
+        if (emailAddress == null) {
+            if (other.emailAddress != null)
+                return false;
+        } else if (!emailAddress.equals(other.emailAddress))
+            return false;
+        if (postalAddress == null) {
+            if (other.postalAddress != null)
+                return false;
+        } else if (!postalAddress.equals(other.postalAddress))
+            return false;
+        if (telephoneNumber == null) {
+            if (other.telephoneNumber != null)
+                return false;
+        } else if (!telephoneNumber.equals(other.telephoneNumber))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PartyType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \npostalAddress=");
+        builder.append(postalAddress);
+        builder.append(", \ntelephoneNumber=");
+        builder.append(telephoneNumber);
+        builder.append(", \nemailAddress=");
+        builder.append(emailAddress);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
