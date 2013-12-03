@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.Measure;
+
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -64,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    only check for NaN.  SatResource handles fill
  *                                    values and returns NaN now
  * Nov 18, 2013  2544     bsteffen    Override recycleInternal
+ * Nov 20, 2013  2492     bsteffen    Update inspect to use Measure objects
  * 
  * </pre>
  * 
@@ -291,10 +294,12 @@ public class SatBlendedResource extends
         for (int i = list.size() - 1; i >= 0; --i) {
             AbstractVizResource<?, ?> rsc = list.get(i).getResource();
             Map<String, Object> dataMap = rsc.interrogate(coord);
-            if (dataMap.get(SatResource.RAW_VALUE) instanceof Number) {
-                double value = ((Number) dataMap.get(SatResource.RAW_VALUE))
+            Measure<?, ?> value = (Measure<?, ?>) dataMap
+                    .get(SatResource.SATELLITE_DATA_INTERROGATE_ID);
+            if (value != null && value.getValue() instanceof Number) {
+                double measuredValue = ((Number) value.getValue())
                         .doubleValue();
-                if (Double.isNaN(value) == false) {
+                if (Double.isNaN(measuredValue) == false) {
                     // use this resource
                     inspectString = rsc.inspect(coord);
                     break;

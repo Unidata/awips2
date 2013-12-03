@@ -7,7 +7,7 @@ uniform ColorMapping colorMapping;
 uniform ColorModifiers modifiers;
 
 void main(void) {
-	float dataValue = getDataValue(rawData, gl_TexCoord[0].st);
+	float dataValue = textureToDataValue(rawData, gl_TexCoord[0].st);
 	
 	// No data check/special NaN check
 	if (dataValue == rawData.noDataValue || dataValue != dataValue) {

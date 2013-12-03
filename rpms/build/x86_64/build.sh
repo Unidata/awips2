@@ -256,7 +256,7 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
-  # buildRPM "awips2-common-base"
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -277,7 +277,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-pil"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pupynere"
-  # buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-tables"

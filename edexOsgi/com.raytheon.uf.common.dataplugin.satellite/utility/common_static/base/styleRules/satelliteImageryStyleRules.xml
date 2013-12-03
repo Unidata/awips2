@@ -43,8 +43,8 @@
   </paramLevelMatches>
   <imageStyle>
     <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
      <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
   </imageStyle>
@@ -75,8 +75,8 @@
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
       <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
   </imageStyle>
@@ -199,8 +199,8 @@
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
      <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
   </imageStyle>
@@ -211,8 +211,8 @@
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
      <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
   </imageStyle>
@@ -223,8 +223,8 @@
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
      <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
   </imageStyle>
@@ -235,10 +235,10 @@
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
-      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+     <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -248,8 +248,8 @@
   <imageStyle>
      <displayUnits>C</displayUnits>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
      <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
        <colorbarLabeling> 
@@ -264,8 +264,8 @@
   <imageStyle>
      <displayUnits>C</displayUnits>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
      <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
        <colorbarLabeling> 
@@ -436,7 +436,7 @@
   <imageStyle>
      <displayUnits>mm</displayUnits>
      <range scale="LINEAR">
-       <minValue>0</minValue>
+       <minValue>-176</minValue>
        <maxValue>76</maxValue>
      </range>
      <defaultColormap>Sat/Precip Water/Blended Total Precip Water</defaultColormap>
@@ -492,8 +492,8 @@
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>1</minValue>
-        <maxValue>254</maxValue>
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
      </range>
       <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
   </imageStyle>
@@ -530,5 +530,4 @@
  	  </colorbarLabeling>
   </imageStyle>
 </styleRule>
-
 </styleRuleset>
