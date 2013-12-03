@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.text.ParseException;
 import java.text.ParsePosition;
+import java.util.Map;
 
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
@@ -60,7 +61,9 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 20, 2013       2122 mschenke     Initial creation
+ * Jun 20, 2013 2122       mschenke    Initial creation
+ * Nov 13, 2013 2492       mschenke    Added extraction of scale/offset from
+ *                                     data record attributes for unit  
  * 
  * </pre>
  * 
@@ -92,8 +95,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
      */
     @Override
     public ColorMapData getColorMapData() {
-        // TODO: Read scale/offset out of attributes?
         Buffer data = null;
+        Unit<?> dataUnit = Unit.ONE;
         boolean signed = false;
         Request req = Request.buildSlab(new int[] { this.datasetBounds.x,
                 this.datasetBounds.y }, new int[] {
@@ -112,6 +115,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                 }
                 Unit<?> recordUnit = getRecordUnit(this.record);
                 signed = recordUnit instanceof GenericPixel;
+                dataUnit = getDataUnit(recordUnit, record);
             }
         } catch (VizDataCubeException e) {
             statusHandler.handle(Priority.SIGNIFICANT,
@@ -134,7 +138,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
         }
 
         return new ColorMapData(data, new int[] { datasetBounds.width,
-                datasetBounds.height }, dataType);
+                datasetBounds.height }, dataType, dataUnit);
     }
 
     /**
@@ -150,7 +154,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             physicalElement = request.getParameterAbbreviation();
         }
 
-        if (record.getUnits() != null && record.getUnits().isEmpty() == false && request == null) {
+        if (record.getUnits() != null && record.getUnits().isEmpty() == false
+                && request == null) {
             try {
                 recordUnit = UnitFormat.getUCUMInstance().parseProductUnit(
                         record.getUnits(), new ParsePosition(0));
@@ -180,7 +185,38 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
 
         return recordUnit;
     }
-    
+
+    /**
+     * Extracts the data units for the data record given the PDO's base unit
+     * 
+     * @param recordUnit
+     * @param dataRecord
+     * @return
+     */
+    private static Unit<?> getDataUnit(Unit<?> recordUnit,
+            IDataRecord dataRecord) {
+        Unit<?> units = recordUnit != null ? recordUnit : Unit.ONE;
+        Map<String, Object> attrs = dataRecord.getDataAttributes();
+        if (attrs != null) {
+            Number offset = (Number) attrs.get(SatelliteRecord.SAT_ADD_OFFSET);
+            Number scale = (Number) attrs.get(SatelliteRecord.SAT_SCALE_FACTOR);
+
+            if (offset != null) {
+                double offsetVal = offset.doubleValue();
+                if (offsetVal != 0.0) {
+                    units = units.plus(offsetVal);
+                }
+            }
+            if (scale != null) {
+                double scaleVal = scale.doubleValue();
+                if (scaleVal != 0.0) {
+                    units = units.times(scaleVal);
+                }
+            }
+        }
+        return units;
+    }
+
     /*
      * (non-Javadoc)
      * 
