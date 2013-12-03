@@ -21,9 +21,14 @@
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -36,7 +41,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -72,6 +81,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -81,18 +91,27 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "", propOrder = { "query", "objectRefList", "updateAction" })
 @XmlRootElement(name = "UpdateObjectsRequest")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "UpdateObjectsRequest")
 public class UpdateObjectsRequest extends RegistryRequestType {
+
+    private static final long serialVersionUID = 2714648132054313507L;
 
     @XmlElement(name = "Query")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "query_id", referencedColumnName = "id")
     protected QueryType query;
 
     @XmlElement(name = "ObjectRefList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected ObjectRefListType objectRefList;
 
     @XmlElement(name = "UpdateAction", required = true)
     @DynamicSerializeElement
+    @Embedded
     protected List<UpdateActionType> updateAction;
 
     @XmlAttribute
@@ -104,11 +123,11 @@ public class UpdateObjectsRequest extends RegistryRequestType {
     protected Mode mode;
 
     public UpdateObjectsRequest() {
-
+        super();
     }
 
     public UpdateObjectsRequest(String id, String comment,
-            Collection<SlotType> slots, QueryType query,
+            List<SlotType> slots, QueryType query,
             ObjectRefListType objectRefList,
             List<UpdateActionType> updateAction, Boolean checkReferences,
             Mode mode) {
@@ -248,6 +267,78 @@ public class UpdateObjectsRequest extends RegistryRequestType {
      */
     public void setMode(Mode value) {
         this.mode = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((checkReferences == null) ? 0 : checkReferences.hashCode());
+        result = prime * result + ((mode == null) ? 0 : mode.hashCode());
+        result = prime * result
+                + ((objectRefList == null) ? 0 : objectRefList.hashCode());
+        result = prime * result + ((query == null) ? 0 : query.hashCode());
+        result = prime * result
+                + ((updateAction == null) ? 0 : updateAction.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        UpdateObjectsRequest other = (UpdateObjectsRequest) obj;
+        if (checkReferences == null) {
+            if (other.checkReferences != null)
+                return false;
+        } else if (!checkReferences.equals(other.checkReferences))
+            return false;
+        if (mode != other.mode)
+            return false;
+        if (objectRefList == null) {
+            if (other.objectRefList != null)
+                return false;
+        } else if (!objectRefList.equals(other.objectRefList))
+            return false;
+        if (query == null) {
+            if (other.query != null)
+                return false;
+        } else if (!query.equals(other.query))
+            return false;
+        if (updateAction == null) {
+            if (other.updateAction != null)
+                return false;
+        } else if (!updateAction.equals(other.updateAction))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("UpdateObjectsRequest \n[comment=");
+        builder.append(comment);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nquery=");
+        builder.append(query);
+        builder.append(", \nobjectRefList=");
+        builder.append(objectRefList);
+        builder.append(", \nupdateAction=");
+        builder.append(updateAction);
+        builder.append(", \ncheckReferences=");
+        builder.append(checkReferences);
+        builder.append(", \nmode=");
+        builder.append(mode);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
