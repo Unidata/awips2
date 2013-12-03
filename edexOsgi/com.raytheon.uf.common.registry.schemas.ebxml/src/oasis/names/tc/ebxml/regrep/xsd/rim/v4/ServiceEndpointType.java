@@ -69,6 +69,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -83,6 +86,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ServiceEndpoint")
 public class ServiceEndpointType extends RegistryObjectType {
 
+    private static final long serialVersionUID = -6053124239499443175L;
+
     @XmlAttribute
     @XmlSchemaType(name = "anyURI")
     @DynamicSerializeElement
@@ -92,6 +97,22 @@ public class ServiceEndpointType extends RegistryObjectType {
     @DynamicSerializeElement
     @RegistryObjectReference
     protected String serviceBinding;
+
+    public ServiceEndpointType() {
+        super();
+
+    }
+
+    public ServiceEndpointType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public ServiceEndpointType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the address property.
@@ -133,6 +154,73 @@ public class ServiceEndpointType extends RegistryObjectType {
      */
     public void setServiceBinding(String value) {
         this.serviceBinding = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((address == null) ? 0 : address.hashCode());
+        result = prime * result
+                + ((serviceBinding == null) ? 0 : serviceBinding.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ServiceEndpointType other = (ServiceEndpointType) obj;
+        if (address == null) {
+            if (other.address != null)
+                return false;
+        } else if (!address.equals(other.address))
+            return false;
+        if (serviceBinding == null) {
+            if (other.serviceBinding != null)
+                return false;
+        } else if (!serviceBinding.equals(other.serviceBinding))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ServiceEndpointType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \naddress=");
+        builder.append(address);
+        builder.append(", \nserviceBinding=");
+        builder.append(serviceBinding);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

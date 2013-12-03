@@ -79,6 +79,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -92,6 +93,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "AuditableEvent")
 public class AuditableEventType extends RegistryObjectType {
+
+    private static final long serialVersionUID = 3666495291697320807L;
+
     @XmlElement(name = "Action", required = true)
     @DynamicSerializeElement
     @OneToMany(cascade = CascadeType.ALL)
@@ -113,6 +117,22 @@ public class AuditableEventType extends RegistryObjectType {
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String requestId;
+
+    public AuditableEventType() {
+        super();
+
+    }
+
+    public AuditableEventType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public AuditableEventType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the action property.
@@ -209,6 +229,90 @@ public class AuditableEventType extends RegistryObjectType {
      */
     public void setRequestId(String value) {
         this.requestId = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((action == null) ? 0 : action.hashCode());
+        result = prime * result
+                + ((requestId == null) ? 0 : requestId.hashCode());
+        result = prime * result
+                + ((timestamp == null) ? 0 : timestamp.hashCode());
+        result = prime * result + ((user == null) ? 0 : user.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AuditableEventType other = (AuditableEventType) obj;
+        if (action == null) {
+            if (other.action != null)
+                return false;
+        } else if (!action.equals(other.action))
+            return false;
+        if (requestId == null) {
+            if (other.requestId != null)
+                return false;
+        } else if (!requestId.equals(other.requestId))
+            return false;
+        if (timestamp == null) {
+            if (other.timestamp != null)
+                return false;
+        } else if (!timestamp.equals(other.timestamp))
+            return false;
+        if (user == null) {
+            if (other.user != null)
+                return false;
+        } else if (!user.equals(other.user))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("AuditableEventType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \naction=");
+        builder.append(action);
+        builder.append(", \ntimestamp=");
+        builder.append(timestamp);
+        builder.append(", \nuser=");
+        builder.append(user);
+        builder.append(", \nrequestId=");
+        builder.append(requestId);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

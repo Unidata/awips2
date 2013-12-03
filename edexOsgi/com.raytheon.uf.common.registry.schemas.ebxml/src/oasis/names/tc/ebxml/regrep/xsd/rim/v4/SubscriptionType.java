@@ -82,6 +82,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -95,6 +98,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Subscription")
 public class SubscriptionType extends RegistryObjectType {
+
+    private static final long serialVersionUID = -4081551671995600532L;
 
     @OneToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "DeliveryInfo")
@@ -127,12 +132,18 @@ public class SubscriptionType extends RegistryObjectType {
     protected Duration notificationInterval;
 
     public SubscriptionType() {
+        super();
 
     }
 
     public SubscriptionType(String id, String lid, String objectType,
             String owner, String status, String name, String description) {
         super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public SubscriptionType(String id, String lid) {
+        super(id, lid);
 
     }
 
@@ -252,6 +263,102 @@ public class SubscriptionType extends RegistryObjectType {
      */
     public void setNotificationInterval(Duration value) {
         this.notificationInterval = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((deliveryInfo == null) ? 0 : deliveryInfo.hashCode());
+        result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
+        result = prime
+                * result
+                + ((notificationInterval == null) ? 0 : notificationInterval
+                        .hashCode());
+        result = prime * result
+                + ((selector == null) ? 0 : selector.hashCode());
+        result = prime * result
+                + ((startTime == null) ? 0 : startTime.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SubscriptionType other = (SubscriptionType) obj;
+        if (deliveryInfo == null) {
+            if (other.deliveryInfo != null)
+                return false;
+        } else if (!deliveryInfo.equals(other.deliveryInfo))
+            return false;
+        if (endTime == null) {
+            if (other.endTime != null)
+                return false;
+        } else if (!endTime.equals(other.endTime))
+            return false;
+        if (notificationInterval == null) {
+            if (other.notificationInterval != null)
+                return false;
+        } else if (!notificationInterval.equals(other.notificationInterval))
+            return false;
+        if (selector == null) {
+            if (other.selector != null)
+                return false;
+        } else if (!selector.equals(other.selector))
+            return false;
+        if (startTime == null) {
+            if (other.startTime != null)
+                return false;
+        } else if (!startTime.equals(other.startTime))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SubscriptionType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \ndeliveryInfo=");
+        builder.append(deliveryInfo);
+        builder.append(", \nselector=");
+        builder.append(selector);
+        builder.append(", \nstartTime=");
+        builder.append(startTime);
+        builder.append(", \nendTime=");
+        builder.append(endTime);
+        builder.append(", \nnotificationInterval=");
+        builder.append(notificationInterval);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
