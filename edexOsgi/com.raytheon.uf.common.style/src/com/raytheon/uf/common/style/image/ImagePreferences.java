@@ -20,6 +20,11 @@
 
 package com.raytheon.uf.common.style.image;
 
+import java.text.ParseException;
+import java.text.ParsePosition;
+
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.style.AbstractStylePreferences;
 import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.StyleException;
 
 /**
  * 
@@ -40,6 +46,7 @@ import com.raytheon.uf.common.style.LabelingPreferences;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Jul 27, 2007             chammack    Initial Creation.
+ *  Nov 25, 2013  2492      bsteffen    Add colorMapUnits
  * 
  * </pre>
  * 
@@ -62,14 +69,17 @@ public class ImagePreferences extends AbstractStylePreferences {
     @XmlElement
     private SamplePreferences samplePrefs;
 
-    @XmlElement(name = "dataMapping")
+    @XmlElement
     private DataMappingPreferences dataMapping;
 
-    @XmlElement(name = "colorbarLabeling")
+    @XmlElement
     private LabelingPreferences colorbarLabeling;
 
-    @XmlElement(name = "interpolate")
+    @XmlElement
     private boolean interpolate = true;
+
+    @XmlElement
+    private String colorMapUnits;
 
     public boolean isInterpolate() {
         return interpolate;
@@ -154,4 +164,37 @@ public class ImagePreferences extends AbstractStylePreferences {
         return legend;
     }
 
+    /**
+     * 
+     * @return String representation of colorMapUnits for serialization.
+     * @see ImagePreferences#getColorMapUnitsObject()
+     */
+    public String getColorMapUnits() {
+        return colorMapUnits;
+    }
+
+    /**
+     * @param colorMapUnits
+     *            String representation of colorMapUnits for serialization.
+     * @see ImagePreferences#getColorMapUnitsObject()
+     */
+    public void setColorMapUnits(String colorMapUnits) {
+        this.colorMapUnits = colorMapUnits;
+    }
+
+    /**
+     * Units that should be used when color mapping. Mostly useful for cases
+     * where the colormap should be applied non linearly.
+     */
+    public Unit<?> getColorMapUnitsObject() throws StyleException {
+        if (colorMapUnits != null && !colorMapUnits.isEmpty()) {
+            try {
+                return UnitFormat.getUCUMInstance().parseProductUnit(
+                        colorMapUnits, new ParsePosition(0));
+            } catch (ParseException e) {
+                throw new StyleException("Unable to parse colorMap Units.");
+            }
+        }
+        return null;
+    }
 }

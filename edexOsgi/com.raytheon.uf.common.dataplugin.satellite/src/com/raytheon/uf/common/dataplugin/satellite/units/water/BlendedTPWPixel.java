@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.satellite.units.water;
 
+import javax.measure.converter.AddConverter;
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Length;
 import javax.measure.unit.DerivedUnit;
@@ -28,20 +29,22 @@ import javax.measure.unit.Unit;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * TODO Add Description
+ * Represents a pixel value on a satellite blended total precipitable water(TPW)
+ * image.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 18, 2010            jsanchez     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 18, 2010           jsanchez    Initial creation
+ * Nov 20, 2013  2492     bsteffen    Make conversion unbounded.
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0	
+ * @version 1.0
  */
 
 public class BlendedTPWPixel extends DerivedUnit<Length> {
@@ -66,6 +69,7 @@ public class BlendedTPWPixel extends DerivedUnit<Length> {
 
     @Override
     public UnitConverter toStandardUnit() {
-        return new BlendedTPWPixelToLengthConverter();
+        return SI.MILLI(SI.METRE).getConverterTo(SI.METRE)
+                .concatenate(new AddConverter(-176));
     }
 }

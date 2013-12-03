@@ -21,6 +21,7 @@ package com.raytheon.viz.core.gl.glsl;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
+import com.raytheon.viz.core.gl.images.AbstractGLColormappedImage;
 
 /**
  * Factory for creating API defined GLSL structs in a {@link GLShaderProgram}.
@@ -49,14 +50,15 @@ public class GLSLStructFactory {
      * @param program
      * @param name
      * @param texBinding
-     * @param dataFormat
-     * @param noDataValue
+     * @param image
      */
     public static void createDataTexture(GLShaderProgram program, String name,
-            int texBinding, AbstractGLColorMapDataFormat dataFormat,
-            double noDataValue) {
+            int texBinding, AbstractGLColormappedImage image) {
+        ColorMapParameters parameters = image.getColorMapParameters();
+        AbstractGLColorMapDataFormat dataFormat = image.getDataFormat();
         setFieldUniform(program, name, "rawTex", texBinding);
-        setFieldUniform(program, name, "noDataValue", noDataValue);
+        setFieldUniform(program, name, "noDataValue",
+                parameters.getNoDataValue());
         setFieldUniform(program, name, "isScaled", dataFormat.isScaled());
         if (dataFormat.isScaled()) {
             setFieldUniform(program, name, "scaleMin",
@@ -64,6 +66,8 @@ public class GLSLStructFactory {
             setFieldUniform(program, name, "scaleMax",
                     dataFormat.getDataFormatMax());
         }
+        setFieldUniform(program, name, "width", (float) image.getWidth());
+        setFieldUniform(program, name, "height", (float) image.getHeight());
     }
 
     /**
