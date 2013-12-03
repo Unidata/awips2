@@ -68,6 +68,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -81,6 +84,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "StringQueryExpressionType", propOrder = { "value" })
 @DynamicSerialize
 public class StringQueryExpressionType extends QueryExpressionType {
+
+    private static final long serialVersionUID = 9177009958088269547L;
 
     @XmlElement(name = "Value", required = true)
     @DynamicSerializeElement
@@ -114,6 +119,46 @@ public class StringQueryExpressionType extends QueryExpressionType {
      */
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        StringQueryExpressionType other = (StringQueryExpressionType) obj;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("StringQueryExpressionType \n[queryLanguage=");
+        builder.append(queryLanguage);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nvalue=");
+        builder.append(value);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -70,6 +70,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -84,10 +87,28 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RegistryPackage")
 public class RegistryPackageType extends RegistryObjectType {
 
-    @OneToOne(cascade = CascadeType.ALL)
+    private static final long serialVersionUID = 3646946628073574521L;
+
     @XmlElement(name = "RegistryObjectList")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected RegistryObjectListType registryObjectList;
+
+    public RegistryPackageType() {
+        super();
+
+    }
+
+    public RegistryPackageType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public RegistryPackageType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the registryObjectList property.
@@ -108,6 +129,67 @@ public class RegistryPackageType extends RegistryObjectType {
      */
     public void setRegistryObjectList(RegistryObjectListType value) {
         this.registryObjectList = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((registryObjectList == null) ? 0 : registryObjectList
+                        .hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RegistryPackageType other = (RegistryPackageType) obj;
+        if (registryObjectList == null) {
+            if (other.registryObjectList != null)
+                return false;
+        } else if (!registryObjectList.equals(other.registryObjectList))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryPackageType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nregistryObjectList=");
+        builder.append(registryObjectList);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

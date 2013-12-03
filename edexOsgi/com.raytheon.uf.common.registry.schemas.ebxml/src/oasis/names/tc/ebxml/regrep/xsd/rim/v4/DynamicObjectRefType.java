@@ -20,6 +20,7 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -31,8 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -71,6 +70,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -85,14 +86,51 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "DynamicObjectRef")
 public class DynamicObjectRefType extends ObjectRefType {
 
+    private static final long serialVersionUID = -1684456338817445194L;
+
     @XmlElement(name = "Query", required = true)
     @DynamicSerializeElement
-    @OneToOne
-    @Cascade(value = { CascadeType.SAVE_UPDATE })
+    @OneToOne(cascade = CascadeType.ALL)
     protected QueryType query;
 
     public DynamicObjectRefType() {
 
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((query == null) ? 0 : query.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DynamicObjectRefType other = (DynamicObjectRefType) obj;
+        if (query == null) {
+            if (other.query != null)
+                return false;
+        } else if (!query.equals(other.query))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DynamicObjectRefType \n[id=");
+        builder.append(id);
+        builder.append(", \nquery=");
+        builder.append(query);
+        builder.append("]");
+        return builder.toString();
     }
 
     /**

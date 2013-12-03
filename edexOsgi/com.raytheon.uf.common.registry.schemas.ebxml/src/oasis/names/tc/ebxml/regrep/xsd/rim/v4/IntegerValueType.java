@@ -70,6 +70,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -83,19 +86,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "IntegerValue")
 public class IntegerValueType extends ValueType {
-    @Column(name = COLUMN_NAME)
+
+    @Column
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     protected BigInteger integerValue;
 
-    private static final String COLUMN_NAME = "integerValue";
-
     public IntegerValueType() {
 
-    }
-
-    public IntegerValueType(BigInteger integerValue) {
-        this.integerValue = integerValue;
     }
 
     public IntegerValueType(Integer integerValue) {
@@ -106,49 +104,60 @@ public class IntegerValueType extends ValueType {
         this.integerValue = BigInteger.valueOf(integerValue);
     }
 
-    @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
+    public IntegerValueType(BigInteger integerValue) {
+        super();
+        this.integerValue = integerValue;
     }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link BigInteger }
-     * 
-     */
-    @Override
-    public BigInteger getValue() {
-        return integerValue;
+    public IntegerValueType(Integer id, BigInteger integerValue) {
+        super(id);
+        this.integerValue = integerValue;
     }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link BigInteger }
-     * 
-     */
+    @SuppressWarnings("unchecked")
     @Override
-    public void setValue(Object value) {
-        if (value instanceof Integer) {
-            this.integerValue = BigInteger.valueOf(((Integer) value)
-                    .longValue());
-        } else if (value instanceof BigInteger) {
-            this.integerValue = (BigInteger) value;
-        } else {
-            throw new IllegalArgumentException(
-                    "IntegerValueType cannot have values of type: "
-                            + value.getClass());
-        }
+    public <T> T getValue() {
+        return (T) getIntegerValue();
     }
 
     public BigInteger getIntegerValue() {
-        return getValue();
+        return integerValue;
     }
 
     public void setIntegerValue(BigInteger integerValue) {
-        setValue(integerValue);
+        this.integerValue = integerValue;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((integerValue == null) ? 0 : integerValue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        IntegerValueType other = (IntegerValueType) obj;
+        if (integerValue == null) {
+            if (other.integerValue != null)
+                return false;
+        } else if (!integerValue.equals(other.integerValue))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "IntegerValueType [integerValue=" + integerValue + ", id=" + id
+                + "]";
     }
 
 }
