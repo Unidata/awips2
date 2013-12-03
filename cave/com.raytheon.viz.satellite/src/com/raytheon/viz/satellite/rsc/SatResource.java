@@ -29,6 +29,7 @@ import java.util.Map;
 
 import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Temperature;
 import javax.measure.unit.Unit;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -41,18 +42,14 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
-import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
-import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.style.image.SamplePreferences;
 import com.raytheon.uf.common.style.level.Level;
@@ -82,19 +79,25 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  *  SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Mar 1, 2007              chammack    Initial Creation.
- *  02/17/2009               njensen     Refactored to new rsc architecture.
- *  03/02/2009		2032	 jsanchez	 Added check for displayedDate if no data.
- *  03/25/2009      2086     jsanchez    Mapped correct converter to parameter type.
- *                                       Updated the call to ColormapParametersFactory.build
- *  03/30/2009      2169     jsanchez    Updated numLevels handling.
- * - AWIPS2 Baseline Repository --------
- *  07/17/2012      798      jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
- *                                       data set names.
- *  06/20/2013      2122     mschenke    Modified to use SatTileSetRenderable
- *  07/31/2013      2190     mschenke    Switched to use Measure objects for interrogation
+ *  Date          Ticket#   Engineer    Description
+ *  ------------- --------  ----------- --------------------------
+ *  Mar 01, 2007            chammack    Initial Creation.
+ *  Feb 17, 2009            njensen     Refactored to new rsc architecture.
+ *  Mar 02, 2009  2032	    jsanchez    Added check for displayedDate if no
+ *                                      data.
+ *  Mar 25, 2009  2086      jsanchez    Mapped correct converter to parameter
+ *                                      type. Updated the call to
+ *                                      ColormapParametersFactory.build
+ *  Mar 30, 2009  2169      jsanchez    Updated numLevels handling.
+ *  Jul 17, 2012  798       jkorman     Use decimationLevels from
+ *                                      SatelliteRecord. Removed hard-coded
+ *                                      data set names.
+ *  Jun 20, 2013  2122      mschenke    Modified to use SatTileSetRenderable
+ *  Jul 31, 2013  2190      mschenke    Switched to use Measure objects for
+ *                                      interrogation
+ *  Nov 20, 2013  2492      bsteffen    Always get min/max values from style
+ *                                      rules.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -102,11 +105,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class SatResource extends
         AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor> {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SatResource.class);
-
-    public static String RAW_VALUE = "rawValue";
 
     /** String id to look for satellite-provided data values */
     public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
@@ -215,12 +213,12 @@ public class SatResource extends
             }
         }
 
-        public InterrogationResult interrogate(Coordinate latLon)
-                throws VizException {
+        public InterrogationResult interrogate(Coordinate latLon,
+                Unit<?> requestUnit) throws VizException {
             InterrogationResult result = null;
             synchronized (tileMap) {
                 for (SatTileSetRenderable renderable : tileMap.values()) {
-                    double rValue = renderable.interrogate(latLon, fillValue);
+                    double rValue = renderable.interrogate(latLon, requestUnit);
                     if (Double.isNaN(rValue) == false) {
                         result = new InterrogationResult(
                                 renderable.getSatelliteRecord(), rValue);
@@ -235,7 +233,8 @@ public class SatResource extends
 
     protected SamplePreferences sampleRange;
 
-    protected double fillValue = 0;
+    /** Flag to avoid reinitializing ColorMapParameters from style rules */
+    private boolean initialized = false;
 
     /**
      * Constructor
@@ -249,21 +248,19 @@ public class SatResource extends
 
     @Override
     protected DataTime getDataObjectTime(PluginDataObject pdo) {
-        SatelliteRecord record = (SatelliteRecord) pdo;
-        if (dataTimes.isEmpty()) {
+        if (initialized == false) {
             try {
-                initializeFirstFrame(record);
+                initializeFirstFrame((SatelliteRecord) pdo);
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                throw new IllegalStateException(
+                        "Unable to initialize the satellite resource");
             }
+            initialized = true;
         }
-
         DataTime pdoTime = pdo.getDataTime();
         if (resourceData.getBinOffset() != null) {
             pdoTime = resourceData.getBinOffset().getNormalizedTime(pdoTime);
         }
-
         return pdoTime;
     }
 
@@ -286,7 +283,6 @@ public class SatResource extends
         }
 
         SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
-        Unit<?> unit = SatDataRetriever.getRecordUnit(record);
         String physicalElement = null;
         DerivedParameterRequest request = (DerivedParameterRequest) record
                 .getMessageData();
@@ -301,25 +297,42 @@ public class SatResource extends
         match.setParameterName(Arrays.asList(physicalElement));
         match.setLevels(Arrays.asList((Level) level));
         match.setCreatingEntityNames(Arrays.asList(record.getCreatingEntity()));
-        StyleRule sr;
+        Unit<?> unit = SatDataRetriever.getRecordUnit(record);
         try {
-            sr = StyleManager.getInstance().getStyleRule(
+            StyleRule sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (StyleException e) {
-            throw new VizException(e.getLocalizedMessage(), e);
-        }
-        if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
-            sampleRange = ((ImagePreferences) sr.getPreferences())
-                    .getSamplePrefs();
-            String lg = ((ImagePreferences) sr.getPreferences()).getLegend();
+
+            ImagePreferences preferences = null;
+            if (sr == null
+                    || sr.getPreferences() instanceof ImagePreferences == false) {
+                // No style rule, this is a best guess at what might look good.
+                preferences = new ImagePreferences();
+                if (unit != null && unit.isCompatible(Temperature.UNIT)) {
+                    preferences.setDefaultColormap("Sat/IR/CIRA (IR Default)");
+                } else {
+                    preferences.setDefaultColormap("Sat/VIS/ZA (Vis Default)");
+                }
+                DataScale range = new DataScale();
+                range.setScaleType(DataScale.Type.LINEAR);
+                range.setMinValue(0.0);
+                range.setMaxValue(255.0);
+                preferences.setDataScale(range);
+            } else {
+                preferences = (ImagePreferences) sr.getPreferences();
+            }
+            colorMapParameters = ColorMapParameterFactory.build(preferences,
+                    unit);
+
+            sampleRange = preferences.getSamplePrefs();
+            String lg = preferences.getLegend();
             // test, so legend is not over written with empty string
             if (lg != null && !lg.trim().isEmpty()) {
                 legend = lg;
             }
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
         }
 
-        colorMapParameters = ColorMapParameterFactory.build(sr, null, level,
-                unit);
         // If null, set from style rules
         if (cmName == null) {
             cmName = colorMapParameters.getColorMapName();
@@ -343,26 +356,7 @@ public class SatResource extends
         if (persisted != null) {
             colorMapParameters.applyPersistedParameters(persisted);
         }
-
-        // TODO: Figure out data/color map min/max values better
-        if (unit == null) {
-            colorMapParameters.setColorMapMin(0.0f);
-            colorMapParameters.setColorMapMax(255.0f);
-        }
-        if (unit instanceof GenericPixel) {
-            // Derived parameter data will be signed
-            colorMapParameters.setDataMin(-128.0f);
-            colorMapParameters.setDataMax(127.0f);
-        } else if (unit instanceof BlendedTPWPixel) {
-            colorMapParameters.setDataMin(0.0f);
-            colorMapParameters.setDataMax(252.0f);
-
-            colorMapParameters.setColorMapMin(0.0f);
-            colorMapParameters.setColorMapMax(252.0f);
-        } else {
-            colorMapParameters.setDataMin(0.0f);
-            colorMapParameters.setDataMax(255.0f);
-        }
+        colorMapParameters.setNoDataValue(0);
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
@@ -389,10 +383,11 @@ public class SatResource extends
         ColorMapParameters parameters = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
         double dataValue = Double.NaN;
+        Unit<?> dataUnit = parameters.getColorMapUnit();
         if (renderable != null) {
             try {
-                InterrogationResult result = renderable.interrogate(coord
-                        .asLatLon());
+                InterrogationResult result = renderable.interrogate(
+                        coord.asLatLon(), dataUnit);
                 if (result != null) {
                     dataValue = result.getValue();
                     dataMap.put(IGridGeometryProvider.class.toString(), result
@@ -403,9 +398,8 @@ public class SatResource extends
             }
         }
 
-        dataMap.put(RAW_VALUE, dataValue);
         dataMap.put(SATELLITE_DATA_INTERROGATE_ID,
-                Measure.valueOf(dataValue, parameters.getDataUnit()));
+                Measure.valueOf(dataValue, dataUnit));
 
         return dataMap;
     }
@@ -413,8 +407,14 @@ public class SatResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> dataMap = interrogate(coord);
-        Double value = (Double) dataMap.get(RAW_VALUE);
-        if (value == null || value.isNaN()) {
+
+        Measure<?, ?> value = (Measure<?, ?>) dataMap
+                .get(SATELLITE_DATA_INTERROGATE_ID);
+        double measuredValue = Double.NaN;
+        if (value != null && value.getValue() instanceof Double) {
+            measuredValue = (Double) value.getValue();
+        }
+        if (Double.isNaN(measuredValue)) {
             return "NO DATA";
         }
         ColorMapParameters cmp = getCapability(ColorMapCapability.class)
@@ -425,18 +425,21 @@ public class SatResource extends
         if (dataMapping != null) {
             // if the pixel value matches the data mapping entry use that
             // label instead
-            String label = dataMapping.getLabelValueForDataValue(value);
+            String label = dataMapping.getLabelValueForDataValue(measuredValue);
             if (label != null) {
                 return label;
             }
         }
 
-        UnitConverter dataToDisplay = cmp.getDataToDisplayConverter();
-        if (dataToDisplay != null) {
-            value = dataToDisplay.convert(value);
+        Unit<?> unit = cmp.getDisplayUnit();
+        Unit<?> measuredUnit = value.getUnit();
+        if (unit != null && measuredUnit != null) {
+            UnitConverter dataToDisplay = measuredUnit.getConverterTo(unit);
+            if (dataToDisplay != null) {
+                measuredValue = dataToDisplay.convert(measuredValue);
+            }
         }
 
-        Unit<?> unit = cmp.getDisplayUnit();
         // Had to use 'bit' as the display unit because
         // counts was not an acceptable unit.
         String unitString = unit == null ? ""
@@ -447,13 +450,13 @@ public class SatResource extends
             f1 = sampleRange.getMaxValue();
             f2 = sampleRange.getMinValue();
         }
-        if (value > f1 && value > f2) {
+        if (measuredValue > f1 && measuredValue > f2) {
             return String.format(">%.1f%s", Math.max(f1, f2), unitString);
         }
-        if (value < f1 && value < f2) {
+        if (measuredValue < f1 && measuredValue < f2) {
             return String.format("<%.1f%s", Math.min(f1, f2), unitString);
         }
-        return String.format("%.1f%s", value, unitString);
+        return String.format("%.1f%s", measuredValue, unitString);
     }
 
     private String getLegend(PluginDataObject record) {
