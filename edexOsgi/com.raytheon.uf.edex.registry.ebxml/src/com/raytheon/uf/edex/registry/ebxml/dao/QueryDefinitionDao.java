@@ -35,6 +35,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryDefinitionType;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/8/2013    1682        bphillip    Initial implementation
+ * 12/2/2013    1829        bphillip    Changed get parameters for query method
  * </pre>
  * 
  * @author bphillip
@@ -48,11 +49,6 @@ public class QueryDefinitionDao extends
      * the registry
      */
     private static final String GET_QUERY_IDS_QUERY = "SELECT obj.id FROM QueryDefinitionType obj order by obj.id asc";
-
-    /** Query used to get the parameters for a given query */
-    private static final String GET_QUERY_PARAMETERS_QUERY = "SELECT param  "
-            + "FROM QueryDefinitionType def "
-            + "INNER JOIN def.parameter as param " + "WHERE def.id=:id";
 
     /**
      * Gets the ids of all the query definitions contained in the registry
@@ -71,7 +67,7 @@ public class QueryDefinitionDao extends
      * @return The parameters for the specified query
      */
     public List<ParameterType> getParametersForQuery(String queryId) {
-        return executeHQLQuery(GET_QUERY_PARAMETERS_QUERY, "id", queryId);
+        return this.getById(queryId).getParameter();
     }
 
     @Override

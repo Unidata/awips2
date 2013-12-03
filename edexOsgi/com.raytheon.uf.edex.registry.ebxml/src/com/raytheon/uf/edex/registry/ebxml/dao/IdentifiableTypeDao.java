@@ -28,7 +28,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.IdentifiableType;
 
 import org.hibernate.criterion.Property;
 
-import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
@@ -44,22 +43,18 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 3/18/2013    1082       bphillip     Initial creation
  * 4/9/2013     1802       bphillip    Removed exception catching
  * 10/08/2013   1682       bphillip    Added the id like query
+ * 12/2/2013    1829       bphillip    Now extends ExtensibleObjectTypeDao
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public abstract class IdentifiableTypeDao<ENTITY extends IdentifiableType>
-        extends SessionManagedDao<String, ENTITY> {
+public class IdentifiableTypeDao<ENTITY extends IdentifiableType> extends
+        ExtensibleObjectTypeDao<ENTITY> {
 
     public IdentifiableTypeDao() {
 
-    }
-
-    @Override
-    public ENTITY getById(String id) {
-        return super.getById(id);
     }
 
     /**

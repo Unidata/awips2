@@ -21,9 +21,14 @@
 package oasis.names.tc.ebxml.regrep.xsd.spi.v4;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -37,7 +42,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -72,6 +81,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -82,30 +94,40 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         "invocationControlFile" })
 @XmlRootElement(name = "CatalogObjectsRequest")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "CatalogObjectsRequest")
 public class CatalogObjectsRequest extends RegistryRequestType {
+
+    private static final long serialVersionUID = -1231369260237037178L;
 
     @XmlElement(name = "Query")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "query_id", referencedColumnName = "id")
     protected QueryType query;
 
     @XmlElement(name = "ObjectRefList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected ObjectRefListType objectRefList;
 
     @XmlElement(name = "OriginalObjects")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected RegistryObjectListType originalObjects;
 
     @XmlElement(name = "InvocationControlFile")
     @DynamicSerializeElement
+    @Transient
     protected List<ExtrinsicObjectType> invocationControlFile;
 
     public CatalogObjectsRequest() {
-
+        super();
     }
 
     public CatalogObjectsRequest(String id, String comment,
-            Collection<SlotType> slots, QueryType query,
+            List<SlotType> slots, QueryType query,
             ObjectRefListType objectRefList,
             RegistryObjectListType originalObjects,
             List<ExtrinsicObjectType> invocationControlFile) {
@@ -212,6 +234,75 @@ public class CatalogObjectsRequest extends RegistryRequestType {
     public void setInvocationControlFile(
             List<ExtrinsicObjectType> invocationControlFile) {
         this.invocationControlFile = invocationControlFile;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((invocationControlFile == null) ? 0 : invocationControlFile
+                        .hashCode());
+        result = prime * result
+                + ((objectRefList == null) ? 0 : objectRefList.hashCode());
+        result = prime * result
+                + ((originalObjects == null) ? 0 : originalObjects.hashCode());
+        result = prime * result + ((query == null) ? 0 : query.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CatalogObjectsRequest other = (CatalogObjectsRequest) obj;
+        if (invocationControlFile == null) {
+            if (other.invocationControlFile != null)
+                return false;
+        } else if (!invocationControlFile.equals(other.invocationControlFile))
+            return false;
+        if (objectRefList == null) {
+            if (other.objectRefList != null)
+                return false;
+        } else if (!objectRefList.equals(other.objectRefList))
+            return false;
+        if (originalObjects == null) {
+            if (other.originalObjects != null)
+                return false;
+        } else if (!originalObjects.equals(other.originalObjects))
+            return false;
+        if (query == null) {
+            if (other.query != null)
+                return false;
+        } else if (!query.equals(other.query))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CatalogObjectsRequest \n[comment=");
+        builder.append(comment);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nquery=");
+        builder.append(query);
+        builder.append(", \nobjectRefList=");
+        builder.append(objectRefList);
+        builder.append(", \noriginalObjects=");
+        builder.append(originalObjects);
+        builder.append(", \ninvocationControlFile=");
+        builder.append(invocationControlFile);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

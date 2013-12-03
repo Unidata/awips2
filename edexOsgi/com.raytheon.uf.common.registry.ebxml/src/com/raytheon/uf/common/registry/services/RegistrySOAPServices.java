@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
@@ -49,6 +51,9 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.comm.ProxyUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -143,6 +148,8 @@ public class RegistrySOAPServices {
             httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
         }
     }
+
+    private Map<Class<?>, LoadingCache<String, ?>> serviceCache = new HashMap<Class<?>, LoadingCache<String, ?>>();
 
     /**
      * Gets the notification listener service URL for the given host
@@ -330,7 +337,7 @@ public class RegistrySOAPServices {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Object> T getPort(String serviceUrl,
+    private <T extends Object> T createService(String serviceUrl,
             Class<?> serviceInterface) throws RegistryServiceException {
         W3CEndpointReferenceBuilder endpointBuilder = new W3CEndpointReferenceBuilder();
         endpointBuilder.wsdlDocumentLocation(serviceUrl.toString() + WSDL);
@@ -346,6 +353,28 @@ public class RegistrySOAPServices {
                 Arrays.asList(RegistryUtil.LOCAL_REGISTRY_ADDRESS));
         client.getRequestContext().put(Message.PROTOCOL_HEADERS, headers);
         return port;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Object> T getPort(String serviceUrl,
+            final Class<T> serviceInterface) {
+        LoadingCache<String, ?> cache = serviceCache.get(serviceInterface);
+        if (cache == null) {
+            cache = CacheBuilder.newBuilder()
+                    .expireAfterAccess(1, TimeUnit.MINUTES)
+                    .build(new CacheLoader<String, T>() {
+                        public T load(String key) {
+                            return createService(key, serviceInterface);
+                        }
+                    });
+            serviceCache.put(serviceInterface, cache);
+        }
+        try {
+            return (T) cache.get(serviceUrl);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Error getting service at ["
+                    + serviceUrl + "]", e);
+        }
     }
 
     /**
