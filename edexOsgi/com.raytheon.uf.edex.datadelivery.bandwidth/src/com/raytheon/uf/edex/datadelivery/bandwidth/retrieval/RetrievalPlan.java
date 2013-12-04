@@ -11,6 +11,8 @@ import java.util.TreeSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthRoute;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -22,6 +24,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.registry.RegistryBandwidthService;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -40,6 +43,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 20, 2012 1286       djohnson     Handle null bucketIds being returned.
  * Jun 25, 2013 2106       djohnson     Separate state into other classes, promote BandwidthBucket to a class proper.
  * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
+ * Nov 16, 2013 1736       dhladky      Alter size of available bandwidth by subtracting that used by registry.
  * 
  * </pre>
  * 
@@ -102,6 +106,7 @@ public class RetrievalPlan {
     void init() {
         boolean found = false;
         BandwidthRoute route = map.getRoute(network);
+        
         if (route != null) {
             found = true;
             this.planDays = route.getPlanDays();
@@ -109,28 +114,41 @@ public class RetrievalPlan {
         }
 
         if (found) {
+            // create registry bandwidth service
+            RegistryBandwidthService rbs = new RegistryBandwidthService(bucketsDao, network, bucketMinutes);
+            long bucketMillis = bucketMinutes * TimeUtil.MILLIS_PER_MINUTE;
             Calendar currentBucket = BandwidthUtil.now();
             planStart = BandwidthUtil.now();
             planEnd = TimeUtil.newCalendar(planStart);
             planEnd.add(Calendar.DAY_OF_YEAR, planDays);
-
+            long currentMillis = currentBucket.getTimeInMillis();
+            long planEndMillis = planEnd.getTimeInMillis();
             // Make the buckets...
-            long bucket = 0;
-            while (!currentBucket.after(planEnd)) {
+
+            while (!(currentMillis > planEndMillis)) {
+                
                 int bw = map.getBandwidth(network, currentBucket);
-                bucket = currentBucket.getTimeInMillis();
                 // Get the bucket size..
-                // buckets are (bandwidth [kilobits/second] * milliseconds per
+                // buckets are (bandwidth [kilobytes/second] * milliseconds per
                 // minute *
                 // bucket minutes)/bits per byte) ...
                 bytesPerBucket = BandwidthUtil
                         .convertKilobytesPerSecondToBytesPerSpecifiedMinutes(
                                 bw, bucketMinutes);
 
-                bucketsDao.create(new BandwidthBucket(bucket, bytesPerBucket,
+                bucketsDao.create(new BandwidthBucket(currentMillis, bytesPerBucket,
                         network));
-                currentBucket.add(Calendar.MINUTE, bucketMinutes);
+                
+                currentMillis += bucketMillis;
             }
+            
+            // subtract registry traffic from total available bytes/per second
+            for (BandwidthBucket bucket: bucketsDao.getAll(network)) {
+                long startMillis = bucket.getBucketStartTime();
+                int registryBytesPerSecond = rbs.getRegistryBandwidth(startMillis);
+                bucket.setBucketSize(bucket.getBucketSize() - (registryBytesPerSecond * TimeUtil.SECONDS_PER_MINUTE * bucketMinutes));
+            }
+            
         } else {
             // Can't proceed, throw an Exception
             throw new IllegalArgumentException(
@@ -212,33 +230,41 @@ public class RetrievalPlan {
                 // Get the last bucket and add buckets to make up the
                 // difference..
                 // Make the buckets...
+                long bucketMillis = bucketMinutes * TimeUtil.MILLIS_PER_MINUTE;
+                long newPlanEndMillis = newEndOfPlan.getTimeInMillis();
                 BandwidthBucket bucket = bucketsDao.getLastBucket(network);
                 Calendar currentBucket = BandwidthUtil.now();
                 currentBucket.setTimeInMillis(bucket.getBucketStartTime());
+                long currentBucketMillis = bucket.getBucketStartTime();
 
                 // Add the buckets minutes to the last bucket and add
                 // buckets until we have the new plan size.
-                currentBucket.add(Calendar.MINUTE, bucketMinutes);
-
-                while (!currentBucket.after(newEndOfPlan)) {
+                currentBucketMillis += bucketMillis;
+                // create Registry Bandwidth Service
+                RegistryBandwidthService rbs = new RegistryBandwidthService(bucketsDao, network, bucketMinutes);
+                
+                while (!(currentBucketMillis > newPlanEndMillis)) {
+                    
                     int bw = map.getBandwidth(network, currentBucket);
-                    long bucketStartTime = currentBucket.getTimeInMillis();
+                    // subtract registry traffic from total available bytes/per second
+                    int registryBytesPerSecond = rbs.getRegistryBandwidth(currentBucketMillis);
+                    bw = bw - registryBytesPerSecond;
                     // Get the bucket size..
-                    // buckets are (bandwidth * kilobits/second * 60 seconds *
+                    // buckets are (bandwidth * kilobytes/second * 60 seconds *
                     // bucket minutes)/bits per byte) ...
                     bytesPerBucket = BandwidthUtil
                             .convertKilobytesPerSecondToBytesPerSpecifiedMinutes(
                                     bw, bucketMinutes);
-                    bucketsDao.create(new BandwidthBucket(bucketStartTime,
+                    bucketsDao.create(new BandwidthBucket(currentBucketMillis,
                             bytesPerBucket, network));
-                    currentBucket.add(Calendar.MINUTE, bucketMinutes);
+                  
+                    currentBucketMillis += bucketMillis;
                     statusHandler.info("resize() - Adding bucket [" + bucket
                             + "] bandwidth = [" + bw + "]");
                 }
             }
-
         }
-        // Now remove buckets from the front of the map whos time slot
+        // Now remove buckets from the front of the map who's time slot
         // is past and are empty
         long newStart = newStartOfPlan.getTimeInMillis();
 
