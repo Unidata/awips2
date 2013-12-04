@@ -37,7 +37,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -85,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04OCT2012    1229       rferrel     Changes for non-blocking WindRoseConfigDlg.
  * 08OCT2012    1229       rferrel     Made non-blocking.
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 03Dec2013    16754      zhao        Modified printImage()
  * 
  * </pre>
  * 
@@ -734,20 +737,36 @@ public class WindRosePlotDlg extends CaveSWTDialog {
     }
 
     private void printImage() {
+        Image image = windRoseCanvasComp.getWindRoseImage();
+        ImageData imageData = image.getImageData();
         PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
         PrinterData printerData = dialog.open();
 
         if (printerData != null) {
-            // Create the printer object
             Printer printer = new Printer(printerData);
+            Point screenDPI = shell.getDisplay().getDPI();
+            Point printerDPI = printer.getDPI();
+            Rectangle bounds = printer.getBounds();
+            int destX = (screenDPI.x*bounds.width - printerDPI.x*imageData.width)/screenDPI.x/2;
+            if (destX < 0) {
+                destX = 0;
+            }
+            int destY = (screenDPI.x*bounds.height - printerDPI.x*imageData.height)/screenDPI.x*80/100/2;
+            if (destY < 0) {
+                destY = 0;
+            }
             printer.startJob("jj");
             GC gc = new GC(printer);
+            Image printerImage = new Image(printer, imageData);
 
             if (printer.startPage()) {
-                windRoseCanvasComp.drawCanvas(gc);
+                gc.drawImage(printerImage, 0, 0, imageData.width, imageData.height, destX, destY, 
+                                printerDPI.x*imageData.width/screenDPI.x, 
+                                printerDPI.x*imageData.height/screenDPI.x);
                 printer.endPage();
             }
 
+            printerImage.dispose();
             gc.dispose();
             printer.endJob();
             printer.dispose();
