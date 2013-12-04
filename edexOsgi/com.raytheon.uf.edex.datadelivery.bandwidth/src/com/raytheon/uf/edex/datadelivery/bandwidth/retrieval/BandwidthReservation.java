@@ -23,7 +23,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 09, 2012 1286       djohnson    Add getters for bytes.
  * Jun 24, 2013 2106       djohnson    Add copy constructor.
  * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
- * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
+ * Oct 30, 2013  2448      dhladky     Moved methods to TimeUtil.
+ * Dec 02, 2013  2545      mpduff      Set size in bytes.
  * 
  * </pre>
  * 
@@ -41,6 +42,7 @@ public class BandwidthReservation implements Serializable,
 
     private SubscriptionPriority priority;
 
+    /** Size of the reservation in bytes */
     private long size;
 
     private final RetrievalStatus status = RetrievalStatus.RESERVED;
@@ -65,8 +67,8 @@ public class BandwidthReservation implements Serializable,
      *            BandwidthReservation.
      * 
      * @param bandwidthRequired
-     *            The amount of bandwidth this BandwidthReservation should
-     *            reserve in a {@link RetrievalPlan}.
+     *            The amount of bandwidth in bytes this BandwidthReservation
+     *            should reserve in a {@link RetrievalPlan}.
      */
     public BandwidthReservation(BandwidthAllocation allocation,
             long bandwidthRequired) {
@@ -101,7 +103,7 @@ public class BandwidthReservation implements Serializable,
         sb.append("reserve id: [").append(getId()).append("] ");
         sb.append("path [").append(getNetwork()).append("] ");
         sb.append("priority [").append(getPriority()).append("] ");
-        sb.append("size (bytes) [").append(getSizeInBytes()).append("] ");
+        sb.append("size (bytes) [").append(getSize()).append("] ");
         sb.append("status [").append(getStatus()).append("] ");
         sb.append("startTime [").append(BandwidthUtil.format(getStartTime()))
                 .append("] ");
@@ -141,25 +143,18 @@ public class BandwidthReservation implements Serializable,
     }
 
     /**
-     * @param estimatedSize
-     *            the estimatedSize to set, in kilobytes
+     * @param size
+     *            the estimatedSize to set, in bytes
      */
     public void setSize(long size) {
         this.size = size;
     }
 
     /**
-     * @return the estimatedSize, in kilobytes
+     * @return the estimatedSize, in bytes
      */
     public long getSize() {
         return size;
-    }
-
-    /**
-     * @return the estimatedSize, in bytes
-     */
-    public long getSizeInBytes() {
-        return getSize() * BandwidthUtil.BYTES_PER_KILOBYTE;
     }
 
     /**

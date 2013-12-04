@@ -34,7 +34,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 20, 2013 2397       bgonzale     Initial creation
+ * Sep 20, 2013 2397       bgonzale    Initial creation.
+ * Nov 25, 2545   2545     mpduff      Added bucketTimeInMinutes.
  * 
  * </pre>
  * 
@@ -59,6 +60,9 @@ public class BandwidthBucketDescription implements
 
     @DynamicSerializeElement
     private long bucketStartTime;
+
+    @DynamicSerializeElement
+    private int bucketTimeMinutes;
 
     /**
      * Default Constructor.
@@ -154,4 +158,44 @@ public class BandwidthBucketDescription implements
         this.bucketStartTime = bucketStartTime;
     }
 
+    /**
+     * @return the bucketTimeMinutes
+     */
+    public int getBucketTimeMinutes() {
+        return bucketTimeMinutes;
+    }
+
+    /**
+     * @param bucketTimeMinutes
+     *            the bucketTimeMinutes to set
+     */
+    public void setBucketTimeMinutes(int bucketTimeMinutes) {
+        this.bucketTimeMinutes = bucketTimeMinutes;
+    }
+
+    /**
+     * Get any data that is leftover after filling the bucket.
+     * 
+     * @return The amount of data overage
+     */
+    public long getLeftovers() {
+        long leftover = 0;
+
+        if (this.usedBytes > this.bucketSize) {
+            leftover = usedBytes - bucketSize;
+            usedBytes = bucketSize;
+        }
+
+        return leftover;
+    }
+
+    /**
+     * Add any leftovers from the previous buckets.
+     * 
+     * @param leftovers
+     *            data overage from previous buckets
+     */
+    public void addLeftovers(long leftovers) {
+        this.usedBytes += leftovers;
+    }
 }
