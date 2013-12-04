@@ -83,6 +83,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * Jun 06, 2013 2075       njensen     Use new load jobs
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 17, 2013 2197       njensen     Broke background loading into chunks
+ * Dec 04, 2013 2607       dhladky     Nullpointer in job when starting with 24 hour pull.
  * 
  * </pre>
  * 
@@ -279,7 +280,9 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
                             loadedUpTo = startTime;
                         }
-                        firstJob.schedule();
+                        if (firstJob != null) {
+                            firstJob.schedule();
+                        }
                     }
                 });
                 initialJob.schedule();
