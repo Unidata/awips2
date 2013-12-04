@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.viirs;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -36,7 +32,6 @@ import javax.persistence.UniqueConstraint;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -60,7 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * 
+ * Dec 03, 2013 2551       rjpeter     Removed get/setPersistenceTime override
  * </pre>
  * 
  * @author mschenke
@@ -244,37 +239,6 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
         this.channelType = channelType;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.persist.IPersistable#getPersistenceTime
-     * ()
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null) {
-            return null;
-        }
-
-        return c.getTime();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.persist.IPersistable#setPersistenceTime
-     * (java.util.Date)
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
     /**
      * Get the name of the dataset for the level
      * 
@@ -283,17 +247,6 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
      */
     public static String getDataSet(int level) {
         return "Data-" + level;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.PluginDataObject#getDecoderGettable()
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override
