@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 25, 2013 2106       djohnson     Separate state into other classes, promote BandwidthBucket to a class proper.
  * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * Nov 16, 2013 1736       dhladky      Alter size of available bandwidth by subtracting that used by registry.
+ * Dec 05, 2013 2545       mpduff       BandwidthReservation now stored in bytes.
  * 
  * </pre>
  * 
@@ -106,7 +107,7 @@ public class RetrievalPlan {
     void init() {
         boolean found = false;
         BandwidthRoute route = map.getRoute(network);
-        
+
         if (route != null) {
             found = true;
             this.planDays = route.getPlanDays();
@@ -115,7 +116,8 @@ public class RetrievalPlan {
 
         if (found) {
             // create registry bandwidth service
-            RegistryBandwidthService rbs = new RegistryBandwidthService(bucketsDao, network, bucketMinutes);
+            RegistryBandwidthService rbs = new RegistryBandwidthService(
+                    bucketsDao, network, bucketMinutes);
             long bucketMillis = bucketMinutes * TimeUtil.MILLIS_PER_MINUTE;
             Calendar currentBucket = BandwidthUtil.now();
             planStart = BandwidthUtil.now();
@@ -126,7 +128,7 @@ public class RetrievalPlan {
             // Make the buckets...
 
             while (!(currentMillis > planEndMillis)) {
-                
+
                 int bw = map.getBandwidth(network, currentBucket);
                 // Get the bucket size..
                 // buckets are (bandwidth [kilobytes/second] * milliseconds per
@@ -136,19 +138,21 @@ public class RetrievalPlan {
                         .convertKilobytesPerSecondToBytesPerSpecifiedMinutes(
                                 bw, bucketMinutes);
 
-                bucketsDao.create(new BandwidthBucket(currentMillis, bytesPerBucket,
-                        network));
-                
+                bucketsDao.create(new BandwidthBucket(currentMillis,
+                        bytesPerBucket, network));
+
                 currentMillis += bucketMillis;
             }
-            
+
             // subtract registry traffic from total available bytes/per second
-            for (BandwidthBucket bucket: bucketsDao.getAll(network)) {
+            for (BandwidthBucket bucket : bucketsDao.getAll(network)) {
                 long startMillis = bucket.getBucketStartTime();
-                int registryBytesPerSecond = rbs.getRegistryBandwidth(startMillis);
-                bucket.setBucketSize(bucket.getBucketSize() - (registryBytesPerSecond * TimeUtil.SECONDS_PER_MINUTE * bucketMinutes));
+                int registryBytesPerSecond = rbs
+                        .getRegistryBandwidth(startMillis);
+                bucket.setBucketSize(bucket.getBucketSize()
+                        - (registryBytesPerSecond * TimeUtil.SECONDS_PER_MINUTE * bucketMinutes));
             }
-            
+
         } else {
             // Can't proceed, throw an Exception
             throw new IllegalArgumentException(
@@ -241,13 +245,16 @@ public class RetrievalPlan {
                 // buckets until we have the new plan size.
                 currentBucketMillis += bucketMillis;
                 // create Registry Bandwidth Service
-                RegistryBandwidthService rbs = new RegistryBandwidthService(bucketsDao, network, bucketMinutes);
-                
+                RegistryBandwidthService rbs = new RegistryBandwidthService(
+                        bucketsDao, network, bucketMinutes);
+
                 while (!(currentBucketMillis > newPlanEndMillis)) {
-                    
+
                     int bw = map.getBandwidth(network, currentBucket);
-                    // subtract registry traffic from total available bytes/per second
-                    int registryBytesPerSecond = rbs.getRegistryBandwidth(currentBucketMillis);
+                    // subtract registry traffic from total available bytes/per
+                    // second
+                    int registryBytesPerSecond = rbs
+                            .getRegistryBandwidth(currentBucketMillis);
                     bw = bw - registryBytesPerSecond;
                     // Get the bucket size..
                     // buckets are (bandwidth * kilobytes/second * 60 seconds *
@@ -257,7 +264,7 @@ public class RetrievalPlan {
                                     bw, bucketMinutes);
                     bucketsDao.create(new BandwidthBucket(currentBucketMillis,
                             bytesPerBucket, network));
-                  
+
                     currentBucketMillis += bucketMillis;
                     statusHandler.info("resize() - Adding bucket [" + bucket
                             + "] bandwidth = [" + bw + "]");
@@ -428,7 +435,7 @@ public class RetrievalPlan {
                 for (Long bucketId : bucketIds) {
                     BandwidthBucket bucket = getBucket(bucketId);
                     bucket.setCurrentSize(bucket.getCurrentSize()
-                            - reservation.getSizeInBytes());
+                            - reservation.getSize());
                     associator.removeFromBucket(bucket, reservation);
                 }
             }
@@ -555,7 +562,7 @@ public class RetrievalPlan {
         synchronized (bucketsLock) {
             BandwidthBucket actualBucket = getBucket(bucketStartTime);
             actualBucket.setCurrentSize(actualBucket.getCurrentSize()
-                    + reservation.getSizeInBytes());
+                    + reservation.getSize());
             associator.addToBucket(actualBucket, reservation);
         }
     }
