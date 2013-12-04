@@ -26,6 +26,8 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestTy
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthRoute;
 import com.raytheon.uf.common.datadelivery.event.retrieval.AdhocSubscriptionRequestEvent;
 import com.raytheon.uf.common.datadelivery.event.retrieval.SubscriptionRequestEvent;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -68,8 +70,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializ
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggregator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.processing.BandwidthSubscriptionContainer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.processing.SimpleSubscriptionAggregator;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthRoute;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;

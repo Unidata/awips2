@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
+package com.raytheon.uf.common.datadelivery.bandwidth.data;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Spet 08, 2013 2351      dhladky      Changed from ascending to descending bandwidth bucket selection
  * Sept 17, 2013 2383      bgonzale     Switched back to start from ceiling and end from floor.
  *                                      Constrain start and end keys by each other.
+ * Dec 3,  2013  1736      dhladky      Bandwidth bucket size attenuation.
  * 
  * </pre>
  * 
@@ -320,5 +321,22 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
                 .get(network);
         BandwidthBucket bucket = buckets.get(bucketId);
         return bucket;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BandwidthBucket getBucketContainingTime(long millis,
+            Network network) {
+
+        List<BandwidthBucket> buckets = getWhereStartTimeIsLessThanOrEqualTo(
+                millis, network);
+        // last bucket.
+        if (!buckets.isEmpty()) {
+            return buckets.get(buckets.size() -1);
+        } else {
+            return null;
+        }
     }
 }

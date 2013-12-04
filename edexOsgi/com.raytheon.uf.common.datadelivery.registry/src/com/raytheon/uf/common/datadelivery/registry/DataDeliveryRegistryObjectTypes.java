@@ -35,6 +35,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Oct 11, 2013 2460       dhladky      Restored Adhoc to registry store, WFO only.
  * Nov 12, 2013 2506       bgonzale     Added is recurring subscription method.
+ * Nov 18, 2013 1736       dhladky      Data Set helper method.
  * 
  * </pre>
  * 
@@ -80,5 +81,17 @@ public final class DataDeliveryRegistryObjectTypes {
                 .equals(objectType)
                 || DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION
                         .equals(objectType);
+    }
+    
+    /**
+     * Is the object type a datasetmeta type.
+     * 
+     * @param objectType
+     * @return true if the objectType is a datasetmeta type; false
+     *         otherwise.
+     */
+    public static final boolean isDataSetMetaData(String objectType) {
+        return DataDeliveryRegistryObjectTypes.DATASETMETADATA
+                .equals(objectType);
     }
 }
