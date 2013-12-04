@@ -10,7 +10,6 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,10 +35,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -77,8 +75,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
- * 
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract.
+ * Dec 03, 2013 2551        rjpeter     Extend PersistablePluginDataObject.
  * </pre>
  * 
  * @author sgurung
@@ -96,8 +94,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable, IPointData, IPersistable {
+public class NcTafRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -621,17 +619,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
 
     }
 
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
     @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
@@ -721,57 +708,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        if (getInsertTime() == null) {
-            return null;
-        } else {
-            return getInsertTime().getTime();
-        }
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar insertTime = Calendar.getInstance();
-        insertTime.setTime(persistTime);
-        setInsertTime(insertTime);
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**
