@@ -64,18 +64,21 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
  *                                      Added getBandwidthGraphData.
  *                                      Reschedule updated local subscriptions.
+ * Nov 27, 2013 2545       mpduff       Get data by network
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> implements IEdexBandwidthManagerCreator {
+public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
+        implements IEdexBandwidthManagerCreator {
 
     /**
      * WFO {@link BandwidthManager} implementation.
      */
-    static class WfoBandwidthManager<T extends Time, C extends Coverage> extends EdexBandwidthManager<T, C> {
+    static class WfoBandwidthManager<T extends Time, C extends Coverage>
+            extends EdexBandwidthManager<T, C> {
 
         private static final String[] WFO_BANDWIDTH_MANAGER_FILES = new String[] {
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo-edex-impl.xml"),
@@ -125,8 +128,7 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                 Subscription<T, C> subscription = getRegistryObjectById(
                         getSubscriptionHandler(), event.getId());
                 boolean isLocalOrigination = subscription.getOriginatingSite()
-                        .equals(
-                        SiteUtil.getSite());
+                        .equals(SiteUtil.getSite());
 
                 if (isLocalOrigination) {
                     subscriptionUpdated(subscription);
@@ -164,18 +166,26 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
          */
         @Override
         protected Set<String> scheduleSbnSubscriptions(
-                List<Subscription<T, C>> subscriptions) throws SerializationException {
+                List<Subscription<T, C>> subscriptions)
+                throws SerializationException {
 
             return ncfBandwidthService.schedule(subscriptions);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         protected BandwidthGraphData getBandwidthGraphData() {
             BandwidthGraphData data = super.getBandwidthGraphData();
-            data.add(ncfBandwidthService.getBandwidthGraphData());
+            BandwidthGraphData data2 = ncfBandwidthService
+                    .getBandwidthGraphData();
+            if (data2 != null) {
+                data.merge(data2);
+            }
+
             return data;
         }
-
     }
 
     /**
@@ -192,5 +202,4 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                 retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
                 subscriptionHandler, subscriptionNotificationService);
     }
-
 }
