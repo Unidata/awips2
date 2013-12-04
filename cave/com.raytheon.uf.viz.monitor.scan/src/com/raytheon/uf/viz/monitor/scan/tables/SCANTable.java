@@ -82,8 +82,8 @@ import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlar
  *                                     issue on the images being blank and throwing errors.
  *                                     Also cleaned up some code.
  * 
+ * Nov 26, 2013 DR16782    gzhang      use Display.beep()
  * </pre>
- * 
  * @author lvenable
  * @version 1.0
  */
@@ -934,7 +934,7 @@ public abstract class SCANTable extends Composite {
                                     beepTimer.purge();
                                 }
                                 if (mgr.isRing()) {
-                                    Toolkit.getDefaultToolkit().beep();
+                                    Display.getDefault().beep();//Toolkit.getDefaultToolkit().beep();
                                 } else {
                                     beepTimer.cancel();
                                     beepTimer.purge();
