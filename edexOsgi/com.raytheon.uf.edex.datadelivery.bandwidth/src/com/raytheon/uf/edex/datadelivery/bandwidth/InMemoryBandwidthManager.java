@@ -29,7 +29,6 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -54,6 +53,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
  * Jul 09, 2013 2106       djohnson     Add shutdownInternal().
  * Oct 2,  2013 1797       dhladky      Generics
+ * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * 
  * </pre>
  * 
@@ -65,13 +65,12 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends Bandw
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(InMemoryBandwidthManager.class);
 
+    private static final String MODE_NAME = "inMemoryBandwidthManager";
+
     // NOTE: NEVER add the bandwidth-datadelivery-eventbus.xml file to this
     // array, in-memory versions should not coordinate with the event bus in any
     // fashion
-    public static final String[] IN_MEMORY_BANDWIDTH_MANAGER_FILES = new String[] {
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-inmemory-impl.xml"),
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
+    public static final String[] IN_MEMORY_BANDWIDTH_MANAGER_FILES = getSpringFileNamesForMode(MODE_NAME);
 
     /**
      * {@link BandwidthInitializer} which will make a copy of the current

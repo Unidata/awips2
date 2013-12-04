@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.esb.camel.spring;
+package com.raytheon.uf.edex.core.modes;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,6 +44,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2010            njensen     Initial creation
  * Sep 19, 2012 1195       djohnson    Allow 0..n other modes to be included.
+ * Dec 05, 2013 2566       bgonzale    Migrated to edex.core.modes package.
  * 
  * </pre>
  * 
