@@ -21,18 +21,18 @@ package com.raytheon.uf.common.dataplugin.profiler.dao;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerLevel;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Transforms profiler {@link PointDataContainer}s into {@link ProfilerObs}
@@ -41,9 +41,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            jkorman     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 28, 2009           jkorman     Initial creation
+ * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
  * 
  * </pre>
  * 
@@ -53,7 +54,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class ProfilerDataTransform {
 
-    private static Log logger = LogFactory.getLog(ProfilerDataTransform.class);
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ProfilerDataTransform.class);
 
     public static final String[] HDR_PARAMS = new String[] { "stationId",
             "profilerId", "profilerName", "validTime", "latitude", "longitude",
@@ -102,7 +104,9 @@ public class ProfilerDataTransform {
             obs = new ProfilerObs(uri);
 
             long vt = pdv.getNumber("validTime").longValue();
-            obs.setTimeObs(TimeTools.newCalendar(vt));
+            Calendar timeObs = TimeUtil.newGmtCalendar();
+            timeObs.setTimeInMillis(vt);
+            obs.setTimeObs(timeObs);
 
             SurfaceObsLocation location = new SurfaceObsLocation();
 
