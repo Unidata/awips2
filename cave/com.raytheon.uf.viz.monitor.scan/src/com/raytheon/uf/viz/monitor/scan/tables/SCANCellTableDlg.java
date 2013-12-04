@@ -92,6 +92,10 @@ import com.raytheon.viz.ui.EditorUtil;
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * 
  * </pre>
  * 
@@ -306,13 +310,11 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
             }
         });
 
-        gd = new GridData();
         configBtn = new Button(controlComp, SWT.PUSH);
         configBtn.setText("Configurations");
         configBtn
                 .setBackground(scanCfg.getScanColor(ScanColors.Configurations));
         configBtn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        configBtn.setLayoutData(gd);
         configBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -343,12 +345,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(rankBtn);
 
-        gd = new GridData();
         attribBtn = new Button(controlComp, SWT.PUSH);
         attribBtn.setText("Attributes");
         attribBtn.setBackground(scanCfg.getScanColor(ScanColors.Attributes));
         attribBtn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        attribBtn.setLayoutData(gd);
         attribBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -358,12 +358,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(attribBtn);
 
-        gd = new GridData();
         tablesBtn = new Button(controlComp, SWT.PUSH);
         tablesBtn.setText("Tables");
         tablesBtn.setBackground(scanCfg.getScanColor(ScanColors.Default));
         tablesBtn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        tablesBtn.setLayoutData(gd);
         tablesBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -376,55 +374,58 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(tablesBtn);
 
-        gd = new GridData();
-        linkToFrameChk = new Button(controlComp, SWT.CHECK);
-        linkToFrameChk.setText("Link to Frame ");
-        linkToFrameChk.setBackground(scanCfg
-                .getScanColor(ScanColors.LinkToFrame));
-        linkToFrameChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Link to Frame
+         */
+        linkToFrameChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.LinkToFrame),
+                display.getSystemColor(SWT.COLOR_WHITE), "Link to Frame ",
+                true, null);
+
         linkToFrameChk.setSelection(cellCfgMgr.getScanCellCfgXML()
                 .getLinkToFrame());
-        linkToFrameChk.setLayoutData(gd);
+
         linkToFrameChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleLinkToFrame();
             }
         });
-        setupButtonMouseListeners(linkToFrameChk);
 
+        /*
+         * CWA Filter
+         */
         StringBuilder tipText = new StringBuilder();
         tipText.append("Activate to remove from the SCAN table all cells,\n");
         tipText.append("MESOs, and TVS's that are outside your CWA.\n\n");
         tipText.append("Deactivate to include in the SCAN table all cells,\n");
         tipText.append("MESOs, and TVS's detected by radar.");
 
-        gd = new GridData();
-        cwaFilterChk = new Button(controlComp, SWT.CHECK);
-        cwaFilterChk.setText("CWA Filter ");
-        cwaFilterChk.setBackground(scanCfg.getScanColor(ScanColors.CWAFilter));
-        cwaFilterChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        cwaFilterChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.CWAFilter),
+                display.getSystemColor(SWT.COLOR_WHITE), "CWA Filter ", true,
+                tipText.toString());
+
         cwaFilterChk.setSelection(cellCfgMgr.getScanCellCfgXML()
                 .getFilterOption());
-        cwaFilterChk.setLayoutData(gd);
-        cwaFilterChk.setToolTipText(tipText.toString());
         cwaFilterChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleCWAFilterAction();
             }
         });
-        setupButtonMouseListeners(cwaFilterChk);
 
-        // Uses same back ground color as attributes.
-        gd = new GridData();
-        unwarnedChk = new Button(controlComp, SWT.CHECK);
-        unwarnedChk.setText("Unwarned ");
-        unwarnedChk.setBackground(scanCfg.getScanColor(ScanColors.Attributes));
-        unwarnedChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Unwarned
+         */
+        unwarnedChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Attributes),
+                display.getSystemColor(SWT.COLOR_WHITE), "Unwarned ", true,
+                null);
+
         unwarnedChk.setSelection(cellCfgMgr.getScanCellCfgXML()
                 .getFilterOption());
-        unwarnedChk.setLayoutData(gd);
+
         unwarnedChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -432,41 +433,31 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 displayUnwarnedAlarmDialog();
             }
         });
-        setupButtonMouseListeners(unwarnedChk);
 
         // Create/Recreate the unwarned config data since the ScanConfig is a
-        // singleton
-        // and the data clears out when the CELL table dialog get re-created.
+        // singleton and the data clears out when the CELL table dialog get
+        // re-created.
         scanCfg.createUnwarnedConfig();
 
-        // Vertical tables are not supported at this time.
-        gd = new GridData();
-        vertChk = new Button(controlComp, SWT.CHECK);
-        vertChk.setText("Vert ");
-        vertChk.setEnabled(false);
-        vertChk.setBackground(scanCfg.getScanColor(ScanColors.Vert));
-        vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Vertical - tech blocked
+         */
+        vertChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Vert),
+                display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
+
         vertChk.setSelection(cellCfgMgr.getScanCellCfgXML().getFilterOption());
-        vertChk.setLayoutData(gd);
+        vertChk.setEnabled(false);
 
         /*
-         * The vertical table is a techblocked DR. This selection listener will
-         * be commented out until it is needed.
+         * Tool tips
          */
-        // vertChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // }
-        // });
-        setupButtonMouseListeners(vertChk);
+        tipsChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Tips),
+                display.getSystemColor(SWT.COLOR_WHITE), "Tips ", true, null);
 
-        gd = new GridData();
-        tipsChk = new Button(controlComp, SWT.CHECK);
-        tipsChk.setText("Tips ");
-        tipsChk.setBackground(scanCfg.getScanColor(ScanColors.Tips));
-        tipsChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         tipsChk.setSelection(cellCfgMgr.getScanCellCfgXML().getTipsOption());
-        tipsChk.setLayoutData(gd);
+
         tipsChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -474,8 +465,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 scanTableComp.updateColumnTips();
             }
         });
-        setupButtonMouseListeners(tipsChk);
 
+        /*
+         * Alarm button
+         */
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         gd.widthHint = 75;
         alarmBtn = new Button(controlComp, SWT.PUSH);
