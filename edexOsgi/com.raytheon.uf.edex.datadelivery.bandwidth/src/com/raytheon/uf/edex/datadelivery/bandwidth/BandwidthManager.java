@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -58,6 +59,7 @@ import com.raytheon.uf.common.util.algorithm.AlgorithmUtil.IBinarySearchResponse
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
@@ -126,6 +128,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Oct 30, 2013 2448       dhladky      Moved methods to TimeUtil.
  * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
  * Nov 19, 2013 2545       bgonzale     changed getBandwidthGraphData to protected.
+ * Dec 04, 2013 2566       bgonzale     added method to retrieve and parse spring files for a mode.
  * 
  * </pre>
  * 
@@ -138,6 +141,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthManager.class);
+
+    private static final Pattern RES_PATTERN = Pattern.compile("^res");
 
     // Requires package access so it can be accessed from the maintenance task
     final IBandwidthDao<T, C> bandwidthDao;
@@ -166,6 +171,33 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
         this.bandwidthDaoUtil = bandwidthDaoUtil;
+    }
+
+    /**
+     * Get the list of mode configured spring file names for the named mode.
+     * 
+     * @param modeName
+     *            retrieve the spring files configured for this mode
+     * @return list of spring files configured for the given mode
+     */
+    protected static String[] getSpringFileNamesForMode(String modeName) {
+        List<String> fileList = new ArrayList<String>();
+        try {
+            EDEXModesUtil.extractSpringXmlFiles(fileList, modeName);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to determine spring files for mode " + modeName, e);
+        }
+
+        String[] result = new String[fileList.size()];
+        int i = 0;
+        for (String fileName : fileList) {
+            String name = RES_PATTERN.matcher(fileName).replaceFirst("");
+            result[i++] = name;
+            statusHandler.debug("Spring file added: " + name + " for mode "
+                    + modeName);
+        }
+        return result;
     }
 
     private List<BandwidthAllocation> schedule(Subscription<T, C> subscription,

@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.core.dataplugin,
  com.raytheon.uf.edex.core.hdf5,
+ com.raytheon.uf.edex.core.modes,
  com.raytheon.uf.edex.core.props
 Require-Bundle: org.springframework;bundle-version="2.5.6",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
