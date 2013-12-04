@@ -18,7 +18,7 @@
  * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869            bsteffen    Remove dataURI column from
  *                                          PluginDataObject.
- * 
+ * Dec 03, 2013 2551            rjpeter     Remove get/setPersistenceTime
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -30,7 +30,6 @@ package gov.noaa.nws.ncep.common.dataplugin.ncuair;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -525,18 +524,6 @@ public class NcUairRecord extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        // return this.dataTime.getRefTime();
-        return null;
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

@@ -127,8 +127,7 @@ public class PirepDecoder extends AbstractDecoder {
      * @return The populated record. This method returns a null reference if
      *         either the observation time or location data is unavailable.
      */
-    private PirepRecord populateRecord(PirepParser parser,
-            WMOHeader wmoHeader) {
+    private PirepRecord populateRecord(PirepParser parser, WMOHeader wmoHeader) {
 
         PirepRecord record = null;
         AircraftObsLocation location = null;
@@ -269,34 +268,5 @@ public class PirepDecoder extends AbstractDecoder {
             e.setStackTrace(newTrace);
         }
         return e;
-    }
-
-    public static final void main(String[] args) {
-
-        PirepRecord rec = new PirepRecord();
-
-        PirepLayerData layer = new PirepLayerData(rec);
-        layer.setLayerType(PirepLayerData.LAYER_TYP_TURBC);
-        layer.setTurbFreq("OCN");
-        layer.setTurbInten("LGT");
-        layer.setTurbBaseHeight(15000);
-        layer.setTurbTopHeight(20000);
-        rec.addLayer(layer);
-
-        layer = new PirepLayerData(rec);
-        layer.setLayerType(PirepLayerData.LAYER_TYP_TURBC);
-        layer.setTurbInten("MOD");
-        layer.setTurbBaseHeight(20000);
-        layer.setTurbTopHeight(22000);
-        rec.addLayer(layer);
-
-        String[] data = rec.getStrings("TBF");
-        if ((data != null) && (data.length > 0)) {
-            System.out.println(data[0]);
-        }
-        data = rec.getStrings("TBI");
-        if ((data != null) && (data.length > 0)) {
-            System.out.println(data[0]);
-        }
     }
 }
