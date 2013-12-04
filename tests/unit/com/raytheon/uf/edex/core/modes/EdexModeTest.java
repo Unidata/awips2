@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.esb.camel.spring;
+package com.raytheon.uf.edex.core.modes;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
+
+import com.raytheon.uf.edex.core.modes.EdexMode;
 
 
 /**
