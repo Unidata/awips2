@@ -30,6 +30,7 @@
 #    05/14/13        1842          dgilling       Use GFEVtecUtil to handle NEW
 #                                                 ETN assignment.
 #    09/24/13        1843          dgilling       Handle GetNextEtnResponse.
+#    11/20/13        2490          randerso       Corrected error handling in __getActiveTable
 #    
 # 
 
@@ -925,9 +926,11 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             table = ActiveTableVtec.transformActiveTableToPython(table)            
             return table
               
-        except:
-            self.log.exception("Unable to access VTEC Active Table: ")
-            raise Exception, s
+        except:  
+            import traceback  
+            s = "Unable to access VTEC Active Table: "  
+            self.log.exception(s)  
+            raise Exception(s + traceback.format_exc())
 
     def __createCityHazards(self):
         if not self.__accurateCities:
