@@ -95,7 +95,7 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate.class,
                 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class,
                 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class,
-                com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap.class,
+                com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.ServiceConfig.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.UnitLookup.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class,
