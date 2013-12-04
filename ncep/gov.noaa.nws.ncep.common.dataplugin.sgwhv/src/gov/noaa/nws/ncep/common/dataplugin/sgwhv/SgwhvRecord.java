@@ -3,8 +3,6 @@ package gov.noaa.nws.ncep.common.dataplugin.sgwhv;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -18,19 +16,18 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * SgwhvRecord
- * This java class performs the mapping to the database for BUFR Sgwhv.
- *
+ * SgwhvRecord This java class performs the mapping to the database for BUFR
+ * Sgwhv.
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -46,7 +43,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract.
+ * Dec 03, 2013 2551        rjpeter     Extend PersistablePluginDataObject.
  * </pre>
  * 
  * @author chin chen
@@ -62,8 +60,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @org.hibernate.annotations.Table(appliesTo = "sgwhv", indexes = { @Index(name = "sgwhv_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @DynamicSerialize
-public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
-        IPointData, IPersistable {
+public class SgwhvRecord extends PersistablePluginDataObject implements
+        IPointData {
     private static final long serialVersionUID = 1L;
 
     private static final float RMISSD = IDecoderConstantsN.FLOAT_MISSING;
@@ -458,74 +456,9 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
         this.obsTime = obsTime;
     }
 
-    /**
-     * Get the value and units of a named parameter within this observation.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
     @Override
     public void setDataURI(String dataURI) {
         identifier = dataURI;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
