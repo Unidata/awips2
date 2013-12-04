@@ -36,7 +36,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -47,10 +46,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  *  SOFTWARE HISTORY
  * 
- *  Date        Ticket#     Engineer    Description
- *  ------------    ----------  ----------- --------------------------
- *  2/14/2007       139         Phillippe   Initial creation    
- *  
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 14, 2007  139      Phillippe   Initial creation    
+ * Dec 03, 2013  2537     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -58,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class WeatherCondition implements Serializable, ISerializableObject {
+public class WeatherCondition implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -17,14 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.profiler.dao;
-
-import java.util.List;
-
+package com.raytheon.edex.plugin.profiler;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
@@ -32,9 +28,10 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  969      jkorman     Initial implementation.
+ * Dec 03, 2013  2537     bsteffen    Move to edex plugin.
  * 
  * </pre>
  * 
@@ -50,46 +47,6 @@ public class ProfilerDAO extends PointDataPluginDao<ProfilerObs> {
      */
     public ProfilerDAO(String pluginName) throws PluginException {
         super(pluginName);
-    }
-
-    /**
-     * Retrieves an MOS report using the datauri .
-     * 
-     * @param dataURI
-     *            The dataURI to match against.
-     * @return The report record if it exists.
-     */
-    public ProfilerObs queryByDataURI(String dataURI) {
-        ProfilerObs report = null;
-        List<?> obs = null;
-        try {
-            obs = queryBySingleCriteria("dataURI", dataURI);
-        } catch (DataAccessLayerException e) {
-            e.printStackTrace();
-        }
-        if ((obs != null) && (obs.size() > 0)) {
-            report = (ProfilerObs) obs.get(0);
-        }
-        return report;
-    }
-
-    /**
-     * Queries for to determine if a given data uri exists on the profiler
-     * table.
-     * 
-     * @param dataUri
-     *            The DataURI to find.
-     * @return An array of objects. If not null, there should only be a single
-     *         element.
-     */
-    public Object[] queryDataUriColumn(final String dataUri) {
-
-        String sql = "select datauri from awips.prodata where datauri='"
-                + dataUri + "';";
-
-        Object[] results = executeSQLQuery(sql);
-
-        return results;
     }
 
     @Override
