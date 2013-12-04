@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,9 +35,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20070925            391 jkorman     Initial Coding.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 25, 2007  391      jkorman     Initial Coding.
+ * Dec 03, 2013  2537     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -46,7 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class AncWave implements Serializable, ISerializableObject {
+public class AncWave implements Serializable {
 
     public static final Integer T_WIND_WAVE = 1000;
 

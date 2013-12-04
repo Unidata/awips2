@@ -2,24 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Obs
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.obs
-Bundle-Version: 1.0.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util
-Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.annotations,
- com.raytheon.uf.common.dataplugin.persist,
- com.raytheon.uf.common.geospatial,
+Require-Bundle:  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.serialization.annotations,
  com.raytheon.uf.common.time,
- com.raytheon.uf.common.time.util,
- javax.measure.quantity,
- javax.measure.unit,
- javax.persistence
-Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- org.hibernate;bundle-version="1.0.0"
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.dataaccess,
+ javax.measure
