@@ -62,6 +62,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jul 10, 2009  #2590     njensen      Support for multiple sites.
  * May 04, 2012  #574      dgilling     Re-port to better match AWIPS1.
  * Apr 23, 2013  #1949     rjpeter      Removed unused method.
+ * Nov 20, 2013  #2331     randerso     Changed return type of getTopoData
+ * 
  * </pre>
  * 
  * @author randerso
@@ -227,9 +229,10 @@ public class TopoDatabase extends VGridDatabase {
             List<IGridSlice> data = new ArrayList<IGridSlice>(1);
             GridDataHistory gdh = new GridDataHistory(OriginType.SCRATCH, pid,
                     TR);
-            ServerResponse<IGridSlice> srRetrieve = topoMgr.getTopoData(gloc);
+            ServerResponse<ScalarGridSlice> srRetrieve = topoMgr
+                    .getTopoData(gloc);
             sr.addMessages(srRetrieve);
-            ScalarGridSlice tempgs = (ScalarGridSlice) srRetrieve.getPayload();
+            ScalarGridSlice tempgs = srRetrieve.getPayload();
             IGridSlice gs = new ScalarGridSlice(TR, gpi,
                     new GridDataHistory[] { gdh }, tempgs.getScalarGrid());
             data.add(gs);
