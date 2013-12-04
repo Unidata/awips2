@@ -84,6 +84,7 @@ import com.raytheon.uf.viz.core.data.BufferSlicer;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Sep 18, 2013  2309     bsteffen    Initial creation
+ * Dec 04, 2013  2600     bsteffen    Fix typo in contains.
  * 
  * </pre>
  * 
@@ -321,7 +322,7 @@ public class DataStoreCache {
      */
     private static boolean contains(Request outer, Request inner) {
         Type outerType = outer.getType();
-        Type innerType = outer.getType();
+        Type innerType = inner.getType();
         if (outerType == Type.ALL) {
             return true;
         } else if (outerType == Type.SLAB) {
