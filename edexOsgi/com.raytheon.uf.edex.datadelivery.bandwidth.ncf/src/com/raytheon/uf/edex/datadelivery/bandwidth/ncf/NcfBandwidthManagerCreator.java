@@ -34,7 +34,6 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandle
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthManager;
@@ -62,6 +61,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Nov 08, 2013 2506       bgonzale     Added subscription notification service to bandwidth manager.
  * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
  *                                      Reschedule updated shared subscriptions.
+ * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * 
  * </pre>
  * 
@@ -75,14 +75,9 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
      */
     static class NcfBandwidthManager<T extends Time, C extends Coverage> extends EdexBandwidthManager<T, C> {
 
-        private static final String[] NCF_BANDWIDTH_MANAGER_FILES = new String[] {
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf-edex-impl.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-eventbus.xml"),
-                JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf.xml") };
+        private static final String MODE_NAME = "centralRegistry";
+
+        private static final String[] NCF_BANDWIDTH_MANAGER_FILES = getSpringFileNamesForMode(MODE_NAME);
 
         /**
          * Constructor.
