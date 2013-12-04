@@ -36,8 +36,11 @@ import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
+import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -57,7 +60,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 30, 2013       2044 randerso     Initial creation
+ * May 30, 2013       2044 randerso    Initial creation
+ * Nov 20, 2013      #2331 randerso    Added getTopoData method
  * 
  * </pre>
  * 
@@ -348,6 +352,17 @@ public class IFPServer {
         // perfLog.logDuration(
         // "GfeIngestNotificationFilter: processing DataURINotificationMessage",
         // timer.getElapsedTime());
+    }
+
+    /**
+     * Get topo data for a GridLocation
+     * 
+     * @param gloc
+     *            GridLocation for topo data
+     * @return topo gridslice
+     */
+    public ServerResponse<ScalarGridSlice> getTopoData(GridLocation gloc) {
+        return this.topoMgr.getTopoData(gloc);
     }
 
 }
