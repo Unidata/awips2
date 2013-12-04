@@ -1,9 +1,11 @@
-package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
+package com.raytheon.uf.common.datadelivery.bandwidth.data;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+
+
 
 /**
  * Class to describe available bandwidth for {@link BandwidthRoute} to generate
