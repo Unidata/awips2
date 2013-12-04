@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.SortBy;
@@ -53,6 +54,7 @@ import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.SortBy;
  * Jan 04, 2013   1420     mpduff      Change default priority to normal priority.
  * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum, remove incorrect use of ordinal values.
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
+ * Nov 25, 2013   2545     mpduff      Data organized by network.
  * 
  * </pre>
  * 
@@ -154,6 +156,10 @@ public class GraphImage extends AbstractCanvasImage {
      *            Graphics Context
      */
     private void drawData(GC gc) {
+        if (graphData == null) {
+            return;
+        }
+
         windowTimeInfoMap.clear();
 
         int offset = 22;
@@ -161,30 +167,26 @@ public class GraphImage extends AbstractCanvasImage {
         Color c = null;
         gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
 
-        if (graphData == null) {
-            return;
-        }
+        Network network = imageMgr.getNetwork();
 
         long currentTimeMillis = imageMgr.getCurrentTimeMillis();
 
         // Loop over data and draw
-        Map<String, List<TimeWindowData>> dataMap = graphData.getDataMap();
-
         List<String> subscriptionList = getSortedData();
 
         for (String subName : subscriptionList) {
             if (imageMgr.isColorByPriority()) {
-                if (graphData.getPriority(subName) == SubscriptionPriority.NORMAL) {
+                if (graphData.getPriority(network, subName) == SubscriptionPriority.NORMAL) {
                     c = new Color(
                             display,
                             imageMgr.getPriorityColor(SubscriptionPriority.NORMAL));
                     gc.setBackground(c);
-                } else if (graphData.getPriority(subName) == SubscriptionPriority.HIGH) {
+                } else if (graphData.getPriority(network, subName) == SubscriptionPriority.HIGH) {
                     c = new Color(
                             display,
                             imageMgr.getPriorityColor(SubscriptionPriority.HIGH));
                     gc.setBackground(c);
-                } else if (graphData.getPriority(subName) == SubscriptionPriority.LOW) {
+                } else if (graphData.getPriority(network, subName) == SubscriptionPriority.LOW) {
                     c = new Color(display,
                             imageMgr.getPriorityColor(SubscriptionPriority.LOW));
                     gc.setBackground(c);
@@ -204,7 +206,8 @@ public class GraphImage extends AbstractCanvasImage {
             }
 
             long startTime = 0;
-            List<TimeWindowData> timeWindows = dataMap.get(subName);
+            List<TimeWindowData> timeWindows = graphData.getTimeWindowArray(
+                    imageMgr.getNetwork(), subName);
             for (TimeWindowData data : timeWindows) {
                 startTime = data.getTimeWindowStartTime();
                 if (data.getTimeWindowEndTime() < currentTimeMillis) {
@@ -221,7 +224,8 @@ public class GraphImage extends AbstractCanvasImage {
                 int xCoord2 = 0;
                 long endTime = data.getTimeWindowEndTime();
                 if (endTime == startTime) {
-                    endTime = startTime + graphData.getBinTimeInMins()
+                    endTime = startTime
+                            + graphData.getBinTimeInMinutes(network)
                             * TimeUtil.MILLIS_PER_MINUTE;
 
                 }
@@ -324,7 +328,6 @@ public class GraphImage extends AbstractCanvasImage {
             return;
         }
 
-        Map<String, List<TimeWindowData>> dataMap = graphData.getDataMap();
         long startTime = 0;
         long currentTimeMillis = imageMgr.getCurrentTimeMillis();
         List<String> subscriptionList = getSortedData();
@@ -332,7 +335,8 @@ public class GraphImage extends AbstractCanvasImage {
         int yCoord = cs.getImageHeight() - offset;
 
         for (String subName : subscriptionList) {
-            List<TimeWindowData> timeWindows = dataMap.get(subName);
+            List<TimeWindowData> timeWindows = graphData.getTimeWindowArray(
+                    imageMgr.getNetwork(), subName);
             for (TimeWindowData data : timeWindows) {
                 startTime = data.getTimeWindowStartTime();
                 if (data.getTimeWindowEndTime() < currentTimeMillis) {
@@ -349,8 +353,9 @@ public class GraphImage extends AbstractCanvasImage {
                 int xCoord2 = 0;
                 long endTime = data.getTimeWindowEndTime();
                 if (endTime == startTime) {
-                    endTime = startTime + graphData.getBinTimeInMins()
-                            * TimeUtil.MILLIS_PER_MINUTE;
+                    endTime = startTime
+                            + graphData.getBinTimeInMinutes(imageMgr
+                                    .getNetwork()) * TimeUtil.MILLIS_PER_MINUTE;
 
                 }
 

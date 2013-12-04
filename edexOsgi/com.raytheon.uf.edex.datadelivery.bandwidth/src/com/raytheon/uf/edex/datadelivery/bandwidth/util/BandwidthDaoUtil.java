@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Nov 12, 2013 2448       dhladky      Fixed stop/start subscription scheduling problem.
  * Nov 20, 2013 2448       bgonzale     Fix for subscription start time set to first cycle time.
  *                                      Fix for subscription end time set to end of day.
+ * Dec 02, 2013 2545       mpduff       Fix for delay starting retrievals, execute adhoc upon subscribing.
  * 
  * </pre>
  * 
@@ -87,7 +88,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthDaoUtil.class);
 
-    private final IBandwidthDao<T,C> bandwidthDao;
+    private final IBandwidthDao<T, C> bandwidthDao;
 
     private final RetrievalManager retrievalManager;
 
@@ -99,7 +100,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @param retrievalManager
      *            the retrieval manager
      */
-    public BandwidthDaoUtil(IBandwidthDao<T,C> bandwidthDao,
+    public BandwidthDaoUtil(IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager) {
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
@@ -113,8 +114,8 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @param cycles
      * @return
      */
-    public SortedSet<Calendar> getRetrievalTimes(Subscription<T,C> subscription,
-            SortedSet<Integer> cycles) {
+    public SortedSet<Calendar> getRetrievalTimes(
+            Subscription<T, C> subscription, SortedSet<Integer> cycles) {
         return getRetrievalTimes(subscription, cycles,
                 Sets.newTreeSet(Arrays.asList(0)));
     }
@@ -128,8 +129,8 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      *            the retrieval interval
      * @return the retrieval times
      */
-    public SortedSet<Calendar> getRetrievalTimes(Subscription<T,C> subscription,
-            int retrievalInterval) {
+    public SortedSet<Calendar> getRetrievalTimes(
+            Subscription<T, C> subscription, int retrievalInterval) {
         // Add all hours of the days
         final SortedSet<Integer> hours = Sets.newTreeSet();
         for (int i = 0; i < TimeUtil.HOURS_PER_DAY; i++) {
@@ -155,8 +156,9 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @param minutes
      * @return
      */
-    private SortedSet<Calendar> getRetrievalTimes(Subscription<T,C> subscription,
-            SortedSet<Integer> hours, SortedSet<Integer> minutes) {
+    private SortedSet<Calendar> getRetrievalTimes(
+            Subscription<T, C> subscription, SortedSet<Integer> hours,
+            SortedSet<Integer> minutes) {
 
         SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
 
@@ -174,12 +176,13 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
         // the Subscription's active period.
         if (subscription.getActivePeriodEnd() != null
                 && subscription.getActivePeriodStart() != null) {
-            
+
             activePeriodStart = TimeUtil.newCalendar(subscription
                     .getActivePeriodStart());
             // Substitute the active periods month and day for the
             // plan start month and day.
-            Calendar start = BandwidthUtil.planToPeriodCompareCalendar(planStart, activePeriodStart);
+            Calendar start = BandwidthUtil.planToPeriodCompareCalendar(
+                    planStart, activePeriodStart);
             // If the active period start is outside the plan bounds,
             // there is no intersection - just return an empty set.
             if (start.after(planEnd)) {
@@ -187,10 +190,12 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
             }
 
             // Do the same for active plan end..
-            activePeriodEnd = TimeUtil.newCalendar(subscription.getActivePeriodEnd());
+            activePeriodEnd = TimeUtil.newCalendar(subscription
+                    .getActivePeriodEnd());
             // Substitute the active periods month and day for the
             // plan ends month and day.
-            Calendar end = BandwidthUtil.planToPeriodCompareCalendar(planStart, activePeriodEnd);
+            Calendar end = BandwidthUtil.planToPeriodCompareCalendar(planStart,
+                    activePeriodEnd);
             // If the active period end is before the start of the plan,
             // there is no intersection - just return an empty set.
             if (end.before(planStart)) {
@@ -222,7 +227,8 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
         // setup active period checks if necessary
         if (activePeriodStart != null && activePeriodEnd != null) {
             // need to add the current year in order to make the checks relevant
-            activePeriodStart = TimeUtil.addCurrentYearCalendar(activePeriodStart);
+            activePeriodStart = TimeUtil
+                    .addCurrentYearCalendar(activePeriodStart);
             activePeriodEnd = TimeUtil.addCurrentYearCalendar(activePeriodEnd);
 
             // Create a Set of Calendars for all the baseReferenceTimes that a
@@ -356,9 +362,9 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      *         found
      */
     @SuppressWarnings("rawtypes")
-    public AdhocSubscription<T,C> setAdhocMostRecentUrlAndTime(
-            AdhocSubscription<T,C> adhoc, boolean mostRecent) {
-        AdhocSubscription<T,C> retVal = null;
+    public AdhocSubscription<T, C> setAdhocMostRecentUrlAndTime(
+            AdhocSubscription<T, C> adhoc, boolean mostRecent) {
+        AdhocSubscription<T, C> retVal = null;
 
         if (adhoc.getDataSetType() == DataType.POINT) {
 
@@ -377,16 +383,17 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
             if (dataSetMetaDatas != null && !dataSetMetaDatas.isEmpty()) {
                 // No guarantee on ordering, have to find most recent time
                 @SuppressWarnings("unchecked")
-                DataSetMetaData<PointTime> selectedDataSet = dataSetMetaDatas.get(0);
+                DataSetMetaData<PointTime> selectedDataSet = dataSetMetaDatas
+                        .get(0);
                 Date checkDate = selectedDataSet.getDate();
-                
-                for (DataSetMetaData<PointTime> dsmd: dataSetMetaDatas) {
+
+                for (DataSetMetaData<PointTime> dsmd : dataSetMetaDatas) {
                     if (dsmd.getDate().after(checkDate)) {
                         checkDate = dsmd.getDate();
                         selectedDataSet = dsmd;
                     }
                 }
-                
+
                 adhoc.setUrl(selectedDataSet.getUrl());
                 retVal = adhoc;
             }
@@ -411,9 +418,11 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                     Time adhocTime = adhoc.getTime();
                     for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
                         if (mostRecent
-                                || ((GriddedTime)adhocTime).getCycleTimes().contains(
-                                        current.getDataSetBaseTime().get(
-                                                Calendar.HOUR_OF_DAY))) {
+                                || ((GriddedTime) adhocTime)
+                                        .getCycleTimes()
+                                        .contains(
+                                                current.getDataSetBaseTime()
+                                                        .get(Calendar.HOUR_OF_DAY))) {
                             daoToUse = current;
                             break;
                         }
@@ -442,6 +451,8 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                         retVal = adhoc;
                     }
                 }
+            } else {
+                retVal = adhoc;
             }
         } else {
             throw new IllegalArgumentException("DataType: "
