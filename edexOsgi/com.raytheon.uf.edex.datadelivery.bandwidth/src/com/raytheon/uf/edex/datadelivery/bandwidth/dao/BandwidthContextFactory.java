@@ -21,11 +21,11 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
 import java.io.File;
 
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
