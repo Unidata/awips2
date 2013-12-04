@@ -57,8 +57,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2011            randerso     Initial creation
+ * Jan 21, 2011            randerso    Initial creation
  * Oct 25, 2012 1287       rferrel     Code clean up for non-blocking dialog.
+ * Nov 20, 2013 2488       randerso    Changed to use DejaVu font
  * 
  * </pre>
  * 
@@ -107,7 +108,8 @@ public class WERevertDialog extends CaveJFACEDialog implements DisposeListener {
         master.addDisposeListener(this);
 
         FontData fd = master.getDisplay().getSystemFont().getFontData()[0];
-        fd.setName("Bitstream Vera Sans Mono");
+        // TODO not have hard coded font name
+        fd.setName("DejaVu Sans Mono");
         font = new Font(master.getDisplay(), fd);
 
         String t;
