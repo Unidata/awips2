@@ -17,15 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.esb.camel.spring;
+package com.raytheon.uf.edex.core.modes;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
-import com.raytheon.uf.edex.esb.camel.Executor;
-
 /**
- * TODO Add Description
+ * An edex mode filter finds all spring XML files. For the case when no EDEX run
+ * configuration is specified.
  * 
  * <pre>
  * 
@@ -33,6 +32,7 @@ import com.raytheon.uf.edex.esb.camel.Executor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 27, 2010            njensen     Initial creation
+ * Dec 05, 2013 2566       bgonzale    Migrated to edex.core.modes package.
  * 
  * </pre>
  * 
@@ -49,7 +49,8 @@ public class DefaultEdexMode implements FilenameFilter {
      */
     @Override
     public boolean accept(File dir, String name) {
-        return name.contains("res/spring/") && name.endsWith(Executor.XML);
+        return name.contains(EDEXModesUtil.RES_SPRING)
+                && name.endsWith(EDEXModesUtil.XML);
     }
 
 }
