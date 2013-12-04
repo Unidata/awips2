@@ -231,6 +231,11 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestModelDbIdRequest"/>
         <constructor-arg ref="getLatestDbIdHandler"/>
     </bean>
+    <bean id="getTopoDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetTopoDataHandler"/>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetTopoDataRequest"/>
+        <constructor-arg ref="getTopoDataHandler"/>
+    </bean>
 
 
     <!-- Service Backup Handlers -->

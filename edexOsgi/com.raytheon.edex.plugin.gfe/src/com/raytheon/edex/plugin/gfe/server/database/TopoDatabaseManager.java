@@ -73,6 +73,7 @@ import com.raytheon.uf.common.topo.TopoQuery;
  * Feb 15, 2013  #1638     mschenke    Deleted topo edex plugin, moved code into common topo
  * Jun 13, 2013  #2044     randerso    Refactored to use non-singleton GridParmManager, 
  *                                     code cleanup
+ * Nov 20, 2013  #2331     randerso    Changed return type of getTopoData
  * 
  * </pre>
  * 
@@ -134,9 +135,9 @@ public class TopoDatabaseManager {
      * @param gloc
      * @return ServerResponse containing the topo grid slice
      */
-    public ServerResponse<IGridSlice> getTopoData(final GridLocation gloc) {
-        ServerResponse<IGridSlice> sr = new ServerResponse<IGridSlice>();
-        IGridSlice data = new ScalarGridSlice();
+    public ServerResponse<ScalarGridSlice> getTopoData(final GridLocation gloc) {
+        ServerResponse<ScalarGridSlice> sr = new ServerResponse<ScalarGridSlice>();
+        ScalarGridSlice data = new ScalarGridSlice();
         Grid2DFloat grid;
         String cacheGroupName = calcGroupName(gloc);
 
@@ -189,7 +190,7 @@ public class TopoDatabaseManager {
      * @param topoGrid
      * @return
      */
-    private IGridSlice makeGridSlice(final GridLocation gloc,
+    private ScalarGridSlice makeGridSlice(final GridLocation gloc,
             final Grid2DFloat topoGrid) {
         // find the max/min values in the topography data
         float maxValue = -Float.MAX_VALUE;
