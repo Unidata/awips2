@@ -60,7 +60,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     uses the font.
  * Feb 03, 2012 14317      mhuang      Make alarm display window wider
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
- * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.Added DO_NOT_BLOCK. 
+ * Sep 25, 2012 1196       lvenable    Dialog refactor for AlarmDisplayWindow.Added DO_NOT_BLOCK.
+ * Nov 20, 2013 2488       randerso    Changed to use DejaVu font
  * 
  * </pre>
  * 
@@ -127,7 +128,8 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
         shell.setMinimumSize(300, 100);
 
         FontData fd = shell.getDisplay().getSystemFont().getFontData()[0];
-        fd.setName("Bitstream Vera Sans Mono");
+        // TODO not have hard coded font name
+        fd.setName("DejaVu Sans Mono");
         font = new Font(shell.getDisplay(), fd);
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -207,7 +209,7 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 PrintDisplay.print(text.getText(),
-                        text.getFont().getFontData()[0], 
+                        text.getFont().getFontData()[0],
                         UFStatus.getHandler(AlarmDisplayWindow.class));
             }
         });

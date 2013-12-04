@@ -106,7 +106,7 @@ public class DupElimSrv {
                     newPdos.add(pdo);
                 } else {
                     // shouldn't be more than 1
-                    PluginDataObject dbPdo = dbPdos.get(1);
+                    PluginDataObject dbPdo = dbPdos.get(0);
                     if ((dbPdo == null)
                             || !pdo.getDataURI().equals(dbPdo.getDataURI())) {
                         newPdos.add(pdo);
