@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Nov 25, 2012   1269     lvenable    Initial creation.
  * Dec 06, 2012   1397     djohnson    Add dynamic serialize class annotation.
  * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
+ * Nov 25, 2013   2545     mpduff      Add Network.
  * 
  * </pre>
  * 
@@ -62,6 +64,10 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
     @DynamicSerializeElement
     private List<Long> binStartTimes;
 
+    /** The network for the data */
+    @DynamicSerializeElement
+    private Network network;
+
     /**
      * Constructor.
      * 
@@ -75,7 +81,7 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
 
     /**
      * Constructor
-     *
+     * 
      * @param windowStartTime
      *            Latency start time in milliseconds.
      * @param windowEndTime
@@ -88,50 +94,47 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
          * already be at the minute so this maybe redundant but we need to
          * remove the seconds and millisecond to graph properly.
          */
-        this.timeWindowStartTime = (windowStartTime / TimeUtil.MILLIS_PER_MINUTE) * TimeUtil.MILLIS_PER_MINUTE;
-        this.timeWindowEndTime = (windowEndTime / TimeUtil.MILLIS_PER_MINUTE) * TimeUtil.MILLIS_PER_MINUTE;
-
-        init();
-    }
-
-    /**
-     * Initialize.
-     */
-    private void init() {
+        this.timeWindowStartTime = (windowStartTime / TimeUtil.MILLIS_PER_MINUTE)
+                * TimeUtil.MILLIS_PER_MINUTE;
+        this.timeWindowEndTime = (windowEndTime / TimeUtil.MILLIS_PER_MINUTE)
+                * TimeUtil.MILLIS_PER_MINUTE;
         binStartTimes = new ArrayList<Long>();
     }
 
     /**
      * Set the bin times.
-     *
+     * 
      * @param binTimesArray
      */
     public void setBinTimes(List<Long> binTimesArray) {
         binStartTimes = binTimesArray;
-        Collections.sort(binStartTimes);
+        sortBinStartTimes();
     }
 
     /**
      * Add a bin time.
-     *
+     * 
      * @param binStartTime
      */
     public void addBinTime(Long binStartTime) {
         if (validBinStartTime(binStartTime)) {
-            long roundedBinTime = (binStartTime / TimeUtil.MILLIS_PER_MINUTE) * TimeUtil.MILLIS_PER_MINUTE;
+            long roundedBinTime = (binStartTime / TimeUtil.MILLIS_PER_MINUTE)
+                    * TimeUtil.MILLIS_PER_MINUTE;
             binStartTimes.add(roundedBinTime);
+            sortBinStartTimes();
             return;
         }
     }
 
     /**
      * Validate the bin time.
-     *
+     * 
      * @param binStartTime
      * @return true if bin time is within the time window
      */
     private boolean validBinStartTime(Long binStartTime) {
-        return binStartTime >= timeWindowStartTime && binStartTime <= timeWindowEndTime;
+        return binStartTime >= timeWindowStartTime
+                && binStartTime <= timeWindowEndTime;
     }
 
     /**
@@ -157,7 +160,7 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
 
     /**
      * Get the time window start time.
-     *
+     * 
      * @return
      */
     public long getTimeWindowStartTime() {
@@ -166,7 +169,7 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
 
     /**
      * Get the time window end time.
-     *
+     * 
      * @return
      */
     public long getTimeWindowEndTime() {
@@ -175,7 +178,7 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
 
     /**
      * Get the time window end time.
-     *
+     * 
      * @return
      */
     public List<Long> getBinStartTimes() {
@@ -183,24 +186,42 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
     }
 
     /**
-     * @param timeWindowStartTime the timeWindowStartTime to set
+     * @param timeWindowStartTime
+     *            the timeWindowStartTime to set
      */
     public void setTimeWindowStartTime(long timeWindowStartTime) {
         this.timeWindowStartTime = timeWindowStartTime;
     }
 
     /**
-     * @param timeWindowEndTime the timeWindowEndTime to set
+     * @param timeWindowEndTime
+     *            the timeWindowEndTime to set
      */
     public void setTimeWindowEndTime(long timeWindowEndTime) {
         this.timeWindowEndTime = timeWindowEndTime;
     }
 
     /**
-     * @param binStartTimes the binStartTimes to set
+     * @param binStartTimes
+     *            the binStartTimes to set
      */
     public void setBinStartTimes(List<Long> binStartTimes) {
         this.binStartTimes = binStartTimes;
+    }
+
+    /**
+     * @return the network
+     */
+    public Network getNetwork() {
+        return network;
+    }
+
+    /**
+     * @param network
+     *            the network to set
+     */
+    public void setNetwork(Network network) {
+        this.network = network;
     }
 
     /**
@@ -214,7 +235,8 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
         cal.setTimeInMillis(this.timeWindowStartTime);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Start Time:\t").append(sdf.format(cal.getTime())).append(" Z");
+        sb.append("Start Time:\t").append(sdf.format(cal.getTime()))
+                .append(" Z");
         sb.append("\n");
         cal.setTimeInMillis(this.timeWindowEndTime);
         sb.append("End Time:\t").append(sdf.format(cal.getTime())).append(" Z");
