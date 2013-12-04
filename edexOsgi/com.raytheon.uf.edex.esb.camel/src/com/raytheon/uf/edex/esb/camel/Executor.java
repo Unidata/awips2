@@ -21,34 +21,19 @@ package com.raytheon.uf.edex.esb.camel;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.regex.Pattern;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.raytheon.uf.common.util.PropertiesUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 import com.raytheon.uf.edex.esb.camel.context.ContextManager;
-import com.raytheon.uf.edex.esb.camel.spring.DefaultEdexMode;
-import com.raytheon.uf.edex.esb.camel.spring.EdexMode;
-import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
 
 /**
  * Provides the central mechanism for starting the ESB
@@ -68,6 +53,7 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
  *                                         resources directory.
  * Feb 14, 2013  1638      mschenke     Removing activemq reference in stop
  * Apr 22, 2013  #1932     djohnson     Use countdown latch for a shutdown hook.
+ * Dec 04, 2013  2566      bgonzale     refactored mode methods to a utility in edex.core.
  * 
  * </pre>
  * 
@@ -76,15 +62,6 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
  */
 
 public class Executor {
-
-    public static final String XML = ".xml";
-
-    private static final Pattern XML_PATTERN = Pattern.compile("\\" + XML);
-
-    private static final Pattern RES_SPRING_PATTERN = Pattern
-            .compile("res/spring/");
-
-    private static final String MODES_FILE = "modes.xml";
 
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
@@ -101,13 +78,10 @@ public class Executor {
         Thread.currentThread().setName("EDEXMain");
         System.setProperty("System.status", "Starting");
 
-        String pluginDirStr = PropertiesFactory.getInstance()
-                .getEnvProperties().getEnvValue("PLUGINDIR");
-
         List<String> xmlFiles = new ArrayList<String>();
 
         List<File> propertiesFiles = new ArrayList<File>();
-        File confDir = new File(EDEXUtil.EDEX_HOME + File.separator + "conf");
+        File confDir = new File(EDEXModesUtil.CONF_DIR);
         File resourcesDir = new File(confDir, "resources");
         propertiesFiles.addAll(Arrays.asList(findFiles(resourcesDir,
                 ".properties")));
@@ -126,17 +100,17 @@ public class Executor {
         }
 
         File springDir = new File(confDir, "spring");
-        File[] springFiles = findFiles(springDir, XML);
+        File[] springFiles = findFiles(springDir, EDEXModesUtil.XML);
 
         List<String> springList = new ArrayList<String>();
         for (File f : springFiles) {
             String name = f.getName();
 
             xmlFiles.add(name);
-            springList.add(XML_PATTERN.matcher(name).replaceAll(""));
+            springList.add(EDEXModesUtil.XML_PATTERN.matcher(name).replaceAll(
+                    ""));
         }
 
-        EdexModesContainer emc = getModeFilter(confDir);
         String modeName = System.getProperty("edex.run.mode");
 
         if (modeName != null && modeName.length() > 0) {
@@ -148,27 +122,9 @@ public class Executor {
         System.out.println("EDEX site configuration: "
                 + System.getProperty("aw.site.identifier"));
 
-        EdexMode edexMode = emc.getMode(modeName);
-
-        if (edexMode != null && edexMode.isTemplate()) {
-            throw new UnsupportedOperationException(modeName
-                    + " is a template mode, and is not bootable.");
-        }
-
-        FilenameFilter mode = edexMode;
-
-        if (mode == null) {
-            if (modeName == null || modeName.length() == 0) {
-                mode = new DefaultEdexMode();
-            } else {
-                throw new UnsupportedOperationException(
-                        "No EDEX run configuration specified in modes.xml for "
-                                + modeName);
-            }
-        }
-
-        List<String> discoveredPlugins = extractSpringXmlFiles(pluginDirStr,
-                xmlFiles, mode);
+        List<String> discoveredPlugins = EDEXModesUtil.extractSpringXmlFiles(
+                xmlFiles,
+                modeName);
 
         System.out.println();
         System.out.println(" ");
@@ -239,69 +195,6 @@ public class Executor {
         sb.delete(length - 2, length);
 
         return sb.toString();
-    }
-
-    /**
-     * Populates files with a list of files that match in the specified
-     * directory
-     * 
-     * Returns a list of plugins, etc
-     * 
-     * @param jarDir
-     * @param files
-     * @return
-     * @throws IOException
-     */
-    private static List<String> extractSpringXmlFiles(String jarDir,
-            List<String> files, FilenameFilter filter) throws IOException {
-        List<String> retVal = new ArrayList<String>();
-        File jarDirFile = new File(jarDir);
-        File[] jars = jarDirFile.listFiles();
-
-        List<JarFile> jarList = new ArrayList<JarFile>();
-        for (File p : jars) {
-            if (p.getName().endsWith(".jar")) {
-                JarFile jar = new JarFile(p);
-                jarList.add(jar);
-            }
-        }
-
-        for (JarFile jar : jarList) {
-            Enumeration<JarEntry> entries = jar.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry e = entries.nextElement();
-                String name = e.getName();
-                if (filter.accept(null, name)) {
-                    files.add(name);
-                    retVal.add(RES_SPRING_PATTERN.matcher(
-                            XML_PATTERN.matcher(name).replaceAll(""))
-                            .replaceAll(""));
-                }
-            }
-
-        }
-
-        return retVal;
-    }
-
-    private static EdexModesContainer getModeFilter(File confDir)
-            throws IOException, JAXBException {
-        File file = new File(confDir.getPath(), MODES_FILE);
-
-        FileReader reader = null;
-        Unmarshaller msh = null;
-        try {
-            JAXBContext jaxbContext = JAXBContext
-                    .newInstance(EdexModesContainer.class);
-            msh = jaxbContext.createUnmarshaller();
-            reader = new FileReader(file);
-            EdexModesContainer emc = (EdexModesContainer) msh.unmarshal(reader);
-            return emc;
-        } finally {
-            if (reader != null) {
-                PropertiesUtil.close(reader);
-            }
-        }
     }
 
 }

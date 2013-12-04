@@ -236,7 +236,7 @@
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
         <include>datadelivery-wfo-cron.xml</include>
-        <include>bandwidth-datadelivery-edex-impl-wfo.xml</include>
+        <include>bandwidth-datadelivery-.*-wfo.xml</include>
         <exclude>.*datadelivery.*-ncf.*</exclude>
         <exclude>.*datadelivery.*-monolithic.*</exclude>
         <exclude>harvester-*</exclude>
@@ -246,7 +246,7 @@
         <!-- Central Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
-        <include>bandwidth-datadelivery-edex-impl-ncf.xml</include>
+        <include>bandwidth-datadelivery-.*-ncf.xml</include>
         <exclude>.*datadelivery.*-wfo.*</exclude>
         <exclude>.*datadelivery.*-monolithic.*</exclude>
     </mode>
@@ -298,7 +298,12 @@
         <exclude>grid-metadata.xml</exclude>
         <exclude>wxsrv-dataset-urn.xml</exclude>
     </mode>
-
+    <mode name="inMemoryBandwidthManager">
+        <!-- This is not an edex runtime mode -->
+        <include>bandwidth-datadelivery-inmemory-impl.xml</include>
+        <include>bandwidth-datadelivery.xml</include>
+        <include>bandwidth-datadelivery-wfo.xml</include>
+    </mode>
 	<!-- modes listed below are not supported in a production setting, they 
 		are for DEVELOPMENT purposes only -->
     <mode name="devRegistry">
@@ -306,6 +311,7 @@
         <include>datadelivery-wfo-cron.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
         <include>bandwidth-datadelivery-edex-impl-monolithic.xml</include>
+        <include>bandwidth-datadelivery-wfo.xml</include>
         <exclude>.*datadelivery.*-ncf.*</exclude>
     </mode>
     <mode name="sbnSimulator">
