@@ -44,6 +44,7 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.WfoBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthBucketDescription;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -63,7 +64,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
