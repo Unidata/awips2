@@ -270,6 +270,14 @@ public abstract class TableComp extends Composite {
                 
                 // Draw a top line
                 event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
+             
+                // Draw a bottom line if this is the last row of the table
+                TableItem ti = (TableItem) event.item;
+                int idx = table.indexOf(ti);
+                if (idx == table.getItemCount() - 1) {
+                      event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
+                             + rect.width, rect.y + rect.height - 2);
+                }
                 
                 if (tableIndex >= 0) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
