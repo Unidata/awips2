@@ -87,6 +87,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  *                                     and time storage and manipulation
  * 01/22/2013   #1518      randerso    Removed use of Map with Parms as keys,
  *                                     really just needed a list anyway.
+ * 11/20/2013   #2331      randerso    Corrected legend for Topography
  * </pre>
  * 
  * @author chammack
@@ -127,7 +128,7 @@ public class GFELegendResource extends
 
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
-            if (mouseButton == 1 || mouseButton == 2) {
+            if ((mouseButton == 1) || (mouseButton == 2)) {
                 mouseDownRsc = checkLabelSpace(descriptor,
                         getResourceContainer().getActiveDisplayPane()
                                 .getTarget(), x, y);
@@ -152,7 +153,7 @@ public class GFELegendResource extends
             ResourcePair rsc = checkLabelSpace(descriptor,
                     getResourceContainer().getActiveDisplayPane().getTarget(),
                     x, y);
-            if (rsc != null && rsc == mouseDownRsc) {
+            if ((rsc != null) && (rsc == mouseDownRsc)) {
                 mouseDownRsc = null;
                 if (mouseButton == 1) {
                     ResourceProperties props = rsc.getProperties();
@@ -187,13 +188,13 @@ public class GFELegendResource extends
                             } else {
                                 IGridData grid = parm.overlappingGrid(sdm
                                         .getSpatialEditorTime());
-                                if (grid != null && grid.isOkToEdit()) {
+                                if ((grid != null) && grid.isOkToEdit()) {
                                     sdm.activateParm(parm);
                                     return true;
                                 } else if (grid == null) {
                                     statusHandler.handle(Priority.SIGNIFICANT,
                                             "No Grid to make editable");
-                                } else if (grid != null && !grid.isOkToEdit()) {
+                                } else if ((grid != null) && !grid.isOkToEdit()) {
                                     statusHandler.handle(Priority.SIGNIFICANT,
                                             "Grid cannot be edited");
                                 }
@@ -312,8 +313,8 @@ public class GFELegendResource extends
         for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp.getResource() instanceof GFEResource) {
                 Parm parm = ((GFEResource) rp.getResource()).getParm();
-                if (qvGrid == null
-                        || (qvGrid != null && qvGrid.getParm() == parm)) {
+                if ((qvGrid == null)
+                        || ((qvGrid != null) && (qvGrid.getParm() == parm))) {
                     parms.add(new Pair<Parm, ResourcePair>(parm, rp));
                     if (qvGrid != null) {
                         break;
@@ -400,12 +401,14 @@ public class GFELegendResource extends
 
             // get the parm name
             String parmText = parmId.getParmName();
-            sb.append(parmText);
 
             if (parmId.equals(topoID)) {
+                parmText = "Topography";
+                sb.append(parmText);
                 addSpaces(sb, lengths[0] + lengths[1] + lengths[2] + lengths[3]
                         + 15);
             } else {
+                sb.append(parmText);
 
                 int diff = lengths[0] - parmText.length();
                 addSpaces(sb, diff + 1);

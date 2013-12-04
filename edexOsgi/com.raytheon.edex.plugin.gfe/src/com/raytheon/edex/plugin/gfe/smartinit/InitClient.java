@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 29, 2008				njensen	    Initial creation
  * Jul 25, 2012       #957  dgilling    Implement getEditAreaNames().
  * Jun 13, 2013      #2044  randerso    Refactored to use IFPServer
+ * Nov 20, 2013      #2331  randerso    Changed return type of getTopoData
  * 
  * </pre>
  * 
@@ -159,7 +161,7 @@ public class InitClient {
     public IGridSlice getTopo() throws GfeException {
         IGridSlice topo = null;
         GridLocation gloc = ifpServer.getConfig().dbDomain();
-        ServerResponse<IGridSlice> sr = ifpServer.getTopoMgr()
+        ServerResponse<ScalarGridSlice> sr = ifpServer.getTopoMgr()
                 .getTopoData(gloc);
         if (sr.isOkay()) {
             topo = sr.getPayload();
