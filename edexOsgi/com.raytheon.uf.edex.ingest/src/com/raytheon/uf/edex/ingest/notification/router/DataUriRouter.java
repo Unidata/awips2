@@ -158,7 +158,7 @@ public class DataUriRouter implements INotificationRouter {
         GZIPOutputStream gzippedURIs = null;
 
         try {
-            gzippedURIs = new GZIPOutputStream(baos, GZIP_BUFFER_SIZE, true);
+            gzippedURIs = new GZIPOutputStream(baos, GZIP_BUFFER_SIZE);
         } catch (IOException e) {
             throw new EdexException(
                     "Failed to prepare the gzipped data stream", e);
