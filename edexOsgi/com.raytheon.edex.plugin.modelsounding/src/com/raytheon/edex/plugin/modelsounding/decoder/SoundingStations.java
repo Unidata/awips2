@@ -31,24 +31,24 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * 
+ * Loads a map from a file for mapping wmo numbers to icaos.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 10, 2009            jkorman     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 10, 2009           jkorman     Initial creation
+ * Dec 02, 2013  2537     bsteffen    Switch logger to ufstatus.
  * 
  * </pre>
  * 
@@ -60,9 +60,10 @@ public class SoundingStations {
 
     private static final String STATION_LIST = "modelBufrStationList.txt";
 
-    private static Map<String, String> stationMap;
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(SoundingStations.class);
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static Map<String, String> stationMap;
 
     public SoundingStations(String path) {
         stationMap = new HashMap<String, String>();
