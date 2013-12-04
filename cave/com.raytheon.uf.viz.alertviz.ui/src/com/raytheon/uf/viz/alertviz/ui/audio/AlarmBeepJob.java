@@ -25,6 +25,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Display;
+
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * Repeats playing the System beep. Same code as
@@ -36,9 +39,9 @@ import org.eclipse.core.runtime.jobs.Job;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 03, 2011 #8059      rferrel     Initial creation
+ * Nov 26, 2013 DR16772    gzhang      use Display.beep()
  * 
  * </pre>
- * 
  * @author rferrel
  * @version 1.0
  */
@@ -70,8 +73,8 @@ public class AlarmBeepJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         IStatus status = Status.OK_STATUS;
-        if (count > 0) {
-            Toolkit.getDefaultToolkit().beep();
+        if (count > 0) { 
+            VizApp.runAsync(new Runnable(){@Override public void run(){Display.getDefault().beep();}}); // DR 16772   //Toolkit.getDefaultToolkit().beep();
             reSchedule();
             count--;
         } else {
