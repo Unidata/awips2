@@ -25,18 +25,18 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * ProfilerLevel contains the data for a single vertical level observation.
+ * SoundingLevel contains the data for a single vertical level forecast.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20080303           1026 jkorman     Initial implementation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  1026     jkorman     Initial implementation.
+ * Dec 02, 2013  2537     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -45,7 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class SoundingLevel implements Serializable, ISerializableObject {
+public class SoundingLevel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
