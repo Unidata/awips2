@@ -37,7 +37,6 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandle
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -65,6 +64,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  *                                      Added getBandwidthGraphData.
  *                                      Reschedule updated local subscriptions.
  * Nov 27, 2013 2545       mpduff       Get data by network
+ * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * 
  * </pre>
  * 
@@ -80,14 +80,9 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
     static class WfoBandwidthManager<T extends Time, C extends Coverage>
             extends EdexBandwidthManager<T, C> {
 
-        private static final String[] WFO_BANDWIDTH_MANAGER_FILES = new String[] {
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo-edex-impl.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-eventbus.xml"),
-                JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
+        private static final String MODE_NAME = "registry";
+
+        private static final String[] WFO_BANDWIDTH_MANAGER_FILES = getSpringFileNamesForMode(MODE_NAME);
 
         // TODO: Change to be DIed in Spring
         private final IBandwidthService<T, C> ncfBandwidthService = new NcfBandwidthService();
