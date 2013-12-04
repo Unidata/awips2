@@ -1,7 +1,1 @@
 com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon
-com.raytheon.uf.common.dataplugin.sfcobs.AncCloud
-com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip
-com.raytheon.uf.common.dataplugin.sfcobs.AncPressure
-com.raytheon.uf.common.dataplugin.sfcobs.AncTemp
-com.raytheon.uf.common.dataplugin.sfcobs.AncWave
-com.raytheon.uf.common.dataplugin.sfcobs.AncWind
