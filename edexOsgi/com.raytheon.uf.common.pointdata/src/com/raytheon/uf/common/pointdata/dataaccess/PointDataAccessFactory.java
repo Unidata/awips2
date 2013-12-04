@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.modelsounding.dataaccess;
+package com.raytheon.uf.common.pointdata.dataaccess;
 
 import java.util.ArrayList;
 import java.util.Arrays;

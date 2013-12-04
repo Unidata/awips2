@@ -25,9 +25,6 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.plugin.modelsounding.SoundingModelTemporalData;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingModels;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
@@ -42,6 +39,8 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
@@ -56,13 +55,14 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 17, 2008 1026       jkorman     Initial implementation.
- * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
- *                                     work without dataURI.
- * 20130703           2161 bkowal      Relocated the logic used to retrieve
- *                                     temporal information into its own function.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 17, 2008  1026     jkorman     Initial implementation.
+ * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
+ *                                    work without dataURI.
+ * Jul 03, 2013  2161     bkowal      Relocated the logic used to retrieve
+ *                                    temporal information into its own function.
+ * Dec 02, 2013  2537     bsteffen    Switch logger to ufstatus.
  * 
  * </pre>
  * 
@@ -71,8 +71,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 public class ModelSoundingDataAdapter {
 
-    private static Log logger = LogFactory
-            .getLog(ModelSoundingDataAdapter.class);
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ModelSoundingDataAdapter.class);
 
     private static final Object LOCK = new Object();
 
