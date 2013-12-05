@@ -2,37 +2,26 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Modelsounding Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.modelsounding
-Bundle-Version: 1.13.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-Version: 1.13.1.qualifier
 Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Require-Bundle:  com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.site
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.edex.plugin
 Export-Package: com.raytheon.edex.plugin.modelsounding,
  com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,
  com.raytheon.edex.plugin.modelsounding.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.google.guava;bundle-version="1.0.0",
- javax.measure,
- com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataaccess,
- com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.dataquery,
- com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.uf.common.localization;bundle-version="1.12.1174",
- com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- com.raytheon.uf.common.site;bundle-version="1.12.1174",
- com.raytheon.uf.edex.core;bundle-version="1.12.1174",
- com.raytheon.uf.edex.database;bundle-version="1.0.0",
- com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
- com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
- javax.persistence;bundle-version="1.0.0",
- org.hibernate;bundle-version="1.0.0",
- org.springframework;bundle-version="3.1.4"
-Import-Package: com.raytheon.edex.esb,
- com.raytheon.edex.exception,
- com.raytheon.edex.plugin,
- org.apache.commons.logging
 

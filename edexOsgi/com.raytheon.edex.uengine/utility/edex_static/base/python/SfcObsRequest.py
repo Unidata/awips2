@@ -20,7 +20,7 @@
 
 import PointDataQuery
 from java.util import ArrayList
-from com.raytheon.uf.common.dataplugin.sfcobs.dao import SfcObsPointDataTransform
+from com.raytheon.edex.plugin.sfcobs import SfcObsPointDataTransform
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 
 #
@@ -34,6 +34,7 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 #    06/03/09                      chammack       Initial Creation.
 #    10/28/10        5705          cjeanbap       Updated SfcObsPointDataTransform.MAN_PARAMS_LISTs
 #    01/13/11        5705          cjeanbap       Added makeNullResponse method.
+#    12/05/13        2537          bsteffen       Update package for the transform.
 # 
 #
 
