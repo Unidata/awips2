@@ -32,7 +32,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -88,7 +87,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Jul 18, 2013 1653       mpduff       Added test for sub status summary.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
- * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
+ * Dec 02, 2013   2545     mpduff       Get data by network.
  * </pre>
  * 
  * @author djohnson
@@ -526,7 +526,7 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage>
         BandwidthGraphData graphData = service.getBandwidthGraphData();
 
         assertEquals("Incorrect number of subscriptions returned!", 2,
-                graphData.getNumberOfSubscriptions());
+                graphData.getNumberOfSubscriptions(Network.OPSNET));
     }
 
     @Test
@@ -549,7 +549,8 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage>
         RetrievalPlan opsnetPlan = retrievalManager.getPlan(Network.OPSNET);
 
         assertEquals("Incorrect number of subscriptions returned!",
-                opsnetPlan.getBucketMinutes(), graphData.getBinTimeInMinutes());
+                opsnetPlan.getBucketMinutes(),
+                graphData.getBinTimeInMinutes(Network.OPSNET));
         SortedSet<BandwidthBucketDescription> descs = graphData
                 .getNetworkBucketMap().get(Network.OPSNET);
         long earliestTime = descs.first().getBucketStartTime();
@@ -575,11 +576,9 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage>
         bandwidthManager.schedule(subscription);
 
         BandwidthGraphData graphData = service.getBandwidthGraphData();
-        final Map<String, List<TimeWindowData>> dataMap = graphData
-                .getDataMap();
 
-        final List<TimeWindowData> subscriptionOneTimeWindows = dataMap
-                .get(subscription.getName());
+        final List<TimeWindowData> subscriptionOneTimeWindows = graphData
+                .getTimeWindowArray(Network.OPSNET, subscription.getName());
 
         assertEquals(
                 "Expected there to be two time windows for this subscription over 2 days",
@@ -656,13 +655,11 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage>
         service.schedule(subscription2);
 
         BandwidthGraphData graphData = service.getBandwidthGraphData();
-        final Map<String, List<TimeWindowData>> dataMap = graphData
-                .getDataMap();
 
-        final List<TimeWindowData> subscriptionOneTimeWindows = dataMap
-                .get(subscription.getName());
-        final List<TimeWindowData> subscriptionTwoTimeWindows = dataMap
-                .get(subscription2.getName());
+        final List<TimeWindowData> subscriptionOneTimeWindows = graphData
+                .getTimeWindowArray(Network.OPSNET, subscription.getName());
+        final List<TimeWindowData> subscriptionTwoTimeWindows = graphData
+                .getTimeWindowArray(Network.OPSNET, subscription2.getName());
 
         assertEquals(
                 "Expected there to be four retrievals for this subscription over 2 days",
@@ -691,13 +688,12 @@ public class BandwidthServiceIntTest<T extends Time, C extends Coverage>
         service.schedule(subscription2);
 
         BandwidthGraphData graphData = service.getBandwidthGraphData();
-        final Map<String, SubscriptionPriority> priorityMap = graphData
-                .getPriorityMap();
-
-        assertThat(priorityMap.get(subscription.getName()),
+        assertThat(
+                graphData.getPriority(Network.OPSNET, subscription.getName()),
                 is(equalTo(subscription.getPriority())));
 
-        assertThat(priorityMap.get(subscription2.getName()),
+        assertThat(
+                graphData.getPriority(Network.OPSNET, subscription2.getName()),
                 is(equalTo(subscription2.getPriority())));
     }
 
