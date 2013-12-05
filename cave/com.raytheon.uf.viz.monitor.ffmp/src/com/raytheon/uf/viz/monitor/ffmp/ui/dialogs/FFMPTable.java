@@ -250,7 +250,8 @@ public abstract class FFMPTable extends Composite {
                 event.gc.setForeground(lineColor);
                 event.gc.setLineWidth(1);
                 int currentCol = event.index;
-
+                
+                TableItem ti = (TableItem) event.item;
                 Rectangle rect = ((TableItem) event.item).getBounds(currentCol);
                 event.gc.drawRectangle(rect.x - 1, rect.y - 1, rect.width,
                         rect.height);
@@ -264,6 +265,13 @@ public abstract class FFMPTable extends Composite {
                 
                 // Draw a top line
                 event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y); 
+                
+                // Draw a bottom line if this is the last row of the table
+                int index = table.indexOf(ti);
+                if (index == table.getItemCount() - 1) {
+                    event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
+                            + rect.width, rect.y + rect.height - 2);
+                }
                 
                 if ((tableIndex >= 0) && (tableIndex < table.getItemCount())) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
