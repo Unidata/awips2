@@ -39,7 +39,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -82,6 +84,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 24, 2013 #2218      mpduff      Changed method signature.
  * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialog.
  * Aug 15, 2013 #2143      mpduff      Change how the dialogs close to prevent ConcurrentModificationException.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * </pre>
  * 
  * @author lvenable
@@ -666,6 +672,62 @@ public abstract class AbstractTableDlg extends CaveSWTDialog implements
         // TODO: What needs to be done here is to grab the current selected
         // trend set and fire a trend set for the passed in ID and table
         // this will mean firing a get graphData Event back to the monitor
+    }
+
+    /**
+     * This is a method that will create a composite that contains a checkbox
+     * with no text and a label. Since the upgrade to Redhat 6, a checkbox that
+     * has its foreground and background color changed can cause the check in
+     * the checkbox to become invisible if the foreground color is too light.
+     * This method creates an ordinary checkbox with the label and composite
+     * background being colored.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     * @param bgColor
+     *            Background color.
+     * @param fgColor
+     *            Foreground color.
+     * @param labelText
+     *            Text for the label.
+     * @param colorComposite
+     *            Flag indicating if the composite background color should be
+     *            set.
+     * @param toolTipText
+     *            Set the toolTipText
+     * @return The checkbox control that is created.
+     */
+    protected final Button createCheckLabelComposite(Composite parentComp,
+            Color bgColor, Color fgColor, String labelText,
+            boolean colorComposite, String toolTipText) {
+
+        GridData gd = new GridData();
+        GridLayout gl = new GridLayout(2, false);
+        gl.marginHeight = 2;
+        gl.marginWidth = 2;
+        gl.horizontalSpacing = 0;
+
+        Composite chkLblComp = new Composite(parentComp, SWT.NONE);
+        chkLblComp.setLayout(gl);
+        chkLblComp.setLayoutData(gd);
+
+        if (colorComposite) {
+            chkLblComp.setBackground(bgColor);
+        }
+
+        gd = new GridData(18, SWT.DEFAULT);
+        Button chkBox = new Button(chkLblComp, SWT.CHECK);
+        chkBox.setLayoutData(gd);
+
+        Label lbl = new Label(chkLblComp, SWT.NONE);
+        lbl.setBackground(bgColor);
+        lbl.setForeground(fgColor);
+        lbl.setText(" " + labelText);
+
+        chkBox.setToolTipText(toolTipText);
+        lbl.setToolTipText(toolTipText);
+
+        return chkBox;
     }
 
     @Override
