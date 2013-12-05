@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -34,9 +33,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  969      jkorman     Initial implementation.
+ * Dec 03, 2013  2537     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -45,7 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class ProfilerLevel implements Serializable, ISerializableObject, Comparable<ProfilerLevel> {
+public class ProfilerLevel implements Serializable, Comparable<ProfilerLevel> {
 
     private static final long serialVersionUID = 1L;
 
@@ -327,13 +327,9 @@ public class ProfilerLevel implements Serializable, ISerializableObject, Compara
      */
     @Override
     public int compareTo(ProfilerLevel other) {
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
-
         int result = 0;
         if (this == other) {
-            result = EQUAL;
+            result = 0;
         } else {
             result = levelHeight.compareTo(other.levelHeight);
         }
