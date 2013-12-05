@@ -141,7 +141,7 @@ public class IFPWE {
      * @return the time ranges of all available data for the parm
      */
     public List<TimeRange> getKeys() {
-      List<TimeRange> availableTimes;
+        List<TimeRange> availableTimes;
         ServerResponse<List<TimeRange>> sr = gridParmMgr
                 .getGridInventory(parmId);
         if (sr.isOkay()) {
@@ -162,7 +162,7 @@ public class IFPWE {
      */
     public List<TimeRange> getKeys(TimeRange tr) {
         List<TimeRange> overlappingTimes;
-        ServerResponse<List<TimeRange>> sr = GridParmManager.getGridInventory(
+        ServerResponse<List<TimeRange>> sr = gridParmMgr.getGridInventory(
                 parmId, tr);
         if (sr.isOkay()) {
             overlappingTimes = sr.getPayload();
@@ -286,9 +286,9 @@ public class IFPWE {
             TimeRange timeRangeSpan = entry.getKey();
             statusHandler.debug("Getting lock for ParmID: " + parmId + " TR: "
                     + timeRangeSpan);
-        ServerResponse<List<LockTable>> lockResponse = lockMgr
-                .requestLockChange(new LockRequest(parmId, timeRangeSpan,
-                        LockMode.LOCK), wsId);
+            ServerResponse<List<LockTable>> lockResponse = lockMgr
+                    .requestLockChange(new LockRequest(parmId, timeRangeSpan,
+                            LockMode.LOCK), wsId);
             if (lockResponse.isOkay()) {
                 statusHandler.debug("LOCKING: Lock granted for: " + wsId
                         + " for time range: " + timeRangeSpan);
@@ -313,8 +313,8 @@ public class IFPWE {
                     records);
 
             try {
-            ServerResponse<?> sr = gridParmMgr.saveGridData(Arrays.asList(sgr),
-                    wsId);
+                ServerResponse<?> sr = gridParmMgr.saveGridData(
+                        Arrays.asList(sgr), wsId);
                 if (sr.isOkay()) {
                     SendNotifications.send(sr.getNotifications());
                 } else {
@@ -323,9 +323,9 @@ public class IFPWE {
                             + ": " + sr.message());
                 }
             } finally {
-            ServerResponse<List<LockTable>> unLockResponse = lockMgr
-                    .requestLockChange(new LockRequest(parmId, timeRangeSpan,
-                            LockMode.UNLOCK), wsId);
+                ServerResponse<List<LockTable>> unLockResponse = lockMgr
+                        .requestLockChange(new LockRequest(parmId,
+                                timeRangeSpan, LockMode.UNLOCK), wsId);
                 if (unLockResponse.isOkay()) {
                     statusHandler.debug("LOCKING: Unlocked for: " + wsId
                             + " TR: " + timeRangeSpan);
