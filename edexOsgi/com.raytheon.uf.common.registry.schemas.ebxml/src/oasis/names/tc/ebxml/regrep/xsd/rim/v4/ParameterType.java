@@ -20,15 +20,11 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -36,7 +32,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
@@ -85,6 +80,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -97,14 +95,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Parameter")
-public class ParameterType extends ExtensibleObjectType implements Serializable {
-
-    @Id
-    @SequenceGenerator(name = "ParameterTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
-            + ".Parameter_sequence")
-    @GeneratedValue(generator = "ParameterTypeGenerator")
-    @XmlTransient
-    protected Integer key;
+public class ParameterType extends ExtensibleObjectType {
 
     private static final long serialVersionUID = -2798644090274364236L;
 
@@ -140,8 +131,8 @@ public class ParameterType extends ExtensibleObjectType implements Serializable 
     @DynamicSerializeElement
     protected BigInteger maxOccurs;
 
-    public Integer getKey() {
-        return key;
+    public ParameterType() {
+        super();
     }
 
     /**
@@ -391,6 +382,31 @@ public class ParameterType extends ExtensibleObjectType implements Serializable 
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ParameterType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nname=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nparameterName=");
+        builder.append(parameterName);
+        builder.append(", \ndataType=");
+        builder.append(dataType);
+        builder.append(", \ndefaultValue=");
+        builder.append(defaultValue);
+        builder.append(", \nminOccurs=");
+        builder.append(minOccurs);
+        builder.append(", \nmaxOccurs=");
+        builder.append(maxOccurs);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

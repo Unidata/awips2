@@ -22,6 +22,12 @@ package oasis.names.tc.ebxml.regrep.xsd.query.v4;
 
 import java.math.BigInteger;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -33,6 +39,10 @@ import javax.xml.bind.annotation.XmlType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -74,6 +84,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 10/23/2013    1538       bphillip    Removed unused constructors
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -83,7 +94,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "", propOrder = { "responseOption", "query" })
 @XmlRootElement(name = "QueryRequest")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "QueryRequest")
 public class QueryRequest extends RegistryRequestType {
+
+    private static final long serialVersionUID = 1069976228999283284L;
 
     /** The queryID canonical query parameter name */
     public static final String QUERY_ID = "queryId";
@@ -132,10 +148,13 @@ public class QueryRequest extends RegistryRequestType {
 
     @XmlElement(name = "ResponseOption", required = true)
     @DynamicSerializeElement
+    @Embedded
     protected ResponseOptionType responseOption;
 
     @XmlElement(name = "Query", required = true)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "query_id", referencedColumnName = "id")
     protected QueryType query;
 
     @XmlAttribute
@@ -172,7 +191,7 @@ public class QueryRequest extends RegistryRequestType {
     protected Boolean matchOlderVersions;
 
     public QueryRequest() {
-
+        super();
     }
 
     public QueryRequest(String id, QueryType query,
@@ -184,20 +203,35 @@ public class QueryRequest extends RegistryRequestType {
 
     @Override
     public String toString() {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\tQueryType: [").append(query.getQueryDefinition())
-                .append("]");
-        strBuilder.append("\tId: [").append(id).append("]");
-        strBuilder.append("\tFederated: [").append(federated).append("]");
-        strBuilder.append("\tFederation: [").append(federation).append("]");
-        strBuilder.append("\tFormat: [").append(format).append("]");
-        strBuilder.append("\tLang: [").append(lang).append("]");
-        strBuilder.append("\tStart Index: [").append(startIndex).append("]");
-        strBuilder.append("\tMax Results: [").append(maxResults).append("]");
-        strBuilder.append("\tDepth: [").append(depth).append("]");
-        strBuilder.append("\tMatch Older Versions: [")
-                .append(matchOlderVersions).append("]");
-        return strBuilder.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("QueryRequest \n[comment=");
+        builder.append(comment);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nresponseOption=");
+        builder.append(responseOption);
+        builder.append(", \nquery=");
+        builder.append(query);
+        builder.append(", \nfederated=");
+        builder.append(federated);
+        builder.append(", \nfederation=");
+        builder.append(federation);
+        builder.append(", \nformat=");
+        builder.append(format);
+        builder.append(", \nlang=");
+        builder.append(lang);
+        builder.append(", \nstartIndex=");
+        builder.append(startIndex);
+        builder.append(", \nmaxResults=");
+        builder.append(maxResults);
+        builder.append(", \ndepth=");
+        builder.append(depth);
+        builder.append(", \nmatchOlderVersions=");
+        builder.append(matchOlderVersions);
+        builder.append("]");
+        return builder.toString();
     }
 
     /**
@@ -432,6 +466,93 @@ public class QueryRequest extends RegistryRequestType {
      */
     public void setMatchOlderVersions(Boolean value) {
         this.matchOlderVersions = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((depth == null) ? 0 : depth.hashCode());
+        result = prime * result
+                + ((federated == null) ? 0 : federated.hashCode());
+        result = prime * result
+                + ((federation == null) ? 0 : federation.hashCode());
+        result = prime * result + ((format == null) ? 0 : format.hashCode());
+        result = prime * result + ((lang == null) ? 0 : lang.hashCode());
+        result = prime
+                * result
+                + ((matchOlderVersions == null) ? 0 : matchOlderVersions
+                        .hashCode());
+        result = prime * result
+                + ((maxResults == null) ? 0 : maxResults.hashCode());
+        result = prime * result + ((query == null) ? 0 : query.hashCode());
+        result = prime * result
+                + ((responseOption == null) ? 0 : responseOption.hashCode());
+        result = prime * result
+                + ((startIndex == null) ? 0 : startIndex.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        QueryRequest other = (QueryRequest) obj;
+        if (depth == null) {
+            if (other.depth != null)
+                return false;
+        } else if (!depth.equals(other.depth))
+            return false;
+        if (federated == null) {
+            if (other.federated != null)
+                return false;
+        } else if (!federated.equals(other.federated))
+            return false;
+        if (federation == null) {
+            if (other.federation != null)
+                return false;
+        } else if (!federation.equals(other.federation))
+            return false;
+        if (format == null) {
+            if (other.format != null)
+                return false;
+        } else if (!format.equals(other.format))
+            return false;
+        if (lang == null) {
+            if (other.lang != null)
+                return false;
+        } else if (!lang.equals(other.lang))
+            return false;
+        if (matchOlderVersions == null) {
+            if (other.matchOlderVersions != null)
+                return false;
+        } else if (!matchOlderVersions.equals(other.matchOlderVersions))
+            return false;
+        if (maxResults == null) {
+            if (other.maxResults != null)
+                return false;
+        } else if (!maxResults.equals(other.maxResults))
+            return false;
+        if (query == null) {
+            if (other.query != null)
+                return false;
+        } else if (!query.equals(other.query))
+            return false;
+        if (responseOption == null) {
+            if (other.responseOption != null)
+                return false;
+        } else if (!responseOption.equals(other.responseOption))
+            return false;
+        if (startIndex == null) {
+            if (other.startIndex != null)
+                return false;
+        } else if (!startIndex.equals(other.startIndex))
+            return false;
+        return true;
     }
 
 }

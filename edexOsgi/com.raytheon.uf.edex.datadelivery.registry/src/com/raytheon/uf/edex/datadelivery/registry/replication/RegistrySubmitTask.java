@@ -20,6 +20,8 @@
 package com.raytheon.uf.edex.datadelivery.registry.replication;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -42,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
  * 10/30/2013   1538        bphillip    Updated to use non-static rest client
+ * 12/2/2013    1829        bphillip    Changed method of adding slots to object
  * </pre>
  * 
  * @author bphillip
@@ -78,12 +81,12 @@ public class RegistrySubmitTask extends RunnableWithTransaction {
     public void runWithTransaction() {
         try {
             RegistryObjectType objectToSubmit = restClient.getRegistryObject(
-                    RegistryObjectType.class, remoteURL,
-                    escapeObjectId(objectId));
+                    remoteURL, escapeObjectId(objectId));
 
             if (objectToSubmit.getSlotByName(EbxmlObjectUtil.HOME_SLOT_NAME) == null) {
-                objectToSubmit.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME,
-                        remoteURL);
+                objectToSubmit.getSlot().add(
+                        new SlotType(EbxmlObjectUtil.HOME_SLOT_NAME,
+                                new StringValueType(remoteURL)));
             }
 
             RegistryObjectType existingObject = dao.getById(objectId);
