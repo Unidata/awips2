@@ -73,6 +73,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
  * Aug 15, 2013  2143      mpduff      Added some isDisposed() checks.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * 
  * </pre>
  * 
@@ -251,34 +255,25 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(attribBtn);
 
-        // Vertical tables are not supported at this time.
-        gd = new GridData();
-        vertChk = new Button(controlComp, SWT.CHECK);
-        vertChk.setText("Vert ");
-        vertChk.setEnabled(false);
-        vertChk.setBackground(scanCfg.getScanColor(ScanColors.Vert));
-        vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Vertical - tech blocked
+         */
+        vertChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Vert),
+                display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
+
         vertChk.setSelection(tvsCfgMgr.getScanTvsCfgXML().getFilterOption());
-        vertChk.setLayoutData(gd);
+        vertChk.setEnabled(false);
 
         /*
-         * The vertical table is a techblocked DR. This selection listener will
-         * be commented out until it is needed.
+         * Tool tips
          */
-        // vertChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // }
-        // });
-        setupButtonMouseListeners(vertChk);
+        tipsChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Tips),
+                display.getSystemColor(SWT.COLOR_WHITE), "Tips ", true, null);
 
-        gd = new GridData();
-        tipsChk = new Button(controlComp, SWT.CHECK);
-        tipsChk.setText("Tips ");
-        tipsChk.setBackground(scanCfg.getScanColor(ScanColors.Tips));
-        tipsChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         tipsChk.setSelection(tvsCfgMgr.getScanTvsCfgXML().getTipsOption());
-        tipsChk.setLayoutData(gd);
+
         tipsChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -287,8 +282,10 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
                 scanTableComp.updateColumnTips();
             }
         });
-        setupButtonMouseListeners(tipsChk);
 
+        /*
+         * Time
+         */
         gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         gd.widthHint = 160;
         timeLbl = new Label(controlComp, SWT.RIGHT);
