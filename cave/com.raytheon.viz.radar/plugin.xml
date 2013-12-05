@@ -140,4 +140,12 @@
          </menu>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.themes">
+      <fontDefinition
+            id="com.raytheon.viz.radar.rsc.graphic.RadarGraphicsPage"
+            label="Radar Graphics Font"
+            value="Monospaced-regular-12">
+      </fontDefinition>
+   </extension>
 </plugin>
