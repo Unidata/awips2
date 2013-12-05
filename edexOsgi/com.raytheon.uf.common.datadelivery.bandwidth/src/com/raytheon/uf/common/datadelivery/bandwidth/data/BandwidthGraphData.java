@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
  * Sep 20, 2013   2397     bgonzale    Added Map of Bucket Descriptions.
  * Nov 19, 2013   2545     bgonzale    Added 'add' method stub.  Still work to do.
+ * Nov 25, 2013   2545     mpduff      Finished implementing 2545.
  * 
  * </pre>
  * 
@@ -57,84 +59,34 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 public class BandwidthGraphData {
-    /** Subscription Name -> TimeWindowData list */
+    /** Network -> List of SubscriptionWindowData */
     @DynamicSerializeElement
-    private Map<String, List<TimeWindowData>> dataMap;
-
-    /** Subscription Name -> Subscription Priority */
-    @DynamicSerializeElement
-    private Map<String, SubscriptionPriority> priorityMap;
+    private Map<Network, List<SubscriptionWindowData>> networkDataMap;
 
     /** Network -> Bandwidth Bucket Descriptions */
     @DynamicSerializeElement
     private Map<Network, SortedSet<BandwidthBucketDescription>> networkBucketMap;
 
-    /** Bin duration in minutes */
-    @DynamicSerializeElement
-    private int binTimeInMins;
-
     /**
      * Constructor.
-     *
-     * @deprecated Required by dynamic serialization, use
-     *             {@link #BandwidthGraphData(int)} instead.
      */
-    @Deprecated
     public BandwidthGraphData() {
-        this(3);
+        networkDataMap = new HashMap<Network, List<SubscriptionWindowData>>(2);
+        networkBucketMap = new HashMap<Network, SortedSet<BandwidthBucketDescription>>(
+                2);
     }
 
     /**
-     * Constructor.
-     *
-     * @param binTimeMins
-     *            bin duration in minutes
-     */
-    public BandwidthGraphData(int binTimeMins) {
-        this.binTimeInMins = binTimeMins;
-        dataMap = new HashMap<String, List<TimeWindowData>>();
-        priorityMap = new HashMap<String, SubscriptionPriority>();
-    }
-
-    /**
-     * Add the other BandwidthGraphData data to this object.
+     * Save the bucket descriptions.
      * 
-     * @param other
+     * @param network
+     *            The network the buckets belong to
+     * @param buckets
+     *            The buckets to save
      */
-    public void add(BandwidthGraphData other) {
-        /*
-         * TODO merge SBN and OPSNET data into on Bandwidth Graph Data
-         */
-    }
-
-    /**
-     * @return the dataMap
-     */
-    public Map<String, List<TimeWindowData>> getDataMap() {
-        return dataMap;
-    }
-
-    /**
-     * @param dataMap
-     *            the dataMap to set
-     */
-    public void setDataMap(Map<String, List<TimeWindowData>> dataMap) {
-        this.dataMap = dataMap;
-    }
-
-    /**
-     * @return the priorityMap
-     */
-    public Map<String, SubscriptionPriority> getPriorityMap() {
-        return priorityMap;
-    }
-
-    /**
-     * @param priorityMap
-     *            the priorityMap to set
-     */
-    public void setPriorityMap(Map<String, SubscriptionPriority> priorityMap) {
-        this.priorityMap = priorityMap;
+    public void addBucketDescriptions(Network network,
+            SortedSet<BandwidthBucketDescription> buckets) {
+        networkBucketMap.put(network, buckets);
     }
 
     /**
@@ -160,135 +112,133 @@ public class BandwidthGraphData {
         this.networkBucketMap = new HashMap<Network, SortedSet<BandwidthBucketDescription>>();
         for (Entry<Network, SortedSet<BandwidthBucketDescription>> descEntry : networkBucketMap
                 .entrySet()) {
-            this.networkBucketMap.put(descEntry.getKey(),
+            this.networkBucketMap.put(
+                    descEntry.getKey(),
                     new TreeSet<BandwidthBucketDescription>(
                             (Collection<BandwidthBucketDescription>) descEntry
-                            .getValue()));
+                                    .getValue()));
         }
-    }
-
-    /**
-     * @return the binTimeInMins
-     */
-    public int getBinTimeInMins() {
-        return binTimeInMins;
-    }
-
-    /**
-     * @param binTimeInMins
-     *            the binTimeInMins to set
-     */
-    public void setBinTimeInMins(int binTimeInMins) {
-        this.binTimeInMins = binTimeInMins;
-    }
-
-    /**
-     * Get the bin time in minutes
-     *
-     * @return bin time
-     */
-    public int getBinTimeInMinutes() {
-        return binTimeInMins;
-    }
-
-    /**
-     * Add a Graph Data Array.
-     *
-     * @param subscriptionName
-     * @param priority
-     * @param dataArray
-     */
-    public void addGraphDataArray(String subscriptionName,
-            SubscriptionPriority priority,
-            List<TimeWindowData> dataArray) {
-        dataMap.put(subscriptionName, dataArray);
-        priorityMap.put(subscriptionName, priority);
     }
 
     /**
      * Get the sorted names.
-     *
+     * 
      * @param ascending
      *            sort in ascending or descending, true for ascending
+     * @param network
+     *            The network type requested
      * @return List of names
      */
-    public List<String> getSortedNames(boolean ascending) {
-        ArrayList<String> keyArray = new ArrayList<String>();
-
-        for (String s : dataMap.keySet()) {
-            keyArray.add(s);
+    public List<String> getSortedNames(boolean ascending, Network network) {
+        List<SubscriptionWindowData> subList = this.networkDataMap.get(network);
+        List<String> subNameList = new ArrayList<String>(subList.size());
+        for (SubscriptionWindowData s : subList) {
+            subNameList.add(s.getSubscriptionName());
         }
-
-        Collections.sort(keyArray);
 
         /*
          * Since the data will be drawn from the bottom up, ascending is
          * actually reverse order of the sort.
          */
         if (ascending) {
-            Collections.reverse(keyArray);
+            Collections.reverse(subNameList);
+        } else {
+            Collections.sort(subNameList);
         }
 
-        return keyArray;
+        return subNameList;
     }
 
     /**
      * Sort the graph data
      */
     public void sortGraphData() {
-        for (Entry<String, List<TimeWindowData>> entry : dataMap.entrySet()) {
-            Collections.sort(entry.getValue());
+        for (Entry<Network, List<SubscriptionWindowData>> entry : networkDataMap
+                .entrySet()) {
+            for (SubscriptionWindowData swd : entry.getValue()) {
+                Collections.sort(swd.getWindowDataList());
+            }
         }
     }
 
     /**
      * Get the time window array for the subscription
-     *
+     * 
+     * @param network
+     *            The Network
+     * 
      * @param subName
      *            Subscription name
-     *
+     * 
      * @return List of TimeWindowData objects
      */
-    public List<TimeWindowData> getTimeWindowArray(String subName) {
-        return dataMap.get(subName);
+    public List<TimeWindowData> getTimeWindowArray(Network network,
+            String subName) {
+        for (Entry<Network, List<SubscriptionWindowData>> entry : networkDataMap
+                .entrySet()) {
+            for (SubscriptionWindowData swd : entry.getValue()) {
+                if (swd.getSubscriptionName().equals(subName)) {
+                    return swd.getWindowDataList();
+                }
+            }
+        }
+
+        return new ArrayList<TimeWindowData>(0);
     }
 
     /**
      * Get the priority for the subscription name.
-     *
-     * @param subscriptionName
+     * 
+     * @param network
+     *            The network to check for the subscription name
+     * 
+     * @param subName
      *            The subscription name.
      * @return The priority number.
      */
-    public SubscriptionPriority getPriority(String subscriptionName) {
-        if (priorityMap.containsKey(subscriptionName)) {
-            return priorityMap.get(subscriptionName);
+    public SubscriptionPriority getPriority(Network network, String subName) {
+        for (Entry<Network, List<SubscriptionWindowData>> entry : networkDataMap
+                .entrySet()) {
+            for (SubscriptionWindowData swd : entry.getValue()) {
+                if (swd.getSubscriptionName().equals(subName)) {
+                    return swd.getPriority();
+                }
+            }
         }
 
         // This should never occur.
         throw new IllegalArgumentException(
-                "Unable to find a priority for subscription ["
-                        + subscriptionName + "]");
+                "Unable to find a priority for subscription [" + subName + "]");
     }
 
     /**
      * Get the number of subscriptions
-     *
+     * 
+     * @param network
+     *            The network to check
+     * 
      * @return Number of subscriptions
      */
-    public int getNumberOfSubscriptions() {
-        return dataMap.keySet().size();
+    public int getNumberOfSubscriptions(Network network) {
+        return networkDataMap.get(network).size();
     }
 
     /**
      * Get a list of subscription names that are sorted by the earliest time
      * window time. If two subscription share the same time window time then the
      * subscription names will be in alphabetical order.
-     *
+     * 
+     * @param network
+     *            The network
+     * @param currentTime
+     *            The time
+     * @param intersect
+     *            True if current time intesects the download window
+     * 
      * @return List of subscription names.
      */
-    public List<String> getSubscriptionsSortedByTime(long currentTime,
-            boolean intersect) {
+    public List<String> getSubscriptionsSortedByTime(Network network,
+            long currentTime, boolean intersect) {
         /*
          * Sort each of the subscriptions array time windows so they are in
          * order by time window start time.
@@ -302,28 +252,27 @@ public class BandwidthGraphData {
         Map<Long, List<String>> sortedTimeMap = new TreeMap<Long, List<String>>();
 
         long startTime = 0L;
-        for (Entry<String, List<TimeWindowData>> entry : dataMap.entrySet()) {
-            if (!entry.getValue().isEmpty()) {
-                for (TimeWindowData data : entry.getValue()) {
-                    if (intersect) {
-                        if (data.getTimeWindowEndTime() > currentTime) {
-                            startTime = data.getTimeWindowStartTime();
-                            break;
-                        }
-                    } else {
-                        if (data.getTimeWindowStartTime() >= currentTime) {
-                            startTime = data.getTimeWindowStartTime();
-                            break;
-                        }
+        for (SubscriptionWindowData swd : networkDataMap.get(network)) {
+            for (TimeWindowData data : swd.getWindowDataList()) {
+                if (intersect) {
+                    if (data.getTimeWindowEndTime() > currentTime) {
+                        startTime = data.getTimeWindowStartTime();
+                        break;
+                    }
+                } else {
+                    if (data.getTimeWindowStartTime() >= currentTime) {
+                        startTime = data.getTimeWindowStartTime();
+                        break;
                     }
                 }
-                if (sortedTimeMap.containsKey(startTime)) {
-                    sortedTimeMap.get(startTime).add(entry.getKey());
-                } else {
-                    List<String> tmpArray = new ArrayList<String>();
-                    tmpArray.add(entry.getKey());
-                    sortedTimeMap.put(startTime, tmpArray);
-                }
+            }
+
+            if (sortedTimeMap.containsKey(startTime)) {
+                sortedTimeMap.get(startTime).add(swd.getSubscriptionName());
+            } else {
+                List<String> tmpArray = new ArrayList<String>();
+                tmpArray.add(swd.getSubscriptionName());
+                sortedTimeMap.put(startTime, tmpArray);
             }
         }
 
@@ -340,5 +289,74 @@ public class BandwidthGraphData {
         }
 
         return sortedSubscriptionNames;
+    }
+
+    /**
+     * Get a list of available networks
+     * 
+     * @return List of available Networks
+     */
+    public List<String> getAvailableNetworks() {
+        List<String> networkList = new ArrayList<String>(3);
+        for (Network network : networkDataMap.keySet()) {
+            networkList.add(network.name());
+        }
+
+        return networkList;
+    }
+
+    /**
+     * @return the networkDataMap
+     */
+    public Map<Network, List<SubscriptionWindowData>> getNetworkDataMap() {
+        return networkDataMap;
+    }
+
+    /**
+     * @param networkDataMap
+     *            the networkDataMap to set
+     */
+    public void setNetworkDataMap(
+            Map<Network, List<SubscriptionWindowData>> networkDataMap) {
+        this.networkDataMap = networkDataMap;
+    }
+
+    /**
+     * Get the bin time in minutes.
+     * 
+     * @param network
+     *            The network to check
+     * @return The bin time in minutes
+     */
+    public int getBinTimeInMinutes(Network network) {
+        Set<BandwidthBucketDescription> bucketSet = this.networkBucketMap
+                .get(network);
+        return bucketSet.iterator().next().getBucketTimeMinutes();
+    }
+
+    /**
+     * Merge another Bandwidth graph data into this object.
+     * 
+     * @param data2
+     *            The other data set to merge
+     */
+    public void merge(BandwidthGraphData data2) {
+        Map<Network, SortedSet<BandwidthBucketDescription>> nbm = data2
+                .getNetworkBucketMap();
+
+        for (Network network : nbm.keySet()) {
+            if (!networkBucketMap.containsKey(network)) {
+                networkBucketMap.put(network, nbm.get(network));
+            }
+        }
+
+        Map<Network, List<SubscriptionWindowData>> ndm = data2
+                .getNetworkDataMap();
+
+        for (Network network : ndm.keySet()) {
+            if (!networkDataMap.containsKey(network)) {
+                networkDataMap.put(network, ndm.get(network));
+            }
+        }
     }
 }
