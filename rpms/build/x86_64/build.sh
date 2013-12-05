@@ -411,14 +411,17 @@ if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
    #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-python-numpy"
    buildRPM "awips2-python"
-   buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-adapt-native"
    #unpackHttpdPypies
    #if [ $? -ne 0 ]; then
    #   exit 1
    #fi
    #buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-hydroapps-shared"
    #buildRPM "awips2-rcm"
    #buildRPM "awips2-tools"
    #buildRPM "awips2-cli"
