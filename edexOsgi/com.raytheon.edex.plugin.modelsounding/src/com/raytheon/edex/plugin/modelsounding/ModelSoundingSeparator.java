@@ -22,15 +22,14 @@ package com.raytheon.edex.plugin.modelsounding;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.wmo.message.WMOHeaderFinder;
 
 /**
- * The ProfilerSeparator takes a potential weather message and attempts to
+ * The ModelSoundingSeparator takes a potential weather message and attempts to
  * determine the WMO header and data type of the enclosed data. Normal usage is
  * to create an instance and set the message data using the setData method. When
  * complete the separator contains the WMO header, and all of the data decoded.
@@ -39,9 +38,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeaderFinder;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20080303           1026 jkorman     Initial implementation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  1026     jkorman     Initial implementation.
+ * Dec 02, 2013  2537     bsteffen    Switch logger to ufstatus.
  * 
  * </pre>
  * 
@@ -50,7 +50,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeaderFinder;
  */
 public class ModelSoundingSeparator extends AbstractRecordSeparator {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ModelSoundingSeparator.class);
 
     // List of report start locations.
     private List<Integer> reportLocations = null;
