@@ -28,7 +28,6 @@ import com.raytheon.uf.common.pointdata.elements.FloatPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.IntPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.LongPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.StringPointDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -41,19 +40,19 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 14, 2010            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 14, 2010           chammack    Initial creation
+ * Oct 30, 2012  15448    Xiaochuan   Check if container != null first in from().
+ * Dec 02, 2013  2537     bsteffen    Remove ISerializableObject
  * 
- * 10/30/2012	15448	   Xiaochuan	Check if container != null first in from().
- * 	
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
 @DynamicSerialize
-public class PointDataThriftContainer implements ISerializableObject {
+public class PointDataThriftContainer {
 
     @DynamicSerializeElement
     FloatPointDataObject[] floatData;
