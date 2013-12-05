@@ -1,68 +1,52 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="sfcobsDecoder" class="com.raytheon.edex.plugin.sfcobs.SfcObsDecoder" />
-	<bean id="sfcobsSeparator" class="com.raytheon.edex.plugin.sfcobs.SfcObsSeparator" />
+    <bean id="sfcobsDecoder" class="com.raytheon.edex.plugin.sfcobs.SfcObsDecoder" />
+    <bean id="sfcobsSeparator" class="com.raytheon.edex.plugin.sfcobs.SfcObsSeparator" />
 
     <bean id="sfcobsPointData" class="com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform">
         <constructor-arg ref="sfcobsPluginName" />
     </bean>
 
-	<bean id="sfcobsDistRegistry" factory-bean="distributionSrv"
-		factory-method="register">
-		<constructor-arg value="sfcobs" />
-		<constructor-arg value="jms-dist:queue:Ingest.sfcobs"/>
-	</bean>
-	
-	<bean id="sfcobsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered, 
+    <bean id="sfcobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="sfcobs" />
+        <constructor-arg value="jms-dist:queue:Ingest.sfcobs" />
+    </bean>
+
+    <bean id="sfcobsCamelRegistered" factory-bean="contextManager" factory-method="register"
+        depends-on="persistCamelRegistered, 
 		            shefCamelRegistered">
-		<constructor-arg ref="sfcobs-camel"/>
-  	</bean>
+        <constructor-arg ref="sfcobs-camel" />
+    </bean>
 
-	<camelContext id="sfcobs-camel"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
-		<!--
-		<endpoint id="sfcobsFileEndpoint"
-			uri="file:${edex.home}/data/sbn/sfcobs?noop=true&amp;idempotent=false" />
+    <camelContext id="sfcobs-camel" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler" autoStartup="false">
 
-		<route id="sfcobsFileConsumerRoute">
-			<from ref="sfcobsFileEndpoint" />
-			<bean ref="fileToString" />
-			<setHeader headerName="pluginName">
-				<constant>sfcobs</constant>
-			</setHeader>
-			<to uri="jms-durable:queue:Ingest.sfcobs" />
-		</route>
-		-->
-
-		<!-- Begin sfcobs routes -->
-		<route id="sfcobsIngestRoute">
-			<from uri="jms-durable:queue:Ingest.sfcobs"/>
-			<setHeader headerName="pluginName">
-				<constant>sfcobs</constant>
-			</setHeader>
-			<bean ref="stringToFile" />
-			<doTry>
-				<pipeline>
-					<bean ref="sfcobsDecoder" method="decode" />
+        <!-- Begin sfcobs routes -->
+        <route id="sfcobsIngestRoute">
+            <from uri="jms-durable:queue:Ingest.sfcobs" />
+            <setHeader headerName="pluginName">
+                <constant>sfcobs</constant>
+            </setHeader>
+            <bean ref="stringToFile" />
+            <doTry>
+                <pipeline>
+                    <bean ref="sfcobsDecoder" method="decode" />
+                    <bean ref="dupElim" />
                     <bean ref="sfcobsPointData" method="toPointData" />
                     <multicast>
-                      <to uri="direct-vm:persistIndexAlert" />
-                      <to uri="direct-vm:synopticToShef"/>
+                        <to uri="direct-vm:persistIndexAlert" />
+                        <to uri="direct-vm:synopticToShef" />
                     </multicast>
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:sfcobs?level=ERROR"/>
-				</doCatch>
-			</doTry>
-		</route>
-
-	</camelContext>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:sfcobs?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
 </beans>
