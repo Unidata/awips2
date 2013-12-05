@@ -93,6 +93,10 @@ import com.raytheon.viz.ui.EditorUtil;
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * 
  * </pre>
  * 
@@ -428,74 +432,66 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(attribBtn);
 
-        gd = new GridData();
-        linkToFrameChk = new Button(controlComp, SWT.CHECK);
-        linkToFrameChk.setText("Link to Frame ");
-        linkToFrameChk.setBackground(scanCfg
-                .getScanColor(ScanColors.LinkToFrame));
-        linkToFrameChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Link to frame
+         */
+        linkToFrameChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.LinkToFrame),
+                display.getSystemColor(SWT.COLOR_WHITE), "Link to Frame ",
+                true, null);
+
         linkToFrameChk.setSelection(dmdConfigMgr.getScanDmdCfgXML()
                 .getLinkToFrame());
-        linkToFrameChk.setLayoutData(gd);
+
         linkToFrameChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleLinkToFrame();
             }
         });
-        setupButtonMouseListeners(linkToFrameChk);
 
+        /*
+         * CWA Filter
+         */
         StringBuilder tipText = new StringBuilder();
         tipText.append("Activate to remove from the SCAN table all cells and\n");
         tipText.append("DMDs that are outside your CWA.\n\n");
         tipText.append("Deactivate to include in the SCAN table all cells and\n");
         tipText.append("DMDs detected by radar.");
 
-        gd = new GridData();
-        cwaFilterChk = new Button(controlComp, SWT.CHECK);
-        cwaFilterChk.setText("CWA Filter ");
-        cwaFilterChk.setBackground(scanCfg.getScanColor(ScanColors.CWAFilter));
-        cwaFilterChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        cwaFilterChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.CWAFilter),
+                display.getSystemColor(SWT.COLOR_WHITE), "CWA Filter ", true,
+                tipText.toString());
+
         cwaFilterChk.setSelection(dmdConfigMgr.getScanDmdCfgXML()
                 .getFilterOption());
-        cwaFilterChk.setLayoutData(gd);
-        cwaFilterChk.setToolTipText(tipText.toString());
         cwaFilterChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleCWAFilterAction();
             }
         });
-        setupButtonMouseListeners(cwaFilterChk);
-
-        // Vertical tables are not supported at this time.
-        gd = new GridData();
-        vertChk = new Button(controlComp, SWT.CHECK);
-        vertChk.setText("Vert ");
-        vertChk.setEnabled(false);
-        vertChk.setBackground(scanCfg.getScanColor(ScanColors.Vert));
-        vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        vertChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getFilterOption());
-        vertChk.setLayoutData(gd);
 
         /*
-         * The vertical table is a techblocked DR. This will be commented out
-         * until that is addressed.
+         * Vertical - tech blocked
          */
-        // vertChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // }
-        // });
-        setupButtonMouseListeners(vertChk);
+        vertChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Vert),
+                display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
 
-        gd = new GridData();
-        tipsChk = new Button(controlComp, SWT.CHECK);
-        tipsChk.setText("Tips ");
-        tipsChk.setBackground(scanCfg.getScanColor(ScanColors.Tips));
-        tipsChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        vertChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getFilterOption());
+        vertChk.setEnabled(false);
+
+        /*
+         * Tool tips
+         */
+        tipsChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Tips),
+                display.getSystemColor(SWT.COLOR_WHITE), "Tips ", true, null);
+
         tipsChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getTipsOption());
-        tipsChk.setLayoutData(gd);
+
         tipsChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -504,8 +500,10 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 dmdTableComp.updateColumnTips();
             }
         });
-        setupButtonMouseListeners(tipsChk);
 
+        /*
+         * Alarm button
+         */
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         alarmBtn = new Button(controlComp, SWT.PUSH);
         alarmBtn.setText("Alarm");
