@@ -78,7 +78,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  *                                    assembler.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
- * 
+ * Nov 19, 2013  2478     rjpeter     Make update process update database also.
  * 
  * </pre>
  * 
@@ -281,7 +281,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
             assembledRecord.setMessageData(rec.getFloatData());
             mergeData(record, assembledRecord, thinned);
             assembledRecord.setOverwriteAllowed(true);
-            dao.persistToHDF5(assembledRecord);
+            dao.persistRecords(assembledRecord);
         } catch (PluginException e) {
             throw new GribException("Error storing assembled grid to HDF5", e);
         }

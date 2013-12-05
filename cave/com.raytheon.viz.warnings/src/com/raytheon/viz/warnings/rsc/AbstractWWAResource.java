@@ -2,6 +2,7 @@ package com.raytheon.viz.warnings.rsc;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -26,6 +27,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -80,6 +82,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      Check if geometry is null when inspecting.
  * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
  * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
+ * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
  * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
  * </pre>
  * 
@@ -127,7 +130,7 @@ public abstract class AbstractWWAResource extends
     protected static PreparedGeometryFactory pgf = new PreparedGeometryFactory();
 
     /** one hour ahead, entirely arbitrary/magic **/
-    private static final long LAST_FRAME_ADJ = (60 * 60 * 1000);
+    private static final long LAST_FRAME_ADJ = TimeUtil.MILLIS_PER_HOUR;
 
     protected String resourceName;
 
@@ -209,7 +212,8 @@ public abstract class AbstractWWAResource extends
             framePeriod = new TimeRange(time.getRefTime(),
                     frameTimes[frameIdx + 1].getRefTime());
         } else {
-            framePeriod = new TimeRange(time.getRefTime(), LAST_FRAME_ADJ);
+            framePeriod = getLastFrameTimeRange(time.getRefTime());
+
             lastFrame = true;
         }
 
@@ -330,8 +334,7 @@ public abstract class AbstractWWAResource extends
             framePeriod = new TimeRange(thisFrameTime.getRefTime(),
                     frames[index + 1].getRefTime());
         } else {
-            framePeriod = new TimeRange(thisFrameTime.getRefTime(),
-                    LAST_FRAME_ADJ);
+            framePeriod = getLastFrameTimeRange(thisFrameTime.getRefTime());
             lastFrame = true;
         }
         synchronized (paintLock) {
@@ -466,13 +469,12 @@ public abstract class AbstractWWAResource extends
 
         if (lastFrame) {
             // use current system time to determine what to display
-            Date timeToDisplay = SimulatedTime.getSystemTime().getTime();
+            Date timeToDisplay = TimeUtil.newDate();
             // change frame time
             frameTime = timeToDisplay;
             // point paint time to different time
             paintTime = new DataTime(timeToDisplay);
-            // point framePeriod to new frame
-            framePeriod = new TimeRange(frameTime, LAST_FRAME_ADJ);
+            framePeriod = getLastFrameTimeRange(frameTime);
         }
 
         // check if the warning is cancelled
@@ -500,8 +502,8 @@ public abstract class AbstractWWAResource extends
                 descFrameTimes.length);
         for (int i = 0; i < descFrameTimes.length; i++) {
             if (i == descFrameTimes.length - 1) {
-                framePeriods.add(new TimeRange(descFrameTimes[i].getRefTime(),
-                        LAST_FRAME_ADJ));
+                framePeriods.add(getLastFrameTimeRange(descFrameTimes[i]
+                        .getRefTime()));
             } else {
                 framePeriods.add(new TimeRange(descFrameTimes[i].getRefTime(),
                         descFrameTimes[i + 1].getRefTime()));
@@ -670,4 +672,27 @@ public abstract class AbstractWWAResource extends
         return name;
     }
 
+    /**
+     * Determine time range for the last frame. When in simulated time (DRT)
+     * keep end of time range the start of the base time's next minute.
+     * 
+     * @param baseTime
+     * @return timeRange
+     */
+    private TimeRange getLastFrameTimeRange(Date baseTime) {
+        TimeRange timeRange = null;
+        if (SimulatedTime.getSystemTime().isRealTime()) {
+            timeRange = new TimeRange(baseTime, LAST_FRAME_ADJ);
+        } else {
+            Calendar cal = TimeUtil.newGmtCalendar();
+            cal.setTime(baseTime);
+            // Make the end time for the last frame the start of the next minute
+            // of the base time to prevent getting "future" warnings.
+            cal.add(Calendar.MINUTE, 1);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            timeRange = new TimeRange(baseTime, cal.getTime());
+        }
+        return timeRange;
+    }
 }
