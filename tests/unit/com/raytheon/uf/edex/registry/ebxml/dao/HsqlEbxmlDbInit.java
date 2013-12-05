@@ -61,7 +61,7 @@ public class HsqlEbxmlDbInit extends DbInit {
         }
         createSchema();
         createTables(aConfig);
-        populateDB();
+        // populateDB();
     }
 
     private void createSchema() {

@@ -20,10 +20,7 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -68,6 +65,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -80,25 +80,25 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "PersonName")
-public class PersonNameType extends ExtensibleObjectType implements
-        Serializable {
+public class PersonNameType extends ExtensibleObjectType {
 
     private static final long serialVersionUID = -7453253089839327032L;
 
-    @Id
     @XmlAttribute
     @DynamicSerializeElement
     protected String firstName;
 
-    @Id
     @XmlAttribute
     @DynamicSerializeElement
     protected String middleName;
 
-    @Id
     @XmlAttribute
     @DynamicSerializeElement
     protected String lastName;
+
+    public PersonNameType() {
+        super();
+    }
 
     /**
      * Gets the value of the firstName property.
@@ -161,6 +161,63 @@ public class PersonNameType extends ExtensibleObjectType implements
      */
     public void setLastName(String value) {
         this.lastName = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((firstName == null) ? 0 : firstName.hashCode());
+        result = prime * result
+                + ((lastName == null) ? 0 : lastName.hashCode());
+        result = prime * result
+                + ((middleName == null) ? 0 : middleName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PersonNameType other = (PersonNameType) obj;
+        if (firstName == null) {
+            if (other.firstName != null)
+                return false;
+        } else if (!firstName.equals(other.firstName))
+            return false;
+        if (lastName == null) {
+            if (other.lastName != null)
+                return false;
+        } else if (!lastName.equals(other.lastName))
+            return false;
+        if (middleName == null) {
+            if (other.middleName != null)
+                return false;
+        } else if (!middleName.equals(other.middleName))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PersonNameType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nfirstName=");
+        builder.append(firstName);
+        builder.append(", \nmiddleName=");
+        builder.append(middleName);
+        builder.append(", \nlastName=");
+        builder.append(lastName);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

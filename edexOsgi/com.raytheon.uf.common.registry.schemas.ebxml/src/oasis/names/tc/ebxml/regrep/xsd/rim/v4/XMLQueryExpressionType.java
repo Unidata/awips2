@@ -71,6 +71,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -84,6 +87,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "XMLQueryExpressionType", propOrder = { "any" })
 @DynamicSerialize
 public class XMLQueryExpressionType extends QueryExpressionType {
+
+    private static final long serialVersionUID = -4520183948278760674L;
 
     @XmlAnyElement(lax = true)
     @DynamicSerializeElement
@@ -119,6 +124,46 @@ public class XMLQueryExpressionType extends QueryExpressionType {
      */
     public void setAny(Object value) {
         this.any = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((any == null) ? 0 : any.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        XMLQueryExpressionType other = (XMLQueryExpressionType) obj;
+        if (any == null) {
+            if (other.any != null)
+                return false;
+        } else if (!any.equals(other.any))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("XMLQueryExpressionType \n[queryLanguage=");
+        builder.append(queryLanguage);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nany=");
+        builder.append(any);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

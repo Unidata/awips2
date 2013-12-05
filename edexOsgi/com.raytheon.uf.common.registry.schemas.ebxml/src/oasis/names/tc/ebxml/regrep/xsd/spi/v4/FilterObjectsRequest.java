@@ -21,9 +21,13 @@
 package oasis.names.tc.ebxml.regrep.xsd.spi.v4;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -35,6 +39,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -67,6 +75,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -76,22 +87,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "", propOrder = { "originalObjects", "invocationControlFile" })
 @XmlRootElement(name = "FilterObjectsRequest")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "FilterObjectsRequest")
 public class FilterObjectsRequest extends RegistryRequestType {
+
+    private static final long serialVersionUID = -6787229864622986621L;
 
     @XmlElement(name = "OriginalObjects", required = true)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected RegistryObjectListType originalObjects;
 
     @XmlElement(name = "InvocationControlFile")
     @DynamicSerializeElement
+    @Transient
     protected List<ExtrinsicObjectType> invocationControlFile;
 
     public FilterObjectsRequest() {
-
+        super();
     }
 
     public FilterObjectsRequest(String id, String comment,
-            Collection<SlotType> slots, RegistryObjectListType originalObjects,
+            List<SlotType> slots, RegistryObjectListType originalObjects,
             List<ExtrinsicObjectType> invocationControlFile) {
         super(id, comment, slots);
         this.originalObjects = originalObjects;
@@ -152,6 +170,58 @@ public class FilterObjectsRequest extends RegistryRequestType {
     public void setInvocationControlFile(
             List<ExtrinsicObjectType> invocationControlFile) {
         this.invocationControlFile = invocationControlFile;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((invocationControlFile == null) ? 0 : invocationControlFile
+                        .hashCode());
+        result = prime * result
+                + ((originalObjects == null) ? 0 : originalObjects.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FilterObjectsRequest other = (FilterObjectsRequest) obj;
+        if (invocationControlFile == null) {
+            if (other.invocationControlFile != null)
+                return false;
+        } else if (!invocationControlFile.equals(other.invocationControlFile))
+            return false;
+        if (originalObjects == null) {
+            if (other.originalObjects != null)
+                return false;
+        } else if (!originalObjects.equals(other.originalObjects))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("FilterObjectsRequest \n[comment=");
+        builder.append(comment);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \noriginalObjects=");
+        builder.append(originalObjects);
+        builder.append(", \ninvocationControlFile=");
+        builder.append(invocationControlFile);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

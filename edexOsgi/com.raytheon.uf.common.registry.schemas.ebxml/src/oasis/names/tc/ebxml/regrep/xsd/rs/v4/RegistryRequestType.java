@@ -20,9 +20,11 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rs.v4;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -40,6 +42,10 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilterObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -72,6 +78,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -85,29 +94,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         UpdateObjectsRequest.class, SubmitObjectsRequest.class,
         RemoveObjectsRequest.class })
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RegistryRequest")
 public class RegistryRequestType extends ExtensibleObjectType {
 
-    @XmlAttribute(required = true)
-    @DynamicSerializeElement
-    protected String id;
+    private static final long serialVersionUID = 4127177436730907012L;
 
     @XmlAttribute
     @DynamicSerializeElement
     protected String comment;
 
     public RegistryRequestType() {
-
+        super();
     }
 
-    public RegistryRequestType(String id, String comment,
-            Collection<SlotType> slots) {
-        super(slots);
+    public RegistryRequestType(String id, String comment, List<SlotType> slots) {
+        super(id, slots);
         this.id = id;
         this.comment = comment;
     }
 
     public RegistryRequestType(String id, String comment) {
-        this(id, comment, Collections.<SlotType> emptySet());
+        this(id, comment, Collections.<SlotType> emptyList());
 
     }
 
@@ -117,19 +126,14 @@ public class RegistryRequestType extends ExtensibleObjectType {
      * @return possible object is {@link String }
      * 
      */
+    @XmlAttribute(required = true)
     public String getId() {
         return id;
     }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *            allowed object is {@link String }
-     * 
-     */
-    public void setId(String value) {
-        this.id = value;
+    @Override
+    public void setId(String id) {
+        super.setId(id);
     }
 
     /**
@@ -151,6 +155,44 @@ public class RegistryRequestType extends ExtensibleObjectType {
      */
     public void setComment(String value) {
         this.comment = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((comment == null) ? 0 : comment.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RegistryRequestType other = (RegistryRequestType) obj;
+        if (comment == null) {
+            if (other.comment != null)
+                return false;
+        } else if (!comment.equals(other.comment))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryRequestType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \ncomment=");
+        builder.append(comment);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
