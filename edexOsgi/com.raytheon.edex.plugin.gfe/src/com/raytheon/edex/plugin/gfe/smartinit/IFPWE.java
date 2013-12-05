@@ -85,6 +85,10 @@ import com.raytheon.uf.common.util.Pair;
  * Jun 05, 2013  #2063      dgilling    Port history() from A1.
  * Jun 13, 2013  #2044      randerso    Refactored to use non-singleton 
  *                                      GridParmManager and LockManager
+ * Nov 11, 2013  #2517      randerso    Changed put() to support multiple discontiguous saves
+ *                                      Added getKeys(tr) to get grid times overlapping a time range
+ *                                      Removed caching of inventory as it was not being updated when 
+ *                                      grids were updated/deleted
  * 
  * </pre>
  * 
@@ -110,8 +114,6 @@ public class IFPWE {
 
     private final GridParmInfo gpi;
 
-    private List<TimeRange> availableTimes;
-
     private final WsId wsId;
 
     /**
@@ -134,21 +136,40 @@ public class IFPWE {
     }
 
     /**
-     * Returns the available times of data for the parm
+     * Returns all available times of data for the parm
      * 
-     * @return
+     * @return the time ranges of all available data for the parm
      */
     public List<TimeRange> getKeys() {
-        if (availableTimes == null) {
-            availableTimes = new ArrayList<TimeRange>();
-            List<TimeRange> times = gridParmMgr.getGridInventory(parmId)
-                    .getPayload();
-            if (times != null) {
-                Collections.sort(times);
-                availableTimes.addAll(times);
-            }
+      List<TimeRange> availableTimes;
+        ServerResponse<List<TimeRange>> sr = gridParmMgr
+                .getGridInventory(parmId);
+        if (sr.isOkay()) {
+            availableTimes = sr.getPayload();
+        } else {
+            availableTimes = Collections.emptyList();
         }
+
         return availableTimes;
+    }
+
+    /**
+     * Returns available times of data for the parm that overlap a time range
+     * 
+     * @param tr
+     *            the desired time range
+     * @return the time ranges of data that overlap the desired time range
+     */
+    public List<TimeRange> getKeys(TimeRange tr) {
+        List<TimeRange> overlappingTimes;
+        ServerResponse<List<TimeRange>> sr = GridParmManager.getGridInventory(
+                parmId, tr);
+        if (sr.isOkay()) {
+            overlappingTimes = sr.getPayload();
+        } else {
+            overlappingTimes = Collections.emptyList();
+        }
+        return overlappingTimes;
     }
 
     /**
@@ -252,65 +273,69 @@ public class IFPWE {
      * storage.
      * 
      * @param inventory
-     *            A Map of TimeRanges to IGridSlices to be saved. Time is the
-     *            slice's valid time.
-     * @param timeRangeSpan
-     *            The replacement time range of grids to be saved. Must cover
-     *            each individual TimeRange in inventory.
+     *            A Map of TimeRanges to List of IGridSlices. TimeRange is the
+     *            replacement time range
      * @throws GfeException
      *             If an error occurs while trying to obtain a lock on the
      *             destination database.
      */
-    public void put(LinkedHashMap<TimeRange, IGridSlice> inventory,
-            TimeRange timeRangeSpan) throws GfeException {
-        statusHandler.debug("Getting lock for ParmID: " + parmId + " TR: "
-                + timeRangeSpan);
+    public void put(LinkedHashMap<TimeRange, List<IGridSlice>> inventory)
+            throws GfeException {
+
+        for (Entry<TimeRange, List<IGridSlice>> entry : inventory.entrySet()) {
+            TimeRange timeRangeSpan = entry.getKey();
+            statusHandler.debug("Getting lock for ParmID: " + parmId + " TR: "
+                    + timeRangeSpan);
         ServerResponse<List<LockTable>> lockResponse = lockMgr
                 .requestLockChange(new LockRequest(parmId, timeRangeSpan,
                         LockMode.LOCK), wsId);
-        if (lockResponse.isOkay()) {
-            statusHandler.debug("LOCKING: Lock granted for: " + wsId
-                    + " for time range: " + timeRangeSpan);
-        } else {
-            statusHandler.error("Could not lock TimeRange " + timeRangeSpan
-                    + " for parm [" + parmId + "]: " + lockResponse.message());
-            throw new GfeException("Request lock failed. "
-                    + lockResponse.message());
-        }
+            if (lockResponse.isOkay()) {
+                statusHandler.debug("LOCKING: Lock granted for: " + wsId
+                        + " for time range: " + timeRangeSpan);
+            } else {
+                statusHandler.error("Could not lock TimeRange " + timeRangeSpan
+                        + " for parm [" + parmId + "]: "
+                        + lockResponse.message());
+                throw new GfeException("Request lock failed. "
+                        + lockResponse.message());
+            }
 
-        List<GFERecord> records = new ArrayList<GFERecord>(inventory.size());
-        for (Entry<TimeRange, IGridSlice> entry : inventory.entrySet()) {
-            GFERecord rec = new GFERecord(parmId, entry.getKey());
-            rec.setGridHistory(entry.getValue().getHistory());
-            rec.setMessageData(entry.getValue());
-            records.add(rec);
-        }
-        SaveGridRequest sgr = new SaveGridRequest(parmId, timeRangeSpan,
-                records);
+            List<IGridSlice> gridSlices = entry.getValue();
+            List<GFERecord> records = new ArrayList<GFERecord>(
+                    gridSlices.size());
+            for (IGridSlice slice : gridSlices) {
+                GFERecord rec = new GFERecord(parmId, slice.getValidTime());
+                rec.setGridHistory(slice.getHistory());
+                rec.setMessageData(slice);
+                records.add(rec);
+            }
+            SaveGridRequest sgr = new SaveGridRequest(parmId, timeRangeSpan,
+                    records);
 
-        try {
+            try {
             ServerResponse<?> sr = gridParmMgr.saveGridData(Arrays.asList(sgr),
                     wsId);
-            if (sr.isOkay()) {
-                SendNotifications.send(sr.getNotifications());
-            } else {
-                statusHandler.error("Unable to save grids for parm [" + parmId
-                        + "] over time range " + timeRangeSpan + ": "
-                        + sr.message());
-            }
-        } finally {
+                if (sr.isOkay()) {
+                    SendNotifications.send(sr.getNotifications());
+                } else {
+                    statusHandler.error("Unable to save grids for parm ["
+                            + parmId + "] over time range " + timeRangeSpan
+                            + ": " + sr.message());
+                }
+            } finally {
             ServerResponse<List<LockTable>> unLockResponse = lockMgr
                     .requestLockChange(new LockRequest(parmId, timeRangeSpan,
                             LockMode.UNLOCK), wsId);
-            if (unLockResponse.isOkay()) {
-                statusHandler.debug("LOCKING: Unlocked for: " + wsId + " TR: "
-                        + timeRangeSpan);
-            } else {
-                statusHandler.error("Could not unlock TimeRange "
-                        + timeRangeSpan + " for parm [" + parmId + "]: "
-                        + lockResponse.message());
-                throw new GfeException("Request unlock failed. "
-                        + unLockResponse.message());
+                if (unLockResponse.isOkay()) {
+                    statusHandler.debug("LOCKING: Unlocked for: " + wsId
+                            + " TR: " + timeRangeSpan);
+                } else {
+                    statusHandler.error("Could not unlock TimeRange "
+                            + timeRangeSpan + " for parm [" + parmId + "]: "
+                            + lockResponse.message());
+                    throw new GfeException("Request unlock failed. "
+                            + unLockResponse.message());
+                }
             }
         }
     }

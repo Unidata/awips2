@@ -120,6 +120,7 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProductId;
 import com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
+import com.raytheon.uf.common.dissemination.OUPTestRequest;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
@@ -331,6 +332,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use 
  *                                       simulated time.
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
+ * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
  * </pre>
  * 
  * @author lvenable
@@ -4937,53 +4939,61 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             removeOptionalFields();
 
             try {
-                /* update the vtec string in the message */
-                // DR14553 (make upper case in product)
-                if (!resend) {
-                    body = VtecUtil.getVtec(removeSoftReturns(textEditor
-                            .getText().toUpperCase()), true);
-                }
                 updateTextEditor(body);
                 if ((inEditMode || resend)
                         && saveEditedProduct(false, resend, true)) {
                     inEditMode = false;
                 }
+                if (!resend) {
+                    StdTextProduct prod = getStdTextProduct();
+                    OUPTestRequest testReq = new OUPTestRequest();
+                    testReq.setOupRequest(
+                            createOUPRequest(prod, prod.getProduct()));
+                    try {
+                        OUPResponse checkResponse = (OUPResponse)
+                                ThriftClient.sendRequest(testReq);
+                        if (checkResponse.hasFailure()) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error during text product transmission check: "
+                                            + checkResponse.getMessage());
+                            inEditMode = true;
+                            return;
+                        }
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Error during text product transmission check", e);
+                        inEditMode = true;
+                        return;
+                    }
+
+                    /* Update the vtec string in the message.  It looks wrong to
+                     * do this after saveEditedProduct, but it works because
+                     * for this case (isOpertional && ! resend) case, saveEditedProduct,
+                     * does not actually save anything. */
+                    prod.setProduct(
+                            VtecUtil.getVtec(removeSoftReturns(prod.getProduct()), true));
+                    /*
+                     * This silly bit of code updates the ETN of a VTEC in the
+                     * text pane to reflect the ETN that was actually used, but
+                     * not update any other parts of the text even though they
+                     * may have also been changed just before the product was
+                     * sent.
+                     *
+                     * A1 works similarly.
+                     */
+                    updateTextEditor(copyEtn(prod.getProduct(), body));
+                }
 
                 String product = TextDisplayModel.getInstance().getProduct(
                         token);
-                OUPRequest req = new OUPRequest();
-                OfficialUserProduct oup = new OfficialUserProduct();
-                StdTextProduct prod = getStdTextProduct(); // TODO: makes me
-                                                           // nervous...
-                String awipsWanPil = prod.getSite() + prod.getNnnid()
-                        + prod.getXxxid();
-                String awipsID = prod.getNnnid() + prod.getXxxid();
+                // TODO: Should not need to call getProduct and the like twice.
+                StdTextProduct prod = getStdTextProduct();
+
+                OUPRequest req = createOUPRequest(prod, product);
 
                 if (notify != null) {
                     notify.add(product);
                 }
-                oup.setAwipsWanPil(awipsWanPil);
-                oup.setNeedsWmoHeader(false);
-                oup.setProductText(product);
-                oup.setSource("TextWS");
-                oup.setWmoType(fixNOR(prod.getBbbid()));
-                oup.setUserDateTimeStamp(prod.getHdrtime());
-                StringBuilder fileName = new StringBuilder();
-
-                // The .wan extension followed by the 10 digit epoch seconds
-                // of simulated time is used in EDEX's WarningDecoder to
-                // determine the base time.
-                fileName.append(awipsID).append(".wan")
-                        .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
-                oup.setFilename(fileName.toString());
-                oup.setAddress(addressee);
-                if ((attachedFile != null) && (attachedFilename != null)) {
-                    oup.setAttachedFile(attachedFile);
-                    oup.setAttachedFilename(attachedFilename);
-                }
-                req.setCheckBBB(true);
-                req.setProduct(oup);
-                req.setUser(UserController.getUserObject());
 
                 // Code in Run statement goes here!
                 new Thread(new ThriftClientRunnable(req)).start();
@@ -5033,6 +5043,51 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             headerTF.setText(header);
             cancelEditor(false);
         }
+    }
+
+    private OUPRequest createOUPRequest(StdTextProduct prod, String text) {
+        OUPRequest req = new OUPRequest();
+        OfficialUserProduct oup = new OfficialUserProduct();
+        String awipsWanPil = prod.getSite() + prod.getNnnid()
+                + prod.getXxxid();
+        String awipsID = prod.getNnnid() + prod.getXxxid();
+
+        oup.setAwipsWanPil(awipsWanPil);
+        oup.setNeedsWmoHeader(false);
+        oup.setProductText(text);
+        oup.setSource("TextWS");
+        oup.setWmoType(fixNOR(prod.getBbbid()));
+        oup.setUserDateTimeStamp(prod.getHdrtime());
+        StringBuilder fileName = new StringBuilder();
+
+        // The .wan extension followed by the 10 digit epoch seconds
+        // of simulated time is used in EDEX's WarningDecoder to
+        // determine the base time.
+        fileName.append(awipsID).append(".wan")
+                .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
+        oup.setFilename(fileName.toString());
+        oup.setAddress(addressee);
+        if ((attachedFile != null) && (attachedFilename != null)) {
+            oup.setAttachedFile(attachedFile);
+            oup.setAttachedFilename(attachedFilename);
+        }
+        req.setCheckBBB(true);
+        req.setProduct(oup);
+        req.setUser(UserController.getUserObject());
+        return req;
+    }
+
+    private static String copyEtn(String from, String to) {
+        VtecObject fromVtec = VtecUtil.parseMessage(from);
+
+        if (fromVtec != null && "NEW".equals(fromVtec.getAction())) {
+            VtecObject toVtec = VtecUtil.parseMessage(to);
+            if (toVtec != null) {
+                toVtec.setSequence(fromVtec.getSequence());
+                return VtecUtil.replaceFirstVtecString(to, fromVtec);
+            }
+        }
+        return to;
     }
 
     /**
