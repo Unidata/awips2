@@ -76,6 +76,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 10/23/2013    1538       bphillip    Added setTime method
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -90,42 +93,39 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "DateTimeValue")
 public class DateTimeValueType extends ValueType {
 
-    @Column(name = "DateTimeValue")
+    @Column
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.XMLGregorianCalendarType")
     @XmlElement(name = "Value")
     @XmlSchemaType(name = "dateTime")
     @DynamicSerializeElement
     protected XMLGregorianCalendar dateTimeValue;
 
-    private static final String COLUMN_NAME = "dateTimeValue";
-
     public DateTimeValueType() {
+        super();
+    }
 
+    public DateTimeValueType(Integer id) {
+        super(id);
     }
 
     public DateTimeValueType(XMLGregorianCalendar dateTimeValue) {
+        super();
         this.dateTimeValue = dateTimeValue;
     }
 
-    public DateTimeValueType(long time) {
+    public DateTimeValueType(Integer id, XMLGregorianCalendar dateTimeValue) {
+        super(id);
+        this.dateTimeValue = dateTimeValue;
+    }
+
+    public DateTimeValueType(Long time) {
         setTime(time);
     }
 
-    @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
-    }
-
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link XMLGregorianCalendar }
-     * 
-     */
     @SuppressWarnings("unchecked")
     @Override
-    public XMLGregorianCalendar getValue() {
-        return dateTimeValue;
+    public <T> T getValue() {
+        return (T) getDateTimeValue();
     }
 
     public void setTime(long time) {
@@ -140,24 +140,44 @@ public class DateTimeValueType extends ValueType {
         }
     }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link XMLGregorianCalendar }
-     * 
-     */
-    @Override
-    public void setValue(Object value) {
-        this.dateTimeValue = (XMLGregorianCalendar) value;
-    }
-
     public XMLGregorianCalendar getDateTimeValue() {
-        return getValue();
+        return dateTimeValue;
     }
 
     public void setDateTimeValue(XMLGregorianCalendar dateTimeValue) {
-        setValue(dateTimeValue);
+        this.dateTimeValue = dateTimeValue;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((dateTimeValue == null) ? 0 : dateTimeValue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DateTimeValueType other = (DateTimeValueType) obj;
+        if (dateTimeValue == null) {
+            if (other.dateTimeValue != null)
+                return false;
+        } else if (!dateTimeValue.equals(other.dateTimeValue))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "DateTimeValueType [dateTimeValue=" + dateTimeValue + ", id="
+                + id + "]";
     }
 
 }

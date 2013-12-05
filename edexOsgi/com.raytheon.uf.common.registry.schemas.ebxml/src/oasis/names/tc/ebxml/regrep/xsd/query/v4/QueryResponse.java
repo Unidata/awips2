@@ -22,6 +22,8 @@ package oasis.names.tc.ebxml.regrep.xsd.query.v4;
 
 import java.math.BigInteger;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,6 +32,10 @@ import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -60,6 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -69,7 +76,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "")
 @XmlRootElement(name = "QueryResponse")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "QueryResponse")
 public class QueryResponse extends RegistryResponseType {
+
+    private static final long serialVersionUID = 994857768186130811L;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -78,6 +90,10 @@ public class QueryResponse extends RegistryResponseType {
     @XmlAttribute
     @DynamicSerializeElement
     protected BigInteger totalResultCount;
+
+    public QueryResponse() {
+        super();
+    }
 
     public void incrementResultCount(BigInteger resultCount) {
         if (resultCount == null) {
@@ -133,6 +149,65 @@ public class QueryResponse extends RegistryResponseType {
      */
     public void setTotalResultCount(BigInteger value) {
         this.totalResultCount = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((startIndex == null) ? 0 : startIndex.hashCode());
+        result = prime
+                * result
+                + ((totalResultCount == null) ? 0 : totalResultCount.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        QueryResponse other = (QueryResponse) obj;
+        if (startIndex == null) {
+            if (other.startIndex != null)
+                return false;
+        } else if (!startIndex.equals(other.startIndex))
+            return false;
+        if (totalResultCount == null) {
+            if (other.totalResultCount != null)
+                return false;
+        } else if (!totalResultCount.equals(other.totalResultCount))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("QueryResponse \n[exception=");
+        builder.append(exception);
+        builder.append(", \nregistryObjectList=");
+        builder.append(registryObjectList);
+        builder.append(", \nobjectRefList=");
+        builder.append(objectRefList);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nrequestId=");
+        builder.append(requestId);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nstartIndex=");
+        builder.append(startIndex);
+        builder.append(", \ntotalResultCount=");
+        builder.append(totalResultCount);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
