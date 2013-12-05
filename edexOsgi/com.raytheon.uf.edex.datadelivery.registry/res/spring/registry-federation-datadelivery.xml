@@ -24,6 +24,7 @@
 			value="com.raytheon.uf.edex.datadelivery.registry.federation.RegistryFederationManager.addObjectTypesToSubscribeTo" />
 		<property name="arguments">
 			<list>
+				<value>Test Object Type</value>
 				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Federation</value>
 				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Registry</value>
 				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association</value>

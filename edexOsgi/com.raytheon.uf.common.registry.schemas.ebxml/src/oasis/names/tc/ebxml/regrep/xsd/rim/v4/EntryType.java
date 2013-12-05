@@ -25,6 +25,7 @@ import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -74,6 +75,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -94,12 +97,14 @@ public class EntryType implements Serializable {
     @XmlElement(name = "EntryKey", required = true)
     @DynamicSerializeElement
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "entryKey_id", nullable = false, referencedColumnName = "id")
     protected ValueType entryKey;
 
     @Id
     @XmlElement(name = "EntryValue")
     @DynamicSerializeElement
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "entryValue_id", nullable = false, referencedColumnName = "id")
     protected ValueType entryValue;
 
     /**
@@ -142,6 +147,45 @@ public class EntryType implements Serializable {
      */
     public void setEntryValue(ValueType value) {
         this.entryValue = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((entryKey == null) ? 0 : entryKey.hashCode());
+        result = prime * result
+                + ((entryValue == null) ? 0 : entryValue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EntryType other = (EntryType) obj;
+        if (entryKey == null) {
+            if (other.entryKey != null)
+                return false;
+        } else if (!entryKey.equals(other.entryKey))
+            return false;
+        if (entryValue == null) {
+            if (other.entryValue != null)
+                return false;
+        } else if (!entryValue.equals(other.entryValue))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "EntryType [entryKey=" + entryKey + ", entryValue=" + entryValue
+                + "]";
     }
 
 }

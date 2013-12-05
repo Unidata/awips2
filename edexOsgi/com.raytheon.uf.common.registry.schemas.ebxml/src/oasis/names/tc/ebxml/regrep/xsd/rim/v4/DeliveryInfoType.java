@@ -22,16 +22,12 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
@@ -79,6 +75,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode and equals
  * </pre>
  * 
  * @author bphillip
@@ -93,12 +90,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "DeliveryInfo")
 public class DeliveryInfoType extends ExtensibleObjectType {
 
-    @Id
-    @SequenceGenerator(name = "DeliveryInfoTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
-            + ".DeliveryInfo_sequence")
-    @GeneratedValue(generator = "DeliveryInfoTypeGenerator")
-    @XmlTransient
-    private Integer key;
+    private static final long serialVersionUID = -5102364923190271786L;
 
     // TODO: Revisit how to handle serialization of this field
     // @DynamicSerializeElement
@@ -112,9 +104,8 @@ public class DeliveryInfoType extends ExtensibleObjectType {
     @RegistryObjectReference
     protected String notificationOption;
 
-    public Integer getKey() {
-        return key;
-
+    public DeliveryInfoType() {
+        super();
     }
 
     /**
@@ -163,15 +154,10 @@ public class DeliveryInfoType extends ExtensibleObjectType {
         this.notificationOption = value;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
+        int result = super.hashCode();
         result = prime
                 * result
                 + ((notificationOption == null) ? 0 : notificationOption
@@ -181,38 +167,41 @@ public class DeliveryInfoType extends ExtensibleObjectType {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (!super.equals(obj))
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         DeliveryInfoType other = (DeliveryInfoType) obj;
         if (notificationOption == null) {
-            if (other.notificationOption != null) {
+            if (other.notificationOption != null)
                 return false;
-            }
-        } else if (!notificationOption.equals(other.notificationOption)) {
+        } else if (!notificationOption.equals(other.notificationOption))
             return false;
-        }
         if (notifyTo == null) {
-            if (other.notifyTo != null) {
+            if (other.notifyTo != null)
                 return false;
-            }
-        } else if (!notifyTo.equals(other.notifyTo)) {
+        } else if (!notifyTo.equals(other.notifyTo))
             return false;
-        }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DeliveryInfoType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nnotifyTo=");
+        builder.append(notifyTo);
+        builder.append(", \nnotificationOption=");
+        builder.append(notificationOption);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

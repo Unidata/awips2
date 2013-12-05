@@ -20,21 +20,15 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
@@ -78,6 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode and equals
  * </pre>
  * 
  * @author bphillip
@@ -91,20 +86,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Action")
-public class ActionType extends ExtensibleObjectType implements Serializable {
+public class ActionType extends ExtensibleObjectType {
 
     private static final long serialVersionUID = -8469820571747325703L;
 
-    @Id
-    @SequenceGenerator(name = "ActionTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
-            + ".Action_sequence")
-    @GeneratedValue(generator = "ActionTypeGenerator")
-    @XmlTransient
-    private Integer key;
-
-    @OneToOne(cascade = CascadeType.ALL)
     @XmlElement(name = "AffectedObjects")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected RegistryObjectListType affectedObjects;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -117,12 +105,67 @@ public class ActionType extends ExtensibleObjectType implements Serializable {
     @RegistryObjectReference
     protected String eventType;
 
-    public Integer getKey() {
-        return key;
+    public ActionType() {
+        super();
     }
 
-    public void setKey(Integer key) {
-        this.key = key;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((affectedObjectRefs == null) ? 0 : affectedObjectRefs
+                        .hashCode());
+        result = prime * result
+                + ((affectedObjects == null) ? 0 : affectedObjects.hashCode());
+        result = prime * result
+                + ((eventType == null) ? 0 : eventType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ActionType other = (ActionType) obj;
+        if (affectedObjectRefs == null) {
+            if (other.affectedObjectRefs != null)
+                return false;
+        } else if (!affectedObjectRefs.equals(other.affectedObjectRefs))
+            return false;
+        if (affectedObjects == null) {
+            if (other.affectedObjects != null)
+                return false;
+        } else if (!affectedObjects.equals(other.affectedObjects))
+            return false;
+        if (eventType == null) {
+            if (other.eventType != null)
+                return false;
+        } else if (!eventType.equals(other.eventType))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ActionType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \naffectedObjects=");
+        builder.append(affectedObjects);
+        builder.append(", \naffectedObjectRefs=");
+        builder.append(affectedObjectRefs);
+        builder.append(", \neventType=");
+        builder.append(eventType);
+        builder.append("]");
+        return builder.toString();
     }
 
     /**
