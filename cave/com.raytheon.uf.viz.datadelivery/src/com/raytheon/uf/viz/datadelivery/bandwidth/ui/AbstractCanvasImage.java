@@ -44,7 +44,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 28, 2012    1269    lvenable    Initial creation.
- * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Dec 13, 2012    1269    lvenable    Fixes and updates.
+ * Nov 25, 2013    2545    mpduff      Data sorted by network.
  * 
  * </pre>
  * 
@@ -213,18 +214,19 @@ public abstract class AbstractCanvasImage {
 
         switch (imageMgr.getSortBy()) {
         case NAME_ASC:
-            return graphData.getSortedNames(true);
+            return graphData.getSortedNames(true, imageMgr.getNetwork());
         case NAME_DESC:
-            return graphData.getSortedNames(false);
+            return graphData.getSortedNames(false, imageMgr.getNetwork());
         case CURRENT_TIME:
             return graphData.getSubscriptionsSortedByTime(
-                    imageMgr.getCurrentTimeMillis(), true);
+                    imageMgr.getNetwork(), imageMgr.getCurrentTimeMillis(),
+                    true);
         case SELECTED_INTERSECT:
             return graphData.getSubscriptionsSortedByTime(
-                    imageMgr.getSortTimeMillis(), true);
+                    imageMgr.getNetwork(), imageMgr.getSortTimeMillis(), true);
         case SELECTED_START:
             return graphData.getSubscriptionsSortedByTime(
-                    imageMgr.getSortTimeMillis(), false);
+                    imageMgr.getNetwork(), imageMgr.getSortTimeMillis(), false);
         default:
             return new ArrayList<String>();
         }
