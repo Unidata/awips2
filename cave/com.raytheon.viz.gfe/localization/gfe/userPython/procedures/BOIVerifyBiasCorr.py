@@ -23,10 +23,18 @@
 #   2008/05/28 - version 2.0.5 - bugfix for basetime/starttime when an
 #                    archived grid is constant.
 #
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/21/13        16770         ryu            Change name of temporary files
+#                                                 for dual domain.
 #=============================================================================
 #
 #  Do not show this in any menu.  Should only be run via runProcedure after
-#  putting the force flag and model to correct in /tmp/FILE
+#  putting the force flag and model to correct in /tmp/<siteId>_FILE
 #
 #MenuItems = ["Verify"]
 #
@@ -97,7 +105,7 @@ class Procedure (SmartScript.SmartScript):
       force="0"
       model=""
       obsmodel=""
-      filename="/tmp/%s"%FILE
+      filename="/tmp/%s_%s"% (self.getSiteID(), FILE)
       if ((os.path.exists(filename))and(os.path.isfile(filename))):
          try:
             infile=file(filename,"r")

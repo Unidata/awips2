@@ -23,10 +23,18 @@
 #                    this procedure is run via runProcedure.
 #
 #   2010/04/23  ryu  Initial port to AWIPS II.
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/21/13        16770         ryu            Change name of temporary files
+#                                                 for dual domain.
 #=============================================================================
 #
 #  Do not show this in any menu.  Should only be run via runProcedure after
-#  putting the model to save in /tmp/FILE
+#  putting the model to save in /tmp/<siteId>_FILE
 #
 #MenuItems = ["Verify"] # for debug
 #
@@ -739,7 +747,7 @@ class Procedure (SmartScript.SmartScript):
    #==================================================================
    #
    #  getSaveModels - get list of models to save.  First try reading
-   #                  the model name from /tmp/$FILE.  If not there -
+   #                  the model name from /tmp/<siteId>_$FILE.  If not there -
    #                  get list of all models in the
    #                  BOIVerify system except Official and ISC
    #
@@ -749,7 +757,7 @@ class Procedure (SmartScript.SmartScript):
       #
       #  Read the model from the FILE file
       #
-      filename="/tmp/%s"%FILE
+      filename="/tmp/%s_%s"% (self.getSiteID(), FILE)
       if ((os.path.exists(filename))and(os.path.isfile(filename))):
          try:
             infile=file(filename,"r")

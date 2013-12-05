@@ -220,6 +220,20 @@
         </dataSet>
     </category>
     <category>
+        <name>Radar (Local)</name>   
+        <extRetentionHours>168</extRetentionHours>
+        <dataSet>
+            <dirPattern>radar/([k|t|e|f]\w{3})/.*</dirPattern>    <!-- one level like GSM or HI -->  <!-- e and f are for FAA ASR and ARSR radars -->
+            <dirPattern>radar/(k...|t...|e...|f...)/.*/.*</dirPattern>  <!-- two levels like ML -->
+            <dirPattern>radar/(k...|t...|e...|f...)/.*/.*/.*</dirPattern>  <!-- three levels like ML -->
+            <dirPattern>radar/(k...|t...|e...|f...)/.*/.*/.*/.*</dirPattern>  <!-- four levels like Z -->
+            <dirPattern>radar/(k...|t...|e...|f...)/.*/.*/.*/.*/.*</dirPattern>  <!-- five levels like Z (superres) -->
+            <filePattern>(\w{4}).(\d*).(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(.*)</filePattern>
+            <displayLabel>{1}</displayLabel>
+            <dateGroupIndices>4,5,6,7</dateGroupIndices>
+        </dataSet>
+    </category>
+    <category>
         <name>Satellite</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
