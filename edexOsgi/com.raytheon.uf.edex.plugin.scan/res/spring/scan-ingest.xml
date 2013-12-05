@@ -15,7 +15,7 @@
 		<property name="keepAliveSeconds" value="60000" />
 	</bean>
 
-    <bean id="scanGenerator" class="com.raytheon.uf.edex.plugin.scan.ScanGenerator" depends-on="commonTimeRegistered">
+    <bean id="scanGenerator" class="com.raytheon.uf.edex.plugin.scan.ScanGenerator" depends-on="commonTimeRegistered, gridcoveragelookup">
    		<property name="executor" ref="scanThreadPool"/>
     </bean>
 
