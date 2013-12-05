@@ -20,8 +20,13 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
-import java.util.Collection;
+import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,7 +40,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -71,6 +80,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -80,14 +90,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "", propOrder = { "query", "objectRefList" })
 @XmlRootElement(name = "RemoveObjectsRequest")
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RemoveObjectsRequest")
 public class RemoveObjectsRequest extends RegistryRequestType {
+
+    private static final long serialVersionUID = 654608816540789417L;
 
     @XmlElement(name = "Query")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "query_id", referencedColumnName = "id")
     protected QueryType query;
 
     @XmlElement(name = "ObjectRefList", namespace = EbxmlNamespaces.RIM_URI)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
     protected ObjectRefListType objectRefList;
 
     @XmlAttribute
@@ -108,11 +126,11 @@ public class RemoveObjectsRequest extends RegistryRequestType {
     protected String username;
 
     public RemoveObjectsRequest() {
-
+        super();
     }
 
     public RemoveObjectsRequest(String id, String comment,
-            Collection<SlotType> slots, QueryType query,
+            List<SlotType> slots, QueryType query,
             ObjectRefListType objectRefList, Boolean checkReferences,
             Boolean deleteChildren, String deletionScope) {
         super(id, comment, slots);
@@ -246,6 +264,91 @@ public class RemoveObjectsRequest extends RegistryRequestType {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((checkReferences == null) ? 0 : checkReferences.hashCode());
+        result = prime * result
+                + ((deleteChildren == null) ? 0 : deleteChildren.hashCode());
+        result = prime * result
+                + ((deletionScope == null) ? 0 : deletionScope.hashCode());
+        result = prime * result
+                + ((objectRefList == null) ? 0 : objectRefList.hashCode());
+        result = prime * result + ((query == null) ? 0 : query.hashCode());
+        result = prime * result
+                + ((username == null) ? 0 : username.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RemoveObjectsRequest other = (RemoveObjectsRequest) obj;
+        if (checkReferences == null) {
+            if (other.checkReferences != null)
+                return false;
+        } else if (!checkReferences.equals(other.checkReferences))
+            return false;
+        if (deleteChildren == null) {
+            if (other.deleteChildren != null)
+                return false;
+        } else if (!deleteChildren.equals(other.deleteChildren))
+            return false;
+        if (deletionScope == null) {
+            if (other.deletionScope != null)
+                return false;
+        } else if (!deletionScope.equals(other.deletionScope))
+            return false;
+        if (objectRefList == null) {
+            if (other.objectRefList != null)
+                return false;
+        } else if (!objectRefList.equals(other.objectRefList))
+            return false;
+        if (query == null) {
+            if (other.query != null)
+                return false;
+        } else if (!query.equals(other.query))
+            return false;
+        if (username == null) {
+            if (other.username != null)
+                return false;
+        } else if (!username.equals(other.username))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RemoveObjectsRequest \n[comment=");
+        builder.append(comment);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nquery=");
+        builder.append(query);
+        builder.append(", \nobjectRefList=");
+        builder.append(objectRefList);
+        builder.append(", \ncheckReferences=");
+        builder.append(checkReferences);
+        builder.append(", \ndeleteChildren=");
+        builder.append(deleteChildren);
+        builder.append(", \ndeletionScope=");
+        builder.append(deletionScope);
+        builder.append(", \nusername=");
+        builder.append(username);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -22,9 +22,11 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
@@ -78,6 +80,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -95,13 +99,13 @@ public class RegistryObjectListType implements Serializable {
     private static final long serialVersionUID = -254507015539461400L;
 
     @Id
-    @SequenceGenerator(name = "RegistryObjectListTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+    @SequenceGenerator(name = "RegistryObjectListGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
             + ".RegistryObjectList_sequence")
-    @GeneratedValue(generator = "RegistryObjectListTypeGenerator")
+    @GeneratedValue(generator = "RegistryObjectListGenerator")
     @XmlTransient
-    private Integer key;
+    private int id;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Cascade({})
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     @XmlElement(name = "RegistryObject")
@@ -132,12 +136,12 @@ public class RegistryObjectListType implements Serializable {
         this.registryObject = list;
     }
 
-    public Integer getKey() {
-        return key;
+    public int getId() {
+        return id;
     }
 
-    public void setKey(Integer key) {
-        this.key = key;
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
@@ -172,6 +176,10 @@ public class RegistryObjectListType implements Serializable {
 
     public void setRegistryObject(List<RegistryObjectType> registryObject) {
         this.registryObject = registryObject;
+    }
+
+    public void addRegistryObjects(Collection<RegistryObjectType> registryObject) {
+        getRegistryObject().addAll(registryObject);
     }
 
     /*
@@ -213,6 +221,15 @@ public class RegistryObjectListType implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryObjectListType \n[registryObject=");
+        builder.append(registryObject);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

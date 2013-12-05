@@ -20,12 +20,12 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.UUID;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -74,7 +74,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 10/23/2013    1538       bphillip    Added sequence generator and unique key so refs will not be shared
- *                                      amond multiple ref lists
+ *                                      among multiple ref lists
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -89,26 +91,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ObjectRef")
-public class ObjectRefType extends ExtensibleObjectType implements
-        IPersistableDataObject<String> {
+public class ObjectRefType implements IPersistableDataObject<String> {
 
     @Id
-    @SequenceGenerator(name = "ObjectRefTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
-            + ".ObjectRef_sequence")
-    @GeneratedValue(generator = "ObjectRefTypeGenerator")
     @XmlTransient
-    private Integer key;
+    private String key;
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String id;
 
     public ObjectRefType() {
-
+        this.key = UUID.randomUUID().toString();
     }
 
     public ObjectRefType(String id) {
         this.id = id;
+        this.key = UUID.randomUUID().toString();
     }
 
     /**
@@ -137,12 +136,23 @@ public class ObjectRefType extends ExtensibleObjectType implements
         return getId();
     }
 
-    public Integer getKey() {
+    public String getKey() {
         return key;
     }
 
-    public void setKey(Integer key) {
+    public void setKey(String key) {
         this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ObjectRefType \n[key=");
+        builder.append(key);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
