@@ -10,7 +10,7 @@
 	<bean id="profilerProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="profilerPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.profiler" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.profiler.dao.ProfilerDAO" />
+		<property name="dao" value="com.raytheon.edex.plugin.profiler.ProfilerDAO" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs" />
 	</bean>
 	

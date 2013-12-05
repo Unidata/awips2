@@ -46,7 +46,6 @@ import com.raytheon.uf.common.pointdata.elements.FloatPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.IntPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.LongPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.StringPointDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -57,9 +56,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 08, 2009           chammack    Initial creation
+ * Dec 02, 2013  2537     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -69,7 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PointDataContainer implements ISerializableObject {
+public class PointDataContainer {
 
     protected static final int DEFAULT_SZ = 2048;
 
