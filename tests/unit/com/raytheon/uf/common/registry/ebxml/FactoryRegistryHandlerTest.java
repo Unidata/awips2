@@ -27,7 +27,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +50,6 @@ import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
-import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Test {@link FactoryRegistryHandler}.
@@ -159,9 +157,8 @@ public class FactoryRegistryHandlerTest {
 
         // Setup the encoded objects as if they were coming from the registry
         for (int i = 0; i < registryObjectTypes.size(); i++) {
-            Set<SlotType> slotType = CollectionUtil.asSet(encoderStrategy
-                    .encodeObject(results[i]));
-            registryObjectTypes.get(i).setSlot(slotType);
+            SlotType slotType = encoderStrategy.encodeObject(results[i]);
+            registryObjectTypes.get(i).getSlot().add(slotType);
         }
 
         List<String> filteredResults = registryHandler.filterResults(

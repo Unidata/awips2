@@ -62,16 +62,12 @@ Date         Ticket#     Engineer    Description
 
 <table>
 	<tr>
-		<td>Federated:</td>
-		<td><span id="federatedSpan">[Unknown]</span></td>
-	</tr>
-	<tr>
-		<td>Processing Subscriptions:</td>
-		<td><span id="processSubscriptionsSpan">[Unknown]</span></td>
-	</tr>
-	<tr>
 		<td>My Registry ID:</td>
 		<td><span id="myRegistryIdSpan">[Unknown]</span></td> 
+	</tr>
+	<tr>
+		<td>Federated:</td>
+		<td><span id="federatedSpan">[Unknown]</span></td>
 	</tr>
 </table>
 
@@ -154,7 +150,6 @@ Date         Ticket#     Engineer    Description
 	function populate(){
 		var isFederated = callRestService("dataDelivery/status/isFederated")
 		document.getElementById("federatedSpan").innerHTML=isFederated
-		document.getElementById("processSubscriptionsSpan").innerHTML=callRestService("dataDelivery/status/isProcessingSubscriptions")
 		if(isFederated == "true"){
 			var myRegistryId=callRestService("dataDelivery/status/getMyRegistryInfo").split("\n")[0].split(",")[0]
 			document.getElementById("myRegistryIdSpan").innerHTML=myRegistryId

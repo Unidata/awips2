@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * ------------ ----------  ----------- --------------------------
  * 10/30/2013    1538       bphillip    Initial Creation
  * 11/20/2013   2534        bphillip    Added interface
+ * 12/2/2013    1829        bphillip    Changed to use modified call to getRegistryObject
  * </pre>
  * 
  * @author bphillip
@@ -124,12 +125,6 @@ public class RegistryFederationStatus implements IRegistryFederationService {
     @Path("isFederated")
     public String isFederated() {
         return System.getenv("EBXML_REGISTRY_FEDERATION_ENABLED");
-    }
-
-    @GET
-    @Path("isProcessingSubscriptions")
-    public String isProcessingSubscriptions() {
-        return System.getenv("EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED");
     }
 
     @GET
@@ -305,7 +300,7 @@ public class RegistryFederationStatus implements IRegistryFederationService {
             throws RegistryServiceException, JAXBException {
         StringBuilder builder = new StringBuilder();
         RegistryType registry = dataDeliveryRestClient.getRegistryObject(
-                RegistryType.class, ncfAddress, registryId);
+                ncfAddress, registryId);
         if (registry == null) {
             builder.append("Registry [")
                     .append(registryId)
@@ -354,7 +349,7 @@ public class RegistryFederationStatus implements IRegistryFederationService {
      *            The string builder to append to
      */
     private void appendRegistryInfo(RegistryType registry, StringBuilder builder) {
-        builder.append(registry).append(",");
+        builder.append(registry.getId()).append(",");
         builder.append(registry.getBaseURL()).append(",");
         builder.append(registry.getConformanceProfile()).append(",");
         builder.append(registry.getSpecificationVersion());
