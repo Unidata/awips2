@@ -39,7 +39,6 @@
 		<property name="queryManager" ref="queryServiceImpl" />
 		<property name="validator" ref="validatorServiceImpl" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
-		<property name="auditableEventService" ref="AuditableEventService" />
 		<property name="cataloger" ref="catalogerServiceImpl" />
 		<property name="referenceResolver" ref="objectReferenceResolver"/>
 		<property name="xpathProcessor" ref="registryXpathProcessor"/>
