@@ -7,9 +7,16 @@
 	<bean id="oupHandler" class="com.raytheon.uf.edex.dissemination.OUPHandler">
 		<property name="ackManager" ref="oupAckMgr" />
 	</bean>
+	<bean id="oupTestHandler" class="com.raytheon.uf.edex.dissemination.OUPTestHandler">
+		<property name="oupHandler" ref="oupHandler" />
+	</bean>
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg value="com.raytheon.uf.common.dissemination.OUPRequest" />
 		<constructor-arg ref="oupHandler" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg value="com.raytheon.uf.common.dissemination.OUPTestRequest" />
+		<constructor-arg ref="oupTestHandler" />
 	</bean>
 
 	<camelContext id="handleoupAckMgrContext" xmlns="http://camel.apache.org/schema/spring"

@@ -65,6 +65,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ProductEditorComp.PTypeCategory;
+import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
 
 /**
@@ -210,10 +211,12 @@ public class StyledTextComp extends Composite {
     private void init() {
         String fontSetting = Activator.getDefault().getPreferenceStore()
                 .getString("ProductOutputDialog_font");
+        FontData fontData;
         if (fontSetting.isEmpty()) {
-            fontSetting = "Bitstream Vera Sans Mono-bold-12";
+            fontData = GFEFonts.getFontData(2);
+        } else {
+            fontData = StringConverter.asFontData(fontSetting);
         }
-        FontData fontData = StringConverter.asFontData(fontSetting);
         textFont = new Font(parent.getDisplay(), fontData);
 
         createMouseListner();
@@ -573,7 +576,7 @@ public class StyledTextComp extends Composite {
                 replaceText(ff, SPC + newfield);
             }
         } else {
-        	String s = SPC + newfield;
+            String s = SPC + newfield;
             if (!ff.getText().equals(s)) {
                 replaceText(ff, s);
             }
@@ -1350,7 +1353,7 @@ public class StyledTextComp extends Composite {
             line = st.getLine(searchLine);
             int lineOffset = st.getOffsetAtLine(searchLine);
 
-            // if line contains locked text, quit looking.            
+            // if line contains locked text, quit looking.
             if (rangeHasLockedText(lineOffset, line.length())) {
                 break;
             }
@@ -1407,7 +1410,7 @@ public class StyledTextComp extends Composite {
         if (endIndex >= st.getCharCount()) {
             endIndex = st.getCharCount() - 1;
         }
-        
+
         if (endIndex < startIndex) {
             return new int[] { startIndex, endIndex, 0 };
         }
