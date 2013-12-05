@@ -73,13 +73,13 @@ import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.services.AuditableEventService;
 import com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor;
+import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
 
 /**
  * The LifecycleManager interface allows a client to perform various lifecycle
@@ -106,6 +106,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor;
  * 10/23/2013   1538       bphillip    Changed QueryRequest constructor call
  * Nov 08, 2013 2506       bgonzale    Added RegistryObjectType to RemoveRegistryEvent.
  *                                     Separate update from create notifications.
+ * 12/2/2013    1829       bphillip    Auditable events are not genereted via messages on the event bus
  * 
  * 
  * </pre>
@@ -144,8 +145,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
     /** The registry object data access object */
     private RegistryObjectDao registryObjectDao;
-
-    private AuditableEventService auditableEventService;
 
     private RegistryXPathProcessor xpathProcessor;
 
@@ -247,43 +246,33 @@ public class LifecycleManagerImpl implements LifecycleManager {
                         REMOVE_OBJECTS_ERROR_MSG, message);
             }
         }
-        try {
 
-            if (deletionScope.equals(DeletionScope.DELETE_ALL)) {
-                for (RegistryObjectType objToRemove : objectsToRemove) {
-                    removeRepositoryItem(objToRemove);
-                    if (deleteChildren) {
-                        registryObjectDao.deleteWithoutMerge(objToRemove);
-                    } else {
-                        try {
-                            registryObjectDao
-                                    .deleteObjectWithoutDeletingChildren(objToRemove);
-                        } catch (DataAccessLayerException e) {
-                            throw EbxmlExceptionUtil.createQueryExceptionType(
-                                    REMOVE_OBJECTS_ERROR_MSG,
-                                    "Error deleting object ["
-                                            + objToRemove.getId() + "]"
-                                            + e.getLocalizedMessage());
-                        }
+        if (deletionScope.equals(DeletionScope.DELETE_ALL)) {
+            for (RegistryObjectType objToRemove : objectsToRemove) {
+                removeRepositoryItem(objToRemove);
+                if (deleteChildren) {
+                    registryObjectDao.deleteWithoutMerge(objToRemove);
+                } else {
+                    try {
+                        registryObjectDao
+                                .deleteObjectWithoutDeletingChildren(objToRemove);
+                    } catch (DataAccessLayerException e) {
+                        throw EbxmlExceptionUtil.createQueryExceptionType(
+                                REMOVE_OBJECTS_ERROR_MSG,
+                                "Error deleting object [" + objToRemove.getId()
+                                        + "]" + e.getLocalizedMessage());
                     }
                 }
-            } else if (deletionScope
-                    .equals(DeletionScope.DELETE_REPOSITORY_ITEM_ONLY)) {
-                for (RegistryObjectType objToRemove : objectsToRemove) {
-                    removeRepositoryItem(objToRemove);
-                }
-            } else {
-                throw EbxmlExceptionUtil
-                        .createUnsupportedCapabilityExceptionType(
-                                REMOVE_OBJECTS_ERROR_MSG,
-                                "Unsupported DeletionScope [" + deletionScope
-                                        + "]");
             }
-            auditableEventService.createAuditableEventFromObjects(request,
-                    ActionTypes.delete, objectsToRemove);
-        } catch (EbxmlRegistryException e) {
-            throw EbxmlExceptionUtil.createMsgRegistryException(
-                    REMOVE_OBJECTS_ERROR_MSG, e);
+        } else if (deletionScope
+                .equals(DeletionScope.DELETE_REPOSITORY_ITEM_ONLY)) {
+            for (RegistryObjectType objToRemove : objectsToRemove) {
+                removeRepositoryItem(objToRemove);
+            }
+        } else {
+            throw EbxmlExceptionUtil.createUnsupportedCapabilityExceptionType(
+                    REMOVE_OBJECTS_ERROR_MSG, "Unsupported DeletionScope ["
+                            + deletionScope + "]");
         }
 
         long totalTime = System.currentTimeMillis() - startTime;
@@ -312,6 +301,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
             EventBus.publish(new RegistryStatisticsEvent(obj.getObjectType(),
                     obj.getStatus(), obj.getOwner(), avTimePerRecord));
         }
+
+        EventBus.publish(new CreateAuditTrailEvent(request.getId(), request,
+                ActionTypes.delete, objectsToRemove));
 
         return response;
     }
@@ -462,30 +454,13 @@ public class LifecycleManagerImpl implements LifecycleManager {
             }
         }
 
-        if (response.getException().isEmpty()) {
-            statusHandler.info("Submit objects successful");
-            statusHandler.info("Creating auditable events....");
-            try {
-                auditableEventService.createAuditableEventFromObjects(request,
-                        ActionTypes.create, objsCreated);
-                auditableEventService.createAuditableEventFromObjects(request,
-                        ActionTypes.update, objsUpdated);
-            } catch (EbxmlRegistryException e) {
-                throw EbxmlExceptionUtil.createMsgRegistryException(
-                        SUBMIT_OBJECTS_ERROR_MSG, e);
-            }
-        } else {
-            statusHandler
-                    .warn("Submit objects failed. Returning errors to client.");
-        }
-
         response.setRequestId(request.getId());
         response.setObjectRefList(EbxmlObjectUtil.createObjectRefList(objs));
         long totalTime = System.currentTimeMillis() - startTime;
         statusHandler
                 .info("LifeCycleManager submitObjects operation completed in "
                         + totalTime + " ms");
-
+        statusHandler.info("Creating auditable events....");
         // gives a close estimate to amount taken on each object
         // individually, this will be millis in most cases, hopefully
         long avTimePerRecord = objs.isEmpty() ? 0 : totalTime / objs.size();
@@ -497,6 +472,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));
             }
+            EventBus.publish(new CreateAuditTrailEvent(request.getId(),
+                    request, ActionTypes.create, objsCreated));
         }
         if (!objsUpdated.isEmpty()) {
             for (RegistryObjectType obj : objsUpdated) {
@@ -506,6 +483,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));
             }
+            EventBus.publish(new CreateAuditTrailEvent(request.getId(),
+                    request, ActionTypes.update, objsUpdated));
         }
 
         return response;
@@ -758,12 +737,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     updateActions);
             registryObjectDao.merge(updatedObject, objToUpdate);
         }
-        try {
-            auditableEventService.createAuditableEventFromObjects(request,
-                    ActionTypes.update, objectsToUpdate);
-        } catch (EbxmlRegistryException e) {
-            throw EbxmlExceptionUtil.createMsgRegistryException(
-                    UPDATE_OBJECTS_ERROR_MSG, e);
+        if (!objectsToUpdate.isEmpty()) {
+            EventBus.publish(new CreateAuditTrailEvent(request.getId(),
+                    request, ActionTypes.update, objectsToUpdate));
         }
 
         long totalTime = System.currentTimeMillis() - startTime;
@@ -849,11 +825,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
     public void setValidator(ValidatorImpl validator) {
         this.validator = validator;
-    }
-
-    public void setAuditableEventService(
-            AuditableEventService auditableEventService) {
-        this.auditableEventService = auditableEventService;
     }
 
     public void setCataloger(CatalogerImpl cataloger) {

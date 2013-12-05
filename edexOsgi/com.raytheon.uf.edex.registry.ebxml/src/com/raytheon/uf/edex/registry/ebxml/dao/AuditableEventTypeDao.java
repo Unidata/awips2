@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 8/1/2013     1693       bphillip    Moved creation of auditable events to the auditable event service class
  * 9/11/2013    2354       bphillip    Modified queries to find deleted objects
  * 10/23/2013   1538       bphillip    Changed send time slot to be DateTimeValue instead of integer
+ * 12/2/2013    1829       bphillip    Changed to use non generic getter of value type
  * 
  * </pre>
  * 
@@ -230,7 +231,8 @@ public class AuditableEventTypeDao extends
         } else {
             DateTimeValueType dateValue = (DateTimeValueType) slot
                     .getSlotValue();
-            return dateValue.getValue().toGregorianCalendar().getTimeInMillis();
+            return dateValue.getDateTimeValue().toGregorianCalendar()
+                    .getTimeInMillis();
         }
     }
 
