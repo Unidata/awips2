@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.pointdata;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -30,9 +29,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 20, 2010            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 20, 2010           chammack    Initial creation
+ * Dec 02, 2013  2537     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -40,7 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class PointDataRequestMessageConstraint implements ISerializableObject {
+public class PointDataRequestMessageConstraint {
     @DynamicSerializeElement
     private String parameter;
 

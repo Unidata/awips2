@@ -26,9 +26,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerSite;
 import com.raytheon.uf.common.dataplugin.profiler.Profilers;
@@ -41,6 +38,8 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
@@ -55,11 +54,12 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 03, 2008 969        jkorman     Initial implementation.
- * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
- *                                     work without dataURI.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  969      jkorman     Initial implementation.
+ * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
+ *                                    work without dataURI.
+ * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
  * 
  * </pre>
  * 
@@ -68,7 +68,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 public class ProfilerDataAdapter {
 
-    private static Log logger = LogFactory.getLog(ProfilerDataAdapter.class);
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ProfilerDataAdapter.class);
 
     private static final String PROFILER_SITES = "profilerSites.xml";
 
