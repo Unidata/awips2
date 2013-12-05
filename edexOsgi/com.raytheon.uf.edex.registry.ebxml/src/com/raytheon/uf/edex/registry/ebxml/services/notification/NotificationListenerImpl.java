@@ -89,6 +89,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/20/2013    1682       bphillip    Added synchronous notification delivery
  * 10/23/2013   1538       bphillip    Added log message denoting when processing is complete and time duration
  * 10/30/2013   1538       bphillip    Changed to use non-static registry soap service client
+ * 12/2/2013    1829       bphillip    Added getIdsFrom action method and changed how slots are added to objects
  * 
  * </pre>
  * 
@@ -145,24 +146,13 @@ public class NotificationListenerImpl implements NotificationListener {
         // Process the received auditable events and add them to the
         // appropriate
         // list based on the action performed
-
         for (AuditableEventType event : events) {
             List<ActionType> actions = event.getAction();
             for (ActionType action : actions) {
                 String eventType = action.getEventType();
-                List<String> objectIds = new ArrayList<String>();
+                List<String> objectIds = getIdsFromAction(action);
 
-                if (action.getAffectedObjectRefs() != null) {
-                    for (ObjectRefType ref : action.getAffectedObjectRefs()
-                            .getObjectRef()) {
-                        objectIds.add(ref.getId());
-                    }
-                } else if (action.getAffectedObjects() != null) {
-                    for (RegistryObjectType regObj : action
-                            .getAffectedObjects().getRegistryObject()) {
-                        objectIds.add(regObj.getId());
-                    }
-                } else {
+                if (objectIds.isEmpty()) {
                     statusHandler.info("Event " + event.getId()
                             + " contains 0 affected objects ");
                     continue;
@@ -191,17 +181,19 @@ public class NotificationListenerImpl implements NotificationListener {
                             refList.getObjectRef().add(new ObjectRefType(id));
                         }
                     }
-                    RemoveObjectsRequest request = new RemoveObjectsRequest(
-                            "Remove Objects for notification ["
-                                    + notification.getId() + "]",
-                            "Notification delete object submission", null,
-                            null, refList, false, true,
-                            DeletionScope.DELETE_ALL);
-                    try {
-                        lcm.removeObjects(request);
-                    } catch (MsgRegistryException e) {
-                        throw new RuntimeException(
-                                "Error creating remove objects request!", e);
+                    if (!CollectionUtil.isNullOrEmpty(refList.getObjectRef())) {
+                        RemoveObjectsRequest request = new RemoveObjectsRequest(
+                                "Remove Objects for notification ["
+                                        + notification.getId() + "]",
+                                "Notification delete object submission", null,
+                                null, refList, false, true,
+                                DeletionScope.DELETE_ALL);
+                        try {
+                            lcm.removeObjects(request);
+                        } catch (MsgRegistryException e) {
+                            throw new RuntimeException(
+                                    "Error creating remove objects request!", e);
+                        }
                     }
                 } else {
                     statusHandler.info("Unknown event type [" + eventType
@@ -212,6 +204,22 @@ public class NotificationListenerImpl implements NotificationListener {
         statusHandler.info("Processing notification id ["
                 + notification.getId() + "] completed in "
                 + (TimeUtil.currentTimeMillis() - startTime) + " ms");
+    }
+
+    private List<String> getIdsFromAction(ActionType action) {
+        List<String> objectIds = new ArrayList<String>();
+        if (action.getAffectedObjectRefs() != null) {
+            for (ObjectRefType ref : action.getAffectedObjectRefs()
+                    .getObjectRef()) {
+                objectIds.add(ref.getId());
+            }
+        } else if (action.getAffectedObjects() != null) {
+            for (RegistryObjectType regObj : action.getAffectedObjects()
+                    .getRegistryObject()) {
+                objectIds.add(regObj.getId());
+            }
+        }
+        return objectIds;
     }
 
     @Override
@@ -256,17 +264,27 @@ public class NotificationListenerImpl implements NotificationListener {
             // Get a the remote query service
             QueryManager queryManager = registrySoapClient
                     .getQueryServiceForHost(clientBaseURL);
-            // Create a query to get the current state of the affected objects
+            // Create a query to get the current state of the affected
             QueryRequest queryRequest = createGetCurrentStateQuery(
                     notificationId, objIds);
             // Query the remote server
             QueryResponse response = queryManager.executeQuery(queryRequest);
             List<RegistryObjectType> remoteObjects = response
                     .getRegistryObjectList().getRegistryObject();
+
             // Set the home server slot on the object denoting the home server
             // of the received object.
             for (RegistryObjectType object : remoteObjects) {
-                object.updateSlot(EbxmlObjectUtil.HOME_SLOT_NAME, clientBaseURL);
+                SlotType homeSlot = object
+                        .getSlotByName(EbxmlObjectUtil.HOME_SLOT_NAME);
+                if (homeSlot == null) {
+                    object.getSlot().add(
+                            new SlotType(EbxmlObjectUtil.HOME_SLOT_NAME,
+                                    new StringValueType(clientBaseURL)));
+                } else {
+                    ((StringValueType) homeSlot.getSlotValue())
+                            .setStringValue(clientBaseURL);
+                }
             }
 
             /*
@@ -276,14 +294,17 @@ public class NotificationListenerImpl implements NotificationListener {
              * they have identical subscriptions with one another
              */
             // Create the submit objects request object
-            SubmitObjectsRequest request = new SubmitObjectsRequest(
-                    "Submit Objects for notification [" + notificationId + "]",
-                    "Notification object submission",
-                    CollectionUtil.asSet(new SlotType(
-                            EbxmlObjectUtil.HOME_SLOT_NAME,
-                            new StringValueType(clientBaseURL))),
-                    new RegistryObjectListType(remoteObjects), false,
-                    Mode.CREATE_OR_REPLACE);
+            SubmitObjectsRequest request = new SubmitObjectsRequest();
+            request.setId("Submit Objects for notification [" + notificationId
+                    + "]");
+            request.setComment("Notification object submission");
+            request.setRegistryObjectList(new RegistryObjectListType(
+                    remoteObjects));
+            request.setCheckReferences(false);
+            request.setMode(Mode.CREATE_OR_REPLACE);
+            request.getSlot().add(
+                    new SlotType(EbxmlObjectUtil.HOME_SLOT_NAME,
+                            new StringValueType(clientBaseURL)));
             return request;
         } catch (Exception e) {
             throw new EbxmlRegistryException("Error processing notification", e);
@@ -351,5 +372,4 @@ public class NotificationListenerImpl implements NotificationListener {
     public void setRegistrySoapClient(RegistrySOAPServices registrySoapClient) {
         this.registrySoapClient = registrySoapClient;
     }
-
 }
