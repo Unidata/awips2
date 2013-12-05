@@ -101,6 +101,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jan 28, 2013   1529     djohnson    Disable menu items if no subscriptions selected.
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * Nov 19, 2013   1531     mpduff      Made graph resizable.
+ * Nov 25, 2013   2545     mpduff      Default to Opsnet if Network not available yet.
  * </pre>
  * 
  * @author lvenable
@@ -445,7 +446,12 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         int totalHeight = 0;
 
         if (bgd != null) {
-            numOfSubs = bgd.getNumberOfSubscriptions();
+            if (imageMgr == null) {
+                // Default to OPSNET
+                numOfSubs = bgd.getNumberOfSubscriptions(Network.OPSNET);
+            } else {
+                numOfSubs = bgd.getNumberOfSubscriptions(imageMgr.getNetwork());
+            }
             totalHeight = AbstractCanvasImage.TEXT_OFFSET * numOfSubs;
         }
 
