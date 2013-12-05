@@ -28,12 +28,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
 import com.raytheon.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -57,26 +55,28 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 03, 2008 1026       jkorman     Initial implementation.
- * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
- * Nov 25, 2008 1684       chammack    Camel Refactor
- * Apr 29, 2013 1861       bkowal      Create a separate Point Data Container
- *                                     for  every record so each forecast hour
- *                                     will  receive a unique hdf5 file.
- * Jul 03, 2013 2161       bkowal      Store and retrieve the Point Data
- *                                     Containers  by forecast hour and reftime
- *                                     when completing  a decode operation.
- *                                     Overrode default  Point Data Container
- *                                     size.
- * Jul 16, 2013 2161       bkowal      Store the records in a container that
- *                                     will  be persisted every X (configurable)
- *                                     seconds  by a timer. The timer is started
- *                                     during spring  initialization and
- *                                     destroyed during spring  container
- *                                     destruction.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  1026     jkorman     Initial implementation.
+ * Apr 08, 2008  1039     jkorman     Added traceId for tracing data.
+ * Nov 25, 2008  1684     chammack    Camel Refactor
+ * Apr 29, 2013  1861     bkowal      Create a separate Point Data Container
+ *                                    for  every record so each forecast hour
+ *                                    will  receive a unique hdf5 file.
+ * Jul 03, 2013  2161     bkowal      Store and retrieve the Point Data
+ *                                    Containers  by forecast hour and reftime
+ *                                    when completing  a decode operation.
+ *                                    Overrode default  Point Data Container
+ *                                    size.
+ * Jul 16, 2013  2161     bkowal      Store the records in a container that
+ *                                    will  be persisted every X (configurable)
+ *                                    seconds  by a timer. The timer is started
+ *                                    during spring  initialization and
+ *                                    destroyed during spring  container
+ *                                    destruction.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Dec 02, 2013  2537     bsteffen    Remove dead/deprecated code.
+ * 
  * 
  * </pre>
  * 
@@ -140,8 +140,7 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
      * @return A single decoded observation. May return null if the observation
      *         is a duplicate in the database or is invalid.
      */
-    public PluginDataObject[] decode(byte[] data, Headers headers)
-            throws DecoderException {
+    public PluginDataObject[] decode(byte[] data, Headers headers) {
         String traceId = "";
         if (headers != null) {
             traceId = (String) headers.get("traceId");
@@ -222,12 +221,6 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                                         soundingTemporalData);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
-                            try {
-                                soundingData.constructDataURI();
-                            } catch (PluginException e) {
-                                logger.error(traceId
-                                        + "- Unable to construct dataURI", e);
-                            }
                             String uri = soundingData.getDataURI();
                             if (dataSet.add(uri)) {
                                 container.addPdo(soundingData);
