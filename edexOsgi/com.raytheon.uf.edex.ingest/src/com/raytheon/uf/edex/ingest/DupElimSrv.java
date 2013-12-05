@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.ingestsrv;
+package com.raytheon.uf.edex.ingest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +94,7 @@ public class DupElimSrv {
                 for (Map.Entry<String, Object> field : dataUriFields.entrySet()) {
                     String fieldName = field.getKey();
                     // ignore pluginName
-                    if (!DataURIUtil.PLUGIN_NAME_KEY.equals(fieldName)) {
+                    if (!PluginDataObject.PLUGIN_NAME_ID.equals(fieldName)) {
                         dbQuery.addQueryParam(field.getKey(), field.getValue());
                     }
                 }
