@@ -21,7 +21,6 @@ package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashSet;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
@@ -63,10 +62,10 @@ public class DataSetMetaDataDatesQueryTest {
         ImmutableDate date = new ImmutableDate();
         List<SlotType> slots = new DateSlotConverter().getSlots(
                 DataSetMetaData.DATE_SLOT, date);
-        
+
         RegistryObjectType registryObject = new RegistryObjectType();
-        registryObject.setSlot(new HashSet<SlotType>(slots));
-        
+        registryObject.setSlot(slots);
+
         DataSetMetaDataDatesQuery query = new DataSetMetaDataDatesQuery();
         ImmutableDate result = query.decodeObject(registryObject,
                 RegistryEncoders.ofType(Type.JAXB));

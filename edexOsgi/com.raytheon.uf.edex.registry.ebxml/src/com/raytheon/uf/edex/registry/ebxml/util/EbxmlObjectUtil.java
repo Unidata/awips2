@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscri
  * 4/9/2013     1802       bphillip     Removed unused methods and addded a few new ones
  * 8/1/2013     1693       bphillip     Removed increment version method
  * 11/20/2013   2534       bphillip     Added getNotificationDestinations method
+ * 12/2/2013    1829       bphillip     Removed addStringSlot
  * 
  * </pre>
  * 
@@ -307,19 +308,6 @@ public class EbxmlObjectUtil {
             ids.add(ref.getId());
         }
         return ids;
-    }
-
-    public static void addStringSlot(ExtensibleObjectType object,
-            String slotName, String slotValue, boolean overwrite) {
-        if (containsSlot(object, slotName)) {
-            if (overwrite) {
-                getSlot(object, slotName).getSlotValue().setValue(slotValue);
-            }
-        } else {
-            SlotType slot = RegistryUtil.getSlot(String.class.getName(),
-                    slotName, slotValue);
-            object.getSlot().add(slot);
-        }
     }
 
     public static SlotType getSlot(ExtensibleObjectType object, String slotName) {
