@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -73,6 +74,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -85,6 +88,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "LocalizedString")
+@org.hibernate.annotations.Table(appliesTo = "LocalizedString", indexes = { @Index(name = "localizedString_idx", columnNames = { "string_id" }) })
 public class LocalizedStringType {
 
     @Id
@@ -92,7 +96,7 @@ public class LocalizedStringType {
             + ".LocalizedString_sequence")
     @GeneratedValue(generator = "LocalizedStringTypeGenerator")
     @XmlTransient
-    private Integer key;
+    private Integer id;
 
     @XmlAttribute(namespace = "http://www.w3.org/XML/1998/namespace")
     @DynamicSerializeElement
@@ -116,8 +120,12 @@ public class LocalizedStringType {
         this.value = value;
     }
 
-    public Integer getKey() {
-        return key;
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     /**
@@ -212,6 +220,12 @@ public class LocalizedStringType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "LocalizedStringType [id=" + id + ", lang=" + lang + ", value="
+                + value + "]";
     }
 
 }
