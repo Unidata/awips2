@@ -22,12 +22,10 @@ package com.raytheon.edex.plugin.modelsounding.ingest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import com.raytheon.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapter;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -42,15 +40,17 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Subscriber to update the local model sounding sites whenever the national spi
+ * file changes.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2011            bfarmer     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 29, 2011           bfarmer     Initial creation
+ * Dec 02, 2013  2537     bsteffen    Ensure streams are closed.
  * 
  * </pre>
  * 
@@ -69,8 +69,6 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
     
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ModelBufrSubscriber.class);
-
-    private Thread combineThread = null;
 
     @Override
     public void notify(String fileName, File file) {
@@ -190,6 +188,16 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
                     }
                 }
             } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException ioe) {
+                        statusHandler.handle(
+                                Priority.SIGNIFICANT,
+                                "modelBufr:Error closing input file ["
+                                        + file.getName() + "]");
+                    }
+                }
                 if(fos != null) {
                     try {
                         fos.close();
