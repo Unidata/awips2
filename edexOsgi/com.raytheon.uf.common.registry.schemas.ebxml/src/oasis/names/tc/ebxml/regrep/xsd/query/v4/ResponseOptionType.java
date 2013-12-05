@@ -20,6 +20,7 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.query.v4;
 
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -67,6 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
  * </pre>
  * 
  * @author bphillip
@@ -76,6 +78,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ResponseOptionType")
 @DynamicSerialize
+@Embeddable
 public class ResponseOptionType {
 
     /**
@@ -176,6 +179,47 @@ public class ResponseOptionType {
      */
     public void setReturnComposedObjects(Boolean value) {
         this.returnComposedObjects = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime
+                * result
+                + ((returnComposedObjects == null) ? 0 : returnComposedObjects
+                        .hashCode());
+        result = prime * result
+                + ((returnType == null) ? 0 : returnType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ResponseOptionType other = (ResponseOptionType) obj;
+        if (returnComposedObjects == null) {
+            if (other.returnComposedObjects != null)
+                return false;
+        } else if (!returnComposedObjects.equals(other.returnComposedObjects))
+            return false;
+        if (returnType == null) {
+            if (other.returnType != null)
+                return false;
+        } else if (!returnType.equals(other.returnType))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ResponseOptionType [returnType=" + returnType
+                + ", returnComposedObjects=" + returnComposedObjects + "]";
     }
 
 }

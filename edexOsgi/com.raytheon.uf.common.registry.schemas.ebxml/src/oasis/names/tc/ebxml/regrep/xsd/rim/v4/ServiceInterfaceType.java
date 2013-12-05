@@ -21,8 +21,6 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -65,6 +63,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -78,7 +79,27 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @Entity
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ServiceInterface")
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class ServiceInterfaceType extends RegistryObjectType {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6093907291066228830L;
+
+    public ServiceInterfaceType() {
+        super();
+
+    }
+
+    public ServiceInterfaceType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public ServiceInterfaceType(String id, String lid) {
+        super(id, lid);
+
+    }
 
 }
