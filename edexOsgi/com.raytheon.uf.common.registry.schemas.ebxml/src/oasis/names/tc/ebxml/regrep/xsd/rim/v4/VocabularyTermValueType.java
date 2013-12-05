@@ -20,8 +20,9 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,7 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -70,6 +70,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -86,53 +89,74 @@ public class VocabularyTermValueType extends ValueType {
 
     @XmlElement(name = "Value")
     @DynamicSerializeElement
-    @Column(name = COLUMN_NAME, columnDefinition = "text")
-    @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.SerializedType")
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
     protected VocabularyTermType vocabularyTermValue;
 
-    private static final String COLUMN_NAME = "vocabularyTermValue";
-
     public VocabularyTermValueType() {
+        super();
+    }
 
+    public VocabularyTermValueType(Integer id) {
+        super(id);
     }
 
     public VocabularyTermValueType(VocabularyTermType vocabularyTermValue) {
+        super();
+        this.vocabularyTermValue = vocabularyTermValue;
+    }
+
+    public VocabularyTermValueType(Integer id,
+            VocabularyTermType vocabularyTermValue) {
+        super(id);
+        this.vocabularyTermValue = vocabularyTermValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getValue() {
+        return (T) getVocabularyTermValue();
+    }
+
+    public VocabularyTermType getVocabularyTermValue() {
+        return vocabularyTermValue;
+    }
+
+    public void setVocabularyTermValue(VocabularyTermType vocabularyTermValue) {
         this.vocabularyTermValue = vocabularyTermValue;
     }
 
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + ((vocabularyTermValue == null) ? 0 : vocabularyTermValue
+                        .hashCode());
+        return result;
     }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link VocabularyTermType }
-     * 
-     */
     @Override
-    public VocabularyTermType getValue() {
-        return vocabularyTermValue;
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VocabularyTermValueType other = (VocabularyTermValueType) obj;
+        if (vocabularyTermValue == null) {
+            if (other.vocabularyTermValue != null)
+                return false;
+        } else if (!vocabularyTermValue.equals(other.vocabularyTermValue))
+            return false;
+        return true;
     }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link VocabularyTermType }
-     * 
-     */
     @Override
-    public void setValue(Object value) {
-        this.vocabularyTermValue = (VocabularyTermType) value;
+    public String toString() {
+        return "VocabularyTermValueType [vocabularyTermValue="
+                + vocabularyTermValue + ", id=" + id + "]";
     }
 
-    public VocabularyTermType getVocabularyTermValue() {
-        return getValue();
-    }
-
-    public void setVocabularyTermValue(VocabularyTermType vocabularyTermValue) {
-        setValue(vocabularyTermValue);
-    }
 }

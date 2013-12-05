@@ -49,4 +49,5 @@ Export-Package: com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.services.validator.types,
  com.raytheon.uf.edex.registry.ebxml.util,
  com.raytheon.uf.edex.registry.ebxml.util.xpath,
- com.raytheon.uf.edex.registry.ebxml.web
+ com.raytheon.uf.edex.registry.ebxml.web,
+ com.raytheon.uf.edex.registry.events

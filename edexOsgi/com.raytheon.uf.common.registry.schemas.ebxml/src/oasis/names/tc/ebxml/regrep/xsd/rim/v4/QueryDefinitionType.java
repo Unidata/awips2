@@ -26,8 +26,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -75,6 +75,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -90,16 +93,34 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "QueryDefinition")
 public class QueryDefinitionType extends RegistryObjectType {
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    private static final long serialVersionUID = -2790853301470515632L;
+
+    @OneToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "Parameter")
     @DynamicSerializeElement
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<ParameterType> parameter;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @XmlElement(name = "QueryExpression")
     @DynamicSerializeElement
     protected QueryExpressionType queryExpression;
+
+    public QueryDefinitionType() {
+        super();
+
+    }
+
+    public QueryDefinitionType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public QueryDefinitionType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the parameter property.
@@ -154,6 +175,74 @@ public class QueryDefinitionType extends RegistryObjectType {
      */
     public void setQueryExpression(QueryExpressionType value) {
         this.queryExpression = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((parameter == null) ? 0 : parameter.hashCode());
+        result = prime * result
+                + ((queryExpression == null) ? 0 : queryExpression.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        QueryDefinitionType other = (QueryDefinitionType) obj;
+        if (parameter == null) {
+            if (other.parameter != null)
+                return false;
+        } else if (!parameter.equals(other.parameter))
+            return false;
+        if (queryExpression == null) {
+            if (other.queryExpression != null)
+                return false;
+        } else if (!queryExpression.equals(other.queryExpression))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("QueryDefinitionType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nparameter=");
+        builder.append(parameter);
+        builder.append(", \nqueryExpression=");
+        builder.append(queryExpression);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
