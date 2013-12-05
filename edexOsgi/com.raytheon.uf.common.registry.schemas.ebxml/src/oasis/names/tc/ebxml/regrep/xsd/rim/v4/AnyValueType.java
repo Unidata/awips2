@@ -22,6 +22,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
@@ -31,7 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
-import org.w3c.dom.Element;
 
 import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -71,6 +71,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -79,6 +82,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "AnyValue")
 @XmlRootElement(name = "AnyValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnyValueType", propOrder = { "anyValue" })
@@ -87,49 +91,32 @@ public class AnyValueType extends ValueType {
 
     @XmlAnyElement(lax = true)
     @DynamicSerializeElement
-    @Column(name = COLUMN_NAME, columnDefinition = "text")
+    @Column(columnDefinition = "text")
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.SerializedType")
     protected Object anyValue;
 
-    private static final String COLUMN_NAME = "anyValue";
-
     public AnyValueType() {
+        super();
+    }
 
+    public AnyValueType(Integer id) {
+        super(id);
     }
 
     public AnyValueType(Object anyValue) {
+        super();
         this.anyValue = anyValue;
     }
 
+    public AnyValueType(Integer id, Object anyValue) {
+        super(id);
+        this.anyValue = anyValue;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
-    }
-
-    /**
-     * Gets the value of the any property.
-     * 
-     * @return possible object is {@link Element } {@link Object }
-     * 
-     */
-    public Object getAny() {
-        return anyValue;
-    }
-
-    /**
-     * Sets the value of the any property.
-     * 
-     * @param value
-     *            allowed object is {@link Element } {@link Object }
-     * 
-     */
-    public void setAny(Object value) {
-        this.anyValue = value;
-    }
-
-    @Override
-    public Object getValue() {
-        return getAny();
+    public <T> T getValue() {
+        return (T) getAnyValue();
     }
 
     public Object getAnyValue() {
@@ -141,8 +128,34 @@ public class AnyValueType extends ValueType {
     }
 
     @Override
-    public void setValue(Object value) {
-        setAny(value);
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((anyValue == null) ? 0 : anyValue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AnyValueType other = (AnyValueType) obj;
+        if (anyValue == null) {
+            if (other.anyValue != null)
+                return false;
+        } else if (!anyValue.equals(other.anyValue))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AnyValueType [anyValue=" + anyValue + ", id=" + id + "]";
     }
 
 }

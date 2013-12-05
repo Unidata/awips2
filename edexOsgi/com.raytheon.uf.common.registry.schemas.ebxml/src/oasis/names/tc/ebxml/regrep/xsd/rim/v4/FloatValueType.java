@@ -68,6 +68,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -81,55 +84,73 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "FloatValue")
 public class FloatValueType extends ValueType {
-    @Column(name = COLUMN_NAME)
+
+    @Column
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     protected Float floatValue;
 
-    private static final String COLUMN_NAME = "floatValue";
-
     public FloatValueType() {
+        super();
+    }
 
+    public FloatValueType(Integer id) {
+        super(id);
     }
 
     public FloatValueType(Float floatValue) {
+        super();
+        this.floatValue = floatValue;
+    }
+
+    public FloatValueType(Integer id, Float floatValue) {
+        super(id);
+        this.floatValue = floatValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getValue() {
+        return (T) getFloatValue();
+    }
+
+    public Float getFloatValue() {
+        return floatValue;
+    }
+
+    public void setFloatValue(Float floatValue) {
         this.floatValue = floatValue;
     }
 
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((floatValue == null) ? 0 : floatValue.hashCode());
+        return result;
     }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link Float }
-     * 
-     */
     @Override
-    public Float getValue() {
-        return floatValue;
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FloatValueType other = (FloatValueType) obj;
+        if (floatValue == null) {
+            if (other.floatValue != null)
+                return false;
+        } else if (!floatValue.equals(other.floatValue))
+            return false;
+        return true;
     }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link Float }
-     * 
-     */
     @Override
-    public void setValue(Object value) {
-        this.floatValue = (Float) value;
-    }
-
-    public Float getFloatValue() {
-        return getValue();
-    }
-
-    public void setFloatValue(Float floatValue) {
-        setValue(floatValue);
+    public String toString() {
+        return "FloatValueType [floatValue=" + floatValue + ", id=" + id + "]";
     }
 
 }
