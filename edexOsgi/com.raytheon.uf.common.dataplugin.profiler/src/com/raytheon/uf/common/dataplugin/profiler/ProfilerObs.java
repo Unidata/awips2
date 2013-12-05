@@ -21,17 +21,8 @@ package com.raytheon.uf.common.dataplugin.profiler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -49,7 +40,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -69,18 +59,19 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 03, 2008 969        jkorman     Initial implementation.
- * Apr 13, 2009 2251       jsanchez    Implemented IDecoderGettable methods  and
- *                                     plotted Profiler plots.
- * Jun 10, 2009 2489       jsanchez    Updated the windSpeeed & windDirection.
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  969      jkorman     Initial implementation.
+ * Apr 13, 2009  2251     jsanchez    Implemented IDecoderGettable methods  and
+ *                                    plotted Profiler plots.
+ * Jun 10, 2009  2489     jsanchez    Updated the windSpeeed & windDirection.
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from 
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Dec 03, 2013  2537     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -100,52 +91,12 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ProfilerObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable,
+        ISpatialEnabled, IPointData, IPersistable,
         Comparable<ProfilerObs> {
 
     private static final long serialVersionUID = 1L;
 
     public static final String PLUGIN_NAME = "profiler";
-
-    private static final HashMap<Integer, Integer> HGT_MAP = new HashMap<Integer, Integer>();
-    static {
-        HGT_MAP.put(100, 16180);
-        HGT_MAP.put(150, 13608);
-        HGT_MAP.put(200, 11784);
-        HGT_MAP.put(250, 10363);
-        HGT_MAP.put(300, 9164);
-        HGT_MAP.put(400, 7185);
-        HGT_MAP.put(500, 5574);
-        HGT_MAP.put(700, 3012);
-        HGT_MAP.put(850, 1457);
-        HGT_MAP.put(925, 766);
-    };
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-
-    private static final String PROF_ID = "profid";
-
-    static {
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("PROF_ID", PROF_ID);
-    }
-
-    private static final String PRESS = "PRESS";
-
-    private static final String AGL = "AGL";
-
-    public static final String PRESS_PARAM_PTRN = ".*:" + PRESS + "=\\d{2,4}";
-
-    public static final String AGL_PARAM_PTRN = ".*:" + AGL + "=\\d{2,4}";
 
     @Transient
     private String parameterName = null;
@@ -383,75 +334,6 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         return wmoHeader;
     }
 
-    @Override
-    public String getString(String paramName) {
-        String value = null;
-        String pName = PARM_MAP.get(paramName);
-        if (PROF_ID.equals(pName)) {
-            value = profilerId;
-        }
-        return value;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        if (parseParameter(paramName)) {
-            String pName = PARM_MAP.get(parameterName);
-            if (unit.equals(AGL) && (levelId == 0)) {
-                Double dValue = null;
-                if (SFC_WNDSPD.equals(pName)) {
-                    dValue = getSfcWindSpeed();
-                    if (dValue != null) {
-                        a = new Amount(dValue, WIND_SPEED_UNIT);
-                    }
-                } else if (SFC_WNDDIR.equals(pName)) {
-                    dValue = getSfcWindDir();
-                    if (dValue != null) {
-                        a = new Amount(dValue, WIND_DIR_UNIT);
-                    }
-                }
-            } else {
-                if ((pName != null) && (levels != null) && (levels.size() > 0)) {
-                    profLevel = getLevel(levelId);
-                    if (profLevel != null) {
-                        Double dValue = null;
-                        if (SFC_WNDSPD.equals(pName)) {
-                            dValue = getWindSpeed();
-                            if (dValue != null) {
-                                a = new Amount(dValue, WIND_SPEED_UNIT);
-                            }
-                        } else if (SFC_WNDDIR.equals(pName)) {
-                            dValue = getWindDirection();
-                            if (dValue != null) {
-                                a = new Amount(dValue, WIND_DIR_UNIT);
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            String pName = PARM_MAP.get(paramName);
-            if (STA_LAT.equals(pName)) {
-                a = new Amount(getLatitude(), LOCATION_UNIT);
-            } else if (STA_LON.equals(pName)) {
-                a = new Amount(getLongitude(), LOCATION_UNIT);
-            }
-        }
-        return a;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
     /**
      * Get the WMOHeader of the file that contained this data.
      * 
@@ -508,17 +390,6 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         this.levels = levels;
     }
 
-    /**
-     * Get the IDecoderGettable interface implementation. This class does not
-     * currently support this interface.
-     * 
-     * @return Returns null.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
     @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
@@ -554,86 +425,6 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         this.pointDataView = pointDataView;
     }
 
-    private Double getWindSpeed() {
-        if (windSpeed == null) {
-            double u = profLevel.getUcWind().doubleValue();
-            double v = profLevel.getVcWind().doubleValue();
-
-            // equation from ProfilerUtils.getWindSpeed
-            windSpeed = Math.sqrt((u * u) + (v * v));
-        }
-
-        return windSpeed;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    private Double getWindDirection() {
-        if (windDirection == null) {
-            double ucw = profLevel.getUcWind().doubleValue();
-            double vcw = profLevel.getVcWind().doubleValue();
-            windDirection = Math.toDegrees(Math.atan2(-ucw, -vcw));
-            if (windDirection < 0) {
-                windDirection += 360.0;
-            }
-        }
-
-        return windDirection;
-    }
-
-    private ProfilerLevel getLevel(Integer level) {
-        ProfilerLevel retValue = null;
-        if (level != null) {
-            Integer stdHgt = HGT_MAP.get(level);
-            if ((unit.equals(PRESS)) && (stdHgt != null)) {
-                int diff = 99999;
-                for (ProfilerLevel l : levels) {
-                    Integer height = l.getLevelHeight();
-                    if (height != null) {
-                        int d = Math.abs(stdHgt - height);
-                        if (d < diff) {
-                            // Track of the closest level
-                            diff = d;
-                            retValue = l;
-                        }
-                    }
-                } // for
-            } else if (unit.equals(AGL)) {
-                for (ProfilerLevel l : levels) {
-                    if ((l.getLevelHeight() != null)
-                            && (getElevation() != null)) {
-                        // Adjust to agl heights!
-                        Integer height = l.getLevelHeight() - getElevation();
-
-                        if ((level == 1500) && (height <= 1500)
-                                && (height >= 1250)) {
-                            retValue = l;
-                        } else if ((level == 1250) && (height <= 1500)
-                                && (height > 1125)) {
-                            retValue = l;
-                        } else if ((level == 1000) && (height <= 1125)
-                                && (height > 875)) {
-                            retValue = l;
-                        } else if ((level == 750) && (height <= 875)
-                                && (height > 625)) {
-                            retValue = l;
-                        } else if ((level == 500) && (height <= 625)
-                                && (height > 0)) {
-                            retValue = l;
-                        }
-                        // No need to go higher than this.
-                        if (height > 2000) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return retValue;
-    }
-
     /**
      * 
      */
@@ -642,51 +433,12 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         return (profilerId != null) ? profilerId : "UNKN";
     }
 
-    /**
-     * Determine if the parameter is a level request, and parse out the pressure
-     * level or the AGL and parameter name if so.
-     * 
-     * @param parameter
-     *            The parameter string to parse.
-     * @return This is a level parameter.
-     */
-    private boolean parseParameter(String parameter) {
-        boolean goodParse = false;
-        int start = 0;
-        Pattern p = Pattern.compile(PRESS_PARAM_PTRN);
-        Pattern h = Pattern.compile(AGL_PARAM_PTRN);
-        Matcher m = p.matcher(parameter);
-        if (m.find()) {
-            start = parameter.indexOf(":PRESS=");
-            if (start > 0) {
-                unit = PRESS;
-                parameterName = parameter.substring(0, start);
-                start += ":PRESS=".length();
-                levelId = Integer.parseInt(parameter.substring(start));
-            }
-            goodParse = true;
-        } else if ((m = h.matcher(parameter)).find()) {
-            start = parameter.indexOf(":AGL=");
-            if (start > 0) {
-                unit = AGL;
-                parameterName = parameter.substring(0, start);
-                start += ":AGL=".length();
-                levelId = Integer.parseInt(parameter.substring(start));
-            }
-            goodParse = true;
-        }
-        return goodParse;
-    }
-
     @Override
     public int compareTo(ProfilerObs other) {
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
 
         int result = 0;
         if (this == other) {
-            result = EQUAL;
+            result = 0;
         } else {
             result = timeObs.compareTo(other.timeObs);
         }
