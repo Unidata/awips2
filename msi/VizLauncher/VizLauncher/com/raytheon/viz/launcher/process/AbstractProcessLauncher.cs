@@ -14,12 +14,14 @@ namespace VizLauncher.com.raytheon.viz.launcher.process
         protected static readonly String LOG_SUFFIX = ".log";
         protected Process process = null;
         private StreamWriter logFileWriter;
+        protected VizEnvironment vizEnvironment;
 
         private bool ready = false;
         private String exceptionText = null;
 
         public AbstractProcessLauncher(VizEnvironment vizEnvironment)
         {
+            this.vizEnvironment = vizEnvironment;
             // Prepare the log file.
             if (Directory.Exists(vizEnvironment.getLogDirectory()) == false)
             {
@@ -56,8 +58,10 @@ namespace VizLauncher.com.raytheon.viz.launcher.process
         {
             ProcessStartInfo processStartInfo = 
                 new ProcessStartInfo(this.constructProcessName(vizEnvironment.getLocation()));
+            // include the default system PATH in the application PATH
+            String systemPath = System.Environment.GetEnvironmentVariable("PATH");
             processStartInfo.EnvironmentVariables[EnvironmentProperties.ENVIRONMENT_VARIABLE_PATH] =
-                vizEnvironment.getPath();
+                vizEnvironment.getPath() + this.getApplicationSpecificPath() + systemPath;
             processStartInfo.EnvironmentVariables[EnvironmentProperties.ENVIRONMENT_VARIABLE_PYTHON_PATH] =
                 vizEnvironment.getPythonPath();
             processStartInfo.UseShellExecute = false;
@@ -117,6 +121,11 @@ namespace VizLauncher.com.raytheon.viz.launcher.process
         public String getExceptionText()
         {
             return this.exceptionText;
+        }
+
+        protected virtual String getApplicationSpecificPath()
+        {
+            return String.Empty;
         }
 
         protected abstract String constructProcessName(String location);

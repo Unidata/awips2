@@ -19,11 +19,10 @@
  **/
 package com.raytheon.viz.texteditor.alarmalert.util;
 
-import java.awt.Toolkit;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.progress.UIJob;
 
 /**
@@ -36,6 +35,8 @@ import org.eclipse.ui.progress.UIJob;
  * ------------ ---------- ----------- --------------------------
  * Oct 19, 2009            mnash     Initial creation
  * Jul 25, 2012 15122      rferrel     Add sound repeat interval.
+ * Nov 26, 2013 16781  mgamazaychikov  Changed AWT Toolkit.getDefaultToolkit().beep to 
+ *                                     SWT Display.beep()
  * 
  * </pre>
  * 
@@ -78,7 +79,7 @@ public class AlarmBeepJob extends UIJob {
     public IStatus runInUIThread(IProgressMonitor monitor) {
         IStatus status = Status.OK_STATUS;
         if (count < BEEP_COUNT) {
-            Toolkit.getDefaultToolkit().beep();
+            Display.getCurrent().beep();
             if (!disposed) {
                 this.schedule(BEEP_INTERVAL);
             }

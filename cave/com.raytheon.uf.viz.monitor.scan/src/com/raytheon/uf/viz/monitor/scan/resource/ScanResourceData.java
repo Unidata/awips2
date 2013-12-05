@@ -65,6 +65,8 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * Jul 24, 2013 2218       mpduff      Changed method signature.
  * Aug 15, 2013 2143       mpduff      Add missing data check.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 04 Dec 2013  #2592      lvenable    Added check to ensure the PluginDataObject
+ *                                     array has at least one element.
  * 
  * </pre>
  * 
@@ -99,7 +101,9 @@ public class ScanResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
+
         if (objects.length > 0) {
+
             List<String> uris = getScan().getAvailableUris(
                     ScanTables.valueOf(tableType), icao);
             try {

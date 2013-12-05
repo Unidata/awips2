@@ -85,8 +85,8 @@ import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlar
  * Jul 24, 2013  2218      mpduff      Change method signature.
  * Oct 11, 2013  #2471     lvenable    Fix color memory leak.
  * 
+ * Nov 26, 2013 DR16782    gzhang      use Display.beep()
  * </pre>
- * 
  * @author lvenable
  * @version 1.0
  */
@@ -937,7 +937,7 @@ public abstract class SCANTable extends Composite {
                                     beepTimer.purge();
                                 }
                                 if (mgr.isRing()) {
-                                    Toolkit.getDefaultToolkit().beep();
+                                    Display.getDefault().beep();//Toolkit.getDefaultToolkit().beep();
                                 } else {
                                     beepTimer.cancel();
                                     beepTimer.purge();
