@@ -59,16 +59,6 @@ public interface IRegistryFederationService {
     public String isFederated();
 
     /**
-     * Gets if this registry is processing registry replication subscriptions
-     * 
-     * @return The value of the EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED environment
-     *         variable
-     */
-    @GET
-    @Path("isProcessingSubscriptions")
-    public String isProcessingSubscriptions();
-
-    /**
      * Gets information about this registry
      * 
      * @return Information pertaining to the local registry

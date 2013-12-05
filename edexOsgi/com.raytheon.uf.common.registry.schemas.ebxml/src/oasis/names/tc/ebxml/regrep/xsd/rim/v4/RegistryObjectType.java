@@ -27,10 +27,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -93,6 +92,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode, toString and equals
  * </pre>
  * 
  * @author bphillip
@@ -115,9 +115,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RegistryObject")
+@org.hibernate.annotations.Table(appliesTo = "RegistryObject", indexes = {
+        @Index(name = "description_idx", columnNames = { "description_id" }),
+        @Index(name = "name_idx", columnNames = { "name_id" }) })
 public class RegistryObjectType extends IdentifiableType {
+
+    private static final long serialVersionUID = -7436174012584469534L;
+
     @XmlElement(name = "Name")
     @DynamicSerializeElement
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -144,13 +149,13 @@ public class RegistryObjectType extends IdentifiableType {
 
     @XmlElement(name = "ExternalIdentifier")
     @DynamicSerializeElement
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected Set<ExternalIdentifierType> externalIdentifier;
 
     @XmlElement(name = "ExternalLink")
     @DynamicSerializeElement
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected Set<ExternalLinkType> externalLink;
 
@@ -178,6 +183,7 @@ public class RegistryObjectType extends IdentifiableType {
      * Constructor.
      */
     public RegistryObjectType() {
+        super();
     }
 
     /**
@@ -454,8 +460,118 @@ public class RegistryObjectType extends IdentifiableType {
         this.status = value;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((classification == null) ? 0 : classification.hashCode());
+        result = prime * result
+                + ((description == null) ? 0 : description.hashCode());
+        result = prime
+                * result
+                + ((externalIdentifier == null) ? 0 : externalIdentifier
+                        .hashCode());
+        result = prime * result
+                + ((externalLink == null) ? 0 : externalLink.hashCode());
+        result = prime * result + ((lid == null) ? 0 : lid.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+                + ((objectType == null) ? 0 : objectType.hashCode());
+        result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result
+                + ((versionInfo == null) ? 0 : versionInfo.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RegistryObjectType other = (RegistryObjectType) obj;
+        if (classification == null) {
+            if (other.classification != null)
+                return false;
+        } else if (!classification.equals(other.classification))
+            return false;
+        if (description == null) {
+            if (other.description != null)
+                return false;
+        } else if (!description.equals(other.description))
+            return false;
+        if (externalIdentifier == null) {
+            if (other.externalIdentifier != null)
+                return false;
+        } else if (!externalIdentifier.equals(other.externalIdentifier))
+            return false;
+        if (externalLink == null) {
+            if (other.externalLink != null)
+                return false;
+        } else if (!externalLink.equals(other.externalLink))
+            return false;
+        if (lid == null) {
+            if (other.lid != null)
+                return false;
+        } else if (!lid.equals(other.lid))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (objectType == null) {
+            if (other.objectType != null)
+                return false;
+        } else if (!objectType.equals(other.objectType))
+            return false;
+        if (owner == null) {
+            if (other.owner != null)
+                return false;
+        } else if (!owner.equals(other.owner))
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        if (versionInfo == null) {
+            if (other.versionInfo != null)
+                return false;
+        } else if (!versionInfo.equals(other.versionInfo))
+            return false;
+        return true;
+    }
+
+    @Override
     public String toString() {
-        return this.id;
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryObjectType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
