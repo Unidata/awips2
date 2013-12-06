@@ -86,7 +86,8 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  *                                      points menu.
  * Jan 14, 2013 #1516      rferrel     Remove listeners on dispose and specify 
  *                                      Data Selection in Points Tool Action.
- * 
+ * Dec 06, 2013 #2271      mpduff      Save the selected plane points so the menu's are 
+ *                                      recreated correctly on a pointChange action.
  * </pre>
  * 
  * @author lvenable
@@ -105,13 +106,13 @@ public class DataListsProdTableComp extends Composite implements
     /**
      * Listener to trigger reset.
      */
-    private IPointChangedListener resetPointChangeListener;
+    private final IPointChangedListener resetPointChangeListener;
 
     /**
      * Listener to trigger reset.
      */
 
-    private IToolChangedListener resetToolChangeListener;
+    private final IToolChangedListener resetToolChangeListener;
 
     /**
      * Perform a regular expression find instead of simply completing the input
@@ -473,6 +474,7 @@ public class DataListsProdTableComp extends Composite implements
             @Override
             public void toolChanged() {
                 VizApp.runAsync(new Runnable() {
+                    @Override
                     public void run() {
                         updateMenuInventory();
                     }
@@ -487,6 +489,7 @@ public class DataListsProdTableComp extends Composite implements
             @Override
             public void pointChanged() {
                 VizApp.runAsync(new Runnable() {
+                    @Override
                     public void run() {
                         updateMenuInventory();
                     }
@@ -882,8 +885,20 @@ public class DataListsProdTableComp extends Composite implements
 
                 @Override
                 public void pointChanged() {
-                    MenuItemManager.getInstance().clearPlanesMap();
-                    pta.resetMenu();
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            MenuItemManager menuItemMgr = MenuItemManager
+                                    .getInstance();
+
+                            Set<String> planeListItems = planeControl.list
+                                    .getAvailableKeys().keySet();
+
+                            menuItemMgr.clearPlanesMap();
+                            menuItemMgr.setSelectedPlaneItems(planeListItems);
+                            pta.resetMenu();
+                        }
+                    });
                 }
             };
             PointsDataManager.getInstance().addPointsChangedListener(
@@ -947,6 +962,7 @@ public class DataListsProdTableComp extends Composite implements
      *            Menu information that contains information about the item
      *            selected.
      */
+    @Override
     public void addToList(String displayStr, MenuContribution menuContrib) {
         activeList.addItemToList(displayStr, menuContrib);
 
@@ -959,6 +975,7 @@ public class DataListsProdTableComp extends Composite implements
      * 
      * @return The active data selection.
      */
+    @Override
     public DataSelection getActiveDataSelection() {
         return currentDataSelection;
     }
@@ -971,6 +988,7 @@ public class DataListsProdTableComp extends Composite implements
      * (
      * com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection)
      */
+    @Override
     public void setActiveDataSelection(DataSelection dataSelection) {
         currentDataSelection = dataSelection;
     }
