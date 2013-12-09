@@ -69,7 +69,7 @@ import com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
@@ -221,8 +221,8 @@ public class LocalizationManager implements IPropertyChangeListener {
             }
 
             try {
-                GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
-                        currentServer, false);
+                GetServersResponse resp = ConnectivityManager
+                        .checkLocalizationServer(currentServer, false);
                 VizApp.setHttpServer(resp.getHttpServer());
                 VizApp.setJmsConnectionString(resp.getJmsConnectionString());
                 VizApp.setPypiesServer(resp.getPypiesServer());
