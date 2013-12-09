@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.registry.federation;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -46,6 +47,7 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
@@ -97,12 +99,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistryMonitor;
 import com.raytheon.uf.edex.datadelivery.registry.replication.NotificationHostConfiguration;
 import com.raytheon.uf.edex.datadelivery.registry.replication.NotificationServers;
-import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryRemoveTask;
-import com.raytheon.uf.edex.datadelivery.registry.replication.RegistrySubmitTask;
 import com.raytheon.uf.edex.datadelivery.registry.web.DataDeliveryRESTServices;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -149,6 +150,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/30/2013   1538        bphillip    Changed submitObjects method to submit objects to NCF by default
  * 11/20/2013   2534        bphillip    Consolidated RegistryReplicationManager into this class and added reciprocal subscriptions.  Added remote subscription monitor.
  * 12/2/2013    1829        bphillip    Modified to use correct getters for slot values
+ * 12/9/2013    2613        bphillip    Optimized registry sync function
  * </pre>
  * 
  * @author bphillip
@@ -190,6 +192,12 @@ public class RegistryFederationManager implements RegistryInitializedListener {
     /** String format for ids of replication subscriptions */
     private static final String SUBSCRIPTION_DETAIL_FORMAT = "Replication Subscription for [%s] objects for server ["
             + RegistryUtil.LOCAL_REGISTRY_ADDRESS + "]";
+
+    /** Query used for synchronizing registries */
+    private static final String SYNC_QUERY = "FROM RegistryObjectType obj where obj.objectType='%s' order by obj.id asc";
+
+    /** Batch size for registry synchronization queries */
+    private static final int SYNC_BATCH_SIZE = 250;
 
     /** The address of the NCF */
     protected String ncfAddress = System.getenv("NCF_ADDRESS");
@@ -258,6 +266,8 @@ public class RegistryFederationManager implements RegistryInitializedListener {
      * this class, yet it only needs to be initialized once
      */
     private static AtomicBoolean initialized = new AtomicBoolean(false);
+
+    private Long syncTime = 0l;
 
     /**
      * Creates a new RegistryFederationManager
@@ -675,7 +685,8 @@ public class RegistryFederationManager implements RegistryInitializedListener {
         sub.setOwner(federationProperties.getSiteIdentifier());
         sub.setStatus(StatusTypes.APPROVED);
 
-        sub.setStartTime(EbxmlObjectUtil.getTimeAsXMLGregorianCalendar(0));
+        sub.setStartTime(EbxmlObjectUtil.getTimeAsXMLGregorianCalendar(syncTime
+                .longValue()));
         QueryType selectorQuery = new QueryType();
         selectorQuery.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
 
@@ -826,75 +837,30 @@ public class RegistryFederationManager implements RegistryInitializedListener {
      *            The URL of the registry to sync with
      * @throws EbxmlRegistryException
      *             If the thread executor fails to shut down properly
+     * @throws MsgRegistryException
      */
-    public void synchronizeRegistryWithFederation(String remoteRegistryUrl)
-            throws EbxmlRegistryException {
+    public void synchronizeRegistryWithFederation(final String remoteRegistryUrl)
+            throws EbxmlRegistryException, MsgRegistryException {
+        long start = TimeUtil.currentTimeMillis();
+        syncTime = start;
         ExecutorService executor = Executors
                 .newFixedThreadPool(this.registrySyncThreads);
-        for (String objectType : objectTypes) {
-            Set<String> localIds = null;
-            Set<String> remoteIds = null;
-            statusHandler
-                    .info("Getting registry object Ids from local registry...");
-            Collection<String> response = dataDeliveryRestClient
-                    .getRegistryDataAccessService(
-                            RegistryUtil.LOCAL_REGISTRY_ADDRESS)
-                    .getRegistryObjectIdsOfType(objectType).getPayload();
-            if (response != null) {
-                localIds = new HashSet<String>(response.size(), 1);
-                localIds.addAll(response);
-            } else {
-                localIds = new HashSet<String>();
-            }
 
-            statusHandler.info(localIds.size() + " objects of type "
-                    + objectType + " present in local registry.");
-            statusHandler.info("Getting registry object Ids from "
-                    + remoteRegistryUrl + "...");
-            response = dataDeliveryRestClient
-                    .getRegistryDataAccessService(remoteRegistryUrl)
-                    .getRegistryObjectIdsOfType(objectType).getPayload();
-            if (response != null) {
-                remoteIds = new HashSet<String>(response.size(), 1);
-                remoteIds.addAll(response);
-            } else {
-                remoteIds = new HashSet<String>();
-            }
-            statusHandler.info(remoteIds.size() + " objects of type "
-                    + objectType + " present on registry at "
-                    + remoteRegistryUrl);
-            statusHandler.info("Synchronizing objects of type " + objectType
-                    + "...");
+        for (final String objectType : objectTypes) {
+            executor.submit(new RunnableWithTransaction(txTemplate) {
 
-            /*
-             * Iterate through local objects and compare them with the remote
-             * object inventory to determine if they need to be updated or
-             * deleted locally
-             */
-            for (String localId : localIds) {
-                if (remoteIds.contains(localId)) {
-                    executor.submit(new RegistrySubmitTask(txTemplate,
-                            registryObjectDao, localId, remoteRegistryUrl,
-                            dataDeliveryRestClient));
-                } else {
-                    RegistryRemoveTask removeTask = new RegistryRemoveTask(
-                            txTemplate, registryObjectDao, localId);
-                    executor.submit(removeTask);
+                @Override
+                public void runWithTransaction() {
+                    try {
+                        syncObjectType(objectType, remoteRegistryUrl);
+                    } catch (Exception e) {
+                        throw new RuntimeException(
+                                "Error synching object type [" + objectType
+                                        + "] with registry at ["
+                                        + remoteRegistryUrl + "]", e);
+                    }
                 }
-            }
-
-            /*
-             * Iterate through the remote objects to see if there are any
-             * objects on the remote registry that do not exist local. If found,
-             * retrieve them and add them to the local registry
-             */
-            for (String remoteId : remoteIds) {
-                if (!localIds.contains(remoteId)) {
-                    executor.submit(new RegistrySubmitTask(txTemplate,
-                            registryObjectDao, remoteId, remoteRegistryUrl,
-                            dataDeliveryRestClient));
-                }
-            }
+            });
         }
 
         // Wait for all threads to complete
@@ -909,9 +875,113 @@ public class RegistryFederationManager implements RegistryInitializedListener {
             throw new EbxmlRegistryException(
                     "Task executor did not shutdown properly!", e);
         }
-
         statusHandler.info("Registry synchronization using ["
-                + remoteRegistryUrl + "] completed successfully!");
+                + remoteRegistryUrl + "] completed successfully in "
+                + (TimeUtil.currentTimeMillis() - start) + " ms");
+    }
+
+    /**
+     * Synchronizes objects of the specified type with the specified remote
+     * registry
+     * 
+     * @param objectType
+     *            The object type to synchronize
+     * @param remoteRegistryUrl
+     *            The url of the remote registry
+     * @throws EbxmlRegistryException
+     *             If there are errors deleting existing objects
+     * @throws MsgRegistryException
+     *             If there are errors executing the remote soap query
+     */
+    public void syncObjectType(String objectType, String remoteRegistryUrl)
+            throws EbxmlRegistryException, MsgRegistryException {
+
+        try {
+            statusHandler.info("Deleting objects of type: " + objectType);
+            int deleteCount = registryObjectDao
+                    .executeHQLStatement(
+                            "DELETE FROM RegistryObjectType obj where obj.objectType=:objectType",
+                            "objectType", objectType);
+            statusHandler.info(deleteCount + " objects of type [" + objectType
+                    + "] deleted from registry");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Error deleting objects of type "
+                    + objectType, e);
+        }
+
+        statusHandler.info("Querying " + remoteRegistryUrl
+                + " for objects of type: " + objectType);
+
+        // Get the list of remote object ids so we can check later to ensure all
+        // objects were retrieved
+        Collection<String> remoteIds = dataDeliveryRestClient
+                .getRegistryDataAccessService(remoteRegistryUrl)
+                .getRegistryObjectIdsOfType(objectType).getPayload();
+
+        SlotType queryLanguageSlot = new SlotType(
+                QueryConstants.QUERY_LANGUAGE, new StringValueType(
+                        QueryLanguages.HQL));
+        SlotType queryExpressionSlot = new SlotType(
+                QueryConstants.QUERY_EXPRESSION, new StringValueType(""));
+        QueryRequest queryRequest = new QueryRequest();
+        QueryType query = new QueryType();
+        query.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
+        query.getSlot().add(queryLanguageSlot);
+        query.getSlot().add(queryExpressionSlot);
+        queryRequest.setQuery(query);
+        queryRequest.setResponseOption(new ResponseOptionType(
+                QueryReturnTypes.REGISTRY_OBJECT, true));
+
+        queryRequest.setStartIndex(new BigInteger("0"));
+        queryRequest.setMaxResults(new BigInteger(String
+                .valueOf(SYNC_BATCH_SIZE)));
+        queryRequest.setId("Synchronizing object type: " + objectType);
+        SlotType slot = queryRequest.getQuery().getSlotByName(
+                QueryConstants.QUERY_EXPRESSION);
+        slot.setSlotValue(new StringValueType(String.format(SYNC_QUERY,
+                objectType)));
+
+        int queryCount = 0;
+        int resultCount = 0;
+        do {
+            BigInteger start = queryRequest.getStartIndex().add(
+                    new BigInteger(String.valueOf(resultCount)));
+            queryRequest.setStartIndex(start);
+            statusHandler.info("Query #" + (++queryCount) + " to registry ["
+                    + remoteRegistryUrl + "] for objectType [" + objectType
+                    + "]");
+            QueryResponse queryResponse = registrySoapServices
+                    .getQueryServiceForHost(remoteRegistryUrl).executeQuery(
+                            queryRequest);
+            List<RegistryObjectType> queryResult = queryResponse
+                    .getRegistryObjects();
+            resultCount = queryResult.size();
+
+            if (!queryResult.isEmpty()) {
+                for (RegistryObjectType registryObject : queryResult) {
+                    remoteIds.remove(registryObject.getId());
+                }
+                statusHandler.info("Persisting " + queryResult.size()
+                        + " objects of type " + objectType
+                        + " to local registry");
+                registryObjectDao.persistAll(queryResult);
+                registryObjectDao.flushAndClearSession();
+            }
+        } while (resultCount > 0);
+
+        // Ensure we haven't missed any objects
+        if (!remoteIds.isEmpty()) {
+            for (String objectId : remoteIds) {
+                try {
+                    RegistryObjectType remoteObject = dataDeliveryRestClient
+                            .getRegistryObject(remoteRegistryUrl, objectId);
+                    registryObjectDao.createOrUpdate(remoteObject);
+                } catch (Throwable e) {
+                    statusHandler.error("Error retrieving object [" + objectId
+                            + "] from [" + remoteRegistryUrl + "]", e);
+                }
+            }
+        }
     }
 
     /**
