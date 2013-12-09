@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
-import org.apache.cxf.annotations.GZIP;
+import org.apache.cxf.annotations.FastInfoset;
 
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 
@@ -46,12 +46,13 @@ import com.raytheon.uf.common.registry.EbxmlNamespaces;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 10/20/2013    1682       bphillip    Added synchronous notification delivery
+ * 12/9/2013     2613       bphillip    Changed to use FastInfoset
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@GZIP(threshold = 0)
+@FastInfoset
 @WebService(name = "NotificationListener", targetNamespace = EbxmlNamespaces.NL_INT_URI)
 @SOAPBinding(style = Style.DOCUMENT, parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({ oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,
