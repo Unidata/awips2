@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/20/2013   1682        bphillip    Added synchronous notification delivery
  * 10/23/2013   1538        bphillip    Adding log messages and changed methods to handle DateTime value on 
  *                                      AuditableEvents instead of integer
+ * 12/9/2013    2613        bphillip    Changed start time boundary of get auditable events to be the last run time of the subscription
  * </pre>
  * 
  * @author bphillip
@@ -228,6 +229,13 @@ public class RegistryNotificationManager {
         final SubscriptionType subscription = notificationListeners.subscription;
 
         List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
+
+        XMLGregorianCalendar startTime = subscription
+                .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
+
+        if (startTime == null) {
+            startTime = subscription.getStartTime();
+        }
 
         List<AuditableEventType> eventsOfInterest = getEventsOfInterest(
                 subscription.getStartTime(), subscription.getEndTime(),
