@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 
@@ -68,6 +66,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
+import com.raytheon.uf.common.site.SiteData;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -143,6 +143,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 25, 2013   2292     mpduff     Move overlap checks to edex.
  * Nov 06, 2013   2358     mpduff     Resurrected file management code.
  * Nov 08, 2013   2506     bgonzale   Removed send notification when a subscription is deleted.
+ * Dec 05, 2013   2570     skorolev   Show All subscriptions.
  * </pre>
  * 
  * @author mpduff
@@ -229,16 +230,13 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
             .getSubscriptionNotificationService();
 
-    private final ISubscriptionManagerFilter filter;
+    private ISubscriptionManagerFilter filter;
 
     /** The selected office */
     private String selectedOffice;
 
     /** The selected group */
     private String selectedGroup;
-
-    /** The office display list */
-    private final SortedSet<String> officeDisplayItems = new TreeSet<String>();
 
     /** Load config dialog */
     private LoadSaveConfigDlg loadDlg;
@@ -248,6 +246,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
     /** SaveAs config dialog */
     private LoadSaveConfigDlg saveAsDlg;
+
+    /** Option to select all subscriptions */
+    private final String ALL = "ALL";
+
+    /** Option to select all groups of subscriptions */
+    private final String ALL_SUBSCRIPTIONS = "All Subscriptions";
 
     /**
      * Constructor
@@ -597,14 +601,13 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         // Office Selection Combo Box
         GridData comboData = new GridData(85, SWT.DEFAULT);
-        officeCbo = new Combo(officeComp, SWT.READ_ONLY);
+        officeCbo = new Combo(officeComp, SWT.READ_ONLY | SWT.BORDER);
         officeCbo.setLayoutData(comboData);
         officeCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handleFilterSelection();
             }
-
         });
 
         // Group label
@@ -1005,6 +1008,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             public List<Subscription> getSubscriptions(
                     ISubscriptionHandler subscriptionHandler)
                     throws RegistryHandlerException {
+
+                if (!office.equals(ALL)) {
+                    filter = SubscriptionManagerFilters.getBySiteId(office);
+                } else {
+                    filter = SubscriptionManagerFilters.getAll();
+                }
                 final List<Subscription> results = filter
                         .getSubscriptions(subscriptionHandler);
 
@@ -1013,11 +1022,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 for (Iterator<Subscription> iter = results.iterator(); iter
                         .hasNext();) {
                     Subscription subscription = iter.next();
-                    if ((office == null || "ALL".equals(office) || subscription
-                            .getOfficeIDs().contains(office))
-                            && (group == null
-                                    || "All Subscriptions".equals(group) || group
-                                        .equals(subscription.getGroupName()))) {
+                    if (group == null || ALL_SUBSCRIPTIONS.equals(group)
+                            || group.equals(subscription.getGroupName())) {
                         continue;
                     }
                     iter.remove();
@@ -1173,7 +1179,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         List<String> groupNameList = GroupDefinitionManager.getGroupNames();
 
-        groupNameList.add(0, "All Subscriptions");
+        groupNameList.add(0, ALL_SUBSCRIPTIONS);
         groupNames = groupNameList.toArray(new String[0]);
         groupCbo.setItems(groupNames);
 
@@ -1188,34 +1194,23 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      * Return the list of office names available. Default is "ALL" office ids
      */
     public void loadOfficeNames() {
-        int numRows = tableComp.getTable().getItemCount();
 
-        if (numRows > 0) {
-            for (int i = 0; i < numRows; i++) {
+        Map<String, SiteData> siteData = SiteMap.getInstance().getSiteData();
+        Set<String> sites = siteData.keySet();
 
-                SubscriptionManagerRowData rowData = tableComp
-                        .getSubscriptionData().getDataRow(i);
-                Set<String> office = rowData.getOfficeIds();
-                officeDisplayItems.addAll(office);
-            }
-        }
-
-        officeNames = officeDisplayItems.toArray(new String[officeDisplayItems
-                .size()]);
+        officeNames = sites.toArray(new String[sites.size()]);
         String[] officeAll = new String[officeNames.length + 1];
 
-        officeAll[0] = "ALL";
+        officeAll[0] = ALL;
 
         System.arraycopy(officeNames, 0, officeAll, 1, officeNames.length);
         officeCbo.setItems(officeAll);
 
         String site = CURRENT_SITE;
         if (this.selectedOffice != null) {
-            for (Iterator<String> iter = officeDisplayItems.iterator(); iter
-                    .hasNext();) {
-                String next = iter.next();
-                if (next.equals(selectedOffice)) {
-                    site = next;
+            for (String item : officeAll) {
+                if (item.equals(selectedOffice)) {
+                    site = item;
                     break;
                 }
             }
