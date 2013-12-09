@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.colormap;bundle-version="1.0.0",
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.util;bundle-version="1.0.0",
- com.raytheon.uf.viz.application;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
