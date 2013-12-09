@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.application;
+package com.raytheon.uf.viz.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.Platform;
 
 /**
- * TODO Add Description
+ * Class that parses application arguments and provides easy access to them
  * 
  * <pre>
  * 
