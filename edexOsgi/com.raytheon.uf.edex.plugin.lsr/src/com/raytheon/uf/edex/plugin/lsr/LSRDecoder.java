@@ -22,17 +22,16 @@ package com.raytheon.uf.edex.plugin.lsr;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.plugin.lsr.decoder.LSRParser;
 
 /**
- * 
+ * Decoder for Local Storm Reports
  * 
  * <pre>
  * 
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.plugin.lsr.decoder.LSRParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
+ * Dec 09, 2013       2581 njensen     Updated javadoc
  * 
  * </pre>
  * 
@@ -47,7 +47,7 @@ import com.raytheon.uf.edex.plugin.lsr.decoder.LSRParser;
  * @version 1.0
  */
 public class LSRDecoder {
-    private Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(LSRDecoder.class);
 
     private final String pluginName;
 
@@ -107,7 +107,7 @@ public class LSRDecoder {
         if (data != null && data.length > 0) {
             List<LocalStormReport> obsList = new ArrayList<LocalStormReport>();
             try {
-                LSRParser parser = new LSRParser(dao, pdd, pluginName);
+                LSRParser parser = new LSRParser(dao, pdd);
                 parser.setData(data, traceId, headers);
 
                 LocalStormReport report;

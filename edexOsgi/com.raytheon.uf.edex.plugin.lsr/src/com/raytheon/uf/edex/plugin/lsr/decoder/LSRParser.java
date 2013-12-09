@@ -28,24 +28,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.lsr.LSREventType;
 import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * Local Storm Report parser
  * 
  * <pre>
  * 
@@ -54,6 +52,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009 1939       jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Dec 09, 2013 2581       njensen     Reuse patterns for efficiency
+ *                                      Check entire time line looking for latlon
  * 
  * </pre>
  * 
@@ -63,10 +63,6 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class LSRParser {
 
     private static final int PDV_FILL_INT = -9999;
-
-    private static final float PDV_FILL_DBL = -9999.0f;
-
-    private static int MAX_LENGTH = 500; // LSR max length
 
     private static int TIME = 0; // time
 
@@ -80,25 +76,11 @@ public class LSRParser {
 
     private static int LOCATION_LENGTH = 23; // city location max length
 
-    private static int LATLON = 52; // lat/lon
-
-    private static int LATLON_LENGTH = 14; // lat/lon max length
-
     private static int DATE = 0; // date
 
     private static int DATE_LENGTH = 10; // date max length
 
     private static int MAG = 12; // magnitude
-
-    private static int MAG_LENGTH = 3; // magnitude max length
-
-    private static int EMAG_LENGTH = 4; // magnitude max length
-
-    private static int UNIT = 16; // unit
-
-    private static int EUNIT = 17; // emag unit
-
-    private static int UNIT_LENGTH = 4; // unit length
 
     private static int COUNTY = 29; // county
 
@@ -112,17 +94,17 @@ public class LSRParser {
 
     private static int SOURCE_LENGTH = 16; // source max length
 
-    private static int REMARK = 12; // remark
+    private static final Pattern LATLON_PTRN = Pattern
+            .compile("((([0-8][0-9]|90).\\d{2,2}[NS]) ++(1?+\\d{2,2}.\\d{2,2}[EW])())");
 
-    private static int REMARK_LENGTH = 57; // remark length
+    private static final Pattern RPT_DT_PTRN = Pattern
+            .compile(InternalReport.DATETIME);
 
-    private static int REMARK_MAX_LENGTH = 500; // remark max length
+    private static final Pattern FATAL_INJ_PTRN = Pattern
+            .compile("\\*\\*\\*( (\\d*) (FATAL))?,?( (\\d*) (INJ))? \\*\\*\\*(.*)");
 
-    private static final String LATLON_PTRN = "((([0-8][0-9]|90).\\d{2,2}[NS]) ++(1?+\\d{2,2}.\\d{2,2}[EW])())";
-
-    private static final String RPT_DT_PTRN = InternalReport.DATETIME;
-
-    private static final String FATAL_INJ_PTRN = "\\*\\*\\*( (\\d*) (FATAL))?,?( (\\d*) (INJ))? \\*\\*\\*(.*)";
+    private static final Pattern OFFICE_ID_PTRN = Pattern
+            .compile("NWUS5[1-9]\\s([A-Z]{4})\\s\\d{6}");
 
     private static final Map<String, Integer> TIMEZONE = new HashMap<String, Integer>();
     static {
@@ -137,19 +119,15 @@ public class LSRParser {
         TIMEZONE.put("GMT", 0);
     }
 
-    // private Pattern rptStartPtrn = Pattern.compile(TIME_PTRN);
-    private final Pattern latlanPtrn = Pattern.compile(LATLON_PTRN);
-
     /** The logger */
-    private final Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(LSRParser.class);;
 
     private final PointDataDescription pointDataDescription;
 
     private final LocalStormReportDao lsrDao;
 
     private final Map<File, PointDataContainer> containerMap;
-
-    private final String pluginName;
 
     private WMOHeader wmoHeader;
 
@@ -177,11 +155,9 @@ public class LSRParser {
      * @param wmoHeader
      * @param pdd
      */
-    public LSRParser(LocalStormReportDao dao, PointDataDescription pdd,
-            String name) {
+    public LSRParser(LocalStormReportDao dao, PointDataDescription pdd) {
         pointDataDescription = pdd;
         lsrDao = dao;
-        pluginName = name;
         containerMap = new HashMap<File, PointDataContainer>();
     }
 
@@ -198,9 +174,7 @@ public class LSRParser {
         this.traceId = traceId;
         wmoHeader = new WMOHeader(message, headers);
         if (wmoHeader != null) {
-            Pattern officeidPtrn = Pattern
-                    .compile("NWUS5[1-9]\\s([A-Z]{4})\\s\\d{6}");
-            Matcher m = officeidPtrn.matcher(wmoHeader.getWmoHeader());
+            Matcher m = OFFICE_ID_PTRN.matcher(wmoHeader.getWmoHeader());
             if (m.matches()) {
                 officeid = m.group(1);
             }
@@ -248,18 +222,12 @@ public class LSRParser {
         } else {
             report = reports.get(currentReport++);
             logger.debug("Getting report " + report);
-
-            try {
-                report.constructDataURI();
-                if (URI_MAP.containsKey(report.getDataURI())) {
-                    report = null;
-                } else {
-                    URI_MAP.put(report.getDataURI(), Boolean.TRUE);
-                }
-            } catch (PluginException e) {
-                logger.error(traceId + "- Unable to construct dataURI", e);
+            if (URI_MAP.containsKey(report.getDataURI())) {
                 report = null;
+            } else {
+                URI_MAP.put(report.getDataURI(), Boolean.TRUE);
             }
+
             if (report != null) {
 
                 PointDataContainer pdc = getContainer(report);
@@ -323,8 +291,7 @@ public class LSRParser {
             for (; currPos < parts.size(); currPos++) {
                 InternalReport r = parts.get(currPos);
                 if (InternalType.DATETIME_ZONE.equals(r.getLineType())) {
-                    Pattern rptDatePtrn = Pattern.compile(RPT_DT_PTRN);
-                    Matcher m = rptDatePtrn.matcher(r.getReportLine());
+                    Matcher m = RPT_DT_PTRN.matcher(r.getReportLine());
                     if (m.find()) {
                         String tz = m.group(4);
                         if (TIMEZONE.containsKey(tz)) {
@@ -406,8 +373,7 @@ public class LSRParser {
                     .trim();
             rpt.setCityLoc(ss);
 
-            ss = timeLine.substring(LATLON).trim();
-            parseLatLon(ss, rpt);
+            parseLatLon(timeLine, rpt);
         }
         return timeOk;
     }
@@ -466,7 +432,7 @@ public class LSRParser {
 
     private boolean parseLatLon(String latlon, LocalStormReport rpt) {
         boolean locOk = false;
-        Matcher m = latlanPtrn.matcher(latlon);
+        Matcher m = LATLON_PTRN.matcher(latlon);
         if (m.find()) {
             String ss = m.group(2);
             Double lat = Double.parseDouble(ss.substring(0, ss.length() - 1));
@@ -587,7 +553,7 @@ public class LSRParser {
 
         List<InternalReport> remarks = new ArrayList<InternalReport>();
         for (InternalReport r : rptLines) {
-            logger.debug(r);
+            logger.debug(r.toString());
             if (InternalType.REMARK.equals(r.getLineType())) {
                 logger.debug("Adding " + r);
                 remarks.add(r);
@@ -601,8 +567,7 @@ public class LSRParser {
                 }
                 String rmk = r.getReportLine().trim();
                 // Check each line just in the event someone did it wrong.
-                Pattern p = Pattern.compile(FATAL_INJ_PTRN);
-                Matcher m = p.matcher(rmk);
+                Matcher m = FATAL_INJ_PTRN.matcher(rmk);
                 if (m.find()) {
                     int n;
                     if ("FATAL".equals(m.group(3))) {
