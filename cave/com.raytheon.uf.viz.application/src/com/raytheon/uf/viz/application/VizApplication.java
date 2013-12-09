@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.application.component.IStandaloneComponent;
  * Apr 18, 2007            chammack    Initial Creation.
  * Dec 03, 2007 461        bphillip    Added persistence of workstation time to localization
  * Oct 07, 2008 1433       chammack    Added alertviz startup
+ * Nov 27, 2013            mschenke    Removed ProgramArguments to make dependencies cleaner
  * 
  * </pre>
  * 
@@ -55,9 +56,16 @@ public class VizApplication implements IApplication {
      * IApplicationContext)
      */
     public Object start(IApplicationContext context) throws Exception {
-
-        String appToRun = ProgramArguments.getInstance()
-                .getString("-component");
+        String appToRun = null;
+        String[] arguments = Platform.getApplicationArgs();
+        for (int i = 0; i < arguments.length; ++i) {
+            if ("-component".equals(arguments[i])) {
+                if (i < (arguments.length - 1)) {
+                    appToRun = arguments[i + 1];
+                }
+                break;
+            }
+        }
 
         IStandaloneComponent component = null;
 
