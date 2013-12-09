@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Nov 17, 2009 3120       rjpeter     Updated to use LevelMappingFactory.
  * Jul 31, 2012 875        rferrel     Now uses points.
  * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
+ * Dec 06, 2013 2271       mpduff      Added check for null coordinate.
  * 
  * </pre>
  * 
@@ -427,6 +428,10 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                     for (String letter : pointLetters) {
                         Coordinate c = PointsDataManager.getInstance()
                                 .getCoordinate(letter);
+                        if (c == null) {
+                            break;
+                        }
+
                         DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
                         if (env.contains(dp.x, dp.y)) {
