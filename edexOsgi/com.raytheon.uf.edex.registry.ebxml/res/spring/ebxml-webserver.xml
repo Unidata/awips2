@@ -2,22 +2,23 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
+	<bean id="webServerThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+		<property name="minThreads" value="5" />
+		<property name="maxThreads" value="${ebxml-webserver-max-threads}" />
+	</bean>
+
 	<bean id="ebxmlRegistryWebServer" class="org.eclipse.jetty.server.Server"
 		init-method="start" destroy-method="stop">
 
-		<property name="threadPool">
-			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
-				<property name="minThreads" value="${ebxml-webserver-min-threads}" />				
-				<property name="maxThreads" value="${ebxml-webserver-max-threads}" />
-			</bean>
-		</property>
+		<property name="threadPool" ref="webServerThreadPool"/>
 
 		<property name="connectors">
 			<list>
-				<bean id="Connector" class="org.eclipse.jetty.server.nio.NetworkTrafficSelectChannelConnector">
+				<bean id="Connector"
+					class="org.eclipse.jetty.server.nio.NetworkTrafficSelectChannelConnector">
 					<property name="port" value="${EBXML_REGISTRY_WEBSERVER_PORT}" />
 					<property name="maxIdleTime" value="5000" />
-					<property name="acceptors" value="8" />
+					<property name="acceptors" value="2" />
 					<property name="confidentialPort"
 						value="${EBXML_REGISTRY_WEBSERVER_CONFIDENTIAL_PORT}" />
 				</bean>
