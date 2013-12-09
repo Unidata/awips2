@@ -7,8 +7,7 @@ Bundle-Activator: gov.noaa.nws.ncep.viz.localization.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui;bundle-version="3.6.1",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.application;bundle-version="1.0.0"
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.localization
