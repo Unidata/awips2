@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 27, 2013 1746        dhladky     Initial creation
  * Jun 17, 2013 2113        dhladky     QPID memory usage alleviation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Dec 10, 2013 2616        mpduff      Set overwrite allowed on MadisRecord.
  * </pre>
  * 
  * @author dhladky
@@ -140,6 +141,7 @@ public class MadisDecoder extends AbstractDecoder {
 
                     long time3 = System.currentTimeMillis();
                     MadisRecord rec = processMadis(headerType, line);
+                    rec.setOverwriteAllowed(true);
                     long time4 = System.currentTimeMillis();
                     statusHandler.handle(Priority.DEBUG,
                             "MADIS record decode time: " + (time4 - time3)
