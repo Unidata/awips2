@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 
-import org.apache.cxf.annotations.GZIP;
+import org.apache.cxf.annotations.FastInfoset;
 
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 
@@ -46,12 +46,13 @@ import com.raytheon.uf.common.registry.EbxmlNamespaces;
  * ------------ ----------  ----------- --------------------------
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
+ * 12/9/2013     2613       bphillip    Changed to use FastInfoset
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@GZIP(threshold = 0)
+@FastInfoset
 @WebService(name = "Cataloger", targetNamespace = EbxmlNamespaces.SPI_INT_URI)
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({ oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,
