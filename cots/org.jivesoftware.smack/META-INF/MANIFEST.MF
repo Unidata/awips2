@@ -58,4 +58,5 @@ Export-Package: org.jivesoftware.smack,
  org.jivesoftware.smackx.workgroup.packet,
  org.jivesoftware.smackx.workgroup.settings,
  org.jivesoftware.smackx.workgroup.user,
- org.jivesoftware.smackx.workgroup.util
+ org.jivesoftware.smackx.workgroup.util,
+ org.xmlpull.v1
