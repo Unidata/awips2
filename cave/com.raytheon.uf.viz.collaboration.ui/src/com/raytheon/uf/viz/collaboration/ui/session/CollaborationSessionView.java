@@ -210,7 +210,6 @@ public class CollaborationSessionView extends SessionView implements
                     ColorChangeEvent event = new ColorChangeEvent(entry, rgb);
                     try {
                         session.sendObjectToVenue(event);
-                        CollaborationSessionView.this.modifyColors(event);
                     } catch (CollaborationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to send color change to venue", e);
