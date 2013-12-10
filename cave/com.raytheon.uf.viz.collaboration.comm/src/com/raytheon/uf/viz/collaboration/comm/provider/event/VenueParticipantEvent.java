@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
+ * Dec 19, 2013 2563       bclement    added description
  * 
  * </pre>
  * 
@@ -49,6 +50,8 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
     private final UserId participant;
 
     private Presence presence;
+
+    private String eventDescription;
 
     public VenueParticipantEvent(UserId participant,
             ParticipantEventType eventType) {
@@ -85,6 +88,26 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
     @Override
     public Presence getPresence() {
         return presence;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent
+     * #getEventDescription()
+     */
+    @Override
+    public String getEventDescription() {
+        return eventDescription;
+    }
+
+    /**
+     * @param eventDescription
+     *            the eventDescription to set
+     */
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
     }
 
 }
