@@ -20,6 +20,7 @@
    <requires>
       <import feature="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.base.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
@@ -370,6 +371,13 @@
 
    <plugin
          id="org.eclipse.wst.common.frameworks.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.ui.ide"
          download-size="0"
          install-size="0"
          version="0.0.0"

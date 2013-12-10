@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.localization;
+package com.raytheon.uf.viz.localization.perspective.editor;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -47,7 +47,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 3, 2010            mschenke     Initial creation
+ * Nov 3,  2010            mschenke    Initial creation
+ * Nov 27, 2013            mschenke    Moved into localization.perspective project
  * 
  * </pre>
  * 
