@@ -55,8 +55,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 import com.raytheon.viz.ui.EditorUtil;
 
