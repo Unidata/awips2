@@ -83,6 +83,7 @@ import org.osgi.framework.Bundle;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -132,6 +133,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 1, 2012             rferrel     Initial creation
  * Oct 22, 2013 #2483      lvenable    Fixed image memory leak.
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 19, 2013 2563       bclement    added subscribe method for server disconnection
  * 
  * </pre>
  * 
@@ -165,6 +167,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private Image activeImage = null;
 
     private Image pressedImage = null;
+
+    private LogoutAction logOut;
 
     /**
      * @param parent
@@ -320,7 +324,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(new Separator());
 
         if (CollaborationConnection.getConnection() != null) {
-            mgr.add(new LogoutAction());
+            logOut = new LogoutAction();
+            mgr.add(logOut);
         } else {
             mgr.add(new LoginAction());
         }
@@ -875,5 +880,19 @@ public class CollaborationGroupView extends CaveFloatingView implements
     @Subscribe
     public void userNicknameChanged(UserNicknameChangedEvent e) {
         refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
+    }
+
+    @Subscribe
+    public void serverDisconnected(final ServerDisconnectEvent e) {
+        if (logOut == null) {
+            // we aren't logged in
+            return;
+        }
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                logOut.closeCollaboration();
+            }
+        });
     }
 }

@@ -17,14 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
-
-import org.jivesoftware.smack.packet.Presence;
-
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 /**
- * Event fired when a venue participant has a change in status
+ * Event sent when the server drops connection with the client
  * 
  * <pre>
  * 
@@ -32,34 +28,30 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 20, 2012            jkorman     Initial creation
- * Dec 19, 2013 2563       bclement    added description getter
+ * Dec 19, 2013 2563       bclement     Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author bclement
  * @version 1.0
  */
 
-public interface IVenueParticipantEvent {
+public class ServerDisconnectEvent {
+
+    private final String reason;
 
     /**
-     * @return type of event
+     * @param reason
      */
-    public ParticipantEventType getEventType();
+    public ServerDisconnectEvent(String reason) {
+        this.reason = reason;
+    }
 
     /**
-     * @return user id of participant
+     * @return the reason
      */
-    public UserId getParticipant();
+    public String getReason() {
+        return reason;
+    }
 
-    /**
-     * @return presence of participant, may be null
-     */
-    public Presence getPresence();
-
-    /**
-     * @return description of participant update event, may be null
-     */
-    public String getEventDescription();
 }
