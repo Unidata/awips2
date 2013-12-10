@@ -100,14 +100,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
-import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter;
 import com.raytheon.uf.viz.localization.filetreeview.FileTreeEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileGroupData;
 import com.raytheon.uf.viz.localization.filetreeview.PathData;
 import com.raytheon.uf.viz.localization.perspective.Activator;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorUtils;
 import com.raytheon.uf.viz.localization.perspective.ui.compare.LocalizationCompareEditorInput;
 import com.raytheon.uf.viz.localization.perspective.view.actions.CopyToAction;
 import com.raytheon.uf.viz.localization.perspective.view.actions.DeleteAction;
@@ -1371,7 +1371,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         if (filePath == null) {
             return directoryImage;
         }
-        ImageDescriptor desc = LocalizationPerspectiveUtils.getEditorRegistry()
+        ImageDescriptor desc = LocalizationEditorUtils.getEditorRegistry()
                 .getImageDescriptor(filePath);
         if (desc != null) {
             Image img = imageMap.get(desc);
@@ -1746,7 +1746,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             if (item.getData() instanceof LocalizationFileEntryData) {
                 LocalizationFileEntryData fileData = (LocalizationFileEntryData) item
                         .getData();
-                LocalizationPerspectiveUtils.openInEditor(
+                LocalizationEditorUtils.openInEditor(
                         page,
                         new LocalizationEditorInput(file, fileData
                                 .getResource()));
