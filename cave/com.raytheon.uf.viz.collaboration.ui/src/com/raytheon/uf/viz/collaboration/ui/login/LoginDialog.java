@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2012            mschenke     Initial creation
+ * Dec 19, 2013 2563       bclement     added option to connect to server not in list
  * 
  * </pre>
  * 
@@ -74,9 +75,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 
 public class LoginDialog extends Dialog {
 
-    private static final String SERVER_ENABLED = "OK";
-
-    private static final String SERVER_DISABLED = "Edit";
+    private static final String OTHER_SERVER_OPTION = "Other server...";
 
     private IPreferenceStore preferences;
 
@@ -156,29 +155,25 @@ public class LoginDialog extends Dialog {
         // retrieve the servers
         SiteConfigInformation information = SiteConfigurationManager
                 .getSiteConfigInformation();
-        if (information.getServer() == null
-                || information.getServer().size() == 0) {
-            String[] text = new String[1];
-            text[0] = "Server not configured.";
-            serverText.setData("configured", false);
-            serverText.setItems(text);
-            serverText.setText(text[0]);
-        } else {
-            // put configured as true so we don't disable the login button
-            serverText.setData("configured", true);
-            List<HostConfig> servers = information.getServer();
-            String[] names = new String[servers.size()];
-            int index = 0;
-            for (int i = 0; i < names.length; i++) {
-                names[i] = servers.get(i).getPrettyName() + " : "
-                        + servers.get(i).getHostname();
-                if (loginData.getServer().equals(names[i])) {
-                    index = i;
-                }
-            }
-            serverText.setItems(names);
-            serverText.select(index);
+        List<HostConfig> servers = information.getServer();
+        if (servers == null) {
+            servers = new ArrayList<SiteConfigInformation.HostConfig>(0);
         }
+        // put configured as true so we don't disable the login button
+        serverText.setData("configured", true);
+        String[] names = new String[servers.size() + 1];
+        names[0] = OTHER_SERVER_OPTION;
+        int index = 1;
+        for (int i = 1; i < names.length; i++) {
+            HostConfig config = servers.get(i - 1);
+            names[i] = config.getPrettyName() + " : " + config.getHostname();
+            if (loginData.getServer().equals(names[i])) {
+                index = i;
+            }
+        }
+        serverText.setItems(names);
+        serverText.select(index);
+        serverText.addListener(SWT.Selection, new ServerInput(serverText, 0));
 
         // Password setting
         new Label(body, SWT.NONE).setText("Password: ");
@@ -312,9 +307,19 @@ public class LoginDialog extends Dialog {
                     loginData
                             .setUserName(loginData.getUserName().toLowerCase());
                 }
-
-                if (loginData.getServer().isEmpty()) {
+                String server = loginData.getServer();
+                if (server.isEmpty()) {
                     errorMessages.add("Must have a server.");
+                }
+                String error = ServerInput.validate(server);
+                if (error != null) {
+                    errorMessages.add(error);
+                } else {
+                    try {
+                        loginData.setServer(ServerInput.getFullName(server));
+                    } catch (CollaborationException e) {
+                        errorMessages.add(e.getLocalizedMessage());
+                    }
                 }
 
                 if (loginData.getPassword().isEmpty()) {
