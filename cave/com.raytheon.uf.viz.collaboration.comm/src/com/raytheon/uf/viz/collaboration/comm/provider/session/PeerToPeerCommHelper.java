@@ -27,12 +27,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
@@ -50,6 +50,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 18, 2013 2562       bclement    added timeout for HTTP config,
+ *                                     data now in packet extension
  * 
  * </pre>
  * 
@@ -65,14 +67,30 @@ public class PeerToPeerCommHelper implements PacketListener {
     private static Object httpServerLockObj = new Object();
 
     private static String httpServer;
+    
+    private static long HTTP_SERVER_TIMEOUT = 10 * 1000; // 10 seconds
 
+    /**
+     * Get HTTP server address. This method blocks until the address has been
+     * received from the chat server or a timeout has expired.
+     * 
+     * @return
+     */
     public static String getCollaborationHttpServer() {
         /**
          * Wait for initialization of field httpServer.
          */
         synchronized (httpServerLockObj) {
+            long start = System.currentTimeMillis();
             try {
                 while (httpServer == null) {
+                    if (System.currentTimeMillis() - start > HTTP_SERVER_TIMEOUT) {
+                        // TODO should we get fallback server address from
+                        // localization?
+                        statusHandler
+                                .error("HTTP URL configuration not received from server");
+                        break;
+                    }
                     httpServerLockObj.wait(500);
                 }
             } catch (InterruptedException e) {
@@ -111,37 +129,48 @@ public class PeerToPeerCommHelper implements PacketListener {
                 return;
             }
             String body = msg.getBody();
-            Activator.getDefault().getNetworkStats()
-                    .log(Activator.PEER_TO_PEER, 0, body.length());
             if (body != null) {
-                if (body.startsWith(Tools.CMD_PREAMBLE)) {
-                    routeData(msg);
-                } else if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
+                Activator.getDefault().getNetworkStats()
+                        .log(Activator.PEER_TO_PEER, 0, body.length());
+                if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
+                    // TODO Legacy config support
+                    body = body.substring(Tools.CONFIG_PREAMBLE.length(),
+                            body.length() - Tools.DIRECTIVE_SUFFIX.length());
                     this.handleConfiguration(body);
                 } else {
                     // anything else pass to the normal text
                     routeMessage(msg);
                 }
+            } else {
+                SessionPayload payload = (SessionPayload) msg
+                        .getExtension(SessionPayload.XMLNS);
+                if (payload != null) {
+                    switch (payload.getPayloadType()) {
+                    case Command:
+                        routeData(payload,
+                                (String) msg.getProperty(Tools.PROP_SESSION_ID));
+                        break;
+                    case Config:
+                        handleConfiguration(payload.getData().toString());
+                        break;
+                    default:
+                        // do nothing
+                    }
+                }
             }
         }
-        
     }
 
+
     /**
+     * Post data as event either to associated session, or general event bus
      * 
-     * @param message
+     * @param payload
+     * @param sessionId
      */
-    private void routeData(Message message) {
-        Object object = null;
-        try {
-            object = Tools.unMarshallData(message.getBody());
-        } catch (CollaborationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error unmarshalling PeerToPeer data", e);
-        }
+    private void routeData(SessionPayload payload, String sessionId) {
+        Object object = payload.getData();
         if (object != null) {
-            String sessionId = (String) message
-                    .getProperty(Tools.PROP_SESSION_ID);
             if (sessionId == null) {
                 manager.postEvent(object);
             } else {
@@ -158,6 +187,7 @@ public class PeerToPeerCommHelper implements PacketListener {
     }
 
     /**
+     * Post text message to chat
      * 
      * @param message
      */
@@ -190,6 +220,11 @@ public class PeerToPeerCommHelper implements PacketListener {
         }
     }
 
+    /**
+     * Parse server configuration and notify general event bus of config event
+     * 
+     * @param body
+     */
     private void handleConfiguration(String body) {
         // Determine if an error has occurred.
         if (IHttpdXmppMessage.configErrorPattern.matcher(body).matches()) {
@@ -237,18 +272,23 @@ public class PeerToPeerCommHelper implements PacketListener {
         manager.postEvent(configurationEvent);
     }
 
+    /**
+     * Parse config parameter value from key:value string
+     * 
+     * @param body
+     * @param parameterName
+     * @return
+     */
     private String getCollaborationConfigurationParameterValue(String body,
             String parameterName) {
-        // Eliminate the preamble.
-        String encodedConfiguration = body.replace(Tools.CONFIG_PREAMBLE, "");
-        // Eliminate the suffix: ]]
-        encodedConfiguration = encodedConfiguration.substring(0,
-                encodedConfiguration.length() - 2);
 
         // Remove the parameter name.
-        return encodedConfiguration.replace(parameterName + " :", "").trim();
+        return body.replace(parameterName + " :", "").trim();
     }
 
+    /**
+     * Notify general event bus that shared display is disabled
+     */
     private void disableSharedDisplaySession() {
         // ensure that the shared session displays will be disabled
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
