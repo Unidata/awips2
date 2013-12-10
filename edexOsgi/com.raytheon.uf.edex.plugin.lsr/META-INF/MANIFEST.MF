@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lsr Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.lsr
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.dataplugin.lsr;bundle-version="1.0.0",
@@ -19,5 +19,4 @@ Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.datastorage.records,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
- com.raytheon.uf.edex.core,
- org.apache.commons.logging
+ com.raytheon.uf.edex.core
