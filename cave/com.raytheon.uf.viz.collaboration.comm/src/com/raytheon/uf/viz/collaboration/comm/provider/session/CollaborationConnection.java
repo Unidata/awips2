@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterListener;
@@ -38,6 +39,8 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.packet.StreamError;
+import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -65,6 +68,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadTyp
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayloadProvider;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.VenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
@@ -100,6 +104,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Apr 18, 2012            njensen      Major cleanup
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 18, 2013 2562       bclement    added smack compression, fixed invite parsing
+ * Dec 19, 2013 2563       bclement    added connection listener, 
+ *                                     added better error message on failed connection
  * 
  * </pre>
  * 
@@ -180,15 +186,10 @@ public class CollaborationConnection implements IEventPublisher {
         
         this.user = new UserId(connectionData.getUserName(),
                 connectionData.getServer());
-        try {
-            connection.connect();
-            connection.login(user.getName(), password);
-        } catch (XMPPException e) {
-            closeInternals();
-            throw new CollaborationException("Login failed.", e);
 
-        }
+        connectInternal(user.getName(), password);
 
+        setupConnectionListener();
         setupAccountManager();
         setupInternalConnectionListeners();
         setupInternalVenueInvitationListener();
@@ -206,6 +207,44 @@ public class CollaborationConnection implements IEventPublisher {
         instanceMap.put(connectionData, this);
         if (instance == null) {
             instance = this;
+        }
+    }
+
+    /**
+     * connect to XMPP server and login
+     * 
+     * @param username
+     * @param password
+     * @throws CollaborationException
+     */
+    private void connectInternal(String username, String password)
+            throws CollaborationException {
+        try {
+            connection.connect();
+            connection.login(username, password);
+        } catch (XMPPException e) {
+            closeInternals();
+            // get a nice reason for the user
+            String msg;
+            XMPPError xmppErr = e.getXMPPError();
+            if (xmppErr != null) {
+                switch (xmppErr.getCode()) {
+                case 401:
+                    msg = "Bad username or password";
+                    break;
+                case 403:
+                    msg = "User not allowed to connect to server";
+                    break;
+                case 409:
+                    msg = "User account already in use by another client";
+                    break;
+                default:
+                    msg = e.getLocalizedMessage();
+                }
+            } else {
+                msg = e.getLocalizedMessage();
+            }
+            throw new CollaborationException("Login failed: " + msg, e);
         }
     }
 
@@ -299,6 +338,7 @@ public class CollaborationConnection implements IEventPublisher {
             connection.disconnect();
             connection = null;
         }
+        PeerToPeerCommHelper.reset();
         instanceMap.remove(connectionData);
         if (this == instance) {
             instance = null;
@@ -402,6 +442,22 @@ public class CollaborationConnection implements IEventPublisher {
         } catch (Exception e) {
             throw new CollaborationException(
                     "Error joining venue " + venueName, e);
+        }
+    }
+
+    /**
+     * Check if venue exists on server
+     * 
+     * @param venueName
+     * @return false on error
+     */
+    public boolean venueExistsOnServer(String venueName) {
+        String roomId = VenueSession.getRoomId(connection.getHost(), venueName);
+        try {
+            return VenueSession.roomExistsOnServer(connection, roomId);
+        } catch (XMPPException e) {
+            statusHandler.error("Unable to check for room on server", e);
+            return false;
         }
     }
 
@@ -529,6 +585,65 @@ public class CollaborationConnection implements IEventPublisher {
         }
     }
 
+    private void setupConnectionListener(){
+        if (isConnected()){
+            connection.addConnectionListener(new ConnectionListener() {
+                
+                @Override
+                public void reconnectionSuccessful() {
+                    statusHandler.debug("Client successfully reconnected to server");
+                }
+                
+                @Override
+                public void reconnectionFailed(Exception e) {
+                    String reason = getErrorReason(e);
+                    statusHandler.error("Client can't reconnect to server: "
+                            + reason, e);
+                    sendDisconnectNotice(reason);
+                }
+                
+                @Override
+                public void reconnectingIn(int seconds) {
+                    statusHandler.debug("Client reconnecting to server in " + seconds + " seconds" );
+                }
+                
+                @Override
+                public void connectionClosedOnError(Exception e) {
+                    String reason = getErrorReason(e);
+                    statusHandler.error("Server closed on error: " + reason, e);
+                    sendDisconnectNotice(reason);
+                }
+
+                private String getErrorReason(Exception e) {
+                    String msg = null;
+                    if (e instanceof XMPPException) {
+                        StreamError streamError = ((XMPPException) e)
+                                .getStreamError();
+                        if (streamError != null) {
+                            if ("conflict".equalsIgnoreCase(streamError
+                                    .getCode())) {
+                                msg = "User account in use on another client";
+                            }
+                        }
+                    }
+                    return msg == null ? e.getLocalizedMessage() : msg;
+                }
+                
+                @Override
+                public void connectionClosed() {
+                    statusHandler.info("Server closed connection");
+                    sendDisconnectNotice("Normal termination");
+                }
+
+                private void sendDisconnectNotice(String reason) {
+                    ServerDisconnectEvent event = new ServerDisconnectEvent(
+                            reason);
+                    eventBus.post(event);
+                }
+            });
+        }
+    }
+
     // ***************************
     // Venue invitation listener management
     // ***************************
@@ -558,7 +673,8 @@ public class CollaborationConnection implements IEventPublisher {
                                     return;
                                 }
                             }
-                            if ( reason.startsWith(Tools.CMD_PREAMBLE)){
+                            if (reason != null
+                                    && reason.startsWith(Tools.CMD_PREAMBLE)) {
                                 reason = "Shared display invitation from incompatible version of CAVE. "
                                         + "Session will be chat-only if invitation is accepted";
                             }

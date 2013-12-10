@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012 244        rferrel     Initial creation
+ * Dec 19, 2013 2563       bclement    moved color lookup into runAsync block
  * 
  * </pre>
  * 
@@ -585,35 +586,54 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     protected abstract SessionMsgArchive createMessageArchive();
 
+    /**
+     * display formatted error message on chat window
+     * 
+     * @param sb
+     *            builder containing message
+     */
     protected void sendErrorMessage(StringBuilder sb) {
-        Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-        sendGenericMessage(sb, color);
+        sendGenericMessage(sb, SWT.COLOR_RED);
     }
 
+    /**
+     * display formatted error message on chat window
+     * 
+     * @param sb
+     *            builder containing message
+     */
     protected void sendSystemMessage(StringBuilder sb) {
-        Color color = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-        sendGenericMessage(sb, color);
+        sendGenericMessage(sb, SWT.COLOR_BLACK);
     }
 
-    private void sendGenericMessage(final StringBuilder string,
-            final Color color) {
+    /**
+     * display formatted error message on chat window
+     * 
+     * @param builder
+     *            builder containing message
+     * @param swtColor
+     *            text color for message
+     */
+    private void sendGenericMessage(final StringBuilder builder,
+            final int swtColor) {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
+                Color color = Display.getCurrent().getSystemColor(swtColor);
                 Date date = new Date();
                 String time = dateFormatter.format(date);
-                string.insert(0, "(" + time + ") : ");
+                builder.insert(0, "(" + time + ") : ");
                 if (messagesText.getCharCount() != 0) {
-                    string.insert(0, "\n");
+                    builder.insert(0, "\n");
                 }
                 StyleRange range = new StyleRange(messagesText.getCharCount(),
-                        string.length(), color, null, SWT.BOLD);
+                        builder.length(), color, null, SWT.BOLD);
                 List<StyleRange> ranges = new ArrayList<StyleRange>();
                 ranges.add(range);
-                styleAndAppendText(string, 0, string.toString(), null, ranges,
-                        color);
-                msgArchive.archiveLine(string.toString());
-                searchComp.appendText(string.toString());
+                styleAndAppendText(builder, 0, builder.toString(), null,
+                        ranges, color);
+                msgArchive.archiveLine(builder.toString());
+                searchComp.appendText(builder.toString());
             }
         });
     }
