@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
+ * Dec 19, 2013 2563      bclement     added check for feed venue existence
  * 
  * </pre>
  * 
@@ -113,6 +114,14 @@ public class DisplayFeedAction extends Action {
 
     @Override
     public void run() {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        if (!connection.venueExistsOnServer(FEED_VENUE)) {
+            statusHandler.info("Feed venue doesn't exist on server: "
+                    + FEED_VENUE);
+            return;
+        }
+
         // handle if it is clicked to close or open the view as
         // necessary
         CaveWorkbenchPageManager page = CaveWorkbenchPageManager
