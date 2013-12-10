@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaboration
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -65,6 +66,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012            njensen     Initial creation
+ * Dec 18, 2013 2562      bclement    fixed venue invite
  * 
  * </pre>
  * 
@@ -159,17 +161,17 @@ public class ConnectionSubscriber {
     }
 
     @Subscribe
-    public void handleInvitationEvent(IVenueInvitationEvent event) {
-        final IVenueInvitationEvent invitation = event;
+    public void handleInvitationEvent(final IVenueInvitationEvent event) {
         VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
-                IQualifiedID inviter = invitation.getInviter();
-                IQualifiedID room = invitation.getRoomId();
+                IQualifiedID inviter = event.getInviter();
+                IQualifiedID room = event.getRoomId();
                 Shell shell = new Shell(Display.getCurrent());
                 StringBuilder sb = new StringBuilder();
-                boolean sharedDisplay = invitation.getInvite() instanceof SharedDisplayVenueInvite;
+                VenueInvite invite = event.getInvite();
+                boolean sharedDisplay = invite instanceof SharedDisplayVenueInvite;
                 sb.append("You are invited to a ");
                 if (sharedDisplay) {
                     sb.append("collaboration session.");
@@ -177,8 +179,8 @@ public class ConnectionSubscriber {
                     sb.append("chat room.");
                 }
                 InviteDialog inviteBox = new InviteDialog(shell, inviter
-                        .getName(), invitation.getSubject(), room.getName(), sb
-                        .toString(), invitation.getInvite().getMessage());
+                        .getName(), invite.getSubject(), room.getName(), sb
+                        .toString(), invite.getMessage());
                 if (!(Boolean) inviteBox.open()) {
                     return;
                 }
@@ -186,33 +188,27 @@ public class ConnectionSubscriber {
                 CollaborationConnection connection = CollaborationConnection
                         .getConnection();
                 try {
-                    IVenueSession session = connection
-                            .joinCollaborationVenue(invitation);
-                    String sessionId = session.getSessionId();
+                    IVenueSession session;
                     if (sharedDisplay) {
+                        session = connection.joinCollaborationVenue(event);
                         ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                         SessionColorManager man = new SessionColorManager();
                         SharedDisplaySessionMgr.joinSession(displaySession,
                                 SharedDisplayRole.PARTICIPANT, man);
 
                         CaveWorkbenchPageManager.getActiveInstance().showView(
-                                CollaborationSessionView.ID, sessionId,
+                                CollaborationSessionView.ID, session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     } else {
+                        session = connection.joinTextOnlyVenue(room.getName());
                         CaveWorkbenchPageManager.getActiveInstance().showView(
-                                SessionView.ID, sessionId,
+                                SessionView.ID, session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     }
                 } catch (CollaborationException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                    statusHandler.error("Unable to join session venue", e);
                 } catch (PartInitException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                    statusHandler.error("Unable to display session view", e);
                 }
             }
         });
