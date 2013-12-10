@@ -1,18 +1,12 @@
 package gov.noaa.nws.ncep.viz.localization;
 
 //import gov.noaa.nws.ncep.viz.localization.adapter.NcepCAVELocalizationAdapter;
-import java.io.File;
-import java.io.IOException;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+import com.raytheon.uf.viz.core.ProgramArguments;
 //import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.viz.application.ProgramArguments;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
  * The activator class controls the plug-in life cycle
