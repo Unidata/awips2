@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Dec 18, 2013 2562       bclement    removed subject getter (subject in invite)
  * 
  * </pre>
  * 
@@ -42,8 +43,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 public interface IVenueInvitationEvent {
 
     /**
+     * room id for venue
      * 
-     * @return room id for venue
+     * @return id in {room}@conference.{host} format
      */
     public IQualifiedID getRoomId();
 
@@ -53,13 +55,9 @@ public interface IVenueInvitationEvent {
      */
     public IQualifiedID getInviter();
 
-
     /**
-     * @return subject for venue, may be empty
-     */
-    public String getSubject();
-
-    /**
+     * Get detailed invitation which includes subject and message if provided
+     * 
      * @return
      */
     public VenueInvite getInvite();
