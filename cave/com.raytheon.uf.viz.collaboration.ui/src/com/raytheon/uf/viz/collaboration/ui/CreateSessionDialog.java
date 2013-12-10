@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.ISharedEditorsManagerListener;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
@@ -81,6 +82,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2012            rferrel     Initial creation
+ * Dec 19, 2013 2563       bclement    disable shared display option if not supported by server
  * 
  * </pre>
  * 
@@ -265,31 +267,24 @@ public class CreateSessionDialog extends CaveSWTDialog {
         IEditorPart editor = EditorUtil.getActiveEditorAs(IEditorPart.class);
 
         if (!sharedSessionDisplay.isDisposed()) {
-            if (editor instanceof CollaborationEditor) {
-                sharedSessionDisplay
-                        .setText("Create Shared Display Session *Client Session*");
-                sharedSessionDisplay.setEnabled(false);
-                sharedSessionDisplay.setSelection(false);
-                sharedSessionDisplay.getParent().setToolTipText(
+            if (!serverSupportsSharing()) {
+                disableShareOption(
+                        "Not Supported By Server",
+                        "Unable to create a shared display session because"
+                                + " the server doesn't support shared display sessions.");
+            } else if (editor instanceof CollaborationEditor) {
+                disableShareOption("Client Session",
                         "Unable to create a shared display session because"
                                 + " the active editor is a client session.");
             } else if (!isShareable(editor)) {
-                sharedSessionDisplay
-                        .setText("Create Shared Display Session *Not Shareable*");
-                sharedSessionDisplay.setEnabled(false);
-                sharedSessionDisplay.setSelection(false);
-                sharedSessionDisplay.getParent().setToolTipText(
+                disableShareOption("Not Shareable",
                         "Unable to create a shared display session because"
                                 + " the active editor is not shareable.");
             } else if (editor != null
                     && editor instanceof AbstractEditor
                     && SharedEditorsManager
                             .isBeingShared((AbstractEditor) editor)) {
-                sharedSessionDisplay
-                        .setText("Create Shared Display Session *Already Shared*");
-                sharedSessionDisplay.setEnabled(false);
-                sharedSessionDisplay.setSelection(false);
-                sharedSessionDisplay.getParent().setToolTipText(
+                disableShareOption("Already Shared",
                         "Unable to create a shared display session because"
                                 + " the active editor is already "
                                 + "in a shared display session.");
@@ -299,6 +294,28 @@ public class CreateSessionDialog extends CaveSWTDialog {
                 this.enableOrDisableSharedDisplays();
             }
         }
+    }
+
+    /**
+     * Disable create shared display checkbox
+     * 
+     * @param shortReason
+     * @param longReason
+     */
+    private void disableShareOption(String shortReason, String longReason) {
+        String text = String.format("Create Shared Display Session *%s*",
+                shortReason);
+        sharedSessionDisplay.setText(text);
+        sharedSessionDisplay.setEnabled(false);
+        sharedSessionDisplay.setSelection(false);
+        sharedSessionDisplay.getParent().setToolTipText(longReason);
+    }
+
+    /**
+     * @return true if the server supports shared display sessions
+     */
+    private boolean serverSupportsSharing() {
+        return PeerToPeerCommHelper.getCollaborationHttpServer() != null;
     }
 
     @Override
