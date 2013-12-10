@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 18, 2013 2562       bclement    added timeout for HTTP config,
  *                                     data now in packet extension
+ * Dec 19, 2013 2563       bclement    removed wait for HTTP config, added reset
  * 
  * </pre>
  * 
@@ -64,41 +65,16 @@ public class PeerToPeerCommHelper implements PacketListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerCommHelper.class);
 
-    private static Object httpServerLockObj = new Object();
-
-    private static String httpServer;
+    private static volatile String httpServer;
     
-    private static long HTTP_SERVER_TIMEOUT = 10 * 1000; // 10 seconds
-
     /**
-     * Get HTTP server address. This method blocks until the address has been
-     * received from the chat server or a timeout has expired.
+     * Get HTTP server address. This value will be updated if the server sends
+     * new HTTP configuration. If this address is null, the server most likely
+     * doesn't support collaborative displays.
      * 
      * @return
      */
     public static String getCollaborationHttpServer() {
-        /**
-         * Wait for initialization of field httpServer.
-         */
-        synchronized (httpServerLockObj) {
-            long start = System.currentTimeMillis();
-            try {
-                while (httpServer == null) {
-                    if (System.currentTimeMillis() - start > HTTP_SERVER_TIMEOUT) {
-                        // TODO should we get fallback server address from
-                        // localization?
-                        statusHandler
-                                .error("HTTP URL configuration not received from server");
-                        break;
-                    }
-                    httpServerLockObj.wait(500);
-                }
-            } catch (InterruptedException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "PeerToPeerCommHelper unable to resolve server URL. "
-                                + e.getLocalizedMessage(), e);
-            }
-        }
         return httpServer;
     }
 
@@ -262,10 +238,7 @@ public class PeerToPeerCommHelper implements PacketListener {
             return;
         }
 
-        synchronized (httpServerLockObj) {
-            httpServer = httpdCollaborationURL;
-            httpServerLockObj.notifyAll();
-        }
+        httpServer = httpdCollaborationURL;
         // configuration is valid; publish it.
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
                 httpdCollaborationURL);
@@ -294,6 +267,13 @@ public class PeerToPeerCommHelper implements PacketListener {
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
                 null);
         manager.postEvent(configurationEvent);
+    }
+
+    /**
+     * reset internal state when client disconnects from server
+     */
+    public static void reset() {
+        httpServer = null;
     }
 
 }
