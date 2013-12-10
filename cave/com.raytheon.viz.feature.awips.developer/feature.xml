@@ -3,8 +3,7 @@
       id="com.raytheon.viz.feature.awips.developer"
       label="AWIPS Developer Feature"
       version="1.9.0.qualifier"
-      provider-name="Raytheon"
-      plugin="com.raytheon.viz.ui.personalities.awips">
+      provider-name="Raytheon">
 
    <description>
       Contains the AWIPS feature set
@@ -183,7 +182,7 @@
          version="0.0.0"/>
 
    <requires>
-      <import feature="com.raytheon.viz.feature.awips" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
    </requires>
 
 </feature>
