@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2012            mnash     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 19, 2013 2563       bclement    moved participant filter logic to one method
  * 
  * </pre>
  * 
@@ -357,46 +358,21 @@ public class SessionFeedView extends SessionView {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#participantArrived
-     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     * @see com.raytheon.uf.viz.collaboration.ui.session.SessionView#
+     * sendParticipantSystemMessage
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
+     * java.lang.String)
      */
     @Override
-    protected void participantArrived(UserId participant) {
-        setColorForSite(participant);
-        if (session != null && session.getVenue() != null) {
-            Object siteOb = session.getVenue().getPresence(participant)
-                    .getProperty(SiteConfigInformation.SITE_NAME);
-            String site = "";
-            if (siteOb != null) {
-                site = siteOb.toString();
-            }
-            // only show sites you care about, or empty site
-            if ("".equals(site) || enabledSites.contains(site)
-                    || userEnabledSites.contains(site)) {
-                super.participantArrived(participant);
-            } else {
-                usersTable.setInput(session.getVenue().getParticipants());
-                usersTable.refresh();
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#participantDeparted
-     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
-     */
-    @Override
-    protected void participantDeparted(UserId participant) {
+    protected void sendParticipantSystemMessage(UserId participant,
+            String message) {
         Presence presence = session.getVenue().getPresence(participant);
         Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
         String siteName = siteObj == null ? "" : siteObj.toString();
         // only show sites you care about
-        if (enabledSites.contains(siteName) || userEnabledSites.contains(siteName)) {
-            super.participantDeparted(participant);
+        if (enabledSites.contains(siteName)
+                || userEnabledSites.contains(siteName)) {
+            super.sendParticipantSystemMessage(participant, message);
         } else {
             usersTable.setInput(session.getVenue().getParticipants());
             usersTable.refresh();
