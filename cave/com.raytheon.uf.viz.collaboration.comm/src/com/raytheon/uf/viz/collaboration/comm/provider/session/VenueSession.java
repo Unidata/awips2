@@ -19,17 +19,22 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Message.Type;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
+import org.jivesoftware.smackx.packet.DiscoverItems;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -44,6 +49,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
@@ -75,6 +82,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 17, 2012            njensen      Major refactor
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 18, 2013 2562       bclement    moved data to packet extension
  * 
  * </pre>
  * 
@@ -89,8 +97,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(VenueSession.class);
-
-    private static final String SEND_CMD = "[[COMMAND";
 
     private static final String SEND_TXT = "[[TEXT]]";
 
@@ -120,8 +126,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus,
-            CollaborationConnection manager) throws CollaborationException {
+    protected VenueSession(EventBus externalBus, CollaborationConnection manager)
+            throws CollaborationException {
         super(externalBus, manager);
     }
 
@@ -179,8 +185,20 @@ public class VenueSession extends BaseSession implements IVenueSession {
     @Override
     public void sendInvitation(UserId id, VenueInvite invite)
             throws CollaborationException {
-        String msgBody = Tools.marshallData(invite);
-        muc.invite(id.getNormalizedId(), msgBody);
+        SessionPayload payload = new SessionPayload(PayloadType.Invitation,
+                invite);
+        Message msg = new Message();
+        msg.setTo(id.getNormalizedId());
+        msg.setFrom(getUserID().getNormalizedId());
+        msg.setType(Type.normal);
+        msg.addExtension(payload);
+        String reason = "";
+        if (!StringUtils.isBlank(invite.getMessage())) {
+            reason = invite.getMessage();
+        } else if (!StringUtils.isBlank(invite.getSubject())) {
+            reason = invite.getSubject();
+        }
+        muc.invite(msg, id.getNormalizedId(), reason);
     }
 
     /**
@@ -209,21 +227,12 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     @Override
     public void sendChatMessage(String message) throws CollaborationException {
-        this.sendMessageToVenue(message);
-    }
-
-    protected void sendMessageToVenue(String message)
-            throws CollaborationException {
         // Assume success
         if ((muc != null) && (message != null)) {
             Activator.getDefault().getNetworkStats()
                     .log(Activator.VENUE, message.length(), 0);
             try {
-                if (message.startsWith(SEND_CMD)) {
-                    muc.sendMessage(message);
-                } else {
-                    muc.sendMessage(SEND_TXT + message);
-                }
+                muc.sendMessage(message);
             } catch (XMPPException e) {
                 throw new CollaborationException("Error sending messge", e);
             }
@@ -256,7 +265,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param roomName
      * @return
      */
-    private String getRoomId(String host, String roomName){
+    private String getRoomId(String host, String roomName) {
         return roomName + "@conference." + host;
     }
 
@@ -275,10 +284,12 @@ public class VenueSession extends BaseSession implements IVenueSession {
             CollaborationConnection manager = getSessionManager();
             XMPPConnection conn = manager.getXmppConnection();
             String roomId = getRoomId(conn.getHost(), venueName);
+            if (roomExistsOnServer(roomId)) {
+                throw new CollaborationException("Session name already in use");
+            }
             this.muc = new MultiUserChat(conn, roomId);
             createListeners();
             UserId user = manager.getUser();
-            // TODO check if room already exists
             muc.create(user.getName());
             muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
             muc.changeSubject(subject);
@@ -289,6 +300,29 @@ public class VenueSession extends BaseSession implements IVenueSession {
             throw new CollaborationException("Error creating venue "
                     + venueName, e);
         }
+    }
+
+    /**
+     * @param roomId
+     * @return true if room exists on server
+     * @throws XMPPException
+     */
+    protected boolean roomExistsOnServer(String roomId) throws XMPPException {
+        String host = Tools.parseHost(roomId);
+        CollaborationConnection manager = getSessionManager();
+        XMPPConnection conn = manager.getXmppConnection();
+        ServiceDiscoveryManager serviceDiscoveryManager = new ServiceDiscoveryManager(
+                conn);
+        DiscoverItems result = serviceDiscoveryManager.discoverItems(host);
+
+        for (Iterator<DiscoverItems.Item> items = result.getItems(); items
+                .hasNext();) {
+            DiscoverItems.Item item = items.next();
+            if (roomId.equals(item.getEntityID())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -476,6 +510,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
         if (!body.startsWith(SEND_HISTORY) && fromUser.isSameUser(account)) {
             // ignore from ourselves except for history
             return false;
+        } else if (body.startsWith(Tools.CMD_PREAMBLE)
+                || body.startsWith(Tools.CONFIG_PREAMBLE)) {
+            return false;
         }
 
         return true;
@@ -490,28 +527,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             String body = message.getBody();
             if (body != null) {
-                if (body.startsWith(SEND_CMD)) {
-                    Object o = null;
-                    try {
-                        o = Tools.unMarshallData(body);
-                        if (o != null) {
-                            this.postEvent(o);
-                        }
-                    } catch (CollaborationException ce) {
-                        statusHandler.error(
-                                "Error deserializing received message on venue "
-                                        + muc.getRoom(), ce);
-                    }
-                } else if (body.startsWith(SEND_TXT)) {
-                    body = body.substring(SEND_TXT.length());
-                    message.setBody(body);
-
-                    TextMessage msg = new TextMessage(message.getTo(),
-                            message.getBody());
-                    msg.setFrom(message.getFrom());
-
-                    this.postEvent(msg);
-                } else if (body.startsWith(SEND_HISTORY)) {
+                if (body.startsWith(SEND_HISTORY)) {
                     String[] vars = body.split("\\|");
                     String timeString = vars[0]
                             .substring(SEND_HISTORY.length());
@@ -523,7 +539,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     // three pipe characters
                     String moddedBody = body.substring(SEND_HISTORY.length()
                             + timeString.length() + username.length()
-                            + site.length() + SEND_TXT.length() + 3);
+                            + site.length() + 3);
                     message.setBody(moddedBody);
                     TextMessage msg = new TextMessage(message.getFrom(),
                             message.getBody());
@@ -535,9 +551,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     msg.setStatus(SEND_HISTORY);
                     this.postEvent(msg);
                 } else {
-                    // attempt to handle outside clients as text only since the
-                    // SEND_TXT won't be appended to the first portion of the
-                    // body
                     message.setBody(body);
                     TextMessage msg = new TextMessage(message.getTo(),
                             message.getBody());
@@ -561,12 +574,22 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
         String body = msg.getBody();
         if (body != null) {
+            if (body.startsWith(SEND_TXT)) {
+                body = body.substring(SEND_TXT.length());
+            }
             message = new CollaborationMessage(null, body);
             message.setFrom(IDConverter.convertFromRoom(muc, msg.getFrom()));
         }
         return message;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendPresence
+     * (org.jivesoftware.smack.packet.Presence)
+     */
     @Override
     public void sendPresence(Presence presence) throws CollaborationException {
         presence.setTo(venue.getInfo().getVenueID());
