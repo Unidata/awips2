@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -98,6 +99,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 19, 2013 2563       bclement    reworked participant event logic
  * 
  * </pre>
  * 
@@ -637,12 +639,18 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
     }
 
     @Subscribe
+    public void userEventHandler(VenueUserEvent event) {
+        sendSystemMessage(new StringBuilder(event.getMessage()));
+    }
+
+    @Subscribe
     public void participantHandler(IVenueParticipantEvent event)
             throws Exception {
 
         final ParticipantEventType type = event.getEventType();
         final Presence presence = event.getPresence();
         final UserId participant = event.getParticipant();
+        final String description = event.getEventDescription();
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -653,16 +661,19 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
                 }
                 switch (type) {
                 case ARRIVED:
-                    participantArrived(participant);
+                    participantArrived(participant, description);
                     break;
                 case DEPARTED:
-                    participantDeparted(participant);
+                    participantDeparted(participant, description);
                     break;
                 case PRESENCE_UPDATED:
                     participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
-                    // TODO ?
+                    usersTable.refresh();
+                    if (description != null) {
+                        sendParticipantSystemMessage(participant, description);
+                    }
                     break;
                 default:
                     System.err.println("Unknown Event type");
@@ -673,31 +684,55 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
 
     @Subscribe
     public void userNicknameChanged(UserNicknameChangedEvent e) {
+        usersTable.setInput(session.getVenue().getParticipants());
         usersTable.refresh();
     }
 
-    protected void participantArrived(UserId participant) {
+    /**
+     * Update participant list and notify user that new participant joined chat
+     * 
+     * @param participant
+     */
+    protected void participantArrived(UserId participant, String description) {
         usersTable.setInput(session.getVenue().getParticipants());
         usersTable.refresh();
-
-        String name = CollaborationConnection.getConnection()
-                .getContactsManager().getDisplayName(participant);
-        StringBuilder builder = new StringBuilder(name
-                + " has entered the room");
-        sendSystemMessage(builder);
+        String message = description != null ? description
+                : "has entered the room.";
+        sendParticipantSystemMessage(participant, message);
     }
 
-    protected void participantDeparted(UserId participant) {
+    /**
+     * Update participant list and notify user that new participant left chat
+     * 
+     * @param participant
+     */
+    protected void participantDeparted(UserId participant, String description) {
         usersTable.setInput(session.getVenue().getParticipants());
         usersTable.refresh();
+        String message = description != null ? description
+                : "has left the room.";
+        sendParticipantSystemMessage(participant, message);
+    }
+
+    /**
+     * Send message about about participant. Message is in the form of a
+     * statement pertaining to the participant. For example, to get the output
+     * "Susan was kicked", you would provide Susan's UserId and the message
+     * "was kicked".
+     * 
+     * @param participant
+     * @param message
+     */
+    protected void sendParticipantSystemMessage(UserId participant,
+            String message) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection != null) {
             String name = connection.getContactsManager().getDisplayName(
                     participant);
 
-            StringBuilder builder = new StringBuilder(name
-                    + " has left the room");
+            StringBuilder builder = new StringBuilder(name);
+            builder.append(" ").append(message);
             sendSystemMessage(builder);
         }
     }

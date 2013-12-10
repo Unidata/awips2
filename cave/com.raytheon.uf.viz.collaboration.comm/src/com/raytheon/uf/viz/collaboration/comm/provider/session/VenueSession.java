@@ -34,6 +34,7 @@ import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
+import org.jivesoftware.smackx.muc.UserStatusListener;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 
 import com.google.common.eventbus.EventBus;
@@ -53,7 +54,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -83,6 +86,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Apr 17, 2012            njensen      Major refactor
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 18, 2013 2562       bclement    moved data to packet extension
+ * Dec 19, 2013 2563       bclement    status listeners now send all events to bus
  * 
  * </pre>
  * 
@@ -265,7 +269,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param roomName
      * @return
      */
-    private String getRoomId(String host, String roomName) {
+    public static String getRoomId(String host, String roomName) {
         return roomName + "@conference." + host;
     }
 
@@ -284,7 +288,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             CollaborationConnection manager = getSessionManager();
             XMPPConnection conn = manager.getXmppConnection();
             String roomId = getRoomId(conn.getHost(), venueName);
-            if (roomExistsOnServer(roomId)) {
+            if (roomExistsOnServer(conn, roomId)) {
                 throw new CollaborationException("Session name already in use");
             }
             this.muc = new MultiUserChat(conn, roomId);
@@ -307,10 +311,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @return true if room exists on server
      * @throws XMPPException
      */
-    protected boolean roomExistsOnServer(String roomId) throws XMPPException {
+    public static boolean roomExistsOnServer(XMPPConnection conn, String roomId)
+            throws XMPPException {
         String host = Tools.parseHost(roomId);
-        CollaborationConnection manager = getSessionManager();
-        XMPPConnection conn = manager.getXmppConnection();
         ServiceDiscoveryManager serviceDiscoveryManager = new ServiceDiscoveryManager(
                 conn);
         DiscoverItems result = serviceDiscoveryManager.discoverItems(host);
@@ -333,95 +336,105 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             @Override
             public void voiceRevoked(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is no longer allowed to chat.");
             }
 
             @Override
             public void voiceGranted(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is now allowed to chat.");
             }
 
             @Override
             public void ownershipRevoked(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is no longer a room owner.");
             }
 
             @Override
             public void ownershipGranted(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is now a room owner.");
             }
 
             @Override
             public void nicknameChanged(String participant, String newNickname) {
-                // TODO how do we pass along new nickname?
                 UserId user = IDConverter.convertFromRoom(muc, participant);
-                postEvent(new VenueParticipantEvent(user,
-                        ParticipantEventType.UPDATED));
+                postEvent(new UserNicknameChangedEvent(user, newNickname));
             }
 
             @Override
             public void moderatorRevoked(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is no longer a moderator.");
             }
 
             @Override
             public void moderatorGranted(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is now a moderator.");
             }
 
             @Override
             public void membershipRevoked(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is no longer a member of the room.");
             }
 
             @Override
             public void membershipGranted(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is now a member of the room.");
             }
 
             @Override
             public void left(String participant) {
-                UserId user = IDConverter.convertFromRoom(muc, participant);
-                postEvent(new VenueParticipantEvent(user,
-                        ParticipantEventType.DEPARTED));
-
+                sendParticipantEvent(participant,
+                        ParticipantEventType.DEPARTED, "has left the room.");
             }
 
             @Override
             public void kicked(String participant, String actor, String reason) {
-                this.left(participant);
+                // no period since formatter adds it
+                sendParticipantEvent(participant,
+                        ParticipantEventType.DEPARTED,
+                        formatEjectionString("has been kicked", actor, reason));
             }
 
             @Override
             public void joined(String participant) {
-                UserId user = IDConverter.convertFromRoom(muc, participant);
-                postEvent(new VenueParticipantEvent(user,
-                        ParticipantEventType.ARRIVED));
+                sendParticipantEvent(participant, ParticipantEventType.ARRIVED,
+                        "has entered the room.");
             }
 
             @Override
             public void banned(String participant, String actor, String reason) {
-                this.left(participant);
+                // no period since formatter adds it
+                sendParticipantEvent(participant,
+                        ParticipantEventType.DEPARTED,
+                        formatEjectionString("has been banned", actor, reason));
             }
 
             @Override
             public void adminRevoked(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is no longer an admin.");
             }
 
             @Override
             public void adminGranted(String participant) {
-                // TODO Auto-generated method stub
-
+                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                        "is now an admin.");
+            }
+            
+            private void sendParticipantEvent(String participant,
+                    ParticipantEventType type, String desciption) {
+                UserId user = IDConverter.convertFromRoom(muc, participant);
+                VenueParticipantEvent event = new VenueParticipantEvent(user,
+                        ParticipantEventType.ARRIVED);
+                event.setEventDescription(desciption);
+                postEvent(event);
             }
 
         });
@@ -456,6 +469,103 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             }
         });
+        // listens for our own status changes
+        this.muc.addUserStatusListener(new UserStatusListener() {
+
+            @Override
+            public void voiceRevoked() {
+                sendUserEvent("Your chat privileges have been revoked.");
+            }
+
+            @Override
+            public void voiceGranted() {
+                sendUserEvent("Your chat privileges have been granted.");
+            }
+
+            @Override
+            public void ownershipRevoked() {
+                sendUserEvent("You are no longer an owner of this room.");
+            }
+
+            @Override
+            public void ownershipGranted() {
+                sendUserEvent("You are now an owner of this room.");
+            }
+
+            @Override
+            public void moderatorRevoked() {
+                sendUserEvent("You are no longer a moderator of this room.");
+            }
+
+            @Override
+            public void moderatorGranted() {
+                sendUserEvent("You are now the moderator of this room.");
+            }
+
+            @Override
+            public void membershipRevoked() {
+                sendUserEvent("You are no longer a member of this room.");
+            }
+
+            @Override
+            public void membershipGranted() {
+                sendUserEvent("You are now a member of this room.");
+            }
+
+            @Override
+            public void kicked(String actor, String reason) {
+                // no period since formatter adds it
+                sendUserEvent(formatEjectionString("You have had been kicked",
+                        actor, reason));
+                // TODO disable window?
+            }
+
+            @Override
+            public void banned(String actor, String reason) {
+                // no period since formatter adds it
+                sendUserEvent(formatEjectionString("You have been banned",
+                        actor, reason));
+                // TODO disable window?
+            }
+
+            @Override
+            public void adminRevoked() {
+                sendUserEvent("You have had admin privileges revoked.");
+            }
+
+            @Override
+            public void adminGranted() {
+                sendUserEvent("You have had admin privileges granted.");
+            }
+
+            private void sendUserEvent(String message) {
+                postEvent(new VenueUserEvent(message));
+            }
+        });
+    }
+
+    /**
+     * Format reason for being kicked/banned from venue. Actor and reason will
+     * be appended to base if not null or empty. Formatter will add period at
+     * end of string.
+     * 
+     * @param base
+     * @param actor
+     * @param reason
+     * @return
+     */
+    private String formatEjectionString(String base, String actor, String reason) {
+        StringBuilder rval = new StringBuilder(base);
+        if (!StringUtils.isBlank(actor)) {
+            rval.append(" by ").append(actor);
+        }
+        if (!StringUtils.isBlank(reason)) {
+            rval.append(" with reason '").append(reason).append("'");
+        } else {
+            rval.append(" with no reason given");
+        }
+        rval.append(".");
+        return rval.toString();
     }
 
     /**
@@ -563,10 +673,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
     }
 
     /**
-     * Convert from an ECF chat room message to an IMessage instance.
+     * Convert from an chat room message to an IMessage instance.
      * 
      * @param msg
-     *            The ECF chat room message to convert.
+     *            The chat room message to convert.
      * @return The converted message.
      */
     private IMessage convertMessage(Message msg) {
