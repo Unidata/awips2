@@ -42,10 +42,10 @@
       </handler>
    </extension>
    <extension point="com.raytheon.uf.viz.core.alterBundle">
-          <alterBundle id="tools" class="com.raytheon.viz.volumebrowser.ToolsAlterBundleContributor"/>
+          <alterBundle class="com.raytheon.viz.volumebrowser.ToolsAlterBundleContributor"/>
    </extension>
    <extension point="com.raytheon.uf.viz.core.alterBundle">
-   	  <alterBundle id="grids" class="com.raytheon.viz.volumebrowser.GridAlterBundleContributor"/>
+   	  <alterBundle class="com.raytheon.viz.volumebrowser.GridAlterBundleContributor"/>
    </extension>
    <extension
        point="com.raytheon.uf.viz.localization.localizationpath">
@@ -79,4 +79,19 @@
              <separator name="StdEnvDataPackageFamilies" visible="true"/>
       </menuContribution>
     </extension>
+    <extension
+        point="com.raytheon.uf.viz.ui.menus.contribItemProvider">
+        <contributionItemProvider
+              contribution="com.raytheon.uf.common.menus.xml.CommonToolBarContribution"
+              itemProvider="com.raytheon.viz.volumebrowser.xml.ToolBarContribution">
+        </contributionItemProvider>
+        <contributionItemProvider
+              contribution="com.raytheon.uf.common.menus.xml.CommonMenuContribution"
+              itemProvider="com.raytheon.viz.volumebrowser.xml.MenuContribution">
+        </contributionItemProvider>
+        <contributionItemProvider
+              contribution="com.raytheon.uf.common.menus.xml.CommonTitleImgContribution"
+              itemProvider="com.raytheon.viz.volumebrowser.xml.TitleImgContribution">
+        </contributionItemProvider>
+     </extension>
 </plugin>
