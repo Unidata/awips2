@@ -30,6 +30,7 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
  * ------------ ---------- ----------- --------------------------
  * 04/01/2013   1746       dhladky      Initial creation
  * 05/30/2013   753        dhladky      updated
+ * 12/11/2013   2625       mpduff       query by insertTime rather than obsTime.
  * </pre>
  * 
  * @author dhladky
@@ -40,7 +41,7 @@ public class MadisWfsSource extends PluginWfsSource {
 
     private static final String schemaloc = "META-INF/schema/madis.xsd";
 
-    private WfsFeatureType feature;
+    private final WfsFeatureType feature;
 
     private static String schemaXml = null;
 
@@ -58,7 +59,7 @@ public class MadisWfsSource extends PluginWfsSource {
     static {
         Map<String, String> map = new HashMap<String, String>();
         map.put("obsLocation.location", spatialKey);
-        map.put("timeObs", "dataTime.refTime");
+        map.put("timeObs", "insertTime");
         map.put("obsLocation.stationId", "location.stationId");
         map.put("obsLocation.elevation", "location.elevation");
         fieldMap = Collections.unmodifiableMap(map);
