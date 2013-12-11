@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * May 01, 2013 1967       njensen     Fixed autoboxing for Eclipse 3.8
  * Jun 24, 2013 2106       djohnson    Use IDENTIFIER generic for method signature.
  * 10/8/2013    1682       bphillip    Added the createCriteria method
+ * 12/9/2013    2613       bphillip    Added flushAndClearSession method
  * 
  * </pre>
  * 
@@ -427,6 +428,14 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     public Dialect getDialect() {
         return ((SessionFactoryImpl) template.getSessionFactory()).getDialect();
+    }
+
+    /**
+     * Flushes and clears the current Hibernate Session
+     */
+    public void flushAndClearSession() {
+        this.getSessionFactory().getCurrentSession().flush();
+        this.getSessionFactory().getCurrentSession().clear();
     }
 
     protected SessionFactory getSessionFactory() {
