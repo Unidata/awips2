@@ -48,4 +48,11 @@
             name="Satellite"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
+     <extension
+           point="com.raytheon.uf.viz.ui.menus.contribItemProvider">
+        <contributionItemProvider
+              contribution="com.raytheon.uf.common.menus.xml.CommonSatBundleMenuContribution"
+              itemProvider="com.raytheon.viz.satellite.menu.SatBundleMenuContribution">
+        </contributionItemProvider>
+     </extension>
 </plugin>
