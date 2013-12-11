@@ -2,40 +2,44 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Volume Browser Plug-in
 Bundle-SymbolicName: com.raytheon.viz.volumebrowser;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.volumebrowser.Activator
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.viz.ui.menus
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- com.raytheon.viz.core,
+ net.sf.swtaddons,
+ com.raytheon.uf.viz.core,
  com.raytheon.viz.ui,
- com.raytheon.viz.pointdata,
+ com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.viz.d2d.ui,
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.viz.core.graphing,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.viz.awipstools,
+ com.raytheon.uf.viz.points,
+ com.raytheon.uf.viz.xy,
+ com.raytheon.uf.viz.ui.menus, 
  com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.uf.viz.xy.timeheight,
  com.raytheon.uf.viz.xy.varheight,
- com.raytheon.viz.awipstools,
- com.raytheon.viz.grid,
  com.raytheon.uf.viz.xy.timeseries,
+ com.raytheon.uf.viz.d2d.nsharp,
+ gov.noaa.nws.ncep.ui.nsharp,
+ com.raytheon.uf.viz.derivparam,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.viz.grid,
+ com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.viz.objectiveanalysis,
+ com.raytheon.viz.pointdata,
  com.raytheon.uf.common.pointdata,
- net.sf.swtaddons;bundle-version="1.0.0",
- com.raytheon.uf.viz.points;bundle-version="1.0.0",
- com.raytheon.uf.viz.d2d.nsharp;bundle-version="1.0.0",
- gov.noaa.nws.ncep.ui.nsharp;bundle-version="1.0.0",
- com.raytheon.uf.common.comm;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
- com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.d2d.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.derivparam;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
- com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
- com.raytheon.uf.viz.xy;bundle-version="1.12.1174",
- com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
-Bundle-ActivationPolicy: lazy
+ com.raytheon.uf.common.comm
 Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.datacatalog,
  com.raytheon.viz.volumebrowser.vbui,
  com.raytheon.viz.volumebrowser.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.viz.core.map,
+ com.raytheon.viz.core.rsc
