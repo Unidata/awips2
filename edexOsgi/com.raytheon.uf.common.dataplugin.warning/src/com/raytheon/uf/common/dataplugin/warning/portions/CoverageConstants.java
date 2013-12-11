@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.warngen.gis;
+package com.raytheon.uf.common.dataplugin.warning.portions;
 
 /**
  * Port of A1 constants applied to a grid to determine county or zone portions.
@@ -30,6 +30,7 @@ package com.raytheon.viz.warngen.gis;
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2013  2177       jsanchez     Initial creation
  * Sep 22, 2013 2177       jsanchez     Updated EW_MASK.
+ * Dec  4, 2013 2604       jsanchez     Moved out of viz.warngen.
  * 
  * </pre>
  * 

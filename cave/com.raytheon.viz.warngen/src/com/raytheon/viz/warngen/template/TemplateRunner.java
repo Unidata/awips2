@@ -66,6 +66,8 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
+import com.raytheon.uf.common.dataplugin.warning.portions.PortionsUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -96,9 +98,7 @@ import com.raytheon.viz.warngen.WarngenException;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 import com.raytheon.viz.warngen.gis.Area;
 import com.raytheon.viz.warngen.gis.ClosestPointComparator;
-import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.PathCast;
-import com.raytheon.viz.warngen.gis.PortionsUtil;
 import com.raytheon.viz.warngen.gis.Wx;
 import com.raytheon.viz.warngen.gui.BackupData;
 import com.raytheon.viz.warngen.gui.FollowupData;
@@ -156,6 +156,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 30, 2013   DR 16237 D. Friedman Fix watch query.
  * Jun 18, 2013   2118     njensen     Only calculate pathcast if it's actually used
  * Aug 19, 2013   2177     jsanchez    Passed PortionsUtil to Area class.
+ * Dec  4, 2013   2604     jsanchez    Refactored GisUtil and PortionsUtil.
  * </pre>
  * 
  * @author njensen
@@ -303,7 +304,9 @@ public class TemplateRunner {
         AffectedAreas[] cancelareas = null;
         Map<String, Object> intersectAreas = null;
         Wx wx = null;
-        Area area = new Area(new PortionsUtil(warngenLayer));
+        Area area = new Area(new PortionsUtil(LocalizationManager.getInstance()
+                .getCurrentSite(), warngenLayer.getLocalGridGeometry(),
+                warngenLayer.getlocalToLatLon()));
         long wwaMNDTime = 0l;
         try {
             t0 = System.currentTimeMillis();
