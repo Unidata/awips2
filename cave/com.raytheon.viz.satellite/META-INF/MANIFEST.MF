@@ -1,30 +1,29 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Satellite Plug-in
+Bundle-Name: Satellite Visualization Plug-in
 Bundle-SymbolicName: com.raytheon.viz.satellite;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.satellite.Activator
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui
 Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
- com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
- com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
- com.raytheon.uf.common.message;bundle-version="1.12.1174",
- com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
- com.raytheon.uf.viz.derivparam;bundle-version="1.12.1174",
- com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
- com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.viz.core;bundle-version="1.12.1174",
- javax.measure,
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.satellite,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.viz.productbrowser,
+ com.raytheon.uf.viz.derivparam,
+ com.raytheon.uf.viz.ui.menus,
+ com.raytheon.uf.common.style,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.core,
+ javax.measure
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc
