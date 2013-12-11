@@ -33,6 +33,8 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
+import com.raytheon.uf.common.dataplugin.warning.portions.PortionsUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
@@ -74,6 +76,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Apr 29, 2013  1955       jsanchez    Ignored comparing the geometry's user data when finding intersected areas.
  *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
  *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
+ *    Dec  4, 2013  2604       jsanchez    Refactored GisUtil and PortionsUtil.
  * </pre>
  * 
  * @author chammack

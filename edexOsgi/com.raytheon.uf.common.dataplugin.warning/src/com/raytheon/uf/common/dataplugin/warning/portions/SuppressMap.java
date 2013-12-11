@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.warngen.gis;
+package com.raytheon.uf.common.dataplugin.warning.portions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -41,8 +42,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 
 /**
  * Creates a map of all the site's area suppress files.
@@ -54,6 +53,7 @@ import com.raytheon.viz.warngen.gis.GisUtil.Direction;
  * ------------ ---------- ----------- --------------------------
  * Aug 2, 2010            jsanchez     Initial creation
  * Aug 15,2013  2177      jsanchez     Refactored.
+ * Dec  4,2013  2604      jsanchez     Moved out of viz.warngen.
  * 
  * </pre>
  * 
@@ -104,9 +104,7 @@ public class SuppressMap {
      * 
      * @return
      */
-    public Map<String, List<Direction>> getAreas() {
-        String threeLetterSiteID = LocalizationManager.getInstance()
-                .getCurrentSite();
+    public Map<String, List<Direction>> getAreas(String threeLetterSiteID) {
         Map<String, List<Direction>> areas = suppressMap.get(threeLetterSiteID);
 
         if (areas == null) {
