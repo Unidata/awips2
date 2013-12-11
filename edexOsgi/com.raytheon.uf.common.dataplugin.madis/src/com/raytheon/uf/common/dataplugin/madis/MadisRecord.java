@@ -73,6 +73,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 14, 2013 2180       dhladky     GUI update for mouse over display
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed IDecoderGettable
+ * Dec 10, 2013 2616       mpduff      Added stationId to the unique constraint
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "madisseq")
 @Table(name = "madis", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "location", "refTime", "provider", "subProvider", "restriction" }) })
+        "location", "stationId", "refTime", "provider", "subProvider", "restriction" }) })
 @org.hibernate.annotations.Table(appliesTo = "madis", indexes = { @Index(name = "madis_wfsQueryIndex", columnNames = {
         "refTime", "location" }), })
 @DynamicSerialize
