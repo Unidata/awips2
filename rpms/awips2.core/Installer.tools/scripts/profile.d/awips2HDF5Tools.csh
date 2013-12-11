@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set HDF5_TOOLS_INSTALL=`rpm -q --queryformat '%{INSTPREFIXES}' awips2-tools`
+set HDF5_TOOLS_INSTALL=`rpm -q --queryformat '%{FILENAMES}' awips2-tools`
 
 if $?PATH then
    setenv PATH ${HDF5_TOOLS_INSTALL}/bin:$PATH
