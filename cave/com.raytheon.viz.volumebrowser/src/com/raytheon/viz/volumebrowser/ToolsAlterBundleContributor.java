@@ -49,7 +49,6 @@ import com.raytheon.uf.viz.points.PointUtilities;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
-
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
@@ -64,12 +63,13 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                                     Initial creation
- * Aug 08, 2012 #875       rferrel     Generate menu entries for points.
- * Oct 03, 2012 #1248      rferrel     Added listener for when points change.
- * May 03, 2013 DR14824 mgamazaychikov Added alterResource method
+ * Date          Ticket#  Engineer       Description
+ * ------------- -------- -------------- --------------------------------------
+ * Aug 08, 2012  875      rferrel        Generate menu entries for points.
+ * Oct 03, 2012  1248     rferrel        Added listener for when points change.
+ * May 03, 2013  14824    mgamazaychikov Added alterResource method
+ * Dec 11, 2013  2602     bsteffen       Fix compiler warnings and format.
+ * 
  * 
  * 
  * </pre>
@@ -86,9 +86,9 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
     private static final String POINTS_KEY = "point";
 
     private static final String LINES_KEY = "line";
-    
+
     private static final String PLUGIN_KEY = "pluginName";
-    
+
     private static final String REPORTYPE_KEY = "reportType";
 
     private IPointChangedListener pointChangedListener;
@@ -255,9 +255,9 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         for (ResourcePair rp : list) {
             AbstractResourceData rData = rp.getResourceData();
             if (rData instanceof AbstractRequestableResourceData) {
-            	alterResource((AbstractRequestableResourceData) rData, POINTS_KEY, 
-                        selectedString);
-            	alterContainer((IPointsToolContainer) rData, selectedString);
+                alterResource((AbstractRequestableResourceData) rData,
+                        POINTS_KEY, selectedString);
+                alterContainer((IPointsToolContainer) rData, selectedString);
             } else if (rData instanceof IResourceGroup) {
                 alterResourceList(((IResourceGroup) rData).getResourceList(),
                         selectedString);
@@ -265,76 +265,73 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         }
     }
 
-    private void alterResource(AbstractRequestableResourceData data, String selectedKey, 
-			String selectedString) {
-    	if (selectedString == null) {
-    		return;
-    	}
-		HashMap<String, RequestConstraint> metadataMap = data.getMetadataMap();
-		HashMap<String, RequestConstraint> metadataMapOld = new HashMap<String, RequestConstraint>();		
-		// make a copy of original matedata map
-		metadataMapOld.putAll(metadataMap);
-		// obtain data catalog 
-		AbstractDataCatalog ac = getDataCatalog (metadataMap);
-		if ( ac == null ) {
-			return;
-		}
-		// change the parameters in the original metadata map
-		ac.alterProductParameters(selectedKey, selectedString,
-				(HashMap<String, RequestConstraint>) metadataMap);
-		
-		// in addition to metadata map resource data needs to be modified 
-		// for CrossSectionResourceData
-		if (data instanceof CrossSectionResourceData) {
-			String theKeyToChange = null;
-			Iterator<Map.Entry<String, RequestConstraint>> it = metadataMap
-					.entrySet().iterator();
-			while (it.hasNext()) {
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				Map.Entry<String, RequestConstraint> pairs = (Map.Entry) it
-						.next();
-				String currentKey = (String) pairs.getKey();
-				String currentValue = metadataMap.get(currentKey)
-						.getConstraintValue();
-				if (metadataMapOld.containsKey(currentKey)) {
-					String oldValue = metadataMapOld.get(currentKey)
-							.getConstraintValue();
-					if (!oldValue.equalsIgnoreCase(currentValue)) {
-						theKeyToChange = currentKey;
-					}
-				}
-			}
-			String stationID = metadataMap.get(theKeyToChange)
-					.getConstraintValue();
-			List<String> stationIDs = Arrays.asList(stationID
-					.split("\\s*,\\s*"));
-			((CrossSectionResourceData) data).setStationIDs(stationIDs);
-		} 
-	}
+    private void alterResource(AbstractRequestableResourceData data,
+            String selectedKey, String selectedString) {
+        if (selectedString == null) {
+            return;
+        }
+        HashMap<String, RequestConstraint> metadataMap = data.getMetadataMap();
+        HashMap<String, RequestConstraint> metadataMapOld = new HashMap<String, RequestConstraint>();
+        // make a copy of original matedata map
+        metadataMapOld.putAll(metadataMap);
+        // obtain data catalog
+        AbstractDataCatalog ac = getDataCatalog(metadataMap);
+        if (ac == null) {
+            return;
+        }
+        // change the parameters in the original metadata map
+        ac.alterProductParameters(selectedKey, selectedString, metadataMap);
 
-	private AbstractDataCatalog getDataCatalog(
-			HashMap<String, RequestConstraint> metadataMap) {
-		String pluginName = null;
-		String reportType = null;
-		if (metadataMap.containsKey(PLUGIN_KEY)) {
-			pluginName = metadataMap.get(PLUGIN_KEY).getConstraintValue();
-		} else {
-			return null;
-		}
-		if (metadataMap.containsKey(REPORTYPE_KEY)) {
-			reportType = metadataMap.get(REPORTYPE_KEY).getConstraintValue();
-		} else {
-			return null;
-		}
-		String sourcesKey = pluginName + reportType;
+        // in addition to metadata map resource data needs to be modified
+        // for CrossSectionResourceData
+        if (data instanceof CrossSectionResourceData) {
+            String theKeyToChange = null;
+            Iterator<Map.Entry<String, RequestConstraint>> it = metadataMap
+                    .entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, RequestConstraint> pairs = it.next();
+                String currentKey = pairs.getKey();
+                String currentValue = metadataMap.get(currentKey)
+                        .getConstraintValue();
+                if (metadataMapOld.containsKey(currentKey)) {
+                    String oldValue = metadataMapOld.get(currentKey)
+                            .getConstraintValue();
+                    if (!oldValue.equalsIgnoreCase(currentValue)) {
+                        theKeyToChange = currentKey;
+                    }
+                }
+            }
+            String stationID = metadataMap.get(theKeyToChange)
+                    .getConstraintValue();
+            List<String> stationIDs = Arrays.asList(stationID
+                    .split("\\s*,\\s*"));
+            ((CrossSectionResourceData) data).setStationIDs(stationIDs);
+        }
+    }
 
-		SelectedData sd =  new SelectedData(null, sourcesKey, null, null, null,
-				null, null);
-		return (AbstractDataCatalog) DataCatalogManager
-		.getDataCatalogManager().getDataCatalog(sd);
-	}
+    private AbstractDataCatalog getDataCatalog(
+            HashMap<String, RequestConstraint> metadataMap) {
+        String pluginName = null;
+        String reportType = null;
+        if (metadataMap.containsKey(PLUGIN_KEY)) {
+            pluginName = metadataMap.get(PLUGIN_KEY).getConstraintValue();
+        } else {
+            return null;
+        }
+        if (metadataMap.containsKey(REPORTYPE_KEY)) {
+            reportType = metadataMap.get(REPORTYPE_KEY).getConstraintValue();
+        } else {
+            return null;
+        }
+        String sourcesKey = pluginName + reportType;
 
-	/**
+        SelectedData sd = new SelectedData(null, sourcesKey, null, null, null,
+                null, null);
+        return (AbstractDataCatalog) DataCatalogManager.getDataCatalogManager()
+                .getDataCatalog(sd);
+    }
+
+    /**
      * @param rData
      * @param selectedString
      */
@@ -357,11 +354,11 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
                         line);
                 ResourceList rl = display.getDescriptor().getResourceList();
                 for (ResourcePair rp : rl) {
-                	AbstractResourceData rData = rp.getResourceData();
-                	if (rData instanceof AbstractRequestableResourceData) {
-                		alterResource((AbstractRequestableResourceData) rData, LINES_KEY, 
-                                line);
-                	}
+                    AbstractResourceData rData = rp.getResourceData();
+                    if (rData instanceof AbstractRequestableResourceData) {
+                        alterResource((AbstractRequestableResourceData) rData,
+                                LINES_KEY, line);
+                    }
                 }
             }
         }
