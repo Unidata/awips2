@@ -12,14 +12,14 @@ import javax.measure.converter.UnitConverter;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.gis.Area;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
-import com.raytheon.viz.warngen.gis.GisUtil;
-import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
@@ -41,7 +41,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Apr 24, 2013  1944      jsanchez     Updated calculateLocationPortion visibility to public.
  * May  2, 2013  1963      jsanchez     Referenced calculatePortion from GisUtil if intersection less than DEFAULT_PORTION_TOLERANCE.
  * Sep 13, 2013  DR 16601  D. Friedman  Fix from jsanchez: Allow cities outside the CWA.
- * 
+ * Dec  4, 2013  2604      jsanchez     Refactored GisUtil.
  * </pre>
  * 
  * @author jsanchez
