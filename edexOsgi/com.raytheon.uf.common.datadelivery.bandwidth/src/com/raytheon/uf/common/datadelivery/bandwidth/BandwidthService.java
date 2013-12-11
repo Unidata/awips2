@@ -56,14 +56,15 @@ import com.raytheon.uf.common.util.LogUtil;
  * Jul 18, 2013 1653       mpduff       Add getSubscriptionStatusSummary method.
  * Oct 2,  2013 1797       dhladky      Generics
  * Oct 01, 2013 2267       bgonzale     Log error response from proposed scheduling.
+ * Dec 11, 2013 2625       mpduff       Fix error handling to not return null.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public abstract class BandwidthService<T extends Time, C extends Coverage> extends
-        BasePrivilegedServerService<IBandwidthRequest<T, C>> implements
+public abstract class BandwidthService<T extends Time, C extends Coverage>
+        extends BasePrivilegedServerService<IBandwidthRequest<T, C>> implements
         IBandwidthService<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -183,7 +184,8 @@ public abstract class BandwidthService<T extends Time, C extends Coverage> exten
      */
     @SuppressWarnings("unchecked")
     @Override
-    public IProposeScheduleResponse proposeSchedule(Subscription<T, C> subscription) {
+    public IProposeScheduleResponse proposeSchedule(
+            Subscription<T, C> subscription) {
         return proposeSchedule(Arrays.asList(subscription));
     }
 
@@ -257,9 +259,8 @@ public abstract class BandwidthService<T extends Time, C extends Coverage> exten
             return sendRequest(request, BandwidthGraphData.class);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve bandwidth graph data, returning null.",
-                    e);
-            return null;
+                    "Unable to retrieve bandwidth graph data.", e);
+            return new BandwidthGraphData();
         }
     }
 
@@ -268,7 +269,8 @@ public abstract class BandwidthService<T extends Time, C extends Coverage> exten
     public SubscriptionStatusSummary getSubscriptionStatusSummary(
             Subscription<T, C> subscription) {
         IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
-        request.setSubscriptions(Arrays.<Subscription<T, C>> asList(subscription));
+        request.setSubscriptions(Arrays
+                .<Subscription<T, C>> asList(subscription));
         request.setRequestType(RequestType.GET_SUBSCRIPTION_STATUS);
         try {
             return sendRequest(request, SubscriptionStatusSummary.class);
