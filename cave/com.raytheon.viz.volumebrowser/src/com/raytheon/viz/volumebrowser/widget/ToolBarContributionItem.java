@@ -39,6 +39,23 @@ import com.raytheon.viz.volumebrowser.xml.TitleImgContribution;
 import com.raytheon.viz.volumebrowser.xml.ToolBarContribution;
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * 
+ * Contribution item for tool bar buttons.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Dec 11, 2013  2602     bsteffen    Set the id of menu items.
+ * 
+ * </pre>
+ * 
+ * @author unkown
+ * @version 1.0
+ */
 public class ToolBarContributionItem extends ContributionItem {
 
     protected Menu menu;
@@ -116,6 +133,7 @@ public class ToolBarContributionItem extends ContributionItem {
                             GeoUtil.formatCoordinate(new Coordinate(i, i))
                                     .split(" ")[coordinateIndex]);
             menuContribution.xml.key = keyPrefixString + i;
+            menuContribution.xml.id = idPrefixString + i;
 
             MenuContributionItem menuContributionItem = new MenuContributionItem(
                     menuContribution);
