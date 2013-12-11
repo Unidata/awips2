@@ -32,6 +32,23 @@ import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.ui.menus.widgets.ToolbarSubmenuContributionItem;
 
+/**
+ * 
+ * Contribution for adding submenus to a tool bar.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Dec 11, 2013  2602     bsteffen    Update MenuXMLMap.
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
+ */
 public class ToolbarSubmenuContribution extends
         AbstractMenuContributionItem<CommonToolbarSubmenuContribution> {
 
@@ -52,8 +69,8 @@ public class ToolbarSubmenuContribution extends
         List<IContributionItem> contribItemList = new ArrayList<IContributionItem>();
 
         for (CommonAbstractMenuContribution amc : item.contributions) {
-            AbstractMenuContributionItem<?> common = MenuXMLMap.xmlMapping
-                    .get(amc.getClass());
+            IContribItemProvider common = MenuXMLMap
+                    .getProvider(amc.getClass());
             contribItemList.addAll(Arrays.asList(common.getContributionItems(
                     amc, subs, removals)));
         }
