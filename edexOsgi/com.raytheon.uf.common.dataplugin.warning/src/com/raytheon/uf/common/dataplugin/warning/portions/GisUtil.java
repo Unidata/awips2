@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.warngen.gis;
+package com.raytheon.uf.common.dataplugin.warning.portions;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -53,6 +53,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                         0.10 to 0.0625 for EXTREME_DELTA; Added/modified code.
  *    May  1, 2013  1963       jsanchez    Refactored calculatePortion to match A1. Do not allow 'Central' to be included if East and West is included.
  *    Jun  3, 2013  2029       jsanchez    Updated A1 special case for calculating a central portion. Allowed East Central and West Central.
+ *    Dec  4, 2013  2604       jsanchez    Moved out of viz.warngen.
  * </pre>
  * 
  * @author chammack
