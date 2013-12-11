@@ -17,21 +17,20 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.warngen.gis;
+package com.raytheon.uf.common.dataplugin.warning.portions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Envelope;
@@ -55,6 +54,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2013            jsanchez     Initial creation
+ * Dec 4, 2013  2604      jsanchez     Moved out of viz.warngen.
  * 
  * </pre>
  * 
@@ -76,13 +76,10 @@ public class GridUtil {
 
     private byte[] countyOrZoneGrid;
 
-    private WarngenLayer layer;
-
     private MathTransform latLonToContour, contourToLatLon;
 
-    public GridUtil(WarngenLayer layer, GeneralGridGeometry localGridGeometry,
+    public GridUtil(GeneralGridGeometry localGridGeometry,
             MathTransform localToLatLon) throws Exception {
-        this.layer = layer;
 
         GridEnvelope range = localGridGeometry.getGridRange();
         this.nx = range.getHigh(0);
@@ -124,7 +121,7 @@ public class GridUtil {
      * @return
      * @throws VizException
      */
-    private byte[] toByteArray(Geometry geometry) throws VizException {
+    private byte[] toByteArray(Geometry geometry) throws Exception {
         byte[] bytes = new byte[nx * ny];
         float[][] floatData = toFloatData(geometry);
 
@@ -149,8 +146,8 @@ public class GridUtil {
      * @return
      * @throws VizException
      */
-    private float[][] toFloatData(Geometry geometry) throws VizException {
-        Geometry contoured = layer.convertGeom(geometry, latLonToContour);
+    private float[][] toFloatData(Geometry geometry) throws Exception {
+        Geometry contoured = convertGeom(geometry, latLonToContour);
         List<Geometry> geomList = new ArrayList<Geometry>(
                 contoured.getNumGeometries());
         GeometryUtil.buildGeometryList(geomList, contoured);
@@ -192,6 +189,27 @@ public class GridUtil {
         }
 
         return contourAreaData;
+    }
+
+    static private <T> T convertGeom(T geom, MathTransform transform) {
+        if (geom == null) {
+            return null;
+        }
+        try {
+            if (geom instanceof Coordinate) {
+                return (T) JTS.transform(
+                        new GeometryFactory().createPoint((Coordinate) geom),
+                        transform).getCoordinate();
+            } else if (geom instanceof Geometry) {
+                return (T) JTS.transform((Geometry) geom, transform);
+            } else {
+                throw new RuntimeException("Invalid type passed in: "
+                        + geom.getClass());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error transforming object, "
+                    + e.getLocalizedMessage(), e);
+        }
     }
 
     /**

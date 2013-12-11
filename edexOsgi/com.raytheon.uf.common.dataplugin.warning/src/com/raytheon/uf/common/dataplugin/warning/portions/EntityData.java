@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.warngen.gis;
+package com.raytheon.uf.common.dataplugin.warning.portions;
 
 /**
  * Simple port of an A1 struct created by GridUtil and used by PortionsUtil.
@@ -29,6 +29,7 @@ package com.raytheon.viz.warngen.gis;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2013  2177      jsanchez     Initial creation
+ * Dec 4, 2013  2604      jsanchez     Moved out of viz.warngen.
  * 
  * </pre>
  * 

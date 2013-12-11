@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.warngen.gis;
+package com.raytheon.uf.common.dataplugin.warning.portions;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * May 2, 2013      1963    jsanchez     Initial creation
  * Jun 3, 2013      2029    jsanchez     Fixed incorrect A1 port. Added additional attributes to calculate portions of areas.
- * 
+ * Dec 4, 2013      2604    jsanchez     Moved out of viz.warngen.
  * </pre>
  * 
  * @author jsanchez

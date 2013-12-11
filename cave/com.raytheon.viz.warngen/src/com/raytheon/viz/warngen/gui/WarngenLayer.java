@@ -67,6 +67,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialMetadata;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
@@ -112,7 +113,6 @@ import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.warngen.WarngenException;
-import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.PolygonUtil;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.FipsUtil;
@@ -194,6 +194,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 10/21/2013  DR 16632    D. Friedman Modify areaPercent exception handling.  Fix an NPE.
  *                                     Use A1 hatching behavior when no county passes the inclusion filter.
  * 10/29/2013  DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the pollygon the be used.
+ * 12/04/2013  2604        jsanchez    Refactored GisUtil.
  * </pre>
  * 
  * @author mschenke
@@ -530,7 +531,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     break;
                 }
             }
-            if (! this.haveInput)
+            if (!this.haveInput)
                 return null;
             hatchedArea = this.hatchedArea;
             hatchedWarningArea = this.hatchedWarningArea;
@@ -1614,30 +1615,31 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry newHatchedArea = null;
         Geometry newUnfilteredArea = null;
         boolean useFilteredArea = false;
-        boolean useFallback = getConfiguration().getHatchedAreaSource().isInclusionFallback();
+        boolean useFallback = getConfiguration().getHatchedAreaSource()
+                .isInclusionFallback();
 
         /*
          * The resultant warning area is constructed in one of two ways:
-         *
+         * 
          * 1. When preservedSelection is null:
-         *
+         * 
          * If at least one county in hatchedArea passes the inclusion filter,
          * the result contains only the counties in hatchedArea that pass the
          * inclusion filter. Otherwise, all counties in hatchedArea are
          * included.
-         *
+         * 
          * This behavior reflects A1 baseline template logic. The fallback can
          * be disabled by setting AreaSourceConfiguration.isInclusionFallback to
          * false.
-         *
+         * 
          * 2. When preservedSelection is not null:
-         *
+         * 
          * A county is included in the result if and only if it is contained in
          * preservedSelection. If the portion of the county in hatchedArea is
          * non-empty, it used. Otherwise, the hatched portion from
          * preservedSelection is used.
-         *
-         *
+         * 
+         * 
          * In both cases, when there is an old warning area in effect (i.e., for
          * followups), the intersection of hatchedArea and the old warning area
          * is used instead of hatchedArea.
@@ -1709,7 +1711,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 } else {
                     boolean passed = filterArea(f, intersection, true);
                     useFilteredArea = useFilteredArea || passed;
-                    include = (passed || filterAreaSecondChance(f, intersection, true))
+                    include = (passed || filterAreaSecondChance(f,
+                            intersection, true))
                             && (oldWarningPolygon == null
                                     || prepGeom.intersects(oldWarningPolygon) || isOldAreaOutsidePolygon(f));
                     newUnfilteredArea = union(newUnfilteredArea, intersection);
@@ -1727,8 +1730,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
 
-        newHatchedArea = useFilteredArea && newHatchedArea != null ? newHatchedArea :
-                useFallback ? newUnfilteredArea : null;
+        newHatchedArea = useFilteredArea && newHatchedArea != null ? newHatchedArea
+                : useFallback ? newUnfilteredArea : null;
         return newHatchedArea != null ? newHatchedArea : new GeometryFactory()
                 .createGeometryCollection(new Geometry[0]);
     }
@@ -1768,13 +1771,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (oldWarningArea != null) {
                 int areaPercent = -1;
                 try {
-                    areaPercent = Double.valueOf(
-                            ((oldWarningPolygon.intersection(warningPolygon)
-                                    .getArea() / oldWarningArea.getArea()) * 100))
-                                    .intValue();
+                    areaPercent = Double
+                            .valueOf(
+                                    ((oldWarningPolygon.intersection(
+                                            warningPolygon).getArea() / oldWarningArea
+                                            .getArea()) * 100)).intValue();
                 } catch (Exception e) {
-                    statusHandler.handle(Priority.VERBOSE,
-                            "Error determining amount of overlap with original polygon", e);
+                    statusHandler
+                            .handle(Priority.VERBOSE,
+                                    "Error determining amount of overlap with original polygon",
+                                    e);
                     areaPercent = 100;
                 }
                 if (oldWarningPolygon.intersects(warningPolygon) == false
@@ -2277,7 +2283,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 if (areaHatcher != null) {
                     Geometry[] areas = areaHatcher.getHatchedAreas();
                     if (areas == null) {
-                        // Somehow, the hatcher has not been run.  Try it now.
+                        // Somehow, the hatcher has not been run. Try it now.
                         warningAreaChanged();
                         areas = areaHatcher.getHatchedAreas();
                         // If still null, give up.
@@ -2298,8 +2304,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     /*
                      * If redraw failed, do not allow this polygon to be used to
                      * generate a warning.
-                     *
-                     * Note that this duplicates code from updateWarnedAreaState.
+                     * 
+                     * Note that this duplicates code from
+                     * updateWarnedAreaState.
                      */
                     state.strings.clear();
                     state.setWarningArea(null);
@@ -2848,9 +2855,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         if (oldWarningArea != null) {
                             // for a CON, prevents extra areas to be added
                             Set<String> fipsIds = getAllFipsInArea(oldWarningArea);
-                            if (fipsIds.contains(featureFips) == false ||
-                                    ! (oldWarningPolygon.contains(point) == true
-                                    || isOldAreaOutsidePolygon(f))) {
+                            if (fipsIds.contains(featureFips) == false
+                                    || !(oldWarningPolygon.contains(point) == true || isOldAreaOutsidePolygon(f))) {
                                 break;
                             }
                         }
@@ -2862,7 +2868,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         for (GeospatialData gd : dataWithFips) {
                             Geometry g = gd.geometry;
                             if (oldWarningArea != null) {
-                                g = GeometryUtil.intersection(oldWarningArea, g);
+                                g = GeometryUtil
+                                        .intersection(oldWarningArea, g);
                             }
                             fipsParts.add(g);
                         }
@@ -2871,12 +2878,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 .toArray(new Geometry[fipsParts.size()]));
                         if (warningPolygon.contains(point)) {
                             // If inside warning polygon, intersect
-                            geom = GeometryUtil.intersection(
-                                    warningPolygon, geom);
+                            geom = GeometryUtil.intersection(warningPolygon,
+                                    geom);
                         }
                         newWarningArea = GeometryUtil.union(
-                                removeCounty(warningArea, featureFips),
-                                geom);
+                                removeCounty(warningArea, featureFips), geom);
                     }
                     state.setWarningArea(filterWarningArea(newWarningArea));
                     setUniqueFip();
@@ -2898,25 +2904,29 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return null;
         /*
          * Note: Currently does not determine if warningArea is valid (i.e., in
-         * contained in CWA, old warning area, etc.) or has overlapping geometries.
+         * contained in CWA, old warning area, etc.) or has overlapping
+         * geometries.
          */
         Geometry newHatchedArea = null;
         Geometry newUnfilteredArea = null;
         boolean useFilteredArea = false;
-        boolean useFallback = getConfiguration().getHatchedAreaSource().isInclusionFallback();
+        boolean useFallback = getConfiguration().getHatchedAreaSource()
+                .isInclusionFallback();
 
         for (GeospatialData f : geoData.features) {
             String gid = GeometryUtil.getPrefix(f.geometry.getUserData());
-            Geometry warningAreaForFeature = getWarningAreaForGids(Arrays.asList(gid), warningArea);
+            Geometry warningAreaForFeature = getWarningAreaForGids(
+                    Arrays.asList(gid), warningArea);
             boolean passed = filterArea(f, warningAreaForFeature, false);
             useFilteredArea = useFilteredArea || passed;
-            if (passed || filterAreaSecondChance(f, warningAreaForFeature, false))
+            if (passed
+                    || filterAreaSecondChance(f, warningAreaForFeature, false))
                 newHatchedArea = union(newHatchedArea, warningAreaForFeature);
             newUnfilteredArea = union(newUnfilteredArea, warningAreaForFeature);
         }
 
-        newHatchedArea = useFilteredArea && newHatchedArea != null ? newHatchedArea :
-                useFallback ? newUnfilteredArea : null;
+        newHatchedArea = useFilteredArea && newHatchedArea != null ? newHatchedArea
+                : useFallback ? newUnfilteredArea : null;
 
         return newHatchedArea != null ? newHatchedArea : new GeometryFactory()
                 .createGeometryCollection(new Geometry[0]);
