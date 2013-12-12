@@ -44,10 +44,15 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
+import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
+import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -79,7 +84,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      change gridInfoText from Label to Text
  *                                      to make sure the info get displayed inside the screen
  *                                      and can be scrolled.
- * Feb 15, 2013  1638      mschenke    Moved Util.getUnixTime into TimeUtil
+ * Feb 15, 2013  1638      mschenke     Moved Util.getUnixTime into TimeUtil
+ * Dec 03, 2013  2597      randerso     Fixed spacing when displaying multiple grid histories.
+ *                                      Fixed weather element state and data distribution for
+ *                                      Weather and Discrete elements.
  * 
  * </pre>
  * 
@@ -107,9 +115,9 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
     // set gridInfoText to be Text
     private Text gridInfoText;
-        
+
     private SimpleDateFormat gmtFormatter;
-      
+
     public GridInfoDialog(Shell parent, Parm parm, Date clickTime) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -129,7 +137,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         GridLayout layout = (GridLayout) top.getLayout();
         layout.numColumns = 2;
         layout.makeColumnsEqualWidth = false;
-        
+
         initializeComponents();
 
         return top;
@@ -145,52 +153,48 @@ public class GridInfoDialog extends CaveJFACEDialog implements
             b.setText(gridInfoElements[i]);
             b.addSelectionListener(this);
         }
-        
-        // Composite composite2 = new Composite(top, SWT.NONE);
-        // layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
-        // composite2.setLayoutData(layoutData);
-        // composite2.setLayout(new GridLayout(1, true));
 
-        gridInfoText = new Text(top, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.READ_ONLY);
+        gridInfoText = new Text(top, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL
+                | SWT.READ_ONLY);
         layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         gridInfoText.setBackground(group.getBackground());
         gridInfoText.setLayoutData(layoutData);
     }
-	
-	/*
-	 * adjust the width of the dialog
-	 */
-	private void adjustDlg(String infoText){
-	    int screenWidth = this.getParentShell().getDisplay().
-	        getPrimaryMonitor().getBounds().width;
-	    int maxWidth = (int)Math.round(screenWidth * 0.75);
-	    
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		int maxLength = getMaxWidth(infoText);
-		if ( maxLength > maxWidth ) {
-			gd.widthHint = maxWidth;
-			gridInfoText.setLayoutData(gd);
-		} else {
-        	gridInfoText.setLayoutData(gd);
-    	}
-		gridInfoText.setText(infoText);
-	}
-	
-	/*
-	 * get the maximum width of the info
-	 */
-	private int getMaxWidth(String textInfo){
-		String[] splits = textInfo.split("\\n");
-		GC gc = new GC (gridInfoText);
-		FontMetrics fm = gc.getFontMetrics ();
-		int acw = fm.getAverageCharWidth ();
-		int maxStr = 0;
-		for (String str : splits){
-			maxStr = Math.max(maxStr, str.length());
-		}
-		return maxStr*acw;		
-	}
-	
+
+    /*
+     * adjust the width of the dialog
+     */
+    private void adjustDlg(String infoText) {
+        int screenWidth = this.getParentShell().getDisplay()
+                .getPrimaryMonitor().getBounds().width;
+        int maxWidth = (int) Math.round(screenWidth * 0.75);
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        int maxLength = getMaxWidth(infoText);
+        if (maxLength > maxWidth) {
+            gd.widthHint = maxWidth;
+            gridInfoText.setLayoutData(gd);
+        } else {
+            gridInfoText.setLayoutData(gd);
+        }
+        gridInfoText.setText(infoText);
+    }
+
+    /*
+     * get the maximum width of the info
+     */
+    private int getMaxWidth(String textInfo) {
+        String[] splits = textInfo.split("\\n");
+        GC gc = new GC(gridInfoText);
+        FontMetrics fm = gc.getFontMetrics();
+        int acw = fm.getAverageCharWidth();
+        int maxStr = 0;
+        for (String str : splits) {
+            maxStr = Math.max(maxStr, str.length());
+        }
+        return maxStr * acw;
+    }
+
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         super.createButton(parent, Window.CANCEL, "Cancel", false);
@@ -239,17 +243,17 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         String choice = b.getText();
 
         if (choice.equalsIgnoreCase("Grid Info")) {
-        	adjustDlg(getGridInfo());
+            adjustDlg(getGridInfo());
         } else if (choice.equalsIgnoreCase("Grid History")) {
             adjustDlg(getGridHistory());
         } else if (choice.equalsIgnoreCase("ISC History")) {
             adjustDlg(getISCHistory());
         } else if (choice.equalsIgnoreCase("Weather Element Info")) {
-        	adjustDlg(getWEInfo());
+            adjustDlg(getWEInfo());
         } else if (choice.equalsIgnoreCase("Weather Element State")) {
             adjustDlg(getWEState());
         } else if (choice.equalsIgnoreCase("Locks")) {
-        	adjustDlg(getLockInfo());
+            adjustDlg(getLockInfo());
         } else if (choice.equalsIgnoreCase("Data Distribution")) {
             adjustDlg(getDataDistribution());
         } else {
@@ -266,8 +270,9 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         List<Lock> locks = parm.getLockTable().getLocks();
 
         if (locks.isEmpty()) {
-            info.append("Weather element is not locked");
+            info.append("\nWeather element is not locked");
         } else {
+            info.append("\n");
             for (Lock lock : locks) {
                 info.append("(")
                         .append(gmtFormatter.format(lock.getTimeRange()
@@ -303,9 +308,9 @@ public class GridInfoDialog extends CaveJFACEDialog implements
             grid = iscGridID.grid();
         }
         if (grid == null) {
-            info.append("No ISC Grid");
+            info.append("\nNo ISC Grid");
         } else {
-            info.append("ISC Grid Valid Time: ").append(grid.getGridTime())
+            info.append("\nISC Grid Valid Time: ").append(grid.getGridTime())
                     .append("\n\n");
 
             GridDataHistory[] history = grid.getHistory();
@@ -360,49 +365,47 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         if (parm.getGridInfo().getGridType().equals(GridType.SCALAR)
                 || parm.getGridInfo().getGridType().equals(GridType.VECTOR)) {
 
-            info.append("Fuzz Value: ")
+            info.append("\nFuzz Value: ")
                     .append(parm.getParmState().getFuzzValue()).append("\n");
-
-            if (parm.isMutable()) {
-
-                if (parm.getGridInfo().getGridType().equals(GridType.SCALAR)
-                        || parm.getGridInfo().getGridType()
-                                .equals(GridType.VECTOR)) {
-                    info.append("Delta value: ")
-                            .append(parm.getParmState().getDeltaValue())
-                            .append("\n");
-                }
-                info.append("Assign Value: ")
-                        .append(parm.getParmState().getPickUpValue())
-                        .append("\n");
-
-                if (parm.getGridInfo().getGridType().equals(GridType.VECTOR)) {
-                    info.append("Vector Edit Mode: ")
-                            .append(parm.getParmState().getVectorMode())
-                            .append("\n");
-                }
-                if (parm.getGridInfo().getGridType().equals(GridType.DISCRETE)
-                        || parm.getGridInfo().getGridType()
-                                .equals(GridType.WEATHER)) {
-                    info.append("Weather/Discrete Combine Mode: ")
-                            .append(parm.getParmState().getCombineMode())
-                            .append("\n");
-                }
-            }
-
-            info.append("Selected: ")
-                    .append((parm.getParmState().isSelected() ? "Yes" : "No"))
-                    .append("\n");
-
-            if (parm.getParmState().isSelected()) {
-                info.append("Selected Time Range: ")
-                        .append(this.timeRangeToGMT(parm.getParmState()
-                                .getSelectedTimeRange())).append("\n");
-            }
-            info.append("Graphic Color: ")
-                    .append(formatRGB(parm.getDisplayAttributes()
-                            .getBaseColor())).append("\n");
         }
+
+        if (parm.isMutable()) {
+
+            if (parm.getGridInfo().getGridType().equals(GridType.SCALAR)
+                    || parm.getGridInfo().getGridType().equals(GridType.VECTOR)) {
+                info.append("Delta value: ")
+                        .append(parm.getParmState().getDeltaValue())
+                        .append("\n");
+            }
+            info.append("Assign Value: ")
+                    .append(parm.getParmState().getPickUpValue()).append("\n");
+
+            if (parm.getGridInfo().getGridType().equals(GridType.VECTOR)) {
+                info.append("Vector Edit Mode: ")
+                        .append(parm.getParmState().getVectorMode())
+                        .append("\n");
+            }
+            if (parm.getGridInfo().getGridType().equals(GridType.DISCRETE)
+                    || parm.getGridInfo().getGridType()
+                            .equals(GridType.WEATHER)) {
+                info.append("Weather/Discrete Combine Mode: ")
+                        .append(parm.getParmState().getCombineMode())
+                        .append("\n");
+            }
+        }
+
+        info.append("Selected: ")
+                .append((parm.getParmState().isSelected() ? "Yes" : "No"))
+                .append("\n");
+
+        if (parm.getParmState().isSelected()) {
+            info.append("Selected Time Range: ")
+                    .append(this.timeRangeToGMT(parm.getParmState()
+                            .getSelectedTimeRange())).append("\n");
+        }
+        info.append("Graphic Color: ")
+                .append(formatRGB(parm.getDisplayAttributes().getBaseColor()))
+                .append("\n");
 
         return info.toString();
     }
@@ -426,14 +429,26 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         return value;
     }
 
+    private int[] calcCounts(Grid2DByte grid, int numKeys) {
+        int[] counts = new int[numKeys];
+
+        byte[] data = grid.getBytes();
+        for (int i = 0; i < data.length; i++) {
+            int index = data[i] & 0xFF;
+            counts[index]++;
+        }
+        return counts;
+    }
+
     private String getDataDistribution() {
 
         StringBuilder info = new StringBuilder();
         info.append(getBoxTitle(gridData, true, "Data Distribution"));
 
         if (gridData == null) {
-            info.append("No Grid");
+            info.append("\nNo Grid");
         } else {
+            info.append("\n");
             if (parm.getGridInfo().getGridType().equals(GridType.SCALAR)) {
                 Grid2DFloat grid = ((ScalarGridSlice) gridData.getGridSlice())
                         .getScalarGrid();
@@ -450,23 +465,29 @@ public class GridInfoDialog extends CaveJFACEDialog implements
                         .append(getMaxMin(grid, false)).append("\n");
             } else if (parm.getGridInfo().getGridType()
                     .equals(GridType.WEATHER)) {
+                WeatherGridSlice slice = (WeatherGridSlice) gridData
+                        .getGridSlice();
+                Grid2DByte grid = slice.getWeatherGrid();
+                WeatherKey[] keys = slice.getKeys();
 
-                // TODO
-                // for i in xrange(len(dta[1])):
-                // count = self._calcCounts(dta, i)
-                // info += `count` + " ----> " \
-                // + AFPS.WeatherKey_string(dta[1][i]).keyAsPrettyString() \
-                // + "\n"
+                int[] counts = calcCounts(grid, keys.length);
+                for (int i = 0; i < keys.length; i++) {
+                    info.append(counts[i]).append(" ----> ");
+                    info.append(keys[i].toPrettyString());
+                    info.append("\n");
+                }
             } else if (parm.getGridInfo().getGridType()
                     .equals(GridType.DISCRETE)) {
-                // TODO
-                // elif grid.type() == AFPS.Parm.DISCRETE:
-                // for i in xrange(len(dta[1])):
-                // count = self._calcCounts(dta, i)
-                // info += `count` + " ----> " \
-                // + dta[1][i] \
-                // + "\n" else:
-
+                DiscreteGridSlice slice = (DiscreteGridSlice) gridData
+                        .getGridSlice();
+                Grid2DByte grid = slice.getDiscreteGrid();
+                DiscreteKey[] keys = slice.getKey();
+                int[] counts = calcCounts(grid, keys.length);
+                for (int i = 0; i < keys.length; i++) {
+                    info.append(counts[i]).append(" ----> ");
+                    info.append(keys[i].toString());
+                    info.append("\n");
+                }
             }
         }
 
@@ -479,9 +500,9 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         info.append(getBoxTitle(gridData, true, "Grid Information"));
 
         if (gridData == null) {
-            info.append("No Grid");
+            info.append("\nNo Grid");
         } else {
-            info.append("Grid okay to edit: ")
+            info.append("\nGrid okay to edit: ")
                     .append((gridData.isOkToEdit() ? "Yes" : "No"))
                     .append("\n");
 
@@ -513,7 +534,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         StringBuilder info = new StringBuilder();
         info.append(getBoxTitle(null, false, "Weather Element Information"));
 
-        info.append("Weather Element Name: ")
+        info.append("\nWeather Element Name: ")
                 .append(parm.getParmID().getParmName()).append("\n");
 
         info.append("Weather Element Level: ")
@@ -587,7 +608,8 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         } else {
             for (GridDataHistory h : gridData.getHistory()) {
 
-                info.append("Grid origin: ").append(h.getOrigin()).append("\n");
+                info.append("\nGrid origin: ").append(h.getOrigin())
+                        .append("\n");
                 info.append("Original Source: ")
                         .append(uiFormat.uiParmIDcollapsed(h.getOriginParm()))
                         .append("\n");
@@ -678,7 +700,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
             info.append("\n");
         }
 
-        info.append("\n").append(title).append(":\n\n");
+        info.append("\n").append(title).append(":\n");
         return info.toString();
     }
 
