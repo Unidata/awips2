@@ -36,8 +36,6 @@ PGDATA_DIR="${POSTGRESQL_INSTALL_ROOT}/data"
 PGDATA="${PGDATA_DIR}"
 # Who to run the postmaster as, usually "postgres".  (NOT "root")
 PGUSER=awips
-# Port to start the database with
-PGPORT=5432
 # Where to keep a log file
 PGLOG="$PGDATA/serverlog"
 # The path that is to be used for the script
@@ -57,29 +55,29 @@ PGCTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
 case $1 in
   start)
 	echo -n "Starting EDEX PostgreSQL: "
-	su $PGUSER -c "$DAEMON -D '$PGDATA' -p $PGPORT &" >>$PGLOG 2>&1
+	su $PGUSER -c "$DAEMON -D '$PGDATA' &" >>$PGLOG 2>&1
 	echo
 	RETVAL=$?
 	;;
   stop)
 	echo -n "Stopping EDEX PostgreSQL: "
-	su $PGUSER -c "$PGCTL stop -D '$PGDATA' -s -m fast -o \"-p $PGPORT\""
+	su $PGUSER -c "$PGCTL stop -D '$PGDATA' -s -m fast"
 	echo
 	RETVAL=$?
 	;;
   restart)
 	echo -n "Restarting EDEX PostgreSQL: "
-	su $PGUSER -c "$PGCTL stop -D '$PGDATA' -s -m fast -w -o \"-p $PGPORT\""
-	su $PGUSER -c "$DAEMON -D '$PGDATA' -p $PGPORT &" >>$PGLOG 2>&1
+	su $PGUSER -c "$PGCTL stop -D '$PGDATA' -s -m fast -w"
+	su $PGUSER -c "$DAEMON -D '$PGDATA' &" >>$PGLOG 2>&1
 	RETVAL=$?
 	;;
   reload)
         echo -n "Reload EDEX PostgreSQL: "
-        su $PGUSER -c "$PGCTL reload -D '$PGDATA' -s -o \"-p $PGPORT\""
+        su $PGUSER -c "$PGCTL reload -D '$PGDATA' -s"
         RETVAL=$?
         ;;
   status)
-	su $PGUSER -c "$PGCTL status -D '$PGDATA' -o \"-p $PGPORT\""
+	su $PGUSER -c "$PGCTL status -D '$PGDATA'"
 	;;
   *)
 	# Print help
