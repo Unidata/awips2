@@ -108,6 +108,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 10/02/13     #2444      randerso    Fix error handling when creating IFPGridDatabases. 
  *                                     DO NOT ATTEMPT TO MERGE THIS CHANGE INTO 14.2 as the GFE
  *                                     server code has been significantly refactored.
+ * 12/03/13     #2595      randerso    Added check for null update time in commitGrid
  * 
  * </pre>
  * 
@@ -594,7 +595,8 @@ public class GridParmManager {
                     // if update time is less than publish time, grid has not
                     // changed since last published, therefore only update
                     // history, do not publish
-                    if ((gdh.getPublishTime() == null)
+                    if ((gdh.getUpdateTime() == null)
+                            || (gdh.getPublishTime() == null)
                             || (gdh.getUpdateTime().getTime() > gdh
                                     .getPublishTime().getTime())
                             // in service backup, times on srcHistory could

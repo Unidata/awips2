@@ -63,6 +63,8 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * Feb 28, 2013 1731       bsteffen    Optimize construction of scan resource.
  * Apr 18, 2013 1926       njensen     Reuse URIs in construction of resource
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 04 Dec 2013  #2592      lvenable    Added check to ensure the PluginDataObject
+ *                                     array has at least one element.
  * 
  * </pre>
  * 
@@ -97,56 +99,37 @@ public class ScanResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        List<String> uris = getScan().getAvailableUris(
-                ScanTables.valueOf(tableType), icao);
-        try {
-            long t0 = System.currentTimeMillis();
-            // Forces ScanMonitor to grab data back for one extra hour 1/2 past
-            // the first time.
-            Calendar firstCal = ((ScanRecord) objects[0]).getDataTime()
-                    .getRefTimeAsCalendar();
-            firstCal.add(Calendar.MINUTE, -90);
-            Date firstDate = firstCal.getTime();
-            int count = 0;
-            List<ScanRecord> recordsToLoad = new ArrayList<ScanRecord>(
-                    uris.size());
-            for (String uri : uris) {
-                ScanRecord record = new ScanRecord(uri);
-                if (record.getDataTime().getRefTime().after(firstDate)) {
-                    recordsToLoad.add(record);
-                }
-            }
-            ScanRecord[] records = recordsToLoad.toArray(new ScanRecord[0]);
 
-            populateRecords(records);
-            for (ScanRecord record : records) {
-                if ((record.getTableData() != null)
-                        && (record.getDataTime() != null)
-                        && (record.getTableData().getVolScanTime() != null)) {
+        if (objects.length > 0) {
 
-                    getScan().setTableData(icao, record.getTableData(),
-                    /*
-                     * TODO: This should be the volume scan time, but
-                     * {Radar,Scan}Record.getVolScanTime is actually the radar
-                     * product generation time.
-                     */
-                    record.getDataTime().getRefTime(), record.getTilt(),
-                            record.getDataTime().getRefTime(), tableType);
-                    count++;
-
-                    if (record.getType().equals(ScanTables.DMD.name())) {
-                        if (dataObjectMap == null) {
-                            dataObjectMap = new HashMap<DataTime, ScanRecord>();
-                        }
-                        dataObjectMap.put(record.getDataTime(), record);
+            List<String> uris = getScan().getAvailableUris(
+                    ScanTables.valueOf(tableType), icao);
+            try {
+                long t0 = System.currentTimeMillis();
+                // Forces ScanMonitor to grab data back for one extra hour 1/2
+                // past
+                // the first time.
+                Calendar firstCal = ((ScanRecord) objects[0]).getDataTime()
+                        .getRefTimeAsCalendar();
+                firstCal.add(Calendar.MINUTE, -90);
+                Date firstDate = firstCal.getTime();
+                int count = 0;
+                List<ScanRecord> recordsToLoad = new ArrayList<ScanRecord>(
+                        uris.size());
+                for (String uri : uris) {
+                    ScanRecord record = new ScanRecord(uri);
+                    if (record.getDataTime().getRefTime().after(firstDate)) {
+                        recordsToLoad.add(record);
                     }
                 }
-            }
+                ScanRecord[] records = recordsToLoad.toArray(new ScanRecord[0]);
 
-            // populate the DMD data map
-            if (tableType.equals(ScanTables.DMD.name())) {
-                if (dataObjectMap != null) {
-                    for (ScanRecord record : dataObjectMap.values()) {
+                populateRecords(records);
+                for (ScanRecord record : records) {
+                    if ((record.getTableData() != null)
+                            && (record.getDataTime() != null)
+                            && (record.getTableData().getVolScanTime() != null)) {
+
                         getScan().setTableData(icao, record.getTableData(),
                         /*
                          * TODO: This should be the volume scan time, but
@@ -154,39 +137,64 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                          * radar product generation time.
                          */
                         record.getDataTime().getRefTime(), record.getTilt(),
-                                record.getDataTime().getRefTime(),
-                                record.getType());
-                        getScan().setDmdTilt(record.getTilt(), icao);
-                        getScan().addDmdScanRecord(record);
+                                record.getDataTime().getRefTime(), tableType);
+                        count++;
+
+                        if (record.getType().equals(ScanTables.DMD.name())) {
+                            if (dataObjectMap == null) {
+                                dataObjectMap = new HashMap<DataTime, ScanRecord>();
+                            }
+                            dataObjectMap.put(record.getDataTime(), record);
+                        }
                     }
                 }
-            }
-            long t4 = System.currentTimeMillis();
 
-            System.out.println("Loaded " + count + " out of " + uris.size()
-                    + " objects in " + (t4 - t0) + "ms");
-            // need to update the dialog here after the
-            // scanResourceData has been fully populated
-            getScan().setInstantiated(true);
-            if ((getScan().getDialog(ScanTables.valueOf(tableType), icao) != null)
-                    && !getScan()
-                            .getDialog(ScanTables.valueOf(tableType), icao)
-                            .getCurrentShell().isDisposed()) {
-                DataTime time = getScan().getMostRecent(getScan(), tableType,
-                        icao);
-                if (time != null) {
-                    getScan().updateDialog(
-                            ScanTables.valueOf(tableType),
-                            icao,
-                            time.getRefTime(),
-                            time.getRefTime(),
-                            getScan().getTiltAngle(
-                                    ScanTables.valueOf(tableType), icao));
+                // populate the DMD data map
+                if (tableType.equals(ScanTables.DMD.name())) {
+                    if (dataObjectMap != null) {
+                        for (ScanRecord record : dataObjectMap.values()) {
+                            getScan().setTableData(icao, record.getTableData(),
+                            /*
+                             * TODO: This should be the volume scan time, but
+                             * {Radar,Scan}Record.getVolScanTime is actually the
+                             * radar product generation time.
+                             */
+                            record.getDataTime().getRefTime(),
+                                    record.getTilt(),
+                                    record.getDataTime().getRefTime(),
+                                    record.getType());
+                            getScan().setDmdTilt(record.getTilt(), icao);
+                            getScan().addDmdScanRecord(record);
+                        }
+                    }
                 }
+                long t4 = System.currentTimeMillis();
+
+                System.out.println("Loaded " + count + " out of " + uris.size()
+                        + " objects in " + (t4 - t0) + "ms");
+                // need to update the dialog here after the
+                // scanResourceData has been fully populated
+                getScan().setInstantiated(true);
+                if ((getScan().getDialog(ScanTables.valueOf(tableType), icao) != null)
+                        && !getScan()
+                                .getDialog(ScanTables.valueOf(tableType), icao)
+                                .getCurrentShell().isDisposed()) {
+                    DataTime time = getScan().getMostRecent(getScan(),
+                            tableType, icao);
+                    if (time != null) {
+                        getScan().updateDialog(
+                                ScanTables.valueOf(tableType),
+                                icao,
+                                time.getRefTime(),
+                                time.getRefTime(),
+                                getScan().getTiltAngle(
+                                        ScanTables.valueOf(tableType), icao));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                getScan().closeDialog(icao);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            getScan().closeDialog(icao);
         }
         return new ScanResource(this, loadProperties);
     }
