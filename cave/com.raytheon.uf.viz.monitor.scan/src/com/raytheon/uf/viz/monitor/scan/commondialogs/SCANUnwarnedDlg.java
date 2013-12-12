@@ -20,9 +20,6 @@
 package com.raytheon.uf.viz.monitor.scan.commondialogs;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -37,8 +34,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
-import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
+import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -51,6 +48,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2009            lvenable     Initial creation
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * 
  * </pre>
  * 
@@ -221,21 +222,14 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 4;
         gd.verticalIndent = 20;
-        unwarnedTorChk = new Button(controlComp, SWT.CHECK);
-        unwarnedTorChk.setText("Unwarned TOR");
+        unwarnedTorChk = createCheckLabelColor(controlComp, gd, "Unwarned TOR");
         unwarnedTorChk.setSelection(cfgData.getUnwarnedTor());
-        unwarnedTorChk.setBackground(SCANConfig.getInstance().getScanColor(
-                ScanColors.Unwarned));
-        unwarnedTorChk.setForeground(getDisplay().getSystemColor(
-                SWT.COLOR_WHITE));
-        unwarnedTorChk.setLayoutData(gd);
         unwarnedTorChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 enableTorControls();
             }
         });
-        setupButtonMouseListeners(unwarnedTorChk);
 
         gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
         gd.horizontalSpan = 2;
@@ -284,21 +278,14 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 4;
         gd.verticalIndent = 20;
-        unwarnedSvrChk = new Button(controlComp, SWT.CHECK);
-        unwarnedSvrChk.setText("Unwarned SVR");
+        unwarnedSvrChk = createCheckLabelColor(controlComp, gd, "Unwarned SVR");
         unwarnedSvrChk.setSelection(cfgData.getUnwarnedSvr());
-        unwarnedSvrChk.setBackground(SCANConfig.getInstance().getScanColor(
-                ScanColors.Unwarned));
-        unwarnedSvrChk.setForeground(getDisplay().getSystemColor(
-                SWT.COLOR_WHITE));
-        unwarnedSvrChk.setLayoutData(gd);
         unwarnedSvrChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 enableSvrControls();
             }
         });
-        setupButtonMouseListeners(unwarnedSvrChk);
 
         gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
         gd.horizontalSpan = 2;
@@ -549,59 +536,58 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
 
         infoText.append("SCAN identifies those storm cells that contain a\n");
         infoText.append("Tornado Vortex Signature (TVS) and to some extent\n");
-        infoText
-                .append("severe weather (based on various storm cell parameters).\n");
-        infoText
-                .append("Now SCAN can determine which storm cells currently have\n");
+        infoText.append("severe weather (based on various storm cell parameters).\n");
+        infoText.append("Now SCAN can determine which storm cells currently have\n");
         infoText.append("an active TOR or SVR warning and which do not. For\n");
-        infoText
-                .append("those that do not, the SCAN user can set various storm\n");
-        infoText
-                .append("cell parameter thresholds (see below). If these thresholds\n");
-        infoText
-                .append("are met or exceeded and no TOR and/or SVR is in effect\n");
-        infoText
-                .append("in the polygon  where the cell is located, an Unwarned Storm\n");
+        infoText.append("those that do not, the SCAN user can set various storm\n");
+        infoText.append("cell parameter thresholds (see below). If these thresholds\n");
+        infoText.append("are met or exceeded and no TOR and/or SVR is in effect\n");
+        infoText.append("in the polygon  where the cell is located, an Unwarned Storm\n");
         infoText.append("Alarm will be issued.\n\n");
-        infoText
-                .append("To turn this functionality on for TOR and/or SVR warnings,\n");
-        infoText
-                .append("simply click the toggle below on and then check and specify\n");
-        infoText
-                .append("the thresholds you would like be used in order to issue a TOR\n");
-        infoText
-                .append("and/or SVR Unwarned Storm Cell Alarm. You will know that\n");
-        infoText
-                .append("an Unwarned Storm Alarm has been issued when the storm\n");
-        infoText
-                .append("cell identifier in the Storm Cell Table changes color to\n");
-        infoText
-                .append("magenta for TOR warnings and yellow for SVR warnings.");
+        infoText.append("To turn this functionality on for TOR and/or SVR warnings,\n");
+        infoText.append("simply click the toggle below on and then check and specify\n");
+        infoText.append("the thresholds you would like be used in order to issue a TOR\n");
+        infoText.append("and/or SVR Unwarned Storm Cell Alarm. You will know that\n");
+        infoText.append("an Unwarned Storm Alarm has been issued when the storm\n");
+        infoText.append("cell identifier in the Storm Cell Table changes color to\n");
+        infoText.append("magenta for TOR warnings and yellow for SVR warnings.");
     }
 
-    private void setupButtonMouseListeners(final Button btn) {
-        btn.addMouseMoveListener(new MouseMoveListener() {
-            @Override
-            public void mouseMove(MouseEvent e) {
-                btn.setForeground(shell.getDisplay().getSystemColor(
-                        SWT.COLOR_BLACK));
-            }
+    /**
+     * Create a composite that contains a checkbox with no text and a colored
+     * label.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     * @param gd
+     *            GridData used for the composite.
+     * @param labelText
+     *            Text for the label.
+     * @return The checkbox that is created.
+     */
+    private Button createCheckLabelColor(Composite parentComp, GridData gd,
+            String labelText) {
 
-        });
+        GridLayout gl = new GridLayout(2, false);
+        gl.marginHeight = 2;
+        gl.marginWidth = 2;
+        gl.horizontalSpacing = 0;
 
-        btn.addMouseTrackListener(new MouseTrackAdapter() {
-            @Override
-            public void mouseExit(MouseEvent e) {
-                btn.setForeground(shell.getDisplay().getSystemColor(
-                        SWT.COLOR_WHITE));
-            }
+        Composite chkLblComp = new Composite(parentComp, SWT.NONE);
+        chkLblComp.setLayout(gl);
+        chkLblComp.setLayoutData(gd);
 
-            @Override
-            public void mouseEnter(MouseEvent e) {
-                btn.setForeground(shell.getDisplay().getSystemColor(
-                        SWT.COLOR_BLACK));
-            }
-        });
+        gd = new GridData(18, SWT.DEFAULT);
+        Button chkBox = new Button(chkLblComp, SWT.CHECK);
+        chkBox.setLayoutData(gd);
+
+        Label lbl = new Label(chkLblComp, SWT.NONE);
+        lbl.setBackground(SCANConfig.getInstance().getScanColor(
+                ScanColors.Unwarned));
+        lbl.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        lbl.setText(" " + labelText);
+
+        return chkBox;
     }
 
     @Override
