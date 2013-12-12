@@ -181,20 +181,55 @@ public class PluginNotifier {
      */
     public synchronized void register(PluginNotifierConfig config,
             boolean rebuildTree) throws InvalidNotificationConfigException {
+        register(config, null, rebuildTree);
+    }
+
+    /**
+     * Register the given PluginNotifierConfig.
+     * 
+     * @param config
+     * @param router
+     *            The INotificationRouter to use for this config. If null, will
+     *            use the default based on the config format.
+     * @return
+     */
+    public synchronized void register(PluginNotifierConfig config,
+            INotificationRouter router)
+            throws InvalidNotificationConfigException {
+        register(config, router, true);
+    }
+
+    /**
+     * Register the given PluginNotifierConfig.
+     * 
+     * @param config
+     * @param router
+     *            The INotificationRouter to use for this config. If null, will
+     *            use the default based on the config format.
+     * @param rebuildTree
+     *            Whether or not to rebuild the internal tree. If many things
+     *            are being registered can improve performance to only build
+     *            tree once at the end.
+     * @return
+     */
+    public synchronized void register(PluginNotifierConfig config,
+            INotificationRouter router, boolean rebuildTree)
+            throws InvalidNotificationConfigException {
         validate(config);
 
-        INotificationRouter router = null;
-        switch (config.getFormat()) {
-        case DATAURI:
-            router = new DataUriRouter(config);
-            break;
-        case PDO:
-            router = new PdoRouter(config);
-            break;
-        default:
-            throw new InvalidNotificationConfigException(
-                    "No INotificationRouter registered for format: "
-                            + config.getFormat());
+        if (router == null) {
+            switch (config.getFormat()) {
+            case DATAURI:
+                router = new DataUriRouter(config);
+                break;
+            case PDO:
+                router = new PdoRouter(config);
+                break;
+            default:
+                throw new InvalidNotificationConfigException(
+                        "No INotificationRouter registered for format: "
+                                + config.getFormat());
+            }
         }
 
         Map<String, RequestConstraint>[] metadataMaps = config.getMetadataMap();
