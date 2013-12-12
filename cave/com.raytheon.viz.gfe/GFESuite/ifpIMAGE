@@ -1,5 +1,33 @@
 #!/bin/sh
 
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+#
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# Dec 04, 2013  #2589     dgilling    Create command-line arg that controls
+#                                     xvfb initialization.
+#
+#
+
+
 # get path to cave
 path_to_script=`readlink -f $0`
 RUN_FROM_DIR=`dirname $path_to_script`
@@ -9,6 +37,7 @@ CAVE_DIR=/awips2/cave
 
 # execute the runProcedure module
 _GFECLI="${RUN_FROM_DIR}/gfeclient.sh"
+_GFECLI_ARGS="-enablegl"
 _MODULE="${CAVE_DIR}/etc/gfe/utility/PngWriter.py"
 
 # quoting of '$@' is used to prevent command line interpretation
@@ -17,6 +46,6 @@ then
   echo "CAVE and/or gfeclient not installed on this workstation ..exiting"
   exit 1
 else
-  $_GFECLI $_MODULE "$@"
+  $_GFECLI $_GFECLI_ARGS $_MODULE "$@"
 fi
 

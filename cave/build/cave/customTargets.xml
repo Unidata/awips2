@@ -413,7 +413,7 @@
 			<xmlproperty file="${builder}/memorySettings.xml" 
 				collapseAttributes="true"/>
 			
-			<property name="caveXmx" value="2048M" />
+			<property name="caveXmx" value="3072M" />
 			<property name="caveMaxPermSize" value="256m" />
 			
 			<update.ini
