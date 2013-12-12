@@ -34,14 +34,14 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
- * This class contains several utility methods that construct a ProfilerObs
- * instance from the BUFR decoded data.
+ * Convert bufr packets into level data for bufrua mandatory levels.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  969      jkorman     Initial implementation.
+ * Dec 05, 2013  2612     bsteffen    Fix max wind decoding.
  * 
  * </pre>
  * 
@@ -212,8 +212,8 @@ public class BUFRUAManLevelAdapter extends AbstractBUFRUAAdapter {
                     double pres = getDouble(p.get(0), -9999);
                     if (pres > 0) {
                         setViewData("prMaxW", view, p.get(0), maxWindIdx);
-                        setViewData("wdMaxW", view, p.get(3), maxWindIdx);
-                        setViewData("wsMaxW", view, p.get(4), maxWindIdx);
+                        setViewData("wdMaxW", view, p.get(2), maxWindIdx);
+                        setViewData("wsMaxW", view, p.get(3), maxWindIdx);
                         maxWindIdx++;
                     }
                     if (maxWindIdx == maxMaxWinds) {
