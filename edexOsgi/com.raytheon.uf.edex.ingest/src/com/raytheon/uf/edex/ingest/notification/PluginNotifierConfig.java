@@ -154,6 +154,7 @@ public class PluginNotifierConfig {
             switch (endpointType) {
             case DIRECTVM:
                 builder.append(directvmPrefix);
+                break;
             case VM:
                 builder.append(vmPrefix);
                 break;
