@@ -267,7 +267,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
      */
     private static AtomicBoolean initialized = new AtomicBoolean(false);
 
-    private Long syncTime = 0l;
+    private Long subscriptionStartTime = 0l;
 
     /**
      * Creates a new RegistryFederationManager
@@ -685,8 +685,9 @@ public class RegistryFederationManager implements RegistryInitializedListener {
         sub.setOwner(federationProperties.getSiteIdentifier());
         sub.setStatus(StatusTypes.APPROVED);
 
-        sub.setStartTime(EbxmlObjectUtil.getTimeAsXMLGregorianCalendar(syncTime
-                .longValue()));
+        sub.setStartTime(EbxmlObjectUtil
+                .getTimeAsXMLGregorianCalendar(subscriptionStartTime
+                        .longValue()));
         QueryType selectorQuery = new QueryType();
         selectorQuery.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
 
@@ -824,6 +825,9 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                     }
                 }
             }
+        } else {
+            subscriptionStartTime = federatedRegistryMonitor
+                    .getLastKnownUptime();
         }
         statusHandler.info("Starting federated uptime monitor...");
         scheduler.scheduleAtFixedRate(federatedRegistryMonitor, 0, 1,
@@ -842,7 +846,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
     public void synchronizeRegistryWithFederation(final String remoteRegistryUrl)
             throws EbxmlRegistryException, MsgRegistryException {
         long start = TimeUtil.currentTimeMillis();
-        syncTime = start;
+        subscriptionStartTime = start;
         ExecutorService executor = Executors
                 .newFixedThreadPool(this.registrySyncThreads);
 
