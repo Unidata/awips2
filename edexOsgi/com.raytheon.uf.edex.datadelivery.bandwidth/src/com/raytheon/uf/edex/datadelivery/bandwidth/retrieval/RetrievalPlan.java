@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * Nov 16, 2013 1736       dhladky      Alter size of available bandwidth by subtracting that used by registry.
  * Dec 05, 2013 2545       mpduff       BandwidthReservation now stored in bytes.
+ * Dec 13, 2013 2545       mpduff       Prevent negative values in bandwidth bucket sizes.
  * 
  * </pre>
  * 
@@ -407,8 +408,8 @@ public class RetrievalPlan {
                 }
                 for (Long bucketId : bucketIds) {
                     BandwidthBucket bucket = getBucket(bucketId);
-                    bucket.setCurrentSize(bucket.getCurrentSize()
-                            - allocation.getEstimatedSizeInBytes());
+                    bucket.setCurrentSize(Math.max(0, bucket.getCurrentSize()
+                            - allocation.getEstimatedSizeInBytes()));
                     associator.removeFromBucket(bucket, allocation);
                 }
             }
@@ -434,8 +435,8 @@ public class RetrievalPlan {
                 }
                 for (Long bucketId : bucketIds) {
                     BandwidthBucket bucket = getBucket(bucketId);
-                    bucket.setCurrentSize(bucket.getCurrentSize()
-                            - reservation.getSize());
+                    bucket.setCurrentSize(Math.max(0, bucket.getCurrentSize()
+                            - reservation.getSize()));
                     associator.removeFromBucket(bucket, reservation);
                 }
             }
