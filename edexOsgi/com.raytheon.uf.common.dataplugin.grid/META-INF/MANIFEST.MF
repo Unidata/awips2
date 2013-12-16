@@ -2,9 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grid
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.grid
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.grid.dataquery,
@@ -14,22 +15,22 @@ Export-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.grid.request,
  com.raytheon.uf.common.dataplugin.grid.units,
  com.raytheon.uf.common.dataplugin.grid.util
-Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0";visibility:=reexport,
- com.raytheon.uf.common.parameter;bundle-version="1.0.0";visibility:=reexport,
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174";visibility:=reexport,
- com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.gridcoverage;visibility:=reexport,
+ com.raytheon.uf.common.parameter;visibility:=reexport,
+ com.raytheon.uf.common.dataplugin.level;visibility:=reexport,
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.datastorage,
- com.raytheon.uf.common.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
- com.raytheon.uf.common.util;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.style,
+ org.apache.commons.beanutils,
  javax.measure,
- javax.persistence;bundle-version="1.0.0",
- org.hibernate;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.common.style,
- com.raytheon.uf.common.style.level
+ javax.persistence,
+ org.hibernate
