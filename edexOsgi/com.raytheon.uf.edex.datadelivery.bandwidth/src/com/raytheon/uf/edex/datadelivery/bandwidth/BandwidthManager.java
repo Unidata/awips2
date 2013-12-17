@@ -131,6 +131,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Nov 19, 2013 2545       bgonzale     changed getBandwidthGraphData to protected.
  * Dec 04, 2013 2566       bgonzale     added method to retrieve and parse spring files for a mode.
  * Dec 11, 2013 2566       bgonzale     fix spring resource resolution.
+ * Dec 17, 2013 2636       bgonzale     Changed logging to differentiate the output.
  * 
  * </pre>
  * 
@@ -256,10 +257,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 .newArrayListWithCapacity(numberOfRetrievalTimes);
 
         for (Calendar retrievalTime : retrievalTimes) {
-            statusHandler.info("schedule() - Scheduling subscription ["
+            statusHandler.info("Scheduling subscription ["
                     + subscription.getName()
                     + String.format(
-                            "] baseReferenceTime [%1$tY%1$tm%1$td%1$tH%1$tM",
+                            "] retrievalTime [%1$tY%1$tm%1$td%1$tH%1$tM",
                             retrievalTime) + "]");
 
             // Add the current subscription to the ones BandwidthManager already
@@ -295,7 +296,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 .getBandwidthSubscriptions(dao.getProvider(),
                         dao.getDataSetName(), retrievalTime);
 
-        statusHandler.info("schedule() - Scheduling subscription ["
+        statusHandler.info("Scheduling subscription ["
                 + dao.getName()
                 + String.format(
                         "] baseReferenceTime [%1$tY%1$tm%1$td%1$tH%1$tM",
