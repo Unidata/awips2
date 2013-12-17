@@ -46,6 +46,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 16, 2013 1736       dhladky      Alter size of available bandwidth by subtracting that used by registry.
  * Dec 05, 2013 2545       mpduff       BandwidthReservation now stored in bytes.
  * Dec 13, 2013 2545       mpduff       Prevent negative values in bandwidth bucket sizes.
+ * Dec 17, 2013 2636       bgonzale     Check for removed buckets when removing BandwidthAllocations or 
+ *                                      BandwidthReservations. Add constrained bucket addition method.
+ *                                      Added debug logging.
  * 
  * </pre>
  * 
@@ -407,10 +410,16 @@ public class RetrievalPlan {
                     return;
                 }
                 for (Long bucketId : bucketIds) {
-                    BandwidthBucket bucket = getBucket(bucketId);
-                    bucket.setCurrentSize(Math.max(0, bucket.getCurrentSize()
-                            - allocation.getEstimatedSizeInBytes()));
-                    associator.removeFromBucket(bucket, allocation);
+                    // get bucket without checks. sometimes the
+                    // first bucket may have been removed.
+                    BandwidthBucket bucket = getBucketNoChecks(bucketId);
+                    if (bucket != null) {
+                        bucket.setCurrentSize(Math.max(
+                                0,
+                                bucket.getCurrentSize()
+                                        - allocation.getEstimatedSizeInBytes()));
+                        associator.removeFromBucket(bucket, allocation);
+                    }
                 }
             }
         }
@@ -434,10 +443,14 @@ public class RetrievalPlan {
                     return;
                 }
                 for (Long bucketId : bucketIds) {
-                    BandwidthBucket bucket = getBucket(bucketId);
-                    bucket.setCurrentSize(Math.max(0, bucket.getCurrentSize()
-                            - reservation.getSize()));
-                    associator.removeFromBucket(bucket, reservation);
+                    // get bucket without checks. sometimes the
+                    // first bucket may have been removed.
+                    BandwidthBucket bucket = getBucketNoChecks(bucketId);
+                    if (bucket != null) {
+                        bucket.setCurrentSize(Math.max(0,
+                                bucket.getCurrentSize() - reservation.getSize()));
+                        associator.removeFromBucket(bucket, reservation);
+                    }
                 }
             }
         }
@@ -509,6 +522,17 @@ public class RetrievalPlan {
     }
 
     /**
+     * Return the bucket for the specified id.
+     * 
+     * @param bucketId
+     *            the bucketId
+     * @return the bucket; null if not found
+     */
+    private BandwidthBucket getBucketNoChecks(long bucketId) {
+        return bucketsDao.getByStartTime(bucketId, network);
+    }
+
+    /**
      * Return the buckets in the specified window, both boundaries are
      * inclusive. Buckets will be in order of their start time.
      * 
@@ -534,6 +558,43 @@ public class RetrievalPlan {
      * @throws NullPointerException
      *             if the bucket start time is invalid
      */
+    public void addToBucketWithSizeConstraint(BandwidthBucket bucket,
+            BandwidthAllocation allocation) {
+        long bucketStartTime = bucket.getBucketStartTime();
+
+        synchronized (bucketsLock) {
+            BandwidthBucket actualBucket = getBucket(bucketStartTime);
+            long bucketSize = actualBucket.getBucketSize();
+            long totalSize = actualBucket.getCurrentSize()
+                    + allocation.getEstimatedSizeInBytes();
+            // constrain size by size of bucket. Reservations will have filled
+            // out the rest of the allocation in subsequent buckets.
+            totalSize = totalSize > bucketSize ? bucketSize
+                    : totalSize;
+            actualBucket.setCurrentSize(totalSize);
+            associator.addToBucket(actualBucket, allocation);
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Adding (constrained) to bucket "
+                        + actualBucket.getBucketStartTime() + " with size "
+                        + actualBucket.getBucketSize() / 1000
+                        + "k an Allocation "
+                        + allocation.getEstimatedSizeInBytes() / 1000
+                        + "k.  Remaining in bucket "
+                        + actualBucket.getAvailableBandwidth() / 1000 + "k");
+            }
+        }
+    }
+
+    /**
+     * Adds the {@link BandwidthAllocation} to the specified bucket.
+     * 
+     * @param bucket
+     *            the bucket
+     * @param allocation
+     *            the allocation
+     * @throws NullPointerException
+     *             if the bucket start time is invalid
+     */
     public void addToBucket(BandwidthBucket bucket,
             BandwidthAllocation allocation) {
         long bucketStartTime = bucket.getBucketStartTime();
@@ -543,6 +604,15 @@ public class RetrievalPlan {
             actualBucket.setCurrentSize(actualBucket.getCurrentSize()
                     + allocation.getEstimatedSizeInBytes());
             associator.addToBucket(actualBucket, allocation);
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Adding to bucket "
+                        + actualBucket.getBucketStartTime() + " with size "
+                        + actualBucket.getBucketSize() / 1000
+                        + "k an Allocation "
+                        + allocation.getEstimatedSizeInBytes() / 1000
+                        + "k.  Remaining in bucket "
+                        + actualBucket.getAvailableBandwidth() / 1000 + "k");
+            }
         }
     }
 
@@ -565,6 +635,14 @@ public class RetrievalPlan {
             actualBucket.setCurrentSize(actualBucket.getCurrentSize()
                     + reservation.getSize());
             associator.addToBucket(actualBucket, reservation);
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Adding to bucket "
+                        + actualBucket.getBucketStartTime() + " with size "
+                        + actualBucket.getBucketSize() / 1000
+                        + "k a Reservation " + reservation.getSize() / 1000
+                        + "k.  Remaining in bucket "
+                        + actualBucket.getAvailableBandwidth() / 1000 + "k");
+            }
         }
     }
 

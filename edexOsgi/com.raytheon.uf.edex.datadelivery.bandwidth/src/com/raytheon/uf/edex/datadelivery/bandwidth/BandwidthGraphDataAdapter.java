@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * Sep 20, 2013 2397       bgonzale     Add Map of Bucket Descriptions to BandwidthGraphData.
  * Nov 27, 2013 2545       mpduff       Get data by network
  * Dec 11, 2013 2566       bgonzale     handle case when there are no reservations.
+ * Dec 17, 2013 2636       bgonzale     Refactored bucket fill in edex.
  * 
  * </pre>
  * 
@@ -209,9 +210,6 @@ class BandwidthGraphDataAdapter {
             BandwidthBucketDescription desc = new BandwidthBucketDescription(
                     bucket.getNetwork(), bucket.getBucketSize(),
                     bucket.getCurrentSize(), bucket.getBucketStartTime());
-            desc.addLeftovers(leftovers);
-
-            leftovers = desc.getLeftovers();
             descriptions.add(desc);
         }
 
