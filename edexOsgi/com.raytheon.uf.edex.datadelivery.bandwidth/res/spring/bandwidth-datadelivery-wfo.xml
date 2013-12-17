@@ -16,27 +16,9 @@
         </property>
     </bean>
 
-    <!-- SBN routed subscriptions are scheduled for retrieval at the WFO, 
-        but the actual retrieval occurs at the NCF -->
-    <bean id="SBNRetrievalPlan"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan">
-        <property name="network" value="SBN" />
-        <property name="map" ref="BandwidthMap" />
-        <property name="bandwidthDao" ref="bandwidthDao" />
-        <property name="bucketsDao" ref="bandwidthBucketDao" />
-        <property name="associator" ref="bandwidthBucketAllocationAssociator" />
-        <property name="scheduler">
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.PriorityRetrievalScheduler" />
-        </property>
-    </bean>
-
     <util:map id="retrievalPlans">
         <entry key="OPSNET">
             <ref local="OPSNETRetrievalPlan" />
-        </entry>
-        <entry key="SBN">
-            <ref local="SBNRetrievalPlan" />
         </entry>
     </util:map>
 
