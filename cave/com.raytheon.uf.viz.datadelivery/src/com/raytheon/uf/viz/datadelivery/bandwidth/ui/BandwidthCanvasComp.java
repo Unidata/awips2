@@ -102,6 +102,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * Nov 19, 2013   1531     mpduff      Made graph resizable.
  * Nov 25, 2013   2545     mpduff      Default to Opsnet if Network not available yet.
+ * Dec 17, 2013   2633     mpduff      Fix redraw problems.
  * </pre>
  * 
  * @author lvenable
@@ -390,6 +391,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         cs = new CanvasSettings(740, heightWithBuffer, graphSize.x,
                 graphSize.y, xSpaceBuffer, ySpaceBuffer);
         canvasSettingsMap.put(CanvasImages.GRAPH, cs);
+
         graphCanvasSize.x = cs.getCanvasWidth();
         graphCanvasSize.y = cs.getCanvasHeight();
         graphCanvasSettings = cs;
@@ -405,7 +407,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         canvasSettingsMap.put(CanvasImages.Y_LABEL, cs);
 
         // Create the X header canvas settings
-        cs = new CanvasSettings(740, 60, 740, 60, 20, 0);
+        cs = new CanvasSettings(740, 60, graphSize.x, 60, 20, 0);
         canvasSettingsMap.put(CanvasImages.X_HEADER, cs);
 
         // Create the y header canvas settings
@@ -421,7 +423,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         canvasSettingsMap.put(CanvasImages.UTILIZATION_GRAPH, cs);
 
         // Create the Utilization header canvas settings
-        cs = new CanvasSettings(740, utilizationHeaderHeight, 740,
+        cs = new CanvasSettings(740, utilizationHeaderHeight, graphSize.x,
                 utilizationHeaderHeight, xSpaceBuffer, 0);
         canvasSettingsMap.put(CanvasImages.UTILIZATION_HEADER, cs);
     }
@@ -1416,8 +1418,8 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
             imageMgr.setCanvasSetting(entry.getKey(), entry.getValue());
         }
 
-        imageMgr.generateImages(bgd);
         updateCanvases();
+        imageMgr.generateImages(bgd);
     }
 
     /**
@@ -1553,7 +1555,10 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                setGraphData(graphDataUtil.getGraphData(false));
+                setGraphData(graphDataUtil.getGraphData(true));
+                updateCanvasSettings();
+                updateCanvases();
+                layout();
             }
         });
     }
@@ -1622,6 +1627,9 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                     - getCanvasHeight(CanvasImages.UTILIZATION_HEADER)
                     - getCanvasHeight(CanvasImages.UTILIZATION_GRAPH);
 
+            this.graphCanvasSettings.setImageWidth(graphCanvasWidth);
+            this.graphCanvasSettings.setImageHeight(graphCanvasHeight);
+
             // X Header canvas
             CanvasSettings settings = this
                     .getCanvasSettings(CanvasImages.X_HEADER);
@@ -1671,6 +1679,8 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
             settings = this.getCanvasSettings(CanvasImages.GRAPH);
             settings.updateCanvas(graphCanvasWidth, graphCanvasHeight,
                     graphSize.x, graphSize.y);
+            graphCanvasSettings.setDrawWidth(graphSize.x);
+            graphCanvasSettings.setDrawHeight(graphSize.y);
 
             ((GridData) graphCanvas.getLayoutData()).widthHint = graphCanvasWidth;
             ((GridData) graphCanvas.getLayoutData()).heightHint = graphCanvasHeight;
