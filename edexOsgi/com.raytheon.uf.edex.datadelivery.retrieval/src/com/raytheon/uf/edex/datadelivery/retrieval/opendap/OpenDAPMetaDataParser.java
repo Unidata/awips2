@@ -265,18 +265,15 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 // Calculate dataset availability delay
                 long startMillis = time.getStart().getTime();
                 long now = TimeUtil.newGmtCalendar().getTimeInMillis();
-                long delay = (now - startMillis) / TimeUtil.MILLIS_PER_MINUTE;
-
-                // There were some models where the availability delay was
-                // negative
-                dataSet.setAvailabilityDelay(Math.max(0, (int) delay));
+                long offset = (now - startMillis) / TimeUtil.MILLIS_PER_MINUTE;
+                dataSet.setAvailabilityOffset((int) offset);
 
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                     statusHandler.debug("Dataset Name: "
                             + dataSet.getDataSetName());
                     statusHandler.debug("StartTime:    " + time.getStart());
-                    statusHandler.debug("Delay:        "
-                            + dataSet.getAvailabilityDelay());
+                    statusHandler.debug("Offset:       "
+                            + dataSet.getAvailabilityOffset());
                 }
             } catch (Exception le) {
                 logParsingException(timecon, "Time", collectionName, url);
