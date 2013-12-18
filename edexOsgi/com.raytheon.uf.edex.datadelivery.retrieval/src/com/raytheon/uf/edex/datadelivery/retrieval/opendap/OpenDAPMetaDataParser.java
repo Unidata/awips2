@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ImmutableDate;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.Link;
@@ -93,6 +94,7 @@ import dods.dap.DAS;
  * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Dec 18, 2013 2636       mpduff       Calculate a data availability delay for the dataset.
  * 
  * </pre>
  * 
@@ -259,6 +261,23 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 time.setStepUnit(Time.findStepUnit(step.get(1))
                         .getDurationUnit());
                 gdsmd.setTime(time);
+
+                // Calculate dataset availability delay
+                long startMillis = time.getStart().getTime();
+                long now = TimeUtil.newGmtCalendar().getTimeInMillis();
+                long delay = (now - startMillis) / TimeUtil.MILLIS_PER_MINUTE;
+
+                // There were some models where the availability delay was
+                // negative
+                dataSet.setAvailabilityDelay(Math.max(0, (int) delay));
+
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.debug("Dataset Name: "
+                            + dataSet.getDataSetName());
+                    statusHandler.debug("StartTime:    " + time.getStart());
+                    statusHandler.debug("Delay:        "
+                            + dataSet.getAvailabilityDelay());
+                }
             } catch (Exception le) {
                 logParsingException(timecon, "Time", collectionName, url);
             }
