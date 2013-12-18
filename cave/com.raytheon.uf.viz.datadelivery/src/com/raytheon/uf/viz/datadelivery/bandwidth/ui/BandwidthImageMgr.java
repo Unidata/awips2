@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  * Jan 28, 2013   1529     djohnson    Add hasSubscriptionNameChecked().
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * Nov 19, 2013   1531     mpduff      Update the settings.
+ * Dec 17, 2013   2633     mpduff      Keep data used to regenerate images.
  * 
  * </pre>
  * 
@@ -143,7 +144,7 @@ public class BandwidthImageMgr implements IGraphOptions {
 
     private final Composite parentComp;
 
-    private final BandwidthGraphData graphData;
+    private BandwidthGraphData graphData;
 
     /**
      * Constructor.
@@ -256,6 +257,7 @@ public class BandwidthImageMgr implements IGraphOptions {
      *            The graph data object
      */
     public void generateImages(BandwidthGraphData graphData) {
+        this.graphData = graphData;
         for (CanvasImages ci : CanvasImages.values()) {
             canvasImgMap.get(ci).regenerateImage(graphData);
         }

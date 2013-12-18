@@ -60,11 +60,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 14, 2012            bsteffen     Initial creation
- * Jan 14, 2013 1469       bkowal       No longer needs to retrieve the location
- *                                      of the hdf5 data directory.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 14, 2012           bsteffen     Initial creation
+ * Jan 14, 2013  1469     bkowal       No longer needs to retrieve the location
+ *                                     of the hdf5 data directory.
+ * Dec 16, 2013  2574     bsteffen     Fixed bugs in setRequestArea.
  * 
  * </pre>
  * 
@@ -193,9 +194,9 @@ public class GridDataRetriever {
             double lat2) throws GridCoverageException {
         SubGrid subGrid = new SubGrid();
         subGrid.setLowerLeftLat(Math.min(lat1, lat2));
-        subGrid.setLowerLeftLon(Math.min(lat1, lat2));
-        subGrid.setUpperRightLat(Math.min(lat1, lat2));
-        subGrid.setUpperRightLon(Math.min(lat1, lat2));
+        subGrid.setLowerLeftLon(Math.min(lon1, lon1));
+        subGrid.setUpperRightLat(Math.max(lat1, lat2));
+        subGrid.setUpperRightLon(Math.max(lon2, lon2));
         requestCoverage = record.getLocation().trim(subGrid);
         int[] minIndex = { subGrid.getUpperLeftX(), subGrid.getUpperLeftY() };
         int[] maxIndex = { subGrid.getUpperLeftX() + subGrid.getNX(),
@@ -321,7 +322,7 @@ public class GridDataRetriever {
         }
     }
 
-    private File findStorageLocation() throws StorageException {
+    private File findStorageLocation() {
         IHDFFilePathProvider pathProvider = record.getHDFPathProvider();
 
         String path = pathProvider.getHDFPath(record.getPluginName(), record);
