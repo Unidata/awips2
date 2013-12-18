@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 
 import com.google.common.collect.ImmutableSet;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.texteditor.util.VtecObject;
@@ -54,6 +55,9 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  *                                      phensig.
  * Aug 29, 2013  #1843     dgilling     Add hooks for inter-site ETN assignment.
  * Oct 21, 2013  #1843     dgilling     Use new GetNextEtnResponse.
+ * Nov 22, 2013  #2578     dgilling     Fix ETN assignment for products with
+ *                                      multiple NEW VTEC lines for the same
+ *                                      phensig but disjoint TimeRanges.
  * 
  * </pre>
  * 
@@ -222,7 +226,7 @@ public class GFEVtecUtil {
      *             If an error occurred sending the request to the server.
      */
     public static String finalizeETNs(String product,
-            Map<String, Integer> etnCache) {
+            Map<String, Map<TimeRange, Integer>> etnCache) {
         if (StringUtil.isEmptyString(product)) {
             return product;
         }
@@ -239,14 +243,45 @@ public class GFEVtecUtil {
                             .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
                             .contains(vtec.getPhensig())))) {
                 // With GFE VTEC products, it's possible to have multiple
-                // segments with NEW vtec action codes and the same phensig. For
-                // this reason, HazardsTable.py implemented a "cache" that would
-                // ensure all NEWs for the same phensig would be assigned the
-                // same ETN. The etnCache Map replicaes this behavior.
+                // segments with
+                // NEW vtec action codes and the same phensig. For this reason,
+                // HazardsTable.py implemented a "cache" that would ensure all
+                // NEWs for
+                // the same phensig would be assigned the same ETN. This Map
+                // replicates
+                // that legacy behavior.
+                //
+                // This "cache" has two levels:
+                // 1. The first level is keyed by the hazard's phensig.
+                // 2. The second level is keyed by the valid period of the
+                // hazard.
+                // Effectively, making this a Map<Phensig, Map<ValidPeriod,
+                // ETN>>.
+
+                // Some more clarification on the ETN assignment behavior: all
+                // NEW VTEC lines with the same phensig should be assigned the
+                // same ETN if the hazards' valid periods are adjacent or
+                // overlapping.
+                // If there's a discontinuity in TimeRanges we increment to the
+                // next ETN.
+                Integer newEtn = null;
                 String cacheKey = vtec.getPhensig();
-                Integer newEtn = etnCache.get(cacheKey);
-                vtec.setSequence(newEtn);
+                TimeRange validPeriod = new TimeRange(vtec.getStartTime()
+                        .getTime(), vtec.getEndTime().getTime());
+
+                Map<TimeRange, Integer> etnsByTR = etnCache.get(cacheKey);
+                if (etnsByTR != null) {
+                    newEtn = etnsByTR.get(validPeriod);
+                    for (TimeRange tr : etnsByTR.keySet()) {
+                        if ((validPeriod.isAdjacentTo(tr))
+                                || (validPeriod.overlaps(tr))) {
+                            vtec.setSequence(newEtn);
+                            break;
+                        }
+                    }
+                }
             }
+
             vtecMatcher
                     .appendReplacement(
                             finalOutput,
