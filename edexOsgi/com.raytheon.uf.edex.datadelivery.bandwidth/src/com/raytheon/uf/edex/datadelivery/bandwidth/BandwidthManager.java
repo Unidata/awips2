@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.util.IPerformanceTimer;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.common.util.LogUtil;
 import com.raytheon.uf.common.util.algorithm.AlgorithmUtil;
 import com.raytheon.uf.common.util.algorithm.AlgorithmUtil.IBinarySearchResponse;
@@ -129,6 +130,8 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Nov 04, 2013 2506       bgonzale     Added removeBandwidthSubscriptions method.
  * Nov 19, 2013 2545       bgonzale     changed getBandwidthGraphData to protected.
  * Dec 04, 2013 2566       bgonzale     added method to retrieve and parse spring files for a mode.
+ * Dec 11, 2013 2566       bgonzale     fix spring resource resolution.
+ * Dec 17, 2013 2636       bgonzale     Changed logging to differentiate the output.
  * 
  * </pre>
  * 
@@ -193,8 +196,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         int i = 0;
         for (String fileName : fileList) {
             String name = RES_PATTERN.matcher(fileName).replaceFirst("");
+            name = JarUtil.getResResourcePath(name);
             result[i++] = name;
-            statusHandler.debug("Spring file added: " + name + " for mode "
+            statusHandler.info("Spring file added: " + name + " for mode "
                     + modeName);
         }
         return result;
@@ -253,10 +257,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 .newArrayListWithCapacity(numberOfRetrievalTimes);
 
         for (Calendar retrievalTime : retrievalTimes) {
-            statusHandler.info("schedule() - Scheduling subscription ["
+            statusHandler.info("Scheduling subscription ["
                     + subscription.getName()
                     + String.format(
-                            "] baseReferenceTime [%1$tY%1$tm%1$td%1$tH%1$tM",
+                            "] retrievalTime [%1$tY%1$tm%1$td%1$tH%1$tM",
                             retrievalTime) + "]");
 
             // Add the current subscription to the ones BandwidthManager already
@@ -292,7 +296,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 .getBandwidthSubscriptions(dao.getProvider(),
                         dao.getDataSetName(), retrievalTime);
 
-        statusHandler.info("schedule() - Scheduling subscription ["
+        statusHandler.info("Scheduling subscription ["
                 + dao.getName()
                 + String.format(
                         "] baseReferenceTime [%1$tY%1$tm%1$td%1$tH%1$tM",
