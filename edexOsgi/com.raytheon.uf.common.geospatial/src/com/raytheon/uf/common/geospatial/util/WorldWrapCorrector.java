@@ -46,10 +46,12 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 12, 2011            mschenke    Initial creation
- * May 30, 2013 #2028      randerso    Changed to return simple geometry or multi-geometry if possible
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Oct 12, 2011           mschenke    Initial creation
+ * May 30, 2013  2028     randerso    Changed to return simple geometry or
+ *                                    multi-geometry if possible
+ * Dec 11, 2013  2619     bsteffen    Fix rare dateline bug in flattenGeometry.
  * 
  * </pre>
  * 
@@ -318,14 +320,14 @@ public class WorldWrapCorrector {
             Coordinate a = coords[i];
             Coordinate b = coords[ip1];
 
-            b.x += currOffset;
+            double testX = b.x + currOffset;
 
             Boolean low = null;
-            if (a.x - b.x > 180.0) {
+            if (a.x - testX > 180.0) {
                 low = false;
-            } else if (b.x - a.x > 180.0) {
+            } else if (testX - a.x > 180.0) {
                 low = true;
-            } else if (checker.check(a.x, b.x)) {
+            } else if (checker.check(a.x, testX)) {
                 handle = true;
             }
 
@@ -334,18 +336,20 @@ public class WorldWrapCorrector {
                 // we wrap either low end or high
                 if (low) {
                     currOffset -= 360;
-                    b.x -= 360.0;
                     if (currOffset < minOffset) {
                         minOffset = currOffset;
                     }
                 } else {
                     currOffset += 360;
-                    b.x += 360;
                     if (currOffset > maxOffset) {
                         maxOffset = currOffset;
                     }
                 }
+                b.x += currOffset;
+            } else {
+                b.x = testX;
             }
+
         }
         return handle ? new double[] { minOffset, maxOffset } : null;
     }
