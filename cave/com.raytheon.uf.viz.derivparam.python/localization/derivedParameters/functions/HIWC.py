@@ -20,7 +20,9 @@
 
 # ----------------------------------------------------------------
 # Returns heat index or wind chill
-# 
+# History
+# 12/02/2013  DR 14455  Qinglu Lin  Changed 1.85200 to 3.6 at
+#             wSpd_kmh = wSpd * 1.85200
 # ----------------------------------------------------------------
 import numpy
 import T
@@ -62,7 +64,7 @@ def execute2(temperature,dewpoint,relHumidity,windSpeed):
 def execute3(T,DpT,wSpd):
     TC = T - 273.15 #convert from K to C
     DpTC = DpT - 273.15 #convert to from K to C
-    wSpd_kmh = wSpd * 1.85200 #convert from m/s to km/h
+    wSpd_kmh = wSpd * 3.6 #convert from m/s to km/h
     Hi = HeatIndex.calculate(TC,DpTC) #Outputs Celsius
     Wc = WindChill.calculate(TC,wSpd_kmh) #Outputs Celsius
     HiK = numpy.where(Hi != -9999.0, celciusToKelvin(Hi),-9999.0)
