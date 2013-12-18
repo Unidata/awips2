@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * Jun 24, 2013 2106       djohnson     Add more methods.
  * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
+ * Dec 17, 2013 2636       bgonzale     Added method to get a BandwidthAllocation.
  * 
  * </pre>
  * 
@@ -487,4 +488,11 @@ public interface IBandwidthDao<T extends Time, C extends Coverage> {
      * @return the SubscriptionStatusSummary
      */
     SubscriptionStatusSummary getSubscriptionStatusSummary(Subscription<T, C> sub);
+
+    /**
+     * Get the BandwidthAllocation identified by the given id.
+     * 
+     * @param id
+     */
+    BandwidthAllocation getBandwidthAllocation(long id);
 }

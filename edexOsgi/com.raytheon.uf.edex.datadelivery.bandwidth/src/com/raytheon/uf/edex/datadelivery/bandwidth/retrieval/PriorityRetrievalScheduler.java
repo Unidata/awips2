@@ -30,6 +30,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 26, 2012 1286       djohnson    Return list of unscheduled allocations.
  * Jan 25, 2013 1528       djohnson    Lower priority requests should not be able to unschedule higher priority requests.
  * Jun 25, 2013 2106       djohnson    Access bandwidth bucket contents through RetrievalPlan.
+ * Dec 17, 2013 2636       bgonzale    When adding to buckets, call the constrained method.
  * </pre>
  * 
  * @version 1.0
@@ -143,7 +144,7 @@ public class PriorityRetrievalScheduler implements IRetrievalScheduler {
                 if (o instanceof BandwidthAllocation) {
                     BandwidthAllocation obj = (BandwidthAllocation) o;
                     obj.setStatus(RetrievalStatus.SCHEDULED);
-                    plan.addToBucket(key, obj);
+                    plan.addToBucketWithSizeConstraint(key, obj);
                 } else {
                     plan.addToBucket(key, (BandwidthReservation) o);
                 }

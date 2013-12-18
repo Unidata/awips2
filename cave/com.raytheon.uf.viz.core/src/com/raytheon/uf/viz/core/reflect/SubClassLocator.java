@@ -52,8 +52,10 @@ import com.raytheon.uf.viz.core.Activator;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Oct 18, 2013  2491     bsteffen    Initial creation
+ * Dec 10, 2013  2602     bsteffen    Add null checks to detect unloaded
+ *                                    bundles.
  * 
  * </pre>
  * 
@@ -256,7 +258,13 @@ public class SubClassLocator implements ISubClassLocator {
     private Set<Class<?>> loadClassesFromCache(Bundle bundle,
             Collection<String> classNames) {
         BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+        if (bundleWiring == null) {
+            return Collections.emptySet();
+        }
         ClassLoader loader = bundleWiring.getClassLoader();
+        if (loader == null) {
+            return Collections.emptySet();
+        }
         HashSet<Class<?>> result = new HashSet<Class<?>>(classNames.size(),
                 1.0f);
         for (String className : classNames) {

@@ -2,6 +2,36 @@
 # CAVE startup script
 # Note: CAVE will not run as 'root'
 
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+#
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# Dec 05, 2013  #2593     rjpeter     Added check for number of running
+#                                     cave sessions.
+# Dec 05, 2013  #2590     dgilling    Modified so gfeclient.sh can be wrapped
+#                                     around this script.
+#
+#
+
+
 user=`/usr/bin/whoami`
 if [ ${user} == 'root' ];then
    echo "WARNING: CAVE cannot be run as user '${user}'!"
@@ -9,13 +39,16 @@ if [ ${user} == 'root' ];then
    exit 1
 fi
 
-path_to_script=`readlink -f $0`
-dir=$(dirname $path_to_script)
+# Since, we no longer need to worry about re-location ...
+CAVE_INSTALL="/awips2/cave"
+JAVA_INSTALL="/awips2/java"
+PYTHON_INSTALL="/awips2/python"
+export AWIPS_INSTALL_DIR="${CAVE_INSTALL}"
 
-source ${dir}/caveUtil.sh
+source ${CAVE_INSTALL}/caveUtil.sh
 RC=$?
 if [ ${RC} -ne 0 ]; then
-   echo "ERROR: unable to find and/or access ${dir}/caveUtil.sh."
+   echo "ERROR: unable to find and/or access ${CAVE_INSTALL}/caveUtil.sh."
    exit 1
 fi
 
@@ -28,16 +61,11 @@ copyVizShutdownUtilIfNecessary
 # delete any old disk caches in the background
 deleteOldCaveDiskCaches &
 
-# Since, we no longer need to worry about re-location ...
-CAVE_INSTALL="/awips2/cave"
-JAVA_INSTALL="/awips2/java"
-PYTHON_INSTALL="/awips2/python"
-
-export AWIPS_INSTALL_DIR="${CAVE_INSTALL}"
-
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
 export LD_PRELOAD=libpython.so
-extendLibraryPath
+if [[ -z "$CALLED_EXTEND_LIB_PATH" ]]; then
+    extendLibraryPath
+fi
 export PATH=${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:$PATH
 export JAVA_HOME="${JAVA_INSTALL}/jre"
 
@@ -60,16 +88,16 @@ if [ -x ${TESTCHECK} ]; then
     status=${?}
     if [ $status -eq 11 ]; then
         MODE="TEST"
-        SWITCHES=" -mode TEST "
+        SWITCHES="${SWITCHES} -mode TEST "
     elif [ $status -eq 12 ];then
         MODE="PRACTICE"
-        SWITCHES=" -mode PRACTICE "
+        SWITCHES="${SWITCHES} -mode PRACTICE "
     elif [ $status -eq 15 ];then
         MODE="OPERATIONAL"
-        SWITCHES=" -mode OPERATIONAL"
+        SWITCHES="${SWITCHES} -mode OPERATIONAL"
     else
         MODE="OPERATIONAL (no response)"
-        SWITCHES=" "
+        SWITCHES="${SWITCHES} "
     fi
     echo "getTestMode() returned ${MODE}"
 else
@@ -78,6 +106,30 @@ else
 fi
 
 export TEXTWS=`hostname | sed -e 's/lx/xt/g'`
+
+hostName=`hostname -s`
+
+if [[ $hostName =~ xt.* ]]; then
+   export IGNORE_NUM_CAVES=1
+fi
+
+# check number of running caves
+if [[ -z $IGNORE_NUM_CAVES ]]; then
+   # free usually reports below on G threshold (11 instead of 12G), giving the 3 cave recommended in field
+   mem=( `free -g | grep "Mem:"` )
+   mem=${mem[1]}
+   let _maxCaves=mem/3
+
+   getPidsOfMyRunningCaves
+   if [[ "$_numPids" -ge "$_maxCaves" ]]; then
+      zenity --question --title "Max CAVE sessions already running"  --text "$_numPids CAVE sessions already running. Starting more may impact system performance and stability.\n\nProceed?"
+      cancel="$?"
+
+      if [[ "$cancel" == "1" ]]; then
+         exit
+      fi
+   fi
+fi
 
 #check for gtk-2.0 value
 gtkResource=.gtkrc-2.0
@@ -108,8 +160,12 @@ else
    echo $altButtonLine >> $HOME/$mineFile
 fi
 
-hostName=`hostname -s`
-LOGDIR=$HOME/caveData/logs/consoleLogs/$hostName/
+if [[ -z "$PROGRAM_NAME" ]]
+then
+    PROGRAM_NAME="cave"
+fi
+
+LOGDIR="$HOME/caveData/logs/consoleLogs/$hostName/"
 
 # make sure directory exists
 if [ ! -d $LOGDIR ]; then
@@ -119,22 +175,29 @@ fi
 export pid=$$
 
 curTime=`date +%Y%m%d_%H%M%S`
-LOGFILE=${LOGDIR}/cave_${curTime}_pid_${pid}_console.log
-export LOGFILE_CAVE=${LOGDIR}/cave_${curTime}_pid_${pid}_alertviz.log
-export LOGFILE_PERFORMANCE=${LOGDIR}/cave_${curTime}_pid_${pid}_perf.log
-
-redirect="TRUE"
-for flag in $@; do
-	if [ $flag == "-noredirect" ]; then
-		redirect="FALSE"
-		break
-	fi
-done
+LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
+export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_alertviz.log"
+export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_perf.log"
 
 # can we write to log directory
 if [ -w ${LOGDIR} ]; then
   touch ${LOGFILE}
 fi
+
+# remove "-noredirect" flag from command-line if set so it doesn't confuse any
+# commands we call later.
+redirect="true"
+USER_ARGS=()
+while [[ $1 ]]
+do
+    if [[ "$1" == "-noredirect" ]]
+    then
+        redirect="false"
+    else
+        USER_ARGS+=("$1")
+    fi
+    shift
+done
 
 # Special instructions for the 64-bit jvm.
 ARCH_ARGS=""
@@ -142,16 +205,16 @@ if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
    ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
 fi
 
-lookupINI $@
+lookupINI "${USER_ARGS[@]}"
 
 if [[ "${runMonitorThreads}" == "true" ]] ; then 
   # nohup to allow tar process to continue after user has logged out
-  nohup ${dir}/monitorThreads.sh $pid >> /dev/null 2>&1 &
+  nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
 fi
 
-if ( [ ${redirect} == "TRUE" ] ); then 
-  exec ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@ > ${LOGFILE} 2>&1
+if [[ "${redirect}" == "true" ]] ; then 
+  exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
 else
-  exec ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@ 2>&1 | tee ${LOGFILE}
+  exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
 fi
 

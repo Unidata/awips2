@@ -29,4 +29,9 @@
 		<constructor-arg value="com.raytheon.uf.common.gridcoverage" />
 		<constructor-arg ref="gridcoverageProperties" />
 	</bean>
+	
+	<bean class="com.raytheon.uf.common.util.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter"/></constructor-arg>
+  		<constructor-arg><value>com.raytheon.uf.common.gridcoverage.GridCoverage</value></constructor-arg>
+	</bean>
 </beans>
