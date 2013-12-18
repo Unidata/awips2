@@ -192,6 +192,7 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 getScan().closeDialog(icao);
             }
         }
