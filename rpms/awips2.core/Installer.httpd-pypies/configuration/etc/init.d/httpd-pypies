@@ -100,7 +100,9 @@ start() {
 
 stop() {
 	echo -n $"Stopping $prog: "
-	/awips2/httpd_pypies/usr/sbin/apachectl -k graceful-stop
+        ${HTTPD_PYPIES_INSTALL}/usr/sbin/apachectl -f \
+           ${HTTPD_PYPIES_INSTALL}/etc/httpd/conf/httpd.conf \
+           -k graceful-stop
 	RETVAL=$?
 	echo
 	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
@@ -148,7 +150,9 @@ reload() {
         echo $"not reloading due to configuration syntax error"
         failure $"not reloading $httpd due to configuration syntax error"
     else
-        /awips2/httpd_pypies/usr/sbin/apachectl -k graceful
+        ${HTTPD_PYPIES_INSTALL}/usr/sbin/apachectl -f \
+           ${HTTPD_PYPIES_INSTALL}/etc/httpd/conf/httpd.conf \
+           -k graceful
         RETVAL=$?
     fi
     echo

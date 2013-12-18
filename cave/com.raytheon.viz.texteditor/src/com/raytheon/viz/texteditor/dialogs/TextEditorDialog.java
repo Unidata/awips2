@@ -333,6 +333,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                       simulated time.
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
+ * 10Dec2013   2601         mpduff      Fix NullPointerException.
  * </pre>
  * 
  * @author lvenable
@@ -4947,11 +4948,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 if (!resend) {
                     StdTextProduct prod = getStdTextProduct();
                     OUPTestRequest testReq = new OUPTestRequest();
-                    testReq.setOupRequest(
-                            createOUPRequest(prod, prod.getProduct()));
+                    testReq.setOupRequest(createOUPRequest(prod,
+                            prod.getProduct()));
                     try {
-                        OUPResponse checkResponse = (OUPResponse)
-                                ThriftClient.sendRequest(testReq);
+                        OUPResponse checkResponse = (OUPResponse) ThriftClient
+                                .sendRequest(testReq);
                         if (checkResponse.hasFailure()) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "Error during text product transmission check: "
@@ -4961,24 +4962,27 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         }
                     } catch (VizException e) {
                         statusHandler.handle(Priority.PROBLEM,
-                                "Error during text product transmission check", e);
+                                "Error during text product transmission check",
+                                e);
                         inEditMode = true;
                         return;
                     }
 
-                    /* Update the vtec string in the message.  It looks wrong to
-                     * do this after saveEditedProduct, but it works because
-                     * for this case (isOpertional && ! resend) case, saveEditedProduct,
-                     * does not actually save anything. */
-                    prod.setProduct(
-                            VtecUtil.getVtec(removeSoftReturns(prod.getProduct()), true));
+                    /*
+                     * Update the vtec string in the message. It looks wrong to
+                     * do this after saveEditedProduct, but it works because for
+                     * this case (isOpertional && ! resend) case,
+                     * saveEditedProduct, does not actually save anything.
+                     */
+                    prod.setProduct(VtecUtil.getVtec(
+                            removeSoftReturns(prod.getProduct()), true));
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
                      * text pane to reflect the ETN that was actually used, but
                      * not update any other parts of the text even though they
                      * may have also been changed just before the product was
                      * sent.
-                     *
+                     * 
                      * A1 works similarly.
                      */
                     updateTextEditor(copyEtn(prod.getProduct(), body));
@@ -5048,8 +5052,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private OUPRequest createOUPRequest(StdTextProduct prod, String text) {
         OUPRequest req = new OUPRequest();
         OfficialUserProduct oup = new OfficialUserProduct();
-        String awipsWanPil = prod.getSite() + prod.getNnnid()
-                + prod.getXxxid();
+        String awipsWanPil = prod.getSite() + prod.getNnnid() + prod.getXxxid();
         String awipsID = prod.getNnnid() + prod.getXxxid();
 
         oup.setAwipsWanPil(awipsWanPil);
@@ -7177,6 +7180,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         private File getFile(String filename) {
             LocalizationFile lFile = pathManager.getLocalizationFile(lc,
                     SAVED_SESSION_DIR + filename);
+            if (lFile == null) {
+                return null;
+            }
+
             return lFile.getFile();
         }
 
@@ -7200,11 +7207,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 file = getFile(filename);
 
-                synchronized (this) {
-                    bufStream = new BufferedOutputStream(new FileOutputStream(
-                            file));
-                    bufStream.write(SerializationUtil.marshalToXml(
-                            stdTextProduct).getBytes());
+                if (file == null) {
+                    statusHandler
+                            .warn("Auto save failed.  See server for details...");
+                } else {
+                    synchronized (this) {
+                        bufStream = new BufferedOutputStream(
+                                new FileOutputStream(file));
+                        bufStream.write(SerializationUtil.marshalToXml(
+                                stdTextProduct).getBytes());
+                    }
                 }
 
                 // TODO Should the edit session be backed up to the server?

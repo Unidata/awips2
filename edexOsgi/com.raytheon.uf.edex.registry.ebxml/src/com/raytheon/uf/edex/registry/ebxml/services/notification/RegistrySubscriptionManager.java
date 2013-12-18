@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/23/2013   1538        bphillip    Removed debug code and added a change to properly update subscription run time
  *                                      to not create duplicate slots on objects
  * 11/20/2013   2534        bphillip    Moved method to get notification destinations to utility
+ * 12/9/2013    2613        bphillip    Setting last run time of subscription now occurs before notification is sent
  * </pre>
  * 
  * @author bphillip
@@ -386,9 +387,9 @@ public class RegistrySubscriptionManager implements
             }
             statusHandler.info("Processing subscription [" + subscriptionName
                     + "]...");
+            updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
             notificationManager.sendNotifications(listeners
                     .get(subscriptionName));
-            updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
         } catch (Throwable e) {
             statusHandler.error(
                     "Errors occurred while processing subscription ["
