@@ -81,6 +81,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * Jun 20, 2013 2127        rjpeter     Added OnDelete annotation.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Sep 20, 2013 2147        rferrel     Changes to archive hdf5 files.
+ * Dec 03, 2013 2597        randerso    Cleared gridHistory id when adding new history
+ *                                      records in consolidateHistory so dao will recognize
+ *                                      it as a new record
  * 
  * </pre>
  * 
@@ -265,6 +268,7 @@ public class GFERecord extends PluginDataObject implements IPersistable {
             } else {
                 GridDataHistory hist = newHistory.get(i);
                 hist.setParent(this);
+                hist.setId(0);
                 gridHistory.add(hist);
             }
         }
