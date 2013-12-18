@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.gridcoverage.convert;
 
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.Converter;
+
 import com.raytheon.uf.common.dataplugin.annotations.DataURIFieldConverter;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
@@ -42,7 +45,7 @@ import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
  * @version 1.0
  */
 
-public class GridCoverageConverter implements DataURIFieldConverter {
+public class GridCoverageConverter implements DataURIFieldConverter, Converter {
 
     @Override
     public String toString(Object field) {
@@ -71,6 +74,19 @@ public class GridCoverageConverter implements DataURIFieldConverter {
         }
     }
 
+    @Override
+    public GridCoverage convert(Class clazz, Object value) {
+        if (value instanceof Integer) {
+            return fromInteger((Integer) value);
+        } else if (value instanceof String) {
+            return fromString((String) value);
+        } else {
+            throw new ConversionException("Cannot convert "
+                    + String.valueOf(value) + " of type "
+                    + value.getClass().getSimpleName() + " to a GridCoverage.");
+        }
+    }
+
     public GridCoverage fromInteger(Integer integer) {
         if (integer != null) {
             GridCoverage result = GridCoverageLookup.getInstance().getCoverage(
@@ -81,7 +97,7 @@ public class GridCoverageConverter implements DataURIFieldConverter {
         }
         throw new UnsupportedOperationException(
                 "Cannot find GridCoverage with id of "
-                + String.valueOf(integer));
+                        + String.valueOf(integer));
     }
 
 }
