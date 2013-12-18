@@ -98,7 +98,7 @@ public abstract class DataSet<T extends Time, C extends Coverage> {
     @XmlElement
     @DynamicSerializeElement
     @SlotAttribute
-    protected int availabilityDelay;
+    protected int availabilityOffset;
 
     public Map<String, Parameter> getParameters() {
         return parameters;
@@ -164,18 +164,18 @@ public abstract class DataSet<T extends Time, C extends Coverage> {
     public abstract ServiceType getServiceType();
 
     /**
-     * @return the availabilityDelay
+     * @return the availabilityOffset
      */
-    public int getAvailabilityDelay() {
-        return availabilityDelay;
+    public int getAvailabilityOffset() {
+        return availabilityOffset;
     }
 
     /**
-     * @param availabilityDelay
-     *            the availabilityDelay to set
+     * @param availabilityOffset
+     *            the availabilityOffset to set
      */
-    public void setAvailabilityDelay(int availabilityDelay) {
-        this.availabilityDelay = availabilityDelay;
+    public void setAvailabilityOffset(int availabilityOffset) {
+        this.availabilityOffset = availabilityOffset;
     }
 
     @Override
