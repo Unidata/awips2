@@ -4148,4 +4148,15 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
 			<displayUnits>kts</displayUnits>
 		</contourStyle>
 	</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>SnowT</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+     <displayUnits>C</displayUnits>
+     <contourLabeling>
+       <values>-15 -5 0</values>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
 </styleRuleset>
