@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -346,7 +347,20 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
             Set<VtecObject> vtecsToAssignEtn = GFEVtecUtil
                     .getVtecLinesThatNeedEtn(productText);
-            Map<String, Integer> etnCache = new HashMap<String, Integer>();
+            // With GFE VTEC products, it's possible to have multiple segments
+            // with
+            // NEW vtec action codes and the same phensig. For this reason,
+            // HazardsTable.py implemented a "cache" that would ensure all NEWs
+            // for
+            // the same phensig would be assigned the same ETN. This Map
+            // replicates
+            // that legacy behavior.
+            //
+            // This "cache" has two levels:
+            // 1. The first level is keyed by the hazard's phensig.
+            // 2. The second level is keyed by the valid period of the hazard.
+            // Effectively, making this a Map<Phensig, Map<ValidPeriod, ETN>>.
+            Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<String, Map<TimeRange, Integer>>();
 
             for (VtecObject vtec : vtecsToAssignEtn) {
                 try {
@@ -410,7 +424,15 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
                         }
                     }
 
-                    etnCache.put(vtec.getPhensig(), serverResponse.getNextEtn());
+                    TimeRange validPeriod = new TimeRange(vtec.getStartTime()
+                            .getTime(), vtec.getEndTime().getTime());
+                    String phensig = vtec.getPhensig();
+                    Map<TimeRange, Integer> etnsByTR = etnCache.get(phensig);
+                    if (etnsByTR == null) {
+                        etnsByTR = new HashMap<TimeRange, Integer>();
+                        etnCache.put(phensig, etnsByTR);
+                    }
+                    etnsByTR.put(validPeriod, serverResponse.getNextEtn());
                 } catch (VizException e) {
                     statusHandler.handle(Priority.CRITICAL,
                             "Error setting ETNs for product", e);
