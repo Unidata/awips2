@@ -60,6 +60,10 @@
         <available file="${basedir}/../org.springframework" />
     </condition>
 
+    <condition property="edexsrc.dir" value="${basedir}/.." else="${basedir}/../../edexOsgi">
+        <available file="${basedir}/../com.raytheon.uf.common.util" />
+    </condition>
+
     <!-- Set default EDEX install location for copy filter -->
     <property name="def.edex.install.dir" value="/awips" />
     <condition property="edex.home" value="$EdexBaseDir" else="${def.edex.install.dir}">
@@ -165,6 +169,8 @@
                 includes="**/*.class" />
             <fileset dir="tmp/plugins/com.raytheon.rcm.server.mq/@dot"
                 includes="**/*.txt" />
+            <fileset dir="tmp/plugins/com.raytheon.uf.common.util/@dot"
+                includes="**/*.class" />
         </copy>
     </target>
 
@@ -175,6 +181,7 @@
             <fileset dir="../com.raytheon.rcm.server/bin" includes="**/*.class" />
             <fileset dir="../com.raytheon.rcm.server.mq/bin" includes="**/*.class" />
             <fileset dir="../com.raytheon.rcm.server.mq/bin" includes="**/*.txt" />
+            <fileset dir="${edexsrc.dir}/com.raytheon.uf.common.util/bin" includes="**/*.class" />
         </copy>
     </target>
 
