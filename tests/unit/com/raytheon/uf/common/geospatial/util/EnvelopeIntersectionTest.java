@@ -57,9 +57,10 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Sep 13, 2013  2309     bsteffen    Initial creation
  * Nov 18, 2013  2528     bsteffen    Add test for geostationary.
+ * Dec 11, 2013  2619     bsteffen    Add alaska test for dateline issues.
  * 
  * </pre>
  * 
@@ -147,6 +148,24 @@ public class EnvelopeIntersectionTest {
                     throw new RuntimeException(
                             "Unable to create geostationary projection", e);
                 }
+            }
+        },
+
+        /*
+         * This envelope has really weird issues with the dataline. Specifically
+         * the lower left corner longitude is just right so if you convert it to
+         * LatLon space, add 360 to longitude and then subtract 360 from
+         * longitude you will get a slightly different LatLon point. This
+         * combined with the fact that the lewer left corner ends up being the
+         * last point in a polygon and the second to last point is on the
+         * opposite side of the dataline results in strange problems.
+         */
+        ALASKA {
+            public Envelope getEnvelope() {
+                return new ReferencedEnvelope(-2047000.023104792,
+                        999.9768952080049, -3879539.946249751,
+                        -1831539.946249751, MapUtil.constructNorthPolarStereo(
+                                6371200, 6371200, 52.5, -149.5));
             }
         };
 
@@ -328,6 +347,19 @@ public class EnvelopeIntersectionTest {
                 -721443, -2356714, -3799600, -5434871, -3799600 };
         test(KNOWN_ENVELOPES.GEOSTATIONARY, KNOWN_ENVELOPES.GEOSTATIONARY,
                 19097.596365784917, 64, 49, expected);
+    }
+
+    @Test
+    public final void testAlaskaToUkmet() throws TransformException,
+            FactoryException {
+        /* This was created using printSimplePolygon. */
+        float[] expected = { 3703712, 5337060, 3317194, 5775708, 2834468,
+                6206521, 2222747, 6619845, 1439512, 7001657, 2352844, 7380677,
+                3551651, 7694056, 5063542, 7906556, 6800513, 7982537, 6798676,
+                5836944, 5962640, 5803467, 5154389, 5704811, 4396584, 5546637,
+                3703712, 5337060 };
+        test(KNOWN_ENVELOPES.ALASKA, KNOWN_ENVELOPES.UKMET, 29863.10130618981,
+                16, 16, expected);
     }
 
     /**

@@ -30,8 +30,6 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -70,6 +68,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
+ * Dec 10, 2013 2581       njensen     Removed dataURI column
  * 
  * </pre>
  * 
@@ -78,7 +77,9 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
-@Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "latitude", "longitude", "stationId", "refTime", "forecastTime",
+        "eventType" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -116,13 +117,12 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     private LSREventType eventType;
 
     // Correction indicator from wmo header
-    @DataURI(position = 2)
     @Column
     @DynamicSerializeElement
     private String corIndicator;
 
     @Embedded
-    @DataURI(position = 3, embedded = true)
+    @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
@@ -502,13 +502,6 @@ public class LocalStormReport extends PersistablePluginDataObject implements
         sb.append(String.format("%5.2f:%s", getMagnitude(), getEventType()
                 .getEventUnits()));
         return sb.toString();
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override
