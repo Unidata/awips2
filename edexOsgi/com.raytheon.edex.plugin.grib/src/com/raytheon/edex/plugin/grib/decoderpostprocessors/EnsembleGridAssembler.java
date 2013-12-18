@@ -34,6 +34,7 @@ import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.grib.CompositeModel;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -79,7 +80,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * Nov 19, 2013  2478     rjpeter     Make update process update database also.
- * 
+ * Dec 06, 2013  2170     rjpeter     Update to pass PluginDataObject[] to notification.
  * </pre>
  * 
  * @author bphillip
@@ -227,7 +228,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
             updateExistingRecord(record, assembledRecord, thinned, dao);
         }
         EDEXUtil.getMessageProducer().sendAsync("notificationAggregation",
-                record);
+                new PluginDataObject[] { record });
     }
 
     private GridRecord createAssembledRecord(GridRecord record,
