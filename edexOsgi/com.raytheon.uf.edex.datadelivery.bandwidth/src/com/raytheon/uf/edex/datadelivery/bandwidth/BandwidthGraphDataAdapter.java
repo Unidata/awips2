@@ -61,6 +61,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * Jul 11, 2013 2106       djohnson     Use priority straight from the BandwidthSubscription.
  * Sep 20, 2013 2397       bgonzale     Add Map of Bucket Descriptions to BandwidthGraphData.
  * Nov 27, 2013 2545       mpduff       Get data by network
+ * Dec 11, 2013 2566       bgonzale     handle case when there are no reservations.
+ * Dec 17, 2013 2636       bgonzale     Refactored bucket fill in edex.
  * 
  * </pre>
  * 
@@ -130,12 +132,14 @@ class BandwidthGraphDataAdapter {
                 final List<BandwidthReservation> bandwidthReservations = retrievalPlan
                         .getBandwidthReservationsForBucket(bucket);
 
-                for (BandwidthReservation reservation : bandwidthReservations) {
-                    if (!reservations.containsKey(reservation.getId())) {
-                        reservations.put(reservation.getId(),
-                                new ArrayList<BandwidthReservation>());
+                if (bandwidthReservations != null) {
+                    for (BandwidthReservation reservation : bandwidthReservations) {
+                        if (!reservations.containsKey(reservation.getId())) {
+                            reservations.put(reservation.getId(),
+                                    new ArrayList<BandwidthReservation>());
+                        }
+                        reservations.get(reservation.getId()).add(reservation);
                     }
-                    reservations.get(reservation.getId()).add(reservation);
                 }
             }
         }
@@ -177,9 +181,13 @@ class BandwidthGraphDataAdapter {
 
             List<Long> binStartTimes = new ArrayList<Long>();
             binStartTimes.add(retrieval.getStartTime().getTimeInMillis());
-            for (BandwidthReservation reservation : reservations.get(retrieval
-                    .getIdentifier())) {
-                binStartTimes.add(reservation.getBandwidthBucket());
+            List<BandwidthReservation> retrievalReservations = reservations
+                    .get(retrieval.getIdentifier());
+
+            if (retrievalReservations != null) {
+                for (BandwidthReservation reservation : retrievalReservations) {
+                    binStartTimes.add(reservation.getBandwidthBucket());
+                }
             }
             window.setBinStartTimes(binStartTimes);
             windowData.addTimeWindow(window);
@@ -202,9 +210,6 @@ class BandwidthGraphDataAdapter {
             BandwidthBucketDescription desc = new BandwidthBucketDescription(
                     bucket.getNetwork(), bucket.getBucketSize(),
                     bucket.getCurrentSize(), bucket.getBucketStartTime());
-            desc.addLeftovers(leftovers);
-
-            leftovers = desc.getLeftovers();
             descriptions.add(desc);
         }
 
