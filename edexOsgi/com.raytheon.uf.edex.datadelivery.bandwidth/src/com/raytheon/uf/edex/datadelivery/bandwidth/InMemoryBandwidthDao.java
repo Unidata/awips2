@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 11, 2013 2106       djohnson     Use BandwidthSubscription instead of Subscription.
  * Jul 18, 2013 1653       mpduff       Implemented method.
  * Oct 2,  2013 1797       dhladky      generics
+ * Dec 17, 2013 2636       bgonzale     Added method to get a BandwidthAllocation.
  * 
  * </pre>
  * 
@@ -665,6 +666,16 @@ class InMemoryBandwidthDao<T extends Time, C extends Coverage> implements IBandw
     public SubscriptionStatusSummary getSubscriptionStatusSummary(
             Subscription<T,C> sub) {
         // Does nothing
+        return null;
+    }
+
+    @Override
+    public BandwidthAllocation getBandwidthAllocation(long id) {
+        for (BandwidthAllocation current : bandwidthAllocations) {
+            if (current.getId() == id) {
+                return current;
+            }
+        }
         return null;
     }
 

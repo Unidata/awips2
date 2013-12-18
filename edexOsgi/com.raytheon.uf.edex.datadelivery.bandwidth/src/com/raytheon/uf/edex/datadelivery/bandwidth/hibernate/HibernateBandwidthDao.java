@@ -66,6 +66,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
  * Aug 28, 2013 2290       mpduff       Check for no subscriptions.
  * Oct 2,  2013 1797       dhladky      Generics
+ * Dec 17, 2013 2636       bgonzale     Added method to get a BandwidthAllocation.
  * 
  * </pre>
  * 
@@ -582,5 +583,10 @@ public class HibernateBandwidthDao<T extends Time, C extends Coverage> implement
         summary.setLatency(sub.getLatencyInMinutes());
 
         return summary;
+    }
+
+    @Override
+    public BandwidthAllocation getBandwidthAllocation(long id) {
+        return bandwidthAllocationDao.getById(id);
     }
 }
