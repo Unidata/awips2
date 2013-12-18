@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import jep.Jep;
 import jep.JepException;
@@ -35,6 +37,7 @@ import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
@@ -54,6 +57,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Sep 11, 2013  #2033     dgilling     Update path to utilityDir and pyVizDir,
  *                                      now that they're no longer in 
  *                                      localization store.
+ * Dec 04, 2013  #2588     dgilling     Add thread to force shutdown.
  * 
  * </pre>
  * 
@@ -158,6 +162,23 @@ public class GfeClient extends AbstractCAVEComponent {
         long t1 = System.currentTimeMillis();
         System.out.println("Entire execution to run python script: "
                 + (t1 - t0));
+
+        // operationally, we've found situations where gfeclient jobs seem to
+        // hang around running even though all non-daemon threads have completed
+        // their work. So, in attempt to prevent those cases from hanging around
+        // as "zombie" processes let's set a timer to kill the JVM if things
+        // haven't exited by themselves.
+        Timer shutdownTimer = new Timer("gfe-client-shutdown", true);
+        TimerTask shutdownTask = new TimerTask() {
+
+            @Override
+            public void run() {
+                statusHandler
+                        .warn("GFEClient should have already exited, but it hasn't. Manually exiting.");
+                System.exit(0);
+            }
+        };
+        shutdownTimer.schedule(shutdownTask, 45 * TimeUtil.MILLIS_PER_SECOND);
     }
 
     /*
