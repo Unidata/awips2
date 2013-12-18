@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 22, 2012 0743       djohnson     Store data type as an enum.
  * Sep 07, 2012 1102       djohnson     Remove invalid {@code @XmlRootElement}.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Dec 18, 2013 2636       mpduff       Add a data availability delay for the dataset.
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "providerName", "collectionName", "dataSetName" })
-public abstract class DataSet<T extends Time, C extends Coverage>{
+public abstract class DataSet<T extends Time, C extends Coverage> {
 
     @RegistryObjectOwner
     @XmlAttribute
@@ -93,6 +94,11 @@ public abstract class DataSet<T extends Time, C extends Coverage>{
     @SlotAttribute
     @SlotAttributeConverter(TimeSlotConverter.class)
     protected T time;
+
+    @XmlElement
+    @DynamicSerializeElement
+    @SlotAttribute
+    protected int availabilityDelay;
 
     public Map<String, Parameter> getParameters() {
         return parameters;
@@ -156,6 +162,21 @@ public abstract class DataSet<T extends Time, C extends Coverage>{
      * @return the serviceType
      */
     public abstract ServiceType getServiceType();
+
+    /**
+     * @return the availabilityDelay
+     */
+    public int getAvailabilityDelay() {
+        return availabilityDelay;
+    }
+
+    /**
+     * @param availabilityDelay
+     *            the availabilityDelay to set
+     */
+    public void setAvailabilityDelay(int availabilityDelay) {
+        this.availabilityDelay = availabilityDelay;
+    }
 
     @Override
     public boolean equals(Object obj) {
