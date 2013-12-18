@@ -19,11 +19,11 @@
  **/
 package com.raytheon.viz.gfe.vtec;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 
 import com.google.common.collect.ImmutableSet;
@@ -58,6 +58,8 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Nov 22, 2013  #2578     dgilling     Fix ETN assignment for products with
  *                                      multiple NEW VTEC lines for the same
  *                                      phensig but disjoint TimeRanges.
+ * Dec 18, 2013  #2641     dgilling     Force ordering of items returned by
+ *                                      getVtecLinesThatNeedEtn().
  * 
  * </pre>
  * 
@@ -192,12 +194,12 @@ public class GFEVtecUtil {
      * @return A <code>Set</code> of <code>VtecObject</code>s that need to have
      *         a new ETN assigned to them.
      */
-    public static Set<VtecObject> getVtecLinesThatNeedEtn(String product) {
+    public static List<VtecObject> getVtecLinesThatNeedEtn(String product) {
         if (StringUtil.isEmptyString(product)) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
 
-        Set<VtecObject> phensigs = new HashSet<VtecObject>();
+        List<VtecObject> phensigs = new ArrayList<VtecObject>();
 
         Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(product);
         while (vtecMatcher.find()) {
