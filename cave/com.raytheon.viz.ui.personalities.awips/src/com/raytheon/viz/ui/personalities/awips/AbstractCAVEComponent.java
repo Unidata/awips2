@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.status.VizStatusHandlerFactory;
 import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
@@ -75,25 +76,29 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
- * May 16, 2012   #636     dgilling     Ensure exception is thrown
- *                                      and CAVE immediately exits
- *                                      if connection cannot be made to
- *                                      localization server.
- * May 31, 2012   #674     dgilling     Allow SimulatedTime to be set from
- *                                      the command line.
- * Oct 02, 2012   #1236    dgilling     Allow SimulatedTime to be set from
- *                                      the command line even if practice
- *                                      mode is off.
- * Jan 09, 2013   #1442    rferrel      Changes to notify SimultedTime listeners.
- * Apr 17, 2013    1786    mpduff       startComponent now sets StatusHandlerFactory
- * Apr 23, 2013   #1939    randerso     Allow serialization to complete initialization
- *                                      before connecting to JMS to avoid deadlock
- * May 23, 2013   #2005    njensen      Shutdown on spring initialization errors
- * Oct 15, 2013    2361    njensen      Added startupTimer
- * Nov 14, 2013    2361    njensen      Removed initializing serialization at startup
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Apr 28, 2011           mschenke    Initial creation
+ * May 16, 2012  636      dgilling    Ensure exception is thrown and CAVE
+ *                                    immediately exits if connection cannot be
+ *                                    made to localization server.
+ * May 31, 2012  674      dgilling    Allow SimulatedTime to be set from the
+ *                                    command line.
+ * Oct 02, 2012  1236     dgilling    Allow SimulatedTime to be set from the 
+ *                                    command line even if practice mode is
+ *                                    off.
+ * Jan 09, 2013  1442     rferrel     Changes to notify SimultedTime listeners.
+ * Apr 17, 2013  1786     mpduff      startComponent now sets
+ *                                    StatusHandlerFactory
+ * Apr 23, 2013  1939     randerso    Allow serialization to complete
+ *                                    initialization before connecting to JMS
+ *                                    to avoid deadlock
+ * May 23, 2013  2005     njensen     Shutdown on spring initialization errors
+ * Oct 15, 2013  2361     njensen     Added startupTimer
+ * Nov 14, 2013  2361     njensen     Removed initializing serialization at
+ *                                    startup
+ * Dec 10, 2013  2602     bsteffen    Start loading ProcedureXmlManager in
+ *                                    startComponent.
  * 
  * </pre>
  * 
@@ -253,6 +258,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             if (workbenchAdvisor instanceof HiddenWorkbenchAdvisor == false) {
                 startInternal(componentName);
             }
+
+            ProcedureXmlManager.inititializeAsync();
 
             if (workbenchAdvisor != null) {
                 returnCode = PlatformUI.createAndRunWorkbench(display,

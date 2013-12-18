@@ -42,9 +42,10 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 27, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 27, 2012           bsteffen     Initial creation
+ * Dec 16, 2013  2574     bsteffen     Update deprecated method call.
  * 
  * </pre>
  * 
@@ -97,8 +98,8 @@ public class DatasetInfoLookup {
                 return;
             }
             try {
-                Object obj = manager.unmarshalFromXmlFile(file.getFile());
-                DatasetInfoSet set = (DatasetInfoSet) obj;
+                DatasetInfoSet set = manager.unmarshalFromXmlFile(
+                        DatasetInfoSet.class, file.getFile());
                 for (DatasetInfo info : set.getInfos()) {
                     infoMap.put(info.getDatasetId(), info);
                 }

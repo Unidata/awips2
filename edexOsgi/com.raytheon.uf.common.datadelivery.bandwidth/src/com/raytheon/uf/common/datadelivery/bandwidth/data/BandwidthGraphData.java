@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 20, 2013   2397     bgonzale    Added Map of Bucket Descriptions.
  * Nov 19, 2013   2545     bgonzale    Added 'add' method stub.  Still work to do.
  * Nov 25, 2013   2545     mpduff      Finished implementing 2545.
+ * Dec 11, 2013   2625     mpduff      Add error handling for no data conditions.
  * 
  * </pre>
  * 
@@ -220,7 +221,11 @@ public class BandwidthGraphData {
      * @return Number of subscriptions
      */
     public int getNumberOfSubscriptions(Network network) {
-        return networkDataMap.get(network).size();
+        if (networkDataMap.size() > 0) {
+            return networkDataMap.get(network).size();
+        }
+
+        return 0;
     }
 
     /**
@@ -239,6 +244,11 @@ public class BandwidthGraphData {
      */
     public List<String> getSubscriptionsSortedByTime(Network network,
             long currentTime, boolean intersect) {
+        // No data so return empty list.
+        if (networkDataMap.size() == 0) {
+            return new ArrayList<String>(0);
+        }
+
         /*
          * Sort each of the subscriptions array time windows so they are in
          * order by time window start time.

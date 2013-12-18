@@ -41,6 +41,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2013 2106       djohnson     Extracted from {@link BandwidthBucket} and {@link RetrievalPlan}.
+ * Dec 17, 2013 2636       bgonzale     Prevent stale BandwidthAllocation updates by retrieving 
+ *                                      them from the dao before updating.
  * 
  * </pre>
  * 
@@ -137,10 +139,16 @@ public class InMemoryBandwidthBucketAllocationAssociator implements
         for (BandwidthAllocation o : allocations.get(bucket.getIdentifier())) {
             if (RetrievalStatus.READY.equals(o.getStatus())
                     && o.getAgentType().equals(agentType)) {
-                allocation = o;
-                allocation.setStatus(RetrievalStatus.PROCESSING);
-                // Persist this change to the database
-                bandwidthDao.createOrUpdate(allocation);
+                allocation = bandwidthDao
+                        .getBandwidthAllocation(o.getId());
+                if (allocation == null) {
+                    // allocation was removed from persistence, sync the
+                    // mapping
+                    allocations.remove(o.getId(), o);
+                } else {
+                    allocation.setStatus(RetrievalStatus.PROCESSING);
+                    bandwidthDao.createOrUpdate(allocation);
+                }
                 break;
             }
         }
