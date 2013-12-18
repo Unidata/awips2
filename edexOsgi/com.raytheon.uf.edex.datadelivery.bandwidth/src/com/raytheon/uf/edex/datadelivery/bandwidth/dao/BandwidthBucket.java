@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2013 2106       djohnson     Extracted from {@link RetrievalPlan}.
+ * Dec 17, 2013 2636       bgonzale     Throw exception if attempt to overfill the bucket.
  * 
  * </pre>
  * 
@@ -104,7 +105,7 @@ public class BandwidthBucket implements Comparable<BandwidthBucket>,
     }
 
     public long getAvailableBandwidth() {
-        return Math.max(0, bucketSize - currentSize);
+        return bucketSize - currentSize;
     }
 
     public long getBucketSize() {
@@ -119,8 +120,13 @@ public class BandwidthBucket implements Comparable<BandwidthBucket>,
         return currentSize;
     }
 
-    public void setCurrentSize(long currentSize) {
-        this.currentSize = currentSize;
+    public void setCurrentSize(long size) {
+        if (size > this.bucketSize) {
+            throw new IllegalArgumentException("New data size, " + size
+                    + ", is greater than available bucket size "
+                    + this.bucketSize);
+        }
+        this.currentSize = size;
     }
 
     /**

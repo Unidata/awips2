@@ -50,11 +50,7 @@ import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.IToolChangedListener;
@@ -78,14 +74,18 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 12, 2009 #2161      lvenable     Initial creation
- * Jul 31, 2012 #875       rferrel     Now uses markers.
- * Sep 26, 2012 #1216      rferrel     Change listener added to update
- *                                      points menu.
- * Jan 14, 2013 #1516      rferrel     Remove listeners on dispose and specify 
- *                                      Data Selection in Points Tool Action.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * May 12, 2009  2161     lvenable    Initial creation
+ * Jul 31, 2012  875      rferrel     Now uses markers.
+ * Sep 26, 2012  1216     rferrel     Change listener added to update points
+ *                                    menu.
+ * Jan 14, 2013  1516     rferrel     Remove listeners on dispose and specify
+ *                                    Data Selection in Points Tool Action.
+ * Dec 06, 2013  2271     mpduff      Save the selected plane points so the
+ *                                    menu's are recreated correctly on a
+ *                                    pointChange action.
+ * Dec 11, 2013  2602     bsteffen    Remove dead catch block.
  * 
  * </pre>
  * 
@@ -94,8 +94,6 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  */
 public class DataListsProdTableComp extends Composite implements
         IDataMenuAction {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(DataListsProdTableComp.class);
 
     /**
      * Listener to update planes current point menu.
@@ -105,13 +103,13 @@ public class DataListsProdTableComp extends Composite implements
     /**
      * Listener to trigger reset.
      */
-    private IPointChangedListener resetPointChangeListener;
+    private final IPointChangedListener resetPointChangeListener;
 
     /**
      * Listener to trigger reset.
      */
 
-    private IToolChangedListener resetToolChangeListener;
+    private final IToolChangedListener resetToolChangeListener;
 
     /**
      * Perform a regular expression find instead of simply completing the input
@@ -136,7 +134,7 @@ public class DataListsProdTableComp extends Composite implements
              * #getMatchingProposals(java.lang.String[], java.lang.String)
              */
             @Override
-            protected List getMatchingProposals(String[] proposals,
+            protected List<?> getMatchingProposals(String[] proposals,
                     String contents) {
                 return super.getMatchingProposals(
                         getMatches(proposals, contents), "");
@@ -473,6 +471,7 @@ public class DataListsProdTableComp extends Composite implements
             @Override
             public void toolChanged() {
                 VizApp.runAsync(new Runnable() {
+                    @Override
                     public void run() {
                         updateMenuInventory();
                     }
@@ -487,6 +486,7 @@ public class DataListsProdTableComp extends Composite implements
             @Override
             public void pointChanged() {
                 VizApp.runAsync(new Runnable() {
+                    @Override
                     public void run() {
                         updateMenuInventory();
                     }
@@ -668,82 +668,76 @@ public class DataListsProdTableComp extends Composite implements
          * items/menus.
          */
 
-        try {
-            // Linked HashMap used to preserve the ordering of categories
-            Map<String, List<IContributionItem>> catMap = new LinkedHashMap<String, List<IContributionItem>>();
-            Map<String, Map<String, List<IContributionItem>>> subCatMap = new LinkedHashMap<String, Map<String, List<IContributionItem>>>();
-            for (VbSource source : VbSourceList.getInstance().getEntries()) {
-                if (source.getViews() != null
-                        && !source.getViews().contains(setting)) {
-                    continue;
-                }
-                List<IContributionItem> catList = null;
-                if (source.getSubCategory() != null) {
-                    catList = catMap.get(source.getCategory());
-                    if (catList == null) {
-                        catList = new ArrayList<IContributionItem>();
-                        catMap.put(source.getCategory(), catList);
-                    }
-                    Map<String, List<IContributionItem>> subMap = subCatMap
-                            .get(source.getCategory());
-                    if (subMap == null) {
-                        subMap = new LinkedHashMap<String, List<IContributionItem>>();
-                        subCatMap.put(source.getCategory(), subMap);
-                    }
-                    catList = subMap.get(source.getSubCategory());
-                    if (catList == null) {
-                        catList = new ArrayList<IContributionItem>();
-                        subMap.put(source.getSubCategory(), catList);
-                    }
-                } else {
-                    catList = catMap.get(source.getCategory());
-                    if (catList == null) {
-                        catList = new ArrayList<IContributionItem>();
-                        catMap.put(source.getCategory(), catList);
-                    }
-                }
-                MenuContribution mContrib = new MenuContribution();
-                mContrib.xml.key = source.getKey();
-                if (source.getName() != null) {
-                    mContrib.xml.menuText = source.getName();
-                } else {
-                    // Attempt a lookup in the grib model table
-                    DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
-                            source.getKey());
-                    if (info != null) {
-                        mContrib.xml.menuText = info.getTitle();
-                    } else {
-                        mContrib.xml.menuText = source.getKey();
-                    }
-                }
-                catList.add(new MenuContributionItem(mContrib));
+        // Linked HashMap used to preserve the ordering of categories
+        Map<String, List<IContributionItem>> catMap = new LinkedHashMap<String, List<IContributionItem>>();
+        Map<String, Map<String, List<IContributionItem>>> subCatMap = new LinkedHashMap<String, Map<String, List<IContributionItem>>>();
+        for (VbSource source : VbSourceList.getInstance().getEntries()) {
+            if (source.getViews() != null
+                    && !source.getViews().contains(setting)) {
+                continue;
             }
-            for (Entry<String, List<IContributionItem>> entry : catMap
-                    .entrySet()) {
-                ToolBarContribution tbContrib = new ToolBarContribution();
-                tbContrib.xml.toolItemText = entry.getKey();
-                tbContrib.xml.id = setting.toString() + entry.getKey();
+            List<IContributionItem> catList = null;
+            if (source.getSubCategory() != null) {
+                catList = catMap.get(source.getCategory());
+                if (catList == null) {
+                    catList = new ArrayList<IContributionItem>();
+                    catMap.put(source.getCategory(), catList);
+                }
                 Map<String, List<IContributionItem>> subMap = subCatMap
-                        .get(entry.getKey());
-                if (subMap != null) {
-                    for (Entry<String, List<IContributionItem>> subEntry : subMap
-                            .entrySet()) {
-                        TitleImgContribution tContrib = new TitleImgContribution();
-                        tContrib.xml.titleText = subEntry.getKey();
-                        tContrib.xml.displayDashes = true;
-                        tContrib.xml.displayImage = true;
-                        entry.getValue().add(
-                                new TitleImgContributionItem(tContrib));
-                        entry.getValue().addAll(subEntry.getValue());
-                    }
+                        .get(source.getCategory());
+                if (subMap == null) {
+                    subMap = new LinkedHashMap<String, List<IContributionItem>>();
+                    subCatMap.put(source.getCategory(), subMap);
                 }
-                sourceControl.toolbar.add(new ToolBarContributionItem(
-                        tbContrib, entry.getValue().toArray(
-                                new IContributionItem[0])));
-
+                catList = subMap.get(source.getSubCategory());
+                if (catList == null) {
+                    catList = new ArrayList<IContributionItem>();
+                    subMap.put(source.getSubCategory(), catList);
+                }
+            } else {
+                catList = catMap.get(source.getCategory());
+                if (catList == null) {
+                    catList = new ArrayList<IContributionItem>();
+                    catMap.put(source.getCategory(), catList);
+                }
             }
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            MenuContribution mContrib = new MenuContribution();
+            mContrib.xml.key = source.getKey();
+            if (source.getName() != null) {
+                mContrib.xml.menuText = source.getName();
+            } else {
+                // Attempt a lookup in the grib model table
+                DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
+                        source.getKey());
+                if (info != null) {
+                    mContrib.xml.menuText = info.getTitle();
+                } else {
+                    mContrib.xml.menuText = source.getKey();
+                }
+            }
+            catList.add(new MenuContributionItem(mContrib));
+        }
+        for (Entry<String, List<IContributionItem>> entry : catMap.entrySet()) {
+            ToolBarContribution tbContrib = new ToolBarContribution();
+            tbContrib.xml.toolItemText = entry.getKey();
+            tbContrib.xml.id = setting.toString() + entry.getKey();
+            Map<String, List<IContributionItem>> subMap = subCatMap.get(entry
+                    .getKey());
+            if (subMap != null) {
+                for (Entry<String, List<IContributionItem>> subEntry : subMap
+                        .entrySet()) {
+                    TitleImgContribution tContrib = new TitleImgContribution();
+                    tContrib.xml.titleText = subEntry.getKey();
+                    tContrib.xml.displayDashes = true;
+                    tContrib.xml.displayImage = true;
+                    entry.getValue()
+                            .add(new TitleImgContributionItem(tContrib));
+                    entry.getValue().addAll(subEntry.getValue());
+                }
+            }
+            sourceControl.toolbar.add(new ToolBarContributionItem(tbContrib,
+                    entry.getValue().toArray(new IContributionItem[0])));
+
         }
 
         try {
@@ -882,8 +876,20 @@ public class DataListsProdTableComp extends Composite implements
 
                 @Override
                 public void pointChanged() {
-                    MenuItemManager.getInstance().clearPlanesMap();
-                    pta.resetMenu();
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            MenuItemManager menuItemMgr = MenuItemManager
+                                    .getInstance();
+
+                            Set<String> planeListItems = planeControl.list
+                                    .getAvailableKeys().keySet();
+
+                            menuItemMgr.clearPlanesMap();
+                            menuItemMgr.setSelectedPlaneItems(planeListItems);
+                            pta.resetMenu();
+                        }
+                    });
                 }
             };
             PointsDataManager.getInstance().addPointsChangedListener(
@@ -947,6 +953,7 @@ public class DataListsProdTableComp extends Composite implements
      *            Menu information that contains information about the item
      *            selected.
      */
+    @Override
     public void addToList(String displayStr, MenuContribution menuContrib) {
         activeList.addItemToList(displayStr, menuContrib);
 
@@ -959,6 +966,7 @@ public class DataListsProdTableComp extends Composite implements
      * 
      * @return The active data selection.
      */
+    @Override
     public DataSelection getActiveDataSelection() {
         return currentDataSelection;
     }
@@ -971,6 +979,7 @@ public class DataListsProdTableComp extends Composite implements
      * (
      * com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection)
      */
+    @Override
     public void setActiveDataSelection(DataSelection dataSelection) {
         currentDataSelection = dataSelection;
     }

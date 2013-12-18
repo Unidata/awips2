@@ -52,7 +52,6 @@ import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
-import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
@@ -79,6 +78,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 10/30/2013    1538       bphillip    Initial Creation
  * 11/20/2013   2534        bphillip    Added interface
  * 12/2/2013    1829        bphillip    Changed to use modified call to getRegistryObject
+ * 12/9/2013    2613        bphillip    Changed getRegistriesSubscribedTo to not execute remote queries
  * </pre>
  * 
  * @author bphillip
@@ -180,42 +180,11 @@ public class RegistryFederationStatus implements IRegistryFederationService {
             List<RegistryObjectType> registries = new ArrayList<RegistryObjectType>();
             for (NotificationHostConfiguration hostConfig : this.federationManager
                     .getServers().getRegistryReplicationServers()) {
-
-                SlotType queryLanguageSlot = new SlotType(
-                        QueryConstants.QUERY_LANGUAGE, new StringValueType(
-                                QueryLanguages.HQL));
-                SlotType queryExpressionSlot = new SlotType(
-                        QueryConstants.QUERY_EXPRESSION, new StringValueType(
-                                "FROM SubscriptionType sub where sub.id like 'Replication Subscription for%"
-                                        + RegistryUtil.LOCAL_REGISTRY_ADDRESS
-                                        + "%'"));
-                QueryType query = new QueryType();
-                query.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
-                query.getSlot().add(queryLanguageSlot);
-                query.getSlot().add(queryExpressionSlot);
-
-                QueryRequest request = new QueryRequest();
-                request.setResponseOption(new ResponseOptionType(
-                        QueryReturnTypes.REGISTRY_OBJECT, true));
-                request.setId("Replication Subscription Verification Query");
-                request.setQuery(query);
-                try {
-                    if (!registrySoapServices
-                            .getQueryServiceForHost(
-                                    hostConfig.getRegistryBaseURL())
-                            .executeQuery(request).getRegistryObjects()
-                            .isEmpty()) {
-                        RegistryType registry = registryDao
-                                .getRegistryByBaseURL(hostConfig
-                                        .getRegistryBaseURL());
-                        if (registry != null) {
-                            registries.add(registry);
-                        }
-                    }
-                } catch (Exception e) {
-                    statusHandler.error("Error querying remote registry", e);
+                RegistryType reg = registryDao.getRegistryByBaseURL(hostConfig
+                        .getRegistryBaseURL());
+                if (reg != null) {
+                    registries.add(reg);
                 }
-
             }
             Collections.sort(registries, REGISTRY_COMPARATOR);
             for (RegistryObjectType reg : registries) {

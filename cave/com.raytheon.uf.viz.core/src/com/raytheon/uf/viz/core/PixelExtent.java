@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *    Date          Ticket#     Engineer    Description
  *    ------------	----------	-----------	--------------------------
  *    7/1/06                    chammack    Initial Creation.
+ *    Dec 06, 2013  2599        njensen     Fix PixelExtent(Rectangle)
  * 
  * </pre>
  * 
@@ -123,6 +124,7 @@ public class PixelExtent implements IExtent {
     /**
      * 
      */
+    @Override
     public void reset() {
         envelope = new Envelope(aMinX, aMaxX, aMinY, aMaxY);
     }
@@ -134,8 +136,7 @@ public class PixelExtent implements IExtent {
      *            a rectangle to build the extent from
      */
     public PixelExtent(Rectangle rect) {
-        envelope = new Envelope(rect.x, rect.x + rect.width, rect.y, rect.y
-                + rect.height);
+        this(rect.x, rect.x + rect.width, rect.y, rect.y + rect.height);
     }
 
     /*
@@ -143,6 +144,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getMaxX()
      */
+    @Override
     public double getMaxX() {
 
         return envelope.getMaxX();
@@ -153,6 +155,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getMaxY()
      */
+    @Override
     public double getMaxY() {
 
         return envelope.getMaxY();
@@ -163,6 +166,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getMinX()
      */
+    @Override
     public double getMinX() {
 
         return envelope.getMinX();
@@ -173,6 +177,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getMinY()
      */
+    @Override
     public double getMinY() {
 
         return envelope.getMinY();
@@ -183,6 +188,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getWidth()
      */
+    @Override
     public double getWidth() {
         return getMaxX() - getMinX();
     }
@@ -192,6 +198,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getHeight()
      */
+    @Override
     public double getHeight() {
         return getMaxY() - getMinY();
     }
@@ -201,6 +208,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#scale(double)
      */
+    @Override
     public void scale(double factor) {
         double deltaWidth = getWidth() * (factor - 1.0);
         double deltaHeight = getHeight() * (factor - 1.0);
@@ -214,6 +222,7 @@ public class PixelExtent implements IExtent {
      * @see com.raytheon.uf.viz.core.IExtent#scaleAndBias(double, double,
      * double)
      */
+    @Override
     public void scaleAndBias(double factor, double xCenter, double yCenter) {
         double deltaWidth = envelope.getWidth() * (factor - 1.0);
         double deltaHeight = envelope.getHeight() * (factor - 1.0);
@@ -240,6 +249,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#getCenter()
      */
+    @Override
     public double[] getCenter() {
         double midX = (getMaxX() + getMinX()) / 2.0f;
         double midY = (getMaxY() + getMinY()) / 2.0f;
@@ -248,6 +258,7 @@ public class PixelExtent implements IExtent {
         return new double[] { midX, midY, midZ };
     }
 
+    @Override
     public double getScale() {
         return getWidth() / (aMaxX - aMinX);
     }
@@ -257,6 +268,7 @@ public class PixelExtent implements IExtent {
      * @param shiftX
      * @param shiftY
      */
+    @Override
     public void shift(double shiftX, double shiftY) {
 
         envelope.translate(shiftX, shiftY);
@@ -268,6 +280,7 @@ public class PixelExtent implements IExtent {
      * @param start
      * @param end
      */
+    @Override
     public void shift(Ray start, Ray end) {
 
         // view.shift(start, end);
@@ -303,6 +316,7 @@ public class PixelExtent implements IExtent {
      * 
      * @see com.raytheon.uf.viz.core.IExtent#contains(double[])
      */
+    @Override
     public boolean contains(double[] pixel) {
         return envelope.contains(pixel[0], pixel[1]);
     }
@@ -314,6 +328,7 @@ public class PixelExtent implements IExtent {
      * com.raytheon.uf.viz.core.IExtent#intersects(com.raytheon.uf.viz.core.
      * IExtent)
      */
+    @Override
     public boolean intersects(IExtent pe) {
         return intersect((PixelExtent) pe);
     }
