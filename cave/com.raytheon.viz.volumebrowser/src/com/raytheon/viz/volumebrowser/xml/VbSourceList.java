@@ -12,20 +12,19 @@ import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
- * TODO Add Description
+ * List of sources for populating the volume browser tool bar menus
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 6, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jan 06, 2011           bsteffen    Initial creation
+ * Dec 11, 2013  2602     bsteffen    Remove ISerializableObject.
  * 
  * </pre>
  * 
@@ -34,7 +33,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class VbSourceList implements ISerializableObject {
+public class VbSourceList {
 
     private final static String VB_SOURCE_FILE = "volumebrowser/VbSources.xml";
 
@@ -78,7 +77,7 @@ public class VbSourceList implements ISerializableObject {
         this.entries = entries;
     }
 
-    public static VbSourceList getInstance() throws VizException {
+    public static VbSourceList getInstance() {
         synchronized (VB_SOURCE_FILE) {
             if (instance == null) {
                 LocalizationFile file = PathManagerFactory.getPathManager()

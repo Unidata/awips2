@@ -22,6 +22,14 @@ package com.raytheon.uf.viz.ui.menus.xml;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+
+import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonBundleMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonCommandContribution;
 import com.raytheon.uf.common.menus.xml.CommonDynamicMenuContribution;
@@ -31,6 +39,9 @@ import com.raytheon.uf.common.menus.xml.CommonSeparatorMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonSubmenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonTitleContribution;
 import com.raytheon.uf.common.menus.xml.CommonToolbarSubmenuContribution;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * TODO Add Description
@@ -38,10 +49,11 @@ import com.raytheon.uf.common.menus.xml.CommonToolbarSubmenuContribution;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 28, 2010            mnash     Initial creation
- * Jul 31, 2012 875        rferrel     Added DynamicMenuContribution.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jun 28, 2010           mnash       Initial creation
+ * Jul 31, 2012  875      rferrel     Added DynamicMenuContribution.
+ * Dec 11, 2013  2602     bsteffen    Load providers from extension point.
  * 
  * </pre>
  * 
@@ -50,9 +62,16 @@ import com.raytheon.uf.common.menus.xml.CommonToolbarSubmenuContribution;
  */
 
 public class MenuXMLMap {
-    public static final Map<Class<?>, AbstractMenuContributionItem<?>> xmlMapping = new HashMap<Class<?>, AbstractMenuContributionItem<?>>();
 
-    static {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DynamicMenuContribution.class);
+
+    private static final String EXTENSION_ID = "com.raytheon.uf.viz.ui.menus.contribItemProvider";
+
+    private static final Map<Class<? extends CommonAbstractMenuContribution>, IContribItemProvider> xmlMapping = init();
+
+    private static Map<Class<? extends CommonAbstractMenuContribution>, IContribItemProvider> init() {
+        Map<Class<? extends CommonAbstractMenuContribution>, IContribItemProvider> xmlMapping = new HashMap<Class<? extends CommonAbstractMenuContribution>, IContribItemProvider>();
         xmlMapping.put(CommonBundleMenuContribution.class,
                 new BundleMenuContribution());
         xmlMapping.put(CommonCommandContribution.class,
@@ -70,10 +89,31 @@ public class MenuXMLMap {
                 new ToolbarSubmenuContribution());
         xmlMapping.put(CommonDynamicMenuContribution.class,
                 new DynamicMenuContribution());
+        IExtensionRegistry registry = Platform.getExtensionRegistry();
+        IExtensionPoint point = registry.getExtensionPoint(EXTENSION_ID);
+        if (point != null) {
+            IExtension[] extensions = point.getExtensions();
+            for (IExtension extension : extensions) {
+                for (IConfigurationElement element : extension
+                        .getConfigurationElements()) {
+                    try {
+                        CommonAbstractMenuContribution contrib = (CommonAbstractMenuContribution) element
+                                .createExecutableExtension("contribution");
+                        IContribItemProvider provider = (IContribItemProvider) element
+                                .createExecutableExtension("itemProvider");
+                        xmlMapping.put(contrib.getClass(), provider);
+                    } catch (CoreException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Error preparing menu contributions.", e);
+                    }
+                }
+            }
+        }
+        return xmlMapping;
     }
 
-    public static void registerMapping(Class<?> clazz,
-            AbstractMenuContributionItem<?> item) {
-        xmlMapping.put(clazz, item);
+    public static IContribItemProvider getProvider(
+            Class<? extends CommonAbstractMenuContribution> contribClass) {
+        return xmlMapping.get(contribClass);
     }
 }
