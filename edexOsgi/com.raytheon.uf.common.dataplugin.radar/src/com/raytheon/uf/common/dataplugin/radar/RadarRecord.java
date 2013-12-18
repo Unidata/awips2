@@ -134,6 +134,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Dec 18, 2013 16002       kshrestha   Added logic to match all dBZ values in the DHR with AWIPS1
  * 
  * </pre>
  * 
@@ -888,6 +889,8 @@ public class RadarRecord extends PersistablePluginDataObject implements
             double[] pix = { 256 - nLevels, 255 };
             if (getProductCode() == 155) {
                 pix = new double[] { 129, 149 };
+            } else if(getProductCode() == 32) {
+                pix = new double[]{ 2, 256 };
             }
 
             double[] data = { offset, offset + ((nLevels - 1) * scale) };
