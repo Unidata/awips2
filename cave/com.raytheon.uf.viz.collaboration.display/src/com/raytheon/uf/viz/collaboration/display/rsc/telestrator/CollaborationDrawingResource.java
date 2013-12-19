@@ -287,7 +287,6 @@ public class CollaborationDrawingResource extends
                 event.setType(lockingDrawing ? CollaborationEventType.LOCK_USERS
                         : CollaborationEventType.UNLOCK_USERS);
                 sendEvent(event);
-                handleDrawEvent(event);
             }
         }
     }
