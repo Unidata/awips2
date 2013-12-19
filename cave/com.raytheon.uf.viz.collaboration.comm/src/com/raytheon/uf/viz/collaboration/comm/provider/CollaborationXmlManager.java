@@ -19,11 +19,15 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.UnmarshallerHandler;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -31,14 +35,15 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
+import org.xmlpull.v1.XmlPullParser;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.jaxb.JAXBClassLocator;
 import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.reflect.SubClassLocator;
 
@@ -53,13 +58,14 @@ import com.raytheon.uf.viz.core.reflect.SubClassLocator;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 31, 2013  2491     bsteffen    Initial creation
+ * Dec 18, 2013  2562     bclement    extend jaxb manager, xpp/fragment support
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class CollaborationXmlManager {
+public class CollaborationXmlManager extends JAXBManager {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationXmlManager.class);
@@ -68,13 +74,24 @@ public class CollaborationXmlManager {
 
     private static CollaborationXmlManager instance;
 
-    private final JAXBManager manager;
-
-    private CollaborationXmlManager() {
-        manager = initManager();
+    /**
+     * Not for external use. Get instance using static methods.
+     * 
+     * @param jaxbClasses
+     * @throws JAXBException
+     */
+    protected CollaborationXmlManager(Class<?>[] jaxbClasses)
+            throws JAXBException {
+        super(jaxbClasses);
     }
 
-    private JAXBManager initManager() {
+    /**
+     * Create and configure an XML manager using xmlRoot objects defined in the
+     * extension point {@link CollaborationXmlManager#EXTENSION_ID}
+     * 
+     * @return
+     */
+    private static CollaborationXmlManager initManager() {
         List<Class<?>> baseClasses = new ArrayList<Class<?>>();
         IExtensionRegistry registry = Platform.getExtensionRegistry();
         IExtensionPoint point = registry.getExtensionPoint(EXTENSION_ID);
@@ -110,7 +127,7 @@ public class CollaborationXmlManager {
         jaxbClasses[0] = JaxbDummyObject.class;
 
         try {
-            return new JAXBManager(jaxbClasses);
+            return new CollaborationXmlManager(jaxbClasses);
         } catch (JAXBException e) {
             statusHandler.handle(Priority.PROBLEM,
                     ProcedureXmlManager.class.getSimpleName()
@@ -120,34 +137,61 @@ public class CollaborationXmlManager {
 
     }
 
-    private JAXBManager getManager() throws SerializationException {
-        if (manager == null) {
-            throw new SerializationException(
-                    ProcedureXmlManager.class.getSimpleName()
-                            + " Failed to initialize.");
-        }
-        return manager;
-    }
-
-    public Object unmarshal(String xml) throws SerializationException {
+    /**
+     * Unmarshal to object using Xml Pull Parser as input to JAXB
+     * 
+     * @param parser
+     * @return
+     * @throws CollaborationException
+     */
+    public Object unmarshalFromXPP(XmlPullParser parser)
+            throws CollaborationException {
+        Unmarshaller unmarshaller = null;
         try {
-            return getManager().unmarshalFromXml(xml);
-        } catch (JAXBException e) {
-            throw new SerializationException(e);
+            unmarshaller = getUnmarshaller();
+            UnmarshallerHandler handler = unmarshaller.getUnmarshallerHandler();
+            PullParserJaxbAdapter adapter = new PullParserJaxbAdapter(parser, handler);
+            return adapter.unmarshal();
+        } catch (Exception e) {
+            throw new CollaborationException("Unable to unmarshal data", e);
+        } finally {
+            // TODO magic number 10 because QUEUE_SIZE isn't visible
+            if ((unmarshaller != null) && (unmarshallers.size() < 10)) {
+                unmarshallers.add(unmarshaller);
+            }
         }
     }
 
-    public String marshal(Object obj) throws SerializationException {
+    /**
+     * Marshal object to unformatted (not pretty-printed) XML fragment (no XML
+     * preamble)
+     * 
+     * @param obj
+     * @return
+     * @throws JAXBException
+     */
+    public String marshalToFragment(Object obj) throws JAXBException {
+        Marshaller msh = getMarshaller();
         try {
-            return getManager().marshalToXml(obj);
-        } catch (JAXBException e) {
-            throw new SerializationException(e);
+            StringWriter writer = new StringWriter();
+            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+            msh.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+            msh.marshal(obj, writer);
+            return writer.toString();
+        } finally {
+            // TODO magic number 10 because QUEUE_SIZE isn't visible
+            if ((msh != null) && (marshallers.size() < 10)) {
+                marshallers.add(msh);
+            }
         }
     }
 
+    /**
+     * @return singleton XML manager instance
+     */
     public static synchronized CollaborationXmlManager getInstance() {
         if (instance == null) {
-            instance = new CollaborationXmlManager();
+            instance = initManager();
         }
         return instance;
     }
