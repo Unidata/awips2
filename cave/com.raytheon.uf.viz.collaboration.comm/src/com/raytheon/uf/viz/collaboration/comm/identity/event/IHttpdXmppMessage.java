@@ -21,8 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-
 /**
  * Used to store constants that are used to validate, analyze, and parse status
  * and configuration messages associated with the AWIPS II httpd collaboration
@@ -35,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 7, 2012            bkowal     Initial creation
+ * Dec 18, 2013 2562       bclement     removed preamble from patterns
  * 
  * </pre>
  * 
@@ -48,20 +47,16 @@ public interface IHttpdXmppMessage {
 
     public static final String ERROR_PARAMETER_NAME = "error";
 
-    // Regex
-    static final String PREABMLE_REGEX = Tools.CONFIG_PREAMBLE.replace("[",
-            "\\[");
-
-    static final String SUFFIX_REGEX = " : .+" + Tools.DIRECTIVE_SUFFIX;
+    static final String SUFFIX_REGEX = " : .+";
 
     static final String COLLABORATION_URL_REGEX = "http://.+:[1-9][0-9]*/session_data/";
 
     // Regex Patterns
     public static final Pattern configErrorPattern = Pattern
-            .compile(PREABMLE_REGEX + ERROR_PARAMETER_NAME + SUFFIX_REGEX);
+            .compile(ERROR_PARAMETER_NAME + SUFFIX_REGEX);
 
     public static final Pattern configURLPattern = Pattern
-            .compile(PREABMLE_REGEX + URL_PARAMETER_NAME + SUFFIX_REGEX);
+            .compile(URL_PARAMETER_NAME + SUFFIX_REGEX);
 
     public static final Pattern urlPattern = Pattern
             .compile(COLLABORATION_URL_REGEX);
