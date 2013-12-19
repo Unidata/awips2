@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Connection;
+import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterListener;
@@ -36,6 +38,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
@@ -57,6 +60,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayloadProvider;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
@@ -93,6 +99,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Major cleanup
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 18, 2013 2562       bclement    added smack compression, fixed invite parsing
  * 
  * </pre>
  * 
@@ -102,6 +109,12 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  */
 
 public class CollaborationConnection implements IEventPublisher {
+
+    static {
+        ProviderManager.getInstance().addExtensionProvider(
+                SessionPayload.ELEMENT_NAME, SessionPayload.XMLNS,
+                new SessionPayloadProvider());
+    }
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationConnection.class);
@@ -130,6 +143,17 @@ public class CollaborationConnection implements IEventPublisher {
 
     private XMPPConnection connection;
 
+    public static boolean COMPRESS = true;
+
+    static {
+        try {
+            COMPRESS = Boolean.getBoolean("collaboration.compression");
+        } catch (Exception e) {
+            // must not have permission to access system properties. ignore and
+            // use default.
+        }
+    }
+
     private CollaborationConnection(CollaborationConnectionData connectionData)
             throws CollaborationException {
         this.connectionData = connectionData;
@@ -148,7 +172,11 @@ public class CollaborationConnection implements IEventPublisher {
         eventBus = new EventBus();
         sessions = new HashMap<String, ISession>();
 
-        connection = new XMPPConnection(connectionData.getServer());
+        ConnectionConfiguration conConfig = new ConnectionConfiguration(
+                connectionData.getServer());
+        conConfig.setCompressionEnabled(COMPRESS);
+
+        connection = new XMPPConnection(conConfig);
         
         this.user = new UserId(connectionData.getUserName(),
                 connectionData.getServer());
@@ -410,7 +438,7 @@ public class CollaborationConnection implements IEventPublisher {
         Collection<IVenueInfo> info = new ArrayList<IVenueInfo>();
         if (isConnected()) {
             Iterator<String> joinedRooms = MultiUserChat.getJoinedRooms(
-                    connection, user.getNormalizedId());
+                    connection, connection.getUser());
             while (joinedRooms.hasNext()) {
                 String room = joinedRooms.next();
                 RoomInfo roomInfo;
@@ -512,44 +540,64 @@ public class CollaborationConnection implements IEventPublisher {
         if (isConnected()) {
             MultiUserChat.addInvitationListener(connection,
                     new InvitationListener() {
-
                         @Override
                         public void invitationReceived(Connection conn,
                                 String room, String inviter, String reason,
                                 String password, Message message) {
+                            // TODO handle password protected rooms
                             IQualifiedID venueId = new VenueId();
                             venueId.setName(Tools.parseName(room));
-
                             UserId invitor = IDConverter.convertFrom(inviter);
 
-                            VenueInvite received;
-                            try {
-                                received = (VenueInvite) Tools
-                                        .unMarshallData(reason);
-                                // TODO handle invite from generic client
-                                String subject = message.getSubject();
-                                if (received != null && subject == null) {
-                                    subject = received.getSubject();
-                                    if (subject == null) {
-                                        RoomInfo roomInfo = MultiUserChat
-                                                .getRoomInfo(conn, room);
-                                        subject = roomInfo.getSubject();
-                                    }
-
-                                    IVenueInvitationEvent invite = new VenueInvitationEvent(
-                                            venueId, invitor, subject, received);
-                                    eventBus.post(invite);
+                            if (message != null) {
+                                SessionPayload payload = (SessionPayload) message
+                                        .getExtension(SessionPayload.XMLNS);
+                                if (payload != null) {
+                                    handleCollabInvite(venueId, invitor,
+                                            payload);
+                                    return;
                                 }
-                            } catch (Exception e) {
-                                statusHandler
-                                        .handle(Priority.PROBLEM,
-                                                "Error handling received invite message",
-                                                e);
                             }
-
+                            if ( reason.startsWith(Tools.CMD_PREAMBLE)){
+                                reason = "Shared display invitation from incompatible version of CAVE. "
+                                        + "Session will be chat-only if invitation is accepted";
+                            }
+                            handleChatRoomInvite(venueId, invitor, reason,
+                                    message);
                         }
                     });
         }
+    }
+
+    private void handleChatRoomInvite(IQualifiedID venueId, UserId invitor,
+            String reason, Message message) {
+        VenueInvite invite = new VenueInvite();
+        if (!StringUtils.isBlank(reason)) {
+            invite.setMessage(reason);
+        } else if (!StringUtils.isBlank(message.getBody())) {
+            invite.setMessage(message.getBody());
+        } else {
+            invite.setMessage("");
+        }
+        invite.setSubject(message.getSubject());
+        IVenueInvitationEvent event = new VenueInvitationEvent(venueId,
+                invitor, invite);
+        eventBus.post(event);
+    }
+
+    private void handleCollabInvite(IQualifiedID venueId, UserId invitor,
+            SessionPayload payload) {
+        Object obj = payload.getData();
+        if (obj == null
+                || !payload.getPayloadType().equals(PayloadType.Invitation)
+                || !(obj instanceof VenueInvite)) {
+            statusHandler.warn("Received unsupported invite payload");
+            return;
+        }
+        VenueInvite invite = (VenueInvite) obj;
+        IVenueInvitationEvent event = new VenueInvitationEvent(venueId,
+                invitor, invite);
+        eventBus.post(event);
     }
 
     /**
