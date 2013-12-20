@@ -195,7 +195,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     Use A1 hatching behavior when no county passes the inclusion filter.
  * 10/29/2013  DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the pollygon the be used.
  * 12/17/2013  DR 16567    Qinglu Lin  Added findLargestGeometry() and findLargestQuadrant(), and updated
- *                                     populateStrings() and paintText(). TEST gerrit!!!
+ *                                     populateStrings() and paintText().
  * </pre>
  * 
  * @author mschenke
