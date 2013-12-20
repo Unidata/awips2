@@ -20,8 +20,12 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
 import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 
 /**
  * Manages roster from server
@@ -33,6 +37,7 @@ import org.jivesoftware.smack.XMPPConnection;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 25, 2013 2561       bclement     Initial creation
+ * Dec 20, 2013 2563       bclement     added remove from roster method
  * 
  * </pre>
  * 
@@ -73,6 +78,23 @@ public class RosterManager {
      */
     public void removeRosterListener(RosterListener listener) {
         getRoster().removeRosterListener(listener);
+    }
+
+    /**
+     * Remove entry from roster on server
+     * 
+     * @param entry
+     * @throws CollaborationException
+     */
+    public void removeFromRoster(RosterEntry entry)
+            throws CollaborationException {
+        Roster roster = getRoster();
+        try {
+            roster.removeEntry(entry);
+        } catch (XMPPException e) {
+            throw new CollaborationException(
+                    "Problem removing user from roster on server", e);
+        }
     }
 
 }
