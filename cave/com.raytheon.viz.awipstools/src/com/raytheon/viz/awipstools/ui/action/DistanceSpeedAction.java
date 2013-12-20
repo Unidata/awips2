@@ -38,6 +38,7 @@ import com.raytheon.viz.awipstools.ui.layer.DistanceSpeedLayer;
  * Oct172007    #495        ebabin      Initial Creation.
  * Feb152011    #7975       bkowal      Restore the DistanceSpeedLayer
  *                                      associated with the Display Pane.
+ * 2013-12-20   ss#114      D. Friedman Change 1 of 3
  * 
  * </pre>
  * 
