@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
@@ -67,7 +65,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGro
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2012            bsteffen     Initial creation
- * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec  6, 2013 2561       bclement     removed ECF
+ * Dec 20, 2013 2563       bclement     roster items now removed from server,
+ *                                      removed unneeded roster listener
  * 
  * </pre>
  * 
@@ -121,36 +121,6 @@ public class ContactsManager {
         this.search = connection.createSearch();
         localAliases = UserIdWrapper.readAliasMap();
         initLocalGroups();
-        final RosterManager rosterManager = connection.getRosterManager();
-        final Roster roster = rosterManager.getRoster();
-        // currently don't need to listen to roster since we only allow one
-        // client
-        rosterManager.addRosterListener(new RosterListener() {
-
-            @Override
-            public void entriesAdded(Collection<String> addresses) {
-                // TODO handle roster additions from other clients
-            }
-
-            @Override
-            public void entriesUpdated(Collection<String> addresses) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void entriesDeleted(Collection<String> addresses) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void presenceChanged(
-                    org.jivesoftware.smack.packet.Presence presence) {
-                // TODO Auto-generated method stub
-
-            }
-        });
     }
 
     private void initLocalGroups() {
@@ -237,12 +207,27 @@ public class ContactsManager {
                     try {
                         connection.getAccountManager().sendPresence(presence);
                     } catch (CollaborationException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
+                        statusHandler.error(
+                                "Problem removing user from roster", e);
                     }
+                    removeFromRoster(entry);
                 }
             }
             storeLocalGroupsJob.schedule();
+        }
+    }
+
+    /**
+     * Remove entry from roster on server
+     * 
+     * @param entry
+     */
+    public void removeFromRoster(RosterEntry entry) {
+        RosterManager rosterManager = connection.getRosterManager();
+        try {
+            rosterManager.removeFromRoster(entry);
+        } catch (CollaborationException e) {
+            statusHandler.error("Problem removing roster entry", e);
         }
     }
 
