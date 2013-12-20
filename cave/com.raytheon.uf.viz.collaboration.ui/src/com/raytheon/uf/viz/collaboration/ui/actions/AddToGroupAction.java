@@ -29,9 +29,13 @@ import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.RosterEntry;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -48,6 +52,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Dec 20, 2013 2563       bclement    added support for ungrouped roster entries
  * 
  * </pre>
  * 
@@ -60,6 +65,8 @@ public class AddToGroupAction extends Action {
     private final String group;
 
     private final UserId[] users;
+
+    private RosterEntry entry;
 
     /**
      * This action will create a menu of groups to which the users will be added
@@ -81,6 +88,16 @@ public class AddToGroupAction extends Action {
         this.users = users;
     }
 
+    /**
+     * Action for roster entry not currently in a group.
+     * 
+     * @param entry
+     */
+    public AddToGroupAction(RosterEntry entry) {
+        this(IDConverter.convertFrom(entry));
+        this.entry = entry;
+    }
+
     @Override
     public void run() {
         String group = this.group;
@@ -93,9 +110,16 @@ public class AddToGroupAction extends Action {
                 return;
             }
         }
+        CollaborationConnection connection = CollaborationConnection.getConnection();
         for (UserId user : users) {
-            CollaborationConnection.getConnection().getContactsManager()
+            connection.getContactsManager()
                     .addToLocalGroup(group, user);
+        }
+        if (entry != null) {
+            // the entry wasn't in a group, so the entire tree needs to be
+            // refreshed
+            connection.postEvent(new RosterChangeEvent(RosterChangeType.MODIFY,
+                    entry));
         }
     }
 
@@ -132,7 +156,9 @@ public class AddToGroupAction extends Action {
             }
             groups.removeAll(usedGroups);
             for (LocalGroup group : groups) {
-                Action action = new AddToGroupAction(group.getName(), users);
+                AddToGroupAction action = new AddToGroupAction(group.getName(),
+                        users);
+                action.setEntry(entry);
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);
             }
@@ -141,4 +167,20 @@ public class AddToGroupAction extends Action {
             contrib.fill(menu, -1);
         }
     }
+
+    /**
+     * @return the entry
+     */
+    public RosterEntry getEntry() {
+        return entry;
+    }
+
+    /**
+     * @param entry
+     *            the entry to set
+     */
+    public void setEntry(RosterEntry entry) {
+        this.entry = entry;
+    }
+
 }
