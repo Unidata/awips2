@@ -110,6 +110,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.LoginAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.LogoutAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromGroupAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromRosterAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ShowVenueAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.UserSearchAction;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
@@ -134,6 +135,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Oct 22, 2013 #2483      lvenable    Fixed image memory leak.
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 19, 2013 2563       bclement    added subscribe method for server disconnection
+ * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
  * 
  * </pre>
  * 
@@ -388,11 +390,16 @@ public class CollaborationGroupView extends CaveFloatingView implements
             manager.add(new ArchiveViewerAction((IVenueSession) o));
             return;
         } else if (o instanceof RosterEntry) {
+            // roster entries that are not in a group
             RosterEntry entry = (RosterEntry) o;
             UserId user = IDConverter.convertFrom(entry);
-            fillContextMenu(manager, selection, user);
+            addOnlineMenuOptions(manager, selection, user);
+            addAliasAction(manager, selection, user);
+            manager.add(new ArchiveViewerAction(user));
+            manager.add(new AddToGroupAction(entry));
+            manager.add(new RemoveFromRosterAction(entry));
         } else if (o instanceof UserId) {
-            // the user, both the logged in user as well as his buddies
+            // the user, both the logged in user as well as entries in groups
             UserId user = (UserId) o;
             fillContextMenu(manager, selection, user);
         } else if (o instanceof RosterGroup || o instanceof LocalGroup) {
@@ -407,6 +414,14 @@ public class CollaborationGroupView extends CaveFloatingView implements
         }
     }
     
+    /**
+     * Populate menu for roster entries. Checks for current user to create
+     * appropriate menu.
+     * 
+     * @param manager
+     * @param selection
+     * @param user
+     */
     private void fillContextMenu(IMenuManager manager, TreeSelection selection,
             UserId user) {
         CollaborationConnection connection = CollaborationConnection
@@ -416,9 +431,31 @@ public class CollaborationGroupView extends CaveFloatingView implements
             createMenu(manager);
             return;
         }
+        addOnlineMenuOptions(manager, selection, user);
+        addAliasAction(manager, selection, user);
 
-        Presence presence = CollaborationConnection.getConnection()
-                .getContactsManager().getPresence(user);
+        manager.add(new ArchiveViewerAction(user));
+        manager.add(new AddToGroupAction(getSelectedUsers()));
+        String groupName = null;
+        Object group = selection.getPaths()[0].getFirstSegment();
+        if (group instanceof LocalGroup) {
+            groupName = ((LocalGroup) group).getName();
+            manager.add(new RemoveFromGroupAction(groupName, getSelectedUsers()));
+        }
+    }
+
+    /**
+     * Add interaction menu options for contact if they are online
+     * 
+     * @param manager
+     * @param selection
+     * @param user
+     */
+    private void addOnlineMenuOptions(IMenuManager manager,
+            TreeSelection selection, UserId user) {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        Presence presence = connection.getContactsManager().getPresence(user);
         if (presence != null && presence.getType() == Type.available) {
             Action inviteAction = new InviteAction(user);
             if (inviteAction.isEnabled()) {
@@ -431,19 +468,23 @@ public class CollaborationGroupView extends CaveFloatingView implements
             manager.add(new Separator());
             manager.add(createSessionAction);
         }
-        String name = CollaborationConnection.getConnection()
-                .getContactsManager().getDisplayName(user);
+    }
+
+    /**
+     * Add menu option for aliasing username
+     * 
+     * @param manager
+     * @param selection
+     * @param user
+     */
+    private void addAliasAction(IMenuManager manager, TreeSelection selection,
+            UserId user) {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        String name = connection.getContactsManager().getDisplayName(user);
         aliasAction.setId(name);
         aliasAction.setText("Alias");
         manager.add(aliasAction);
-        manager.add(new ArchiveViewerAction(user));
-        manager.add(new AddToGroupAction(getSelectedUsers()));
-        String groupName = null;
-        Object group = selection.getPaths()[0].getFirstSegment();
-        if (group instanceof LocalGroup) {
-            groupName = ((LocalGroup) group).getName();
-            manager.add(new RemoveFromGroupAction(groupName, getSelectedUsers()));
-        }
     }
 
     private void addDoubleClickListeners() {
@@ -744,6 +785,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
         for (Object node : nodes) {
             if (node instanceof UserId) {
                 UserId user = (UserId) node;
+                selectedUsers.add(user);
+            } else if (node instanceof RosterEntry) {
+                UserId user = IDConverter.convertFrom((RosterEntry) node);
                 selectedUsers.add(user);
             } else if (node instanceof RosterGroup) {
                 selectedUsers.addAll(getSelectedUsers((RosterGroup) node));
