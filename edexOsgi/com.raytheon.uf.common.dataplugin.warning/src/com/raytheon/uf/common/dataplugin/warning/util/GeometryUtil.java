@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * Nov 15, 2010            mschenke     Initial creation
  * Apr 28, 2013     1955   jsanchez     Added an ignoreUserData flag to intersection method.
  * Oct 21, 2013 DR 16632   D. Friedman  Handle zero-length input in union.
+ * Dec 13, 2013 DR 16567   Qinglu Lin   Added contains(). TEST gerrit!
  * 
  * </pre>
  * 
@@ -299,4 +300,25 @@ public class GeometryUtil {
         }
         return str;
     }
+    
+    /**
+     * Determine if one geometry contains any portion of the other.
+     * @param g1
+     * @param g2
+     */
+    public static boolean contains(Geometry g1, Geometry g2) {
+        int m = g1.getNumGeometries();
+        int n = g2.getNumGeometries();
+        Geometry geom1 = null;
+        Geometry geom2 = null;
+        for (int i = 0; i < m; i++) {
+            geom1 = g1.getGeometryN(i);
+            for (int j = 0; j < n; j++) {
+                geom2 = g2.getGeometryN(j);
+                if (geom1.contains(geom2))
+                    return true;
+            }
+        }
+        return false;
+    }    
 }
