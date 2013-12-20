@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * Nov 15, 2010            mschenke     Initial creation
  * Apr 28, 2013     1955   jsanchez     Added an ignoreUserData flag to intersection method.
  * Oct 21, 2013 DR 16632   D. Friedman  Handle zero-length input in union.
- * Dec 13, 2013 DR 16567   Qinglu Lin   Added contains(). TEST gerrit!
+ * Dec 13, 2013 DR 16567   Qinglu Lin   Added contains().
  * 
  * </pre>
  * 
