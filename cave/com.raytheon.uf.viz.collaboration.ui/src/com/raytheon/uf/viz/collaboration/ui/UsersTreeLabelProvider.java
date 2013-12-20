@@ -42,12 +42,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
- * TODO Add Description
+ * Provides contacts list UI elements with icons, text, tooltips, etc
  * 
  * <pre>
  * 
@@ -57,6 +58,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
  * 
  * </pre>
  * 
@@ -99,6 +101,9 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         String key = "";
         if (element instanceof UserId) {
             return userLabelProvider.getImage(element);
+        } else if (element instanceof RosterEntry) {
+            return userLabelProvider.getImage(IDConverter
+                    .convertFrom((RosterEntry) element));
         } else if (element instanceof RosterGroup) {
             key = "group";
         } else if (element instanceof IVenueSession) {
@@ -178,6 +183,9 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         StringBuilder builder = new StringBuilder();
         if (element instanceof UserId) {
             return userLabelProvider.getToolTipText(element);
+        } else if (element instanceof RosterEntry) {
+            return userLabelProvider.getToolTipText(IDConverter
+                    .convertFrom((RosterEntry) element));
         }
         // builds the tooltip text for the session group
         // portion of the view
