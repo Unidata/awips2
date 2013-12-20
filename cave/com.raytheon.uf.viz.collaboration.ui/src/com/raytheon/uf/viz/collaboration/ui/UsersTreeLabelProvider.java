@@ -125,7 +125,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         if (element instanceof RosterGroup) {
             return ((RosterGroup) element).getName();
         } else if (element instanceof RosterEntry) {
-            return ((RosterEntry) element).getName();
+            return userLabelProvider.getText(IDConverter
+                    .convertFrom((RosterEntry) element));
         } else if (element instanceof SessionGroupContainer) {
             return "Active Sessions";
         } else if (element instanceof UserId) {
