@@ -21,15 +21,21 @@ package com.raytheon.uf.viz.collaboration.ui.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 
 /**
- * TODO Add Description
+ * Container for collaboration information window. Includes current user,
+ * sessions and contacts
  * 
  * <pre>
  * 
@@ -38,6 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGro
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2012            mnash     Initial creation
+ * Dec 20, 2013 2563       bclement  added items from server roster not in groups
  * 
  * </pre>
  * 
@@ -52,6 +59,11 @@ public class CollaborationGroupContainer {
     public CollaborationGroupContainer() {
     }
 
+    /**
+     * Get objects for UI items including current user, sessions and contacts
+     * 
+     * @return
+     */
     public List<Object> getObjects() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
@@ -61,17 +73,32 @@ public class CollaborationGroupContainer {
         List<Object> result = new ArrayList<Object>();
         result.add(connection.getUser());
         result.add(sessionGroup);
-        for (RosterGroup obj : connection.getRosterManager().getRoster()
-                .getGroups()) {
+        RosterManager rosterManager = connection.getRosterManager();
+        Roster roster = rosterManager.getRoster();
+        for (RosterGroup obj : roster.getGroups()) {
             result.add(obj);
         }
+        Set<String> usersInLocal = new HashSet<String>();
         for (LocalGroup group : connection.getContactsManager()
                 .getLocalGroups()) {
+            usersInLocal.addAll(group.getUserNames());
             result.add(group);
+        }
+        for (RosterEntry entry : roster.getUnfiledEntries()) {
+            // filter out entries that aren't in a group on the server, but are
+            // in a local group so they don't show up twice on the contacts list
+            if (!usersInLocal.contains(entry.getUser())) {
+                result.add(entry);
+            }
         }
         return result;
     }
 
+    /**
+     * Get container for session UI objects
+     * 
+     * @return
+     */
     public SessionGroupContainer getSessionGroup() {
         return sessionGroup;
     }
