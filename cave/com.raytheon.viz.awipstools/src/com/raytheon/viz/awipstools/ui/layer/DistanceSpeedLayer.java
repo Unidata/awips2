@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  *                                     operate independently of each other;
  *                                     the dialogs will have unique titles.
  * 15Mar2013	15693	mgamazaychikov Added magnification capability.
+ * 2013-12-20   ss#114     D. Friedman Change 3 of 3
  * 
  * </pre>
  * 
