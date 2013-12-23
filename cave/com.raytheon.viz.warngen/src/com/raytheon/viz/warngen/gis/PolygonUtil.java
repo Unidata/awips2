@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 10/01/2013  DR 16632   Qinglu Lin   Fixed the bug in for loop range.
  * 10/17/2013  DR 16632   Qinglu Lin   Updated removeOverlaidLinesegments().
  * 10/18/2013  DR 16632   Qinglu Lin   Catch exception thrown when coords length is less than 4 and doing createLinearRing(coords).
+ * 12/17/2013  DR 16567   Qinglu Lin   Added createPolygonByPoints(). Gerrit testing
  * </pre>
  * 
  * @author mschenke
@@ -1523,4 +1524,24 @@ public class PolygonUtil {
         }
         return slope;
     }
+    
+    /**
+     * Create a polygon whose two diagonal coordinates are a and b.
+     **/
+    static public Geometry createPolygonByPoints(Coordinate a, Coordinate b) {
+        double maxX, minX, maxY, minY;
+        maxX = Math.max(a.x, b.x);
+        minX = Math.min(a.x, b.x);
+        maxY = Math.max(a.y, b.y);
+        minY = Math.min(a.y, b.y);
+        Coordinate[] coord = new Coordinate[5];
+        coord[0] = new Coordinate(minX, minY);
+        coord[1] = new Coordinate(maxX, minY);
+        coord[2] = new Coordinate(maxX, maxY);
+        coord[3] = new Coordinate(minX, maxY);
+        coord[4] = new Coordinate(coord[0]);
+        GeometryFactory gf = new GeometryFactory();
+        LinearRing lr = gf.createLinearRing(coord);
+        return gf.createPolygon(lr, null);
+    }    
 }
