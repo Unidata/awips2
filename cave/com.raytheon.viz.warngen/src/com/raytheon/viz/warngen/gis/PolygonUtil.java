@@ -76,7 +76,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 10/01/2013  DR 16632   Qinglu Lin   Fixed the bug in for loop range.
  * 10/17/2013  DR 16632   Qinglu Lin   Updated removeOverlaidLinesegments().
  * 10/18/2013  DR 16632   Qinglu Lin   Catch exception thrown when coords length is less than 4 and doing createLinearRing(coords).
- * 12/17/2013  DR 16567   Qinglu Lin   Added createPolygonByPoints(). Gerrit testing
+ * 12/17/2013  DR 16567   Qinglu Lin   Added createPolygonByPoints().
  * </pre>
  * 
  * @author mschenke
