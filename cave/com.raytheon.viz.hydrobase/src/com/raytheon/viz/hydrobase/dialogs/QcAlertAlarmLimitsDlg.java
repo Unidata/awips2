@@ -1,4 +1,4 @@
-/**
+/**  
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
  * 
@@ -81,7 +81,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Oct 27,2011  11305       lbousaidi   change some logic to have physical
  * 										elements matches the selection of default limits
  * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
- * 
+ * Nov 26, 2013 15800       wkwock      Fix unhandled event loop 
  * </pre>
  * 
  * @author lvenable
@@ -1329,7 +1329,23 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         if (success) {
             // Reload the data keeping the selection
             selection = limitsList.getSelectionIndex();
+            String currentItem=locationSelItemTF.getText();
             loadData(true);
+            if (selection<0) {//must be new item
+                int index = 0 ;
+                for (index=0; index<limitsList.getItemCount();index++) {
+                    String item = limitsList.getItem(index);
+                    if (item.trim().split(" ")[0].compareToIgnoreCase(currentItem)==0)
+                            break; //found the index
+                }
+
+
+                if (index>=limitsList.getItemCount())
+                    selection=0;
+                else
+                    selection = index;
+            }
+            
             limitsList.setSelection(selection);
             getSelectedLimit();
         }
