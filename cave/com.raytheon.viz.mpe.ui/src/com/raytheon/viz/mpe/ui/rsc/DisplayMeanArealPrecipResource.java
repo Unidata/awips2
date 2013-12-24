@@ -77,6 +77,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 28, 2009            snaples     Initial creation
+ * Dec 23, 2013  16329     snaples     Added target assignment to paintInternal().
+ * 
  * 
  * </pre>
  * 
@@ -359,6 +361,8 @@ public class DisplayMeanArealPrecipResource extends
         }
 
         Set<DisplayMode> mode = displayMgr.getDisplayMode();
+        
+        target = aTarget;
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
