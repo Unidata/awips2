@@ -77,8 +77,8 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ---------- ----------- --------------------------
  * 02/11/2009   1981       dhladky    Initial Creation.
  * 09/03/2013   DR 13083   gzhang	  Added getZRvalue2() to fix an error.
+ * 12/20/2013   DR 16894   gzhang     Fixed getZRvalue2() bias issue.
  * </pre>
- * 
  * @author dhladky
  * @version 1.0
  */
@@ -1945,16 +1945,16 @@ public class ScanUtils {
         if (zValue >= 2) {
         	zValue = MIN_DHR_DBZ + ((zValue  - 2) * DHR_DBZ_STEP);
             double rlogMult = Math.log10(coefficent);
-            rValue = bias*(Math.pow(10.0, ((zValue-10.0*rlogMult)/(10.0*power))));
+            rValue = /*bias* */(Math.pow(10.0, ((zValue-10.0*rlogMult)/(10.0*power))));
 
             // hail cap check
             if (rValue > hailCap) {
-                return (float) (MM_TO_INCH * hailCap);
+            	rValue = /*return (float)  */(/*MM_TO_INCH *  */hailCap);
             }
         } else {
-            return (float) rValue;
+        	rValue = /*return  */(float) rValue;
         }
 
-        return (float) (MM_TO_INCH * rValue);
+        return (float) (bias*MM_TO_INCH * rValue);
     }
 }
