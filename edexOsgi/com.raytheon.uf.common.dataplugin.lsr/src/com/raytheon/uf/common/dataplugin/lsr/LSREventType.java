@@ -34,6 +34,7 @@ import java.util.Map;
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2009            jkorman     Initial creation
  * Dec 09, 2013 2581       njensen     Added freezing drizzle
+ * Jan 03, 2014 2581       njensen     Added coastal flood
  *
  * </pre>
  *
@@ -83,7 +84,8 @@ public enum LSREventType {
     TSTMWNDGST("TSTM WND GST",37,LSRUnits.MPH),
     WATERSPOUT("WATER SPOUT",38,LSRUnits.NOUNITS),
     WILDFIRE("WILDFIRE",39,LSRUnits.NOUNITS),
-    FREEZINGDRIZZLE("FREEZING DRIZZLE", 40, LSRUnits.NOUNITS);
+    FREEZINGDRIZZLE("FREEZING DRIZZLE", 40, LSRUnits.NOUNITS),
+    COASTALFLOOD("COASTAL FLOOD", 41, LSRUnits.NOUNITS);
 
     private final String eventName;
     
