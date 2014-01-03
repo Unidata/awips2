@@ -1,4 +1,5 @@
 package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
+
 /**
  * 
  * gov.noaa.nws.ncep.edex.uengine.tasks.profile.PfcSoundingQuery
@@ -14,6 +15,7 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 09/13/2010	301			Chin Chen	Initial coding
  * 12/16/2010   301         Chin Chen   add support of PFC (NAM and GFS) model sounding data
  * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
+ * 12/20/2013   2537        bsteffen    Update ModelSoundingPointDataTransform
  *  *
  * </pre>
  * 
@@ -23,26 +25,33 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.PfcSndType;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.SndQueryKeyType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingStnInfo;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingStnInfoCollection;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.PfcSndType;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.SndQueryKeyType;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-
-import com.raytheon.edex.plugin.modelsounding.common.ModelSoundingPointDataTransform;
-import com.raytheon.edex.plugin.modelsounding.common.SoundingLevel;
-import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
+import com.raytheon.uf.common.dataplugin.modelsounding.ModelSoundingParameters;
+import com.raytheon.uf.common.dataplugin.modelsounding.ModelSoundingPointDataTransform;
+import com.raytheon.uf.common.dataplugin.modelsounding.SoundingLevel;
+import com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -376,46 +385,35 @@ public class PfcSoundingQuery {
 		List<NcSoundingLayer> soundLyList = new ArrayList<NcSoundingLayer>();
 		
 		if(sndTypeStr.equals(PfcSndType.GFSSND.toString())  || sndTypeStr.equals(PfcSndType.NAMSND.toString())){
-    		List<String> fields = new ArrayList<String>();
-			List<Object> values = new ArrayList<Object>();
-			List<SoundingSite> lSndSiteRecords = null;
-			List<String> operands = new ArrayList<String>();
+            Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+            List<SoundingSite> lSndSiteRecords = null;
 			if(queryType==SndQueryKeyType.STNID){
-				fields.add("location.stationId");// the location.stationId String field name defined in SoundingSite class and decoded modelsounding table.
-				values.add(stn);
-				operands.add("=");
+                // the location.stationId String field name defined in SoundingSite class and decoded modelsounding table.
+                constraints.put("location.stationId", new RequestConstraint(stn));
 			}
 			else if(queryType==SndQueryKeyType.STNNUM){
-				fields.add("siteid");// the siteid String field name defined in SoundingSite class and decoded in modelsounding table.
-				values.add(stn);
-				operands.add("=");
+				// the siteid String field name defined in SoundingSite class and decoded in modelsounding table.
+                constraints.put("siteid", new RequestConstraint(stn));
+
 			}
 			else if(queryType==SndQueryKeyType.LATLON){
-				fields.add("location.latitude");// the location.latitude field name defined in SoundingSite class and decoded modelsounding table
-				values.add(lat-0.1); 
-				operands.add(">=");
-				fields.add("location.latitude");// the location.latitude field name defined in SoundingSite class and decoded modelsounding table
-				values.add(lat+0.1); 
-				operands.add("<=");
-				fields.add("location.longitude");// the location.longitude field name defined in SoundingSite class and decoded modelsounding table
-				values.add(lon-0.1); 
-				operands.add(">=");
-				fields.add("location.longitude");// the location.longitude field name defined in SoundingSite class and decoded modelsounding table
-				values.add(lon+0.1); 
-				operands.add("<=");
-				
+				// the location.latitude field name defined in SoundingSite class and decoded modelsounding table
+				constraints.put("location.latitude", new RequestConstraint(Double.toString(lat-0.1), Double.toString(lat+0.1)));
+				// the location.longitude field name defined in SoundingSite class and decoded modelsounding table
+                constraints.put("location.longitude", new RequestConstraint(Double.toString(lon-0.1), Double.toString(lon+0.1)));
 			}
 			else {
 				System.out.println("request query type "+ queryType+ " is not supported in this API" );
 				return pf;
 			}
 			
-			fields.add("dataTime.refTime");// the refTime time field name defined in SoundingSite and decoded modelsounding table
-			values.add(refTimeCal.getTime()); //refTime data type defined in SoundingSite is "Date"
-			operands.add("=");
-			fields.add("dataTime.validPeriod.start");// the rangeStart field name defined in SoundingSite and decoded modelsounding table
-			values.add(validTimeCal.getTime());  //rangestart data type defined in SoundingSite is "Date"
-			operands.add("=");
+			// the refTime time field name defined in SoundingSite and decoded modelsounding table
+            // refTime data type defined in SoundingSite is "Date"
+			constraints.put("dataTime.refTime", new RequestConstraint(TimeUtil.formatCalendar(refTimeCal)));
+			// the rangeStart field name defined in SoundingSite and decoded modelsounding table
+			//rangestart data type defined in SoundingSite is "Date"
+	        constraints.put("dataTime.validPeriod.start", new RequestConstraint(TimeUtil.formatCalendar(validTimeCal)));
+
 			
 			//String d="";
 			//String d1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(validTimeCal.getTime());
@@ -426,22 +424,22 @@ public class PfcSoundingQuery {
 			//	d = d+","+d2;
 			//}
 			
-			//values.add(d);  //rangestart data type defined in SoundingSite is "Date"
-			//operands.add("in");
-			for (int i=0; i < fields.size(); i++) {
-				System.out.println("field "+ fields.get(i) + " value "+ values.get(i));
+			// //rangestart data type defined in SoundingSite is "Date"
+			// constraints.put("dataTime.validPeriod.start", new RequestConstraint(d, ConstraintType.IN));
+			for (Entry<String,RequestConstraint> entry : constraints.entrySet()) {
+				System.out.println("field "+ entry.getKey() + " value "+ entry.getValue().getConstraintValue());
 			}
 			List<String> parameters = new ArrayList<String>(12);
-            parameters.addAll(ModelSoundingPointDataTransform.LVL_PARAMETERS);
-            parameters.add(ModelSoundingPointDataTransform.P_LATITUDE);
-            parameters.add(ModelSoundingPointDataTransform.P_LONGITUDE);
-            parameters.add(ModelSoundingPointDataTransform.P_ELEVATION);
-            parameters.add(ModelSoundingPointDataTransform.P_STATION_ID);
-            parameters.add(ModelSoundingPointDataTransform.P_STATION_NUMBER);
-            parameters.add(ModelSoundingPointDataTransform.P_DATAURI);
+            parameters.addAll(ModelSoundingParameters.LVL_PARAMETERS);
+            parameters.add(ModelSoundingParameters.LATITUDE);
+            parameters.add(ModelSoundingParameters.LONGITUDE);
+            parameters.add(ModelSoundingParameters.ELEVATION);
+            parameters.add(ModelSoundingParameters.STATION_ID);
+            parameters.add(ModelSoundingParameters.STATION_NUMBER);
+            parameters.add(ModelSoundingParameters.DATAURI);
 			
 			try {
-				lSndSiteRecords = ModelSoundingPointDataTransform.getSoundingSites(fields, values, operands, parameters);
+                lSndSiteRecords = ModelSoundingPointDataTransform.getSoundingSites(constraints, parameters);
 				System.out.println("sounding site record size = "+ lSndSiteRecords.size());
 				if(lSndSiteRecords.size() > 0){
 					//set pf data
@@ -460,12 +458,12 @@ public class PfcSoundingQuery {
 						for (SoundingLevel level : lSndSiteRecords.get(0).getLevels())
 						{
 							NcSoundingLayer soundingLy = new NcSoundingLayer();	
-							soundingLy.setOmega(level.getOmega().floatValue());
+							soundingLy.setOmega(level.getOmega());
 							soundingLy.setTemperature((float)kelvinToCelsius.convert(level.getTemperature()));
-							soundingLy.setPressure(level.getPressure().floatValue()/100);
-							soundingLy.setWindU((float)metersPerSecondToKnots.convert(level.getUcWind().floatValue())); // HDF5 data in unit of m/s, convert to Knots 4/12/2012 
-							soundingLy.setWindV((float)metersPerSecondToKnots.convert(level.getVcWind().floatValue()));
-							soundingLy.setSpecHumidity(level.getSpecificHumidity().floatValue());						
+							soundingLy.setPressure(level.getPressure()/100);
+							soundingLy.setWindU((float)metersPerSecondToKnots.convert(level.getUcWind())); // HDF5 data in unit of m/s, convert to Knots 4/12/2012 
+							soundingLy.setWindV((float)metersPerSecondToKnots.convert(level.getVcWind()));
+							soundingLy.setSpecHumidity(level.getSpecificHumidity());						
 							soundLyList.add(soundingLy);
 						}
 						
@@ -515,10 +513,8 @@ public class PfcSoundingQuery {
 		List<NcSoundingProfile> pfs = new ArrayList<NcSoundingProfile>();
 		
 		if(sndTypeStr.equals(PfcSndType.GFSSND.toString())  || sndTypeStr.equals(PfcSndType.NAMSND.toString())){
-    		List<String> fields = new ArrayList<String>();
-			List<Object> values = new ArrayList<Object>();
-			List<SoundingSite> lSndSiteRecords = null;
-			List<String> operands = new ArrayList<String>();
+		    Map<String,RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+            List<SoundingSite> lSndSiteRecords = null;
 			MergeSounding ms = new MergeSounding();			
 			
 			
@@ -531,61 +527,57 @@ public class PfcSoundingQuery {
 				}
 				latStr=latStr.substring(0, latStr.length()-1);//get rid of last ","
 				lonStr=lonStr.substring(0, lonStr.length()-1);//get rid of last ","
-				fields.add("location.latitude");
-				values.add(latStr);  
-				operands.add("in");
-				fields.add("location.longitude");
-				values.add(lonStr);  
-				operands.add("in");
+				constraints.put("location.latitude", new RequestConstraint(latStr, ConstraintType.IN));
+                constraints.put("location.longitude", new RequestConstraint(lonStr, ConstraintType.IN));
 			}
 			else if(stnIdArr != null){
-				fields.add("location.stationId");// the rangeStart field name defined in SoundingSite and decoded modelsounding table
 				String stnIdStr="";
 				for (String stnStr: stnIdArr){
 					stnIdStr = stnIdStr+stnStr;
 					stnIdStr= stnIdStr+",";
 				}
 				stnIdStr=stnIdStr.substring(0, stnIdStr.length()-1);//get rid of last ","
-				values.add(stnIdStr);  //rangestart data type defined in SoundingSite is "Date"
-				operands.add("in");
+				// the rangeStart field name defined in SoundingSite and decoded modelsounding table
+				//rangestart data type defined in SoundingSite is "Date"
+                constraints.put("location.stationId", new RequestConstraint(stnIdStr, ConstraintType.IN));
 			}
 			else {
 				return pfs;
 			}
 
-			fields.add("dataTime.refTime");// the refTime time field name defined in SoundingSite and decoded modelsounding table
-			values.add(refTimeStr); //refTime data type defined in SoundingSite is "Date"
-			operands.add("=");
-			// the rangeStart field name defined in SoundingSite and decoded modelsounding table. It is forcast time.
-			fields.add("dataTime.validPeriod.start");
+			// the refTime time field name defined in SoundingSite and decoded modelsounding table
+			//refTime data type defined in SoundingSite is "Date"
+            constraints.put("dataTime.refTime", new RequestConstraint(refTimeStr));
+
 			String d="";
 			for (String timeStr: soundingTimeAry){
 				d = d+timeStr;
 				d= d+",";
 			}
 			d=d.substring(0, d.length()-1);//get rid of last ","
-			values.add(d);  //rangestart data type defined in SoundingSite is "Date"
-			operands.add("in");
-			//for (int i=0; i < fields.size(); i++) {
-			//	System.out.println("getPfcSndDataGeneric: field ="+ fields.get(i) + " value= "+ values.get(i) + " operand= "+operands.get(i));
-			//}
+	         // the rangeStart field name defined in SoundingSite and decoded modelsounding table. It is forcast time.
+			//rangestart data type defined in SoundingSite is "Date"
+            constraints.put("dataTime.validPeriod.start", new RequestConstraint(d, ConstraintType.IN));
+            //for (Entry<String,RequestConstraint> entry : constraints.entrySet()) {
+            //  System.out.println("getPfcSndDataGeneric: field "+ entry.getKey() + " value "+ entry.getValue().getConstraintValue() + " operand= "+ entry.getValue().getConstraintType());
+            //}
 			List<String> parameters = new ArrayList<String>(12);
-            parameters.addAll(ModelSoundingPointDataTransform.LVL_PARAMETERS);
-            parameters.add(ModelSoundingPointDataTransform.P_LATITUDE);
-            parameters.add(ModelSoundingPointDataTransform.P_LONGITUDE);
-            parameters.add(ModelSoundingPointDataTransform.P_ELEVATION);
-            parameters.add(ModelSoundingPointDataTransform.P_STATION_ID);
-            parameters.add(ModelSoundingPointDataTransform.P_STATION_NUMBER);
-            parameters.add(ModelSoundingPointDataTransform.P_REF_TIME);
-            parameters.add(ModelSoundingPointDataTransform.P_FORECAST_HOUR);
+            parameters.addAll(ModelSoundingParameters.LVL_PARAMETERS);
+            parameters.add(ModelSoundingParameters.LATITUDE);
+            parameters.add(ModelSoundingParameters.LONGITUDE);
+            parameters.add(ModelSoundingParameters.ELEVATION);
+            parameters.add(ModelSoundingParameters.STATION_ID);
+            parameters.add(ModelSoundingParameters.STATION_NUMBER);
+            parameters.add(ModelSoundingParameters.REF_TIME);
+            parameters.add(ModelSoundingParameters.FORECAST_HOUR);
 			
 			try {
 				long t01 = System.currentTimeMillis();
-				lSndSiteRecords = ModelSoundingPointDataTransform.getSoundingSites(fields, values, operands, parameters);
+				lSndSiteRecords = ModelSoundingPointDataTransform.getSoundingSites(constraints, parameters);
 				long t02 = System.currentTimeMillis();
 				//System.out.println("getPfcSndDataGeneric sounding site record size = "+ lSndSiteRecords.size()+
 				//		" took "+(t02-t01)+ " ms");
-				for(SoundingSite sndSite:lSndSiteRecords){
+                for (SoundingSite sndSite : lSndSiteRecords) {
 					//set pf data
 					NcSoundingProfile pf = new NcSoundingProfile();
 					pf.setStationLatitude(sndSite.getLatitude());
@@ -603,12 +595,12 @@ public class PfcSoundingQuery {
 					for (SoundingLevel sndLevel : sndSite.getLevels())
 					{
 						NcSoundingLayer soundingLy = new NcSoundingLayer();	
-						soundingLy.setOmega(sndLevel.getOmega().floatValue());
+						soundingLy.setOmega(sndLevel.getOmega());
 						soundingLy.setTemperature((float)kelvinToCelsius.convert(sndLevel.getTemperature()));
-						soundingLy.setPressure(sndLevel.getPressure().floatValue()/100);
-						soundingLy.setWindU((float)metersPerSecondToKnots.convert(sndLevel.getUcWind().floatValue())); // HDF5 data in unit of m/s, convert to Knots 4/12/2012 
-						soundingLy.setWindV((float)metersPerSecondToKnots.convert(sndLevel.getVcWind().floatValue()));
-						soundingLy.setSpecHumidity(sndLevel.getSpecificHumidity().floatValue());						
+						soundingLy.setPressure(sndLevel.getPressure()/100);
+						soundingLy.setWindU((float)metersPerSecondToKnots.convert(sndLevel.getUcWind())); // HDF5 data in unit of m/s, convert to Knots 4/12/2012 
+						soundingLy.setWindV((float)metersPerSecondToKnots.convert(sndLevel.getVcWind()));
+						soundingLy.setSpecHumidity(sndLevel.getSpecificHumidity());						
 						soundLyList.add(soundingLy);
 					}
 					Collections.sort(soundLyList,reversePressureComparator());
