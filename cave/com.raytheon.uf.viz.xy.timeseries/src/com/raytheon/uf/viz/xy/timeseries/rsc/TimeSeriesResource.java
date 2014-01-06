@@ -96,6 +96,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 10, 2011 8244       bkowal      enabled the magnification
  *                                     capability.
  * Feb 14, 2011 8244       bkowal      enabled magnification for wind barbs.
+ * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -580,7 +581,10 @@ public class TimeSeriesResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String inspect = null;
-        Coordinate c = descriptor.getGraphCoordiante(this, coord.getObject());
+        double[] worldCoord = descriptor.pixelToWorld(
+                new double[] { coord.getObject().x, coord.getObject().y });
+        Coordinate c = descriptor.getGraphCoordiante(this,
+                new Coordinate(worldCoord[0], worldCoord[1]));
         if (c != null && data != null) {
             double[] vals = data.inspectXY(c);
             NumberFormat nf = NumberFormat.getInstance();

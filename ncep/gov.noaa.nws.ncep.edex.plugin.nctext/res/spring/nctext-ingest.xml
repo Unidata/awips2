@@ -16,11 +16,6 @@
 		<constructor-arg value="jms-dist:queue:ingest.nctext" />
 	</bean>
 
-	<bean factory-bean="manualProc"
-        factory-method="registerSecondaryPlugin">
-        <constructor-arg value="nctext" />
-    </bean>
-	
     <bean id="nctextCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="nctext-camel"/>
