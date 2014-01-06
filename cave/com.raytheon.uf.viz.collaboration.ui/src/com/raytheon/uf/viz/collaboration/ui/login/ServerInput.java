@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 18, 2013 2563       bclement     Initial creation
+ * Jan 06, 2014 2563       bclement     added removeDescription
  * 
  * </pre>
  * 
@@ -63,7 +64,6 @@ public class ServerInput implements Listener {
     private static final int DEFAULT_XMPP_PORT = 5432;
 
     private static final int TIMEOUT = 5000; // 5 seconds
-
 
     /**
      * @param serverText
@@ -156,6 +156,20 @@ public class ServerInput implements Listener {
         } catch (Exception e) {
             throw new CollaborationException("Unable to get full host name", e);
         }
+    }
+
+    /**
+     * Remove server description from server text field
+     * 
+     * @param text
+     * @return
+     */
+    public static String removeDescription(String text) {
+        int firstColon = text.indexOf(':');
+        if (firstColon >= 0) {
+            text = text.substring(firstColon + 1);
+        }
+        return text.trim();
     }
 
 }
