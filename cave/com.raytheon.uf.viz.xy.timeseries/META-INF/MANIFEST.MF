@@ -8,7 +8,8 @@ Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.geotools
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.xy.timeseries,

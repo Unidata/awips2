@@ -17,13 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.archive;
+package com.raytheon.uf.edex.database.processor;
 
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.edex.database.plugin.PluginDao;
+import java.util.List;
 
 /**
- * Interface for archive file name formatters.
+ * Interface for working with a batched set of results inside a database
+ * session. Process can be called multiple times based on the batchSize of the
+ * processor.
  * 
  * <pre>
  * 
@@ -31,28 +32,38 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 20, 2012            dgilling    Initial creation
- * Nov 05, 2013 2499       rjpeter     Repackaged
- * Dec 13, 2013 2555       rjpeter     Refactored
+ * Dec 9, 2013  2555      rjpeter     Initial creation
  * </pre>
  * 
- * @author dgilling
+ * @author rjpeter
  * @version 1.0
  */
 
-public interface IPluginArchiveFileNameFormatter {
+public interface IDatabaseProcessor {
     /**
-     * Returns base file name for the pdo. In the case of IPersistable objects,
-     * it should match the h5 file.
+     * Perform any processing on this batch of objects.
      * 
-     * @param pluginName
-     *            The plugin name.
-     * @param dao
-     *            The dao for the object.
-     * @param pdo
-     *            The object to look up.
+     * @param objects
+     * @return True if should continue processing, false otherwise.
+     */
+    public boolean process(List<?> objects);
+
+    /**
+     * Perform any post processing if necessary.
+     */
+    public void finish();
+
+    /**
+     * Get the batch size of the query.
+     * 
      * @return
      */
-    public String getFilename(String pluginName, PluginDao dao,
-            PersistableDataObject<?> pdo);
+    public int getBatchSize();
+
+    /**
+     * Set the batch size of the query.
+     * 
+     * @param batchSize
+     */
+    public void setBatchSize(int batchSize);
 }

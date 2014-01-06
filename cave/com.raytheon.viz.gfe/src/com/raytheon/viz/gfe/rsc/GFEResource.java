@@ -162,6 +162,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
  * Mar 04, 2013 1637       randerso    Fix time matching for ISC grids
  * Aug 27, 2013 2287       randerso    Fixed scaling and direction of wind arrows
+ * Dec 11, 2013 2621       randerso    Removed conditional from getParm so it never returns null
  * 
  * </pre>
  * 
@@ -341,11 +342,7 @@ public class GFEResource extends
      * @return Returns the parm associated with the GFE Resource
      */
     public Parm getParm() {
-        Parm retVal = null;
-        if (this.getStatus() != ResourceStatus.DISPOSED) {
-            retVal = this.parm;
-        }
-        return retVal;
+        return this.parm;
     }
 
     /*
