@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2009            mschenke     Initial creation
  * Feb 10, 2011 8344       bkowal       enabled the magnification capability.
+ * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -543,9 +544,13 @@ public class VarHeightResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Coordinate object = coord.getObject();
-        object = descriptor.getGraphCoordiante(this, object);
-        if (object != null) {
-            return object.x + ", " + object.y;
+        double[] worldCoord = descriptor.pixelToWorld(
+                new double[] { object.x, object.y });
+        Coordinate c = new Coordinate(worldCoord[0], worldCoord[1]);
+
+        c = descriptor.getGraphCoordiante(this, c);
+        if (c != null) {
+            return c.x + ", " + c.y;
         }
         return null;
     }
