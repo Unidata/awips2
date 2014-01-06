@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Activemq Plug-in
 Bundle-SymbolicName: org.apache.activemq
-Bundle-Version: 5.2.0
+Bundle-Version: 5.3.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: .,
  activation-1.1.jar,
