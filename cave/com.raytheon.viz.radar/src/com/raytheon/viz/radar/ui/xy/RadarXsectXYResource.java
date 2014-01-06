@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2010            bsteffen     Initial creation
+ * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -213,11 +214,13 @@ public class RadarXsectXYResource extends RadarXYResource implements
         DrawableImage image = images.get(displayedDate);
         try {
             Coordinate c = latLon.asLatLon();
+            double[] worldCoord = descriptor.pixelToWorld(new double[] {
+                    c.x, c.y });
             IExtent extent = image.getCoverage().getExtent();
             // Convert the screen coordinate to a coordinate within the image.
             // 0,0 is the upper left and 1,1 is the lower right of the iamge.
-            double xRat = (c.x - extent.getMinX()) / extent.getWidth();
-            double yRat = (c.y - extent.getMinY()) / extent.getHeight();
+            double xRat = (worldCoord[0] - extent.getMinX()) / extent.getWidth();
+            double yRat = (worldCoord[1] - extent.getMinY()) / extent.getHeight();
             return super.inspect(new ReferencedCoordinate(new Coordinate(xRat,
                     yRat)));
         } catch (Exception e) {
