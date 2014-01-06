@@ -69,10 +69,12 @@ import com.raytheon.viz.gfe.itool.IToolController;
 import com.raytheon.viz.gfe.itool.IToolFactory;
 import com.raytheon.viz.gfe.jobs.AutoSaveJob;
 import com.raytheon.viz.gfe.procedures.ProcedureFactory;
+import com.raytheon.viz.gfe.procedures.ProcedureJobPool;
 import com.raytheon.viz.gfe.procedures.ProcedureUIController;
 import com.raytheon.viz.gfe.smarttool.EditActionProcessor;
 import com.raytheon.viz.gfe.smarttool.GridCycler;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolFactory;
+import com.raytheon.viz.gfe.smarttool.script.SmartToolJobPool;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolUIController;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
 
@@ -97,6 +99,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 04/24/2013    1936      dgilling    Move initialization of TextProductMgr
  *                                     to GFE startup.
  * 08/27/2013    2302      randerso    Code cleanup for AutoSaveJob
+ * 12/09/2013    2367      dgilling    Instantiate ProcedureJobPool here.
  * 
  * </pre>
  * 
@@ -195,6 +198,10 @@ public class DataManager {
 
     private List<String> allSites;
 
+    private final ProcedureJobPool procJobPool;
+
+    private final SmartToolJobPool toolJobPool;
+
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -228,6 +235,8 @@ public class DataManager {
         strInitJob.schedule();
 
         initializeScriptControllers();
+        procJobPool = new ProcedureJobPool(4, 4, this);
+        toolJobPool = new SmartToolJobPool(3, 3, this);
 
         this.weGroupManager = new WEGroupManager(this);
         this.editActionProcessor = new EditActionProcessor(this);
@@ -296,6 +305,28 @@ public class DataManager {
         if (procedureInterface != null) {
             procedureInterface.dispose();
         }
+
+        // by moving the the pools' cancel calls to another thread, we prevent
+        // GFE shutdown from freezing the UI thread until all jobs have
+        // completed. The unfortunate side effect is that we get that annoying
+        // "Job found still running after platform shutdown" warning from
+        // Eclipse.
+        Runnable killJobPools = new Runnable() {
+
+            @Override
+            public void run() {
+                if (toolJobPool != null) {
+                    toolJobPool.cancel();
+                }
+
+                if (procJobPool != null) {
+                    procJobPool.cancel();
+                }
+            }
+        };
+        Thread killPoolsThread = new Thread(killJobPools, "shutdown-gfe-pools");
+        killPoolsThread.setDaemon(false);
+        killPoolsThread.start();
 
         NotificationManagerJob.removeObserver("edex.alerts.gfe", router);
     }
@@ -689,4 +720,11 @@ public class DataManager {
         return textProductMgr;
     }
 
+    public ProcedureJobPool getProcedureJobPool() {
+        return procJobPool;
+    }
+
+    public SmartToolJobPool getSmartToolJobPool() {
+        return toolJobPool;
+    }
 }
