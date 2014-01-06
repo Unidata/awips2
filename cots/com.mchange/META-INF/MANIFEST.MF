@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Mchange Plug-in
 Bundle-SymbolicName: com.mchange
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.9.1
 Bundle-ClassPath: c3p0-0.9.1.jar,
  .
 Export-Package: com.mchange,
