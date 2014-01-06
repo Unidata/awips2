@@ -28,19 +28,18 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/03/13                      dgilling      Initial Creation.
+#    01/06/14         #2537        bsteffen       Share geometry WKT.
 #    
 #
 
 from ufpy.dataaccess import IGeometryData
 from ufpy.dataaccess import PyData
-import shapely.wkt
-
 
 class PyGeometryData(IGeometryData, PyData.PyData):
     
-    def __init__(self, geoDataRecord):
+    def __init__(self, geoDataRecord, geometry):
         PyData.PyData.__init__(self, geoDataRecord)
-        self.__geometry = shapely.wkt.loads(geoDataRecord.getGeometryWKT())
+        self.__geometry = geometry
         self.__dataMap = {}
         tempDataMap = geoDataRecord.getDataMap()
         for key, value in tempDataMap.items():
