@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2012            mschenke     Initial creation
  * Dec 19, 2013 2563       bclement     added option to connect to server not in list
+ * Jan 06, 2014 2563       bclement     moved server text parsing to ServerInput class
  * 
  * </pre>
  * 
@@ -289,7 +290,8 @@ public class LoginDialog extends Dialog {
             public void widgetSelected(SelectionEvent event) {
                 loginData.setUserName(userText.getText().trim());
                 loginData.setPassword(passwordText.getText().trim());
-                loginData.setServer(serverText.getText().split(":")[1].trim());
+                loginData.setServer(ServerInput.removeDescription(serverText
+                        .getText()));
                 loginData.setStatus(statusCombo.getText());
                 loginData.setMessage(messageText.getText().trim());
                 Map<String, String> attributes = new HashMap<String, String>();
