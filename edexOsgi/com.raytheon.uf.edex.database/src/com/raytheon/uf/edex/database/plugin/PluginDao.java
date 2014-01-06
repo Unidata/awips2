@@ -21,7 +21,6 @@
 package com.raytheon.uf.edex.database.plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -52,7 +51,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
-import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -74,11 +72,11 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
@@ -114,6 +112,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 07, 2013 2392       rjpeter     Updated to pass null productKeys as actual null instead of string null.
+ * Dec 13, 2013 2555       rjpeter     Refactored archiving logic into processArchiveRecords.
  * </pre>
  * 
  * @author bphillip
@@ -457,7 +456,7 @@ public abstract class PluginDao extends CoreDao {
 
             for (IPersistable persistable : persistables) {
                 try {
-                    if (((PersistableDataObject) persistable)
+                    if (((PersistableDataObject<?>) persistable)
                             .isOverwriteAllowed()) {
                         if (replaceDataStore == null) {
                             replaceDataStore = DataStoreFactory
@@ -1695,105 +1694,18 @@ public abstract class PluginDao extends CoreDao {
         return null;
     }
 
-    public void archiveData(String archivePath, Calendar insertStartTime,
-            Calendar insertEndTime) throws DataAccessLayerException,
-            SerializationException, IOException {
-        List<PersistableDataObject> pdos = getRecordsToArchive(insertStartTime,
-                insertEndTime);
-        if ((pdos != null) && (pdos.size() > 0)) {
-            // map of file to list of pdo
-            Map<String, List<PersistableDataObject>> pdoMap = new HashMap<String, List<PersistableDataObject>>();
-            if (pdos.get(0) instanceof IPersistable) {
-                IHDFFilePathProvider pathProvider = this.pathProvider;
-
-                for (PersistableDataObject pdo : pdos) {
-                    IPersistable persistable = (IPersistable) pdo;
-                    String path = pathProvider.getHDFPath(pluginName,
-                            persistable)
-                            + File.separator
-                            + pathProvider.getHDFFileName(pluginName,
-                                    persistable);
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-            } else {
-                // order files by refTime hours
-                for (PersistableDataObject pdo : pdos) {
-                    String timeString = null;
-                    if (pdo instanceof PluginDataObject) {
-                        PluginDataObject pluginDataObj = (PluginDataObject) pdo;
-                        Date time = pluginDataObj.getDataTime()
-                                .getRefTimeAsCalendar().getTime();
-                        timeString = DefaultPathProvider.fileNameFormat.get()
-                                .format(time);
-                    } else {
-                        // no refTime to use bounded insert query bounds
-                        Date time = insertStartTime.getTime();
-                        timeString = DefaultPathProvider.fileNameFormat.get()
-                                .format(time);
-                    }
-
-                    String path = pluginName + timeString;
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-
-            }
-
-            for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
-                    .entrySet()) {
-                String path = archivePath + File.separator + pluginName
-                        + File.separator + entry.getKey();
-
-                // remove .h5
-                int index = path.lastIndexOf('.');
-                if ((index > 0) && ((path.length() - index) < 5)) {
-                    // ensure its end of string in case extension is
-                    // dropped/changed
-                    path = path.substring(0, index);
-                }
-
-                path += ".bin.gz";
-
-                File file = new File(path);
-
-                if (file.exists()) {
-                    // pull the
-                }
-
-                // Thrift serialize pdo list
-                byte[] data = SerializationUtil.transformToThrift(entry
-                        .getValue());
-
-                SerializationUtil.transformFromThrift(data);
-
-                // save list to disk (in gz format?)
-                FileUtil.bytes2File(data, file, true);
-            }
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<PersistableDataObject> getRecordsToArchive(
-            Calendar insertStartTime, Calendar insertEndTime)
+    public int processArchiveRecords(Calendar insertStartTime,
+            Calendar insertEndTime, IDatabaseProcessor processor)
             throws DataAccessLayerException {
         DatabaseQuery dbQuery = new DatabaseQuery(this.getDaoClass());
         dbQuery.addQueryParam("insertTime", insertStartTime,
                 QueryOperand.GREATERTHANEQUALS);
         dbQuery.addQueryParam("insertTime", insertEndTime,
                 QueryOperand.LESSTHAN);
+        dbQuery.addOrder("insertTime", true);
         dbQuery.addOrder("dataTime.refTime", true);
 
-        return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
+        return this.processByCriteria(dbQuery, processor);
     }
 
     protected static class DuplicateCheckStat {
