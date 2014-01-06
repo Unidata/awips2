@@ -118,6 +118,11 @@
     	<include>manualIngest-common.xml</include>
     	<include>manualIngest-spring.xml</include>
     	<include>shef-ingest.xml</include>
+    	<include>persist-ingest.xml</include>
+    	<include>obs-common.xml</include>
+	<include>obs-ingest.xml</include>
+	<include>metartohmdb-plugin.xml</include>
+	<include>pointdata-common.xml</include>
     	<include>shef-common.xml</include>
     	<include>ohd-common.xml</include>
     	<include>alarmWhfs-spring.xml</include>
@@ -139,6 +144,8 @@
     	<include>q2FileProcessor-spring.xml</include>
     	<include>satpre-spring.xml</include>
     	<include>purge-logs.xml</include>
+    	<exclude>fssobs-ingest.xml</exclude>
+    	<exclude>fssobs-common.xml</exclude>
     </mode>
     <mode name="requestHydro">
     	<include>ohd-common.xml</include>
@@ -147,6 +154,7 @@
     	<include>alertviz-request.xml</include>
     	<include>auth-common.xml</include>
     	<include>auth-request.xml</include>
+    	<include>persist-request.xml</include>
     	<include>menus-request.xml</include>
     	<include>utility-request.xml</include>
     	<include>management-common.xml</include>
