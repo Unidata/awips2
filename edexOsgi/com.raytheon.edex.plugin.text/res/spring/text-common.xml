@@ -56,5 +56,10 @@
 		</route>
 
 	</camelContext>
- 
+
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg value="text" />
+    </bean>
+
 </beans>

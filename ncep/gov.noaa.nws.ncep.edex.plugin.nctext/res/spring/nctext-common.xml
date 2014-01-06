@@ -18,6 +18,8 @@
 		<constructor-arg ref="nctextProperties"/>
 	</bean>
  
- 	
- 
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg ref="nctextPluginName" />
+    </bean>
 </beans>

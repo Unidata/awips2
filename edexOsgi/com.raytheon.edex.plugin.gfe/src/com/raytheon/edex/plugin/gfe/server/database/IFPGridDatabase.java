@@ -86,6 +86,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -119,6 +120,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/20/13     #1774      randerso    Cleanup code to use proper constructors
  * 04/08/13     #1949      rjpeter     Updated to work with normalized database.
  * 05/02/13     #1969      randerso    Removed updateDbs from parent class
+ * 12/10/13     #2611      randerso    Change saveGridData to set update time when saving grids
  * </pre>
  * 
  * @author bphillip
@@ -964,6 +966,14 @@ public class IFPGridDatabase extends GridDatabase {
 
         // track merge with existing records or add to new list
         for (GFERecord recToSave : recordsToSave) {
+            // modify update time for non ISC/Official db
+            if (!this.dbId.getModelName().equals("ISC")
+                    && !this.dbId.getModelName().equals("Official")) {
+                Date nowTime = SimulatedTime.getSystemTime().getTime();
+                for (GridDataHistory history : recToSave.getGridHistory()) {
+                    history.setUpdateTime(nowTime);
+                }
+            }
             TimeRange tr = recToSave.getTimeRange();
             GFERecord existing = existingMap.get(tr);
             if (existing != null) {
