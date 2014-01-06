@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Mina Plug-in
 Bundle-SymbolicName: org.apache.mina
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.7
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.slf4j
 Bundle-ClassPath: mina-core-1.1.7.jar,
