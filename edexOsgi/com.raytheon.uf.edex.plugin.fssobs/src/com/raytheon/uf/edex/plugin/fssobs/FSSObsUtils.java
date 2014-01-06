@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Nov 26, 2012 1297       skorolev    Changed ArrayList to List.Clean code
  * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
+ * Jan 02, 2014 2580       skorolev    Fixed FSSObs error.
  * 
  * </pre>
  * 
@@ -348,8 +349,9 @@ public class FSSObsUtils {
      * @return -- Snow data from METAR
      */
     public static float[] getSnowData(FSSObsRecord tableRow) {
-        // Check parameters for wind chill in K/frostbite in minutes/snow
-        // increase and depth in inches
+        // Check parameters for wind chill in K
+        // frost bite in minutes
+        // snow increase and depth in inches
         // time calculation (upper limit for wind chill
         // is set at 40F and wind speed between 14 and 43 knts) :
         float[] retVal = new float[5];
@@ -363,23 +365,28 @@ public class FSSObsUtils {
             whatMatched = sc.findWithinHorizon("SNINCR", 0);
             if (whatMatched != null) {
                 sc.useDelimiter("/");
-                // last hour snow in inches
-                retVal[0] = sc.nextInt();
+                if (sc.hasNextInt()) {
+                    // last hour snow in inches
+                    retVal[0] = sc.nextInt();
+                }
                 sc.reset();
-                // total snow in inches
-                retVal[1] = sc.nextInt();
+                if (sc.hasNextInt()) {
+                    // total snow in inches
+                    retVal[1] = sc.nextInt();
+                }
             }
             whatMatched = sc.findWithinHorizon("4/", 0);
             if (whatMatched != null) {
                 // snow depth on ground in inches
                 if (retVal.length >= 5) {
-                    retVal[5] = sc.nextInt();
+                    retVal[2] = sc.nextInt();
                 }
             }
         }
+        sc.close();
         if ((tableRow.getTemperature() != MISSING)
                 && (tableRow.getTemperature() < 4.4f)
-                // 277.6 K = 40 F = 4.44444 Celsium
+                // 277.6 K = 40 F = 4.44444 C
                 && (tableRow.getWindSpeed() != MISSING)
                 && (tableRow.getWindSpeed() <= 43.0f && tableRow.getWindSpeed() >= 14.0f)) {
             float speedKPH = tableRow.getWindSpeed() * 1.6f;
