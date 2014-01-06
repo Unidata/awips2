@@ -35,7 +35,6 @@ Export-Package: com.raytheon.viz.warngen,
  com.raytheon.viz.warngen.gis,
  com.raytheon.viz.warngen.gui,
  com.raytheon.viz.warngen.util
-Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.text.request,
