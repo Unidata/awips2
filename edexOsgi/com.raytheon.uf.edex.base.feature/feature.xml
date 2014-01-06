@@ -25,7 +25,7 @@
          id="com.mchange"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.9.1"/>
 
    <plugin
          id="com.raytheon.edex.common"
@@ -150,37 +150,37 @@
          id="net.sf.ehcache"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.3.0"/>
 
    <plugin
          id="org.apache.camel"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="2.11.2"/>
 
    <plugin
          id="org.apache.commons.cxf"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.5.10"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.management"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0"/>
 
    <plugin
          id="org.dom4j"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.6.1"/>
 
    <plugin
          id="org.eclipse.jetty"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="7.6.14.v20131031"/>
 
 </feature>
