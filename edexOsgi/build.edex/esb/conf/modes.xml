@@ -239,6 +239,7 @@
 		<include>fssobs-ingest.xml</include>
 		<include>fssobs-common.xml</include>
 		<include>ldadmesonet-common.xml</include>
+		<include>manualIngest-common.xml</include>
 		<include>dataaccess-common.xml</include>
 		<exclude>ncgrib-common.xml</exclude>
 		<exclude>nctext-common.xml</exclude>
