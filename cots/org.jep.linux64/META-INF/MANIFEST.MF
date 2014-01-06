@@ -2,8 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Native Jep Library 64-bit
 Bundle-SymbolicName: org.jep.linux64
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.3.0
 Bundle-Vendor: Raytheon-bundled OSS
+Bundle-ClassPath: libjep.so
 Fragment-Host: org.jep;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (& (osgi.os=linux) (osgi.arch=x86_64))
