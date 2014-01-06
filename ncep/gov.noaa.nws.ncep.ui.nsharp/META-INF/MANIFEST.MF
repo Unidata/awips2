@@ -63,5 +63,3 @@ Export-Package: gov.noaa.nws.ncep.ui.nsharp,
  gov.noaa.nws.ncep.ui.nsharp.display.rsc,
  gov.noaa.nws.ncep.ui.nsharp.natives,
  gov.noaa.nws.ncep.ui.nsharp.view
-Bundle-ClassPath: .,
- jna.jar
