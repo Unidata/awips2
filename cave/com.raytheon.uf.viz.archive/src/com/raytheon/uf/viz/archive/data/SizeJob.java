@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +49,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jul 24, 2013 #2220      rferrel     Change to get all data sizes only one time.
  * Aug 02, 2013 #2224      rferrel     Changes for new configuration files.
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
+ * Dec 11, 2013 #2603      rferrel     Selected list changed to a Set.
+ * Dec 11, 2013 #2624      rferrel     Clear display variables when recomputing sizes.
  * 
  * </pre>
  * 
@@ -231,6 +234,8 @@ public class SizeJob extends Job {
      */
     public void recomputeSize() {
         clearQueue();
+        displayArchive = null;
+        displayCategory = null;
         for (ArchiveInfo archiveInfo : archiveInfoMap.values()) {
             for (String categoryName : archiveInfo.getCategoryNames()) {
                 CategoryInfo categoryInfo = archiveInfo.get(categoryName);
@@ -300,19 +305,19 @@ public class SizeJob extends Job {
         for (String archiveName : getArchiveNames()) {
             ArchiveInfo archiveInfo = get(archiveName);
             for (String categoryName : archiveInfo.getCategoryNames()) {
-                List<String> selectionsList = selections.getSelectedList(
+                Set<String> selectionsSet = selections.getSelectedSet(
                         archiveName, categoryName);
                 MissingData missingData = removeMissingData(archiveName,
                         categoryName);
                 if (missingData != null) {
-                    missingData.setSelectedList(selectionsList);
+                    missingData.setSelectedSet(selectionsSet);
                     addMissingData(missingData);
                 } else {
                     CategoryInfo categoryInfo = archiveInfo.get(categoryName);
                     for (DisplayData displayData : categoryInfo
                             .getDisplayDataList()) {
                         String displayLabel = displayData.getDisplayLabel();
-                        boolean selected = selectionsList
+                        boolean selected = selectionsSet
                                 .contains(displayLabel);
                         if (selected != displayData.isSelected()) {
                             setSelect(displayData, selected);
@@ -506,10 +511,10 @@ public class SizeJob extends Job {
 
         visibleList = manager.getDisplayData(displayArchive, displayCategory,
                 false);
-        List<String> selectedList = selections.getSelectedList(displayArchive,
+        Set<String> selectedSet = selections.getSelectedSet(displayArchive,
                 displayCategory);
         for (DisplayData displayData : visibleList) {
-            displayData.setSelected(selectedList.contains(displayData
+            displayData.setSelected(selectedSet.contains(displayData
                     .getDisplayLabel()));
         }
 
@@ -528,10 +533,10 @@ public class SizeJob extends Job {
                         schedule();
                     }
                 } else {
-                    selectedList = selections.getSelectedList(archiveName,
+                    selectedSet = selections.getSelectedSet(archiveName,
                             categoryName);
                     MissingData missingData = new MissingData(archiveName,
-                            categoryName, selectedList);
+                            categoryName, selectedSet);
                     missingDataQueue.add(missingData);
                 }
             }
@@ -658,14 +663,11 @@ public class SizeJob extends Job {
                 break mainLoop;
             }
 
-            // System.out.println("+++SizeJob: " + currentDisplayData);
-
             List<File> files = manager.getDisplayFiles(currentDisplayData,
                     startCal, endCal);
 
             // Size no longer needed.
             if (currentDisplayData != sizeQueue.peek()) {
-                // System.out.println("---SizeJob: " + currentDisplayData);
                 continue mainLoop;
             }
 
@@ -682,7 +684,6 @@ public class SizeJob extends Job {
 
                 // Skip when size no longer needed.
                 if (stopComputeSize) {
-                    // System.out.println("---SizeJob: " + currentDisplayData);
                     continue mainLoop;
                 }
             }
@@ -692,7 +693,6 @@ public class SizeJob extends Job {
             displayQueue.add(currentDisplayData);
         }
 
-        // System.out.println("xxxSizeJob: OK_STATUS");
         shutdownDisplayTimer.set(true);
         return Status.OK_STATUS;
     }
@@ -748,15 +748,10 @@ public class SizeJob extends Job {
                             displayQueue.size());
                     displayQueue.drainTo(list);
 
-                    // for (DisplayData displayData : list) {
-                    // System.out.println("== " + displayData);
-                    // }
-                    //
                     for (IUpdateListener listener : listeners) {
                         listener.update(list);
                     }
                 } else if (shutdownDisplayTimer.get()) {
-                    // System.out.println("xxx updateDisplayTimer canceled");
                     displayTimer.cancel();
                     displayTimer = null;
                 }
@@ -773,7 +768,6 @@ public class SizeJob extends Job {
      */
     @Override
     protected void canceling() {
-        // System.err.println("canceling SizeJob");
         clearQueue();
         missingDataQueue.clear();
         missingDataJob.cancel();
@@ -789,28 +783,28 @@ public class SizeJob extends Job {
 
         protected final String category;
 
-        protected final List<String> selectedList;
+        protected final Set<String> selectedSet;
 
         protected boolean visiable = false;
 
         public MissingData(String archive, String category,
-                List<String> selectedList) {
+                Set<String> selectedSet) {
             this.archive = archive;
             this.category = category;
-            this.selectedList = new ArrayList<String>(selectedList);
+            this.selectedSet = new HashSet<String>(selectedSet);
         }
 
         public boolean isSelected() {
-            return !selectedList.isEmpty();
+            return !selectedSet.isEmpty();
         }
 
         public void setVisiable(boolean state) {
             this.visiable = state;
         }
 
-        public void setSelectedList(List<String> selectedList) {
-            this.selectedList.clear();
-            this.selectedList.addAll(selectedList);
+        public void setSelectedSet(Set<String> selectedSet) {
+            this.selectedSet.clear();
+            this.selectedSet.addAll(selectedSet);
         }
 
         @Override
@@ -861,8 +855,7 @@ public class SizeJob extends Job {
 
                 String archiveName = currentMissingData.archive;
                 String categoryName = currentMissingData.category;
-                // System.out.println("== missingData: " + currentMissingData);
-                List<String> selectedList = currentMissingData.selectedList;
+                Set<String> selectedSet = currentMissingData.selectedSet;
                 List<DisplayData> displayDatas = manager.getDisplayData(
                         archiveName, categoryName, false);
                 if (shutdown.get()) {
@@ -870,7 +863,7 @@ public class SizeJob extends Job {
                 }
 
                 for (DisplayData displayData : displayDatas) {
-                    displayData.setSelected(selectedList.contains(displayData
+                    displayData.setSelected(selectedSet.contains(displayData
                             .getDisplayLabel()));
                     sizeQueue.add(displayData);
                 }
@@ -883,13 +876,11 @@ public class SizeJob extends Job {
                 }
             }
 
-            // System.out.println("xxx missingData");
             return Status.OK_STATUS;
         }
 
         @Override
         protected void canceling() {
-            // System.err.println("canceling MissingDataJob");
             shutdown.set(true);
         }
     }

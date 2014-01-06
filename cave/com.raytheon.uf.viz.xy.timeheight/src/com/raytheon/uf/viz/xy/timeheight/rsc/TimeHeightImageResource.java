@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Dec 4, 2007            njensen     Initial creation
  * Feb 20, 2009            njensen     Refactored to new rsc architecture
+ * Dec 11, 2013 DR 16795   D. Friedman Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -273,12 +274,13 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
         IExtent extent = descriptor.getGraph(this).getExtent();
 
         double val = Double.NaN;
-        if (extent.contains(new double[] { coord.getObject().x,
-                coord.getObject().y })) {
+        double[] worldCoord = descriptor.pixelToWorld(new double[] {
+                coord.getObject().x, coord.getObject().y });
+        if (extent.contains(worldCoord)) {
             try {
 
-                DirectPosition2D dp = new DirectPosition2D(coord.getObject().x,
-                        coord.getObject().y);
+                DirectPosition2D dp = new DirectPosition2D(worldCoord[0],
+                        worldCoord[1]);
                 descriptor.getGridGeometry().getGridToCRS().transform(dp, dp);
                 val = reproj.reprojectedGridCell(sampler, (int) dp.x,
                         (int) dp.y);

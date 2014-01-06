@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2007            njensen     Initial creation
  * 02/17/09                njensen     Refactored to new rsc architecture
+ * Dec 11, 2013 DR 16795   D. Friedman Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -288,13 +289,15 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
 
         IExtent extent = descriptor.getGraph(this).getExtent();
 
+
         double val = Double.NaN;
-        if (extent.contains(new double[] { coord.getObject().x,
-                coord.getObject().y })) {
+        double[] worldCoord = descriptor.pixelToWorld(new double[] {
+                coord.getObject().x, coord.getObject().y });
+        if (extent.contains(worldCoord)) {
             try {
 
-                DirectPosition2D dp = new DirectPosition2D(coord.getObject().x,
-                        coord.getObject().y);
+                DirectPosition2D dp = new DirectPosition2D(worldCoord[0],
+                        worldCoord[1]);
                 descriptor.getGridGeometry().getGridToCRS().transform(dp, dp);
                 val = reproj.reprojectedGridCell(sampler, (int) dp.x,
                         (int) dp.y);

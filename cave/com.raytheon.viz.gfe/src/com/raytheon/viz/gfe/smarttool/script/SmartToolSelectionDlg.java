@@ -31,17 +31,18 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 
 /**
  * Dynamic GUI for showing smart tools' Variable Lists and running the tools
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 9, 2010            njensen     Initial creation
  * Jun 25, 2013  16065    ryu         Passing outerLevel to tool job
- *
+ * Dec 10, 2013  #2367    dgilling    Use new SmartToolJobPool.
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -55,20 +56,20 @@ public class SmartToolSelectionDlg extends SelectionDlg {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg#run()
      */
     @Override
     public void run() {
         PreviewInfo pi = SmartUtil.checkAndBuildPreview(dataMgr, name);
         if (pi != null) {
-            SmartToolRequest req = SmartUtil.
-                    buildSmartToolRequest(dataMgr, pi, true);
+            SmartToolRequest req = SmartUtil.buildSmartToolRequest(dataMgr, pi,
+                    true);
             if (req != null) {
                 String varDict = dataMgr.getSmartToolInterface()
                         .transformVarDict(getValues());
                 req.setVarDict(varDict);
-                SmartToolJob.enqueue(dataMgr, req);
+                dataMgr.getSmartToolJobPool().schedule(req);
             }
         }
     }
