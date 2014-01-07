@@ -94,7 +94,7 @@ import dods.dap.DAS;
  * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
- * Dec 18, 2013 2636       mpduff       Calculate a data availability delay for the dataset.
+ * Dec 18, 2013 2636       mpduff       Calculate a data availability delay for the dataset and dataset meta data.
  * 
  * </pre>
  * 
@@ -267,6 +267,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 long now = TimeUtil.newGmtCalendar().getTimeInMillis();
                 long offset = (now - startMillis) / TimeUtil.MILLIS_PER_MINUTE;
                 dataSet.setAvailabilityOffset((int) offset);
+                gdsmd.setAvailabilityOffset((int) offset);
 
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                     statusHandler.debug("Dataset Name: "
@@ -776,5 +777,4 @@ class OpenDAPMetaDataParser extends MetaDataParser {
 
         return parsedMetadatas;
     }
-
 }
