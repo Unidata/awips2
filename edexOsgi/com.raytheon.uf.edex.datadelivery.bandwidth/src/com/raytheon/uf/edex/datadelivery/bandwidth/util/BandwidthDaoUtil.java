@@ -76,7 +76,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Nov 20, 2013 2448       bgonzale     Fix for subscription start time set to first cycle time.
  *                                      Fix for subscription end time set to end of day.
  * Dec 02, 2013 2545       mpduff       Fix for delay starting retrievals, execute adhoc upon subscribing.
- * 
+ * Dec 20, 2013 2636       mpduff       Fix dataset offset.
  * </pre>
  * 
  * @author djohnson
@@ -297,18 +297,27 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
 
         // Now walk the subscription times and throw away anything outside the
         // plan hours, taking into account the availability delay...
-        int availabilityDelay = BandwidthUtil
-                .getDataSetAvailablityDelay(subscription);
+        int availabilityOffset = 0;
         Iterator<Calendar> itr = subscriptionTimes.iterator();
         while (itr.hasNext()) {
-
+            availabilityOffset = 0;
             Calendar time = itr.next();
-            Calendar withAvailabilityDelay = TimeUtil.newCalendar(time);
-            withAvailabilityDelay.add(Calendar.MINUTE, availabilityDelay);
+
+            try {
+                availabilityOffset = BandwidthUtil.getDataSetAvailablityOffset(
+                        subscription, time);
+            } catch (RegistryHandlerException e) {
+                // Error occurred querying the registry. Log and continue on
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+
+            Calendar withAvailabilityOffset = TimeUtil.newCalendar(time);
+            withAvailabilityOffset.add(Calendar.MINUTE, availabilityOffset);
 
             // We allow base reference times that are still possible to retrieve
             // within the availability window to be included
-            if (withAvailabilityDelay.before(planStart) || time.after(planEnd)) {
+            if (withAvailabilityOffset.before(planStart) || time.after(planEnd)) {
                 itr.remove();
             }
         }
