@@ -49,7 +49,6 @@
     <bean id="bandwidthUtil"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil"
         factory-method="getInstance">
-        <property name="dataSetAvailabilityCalculator" ref="dataSetAvailabilityCalculator" />
         <property name="subscriptionLatencyCalculator">
             <bean
                 class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SubscriptionValueLatencyCalculator" />
