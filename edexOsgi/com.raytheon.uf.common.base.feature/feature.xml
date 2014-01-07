@@ -21,13 +21,13 @@
          id="org.apache.thrift"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.9.0"/>
 
    <plugin
          id="com.google.guava"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="11.0.2"/>
 
    <plugin
          id="com.raytheon.uf.common.alertmonitor"
@@ -196,104 +196,104 @@
          id="javax.jms"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.1.1"/>
 
    <plugin
          id="javax.measure"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0"/>
 
    <plugin
          id="javax.persistence"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0"/>
 
    <plugin
          id="javax.vecmath"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.3.1"/>
 
    <plugin
          id="net.sf.cglib"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="2.1.3"/>
 
    <plugin
          id="org.apache.commons.beanutils"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.8.3"/>
 
    <plugin
          id="org.apache.commons.codec"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.4.0"/>
 
    <plugin
          id="org.apache.commons.collections"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="3.2.0"/>
 
    <plugin
          id="org.apache.commons.configuration"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.6.0"/>
 
    <plugin
          id="org.apache.commons.digester"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.8.1"/>
 
    <plugin
          id="org.apache.commons.lang"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.0"
          unpack="false"/>
 
    <plugin
          id="org.apache.http"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="4.1.2"/>
 
    <plugin
          id="org.apache.velocity"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.7.0"/>
 
    <plugin
          id="org.geotools"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="2.6.4"/>
 
    <plugin
          id="org.javassist"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="3.9.0.GA"/>
 
    <plugin
          id="org.hibernate"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="3.5.6"/>
 
    <plugin
          id="org.jep"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="2.3.0"/>
 
    <plugin
          id="org.jep.linux32"
@@ -301,7 +301,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.0"
          fragment="true"/>
 
    <plugin
@@ -310,7 +310,7 @@
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.0"
          fragment="true"/>
 
    <plugin
@@ -319,26 +319,26 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.0"
          fragment="true"/>
 
    <plugin
          id="org.postgres"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="9.2.4"/>
 
    <plugin
          id="org.slf4j"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.7.5"/>
 
    <plugin
          id="org.springframework"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="3.1.4"/>
 
    <plugin
          id="com.raytheon.uf.common.pypies"
@@ -372,31 +372,31 @@
          id="org.apache.qpid"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.18.0"/>
 
    <plugin
          id="org.apache.mina"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.1.7"/>
 
    <plugin
          id="org.quartz"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.8.6"/>
 
    <plugin
          id="org.apache.commons.io"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="2.4.0"/>
 
    <plugin
          id="ch.qos.logback"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.13"/>
 
    <plugin
          id="com.raytheon.uf.common.topo"
@@ -416,5 +416,5 @@
          id="org.reflections"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.9.9"/>
 </feature>

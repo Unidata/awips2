@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenGL Plug-in
 Bundle-SymbolicName: javax.media.opengl
-Bundle-Version: 1.1.0
+Bundle-Version: 1.1.1
 Bundle-ClassPath: gluegen-rt.jar,
  jogl.jar
 Export-Package: com.sun.gluegen.runtime,
