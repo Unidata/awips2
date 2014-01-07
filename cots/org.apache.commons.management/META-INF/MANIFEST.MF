@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Management Plug-in
 Bundle-SymbolicName: org.apache.commons.management
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-ClassPath: commons-management-1.0.jar
 Export-Package: org.fusesource.commons.management,
  org.fusesource.commons.management.basic,
