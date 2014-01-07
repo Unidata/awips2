@@ -50,10 +50,4 @@
         <constructor-arg ref="SubscriptionHandler" />
         <constructor-arg ref="subscriptionNotificationService" />
     </bean>
-
-    <bean id="dataSetAvailabilityCalculator"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.ProviderDataTypeAvailabilityCalculator">
-        <constructor-arg ref="ProviderHandler" />
-    </bean>
-
 </beans>
