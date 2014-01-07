@@ -1,23 +1,40 @@
 /**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
  * 
- */
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.openfire.plugin.configuration.collaboration.listener;
 
 import java.util.TimerTask;
 
+import org.jivesoftware.openfire.MessageRouter;
 import org.jivesoftware.openfire.event.SessionEventListener;
 import org.jivesoftware.openfire.session.Session;
 import org.jivesoftware.util.TaskEngine;
-import org.jivesoftware.openfire.MessageRouter;
-import org.xmpp.packet.JID;
-import org.xmpp.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmpp.packet.JID;
+import org.xmpp.packet.Message;
 
-import com.raytheon.openfire.plugin.configuration.collaboration.util.HttpdCollaborationUtil;
-import com.raytheon.openfire.plugin.configuration.collaboration.httpd.HttpdCollaborationStatusMonitor;
+import com.raytheon.openfire.plugin.configuration.collaboration.configuration.ConfigurationPacket;
 import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdCollaborationNotRunningException;
 import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdCollaborationStatusException;
+import com.raytheon.openfire.plugin.configuration.collaboration.httpd.HttpdCollaborationStatusMonitor;
+import com.raytheon.openfire.plugin.configuration.collaboration.util.HttpdCollaborationUtil;
 
 /**
  * Impelements @{link SessionEventListener} to wait for new users to connect to
@@ -29,7 +46,8 @@ import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdC
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2012            bkowal     Initial creation
+ * Aug 07, 2012            bkowal      Initial creation
+ * Jan 06, 2013  2563      bclement    replaced chat message with packet extension
  * 
  * </pre>
  * 
@@ -111,10 +129,10 @@ public class HttpdCollaborationSessionEventListener implements
 	 */
 	@Override
 	public void sessionCreated(Session session) {
-		final Message message = new Message();
+        final Message message = ConfigurationPacket.createMessage(this
+                .composeMessageBody());
 		message.setTo(session.getAddress());
 		message.setFrom(this.serverAddress);
-		message.setBody(this.composeMessageBody());
 
 		TimerTask messageTask = new TimerTask() {
 			@Override
