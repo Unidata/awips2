@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Win32 Native Jep Library 32-bit
 Bundle-SymbolicName: org.jep.win32
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.3.0
+Bundle-ClassPath: jep.dll
 Fragment-Host: org.jep;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))

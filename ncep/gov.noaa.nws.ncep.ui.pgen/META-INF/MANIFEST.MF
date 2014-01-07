@@ -44,4 +44,3 @@ Import-Package: com.raytheon.viz.core.contours.util,
  com.raytheon.viz.core.gl.images,
  gov.noaa.nws.ncep.common.staticdata,
  javax.measure.unit
-Bundle-ClassPath: .
