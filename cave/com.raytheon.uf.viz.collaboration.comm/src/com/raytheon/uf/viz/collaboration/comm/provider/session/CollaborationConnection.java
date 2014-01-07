@@ -106,6 +106,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Dec 18, 2013 2562       bclement    added smack compression, fixed invite parsing
  * Dec 19, 2013 2563       bclement    added connection listener, 
  *                                     added better error message on failed connection
+ * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
  * 
  * </pre>
  * 
@@ -452,7 +453,8 @@ public class CollaborationConnection implements IEventPublisher {
      * @return false on error
      */
     public boolean venueExistsOnServer(String venueName) {
-        String roomId = VenueSession.getRoomId(connection.getHost(), venueName);
+        String roomId = VenueSession.getRoomId(connection.getServiceName(),
+                venueName);
         try {
             return VenueSession.roomExistsOnServer(connection, roomId);
         } catch (XMPPException e) {
