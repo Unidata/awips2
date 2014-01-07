@@ -20,28 +20,27 @@
 package com.raytheon.openfire.plugin.configuration.collaboration.util;
 
 import java.io.File;
+
 /**
  * Various utility methods that are utilized by the Httpd Collaboration plugin
  * that do not require a class to be instantiated.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2012            bkowal     Initial creation
- *
+ * Aug 07, 2012            bkowal      Initial creation
+ * Jan 06, 2013  2563      bclement    removed config preamble
+ * 
  * </pre>
- *
+ * 
  * @author bkowal
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class HttpdCollaborationUtil {
-    public static final String CONFIG_PREAMBLE = "[[CONFIG#";
-
-    public static final String DIRECTIVE_SUFFIX = "]]";
     
     public static String encodeErrorMessage(Throwable e) {
         String content = e.getMessage();
@@ -50,7 +49,7 @@ public abstract class HttpdCollaborationUtil {
             content = e.toString();
         }
         
-        return CONFIG_PREAMBLE + "error : " + content + DIRECTIVE_SUFFIX;
+        return "error : " + content;
     }
     
     public static String endPathIfNecessary(String _path) {
@@ -60,4 +59,5 @@ public abstract class HttpdCollaborationUtil {
         
         return _path + File.separator;
     }
+
 }
