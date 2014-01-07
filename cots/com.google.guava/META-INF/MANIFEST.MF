@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Google Common (Guava)
 Bundle-SymbolicName: com.google.guava
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 11.0.2
 Bundle-Vendor: GOOGLE
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: guava-11.0.2.jar 
