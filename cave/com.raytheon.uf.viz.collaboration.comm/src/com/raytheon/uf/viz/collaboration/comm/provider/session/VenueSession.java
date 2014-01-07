@@ -87,6 +87,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 18, 2013 2562       bclement    moved data to packet extension
  * Dec 19, 2013 2563       bclement    status listeners now send all events to bus
+ * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
  * 
  * </pre>
  * 
@@ -255,7 +256,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             throws CollaborationException {
         CollaborationConnection manager = getSessionManager();
         XMPPConnection conn = manager.getXmppConnection();
-        String roomId = getRoomId(conn.getHost(), venueName);
+        String roomId = getRoomId(conn.getServiceName(), venueName);
         this.muc = new MultiUserChat(conn, roomId);
         this.venue = new Venue(conn, muc);
         createListeners();
@@ -287,7 +288,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
         try {
             CollaborationConnection manager = getSessionManager();
             XMPPConnection conn = manager.getXmppConnection();
-            String roomId = getRoomId(conn.getHost(), venueName);
+            String roomId = getRoomId(conn.getServiceName(), venueName);
             if (roomExistsOnServer(conn, roomId)) {
                 throw new CollaborationException("Session name already in use");
             }
