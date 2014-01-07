@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
  * ------------ ---------- ----------- --------------------------
  * Dec 18, 2013 2563       bclement     Initial creation
  * Jan 06, 2014 2563       bclement     added removeDescription
+ * Jan 07, 2014 2563       bclement     updated default xmpp port
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ public class ServerInput implements Listener {
 
     private final int addItemIndex;
 
-    private static final int DEFAULT_XMPP_PORT = 5432;
+    private static final int DEFAULT_XMPP_PORT = 5222;
 
     private static final int TIMEOUT = 5000; // 5 seconds
 
