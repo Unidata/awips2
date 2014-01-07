@@ -16,19 +16,21 @@
         // Currently, users are not allowed to modify the httpd-collaboration location
 	// because the rpm is not relocatable.
 	long interval = ParamUtils.getLongParameter(request, "txtInterval", DEFAULT_INTERVAL_S);
+	boolean legacy = ParamUtils.getBooleanParameter(request, "chkLegacy", false);
 
 	HttpdCollaborationConfigurationPlugin plugin = (HttpdCollaborationConfigurationPlugin) XMPPServer.getInstance().getPluginManager().getPlugin("com.raytheon.openfire.plugin.configuration.collaboration");
 
 	if (save)
 	{
 		plugin.setHttpdMonitorInterval(interval * 1000);
-
+		plugin.setLegacySupport(legacy);
 		response.sendRedirect("httpd-collaboration-monitor-admin.jsp?settingsSaved=true");
 		return;
 	}
 
 	String location = plugin.getHttpdCollaborationLocation();
 	interval = (plugin.getHttpdMonitorInterval() / 1000);
+	String legacyChkValue = plugin.hasLegacySupport() ? "checked" : "";
 %>
 
 <html>
@@ -114,6 +116,21 @@
                     <span id="spanIntervalError" class="jive-error-text" style="display: none;">
                       The interval must be numeric!
                     </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            </br></br></br>
+            <p>
+               Legacy message format support. If enabled, configuration is sent in chat message to support clients older than version 14.3.
+            </p>
+
+            <table cellpadding="3" cellspacing="0" border="0" width="100%">
+              <tbody>
+                <tr>
+                  <td width="15%" valign="top">legacy message format:&nbsp;</td>
+                  <td width="85%">
+                    <input type="checkbox" id="chkLegacy" name="chkLegacy" value="true" <%= legacyChkValue %> >
                   </td>
                 </tr>
               </tbody>
