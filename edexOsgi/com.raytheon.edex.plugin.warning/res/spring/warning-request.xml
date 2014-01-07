@@ -10,5 +10,5 @@
   	</bean>
 
     <!-- Instantiating class causes a thread to be run that will generate the warngen geometries -->
-	<bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorThread"/>
+	<bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorThread" depends-on="spatialQueryRegistered" />
 </beans>
