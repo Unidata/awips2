@@ -23,24 +23,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.TimerTask;
 
-import org.jivesoftware.openfire.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xmpp.packet.Message;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.http.HttpStatus;
+import org.jivesoftware.openfire.SessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmpp.packet.Message;
 
+import com.raytheon.openfire.plugin.configuration.collaboration.configuration.ConfigurationPacket;
 import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdCollaborationNotRunningException;
 import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdCollaborationStatusException;
 import com.raytheon.openfire.plugin.configuration.collaboration.util.HttpdCollaborationUtil;
 
 /**
- * Runs a series of checks to determine if httpd-collaboration is still
- * running on-demand and on a scheduled basis. The checks include:
- * verifying that a pid file exists for httpd-collaboration and
- * executing an http GET request against the httpd-collaboration server.
+ * Runs a series of checks to determine if httpd-collaboration is still running
+ * on-demand and on a scheduled basis. The checks include: verifying that a pid
+ * file exists for httpd-collaboration and executing an http GET request against
+ * the httpd-collaboration server.
  * 
  * <pre>
  * 
@@ -48,7 +49,8 @@ import com.raytheon.openfire.plugin.configuration.collaboration.util.HttpdCollab
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 26, 2012            bkowal     Initial creation
+ * Jul 26, 2012            bkowal      Initial creation
+ * Jan 06, 2013  2563      bclement    replaced chat message with packet extension
  * 
  * </pre>
  * 
@@ -141,7 +143,7 @@ public class HttpdCollaborationStatusMonitor extends TimerTask {
 
     @Override
     public void run() {
-        logger.info("Verifying that httpd-collaboration is still available ...");
+        logger.debug("Verifying that httpd-collaboration is still available ...");
         String errorMessage = null;
 
         try {
@@ -172,8 +174,7 @@ public class HttpdCollaborationStatusMonitor extends TimerTask {
     }
 
     private synchronized void broadcastMessage(String body) {
-        Message message = new Message();
-        message.setBody(body);
+        Message message = ConfigurationPacket.createMessage(body);
         this.sessionManager.broadcast(message);
     }
 }
