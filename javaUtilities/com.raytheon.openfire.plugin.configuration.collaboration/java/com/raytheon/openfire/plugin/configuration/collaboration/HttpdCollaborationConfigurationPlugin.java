@@ -1,27 +1,44 @@
 /**
- * @author bkowal
- */
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.openfire.plugin.configuration.collaboration;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.jivesoftware.util.JiveGlobals;
-import org.jivesoftware.util.TaskEngine;
+import org.apache.commons.configuration.ConfigurationException;
 import org.jivesoftware.openfire.MessageRouter;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.event.SessionEventDispatcher;
+import org.jivesoftware.util.JiveGlobals;
+import org.jivesoftware.util.TaskEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
-import org.apache.commons.configuration.ConfigurationException;
 
+import com.raytheon.openfire.plugin.configuration.collaboration.configuration.ConfigurationPacket;
 import com.raytheon.openfire.plugin.configuration.collaboration.configuration.HttpdCollaborationConfiguration;
-import com.raytheon.openfire.plugin.configuration.collaboration.httpd.HttpdCollaborationStatusMonitor;
 import com.raytheon.openfire.plugin.configuration.collaboration.httpd.HttpdCollaborationConfReader;
+import com.raytheon.openfire.plugin.configuration.collaboration.httpd.HttpdCollaborationStatusMonitor;
 import com.raytheon.openfire.plugin.configuration.collaboration.listener.HttpdCollaborationSessionEventListener;
 
 /**
@@ -34,7 +51,9 @@ import com.raytheon.openfire.plugin.configuration.collaboration.listener.HttpdCo
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2012            bkowal     Initial creation
+ * Aug 07, 2012            bkowal      Initial creation
+ * Jan 06, 2013  2563      bclement    replaced TaskEngine shutdown with cancel task
+ *                                     added legacy format setter/accessor
  * 
  * </pre>
  * 
@@ -84,7 +103,10 @@ public class HttpdCollaborationConfigurationPlugin implements Plugin {
 		}
 
 		if ((this.monitorTaskEngine == null) == false) {
-			this.monitorTaskEngine.shutdown();
+            // we don't want to shutdown the engine since it is a singleton
+            // if we do, we can't reload the plugin
+            this.monitorTaskEngine
+                    .cancelScheduledTask(this.httpdCollaborationStatusMonitor);
 			this.monitorTaskEngine = null;
 		}
 	}
@@ -189,24 +211,24 @@ public class HttpdCollaborationConfigurationPlugin implements Plugin {
 				.cancelScheduledTask(this.httpdCollaborationStatusMonitor);
 	}
 
-	/**
-	 * Sets the configurable installation location of awips2-httpd-collaboration
-	 * 
-	 * @param _location
-	 *            the location of awips2-httpd-collaboration
-	 */
-	public void setHttpdCollaborationLocation(String _location) {
-		JiveGlobals.setProperty(LOCATION, _location);
-	}
+	    /**
+     * Sets the configurable installation location of awips2-httpd-collaboration
+     * 
+     * @param _location
+     *            the location of awips2-httpd-collaboration
+     */
+    public void setHttpdCollaborationLocation(String _location) {
+        JiveGlobals.setProperty(LOCATION, _location);
+    }
 
-	/**
-	 * Returns the installation location of awips2-httpd-collaboration from the
-	 * openfire configuration
-	 * 
-	 * @return the installation root of awips2-httpd-collaboration
-	 */
+    /**
+     * Returns the installation location of awips2-httpd-collaboration from the
+     * openfire configuration
+     * 
+     * @return the installation root of awips2-httpd-collaboration
+     */
 	public String getHttpdCollaborationLocation() {
-		return JiveGlobals.getProperty(LOCATION, DEFAULT_LOCATION);
+        return JiveGlobals.getProperty(LOCATION, DEFAULT_LOCATION);
 	}
 
 	/**
@@ -234,4 +256,23 @@ public class HttpdCollaborationConfigurationPlugin implements Plugin {
 	public long getHttpdMonitorInterval() {
 		return JiveGlobals.getLongProperty(INTERVAL, DEFAULT_INTERVAL_MS);
 	}
+
+    /**
+     * Sets the global value for toggling pre 14.3 message format support
+     * 
+     * @param legacy
+     */
+    public void setLegacySupport(boolean legacy) {
+        JiveGlobals.setProperty(ConfigurationPacket.LEGACY_KEY,
+                Boolean.toString(legacy));
+    }
+
+    /**
+     * @return true if configured to support pre 14.3 message format
+     */
+    public boolean hasLegacySupport() {
+        return JiveGlobals.getBooleanProperty(ConfigurationPacket.LEGACY_KEY,
+                true);
+    }
+
 }
