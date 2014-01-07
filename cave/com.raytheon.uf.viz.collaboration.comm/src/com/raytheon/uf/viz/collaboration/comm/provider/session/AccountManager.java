@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -56,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 07, 2013 2563       bclement    fixed id parsing in auto responder
  * 
  * </pre>
  * 
@@ -77,8 +79,7 @@ public class AccountManager implements IAccountManager {
                 if (type == null) {
                     return;
                 }
-                UserId fromId = new UserId(pres.getFrom(), sessionManager
-                        .getXmppConnection().getHost());
+                UserId fromId = IDConverter.convertFrom(pres.getFrom());
                 switch (type) {
                 case subscribe:
                     handleSubRequest(fromId);
