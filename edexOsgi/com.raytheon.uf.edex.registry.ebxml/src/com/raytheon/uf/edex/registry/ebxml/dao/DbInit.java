@@ -90,6 +90,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  *                                      they can't fail the ebxml schema creation/population.
  * Nov 01, 2013 2361        njensen     Use EbxmlJaxbManager instead of SerializationUtil
  * Nov 14, 2013 2552        bkowal      EbxmlJaxbManager is now accessed via getInstance
+ * Dec 20, 2013 2636        mpduff      Set initialized to true before postInitialized is called.
  * </pre>
  * 
  * @author bphillip
@@ -346,9 +347,9 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
                 statusHandler.fatal("Error initializing EBXML database!", e);
             }
 
-            myself.postInitDb();
-
             INITIALIZED = true;
+
+            myself.postInitDb();
         }
     }
 
