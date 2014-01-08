@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Dec 09, 2013 2581       njensen     Reuse patterns for efficiency
  *                                      Check entire time line looking for latlon
+ * Jan 07, 2013 2581       njensen     Check to end of string for source, not a set length
  * 
  * </pre>
  * 
@@ -91,8 +92,6 @@ public class LSRParser {
     private static int STATE_LENGTH = 2; // state length
 
     private static int SOURCE = 53; // source
-
-    private static int SOURCE_LENGTH = 16; // source max length
 
     private static final Pattern LATLON_PTRN = Pattern
             .compile("((([0-8][0-9]|90).\\d{2,2}[NS]) ++(1?+\\d{2,2}.\\d{2,2}[EW])())");
@@ -419,11 +418,10 @@ public class LSRParser {
                     ss = dateLine.substring(STATE, STATE + STATE_LENGTH).trim();
                     rpt.setStateLoc(ss);
 
-                    ss = dateLine.substring(SOURCE, SOURCE + SOURCE_LENGTH)
-                            .trim();
+                    ss = dateLine.substring(SOURCE).trim();
                     rpt.setSource(ss);
                 } catch (Exception e) {
-                    logger.error("Bad date " + ss);
+                    logger.error("Bad line " + dateLine);
                 }
             }
         }
