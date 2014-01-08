@@ -744,7 +744,7 @@ class IscMosaic:
                                             grid = self.__validateAdjustWeatherKeys(grid,
                                               self.__parmName, tr)
 
-                                grid = self.__remap(self.__dbwe, grid, inGeoDict, inFillV)
+                                    grid = self.__remap(self.__dbwe, grid, inGeoDict, inFillV)
 
                                     # if rate parm, then may need to adjust the values
                                     if self.__rateParm and inTimes[i] != tr:
