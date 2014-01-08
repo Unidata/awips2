@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
  * Jun 25, 2013 2106       djohnson     Extracted from {@link BandwidthBucket} and {@link RetrievalPlan}.
  * Dec 17, 2013 2636       bgonzale     Prevent stale BandwidthAllocation updates by retrieving 
  *                                      them from the dao before updating.
+ * Jan 08, 2013 2645       bgonzale     Update allocations in the multimap when setting status to PROCESSING.
  * 
  * </pre>
  * 
@@ -146,6 +147,8 @@ public class InMemoryBandwidthBucketAllocationAssociator implements
                     // mapping
                     allocations.remove(o.getId(), o);
                 } else {
+                    // update it
+                    allocation = o;
                     allocation.setStatus(RetrievalStatus.PROCESSING);
                     bandwidthDao.createOrUpdate(allocation);
                 }
