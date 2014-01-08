@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.widgets.Shell;
 
@@ -58,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 10, 2013   2428     skorolev    Fixed memory leak for Regions
  * Oct 24, 2013   2486     skorolev    Fixed an error of editing subset box.
  * Nov 06, 2013   2486     skorolev    Corrected the regions and zoom handling defects.
+ * Jan 08, 2014   2643     mpduff      Changed the way mouse interactions are handled.
  * 
  * </pre>
  * 
@@ -124,9 +124,6 @@ public class DrawBoxResource extends
     /** The x value of the 360 degree longitude line */
     private double x360;
 
-    /** Map pixel rectangle */
-    private Rectangle mapRctgl;
-
     /**
      * @param resourceData
      * @param loadProperties
@@ -165,7 +162,7 @@ public class DrawBoxResource extends
             double[] lr = descriptor.worldToPixel(new double[] { c2.x, c2.y });
             PixelExtent pe = new PixelExtent(ul[0], lr[0], ul[1], lr[1]);
             target.drawRect(pe, boxColor, 3, 1);
-            getMapRectangle();
+            setCorners();
         }
     }
 
@@ -190,8 +187,7 @@ public class DrawBoxResource extends
         double[] point360 = getResourceContainer().translateInverseClick(c);
         this.x360 = Math.round(point360[0]);
 
-        getMapRectangle();
-
+        setCorners();
     }
 
     /*
@@ -225,18 +221,17 @@ public class DrawBoxResource extends
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
-                // handle mouse only in the map space
-                if (mapRctgl.contains(x, y)) {
+                // translateClick returns null if point is not in the map space
+                Coordinate coord = getResourceContainer().translateClick(x, y);
+                if (coord != null) {
                     if (!resizingBox) {
                         x1 = x;
                         y1 = y;
-                        c1 = getResourceContainer().translateClick(x, y);
-                        if (c1 != null) {
-                            c1.x = spatialUtils.convertToEasting(c1.x);
-                            if (spatialUtils.getLongitudinalShift() > 0
-                                    && x >= x360) {
-                                c1.x += 360;
-                            }
+                        c1 = (Coordinate) coord.clone();
+                        c1.x = spatialUtils.convertToEasting(c1.x);
+                        if (spatialUtils.getLongitudinalShift() > 0
+                                && x >= x360) {
+                            c1.x += 360;
                         }
                     }
                 }
@@ -256,34 +251,31 @@ public class DrawBoxResource extends
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
                 drawingBox = true;
-                // handle mouse only in the map space
-                if (mapRctgl.contains(x, y)) {
+                // translateClick returns null if point is not in the map space
+                Coordinate c = getResourceContainer().translateClick(x, y);
+                if (c != null) {
                     if (resizingBox) {
-                        Coordinate c = getResourceContainer().translateClick(x,
-                                y);
-                        if (c != null) {
-                            if (boxSide == 0) {
-                                c1.y = c.y;
-                                y1 = y;
-                            } else if (boxSide == 1) {
-                                c1.x = c.x;
-                                x1 = x;
-                                c1.x = spatialUtils.convertToEasting(c1.x);
-                                if (spatialUtils.getLongitudinalShift() > 0
-                                        && x >= x360) {
-                                    c1.x += 360;
-                                }
-                            } else if (boxSide == 2) {
-                                c2.y = c.y;
-                                y2 = y;
-                            } else if (boxSide == 3) {
-                                c2.x = c.x;
-                                x2 = x;
-                                c2.x = spatialUtils.convertToEasting(c2.x);
-                                if (spatialUtils.getLongitudinalShift() > 0
-                                        && x >= x360) {
-                                    c2.x += 360;
-                                }
+                        if (boxSide == 0) {
+                            c1.y = c.y;
+                            y1 = y;
+                        } else if (boxSide == 1) {
+                            c1.x = c.x;
+                            x1 = x;
+                            c1.x = spatialUtils.convertToEasting(c1.x);
+                            if (spatialUtils.getLongitudinalShift() > 0
+                                    && x >= x360) {
+                                c1.x += 360;
+                            }
+                        } else if (boxSide == 2) {
+                            c2.y = c.y;
+                            y2 = y;
+                        } else if (boxSide == 3) {
+                            c2.x = c.x;
+                            x2 = x;
+                            c2.x = spatialUtils.convertToEasting(c2.x);
+                            if (spatialUtils.getLongitudinalShift() > 0
+                                    && x >= x360) {
+                                c2.x += 360;
                             }
                         }
                     } else {
@@ -298,7 +290,6 @@ public class DrawBoxResource extends
                         x2 = x;
                         y2 = y;
                     }
-
                     fireBoxChangedEvent();
                     target.setNeedsRefresh(true);
                 }
@@ -347,37 +338,34 @@ public class DrawBoxResource extends
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
-                // handle mouse only in the map space
-                if (mapRctgl.contains(x, y)) {
+                // translateClick returns null if point is not in the map space
+                Coordinate c = getResourceContainer().translateClick(x, y);
+                if (c != null) {
                     if (resizingBox) {
-                        Coordinate c = getResourceContainer().translateClick(x,
-                                y);
-                        if (c != null) {
-                            c.x = spatialUtils.convertToEasting(c.x);
-                            if (spatialUtils.getLongitudinalShift() > 0
-                                    && x >= x360) {
-                                c.x += 360;
-                            }
-                            if (boxSide == 0) {
-                                c1.y = c.y;
-                                y1 = y;
-                            } else if (boxSide == 1) {
-                                c1.x = c.x;
-                                x1 = x;
-                            } else if (boxSide == 2) {
-                                c2.y = c.y;
-                                y2 = y;
-                            } else if (boxSide == 3) {
-                                c2.x = c.x;
-                                x2 = x;
-                            }
+                        c.x = spatialUtils.convertToEasting(c.x);
+                        if (spatialUtils.getLongitudinalShift() > 0
+                                && x >= x360) {
+                            c.x += 360;
+                        }
+                        if (boxSide == 0) {
+                            c1.y = c.y;
+                            y1 = y;
+                        } else if (boxSide == 1) {
+                            c1.x = c.x;
+                            x1 = x;
+                        } else if (boxSide == 2) {
+                            c2.y = c.y;
+                            y2 = y;
+                        } else if (boxSide == 3) {
+                            c2.x = c.x;
+                            x2 = x;
                         }
                     } else {
-                        if (drawingBox) {
-                            x2 = x;
-                            y2 = y;
-                            c2 = getResourceContainer().translateClick(x, y);
-                            if (c2 != null) {
+                        c2 = getResourceContainer().translateClick(x, y);
+                        if (c2 != null) {
+                            if (drawingBox) {
+                                x2 = x;
+                                y2 = y;
                                 c2.x = spatialUtils.convertToEasting(c2.x);
                                 if (spatialUtils.getLongitudinalShift() > 0
                                         && x >= x360) {
@@ -388,14 +376,14 @@ public class DrawBoxResource extends
                             c1 = getResourceContainer().translateClick(x, y);
                         }
                     }
+                    createRegions();
+                    target.setNeedsRefresh(true);
+                    fireBoxChangedEvent();
                 }
-                createRegions();
-                target.setNeedsRefresh(true);
-                fireBoxChangedEvent();
                 drawingBox = false;
             } else if (mouseButton == 2) {
                 super.handleMouseUp(x, y, 1);
-                getMapRectangle();
+                setCorners();
             }
             return true;
         }
@@ -554,23 +542,7 @@ public class DrawBoxResource extends
     /**
      * Get map's rectangle in pixels after changing.
      */
-    private void getMapRectangle() {
-        Coordinate top = new Coordinate();
-        top.x = spatialUtils.getUpperLeft().x;
-        top.y = spatialUtils.getUpperLeft().y;
-        double[] pointTop = getResourceContainer().translateInverseClick(top);
-        int xTop = (int) Math.round(pointTop[0]);
-        int yTop = (int) Math.round(pointTop[1]);
-
-        Coordinate bot = new Coordinate();
-        bot.x = spatialUtils.getLowerRight().x;
-        bot.y = spatialUtils.getLowerRight().y;
-        double[] pointBot = getResourceContainer().translateInverseClick(bot);
-        int xBottom = (int) Math.round(pointBot[0]);
-        int yBottom = (int) Math.round(pointBot[1]);
-
-        mapRctgl = new Rectangle(xTop, yTop, (xBottom - xTop), (yBottom - yTop));
-
+    private void setCorners() {
         // Re-calculate regions
         if ((c1 != null) && (c2 != null)) {
             double[] luBox = getResourceContainer().translateInverseClick(c1);
