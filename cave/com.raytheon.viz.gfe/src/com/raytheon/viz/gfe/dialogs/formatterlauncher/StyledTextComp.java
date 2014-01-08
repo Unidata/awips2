@@ -82,6 +82,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
  * 30 APR 2013  16095      ryu         Modified updateTextStyle() to not lock edited text.
  * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
+ * 20 DEC 2013  16854      ryu         Force re-parsing of text on type change.
  * 
  * </pre>
  * 
@@ -568,21 +569,37 @@ public class StyledTextComp extends Composite {
         } else {
             String s = SPC + newfield;
             if (!ff.getText().equals(s)) {
-                replaceText(ff, s);
+                replaceText(ff, s, true);
             }
         }
     }
 
     public void replaceText(TextIndexPoints tip, String text) {
+        replaceText(tip, text, false);
+    }
+    
+    /**
+     * Replacement of the text in the given range with new text.
+     * 
+     * @param tip
+     *            the range of text to be replaced
+     * @param text
+     *            the replacement text
+     * @param forceReparse
+     *            if true, the product text will be forced to be re-parsed.
+     */
+    public void replaceText(TextIndexPoints tip, String text,
+            boolean forceReparse) {
         int start = prodDataStruct.positionToOffset(tip.getStartIndex());
         if (!tip.getText().equals(text)) {
             StyleRange[] ranges = textEditorST.getStyleRanges(start, tip
                     .getText().length());
             textEditorST.replaceTextRange(start, tip.getText().length(), text);
 
-            // only reparse if we replaced with different length text
+            // only reparse if we replaced with different length text or forced
             // else, replace StyleRanges since the operation is safe
-            if (tip.getText().length() != text.length()) {
+            if ((tip.getText().length() != text.length())
+                    || forceReparse) {
                 dirty = true;
             } else {
                 for (StyleRange range : ranges) {
