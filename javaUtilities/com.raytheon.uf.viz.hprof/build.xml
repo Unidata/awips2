@@ -1,0 +1,66 @@
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+    
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+    
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+    
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+<project name="com.raytheon.uf.viz.hprof" default="dist">
+
+  <property name="src" location="src"/>
+  <property name="bin" location="bin"/>
+  <property name="main" value="com.raytheon.uf.viz.hprof.CaveExporter"/>
+  <property name="qualifier" value="${date}"/>
+  
+  <target name="init">
+    <mkdir dir="${bin}"/>
+    <tstamp>  
+      <format property="date" pattern="yyyyMMdd" />  
+    </tstamp>  
+  </target>
+	
+  <target name="compile" depends="init">
+    <javac srcdir="${src}" destdir="${bin}"/>
+  </target>
+	
+  <target name="copyManifest" depends="init">
+    <loadproperties srcfile="META-INF/MANIFEST.MF">
+      <filterchain>
+        <linecontainsregexp>
+          <regexp pattern="^Bundle-Version: \d+.\d+.\d+.qualifier$" />
+        </linecontainsregexp>
+        <tokenfilter>
+          <replaceregex pattern="qualifier$" replace="${qualifier}" />
+        </tokenfilter>
+      </filterchain>
+    </loadproperties>
+    <copy file="META-INF/MANIFEST.MF" tofile="${bin}/META-INF/MANIFEST.MF" />
+  	<manifest file="${bin}/META-INF/MANIFEST.MF" mode="update">
+      <attribute name="Bundle-Version" value="${Bundle-Version}" />
+    </manifest>
+  </target>
+
+  <target name="dist" depends="compile,copyManifest">
+    <jar destfile="${ant.project.name}-${Bundle-Version}.jar" basedir="${bin}" manifest="${bin}/META-INF/MANIFEST.MF"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${bin}"/>
+    <delete verbose="true">
+      <fileset dir="." includes="${ant.project.name}-*.jar"/>
+    </delete>
+  </target>
+
+</project>
