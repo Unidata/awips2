@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.datastorage;
 
 import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 30, 2008            chammack     Initial creation
+ * Jan 09, 2014 1998       bclement     added hasExceptions method, removed ISerializableObject
  * 
  * </pre>
  * 
@@ -43,7 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class StorageStatus implements ISerializableObject {
+public class StorageStatus {
 
     private StorageException[] exceptions;
 
@@ -102,6 +102,13 @@ public class StorageStatus implements ISerializableObject {
      */
     public void setIndexOfAppend(long[] indexOfAppend) {
         this.indexOfAppend = indexOfAppend;
+    }
+
+    /**
+     * @return true if exceptions field is populated
+     */
+    public boolean hasExceptions() {
+        return exceptions != null && exceptions.length > 0;
     }
 
 }
