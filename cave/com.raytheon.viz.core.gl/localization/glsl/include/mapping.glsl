@@ -203,7 +203,7 @@ float valueToLogIndex(float value, float rangeMin, float rangeMax) {
 		return 0;
 	}
 
-	double index = (log(value) - log(rangeMin))
+	float index = (log(value) - log(rangeMin))
 			/ (log(rangeMax) - log(rangeMin));
 	if (reverse != 0) {
 		index = -index;
