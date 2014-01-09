@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui.login;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.jivesoftware.smack.packet.Presence;
 
+import com.google.common.collect.Iterators;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
@@ -67,6 +69,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Jun 18, 2012            mschenke     Initial creation
  * Dec 19, 2013 2563       bclement     added option to connect to server not in list
  * Jan 06, 2014 2563       bclement     moved server text parsing to ServerInput class
+ * Jan 08, 2014 2563       bclement     added Add/Remove buttons for server list
  * 
  * </pre>
  * 
@@ -76,8 +79,6 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 
 public class LoginDialog extends Dialog {
 
-    private static final String OTHER_SERVER_OPTION = "Other server...";
-
     private IPreferenceStore preferences;
 
     private CollaborationConnectionData loginData;
@@ -85,6 +86,10 @@ public class LoginDialog extends Dialog {
     private Text userText;
 
     private Combo serverText;
+
+    private Button addServerButton;
+
+    private Button removeServerButton;
 
     private Text passwordText;
 
@@ -148,33 +153,56 @@ public class LoginDialog extends Dialog {
 
         // Server setting
         new Label(body, SWT.NONE).setText("Server: ");
-        serverText = new Combo(body, SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
+
+
+        serverText = new Combo(body, SWT.BORDER | SWT.READ_ONLY
+                | SWT.DROP_DOWN);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumWidth = 200;
-        gd.horizontalSpan = 2;
         serverText.setLayoutData(gd);
+
         // retrieve the servers
         SiteConfigInformation information = SiteConfigurationManager
                 .getSiteConfigInformation();
-        List<HostConfig> servers = information.getServer();
-        if (servers == null) {
-            servers = new ArrayList<SiteConfigInformation.HostConfig>(0);
+        List<HostConfig> siteServers = information.getServer();
+        if (siteServers == null) {
+            siteServers = new ArrayList<SiteConfigInformation.HostConfig>(0);
         }
+        List<HostConfig> userServers = SiteConfigurationManager
+                .getUserHostConfig();
         // put configured as true so we don't disable the login button
         serverText.setData("configured", true);
-        String[] names = new String[servers.size() + 1];
-        names[0] = OTHER_SERVER_OPTION;
-        int index = 1;
-        for (int i = 1; i < names.length; i++) {
-            HostConfig config = servers.get(i - 1);
-            names[i] = config.getPrettyName() + " : " + config.getHostname();
+        String[] names = new String[siteServers.size() + userServers.size()];
+        Iterator<HostConfig> iter = Iterators.concat(siteServers.iterator(),
+                userServers.iterator());
+        int index = 0;
+        for (int i = 0; iter.hasNext() && i < names.length; i++) {
+            HostConfig config = iter.next();
+            names[i] = config.toString();
             if (loginData.getServer().equals(names[i])) {
                 index = i;
             }
         }
         serverText.setItems(names);
         serverText.select(index);
-        serverText.addListener(SWT.Selection, new ServerInput(serverText, 0));
+
+        // add remove server buttons
+        Composite serverButtons = new Composite(body, SWT.NONE);
+        serverButtons.setLayout(new GridLayout(2, false));
+        serverButtons.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
+                false));
+
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        addServerButton = new Button(serverButtons, SWT.PUSH);
+        addServerButton.setText(ServerListListener.addButtonText);
+        addServerButton.setLayoutData(gd);
+        addServerButton.addListener(SWT.Selection, new ServerListListener(serverText));
+        removeServerButton = new Button(serverButtons, SWT.PUSH);
+        removeServerButton.setText(ServerListListener.removeButtonText);
+        removeServerButton.setLayoutData(gd);
+        removeServerButton.addListener(SWT.Selection, new ServerListListener(
+                serverText));
+
 
         // Password setting
         new Label(body, SWT.NONE).setText("Password: ");
@@ -290,7 +318,7 @@ public class LoginDialog extends Dialog {
             public void widgetSelected(SelectionEvent event) {
                 loginData.setUserName(userText.getText().trim());
                 loginData.setPassword(passwordText.getText().trim());
-                loginData.setServer(ServerInput.removeDescription(serverText
+                loginData.setServer(HostConfig.removeDescription(serverText
                         .getText()));
                 loginData.setStatus(statusCombo.getText());
                 loginData.setMessage(messageText.getText().trim());
@@ -313,16 +341,7 @@ public class LoginDialog extends Dialog {
                 if (server.isEmpty()) {
                     errorMessages.add("Must have a server.");
                 }
-                String error = ServerInput.validate(server);
-                if (error != null) {
-                    errorMessages.add(error);
-                } else {
-                    try {
-                        loginData.setServer(ServerInput.getFullName(server));
-                    } catch (CollaborationException e) {
-                        errorMessages.add(e.getLocalizedMessage());
-                    }
-                }
+                loginData.setServer(server);
 
                 if (loginData.getPassword().isEmpty()) {
                     errorMessages.add("Must enter a password.");
