@@ -42,7 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
  * Oct 30, 2012 1286       djohnson     Initial creation
  * Jul 10, 2013 2106       djohnson     Remove EDEX instance specific methods.
  * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
- * 
+ * Jan 06, 2014 2636       mpduff       Update javadoc
  * </pre>
  * 
  * @author djohnson
@@ -52,7 +52,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
 public interface IBandwidthManager<T extends Time, C extends Coverage> {
 
     /**
-     * Schedule all cycles of a Subscription.
+     * Schedule all retrievals of a Subscription.
      * 
      * @param subscription
      * @return A list of bandwidth allocations that are not scheduled

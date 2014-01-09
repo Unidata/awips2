@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -32,7 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 20, 2012 1286       djohnson    Change some logging to debug.
  * Jun 13, 2013 2095       djohnson    No need to query the database, we are only receiving new bandwidth subscriptions.
  * Jul 11, 2013 2106       djohnson    aggregate() signature changed.
- * 
+ * Jan 06, 2014 2636       mpduff      Changed how data set offset is set.
  * </pre>
  * 
  * @author jspinks
@@ -80,8 +81,16 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
 
             subscriptionRetrieval.setSubscriptionLatency(BandwidthUtil
                     .getSubscriptionLatency(sub));
-            subscriptionRetrieval.setDataSetAvailablityDelay(BandwidthUtil
-                    .getDataSetAvailablityDelay(sub));
+
+            int offset = 0;
+            try {
+                offset = BandwidthUtil.getDataSetAvailablityOffset(sub,
+                        subDao.getBaseReferenceTime());
+            } catch (RegistryHandlerException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+            subscriptionRetrieval.setDataSetAvailablityDelay(offset);
 
             subscriptionRetrievals.add(subscriptionRetrieval);
 
