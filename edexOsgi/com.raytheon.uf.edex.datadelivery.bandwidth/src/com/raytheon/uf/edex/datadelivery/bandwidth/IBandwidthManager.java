@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
  * Jul 10, 2013 2106       djohnson     Remove EDEX instance specific methods.
  * 10/23/2013   2385       bphillip     Change schedule method to scheduleAdhoc
  * Jan 06, 2014 2636       mpduff       Update javadoc
+ * Jan 08, 2014 2615       bgonzale     Added scheduleAdoc method.
  * </pre>
  * 
  * @author djohnson
@@ -69,6 +71,15 @@ public interface IBandwidthManager<T extends Time, C extends Coverage> {
      */
     List<BandwidthAllocation> scheduleAdhoc(AdhocSubscription<T, C> subscription);
 
+    /**
+     * Schedule AdhocSubscription to run at the given time 'now'.
+     * 
+     * @param subscription
+     * @param b
+     * @return
+     */
+    List<BandwidthAllocation> scheduleAdhoc(
+            AdhocSubscription<T, C> subscription, Calendar now);
     /**
      * When a Subscription is updated in the Registry, update the retrieval plan
      * accordingly to match the updated Subscription.
