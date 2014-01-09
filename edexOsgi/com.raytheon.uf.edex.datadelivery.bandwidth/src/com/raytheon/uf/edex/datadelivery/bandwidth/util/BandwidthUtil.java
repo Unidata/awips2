@@ -30,8 +30,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Jun 13, 2013 2095       djohnson    Point subscriptions don't check for dataset updates on aggregation.
  * Jun 25, 2013 2106       djohnson    CheapClone was cheap in ease, not performance.
  * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
- * Oct 30, 2013  2448      dhladky     Moved methods to TimeUtil.
+ * Oct 30, 2013 2448       dhladky     Moved methods to TimeUtil.
  * Dec 20, 2013  2636      mpduff      Changed dataset delay to offset.
+ * Jan 08, 2014 2615       bgonzale    Moved Calendar min and max methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -65,38 +66,6 @@ public class BandwidthUtil {
 
     public static int getSubscriptionLatency(Subscription<?, ?> subscription) {
         return instance.subscriptionLatencyCalculator.getLatency(subscription);
-    }
-
-    public static Calendar min(Date lhs, Calendar rhs) {
-        return min(TimeUtil.newCalendar(lhs), rhs);
-    }
-
-    public static Calendar max(Date lhs, Calendar rhs) {
-        return max(TimeUtil.newCalendar(lhs), rhs);
-    }
-
-    public static Calendar max(Calendar lhs, Calendar rhs) {
-        Calendar calendar = null;
-        if (lhs != null && rhs != null) {
-            if (lhs.equals(rhs)) {
-                return lhs;
-            } else {
-                return lhs.after(rhs) ? lhs : rhs;
-            }
-        }
-        return calendar;
-    }
-
-    public static Calendar min(Calendar lhs, Calendar rhs) {
-        Calendar calendar = null;
-        if (lhs != null && rhs != null) {
-            if (lhs.equals(rhs)) {
-                return lhs;
-            } else {
-                return lhs.before(rhs) ? lhs : rhs;
-            }
-        }
-        return calendar;
     }
 
     /**
