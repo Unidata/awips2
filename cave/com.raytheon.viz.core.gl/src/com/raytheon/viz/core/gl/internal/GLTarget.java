@@ -280,7 +280,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         gl = GLU.getCurrentGL();
 
         theWidth = width;
-        theHeight = width;
+        theHeight = height;
 
         float magnificationVal = Activator.getDefault().getPreferenceStore()
                 .getFloat(PreferenceConstants.P_FONT_MAGNIFICATION);
@@ -324,7 +324,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
         gl = GLU.getCurrentGL();
         theWidth = width;
-        theHeight = width;
+        theHeight = height;
 
         float magnificationVal = Activator.getDefault().getPreferenceStore()
                 .getFloat(PreferenceConstants.P_FONT_MAGNIFICATION);
@@ -1784,8 +1784,12 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             message = "GL table too large?";
             break;
         }
+        case GL.GL_INVALID_FRAMEBUFFER_OPERATION_EXT: {
+            message = "Invalid FrameBuffer operation";
+            break;
+        }
         default: {
-            message = "GL Error" + errorid;
+            message = "GL Error: " + errorid;
         }
         }
 
