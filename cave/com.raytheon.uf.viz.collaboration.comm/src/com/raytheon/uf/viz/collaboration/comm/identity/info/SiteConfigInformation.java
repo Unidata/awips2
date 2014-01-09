@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 12, 2012            mnash     Initial creation
+ * Jan 08, 2014 2563       bclement    added format/parse methods to HostConfig
  * 
  * </pre>
  * 
@@ -125,6 +126,33 @@ public class SiteConfigInformation {
         public void setPrettyName(String prettyName) {
             this.prettyName = prettyName;
         }
+
+        /**
+         * Format for display to the user
+         */
+        @Override
+        public String toString() {
+            if (prettyName == null) {
+                return "Site Server : " + hostname;
+            } else {
+                return prettyName + " : " + hostname;
+            }
+        }
+
+        /**
+         * Remove description name from hostname
+         * 
+         * @param text
+         * @return
+         */
+        public static String removeDescription(String text) {
+            int firstColon = text.indexOf(':');
+            if (firstColon >= 0) {
+                text = text.substring(firstColon + 1);
+            }
+            return text.trim();
+        }
+
     }
 
     @XmlAccessorType(XmlAccessType.NONE)
