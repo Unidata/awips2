@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +43,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Sept 30,2013 1797       dhladky      Abstracted and genericized.
  * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type information.
+ * Jan 08, 2014 2615       bgonzale     Added calculate start and calculate end methods.
  * 
  * </pre>
  * 
@@ -296,6 +298,28 @@ public interface Subscription<T extends Time, C extends Coverage> {
      *            date for subscription end
      */
     void setActivePeriodEnd(Date activePeriodEnd);
+
+    /**
+     * Calculate the earliest that this subscription is valid based on active
+     * period and start time.
+     * 
+     * @param startConstraint
+     *            the earliest valid time.
+     * 
+     * @return the valid subscription start Date.
+     */
+    Calendar calculateStart(Calendar startConstraint);
+
+    /**
+     * Calculate the latest that this subscription is valid based on active
+     * period and end time.
+     * 
+     * @param endConstraint
+     *            the latest valid time.
+     * 
+     * @return the valid subscription end Date.
+     */
+    Calendar calculateEnd(Calendar endConstraint);
 
     /**
      * isNotify flag for subscription.
