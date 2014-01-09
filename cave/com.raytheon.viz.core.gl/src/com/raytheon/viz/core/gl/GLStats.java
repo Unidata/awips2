@@ -110,8 +110,7 @@ public class GLStats {
         lowMem |= getSystemStats(output);
         lowMem |= getImageCacheStats(output);
         lowMem |= getNvidiaStats(gl, output);
-        // The ATI version is untested, only enable if it has been tested.
-        // lowMem |= getAtiStats(gl, output);
+        lowMem |= getAtiStats(gl, output);
 
         if (lowMem) {
             lastPrintTime = curTime;
