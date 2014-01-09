@@ -60,9 +60,10 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 15, 2013 1040       mpduff       Changed to use Set for office id.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Sept 30,2013 1797       dhladky      Generics
- * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
- * Oct 30, 2013   2448     dhladky      Fixed pulling data before and after activePeriod starting and ending.
- * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
+ * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
+ * Oct 30, 2013 2448       dhladky      Fixed pulling data before and after activePeriod starting and ending.
+ * Nov 14, 2013 2548       mpduff       Add a subscription type slot.
+ * Jan 08, 2014 2615       bgonzale     Implement calculate start and calculate end methods.
  * 
  * </pre>
  * 
@@ -450,6 +451,58 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         this.activePeriodEnd = activePeriodEnd;
     }
 
+    private Calendar getActivePeriodStart(Calendar base) {
+        // active period values are month and day of month only, use base
+        // Calendar for active period year
+        Calendar activePeriodStartCal = TimeUtil
+                .newCalendar(activePeriodStart);
+        TimeUtil.minCalendarFields(activePeriodStartCal, Calendar.MILLISECOND,
+                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+        activePeriodStartCal.set(Calendar.YEAR, base.get(Calendar.YEAR));
+        return activePeriodStartCal;
+    }
+
+    private Calendar getActivePeriodEnd(Calendar base) {
+        // active period values are month and day of month only, use base
+        // Calendar for active period year
+        Calendar activePeriodEndCal = TimeUtil.newCalendar(activePeriodEnd);
+        TimeUtil.maxCalendarFields(activePeriodEndCal, Calendar.MILLISECOND,
+                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+        activePeriodEndCal.set(Calendar.YEAR, base.get(Calendar.YEAR));
+        return activePeriodEndCal;
+    }
+
+    @Override
+    public Calendar calculateStart(Calendar startConstraint) {
+        Calendar realStart = null;
+        boolean hasActivePeriodStart = activePeriodStart != null;
+        if (hasActivePeriodStart) {
+            realStart = getActivePeriodStart(startConstraint);
+            if (realStart.before(startConstraint)) {
+                realStart = startConstraint;
+            }
+        } else {
+            realStart = startConstraint;
+        }
+        return TimeUtil.newCalendar(TimeUtil.max(subscriptionStart,
+                realStart));
+    }
+
+    @Override
+    public Calendar calculateEnd(Calendar endConstraint) {
+        Calendar realEnd = null;
+        boolean hasActivePeriodEnd = activePeriodEnd != null;
+        if (hasActivePeriodEnd) {
+            realEnd = getActivePeriodEnd(endConstraint);
+            if (realEnd.before(endConstraint)) {
+                realEnd = endConstraint;
+            }
+        } else {
+            realEnd = endConstraint;
+        }
+        return TimeUtil.newCalendar(TimeUtil.min(subscriptionEnd, realEnd));
+    }
+
     /**
      * isNotify flag for subscription.
      * 
@@ -819,9 +872,19 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
     @Override
     public String toString() {
-        return getName() + "::" + getProvider() + "::" + getDataSetName()
-                + "::" + getOwner() + "::" + getOriginatingSite() + "::"
-                + getSubscriptionType().name();
+        SubscriptionType subType = getSubscriptionType();
+        StringBuilder sb = new StringBuilder(getName());
+        sb.append("::");
+        sb.append(getProvider());
+        sb.append("::");
+        sb.append(getDataSetName());
+        sb.append("::");
+        sb.append(getOwner());
+        sb.append("::");
+        sb.append(getOriginatingSite());
+        sb.append("::");
+        sb.append(subType == null ? "null" : subType.name());
+        return sb.toString();
     }
 
     /**
