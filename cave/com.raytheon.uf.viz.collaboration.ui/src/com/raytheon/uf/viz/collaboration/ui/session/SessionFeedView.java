@@ -39,7 +39,6 @@ import org.jivesoftware.smack.packet.Presence;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -60,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Jun 7, 2012            mnash     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 19, 2013 2563       bclement    moved participant filter logic to one method
+ * Jan 08, 2014 2563       bclement    changes to match SiteConfigurationManager user sites config
  * 
  * </pre>
  * 
@@ -379,6 +379,14 @@ public class SessionFeedView extends SessionView {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.SessionView#
+     * participantPresenceUpdated
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
+     * org.jivesoftware.smack.packet.Presence)
+     */
     @Override
     protected void participantPresenceUpdated(UserId participant,
             Presence presence) {
@@ -399,13 +407,8 @@ public class SessionFeedView extends SessionView {
         SiteConfigurationManager.writeSiteColorInformation(information);
 
         // write out the user enabled sites information to a file
-        SiteConfigInformation userInformation = new SiteConfigInformation();
-        List<SiteConfig> sites = new ArrayList<SiteConfig>();
-        SiteConfig config = new SiteConfig();
-        config.setSubscribedSites(userEnabledSites.toArray(new String[0]));
-        sites.add(config);
-        userInformation.setConfig(sites);
-        SiteConfigurationManager
-                .writeUserSiteConfigInformation(userInformation);
+        String[] sites = userEnabledSites.toArray(new String[userEnabledSites
+                .size()]);
+        SiteConfigurationManager.writeUserEnabledSites(sites);
     }
 }
