@@ -77,6 +77,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  *                                      Fix for subscription end time set to end of day.
  * Dec 02, 2013 2545       mpduff       Fix for delay starting retrievals, execute adhoc upon subscribing.
  * Dec 20, 2013 2636       mpduff       Fix dataset offset.
+ * Jan 08, 2014 2615       bgonzale     Refactored getRetrievalTimes into RecurringSubscription
+ *                                      calculateStart and calculateEnd methods.
  * </pre>
  * 
  * @author djohnson
@@ -169,94 +171,33 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
 
         Calendar planEnd = plan.getPlanEnd();
         Calendar planStart = plan.getPlanStart();
-        Calendar activePeriodStart = null;
-        Calendar activePeriodEnd = null;
 
-        // Make sure the RetrievalPlan's start and end times intersect
-        // the Subscription's active period.
-        if (subscription.getActivePeriodEnd() != null
-                && subscription.getActivePeriodStart() != null) {
+        // starting time when when subscription is first valid for scheduling
+        // based on plan start, subscription start, and active period start.
+        Calendar subscriptionCalculatedStart = subscription
+                .calculateStart(planStart);
+        // end time when when subscription is last valid for scheduling based on
+        // plan end, subscription end, and active period end.
+        Calendar subscriptionCalculatedEnd = subscription.calculateEnd(planEnd);
 
-            activePeriodStart = TimeUtil.newCalendar(subscription
-                    .getActivePeriodStart());
-            // Substitute the active periods month and day for the
-            // plan start month and day.
-            Calendar start = BandwidthUtil.planToPeriodCompareCalendar(
-                    planStart, activePeriodStart);
-            // If the active period start is outside the plan bounds,
-            // there is no intersection - just return an empty set.
-            if (start.after(planEnd)) {
-                return subscriptionTimes;
-            }
-
-            // Do the same for active plan end..
-            activePeriodEnd = TimeUtil.newCalendar(subscription
-                    .getActivePeriodEnd());
-            // Substitute the active periods month and day for the
-            // plan ends month and day.
-            Calendar end = BandwidthUtil.planToPeriodCompareCalendar(planStart,
-                    activePeriodEnd);
-            // If the active period end is before the start of the plan,
-            // there is no intersection - just return an empty set.
-            if (end.before(planStart)) {
-                return subscriptionTimes;
-            }
-        }
-
-        // Now check the Subscription start and end times for intersection
-        // with the RetrievalPlan...
-        // Figure out the 'active' period for a subscription..
-        Calendar subscriptionEnd = TimeUtil.newCalendar(subscription
-                .getSubscriptionEnd());
-        Calendar subscriptionStart = null;
-        // Check to see if this is a non-expiring subscription
-        if (subscriptionEnd == null) {
-            // If there is no subscription start end dates then the largest
-            // window that can be scheduled is the RetrievalPlan size..
-            subscriptionEnd = TimeUtil.newCalendar(planEnd);
-            subscriptionStart = TimeUtil.newCalendar(planStart);
-        } else {
-            // If there is a start and end time, then modify the start and
-            // end times to 'fit' within the RetrievalPlan times
-            subscriptionStart = TimeUtil.newCalendar(BandwidthUtil.max(
-                    subscription.getSubscriptionStart(), planStart));
-            subscriptionEnd = TimeUtil.newCalendar(BandwidthUtil.min(
-                    subscription.getSubscriptionEnd(), planEnd));
-        }
-
-        // setup active period checks if necessary
-        if (activePeriodStart != null && activePeriodEnd != null) {
-            // need to add the current year in order to make the checks relevant
-            activePeriodStart = TimeUtil
-                    .addCurrentYearCalendar(activePeriodStart);
-            activePeriodEnd = TimeUtil.addCurrentYearCalendar(activePeriodEnd);
-
-            // Create a Set of Calendars for all the baseReferenceTimes that a
-            // Subscription can contain...
-            TimeUtil.minCalendarFields(activePeriodStart, Calendar.MILLISECOND,
-                    Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
-            TimeUtil.maxCalendarFields(activePeriodEnd, Calendar.MILLISECOND,
-                    Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
-        }
-
-        Calendar start = (Calendar) subscriptionStart.clone();
-        outerloop: while (!start.after(subscriptionEnd)) {
+        Calendar start = (Calendar) subscriptionCalculatedStart.clone();
+        outerloop: while (!start.after(subscriptionCalculatedEnd)) {
 
             for (Integer cycle : hours) {
                 start.set(Calendar.HOUR_OF_DAY, cycle);
 
-                // start equal-to-or-after subscriptionStart
-                if (start.compareTo(subscriptionStart) >= 0) {
+                // start base equal-to-or-after subscriptionStart
+                if (start.compareTo(subscriptionCalculatedStart) >= 0) {
                     for (Integer minute : minutes) {
                         start.set(Calendar.MINUTE, minute);
 
-                        // start equal-to-or-after subscriptionStart
-                        if (start.compareTo(subscriptionStart) >= 0) {
+                        // start minutes equal-to-or-after subscriptionStart
+                        if (start.compareTo(subscriptionCalculatedStart) >= 0) {
                             // Check for nonsense
-                            if (start.after(subscriptionEnd)) {
+                            if (start.after(subscriptionCalculatedEnd)) {
                                 break outerloop;
                             } else {
-                                Calendar time = TimeUtil.newGmtCalendar();
+                                Calendar time = TimeUtil.newCalendar();
                                 time.setTimeInMillis(start.getTimeInMillis());
                                 /**
                                  * Fine grain check by hour and minute, for
@@ -264,23 +205,11 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                                  * activePeriod(start/end)
                                  **/
                                 // Subscription Start and End time first
-                                if (start != null && subscriptionEnd != null) {
-                                    if (time.after(subscriptionEnd)
-                                            || time.before(start)) {
-                                        // don't schedule this retrieval time,
-                                        // outside subscription window
-                                        continue;
-                                    }
-                                }
-                                // Check Active Period Second
-                                if (activePeriodStart != null
-                                        && activePeriodEnd != null) {
-                                    if (time.after(activePeriodEnd)
-                                            || time.before(activePeriodStart)) {
-                                        // don't schedule this retrieval time,
-                                        // outside activePeriod window
-                                        continue;
-                                    }
+                                if (time.after(subscriptionCalculatedEnd)
+                                        || time.before(start)) {
+                                    // don't schedule this retrieval time,
+                                    // outside subscription window
+                                    continue;
                                 }
 
                                 subscriptionTimes.add(time);
