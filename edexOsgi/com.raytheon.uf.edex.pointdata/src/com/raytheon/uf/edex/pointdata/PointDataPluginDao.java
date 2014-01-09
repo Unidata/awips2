@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Apr 29, 2013 1861       bkowal      Refactor hdf5 filename generation during reads
  *                                     into its own method so modelsounding dao can
  *                                     override it.
+ * Jan 09, 2014 1998       bclement    fixed NPE in persistToHDF5 when store failed
  * 
  * </pre>
  * 
@@ -196,7 +197,8 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
 
                 try {
                     StorageStatus ss = ds.store(StoreOp.APPEND);
-                    if (ss.getOperationPerformed() == StoreOp.APPEND) {
+                    if (!ss.hasExceptions()
+                            && ss.getOperationPerformed() == StoreOp.APPEND) {
                         // increment the indices
                         List<PointDataView> views = containerMap.get(container);
                         int idx = (int) ss.getIndexOfAppend()[0];
@@ -211,9 +213,8 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             StorageStatus aggregatedStatus = new StorageStatus();
             List<StorageException> se = new ArrayList<StorageException>();
             for (StorageStatus ss : ssList) {
-                StorageException[] seArr = ss.getExceptions();
-                if (seArr != null) {
-                    se.addAll(Arrays.asList(seArr));
+                if (ss.hasExceptions()) {
+                    se.addAll(Arrays.asList(ss.getExceptions()));
                 }
             }
 
