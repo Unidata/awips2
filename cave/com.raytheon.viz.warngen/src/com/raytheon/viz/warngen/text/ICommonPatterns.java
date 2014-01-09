@@ -34,6 +34,10 @@ import java.util.regex.Pattern;
  * Oct 18, 2012   15332    jsanchez     Replaced listOfAreaNamesPtrn with String pattern.
  * Mar 13, 2013  DR 15892  D. Friedman  Allow some punctuation in area names.
  * Apr 18, 2013  DR 16055  D. Friedman  Allow more than one contiguous space in areas.
+ * Jan  6, 2014  DR 16627  Qinglu Lin   Updated listOfAreaName to get county name list locked when county abbreviation 
+ *                                      is dropped, a name has more than one word, two names are separated by slash (/), 
+ *                                      or a name has an apostrophe (') for Significant Weather Advisory, Special Weather 
+ *                                      Statement, and Short Term Forecast.
  * 
  * </pre>
  * 
@@ -57,7 +61,7 @@ public interface ICommonPatterns {
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
     public static final String listOfAreaName = "^((" + LOCK_END
-            + "){0,1}((([\\?\\(\\)\\w\\.,/'-]+\\s{1,})+\\w{2}-)*(([\\?\\(\\)\\w\\.,/'-]+\\s{1,})+\\w{2}-)))";
+            + "){0,1}((([\\?\\(\\)\\w\\.,/'-])+(\\s{1,}\\w{2}){0,1}(\\s{1,}\\w{1,}([\\/\\']\\w{0,}\\s{0,}\\w{0,}){0,}){0,}-)*))";
 
     // LOCK_END should not be found at the beginning of a first bullet since the
     // previous line should be blank.
