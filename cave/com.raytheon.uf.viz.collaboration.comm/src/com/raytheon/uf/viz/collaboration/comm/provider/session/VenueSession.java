@@ -88,6 +88,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Dec 18, 2013 2562       bclement    moved data to packet extension
  * Dec 19, 2013 2563       bclement    status listeners now send all events to bus
  * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
+ * Jan 08, 2014 2563       bclement    fixed service name in user IDs from chat history
  * 
  * </pre>
  * 
@@ -654,8 +655,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     message.setBody(moddedBody);
                     TextMessage msg = new TextMessage(message.getFrom(),
                             message.getBody());
-                    UserId id = new UserId(username, CollaborationConnection
-                            .getConnection().getConnectionData().getServer());
+                    UserId account = CollaborationConnection.getConnection()
+                            .getUser();
+                    UserId id = new UserId(username, account.getHost());
                     msg.setFrom(id);
                     msg.setTimeStamp(time);
                     msg.setSubject(site);

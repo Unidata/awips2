@@ -47,6 +47,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.net.HostAndPort;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -107,6 +108,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Dec 19, 2013 2563       bclement    added connection listener, 
  *                                     added better error message on failed connection
  * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
+ * Jan 08, 2014 2563       bclement    fixed custom port and service name in user id
  * 
  * </pre>
  * 
@@ -179,16 +181,23 @@ public class CollaborationConnection implements IEventPublisher {
         eventBus = new EventBus();
         sessions = new HashMap<String, ISession>();
 
-        ConnectionConfiguration conConfig = new ConnectionConfiguration(
-                connectionData.getServer());
+        HostAndPort hnp = HostAndPort.fromString(connectionData.getServer());
+        ConnectionConfiguration conConfig;
+        if (hnp.hasPort()) {
+            conConfig = new ConnectionConfiguration(hnp.getHostText(),
+                    hnp.getPort());
+        } else {
+            conConfig = new ConnectionConfiguration(hnp.getHostText());
+        }
+
         conConfig.setCompressionEnabled(COMPRESS);
 
         connection = new XMPPConnection(conConfig);
         
-        this.user = new UserId(connectionData.getUserName(),
-                connectionData.getServer());
+        connectInternal(connectionData.getUserName(), password);
 
-        connectInternal(user.getName(), password);
+        this.user = new UserId(connectionData.getUserName(),
+                connection.getServiceName());
 
         setupConnectionListener();
         setupAccountManager();
