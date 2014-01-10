@@ -196,9 +196,6 @@ public class D2DGridDatabase extends VGridDatabase {
     }
 
     /**
-    }
-
-    /**
      * Retrieves DatabaseIDs for the n most recent model runs of a given
      * d2dModelName
      * 
@@ -229,7 +226,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
     // regex to match parmnnhr
     private static final Pattern parmHrPattern = Pattern
-            .compile("(\\D+)\\d+hr");
+            .compile("(.*\\D)\\d+hr");
 
     private static final String GFE_LEVEL_MAPPING_FILE = "grid/gfeLevelMappingFile.xml";
 
@@ -1405,6 +1402,11 @@ public class D2DGridDatabase extends VGridDatabase {
         }
 
         TimeRange tr = getTimeRange(parmID, fcstHour);
+        if (tr == null) {
+            statusHandler.warn("Unexpected fcst hour (" + fcstHour + ") for "
+                    + parmID);
+            return null;
+        }
         List<GridDataHistory> histList = new ArrayList<GridDataHistory>();
         histList.add(new GridDataHistory(
                 GridDataHistory.OriginType.INITIALIZED, parmID, tr, null,
