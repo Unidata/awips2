@@ -344,5 +344,29 @@
         <constructor-arg ref="requestServerKey" />
         <constructor-arg ref="requestServiceRouter" />
     </bean>
-    
+
+	<!-- needed for camel quartz component workaround when JMX is disabled -->
+	<bean id="managementNameLifecycleStrategy"
+		class="com.raytheon.uf.edex.esb.camel.quartz.ManagementNameLifecycleStrategy" />
+
+	<!-- quartz component configuration.
+		Single scheduler used by all endpoints so there is only one threadpool. 
+		Thread pool configured in edex/config/resources/quartz.properties -->
+		
+	<bean id="quartzSchedulerFactory" class="org.quartz.impl.StdSchedulerFactory">
+		<constructor-arg value="quartz.properties" />
+	</bean>
+
+	<bean id="quartzScheduler" factory-bean="quartzSchedulerFactory"
+		factory-method="getScheduler" />
+
+	<bean id="quartz" class="org.apache.camel.component.quartz.QuartzComponent">
+		<property name="scheduler" ref="quartzScheduler" />
+	</bean>
+
+	<bean id="clusteredquartz"
+		class="com.raytheon.uf.edex.esb.camel.cluster.quartz.ClusteredQuartzComponent">
+		<property name="scheduler" ref="quartzScheduler" />
+	</bean>
+  
 </beans>
