@@ -308,8 +308,10 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                         subscription, time);
             } catch (RegistryHandlerException e) {
                 // Error occurred querying the registry. Log and continue on
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Unable to retrieve data availability offset, using 0 for the offset.",
+                                e);
             }
 
             Calendar withAvailabilityOffset = TimeUtil.newCalendar(time);
