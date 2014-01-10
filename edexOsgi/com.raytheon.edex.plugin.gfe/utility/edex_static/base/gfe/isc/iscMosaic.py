@@ -84,6 +84,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #    11/05/13        2517          randerso       Restructured logging so it coulde be used by WECache
 #                                                 Changed WECache to limit the number of cached grids kept in memory
+#    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
 #
 #
 
@@ -462,6 +463,7 @@ class IscMosaic:
         self.__mysite = args['siteID']
         self.__userID = args['userID']
         self.__db = None    # ifpServer database object
+        self.__dbGrid = None
         self.__parmsToProcess = args['parmsToProcess']
         self.__blankOtherPeriods = args['blankOtherPeriods']
         self.__altMask = args['altMask']
@@ -823,7 +825,7 @@ class IscMosaic:
 
             logger.debug("Merge: %s %s %s", printTR(m[0]),
             printTR(m[1]), m[2])
-            gotGrid = self._wec[m[0]]
+            gotGrid = self.__getDbGrid(m[0])
 
             if gotGrid is not None:
                 destGrid = gotGrid[0]
@@ -887,6 +889,30 @@ class IscMosaic:
             logger.debug("Erase: %s", printTR(tr))
             self._wec[tr] = None
             self.__dbinv = self._wec.keys()
+
+    #---------------------------------------------------------------------
+    # get db grid
+    # Gets the needed database grid
+    #  tr = desired grid, identified by time range
+    # Returns tuple of (grid, history) (or None if unknown)
+    #---------------------------------------------------------------------
+    def __getDbGrid(self, tr):
+        if tr is None:
+            return None
+
+        if self.__dbGrid is None or tr != self.__dbGrid[2]:
+            self.__dbGrid = None
+            #grid = self.__dbwe.getGridAndHist(tr)
+            grid = self._wec[tr]
+            if grid is not None:
+                destGrid, history = grid
+                self.__dbGrid = (destGrid, history, tr)
+            else:
+                self.logProblem("Unable to access grid for ",
+                  self.__printTR(tr), "for ", self.__parmName)
+                return None
+
+        return (self.__dbGrid[0], self.__dbGrid[1])
 
     #---------------------------------------------------------------------
     # calculate file start/end processing times
@@ -1107,7 +1133,7 @@ class IscMosaic:
         for m in mergeInfo:
             if m[0] != m[1]: #split grid needed
                 if m[0] != oldTR:
-                    oldGrid = self._wec[m[0]]
+                    oldGrid = self.__getDbGrid(m[0])
                     oldTR = m[0]
                 if oldGrid is not None:
                     if self.__rateParm:
@@ -1116,8 +1142,9 @@ class IscMosaic:
                         self.__storeGrid(m[1], (adjGrid, oldGrid[1]))
                     else:
                         self.__storeGrid(m[1], oldGrid)
+        self.__dbGrid = None
 
-        #-------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     # Get Incoming netCDF file grid valid times
     # netCDFfile, var is the netCDF variable
     #-------------------------------------------------------------------------
@@ -1395,7 +1422,7 @@ class IscMosaic:
             if m[0] != None and m[2] == 1:
                 if self.__siteInDbGrid(m[0]):
                     try:
-                        (destGrid, oldHist) = self._wec[m[0]]
+                        (destGrid, oldHist) = self.__getDbGrid(m[0])
                     except:
                         destGrid = None
                         oldHist = None
@@ -1611,6 +1638,7 @@ class IscMosaic:
     #---------------------------------------------------------------------
     def __eraseAllGrids(self, processTimePeriod):
         self.__storeGrid(processTimePeriod, None)
+        self.__dbGrid = None
 
 
 def convertList(unknownList):
