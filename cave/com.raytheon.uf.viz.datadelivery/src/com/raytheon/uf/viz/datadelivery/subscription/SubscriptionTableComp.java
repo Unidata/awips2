@@ -109,7 +109,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jul 29, 2013  2232      mpduff       IndexOutOfBoundsException check.
  * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
  * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
- * Jan 08, 2014  2642      mpduff
+ * Jan 08, 2014  2642      mpduff       Enable/disable menus based on site, allow user to add their site to a shared sub.
  * @version 1.0
  */
 
