@@ -154,7 +154,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
+ * Date         Ticket#   Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Mar 01, 2008           chammack    Initial Creation.
  * Aug 20, 2008           dglazesk    Update for the ColorMap interface change
@@ -165,6 +165,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 27, 2013  2287     randerso    Fixed scaling and direction of wind arrows
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * Dec 11, 2013  2621     randerso    Removed conditional from getParm so it never returns null
  * 
  * </pre>
  * 
@@ -354,11 +355,7 @@ public class GFEResource extends
      * @return Returns the parm associated with the GFE Resource
      */
     public Parm getParm() {
-        Parm retVal = null;
-        if (this.getStatus() != ResourceStatus.DISPOSED) {
-            retVal = this.parm;
-        }
-        return retVal;
+        return this.parm;
     }
 
     /*

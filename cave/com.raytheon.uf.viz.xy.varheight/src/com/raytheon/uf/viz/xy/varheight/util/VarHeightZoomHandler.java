@@ -20,7 +20,11 @@
 package com.raytheon.uf.viz.xy.varheight.util;
 
 import org.eclipse.swt.widgets.Event;
+import org.geotools.geometry.DirectPosition2D;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -44,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2010            bsteffen     Initial creation
+ * Dec 11, 2013 DR 16795   D. Friedman Transform pixel coordinate for zoom
  * 
  * </pre>
  * 
@@ -51,6 +56,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class VarHeightZoomHandler extends AbstractGraphInputHandler {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VarHeightZoomHandler.class);
 
     private MousePreferenceManager prefManager = MousePreferenceManager
             .getInstance();
@@ -113,12 +121,24 @@ public class VarHeightZoomHandler extends AbstractGraphInputHandler {
                 && zoomIndex < ZoomMenuAction.ZOOM_LEVELS.length - 1) {
             zoomIndex += 1;
         }
+
+        /* Convert from the overall display coordinate space to the coordinate
+         * space for our resource.
+         */
+        DirectPosition2D dp = new DirectPosition2D(grid.x, grid.y);
+        try {
+            desc.getGridGeometry().getGridToCRS().transform(dp, dp);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error converting coordinate for zoom", e);
+        }
+
         for (ResourcePair rsc : desc.getResourceList()) {
             if (rsc.getResource() instanceof IGraphableResource<?, ?>) {
                 IGraph graph = desc.getGraph((IGraphableResource<?, ?>) rsc
                         .getResource());
-                if (graph.getExtent().contains(new double[] { grid.x, grid.y })) {
-                    graph.zoom((int) Math.pow(2, zoomIndex), grid);
+                if (graph.getExtent().contains(new double[] { dp.x, dp.y })) {
+                    graph.zoom((int) Math.pow(2, zoomIndex), new Coordinate(dp.x, dp.y));
                 }
 
             }
