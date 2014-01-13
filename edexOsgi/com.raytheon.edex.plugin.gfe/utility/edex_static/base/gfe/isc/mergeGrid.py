@@ -233,7 +233,7 @@ class MergeGrid:
         # merge the grids
         if gridA is not None:
             mask = numpy.not_equal(gridA[0], self.__inFillV)
-            numpy.logical_and(mask, self.__areaMask)
+            numpy.logical_and(mask, self.__areaMask, mask)
 
             if gridB is None:   #make an empty grid
                 noKeys = []
