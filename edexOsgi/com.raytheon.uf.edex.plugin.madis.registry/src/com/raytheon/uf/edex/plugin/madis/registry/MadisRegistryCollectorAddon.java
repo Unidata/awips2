@@ -19,19 +19,16 @@
  **/
 package com.raytheon.uf.edex.plugin.madis.registry;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.datadelivery.harvester.ConfigLayer;
+import com.raytheon.uf.common.datadelivery.harvester.OGCAgent;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.ogc.common.util.PluginIngestFilter;
 import com.raytheon.uf.edex.ogc.registry.WfsRegistryCollectorAddon;
 import com.raytheon.uf.edex.plugin.madis.ogc.MadisDimension;
 import com.raytheon.uf.edex.plugin.madis.ogc.MadisLayer;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * 
@@ -46,6 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 30, 2013 #2098      dhladky      Incorrect time returned
  * Sept 2, 2013 #2098      dhladky      Improved time management.
  * Sept 9, 2013 #2351      dhladky      Speed improvements
+ * Jan 13, 2014 #2679      dhladky      multiple ingest layers for a single request window.
  *
  * </pre>
  *
@@ -57,12 +55,19 @@ public class MadisRegistryCollectorAddon extends
 		implements PluginIngestFilter {
 
 	/**
-	 * @param layerName
+	 * @param layerNames
 	 */
-	public MadisRegistryCollectorAddon(String layerName) {
-		super(layerName);
-	    this._layer = new MadisLayer();
-	    initializeLayer(_layer);
+	public MadisRegistryCollectorAddon() {
+
+	    super();
+	    OGCAgent agent = getAgent();
+	    
+		for (ConfigLayer clayer: agent.getLayers()) {
+		    MadisLayer layer = new MadisLayer();
+		    layer.setName(clayer.getName());
+		    layers.put(clayer.getName(), layer);
+		    initializeLayer(layer);
+		}
 	}
 
 	/*
@@ -90,50 +95,15 @@ public class MadisRegistryCollectorAddon extends
 		return new MadisLayer(layer);
 	}
 
-	/**
-	 * Filter geographically
-	 */
-	public PluginDataObject[] filter(PluginDataObject[] pdos) {
-
-		Collection<MadisRecord> withInGeoConstraint = new ArrayList<MadisRecord>();
-		PluginDataObject[] pdor = null;
-		Envelope e = null;
-		
-        if (getCoverage() != null) {
-            
-            e = getCoverage().getEnvelope();
-
-            for (PluginDataObject record : pdos) {
-
-                MadisRecord rec = (MadisRecord) record;
-
-                if (rec != null && rec.getLocation() != null) {
-
-                    Coordinate c = rec.getLocation().getLocation()
-                            .getCoordinate();
-
-                    if (c != null) {
-
-                        if (e.contains(c)) {
-                            withInGeoConstraint.add(rec);
-                        } else {
-                            statusHandler.handle(
-                                    Priority.DEBUG,
-                                    "Madis record discarded:  outside of range: "
-                                            + rec.getLatitude() + " "
-                                            + rec.getLongitude());
-                        }
-                    }
-                }
-            }
+    @Override
+    public SurfaceObsLocation getSpatial(MadisRecord record) {
+        
+        if (record.getLocation() != null) {
+            return record.getLocation();
         }
+        return null;
+    }
 
-		if (!withInGeoConstraint.isEmpty()) {
-			int size = withInGeoConstraint.size();
-			pdor = withInGeoConstraint.toArray(new PluginDataObject[size]);
-		}
-
-		return pdor;
-	}
+	
 
 }
