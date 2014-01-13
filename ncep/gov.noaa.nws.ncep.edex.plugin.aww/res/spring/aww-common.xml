@@ -20,4 +20,9 @@
 		<constructor-arg ref="awwPluginName" />
 		<constructor-arg ref="awwProperties" />
 	</bean>
+
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg ref="awwPluginName" />
+    </bean>
 </beans>
