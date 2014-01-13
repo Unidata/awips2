@@ -18,11 +18,6 @@
 		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
 	</bean>
 
-    <bean factory-bean="manualProc"
-        factory-method="registerSecondaryPlugin">
-        <constructor-arg value="dhr" />
-    </bean>
-
 	<camelContext id="nonClusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"
 	    errorHandlerRef="errorHandler">                
 		<!-- Begin non-clustered dhr Routes -->
