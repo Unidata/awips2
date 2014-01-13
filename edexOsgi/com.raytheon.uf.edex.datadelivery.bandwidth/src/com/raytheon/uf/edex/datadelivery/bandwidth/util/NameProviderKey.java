@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Object holding name and provider Strings to act as a hash key.
@@ -31,7 +29,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 20, 2013   2636     mpduff      Initial creation
+ * Dec 20, 2013   2636     mpduff      Initial creation.
+ * Jan 13, 2014   2636     mpduff      Removed the apache commons Equals/Hashcode builder.
  * 
  * </pre>
  * 
@@ -89,11 +88,12 @@ public class NameProviderKey {
      */
     @Override
     public int hashCode() {
-        HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(name);
-        builder.append(provider);
-
-        return builder.hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+                + ((provider == null) ? 0 : provider.hashCode());
+        return result;
     }
 
     /*
@@ -103,15 +103,30 @@ public class NameProviderKey {
      */
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
         if (!(obj instanceof NameProviderKey)) {
             return false;
         }
         NameProviderKey other = (NameProviderKey) obj;
-
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.name, other.getName());
-        builder.append(this.provider, other.getProvider());
-
-        return builder.isEquals();
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (provider == null) {
+            if (other.provider != null) {
+                return false;
+            }
+        } else if (!provider.equals(other.provider)) {
+            return false;
+        }
+        return true;
     }
 }
