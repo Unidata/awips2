@@ -111,7 +111,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 15, 2013 2545       bgonzale     Added check for subscription events before sending
  *                                      notifications.  Republish dataset metadata registry
  *                                      insert and update events as dataset metadata events.
- * Jan 14, 2014 2692       dhladky      AdhocSubscription handler                                    
+ * Jan 13, 2014 2679       dhladky      Small Point data updates.   
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler                                 
  * 
  * </pre>
  * 
@@ -437,8 +438,9 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     }
 
     private void publishDataSetMetaDataEvent(RegistryEvent re) {
+        
         final String id = re.getId();
-        DataSetMetaData<?> dsmd = getDataSetMetaData(id);
+        DataSetMetaData<T> dsmd = getDataSetMetaData(id);
 
         if (dsmd != null) {
             // Repost the Object to the BandwidthEventBus to free
