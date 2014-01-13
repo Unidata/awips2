@@ -19,47 +19,20 @@
  **/
 package com.raytheon.uf.edex.archive;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -70,7 +43,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
- * This class handles moving processed data to the archiver directory.
+ * This class handles saving processed data to the archiver directory.
  * 
  * <pre>
  * 
@@ -84,6 +57,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  *                                     Add debug information.
  * Nov 05, 2013 2499       rjpeter     Repackaged, removed config files, always compresses hdf5.
  * Nov 11, 2013 2478       rjpeter     Updated data store copy to always copy hdf5.
+ * Dec 13, 2013 2555       rjpeter     Refactored logic into DatabaseArchiveProcessor.
  * </pre>
  * 
  * @author rjpeter
@@ -100,28 +74,33 @@ public class DatabaseArchiver implements IPluginArchiver {
         protected SimpleDateFormat initialValue() {
             SimpleDateFormat df = new SimpleDateFormat(
                     "yyyy-MM-dd HH:mm:ss.SSS");
-            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            df.setTimeZone(TimeUtil.GMT_TIME_ZONE);
             return df;
         }
     };
 
     /** Minimum time increment to archive, note based off of insertTime. */
-    private static final int MIN_DURATION_MILLIS = 1000 * 60 * 30;
+    private static final long MIN_DURATION_MILLIS = 30 * TimeUtil.MILLIS_PER_MINUTE;
 
     /** Maximum time increment to archive, note based off of insertTime. */
-    private static final int MAX_DURATION_MILLIS = 1000 * 60 * 60;
+    private static final long MAX_DURATION_MILLIS = 120 * TimeUtil.MILLIS_PER_MINUTE;
+
+    /** Default batch size for database queries */
+    private static final Integer defaultBatchSize = 10000;
 
     /** Job's name. */
     private static final String TASK_NAME = "DB Archiver";
 
     /** Cluster time out on lock. */
-    private static final int CLUSTER_LOCK_TIMEOUT = 60000;
-
-    /** Chunk size for I/O Buffering and Compression */
-    private static final int CHUNK_SIZE = 8192;
+    private static final long CLUSTER_LOCK_TIMEOUT = 10 * TimeUtil.MILLIS_PER_MINUTE;
 
     /** Mapping for plug-in formatters. */
     private final Map<String, IPluginArchiveFileNameFormatter> pluginArchiveFormatters;
+
+    /** Mapping for plug-in fetch size */
+    private final Map<String, Integer> pluginBatchSize;
+
+    private final IPluginArchiveFileNameFormatter defaultFormatter = new DefaultPluginArchiveFileNameFormatter();
 
     /** When true dump the pdos. */
     private final boolean debugArchiver;
@@ -133,8 +112,7 @@ public class DatabaseArchiver implements IPluginArchiver {
      */
     public DatabaseArchiver() {
         pluginArchiveFormatters = new HashMap<String, IPluginArchiveFileNameFormatter>();
-        pluginArchiveFormatters.put("default",
-                new DefaultPluginArchiveFileNameFormatter());
+        pluginBatchSize = new HashMap<String, Integer>();
         debugArchiver = Boolean.getBoolean("archive.debug.enable");
         compressDatabaseFiles = Boolean
                 .getBoolean("archive.compression.enable");
@@ -159,12 +137,10 @@ public class DatabaseArchiver implements IPluginArchiver {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public boolean archivePluginData(String pluginName, String archivePath) {
         SimpleDateFormat dateFormat = TL_DATE_FORMAT.get();
         // set archive time
-        Calendar runTime = Calendar.getInstance();
-        runTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar runTime = TimeUtil.newGmtCalendar();
         runTime.add(Calendar.MINUTE, -30);
 
         // cluster lock, grabbing time of last successful archive
@@ -195,99 +171,52 @@ public class DatabaseArchiver implements IPluginArchiver {
                 return false;
             }
 
-            Set<String> datastoreFilesToArchive = new HashSet<String>();
-
             startTime = determineStartTime(pluginName, ct.getExtraInfo(),
                     runTime, dao);
             Calendar endTime = determineEndTime(startTime, runTime);
-            Map<String, List<PersistableDataObject>> pdoMap = new HashMap<String, List<PersistableDataObject>>();
 
             IPluginArchiveFileNameFormatter archiveFormatter = pluginArchiveFormatters
                     .get(pluginName);
             if (archiveFormatter == null) {
-                archiveFormatter = pluginArchiveFormatters.get("default");
+                archiveFormatter = defaultFormatter;
             }
 
-            while ((startTime != null) && (endTime != null)) {
-                Map<String, List<PersistableDataObject>> pdosToSave = archiveFormatter
-                        .getPdosByFile(pluginName, dao, pdoMap, startTime,
-                                endTime);
+            Integer batchSize = pluginBatchSize.get(pluginName);
 
-                if ((pdosToSave != null) && !pdosToSave.isEmpty()) {
-                    recordCount += savePdoMap(pluginName, archivePath,
-                            pdosToSave);
-                    for (Map.Entry<String, List<PersistableDataObject>> entry : pdosToSave
-                            .entrySet()) {
-                        List<PersistableDataObject> pdoList = entry.getValue();
-                        if ((pdoList != null) && !pdoList.isEmpty()
-                                && (pdoList.get(0) instanceof IPersistable)) {
-                            datastoreFilesToArchive.add(entry.getKey());
-                        }
-                    }
-                }
-
-                startTime = endTime;
-                endTime = determineEndTime(startTime, runTime);
+            if (batchSize == null) {
+                batchSize = defaultBatchSize;
             }
 
-            if ((pdoMap != null) && !pdoMap.isEmpty()) {
-                recordCount += savePdoMap(pluginName, archivePath, pdoMap);
-                // don't forget to archive the HDF5 for the records that weren't
-                // saved off by the prior while block
-                for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
-                        .entrySet()) {
-                    List<PersistableDataObject> pdoList = entry.getValue();
-                    if ((pdoList != null) && !pdoList.isEmpty()
-                            && (pdoList.get(0) instanceof IPersistable)) {
-                        datastoreFilesToArchive.add(entry.getKey());
-                    }
+            DatabaseArchiveProcessor processor = new DatabaseArchiveProcessor(
+                    archivePath, pluginName, dao, archiveFormatter);
+            processor.setCompressDatabaseFiles(compressDatabaseFiles);
+            processor.setDebugArchiver(debugArchiver);
+            processor.setBatchSize(batchSize.intValue());
+
+            while ((startTime != null) && (endTime != null)
+                    && !processor.isFailed()) {
+                statusHandler.info(pluginName + ": Checking for records from "
+                        + TimeUtil.formatDate(startTime) + " to "
+                        + TimeUtil.formatDate(endTime));
+
+                processor.reset();
+                dao.processArchiveRecords(startTime, endTime, processor);
+                if (!processor.isFailed()) {
+                    recordCount += processor.getRecordsSaved();
+                    startTime = endTime;
+                    endTime = determineEndTime(startTime, runTime);
+
+                    // update the cluster lock with check point details
+                    String extraInfo = dateFormat.format(startTime.getTime());
+                    lockHandler.setExtraInfo(extraInfo);
+                    ClusterLockUtils.updateExtraInfoAndLockTime(TASK_NAME,
+                            pluginName, extraInfo, System.currentTimeMillis());
                 }
-            }
-
-            if (!datastoreFilesToArchive.isEmpty()) {
-                Compression compRequired = Compression.LZF;
-
-                PluginProperties props = PluginRegistry.getInstance()
-                        .getRegisteredObject(pluginName);
-
-                if ((props != null) && (props.getCompression() != null)) {
-                    if (compRequired.equals(Compression.valueOf(props
-                            .getCompression()))) {
-                        // if plugin is already compressed to the correct level,
-                        // no additional compression required
-                        compRequired = null;
-                    }
-                }
-
-                for (String dataStoreFile : datastoreFilesToArchive) {
-                    IDataStore ds = DataStoreFactory.getDataStore(new File(
-                            FileUtil.join(pluginName, dataStoreFile)));
-                    int pathSep = dataStoreFile.lastIndexOf(File.separatorChar);
-                    String outputDir = (pathSep > 0 ? FileUtil.join(
-                            archivePath, pluginName,
-                            dataStoreFile.substring(0, pathSep)) : FileUtil
-                            .join(archivePath, pluginName, dataStoreFile));
-
-                    try {
-                        // copy the changed hdf5 file, does repack if
-                        // compRequired, otherwise pure file copy
-                        ds.copy(outputDir, compRequired, null, 0, 0);
-                    } catch (StorageException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage());
-                    }
-                }
-            }
-
-            // set last archive time to startTime
-            if (startTime != null) {
-                lockHandler
-                        .setExtraInfo(dateFormat.format(startTime.getTime()));
             }
 
             if (recordCount > 0) {
                 statusHandler.info(pluginName
-                        + ": successfully archived "
+                        + ": archived "
                         + recordCount
                         + " records in "
                         + TimeUtil.prettyDuration(System.currentTimeMillis()
@@ -313,180 +242,6 @@ public class DatabaseArchiver implements IPluginArchiver {
         }
 
         return true;
-    }
-
-    @SuppressWarnings("rawtypes")
-    protected int savePdoMap(String pluginName, String archivePath,
-            Map<String, List<PersistableDataObject>> pdoMap)
-            throws SerializationException, IOException {
-        int recordsSaved = 0;
-
-        StringBuilder path = new StringBuilder();
-        for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
-                .entrySet()) {
-            path.setLength(0);
-            path.append(archivePath).append(File.separator).append(pluginName)
-                    .append(File.separator).append(entry.getKey());
-            // remove .h5
-            if (path.lastIndexOf(".h5") == (path.length() - 3)) {
-                path.setLength(path.length() - 3);
-            }
-            int pathDebugLength = path.length();
-            if (compressDatabaseFiles) {
-                path.append(".bin.gz");
-            } else {
-                path.append(".bin");
-            }
-
-            File file = new File(path.toString());
-            List<PersistableDataObject> pdosToSerialize = entry.getValue();
-            recordsSaved += pdosToSerialize.size();
-
-            if (file.exists()) {
-                // read previous list in from disk (in gz format)
-                InputStream is = null;
-
-                try {
-
-                    // created gzip'd stream
-                    if (compressDatabaseFiles) {
-                        is = new GZIPInputStream(new FileInputStream(file),
-                                CHUNK_SIZE);
-                    } else {
-                        is = new BufferedInputStream(new FileInputStream(file),
-                                CHUNK_SIZE);
-                    }
-
-                    // transform back for list append
-                    @SuppressWarnings("unchecked")
-                    List<PersistableDataObject<Object>> prev = SerializationUtil
-                            .transformFromThrift(List.class, is);
-
-                    statusHandler.info(pluginName + ": Read in " + prev.size()
-                            + " records from file " + file.getAbsolutePath());
-
-                    List<PersistableDataObject> newList = new ArrayList<PersistableDataObject>(
-                            prev.size() + pdosToSerialize.size());
-
-                    // get set of new identifiers
-                    Set<Object> identifierSet = new HashSet<Object>(
-                            pdosToSerialize.size(), 1);
-                    for (PersistableDataObject pdo : pdosToSerialize) {
-                        identifierSet.add(pdo.getIdentifier());
-                    }
-
-                    // merge records by Identifier, to remove old duplicate
-                    for (PersistableDataObject pdo : prev) {
-                        if (!identifierSet.contains(pdo.getIdentifier())) {
-                            newList.add(pdo);
-                        }
-                    }
-
-                    // release prev
-                    prev = null;
-
-                    newList.addAll(pdosToSerialize);
-                    pdosToSerialize = newList;
-                } finally {
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            statusHandler.error(pluginName
-                                    + ": Error occurred closing input stream",
-                                    e);
-                        }
-                    }
-                }
-            }
-
-            statusHandler.info(pluginName + ": Serializing "
-                    + pdosToSerialize.size() + " records to file "
-                    + file.getAbsolutePath());
-
-            OutputStream os = null;
-
-            try {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-
-                if (debugArchiver) {
-                    String debugRootName = path.substring(0, pathDebugLength);
-                    dumpPdos(pluginName, pdosToSerialize, debugRootName);
-                }
-
-                // created gzip'd stream
-                if (compressDatabaseFiles) {
-                    os = new GZIPOutputStream(new FileOutputStream(file), CHUNK_SIZE);
-                } else {
-                    os = new BufferedOutputStream(new FileOutputStream(file),
-                            CHUNK_SIZE);
-                }
-
-                // Thrift serialize pdo list
-                SerializationUtil.transformToThriftUsingStream(pdosToSerialize,
-                        os);
-            } finally {
-                if (os != null) {
-                    try {
-                        os.close();
-                    } catch (IOException e) {
-                        statusHandler.error(pluginName
-                                + ": Error occurred closing output stream", e);
-                    }
-                }
-            }
-        }
-
-        return recordsSaved;
-    }
-
-    /**
-     * Dump the record information being archived to a file.
-     */
-    @SuppressWarnings("rawtypes")
-    private void dumpPdos(String pluginName,
-            List<PersistableDataObject> pdosToSerialize, String debugRootName) {
-        StringBuilder sb = new StringBuilder(debugRootName);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        sb.append("_").append(sdf.format(Calendar.getInstance().getTime()))
-                .append(".txt");
-        File file = new File(sb.toString());
-        Writer writer = null;
-        try {
-            PersistableDataObject<?>[] pdoArray = pdosToSerialize
-                    .toArray(new PersistableDataObject<?>[0]);
-            writer = new BufferedWriter(new FileWriter(file));
-            statusHandler.info(String.format("Dumping %s records to: %s",
-                    pdoArray.length, file.getAbsolutePath()));
-            for (int i = 0; i < pdosToSerialize.size(); ++i) {
-                if (pdoArray[i] instanceof PluginDataObject) {
-                    PluginDataObject pdo = (PluginDataObject) pdoArray[i];
-                    if (pdo.getId() != 0) {
-                        // otherwise was read from file
-                        writer.write("" + pdo.getId() + ":");
-                        writer.write(pdo.getDataURI());
-                        writer.write("\n");
-                    }
-                } else {
-                    writer.write(pdoArray[i].toString());
-                    writer.write("\n");
-                }
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (Exception e) {
-                    // Ignore
-                }
-                writer = null;
-            }
-        }
     }
 
     /**
@@ -589,6 +344,19 @@ public class DatabaseArchiver implements IPluginArchiver {
                             + pluginName);
         }
 
+        return this;
+    }
+
+    /**
+     * Register batch size for a plug-in.
+     * 
+     * @param pluginName
+     * @param batchSize
+     *            Batch Size for the plugin. Default is 10000.
+     * @return databaseArchiver
+     */
+    public Object registerPluginBatchSize(String pluginName, Integer batchSize) {
+        pluginBatchSize.put(pluginName, batchSize);
         return this;
     }
 }

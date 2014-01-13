@@ -119,7 +119,6 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     the same parm simultaneously.
  *                                     Added code to check the purge times when publishing and not publish
  *                                     data that is eligible to be purged.
- * 12/03/13     #2595      randerso    Added check for null update time in commitGrid
  * 
  * </pre>
  * 
@@ -173,7 +172,7 @@ public class GridParmManager {
         this.lockMgr.setGridParmMgr(this);
 
         initializeManager();
-    }
+        }
 
     /**
      * Dispose the GridParmManager
@@ -200,7 +199,7 @@ public class GridParmManager {
                     .debug("No matching GridDatabase for requested ParmID  in createParm()");
             // TODO: should we return null?
             return new GridParm();
-        }
+    }
     }
 
     /**
@@ -331,10 +330,10 @@ public class GridParmManager {
         for (SaveGridRequest req : saveRequest) {
             ServerResponse<?> ssr = null;
             GridParm gp = null;
-            gp = gridParm(req.getParmId());
-            if (!gp.isValid()) {
-                sr.addMessage("Unknown Parm: " + req.getParmId()
-                        + " in saveGridData()");
+                gp = gridParm(req.getParmId());
+                if (!gp.isValid()) {
+                    sr.addMessage("Unknown Parm: " + req.getParmId()
+                            + " in saveGridData()");
                 statusHandler.error("Unknown Parm: " + req.getParmId()
                         + " in saveGridData()");
                 continue;
@@ -456,27 +455,27 @@ public class GridParmManager {
             // for the source data
             ParmID sourceParmId = req.getParmId();
             GridParm sourceGP = gridParm(sourceParmId);
-            if (!sourceGP.isValid()) {
-                ssr.addMessage("Unknown Source Parm: " + req.getParmId()
-                        + " in commitGrid()");
-                srDetailed.addMessages(ssr);
-                failures.add(req);
-                continue;
-            }
+                if (!sourceGP.isValid()) {
+                    ssr.addMessage("Unknown Source Parm: " + req.getParmId()
+                            + " in commitGrid()");
+                    srDetailed.addMessages(ssr);
+                    failures.add(req);
+                    continue;
+                }
 
             // for the destination data
             ParmID destParmId = new ParmID(req.getParmId().getParmName(),
                     officialDBid, req.getParmId().getParmLevel());
             String destParmIdStr = destParmId.toString();
             GridParm destGP = null;
-            destGP = gridParm(destParmId);
-            if (!destGP.isValid()) {
-                ssr.addMessage("Unknown Destination Parm: " + destGP
-                        + " in commitGrid()");
-                srDetailed.addMessages(ssr);
-                failures.add(req);
-                continue;
-            }
+                destGP = gridParm(destParmId);
+                if (!destGP.isValid()) {
+                    ssr.addMessage("Unknown Destination Parm: " + destGP
+                            + " in commitGrid()");
+                    srDetailed.addMessages(ssr);
+                    failures.add(req);
+                    continue;
+                }
 
             // verify that the source and destination are matched
             GridParmInfo sourceInfo, destInfo;
@@ -520,17 +519,17 @@ public class GridParmManager {
                     publishTime.setStart(startTime);
                 }
 
-                inventoryTimer.start();
+            inventoryTimer.start();
                 ServerResponse<List<TimeRange>> invSr = sourceGP
                         .getGridInventory(publishTime);
                 List<TimeRange> overlapInventory = invSr.getPayload();
-                ssr.addMessages(invSr);
-                if (!ssr.isOkay()) {
-                    ssr.addMessage("GetGridInventory for source for commitGrid() failure: "
-                            + ssr.message());
-                    srDetailed.addMessages(ssr);
-                    failures.add(req);
-                }
+            ssr.addMessages(invSr);
+            if (!ssr.isOkay()) {
+                ssr.addMessage("GetGridInventory for source for commitGrid() failure: "
+                        + ssr.message());
+                srDetailed.addMessages(ssr);
+                failures.add(req);
+            }
 
                 // expand publish time to span overlapping inventory
                 if (!overlapInventory.isEmpty()) {
@@ -547,174 +546,173 @@ public class GridParmManager {
                 }
 
                 invSr = destGP.getGridInventory(publishTime);
-                inventoryTimer.stop();
-                List<TimeRange> destInventory = invSr.getPayload();
-                ssr.addMessages(invSr);
-                if (!ssr.isOkay()) {
-                    ssr.addMessage("GetGridInventory for destination for commitGrid() failure: "
-                            + ssr.message());
-                    srDetailed.addMessages(ssr);
-                    failures.add(req);
-                    continue;
-                }
+            inventoryTimer.stop();
+            List<TimeRange> destInventory = invSr.getPayload();
+            ssr.addMessages(invSr);
+            if (!ssr.isOkay()) {
+                ssr.addMessage("GetGridInventory for destination for commitGrid() failure: "
+                        + ssr.message());
+                srDetailed.addMessages(ssr);
+                failures.add(req);
+                continue;
+            }
 
-                // get the source grid data
-                List<IGridSlice> sourceData = null;
-                List<TimeRange> badGridTR = new ArrayList<TimeRange>();
+            // get the source grid data
+            List<IGridSlice> sourceData = null;
+            List<TimeRange> badGridTR = new ArrayList<TimeRange>();
 
-                // System.out.println("overlapInventory initial size "
-                // + overlapInventory.size());
+            // System.out.println("overlapInventory initial size "
+            // + overlapInventory.size());
 
-                historyRetrieveTimer.start();
-                ServerResponse<Map<TimeRange, List<GridDataHistory>>> history = sourceGP
-                        .getGridHistory(overlapInventory);
-                Map<TimeRange, List<GridDataHistory>> currentDestHistory = destGP
-                        .getGridHistory(overlapInventory).getPayload();
-                historyRetrieveTimer.stop();
+            historyRetrieveTimer.start();
+            ServerResponse<Map<TimeRange, List<GridDataHistory>>> history = sourceGP
+                    .getGridHistory(overlapInventory);
+            Map<TimeRange, List<GridDataHistory>> currentDestHistory = destGP
+                    .getGridHistory(overlapInventory).getPayload();
+            historyRetrieveTimer.stop();
 
-                Map<TimeRange, List<GridDataHistory>> historyOnly = new HashMap<TimeRange, List<GridDataHistory>>();
-                for (TimeRange tr : history.getPayload().keySet()) {
-                    // should only ever be one history for source grids
+            Map<TimeRange, List<GridDataHistory>> historyOnly = new HashMap<TimeRange, List<GridDataHistory>>();
+            for (TimeRange tr : history.getPayload().keySet()) {
+                // should only ever be one history for source grids
                     List<GridDataHistory> gdhList = history.getPayload()
                             .get(tr);
-                    boolean doPublish = false;
-                    for (GridDataHistory gdh : gdhList) {
-                        // if update time is less than publish time, grid
-                        // has not changed since last published,
-                        // therefore only update history, do not publish
-                    if ((gdh.getUpdateTime() == null)
-                            || (gdh.getPublishTime() == null)
-                                || (gdh.getUpdateTime().getTime() > gdh
-                                        .getPublishTime().getTime())
-                                // in service backup, times on srcHistory
-                                // could appear as not needing a publish,
-                                // even though dest data does not exist
-                                || (currentDestHistory.get(tr) == null)
-                                || (currentDestHistory.get(tr).size() == 0)) {
-                            doPublish = true;
-                        }
-                    }
-                    if (!doPublish) {
-                        historyOnly.put(tr, gdhList);
-                        overlapInventory.remove(tr);
+                boolean doPublish = false;
+                for (GridDataHistory gdh : gdhList) {
+                    // if update time is less than publish time, grid
+                    // has not changed since last published,
+                    // therefore only update history, do not publish
+                    if ((gdh.getPublishTime() == null)
+                            || (gdh.getUpdateTime().getTime() > gdh
+                                    .getPublishTime().getTime())
+                            // in service backup, times on srcHistory
+                            // could appear as not needing a publish,
+                            // even though dest data does not exist
+                            || (currentDestHistory.get(tr) == null)
+                            || (currentDestHistory.get(tr).size() == 0)) {
+                        doPublish = true;
                     }
                 }
+                if (!doPublish) {
+                    historyOnly.put(tr, gdhList);
+                    overlapInventory.remove(tr);
+                }
+            }
 
+            retrieveTimer.start();
+            ServerResponse<List<IGridSlice>> getSr = sourceGP.getGridData(
+                    new GetGridRequest(req.getParmId(), overlapInventory),
+                    badGridTR);
+            retrieveTimer.stop();
+            // System.out.println("Retrieved " + overlapInventory.size()
+            // + " grids");
+            sourceData = getSr.getPayload();
+            ssr.addMessages(getSr);
+            if (!ssr.isOkay()) {
+                ssr.addMessage("GetGridData for source for commitGrid() failure: "
+                        + ssr.message());
+                srDetailed.addMessages(ssr);
+                failures.add(req);
+                continue;
+            }
+
+            // get list of official grids that overlap publish range and
+            // aren't contained in the publish range, these have to be
+            // included in the publish step. Then get the grids, shorten
+            // and insert into sourceData.
+            List<IGridSlice> officialData = new ArrayList<IGridSlice>();
+            List<TimeRange> officialTR = new ArrayList<TimeRange>();
+            for (int t = 0; t < destInventory.size(); t++) {
+                    if (!publishTime.contains(destInventory.get(t))) {
+                    officialTR.add(destInventory.get(t));
+                }
+            }
+
+            if (!officialTR.isEmpty()) {
                 retrieveTimer.start();
-                ServerResponse<List<IGridSlice>> getSr = sourceGP.getGridData(
-                        new GetGridRequest(req.getParmId(), overlapInventory),
-                        badGridTR);
+                getSr = destGP.getGridData(new GetGridRequest(destParmId,
+                        officialTR), badGridTR);
                 retrieveTimer.stop();
-                // System.out.println("Retrieved " + overlapInventory.size()
-                // + " grids");
-                sourceData = getSr.getPayload();
+                officialData = getSr.getPayload();
                 ssr.addMessages(getSr);
                 if (!ssr.isOkay()) {
-                    ssr.addMessage("GetGridData for source for commitGrid() failure: "
+                    ssr.addMessage("GetGridData for official for commidtGrid() failure: "
                             + ssr.message());
                     srDetailed.addMessages(ssr);
                     failures.add(req);
                     continue;
                 }
 
-                // get list of official grids that overlap publish range and
-                // aren't contained in the publish range, these have to be
-                // included in the publish step. Then get the grids, shorten
-                // and insert into sourceData.
-                List<IGridSlice> officialData = new ArrayList<IGridSlice>();
-                List<TimeRange> officialTR = new ArrayList<TimeRange>();
-                for (int t = 0; t < destInventory.size(); t++) {
-                    if (!publishTime.contains(destInventory.get(t))) {
-                        officialTR.add(destInventory.get(t));
-                    }
-                }
-
-                if (!officialTR.isEmpty()) {
-                    retrieveTimer.start();
-                    getSr = destGP.getGridData(new GetGridRequest(destParmId,
-                            officialTR), badGridTR);
-                    retrieveTimer.stop();
-                    officialData = getSr.getPayload();
-                    ssr.addMessages(getSr);
-                    if (!ssr.isOkay()) {
-                        ssr.addMessage("GetGridData for official for commidtGrid() failure: "
-                                + ssr.message());
-                        srDetailed.addMessages(ssr);
-                        failures.add(req);
-                        continue;
-                    }
-
-                    // insert the grid into the "sourceGrid" list
-                    for (int t = 0; t < officialTR.size(); t++) {
-                        // before
-                        try {
-                            if (officialTR.get(t).getStart()
-                                    .before(publishTime.getStart())) {
+                // insert the grid into the "sourceGrid" list
+                for (int t = 0; t < officialTR.size(); t++) {
+                    // before
+                    try {
+                        if (officialTR.get(t).getStart()
+                                .before(publishTime.getStart())) {
 
                                 IGridSlice tempSlice = officialData.get(t)
                                         .clone();
                                 tempSlice.setValidTime(new TimeRange(officialTR
                                         .get(t).getStart(), publishTime
-                                        .getStart()));
-                                sourceData.add(0, tempSlice);
+                                            .getStart()));
+                            sourceData.add(0, tempSlice);
                                 publishTime.setStart(officialTR.get(t)
                                         .getStart());
-                                overlapInventory.add(tempSlice.getValidTime());
-                            }
+                            overlapInventory.add(tempSlice.getValidTime());
+                        }
 
-                            // after
-                            if (officialTR.get(t).getEnd()
-                                    .after(publishTime.getEnd())) {
+                        // after
+                        if (officialTR.get(t).getEnd()
+                                .after(publishTime.getEnd())) {
                                 IGridSlice tempSlice = officialData.get(t)
                                         .clone();
                                 tempSlice.setValidTime(new TimeRange(
                                         publishTime.getEnd(), officialTR.get(t)
                                                 .getEnd()));
-                                sourceData.add(tempSlice);
-                                publishTime.setEnd(officialTR.get(t).getEnd());
-                                overlapInventory.add(tempSlice.getValidTime());
-                            }
-                        } catch (CloneNotSupportedException e) {
-                            sr.addMessage("Error cloning GridSlice "
-                                    + e.getMessage());
+                            sourceData.add(tempSlice);
+                            publishTime.setEnd(officialTR.get(t).getEnd());
+                            overlapInventory.add(tempSlice.getValidTime());
                         }
+                    } catch (CloneNotSupportedException e) {
+                        sr.addMessage("Error cloning GridSlice "
+                                + e.getMessage());
                     }
                 }
+            }
 
                 // save off the source grid history, to update the source
                 // database modify the source grid data for the dest ParmID and
-                // GridDataHistory
-                Map<TimeRange, List<GridDataHistory>> histories = new HashMap<TimeRange, List<GridDataHistory>>();
-                Date nowTime = new Date();
+            // GridDataHistory
+            Map<TimeRange, List<GridDataHistory>> histories = new HashMap<TimeRange, List<GridDataHistory>>();
+            Date nowTime = new Date();
 
-                for (IGridSlice slice : sourceData) {
-                    GridDataHistory[] sliceHist = slice.getHistory();
-                    for (GridDataHistory hist : sliceHist) {
-                        hist.setPublishTime((Date) nowTime.clone());
-                    }
-                    slice.getGridInfo().resetParmID(destParmId);
+            for (IGridSlice slice : sourceData) {
+                GridDataHistory[] sliceHist = slice.getHistory();
+                for (GridDataHistory hist : sliceHist) {
+                    hist.setPublishTime((Date) nowTime.clone());
+                }
+                slice.getGridInfo().resetParmID(destParmId);
                     histories.put(slice.getValidTime(),
                             Arrays.asList(sliceHist));
-                }
+            }
 
                 // update the history for publish time for grids that are
                 // unchanged
-                for (TimeRange tr : historyOnly.keySet()) {
-                    List<GridDataHistory> histList = historyOnly.get(tr);
-                    for (GridDataHistory hist : histList) {
-                        hist.setPublishTime((Date) nowTime.clone());
-                    }
-                    histories.put(tr, histList);
+            for (TimeRange tr : historyOnly.keySet()) {
+                List<GridDataHistory> histList = historyOnly.get(tr);
+                for (GridDataHistory hist : histList) {
+                    hist.setPublishTime((Date) nowTime.clone());
                 }
+                histories.put(tr, histList);
+            }
 
                 // update the publish times in the source database,
                 // update the notifications
-                historyUpdateTimer.start();
-                sr.addMessages(sourceGP.updatePublishTime(histories.values(),
-                        (Date) nowTime.clone()));
+            historyUpdateTimer.start();
+            sr.addMessages(sourceGP.updatePublishTime(histories.values(),
+                    (Date) nowTime.clone()));
                 // System.out.println("Updated " + histories.size() +
                 // " histories");
-                historyUpdateTimer.stop();
+            historyUpdateTimer.stop();
 
                 List<TimeRange> historyTimes = new ArrayList<TimeRange>(
                         histories.keySet());
@@ -725,56 +723,56 @@ public class GridParmManager {
                 // update the histories of destination database for ones
                 // that are not going to be saved since there hasn't been a
                 // change
-                List<TimeRange> historyOnlyList = new ArrayList<TimeRange>();
-                historyOnlyList.addAll(historyOnly.keySet());
+            List<TimeRange> historyOnlyList = new ArrayList<TimeRange>();
+            historyOnlyList.addAll(historyOnly.keySet());
 
-                historyRetrieveTimer.start();
-                Map<TimeRange, List<GridDataHistory>> destHistory = destGP
-                        .getGridHistory(historyOnlyList).getPayload();
-                historyRetrieveTimer.stop();
-                for (TimeRange tr : destHistory.keySet()) {
-                    List<GridDataHistory> srcHistList = histories.get(tr);
-                    List<GridDataHistory> destHistList = destHistory.get(tr);
-                    for (int i = 0; i < srcHistList.size(); i++) {
-                        destHistList.get(i).replaceValues(srcHistList.get(i));
-                    }
+            historyRetrieveTimer.start();
+            Map<TimeRange, List<GridDataHistory>> destHistory = destGP
+                    .getGridHistory(historyOnlyList).getPayload();
+            historyRetrieveTimer.stop();
+            for (TimeRange tr : destHistory.keySet()) {
+                List<GridDataHistory> srcHistList = histories.get(tr);
+                List<GridDataHistory> destHistList = destHistory.get(tr);
+                for (int i = 0; i < srcHistList.size(); i++) {
+                    destHistList.get(i).replaceValues(srcHistList.get(i));
                 }
+            }
 
                 // only need to update the publish time on the destination
                 // histories of grids that are not being saved (due to no
                 // changes), because the saveGridSlices() call below will update
                 // the publish time of the ones with changes
-                historyUpdateTimer.start();
-                destGP.updatePublishTime(destHistory.values(),
-                        (Date) nowTime.clone());
-                historyUpdateTimer.stop();
+            historyUpdateTimer.start();
+            destGP.updatePublishTime(destHistory.values(),
+                    (Date) nowTime.clone());
+            historyUpdateTimer.stop();
 
-                // save data directly to the official database (bypassing
-                // the checks in Parm intentionally)
-                storeTimer.start();
-                ssr.addMessages(officialDBPtr.saveGridSlices(destParmId,
-                        publishTime, sourceData, requestorId, historyOnlyList));
-                storeTimer.stop();
+            // save data directly to the official database (bypassing
+            // the checks in Parm intentionally)
+            storeTimer.start();
+            ssr.addMessages(officialDBPtr.saveGridSlices(destParmId,
+                    publishTime, sourceData, requestorId, historyOnlyList));
+            storeTimer.stop();
 
                 // System.out.println("Published " + sourceData.size() +
                 // " slices");
-                if (!ssr.isOkay()) {
-                    ssr.addMessage("SaveGridData for official for commitGrid() failure: "
-                            + ssr.message());
-                    srDetailed.addMessages(ssr);
-                    failures.add(req);
-                    continue;
-                }
+            if (!ssr.isOkay()) {
+                ssr.addMessage("SaveGridData for official for commitGrid() failure: "
+                        + ssr.message());
+                srDetailed.addMessages(ssr);
+                failures.add(req);
+                continue;
+            }
 
-                // make the notification
+            // make the notification
                 GridUpdateNotification not = new GridUpdateNotification(
                         destParmId, publishTime, histories, requestorId, siteID);
-                changes.add(not);
-                sr.getPayload().add(not);
+            changes.add(not);
+            sr.getPayload().add(not);
 
             } finally {
                 ClusterLockUtils.unlock(ct, false);
-            }
+        }
         }
 
         perfLog.logDuration("Publish Grids: Acquiring cluster lock",
@@ -824,8 +822,8 @@ public class GridParmManager {
                 this.dbMap.keySet());
 
         sr.setPayload(databases);
-        return sr;
-    }
+            return sr;
+        }
 
     /**
      * Get a database if available
@@ -849,8 +847,8 @@ public class GridParmManager {
                 if (status.isOkay()) {
                     db = status.getPayload();
                     createDbNotification(Arrays.asList(dbId), null);
-                }
             }
+        }
 
             if (db != null) {
                 this.addDB(db);
@@ -888,8 +886,8 @@ public class GridParmManager {
             return sr;
         }
 
-        return sr;
-    }
+            return sr;
+        }
 
     /**
      * Delete database
@@ -946,9 +944,9 @@ public class GridParmManager {
 
         if (db == null) {
             sr.addMessage("Database " + dbId
-                    + " does not exist for getParmList()");
+                        + " does not exist for getParmList()");
             return sr;
-        }
+            }
 
         sr = db.getParmList();
         return sr;
@@ -990,7 +988,7 @@ public class GridParmManager {
 
                 // determine desired number of versions
                 desiredVersions = this.config.desiredDbVersions(dbId);
-            }
+                }
 
             // process the id and determine whether it should be purged
             count++;
@@ -1014,9 +1012,9 @@ public class GridParmManager {
         toRemove.removeAll(newInv);
         for (DatabaseID dbId : toRemove) {
             if (dbMap.remove(dbId) != null) {
-                statusHandler
-                        .info("Synching GridParmManager with database inventory, removing "
-                                + dbId);
+            statusHandler
+                    .info("Synching GridParmManager with database inventory, removing "
+                            + dbId);
             }
 
             // add any removals to the deletions list
@@ -1075,14 +1073,14 @@ public class GridParmManager {
                 List<LockNotification> lockNotify = new ArrayList<LockNotification>();
                 GridParm gp = createParm(parmId);
                 if (gp.isValid()) {
-                    ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
+                ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
                             gridNotify, lockNotify);
-                    sr.addMessages(sr1);
-                    purgedCount += sr1.getPayload();
+                sr.addMessages(sr1);
+                purgedCount += sr1.getPayload();
 
-                    gridNotifications.addAll(gridNotify);
-                    lockNotifications.addAll(lockNotify);
-                }
+                gridNotifications.addAll(gridNotify);
+                lockNotifications.addAll(lockNotify);
+            }
             }
 
             PurgeLogger.logInfo("Purge " + purgedCount + " items from " + dbId,
@@ -1121,7 +1119,7 @@ public class GridParmManager {
 
                 if (dbId.getRemovedDate() != null) {
                     // mark database as not removed
-                    try {
+        try {
                         GFEDao gfeDao = new GFEDao();
                         gfeDao.setDatabaseRemovedDate(dbId, null);
                         statusHandler.info("Database " + dbId + " restored");
@@ -1129,7 +1127,7 @@ public class GridParmManager {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to mark database restored: " + dbId, e);
                     }
-                }
+        }
 
                 // add to list of databases
                 addDB(db);
@@ -1179,8 +1177,8 @@ public class GridParmManager {
             if (manID.getFormat().equals(DataType.GRID)
                     && !inventory.contains(manID)) {
                 inventory.add(manID);
-            }
         }
+    }
 
         // create the databases (the list should now only contain GRID dbs)
         ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
@@ -1285,7 +1283,7 @@ public class GridParmManager {
             if (db == null) {
                 // New database
                 db = D2DGridDatabase.getDatabase(config, d2dModelName, refTime);
-                if (db == null) {
+        if (db == null) {
                     continue;
                 }
 
@@ -1308,16 +1306,16 @@ public class GridParmManager {
                     queue.queue(siteID, config, dbId, validTime, false,
                             SmartInitRecord.LIVE_SMART_INIT_PRIORITY);
                 }
-            }
-        }
+                    }
+                }
 
         // send notifications;
-        try {
+                    try {
             SendNotifications.send(guns);
-        } catch (Exception e) {
+                    } catch (Exception e) {
             statusHandler.error("Unable to send grib ingest notifications", e);
-        }
-    }
+                    }
+                }
 
     /**
      * @param records
@@ -1339,9 +1337,9 @@ public class GridParmManager {
                     Date validTime = gun.getReplacementTimeRange().getStart();
                     queue.queue(siteID, config, dbId, validTime, false,
                             SmartInitRecord.LIVE_SMART_INIT_PRIORITY);
-                }
             }
         }
+    }
 
         try {
             SendNotifications.send(guns);
@@ -1349,7 +1347,7 @@ public class GridParmManager {
             statusHandler.error(
                     "Unable to send satellite ingest notifications", e);
         }
-    }
+            }
 
     private Date purgeTime(DatabaseID id) {
         int numHours = this.config.gridPurgeAgeInHours(id);
@@ -1427,8 +1425,8 @@ public class GridParmManager {
                     for (ParmID pid : parmList) {
                         out.add(new CommitGridRequest(pid, req.getTimeRange(),
                                 req.isClientSendStatus()));
-                    }
-                } else {
+                }
+            } else {
                     sr.addMessage("Could not find database for "
                             + req.getDbId() + " in convertToParmReq()");
                 }
@@ -1544,7 +1542,7 @@ public class GridParmManager {
         DatabaseID dbId = db.getDbId();
         statusHandler.info("addDB called, adding " + dbId);
         this.dbMap.put(dbId, db);
-    }
+                }
 
     /**
      * Process D2D grid data purge notification
@@ -1568,9 +1566,9 @@ public class GridParmManager {
                     newInventory.addAll(dbIds);
                 } catch (DataAccessLayerException e) {
                     statusHandler.error(e.getLocalizedMessage(), e);
-                }
             }
         }
+    }
 
         DatabaseID satDbid = D2DSatDatabase.getDbId(siteID);
 
@@ -1613,8 +1611,8 @@ public class GridParmManager {
                     statusHandler.info("d2dGridDataPurged removing database: "
                             + dbid);
                 }
+                }
             }
-        }
 
         // if ((added.size() > 0) || (deleted.size() > 0)) {
         // DBInvChangeNotification changed = new DBInvChangeNotification(
@@ -1624,8 +1622,8 @@ public class GridParmManager {
                     deleted, siteID);
 
             SendNotifications.send(changed);
+            }
         }
-    }
 
     /**
      * Process D2D satellite data purge notification
