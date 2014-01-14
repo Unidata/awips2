@@ -60,8 +60,8 @@ import Vorticity
 def execute(t_up, t_lo, p_up, p_lo, vector_up, vector_lo, dx, dy, coriolis):
     ""
 
-    u_up, v_up = vector_up[2], vector_up[3]
-    u_lo, v_lo = vector_lo[2], vector_lo[3]
+    u_up, v_up = vector_up
+    u_lo, v_lo = vector_lo
     
     # Calculate the absolute vorticity at each isobaric surface.
     avort1 = Vorticity.execute(u_up, v_up, coriolis, dx, dy)
@@ -70,8 +70,8 @@ def execute(t_up, t_lo, p_up, p_lo, vector_up, vector_lo, dx, dy, coriolis):
     # Calculate the temperature gradient on each surface.
     grad_lo = Gradient.execute(t_lo, dx, dy)
     grad_up = Gradient.execute(t_up, dx, dy)
-    dtdx1, dtdy1 = grad_lo[2], grad_lo[3]
-    dtdx2, dtdy2 = grad_up[2], grad_up[3]
+    dtdx1, dtdy1 = grad_lo
+    dtdx2, dtdy2 = grad_up
     # Calculate difference arrays.
     dp = p_up - p_lo
     dt = t_up - t_lo
