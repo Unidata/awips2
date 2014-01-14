@@ -134,6 +134,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Dec 17, 2013 2636       bgonzale     Changed logging to differentiate the output.
  * Jan 08, 2014 2615       bgonzale     getMostRecent checks subscription time constraints before scheduling.
  *                                      handlePoint method now schedules most recent.
+ * Jan 14, 2014 2692       dhladky      Bad Point scheduling final Empty list.                                   
  * 
  * </pre>
  * 
@@ -614,9 +615,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      */
     private List<BandwidthAllocation> handlePoint(
             Subscription<T, C> subscription) {
-        List<BandwidthAllocation> unscheduled = Collections.emptyList();
-        unscheduled.addAll(schedule(subscription,
-                ((PointTime) subscription.getTime()).getInterval()));
+        List<BandwidthAllocation> unscheduled = schedule(subscription,
+                ((PointTime) subscription.getTime()).getInterval());
         unscheduled.addAll(getMostRecent(subscription, false));
         return unscheduled;
     }
