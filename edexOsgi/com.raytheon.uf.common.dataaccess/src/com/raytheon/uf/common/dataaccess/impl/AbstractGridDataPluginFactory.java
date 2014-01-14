@@ -27,8 +27,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
-import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.util.PDOUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -49,7 +47,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * Jan 17, 2013            bsteffen     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
- * 
+ * Jan 14, 2014 2667       mnash       Remove getGeometryData methods
  * </pre>
  * 
  * @author bsteffen
@@ -82,8 +80,7 @@ public abstract class AbstractGridDataPluginFactory extends
                         "The objects returned by the DbQueryRequest are not of type PluginDataObject as expected.");
             }
 
-            PluginDataObject pdo = (PluginDataObject) resultMap
-                    .get(null);
+            PluginDataObject pdo = (PluginDataObject) resultMap.get(null);
 
             IDataRecord dataRecord = getDataRecord(pdo);
 
@@ -100,14 +97,6 @@ public abstract class AbstractGridDataPluginFactory extends
         }
 
         return gridData.toArray(new IGridData[gridData.size()]);
-    }
-
-    protected IGeometryData[] getGeometryData(IDataRequest request,
-            DbQueryResponse dbQueryResponse) {
-        // Subtypes can optionally support geometry by overriding this, default
-        // is to not support geometry data.
-        throw new UnsupportedOutputTypeException(request.getDatatype(),
-                "geometry");
     }
 
     protected IDataRecord getDataRecord(PluginDataObject pdo) {
@@ -141,6 +130,5 @@ public abstract class AbstractGridDataPluginFactory extends
     protected abstract IGridData constructGridDataResponse(
             IDataRequest request, PluginDataObject pdo,
             GridGeometry2D gridGeometry, IDataRecord dataRecord);
-
 
 }
