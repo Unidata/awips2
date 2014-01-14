@@ -109,12 +109,17 @@ else
 fi
 
 hostName=`hostname -s`
-LOGDIR=$HOME/caveData/logs/consoleLogs/$hostName/
+BASE_LOGDIR=$HOME/caveData/logs/consoleLogs
+LOGDIR=$BASE_LOGDIR/$hostName/
+
 
 # make sure directory exists
 if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR
 fi
+
+# delete any old disk caches in the background
+deleteOldCaveLogs &
 
 export pid=$$
 
