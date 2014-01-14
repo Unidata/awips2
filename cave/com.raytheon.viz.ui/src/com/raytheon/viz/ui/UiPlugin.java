@@ -20,6 +20,7 @@
 
 package com.raytheon.viz.ui;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -28,6 +29,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
+import com.raytheon.viz.ui.jobs.MemoryMonitorJob;
 import com.raytheon.viz.ui.panes.DrawCoordinatorJob;
 
 /**
@@ -58,6 +60,8 @@ public class UiPlugin extends AbstractUIPlugin {
 
     private HierarchicalPreferenceStore prefs;
 
+    private final Job memoryWatchJob = new MemoryMonitorJob();
+
     /**
      * The constructor.
      */
@@ -70,6 +74,9 @@ public class UiPlugin extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
+        memoryWatchJob.setPriority(Job.LONG);
+        memoryWatchJob.setSystem(true);
+        memoryWatchJob.schedule();
     }
 
     /**
@@ -79,6 +86,7 @@ public class UiPlugin extends AbstractUIPlugin {
         super.stop(context);
         plugin = null;
         DrawCoordinatorJob.getInstance().shutdown();
+        memoryWatchJob.cancel();
     }
 
     /**

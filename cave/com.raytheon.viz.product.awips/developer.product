@@ -26,7 +26,8 @@
 -Dcom.sun.management.jmxremote.ssl=false
 -Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
--Dthrift.stream.maxsize=200</vmArgs>
+-Dthrift.stream.maxsize=200
+-Dviz.memory.warn.threshold=99</vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8</vmArgsWin>
    </launcherArgs>
 
