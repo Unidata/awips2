@@ -28,10 +28,7 @@ def execute(*args):
 
     if type(diffArgs[0]) == tuple:
         for i in range(1, len(diffArgs)):
-            diffVectorArg = list(diffArgs[i])
-            diffVectorArg[2] = -diffVectorArg[2]
-            diffVectorArg[3] = -diffVectorArg[3]
-            diffArgs[i] = tuple(diffVectorArg)
+            diffArgs[i] = (-diffArgs[i][0], -diffArgs[i][1])
         return apply(Add, diffArgs)
     else:
         result = 0
@@ -39,23 +36,3 @@ def execute(*args):
         for i in range(1, len(diffArgs)):
             result -= diffArgs[i]
         return result
-
-def test():
-    
-    from numpy import array
-                     
-    if not(all(execute(array([1., 2.]), array([3., 4.])) == array([ - 2, - 2]))):
-        raise Exception
-    
-    from Vector import execute as Vector
-    
-    # using meteoroligcal directions
-    Vector1 = Vector(array([1., 2.]), array([0., 270.]), True)
-    Vector2 = Vector(array([3., 4.]), array([180., 90.]), True)
-    (mag, dir, u, v) = execute(Vector1, Vector2)
-    if not(all(mag == array([2., 2.])) and all(dir.round(0) == array([180., 90.]))):
-        print mag
-        print dir
-        raise Exception
-
-    print "Difference Test Complete"

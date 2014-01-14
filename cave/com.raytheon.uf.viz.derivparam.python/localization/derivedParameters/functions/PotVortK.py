@@ -50,8 +50,8 @@ import Vorticity
 def execute(p_up, p_lo, o_up, o_lo, vector_up, vector_lo, dx, dy, coriolis):
     "Calculate the isentropic potential vorticity through a layer."
     
-    u_up, v_up = vector_up[2], vector_up[3]
-    u_lo, v_lo = vector_lo[2], vector_lo[3]
+    u_up, v_up = vector_up
+    u_lo, v_lo = vector_lo
     
     
     # Calculate the absolute vorticity at each isentropic surface.
