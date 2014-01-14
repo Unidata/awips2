@@ -29,9 +29,7 @@ import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
-import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil.QUERY_MODE;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -54,7 +52,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jan 29, 2013            bkowal     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
- * 
+ * Jan 14, 2014 2667       mnash       Remove getGridData methods
  * </pre>
  * 
  * @author bkowal
@@ -149,16 +147,6 @@ public abstract class AbstractGeometryDatabaseFactory extends
         this.validateRequest(request);
         return this.executeDataQuery(this.assembleGetData(request, timeRange),
                 request);
-    }
-
-    @Override
-    public IGridData[] getGridData(IDataRequest request, DataTime... times) {
-        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
-    }
-
-    @Override
-    public IGridData[] getGridData(IDataRequest request, TimeRange timeRange) {
-        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
     }
 
     /**
