@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
 /**
- * TODO Add Description
+ * Collaboration preferences constants used to interact with preference store
  * 
  * <pre>
  * 
@@ -29,13 +29,13 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2012            njensen     Initial creation
+ * Jan 14, 2014 2630       bclement    added away on idle constants
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
 public class CollabPrefConstants {
 
     public static final String P_SERVER = "collaborationServer";
@@ -47,6 +47,12 @@ public class CollabPrefConstants {
     public static final String P_MESSAGE = "message";
 
     public static final String AUTO_JOIN = "autojoin";
+
+    public static final String AWAY_ON_IDLE = "awayOnIdle";
+
+    public static final String AWAY_TIMEOUT = "awayTimeOut";
+
+    public static final int AWAY_TIMEOUT_DEFAULT = 10; // ten minutes
 
     public class HttpCollaborationConfiguration {
         public static final String P_SESSION_CONFIGURED = "http.sessionConfigured";
