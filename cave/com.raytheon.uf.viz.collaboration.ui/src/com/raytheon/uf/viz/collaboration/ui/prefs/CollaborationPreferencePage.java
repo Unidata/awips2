@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -29,7 +30,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**
- * TODO Add Description
+ * Collaboration specific preferences editor
  * 
  * <pre>
  * 
@@ -38,13 +39,13 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 27, 2012            mnash     Initial creation
+ * Jan 14, 2014 2630       bclement     added away on idle
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
-
 public class CollaborationPreferencePage extends FieldEditorPreferencePage
         implements IWorkbenchPreferencePage {
 
@@ -80,6 +81,15 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
                 CollabPrefConstants.AUTO_JOIN, "Join Discussion On Login",
                 getFieldEditorParent());
         this.addField(autojoinColl);
+        
+        FieldEditor toggleIdle = new BooleanFieldEditor(
+                CollabPrefConstants.AWAY_ON_IDLE, "Change Status On Idle",
+                getFieldEditorParent());
+        this.addField(toggleIdle);
+        FieldEditor awayTimeOut = new IntegerFieldEditor(
+                CollabPrefConstants.AWAY_TIMEOUT,
+                "Minutes Before Becoming Idle:", getFieldEditorParent());
+        this.addField(awayTimeOut);
     }
 
     /*
