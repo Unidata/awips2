@@ -31,7 +31,10 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.StatusLineManager;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IMemento;
@@ -51,9 +54,11 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.Procedure;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -65,7 +70,8 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
 import com.raytheon.viz.ui.tools.ModalToolManager;
 
 /**
- * Abstract perspective manager class.
+ * Manager for generic perspectives. Default implementation for general GUI
+ * interface management.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -75,6 +81,7 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * Mar 26, 2013 1799        bsteffen    Fix pan/zoom when in views.
  * Jun 19, 2013 2116        bsteffen    Do not deactivate contexts for parts
  *                                      when closing an inactive perspective.
+ * Jan 14, 2014 2594        bclement    added low memory notification
  * 
  * </pre>
  * 
@@ -603,4 +610,40 @@ public abstract class AbstractVizPerspectiveManager implements
             }
         }
     }
+    
+    /**
+     * Notify perspective manager when heap space is running low. Default action
+     * is to pop up a warning to the user. Perspectives can override the default
+     * behavior to take more extreme actions to reduce memory usage.
+     * 
+     * @param freeMemory
+     *            free memory available in bytes
+     * @return true if notification was displayed
+     */
+    public boolean notifyLowMemory(long availMemory) {
+        final String msg = getLowMemoryMessage(availMemory);
+        final boolean[] status = new boolean[1];
+        VizApp.runSync(new Runnable() {
+            public void run() {
+                Display display = Display.getDefault();
+                status[0] = MessageDialog.open(MessageDialog.WARNING,
+                        display.getActiveShell(), "Low Memory", msg, SWT.NONE);
+            }
+        });
+        return status[0];
+    }
+
+    /**
+     * Create the default low memory message to be displayed to the user
+     * 
+     * @param availMemory
+     *            free memory available in bytes
+     * @return
+     */
+    protected String getLowMemoryMessage(long availMemory) {
+        return "This CAVE is nearing its maximum memory limit. "
+                + "Performance may degrade significantly. "
+                + SizeUtil.prettyByteSize(availMemory) + " available";
+    }
+
 }
