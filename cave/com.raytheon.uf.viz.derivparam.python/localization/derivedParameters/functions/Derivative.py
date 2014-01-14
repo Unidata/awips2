@@ -49,7 +49,7 @@ def execute(A0, A1, B0, B1):
         v1 = A1[3]
         uDeriv = execute(u0, u1, B0, B1)
         vDeriv = execute(v0, v1, B0, B1)
-        return Vector.execute(uDeriv, vDeriv)
+        return Vector.componentsTo(uDeriv, vDeriv)
 
     Adiff = A1-A0
     Bdiff = B1-B0
