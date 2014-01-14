@@ -27,6 +27,7 @@ import java.util.Map;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
+import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
@@ -53,7 +54,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
  * Nov 26, 2013  2537     bsteffen    Fix NPEs for dataTimes and timeRange requests.
- * 
+ * Jan 14, 2014  2667     mnash       Change getGridData and getGeometryData methods
+ *                                    to throw exception by default
  * 
  * </pre>
  * 
@@ -61,8 +63,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1.0
  */
 
-public abstract class AbstractDataPluginFactory
-        extends AbstractDataFactory {
+public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
 
     protected static final String FIELD_DATATIME = "dataTime";
 
@@ -269,15 +270,18 @@ public abstract class AbstractDataPluginFactory
         return dbQueryRequest;
     }
 
-    protected abstract IGridData[] getGridData(IDataRequest request,
-            DbQueryResponse dbQueryResponse);
+    protected IGridData[] getGridData(IDataRequest request,
+            DbQueryResponse dbQueryResponse) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
+    }
 
-    protected abstract IGeometryData[] getGeometryData(IDataRequest request,
-            DbQueryResponse dbQueryResponse);
+    protected IGeometryData[] getGeometryData(IDataRequest request,
+            DbQueryResponse dbQueryResponse) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(),
+                "geometry");
+    }
 
     protected abstract Map<String, RequestConstraint> buildConstraintsFromRequest(
             IDataRequest request);
-
-
 
 }
