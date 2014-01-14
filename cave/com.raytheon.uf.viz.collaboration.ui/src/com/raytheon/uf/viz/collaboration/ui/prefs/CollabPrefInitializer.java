@@ -26,7 +26,7 @@ import org.jivesoftware.smack.packet.Presence.Mode;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**
- * TODO Add Description
+ * Initialization for collaboration preference store properties
  * 
  * <pre>
  * 
@@ -35,13 +35,13 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2012            njensen     Initial creation
+ * Jan 14, 2014 2630       bclement    added away on idle defaults
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
 public class CollabPrefInitializer extends AbstractPreferenceInitializer {
 
     /*
@@ -64,6 +64,9 @@ public class CollabPrefInitializer extends AbstractPreferenceInitializer {
         store.setDefault(CollabPrefConstants.P_STATUS,
                 Mode.available.toString());
         store.setDefault(CollabPrefConstants.P_MESSAGE, "");
+        store.setDefault(CollabPrefConstants.AWAY_ON_IDLE, true);
+        store.setDefault(CollabPrefConstants.AWAY_TIMEOUT,
+                CollabPrefConstants.AWAY_TIMEOUT_DEFAULT);
     }
 
 }
