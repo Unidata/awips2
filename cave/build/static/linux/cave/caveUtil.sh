@@ -162,3 +162,19 @@ function deleteOldCaveDiskCaches()
 
    cd $curDir
 }
+
+function deleteOldCaveLogs() 
+{
+   
+    local curDir=$(pwd)
+    local mybox=$(hostname)
+
+    echo -e "Cleaning consoleLogs: "
+    echo -e "find $BASE_LOGDIR -type f -name "*.log" -mtime +7 -exec rm {} \;"
+
+
+    find "$BASE_LOGDIR" -type f -name "*.log" -mtime +7 -exec rm {} \; 
+
+    exit 0
+
+}
