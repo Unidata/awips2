@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2010 1783       mpduff      Initial creation.
+ * Jan 7, 2013 16578 snaples Updated initInternal line array to handle area where it is wider than tall.
  * 
  * </pre>
  * 
@@ -89,9 +90,9 @@ public class HRAPOverlayResource extends
             int minY = ge.getLow(1);
             int height = ge.getSpan(1) + 1;
 
-            for (int x = 0; x < width; ++x) {
+            for (int x = 0; x < width; x++) {
                 double[][] line = new double[height][];
-                for (int y = 0; y < height; ++y) {
+                for (int y = 0; y < height; y++) {
                     double[] out = new double[2];
                     mt.transform(new double[] { minX + x, minY + y }, 0, out,
                             0, 1);
@@ -100,9 +101,9 @@ public class HRAPOverlayResource extends
                 grid.addLineSegment(line);
             }
 
-            for (int y = 0; y < height; ++y) {
-                double[][] line = new double[height][];
-                for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; y++) {
+                double[][] line = new double[width][];
+                for (int x = 0; x < width; x++) {
                     double[] out = new double[2];
                     mt.transform(new double[] { minX + x, minY + y }, 0, out,
                             0, 1);
