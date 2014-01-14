@@ -20,7 +20,7 @@
 
 from Add import execute as Add
 from Multiply import execute as Multiply
-from numpy import zeros, ndarray
+from numpy import zeros_like, ndarray
  
 def execute(*args):
     """Perform a linear transform
@@ -35,17 +35,14 @@ def execute(*args):
 
 
     if type(args[0]) == tuple:
-        targetShape = args[0][0].shape
-        targetType = args[0][0].dtype
-        zeroArray = zeros(shape=(targetShape), dtype=targetType) 
-        result = (zeroArray, zeroArray.copy(), zeroArray.copy(), zeroArray.copy())
+        zeroArray = zeros_like(args[0][0]) 
+        result = (zeroArray, zeroArray.copy())
     else:
         for arg in args:
             if (type(arg) == ndarray):
-                targetShape = arg.shape
-                targetType = arg.dtype
-        result = zeros(shape=targetShape, dtype=targetType)
-    
+                result = zeros_like(arg)
+                break
+
     termLength = 2
     
     terms = len(args) / termLength
@@ -58,23 +55,3 @@ def execute(*args):
         result = Add(result, Multiply(coefficient, variable))
     
     return result
-
-def test():
-    
-    from numpy import array
-    
-    if not( all(execute(array([1., 2.]), array([3., 4.]), array([1., 2.]), array([3., 4.])) == array([6., 16.]))):
-        raise Exception
-    
-    from Vector import execute as Vector
-    
-    # using meteorological direction
-    Vector1 = Vector(array([1., 2.]), array([0., 270.]), True)
-    Vector2 = Vector(array([3., 4.]), array([180., 90.]), True)
-    (mag, dir, u, v) = execute(Vector1, array([3., 4.]), Vector2, array([3., 4.]))
-    if not( all(mag == array([6., 8.])) and all(dir.round(0) == array([180., 90.]))):
-        print mag
-        print dir
-        raise Exception
-
-    print "LinTrans Test Complete"

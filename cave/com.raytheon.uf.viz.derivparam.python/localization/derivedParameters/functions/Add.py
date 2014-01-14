@@ -18,10 +18,9 @@
 # further licensing information.
 ##
 
-from numpy import add
-from numpy import array
+from numpy import add,array,zeros_like
 
-from Vector import execute as Vector
+import Vector
 
 def execute(*args):
     """ Perform scalar or vector addition
@@ -38,33 +37,11 @@ def scalarAddition(args):
     return reduce(add, args)
 
 def vectorAddition(args):
-
-    from numpy import zeros
+    uResult = zeros_like(args[0][0])
+    vResult = zeros_like(args[0][0])
     
-    targetShape = args[0][2].shape
-    targetType = args[0][2].dtype
+    for u, v in args:
+        uResult += u
+        vResult += v
     
-    uResult = zeros(shape=(targetShape), dtype=targetType)
-    vResult = zeros(shape=(targetShape), dtype=targetType)
-    
-    for arg in args:
-        uResult = scalarAddition((uResult, arg[2]))
-        vResult = scalarAddition((vResult, arg[3]))
-    
-    return Vector(uResult, vResult)
-
-def test():
-    
-    if not( all(execute(array([1., 2.]), array([3., 4.])) == array([4., 6.]))):
-        raise Exception
-    
-    Vector1 = Vector(array([1.,2.]),array([0.,270.]),True)
-    Vector2 = Vector(array([3.,4.]),array([180.,90.]),True)
-    (mag, dir, u, v) = execute(Vector1,Vector2)
-    if not( all(mag == array([2., 2.])) and all(dir.round(0) == array([180., 90.]))):
-        raise Exception
-        
-    if not( all(execute(array([1., 2.]), 3.) == array([4., 5.]))):
-        raise Exception
-
-    print "Add Test Complete"
+    return Vector.componentsTo(uResult, vResult)
