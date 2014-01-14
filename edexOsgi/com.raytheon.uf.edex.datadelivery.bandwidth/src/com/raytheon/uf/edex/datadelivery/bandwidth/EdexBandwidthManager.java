@@ -52,6 +52,7 @@ import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -110,6 +111,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 15, 2013 2545       bgonzale     Added check for subscription events before sending
  *                                      notifications.  Republish dataset metadata registry
  *                                      insert and update events as dataset metadata events.
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler                                    
  * 
  * </pre>
  * 
@@ -125,6 +127,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     private final IDataSetMetaDataHandler dataSetMetaDataHandler;
 
     private final ISubscriptionHandler subscriptionHandler;
+    
+    private final IAdhocSubscriptionHandler adhocSubscriptionHandler;
 
     private final ScheduledExecutorService scheduler;
 
@@ -158,12 +162,14 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             BandwidthDaoUtil<T, C> bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
+            IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
 
         this.dataSetMetaDataHandler = dataSetMetaDataHandler;
         this.subscriptionHandler = subscriptionHandler;
         this.subscriptionNotificationService = subscriptionNotificationService;
+        this.adhocSubscriptionHandler = adhocSubscriptionHandler;
 
         // schedule maintenance tasks
         scheduler = Executors.newScheduledThreadPool(1);
@@ -228,6 +234,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * @param subscription
      *            The completed subscription.
      */
+    @SuppressWarnings("unchecked")
     @Subscribe
     public void subscriptionFulfilled(
             SubscriptionRetrievalFulfilled subscriptionRetrievalFulfilled) {
@@ -260,14 +267,23 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             // Schedule the next iteration of the subscription
             BandwidthSubscription dao = sr.getBandwidthSubscription();
             Subscription<T, C> subscription;
+
             try {
+                // recurring site subscription
                 subscription = subscriptionHandler.getByName(dao.getName());
 
                 if (subscription == null) {
-                    StringBuilder sb = new StringBuilder("Subscription: ");
-                    sb.append(dao.getName());
-                    sb.append(" Not Found in Subscription Handler.");
-                    throw new RegistryHandlerException(sb.toString());
+                    // not recurring, try an adhoc subscription
+                    subscription = adhocSubscriptionHandler.getByName(dao
+                            .getName());
+                    // still doesn't work, punt!
+                    if (subscription == null) {
+
+                        StringBuilder sb = new StringBuilder("Subscription: ");
+                        sb.append(dao.getName());
+                        sb.append(" Not Found in Subscription Handler.");
+                        throw new RegistryHandlerException(sb.toString());
+                    }
                 }
             } catch (RegistryHandlerException e1) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -277,6 +293,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
 
             // AdhocSubscriptions are one and done, so don't reschedule.
             if (subscription instanceof AdhocSubscription) {
+                statusHandler.info("Adhoc Subscription ["
+                        + subscription.getName() + "] complete.");
                 return;
             }
 
@@ -321,6 +339,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * 
      * @param event
      */
+    @SuppressWarnings("unchecked")
     @Subscribe
     @AllowConcurrentEvents
     public void subscriptionRemoved(RemoveRegistryEvent event) {
@@ -356,6 +375,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * @param re
      *            The <code>InsertRegistryEvent</code> Object to evaluate.
      */
+    @SuppressWarnings("unchecked")
     @Subscribe
     @AllowConcurrentEvents
     public void registryEventListener(InsertRegistryEvent re) {
@@ -418,7 +438,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
 
     private void publishDataSetMetaDataEvent(RegistryEvent re) {
         final String id = re.getId();
-        DataSetMetaData dsmd = getDataSetMetaData(id);
+        DataSetMetaData<?> dsmd = getDataSetMetaData(id);
 
         if (dsmd != null) {
             // Repost the Object to the BandwidthEventBus to free
@@ -442,6 +462,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         }
     }
 
+    @SuppressWarnings("unchecked")
     private DataSetMetaData<T> getDataSetMetaData(String id) {
         return getRegistryObjectById(dataSetMetaDataHandler, id);
     }
@@ -739,7 +760,6 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 final SubscriptionRetrievalAttributes<T, C> sra = bandwidthDao
                         .getSubscriptionRetrievalAttributes(retrieval);
                 if (sra != null) {
-                    @SuppressWarnings("unchecked")
                     Subscription<T, C> sub = sra.getSubscription();
                     if (sub != null) {
                         subscriptions.add(sub);
@@ -768,7 +788,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      *            the datasetmetadata update
      * @return the subscription
      */
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static Subscription updateSubscriptionWithDataSetMetaData(
             Subscription sub, DataSetMetaData dataSetMetaData) {
         // TODO perfect candidate for the factory for time and coverage
