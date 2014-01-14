@@ -19,9 +19,9 @@
 ##
 
 from Add import execute as Add
-from Vector import execute as Vector
-from numpy import array
-from numpy import dot
+from math import radians,cos,sin
+from numpy import array,dot
+import Vector
 
 def execute(*args):
     """Rotate a vector
@@ -39,54 +39,31 @@ def execute(*args):
         return vectorTransformMatrix(args)
     
 def rotateDegrees(args):
-    
-    magnitude = args[0][0]
-    direction = Add(args[0][1], args[1]) % 360
-    
-    return Vector(magnitude, direction, True)
+    v = args[0]
+    r = radians(args[1])
+    s = sin(r)
+    c = cos(r)
+    return vectorTransformMatrix(v,c,-s,s,c)
 
 def vectorTransformMatrix(args):
     
-    uComponent = args[0][2]
-    vComponent = args[0][3]
+    uComponent,vComponent = args[0]
     
     uComponentShape = uComponent.shape
     vComponentShape = vComponent.shape 
     
     # in-place flatten the arrays
-    uComponent.resize((uComponent.size,))
-    vComponent.resize((vComponent.size,))
+    uComponent = uComponent.reshape((uComponent.size,))
+    vComponent = vComponent.reshape((vComponent.size,))
     
     vector = array([uComponent, vComponent])
     transform = array([[args[1], args[2]], [args[3], args[4]]],dtype=uComponent.dtype)
     
-    (u,v) = dot(transform, vector)
+    u,v = dot(transform, vector)
     
     # resize the arrays back to appropriate size
     u.resize(uComponentShape)
     v.resize(vComponentShape)
     
-    return Vector(u, v)
-
-def test():
-    
-    from numpy import all
-    from numpy import array
-    
-    try:
-        execute(1, 2, 3, 4);
-        raise Exception
-    except ValueError:
-        pass
-    
-    (mag, dir, u, v) = execute((array([1., 2.]), array([90., 270.])), 180.)
-    if not(all(mag == array([1., 2.])) and all(dir == array([270., 90.]))):
-        raise Exception
-        
-    (mag, dir, u, v) = execute((None, None, array([1., 3.]), array([2., 4.])), 3., 4., 5., 6.)
-    if not(all(u == array([11., 25.])) and all(v == array([17., 39.]))):
-        raise Exception
-    
-    print "Rotate Test Complete"
-
+    return Vector.componentsTo(u, v)
     
