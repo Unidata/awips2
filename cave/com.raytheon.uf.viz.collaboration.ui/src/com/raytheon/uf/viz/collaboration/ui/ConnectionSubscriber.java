@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
+import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -67,6 +69,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012            njensen     Initial creation
  * Dec 18, 2013 2562      bclement    fixed venue invite
+ * Jan 14, 2014 2630       bclement    added away timeout
  * 
  * </pre>
  * 
@@ -82,6 +85,8 @@ public class ConnectionSubscriber {
     private static ConnectionSubscriber instance;
 
     private IWorkbenchListener wbListener;
+
+    private final AwayTimeOut awayTimeOut = new AwayTimeOut();
 
     private ConnectionSubscriber() {
 
@@ -142,12 +147,15 @@ public class ConnectionSubscriber {
                 }
             };
             PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
+            awayTimeOut.setSystem(true);
+            awayTimeOut.setPriority(Job.LONG);
+            awayTimeOut.schedule();
         }
-
     }
 
     private void dispose(CollaborationConnection connection) {
         if (connection != null) {
+            awayTimeOut.cancel();
             try {
                 ISession p2pSession = connection.getPeerToPeerSession();
                 p2pSession.unregisterEventHandler(this);
