@@ -36,17 +36,14 @@ import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataaccess.DataAccessLayer;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
-import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData.Type;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -69,7 +66,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------- -------- ----------- --------------------------
  * Oct 31, 2013  2502     bsteffen    Initial creation
  * Nov 26, 2013  2537     bsteffen    Minor code cleanup.
- * 
+ * Jan,14, 2014  2667       mnash      Remove getGridData method
  * </pre>
  * 
  * @author bsteffen
@@ -146,27 +143,6 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
     }
 
     @Override
-    protected IGeometryData[] getGeometryData(IDataRequest request,
-            DbQueryResponse dbQueryResponse) {
-        /*
-         * Since the public getGeometryData methods have been overriden, this is
-         * now unreachable code, but since it is an abstract method in the super
-         * class it must be implemented.
-         */
-        throw new UnsupportedOperationException(
-                "This method should be unreachable");
-    }
-
-    @Override
-    protected IGridData[] getGridData(IDataRequest request,
-            DbQueryResponse dbQueryResponse) {
-        /*
-         * Point data cannot be gridded, so don't even try.
-         */
-        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
-    }
-
-    @Override
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
             IDataRequest request) {
         Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
@@ -208,7 +184,7 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
                     "Unable to complete the PointDataRequestMessage for request: "
                             + request, e);
         }
-        if(pdc == null){
+        if (pdc == null) {
             return new IGeometryData[0];
         }
         LevelFactory lf = LevelFactory.getInstance();
