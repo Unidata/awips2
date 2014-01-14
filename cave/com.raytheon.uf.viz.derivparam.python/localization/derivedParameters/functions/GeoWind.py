@@ -20,8 +20,7 @@
 
 ## @file Geowind.py
 
-from numpy import isscalar
-from numpy import NaN
+from numpy import isscalar,NaN
 import Vector
 
 g = 9.806 # Gravitational acceleration (m/s^2)
@@ -79,5 +78,5 @@ def execute(Height, dx, dy, coriolis):
     result_U = result_U
     result_V = result_V
     
-    result = Vector.execute(result_U, result_V)
+    result = Vector.componentsTo(result_U, result_V)
     return result
