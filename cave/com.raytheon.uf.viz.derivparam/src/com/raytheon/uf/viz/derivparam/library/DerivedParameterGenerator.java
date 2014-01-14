@@ -42,6 +42,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ui.services.IDisposable;
 
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -55,37 +56,31 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.derivparam.DerivParamFunctionType;
 import com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
 
 /**
- * A thread that accepts requests for a derived parameter, passes it to JEP and
- * returns the request. It is important to note that this thread performs a
- * sleep instead of a schedule to keep the JEP instance in the same thread. To
- * properly interact with this thread, it is important to use
- * <code>DerivedParameterRequest</code> and submit it using the static method
- * <code>addTask</code>.<br/>
- * <br/>
- * <b>IMPORTANT</b> A call to <code>getDerivParamLib</code> should be made
- * immediately after an instance of the datacube container is created or after a
- * call to <code>requestDerivParamUpdate</code>. The reason for this is the main
- * thread will load all derived parameters and then offer them via a synchronous
- * queue. Until the queue is polled, the main derived parameter thread will
- * hang.
+ * Primary public interface for derived parameters. Introspection on the derived
+ * parameters available can be done using {@link #getDerParLibrary()}. For
+ * actually performing derived parameters calculations the
+ * {@link #calculate(DerivedParameterRequest)} method can be used.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jul 03, 2008             brockwoo    Initial creation
- * Nov 16, 2009 3120        rjpeter     Removed use of LevelNameMappingFile.
- * Nov 20, 2009 3387        jelkins     Use derived script's variableId instead
- *                                      of filename
- * Nov 21, 2009 3576        rjpeter     Refactored DerivParamDesc.
- * Jun 04, 2013 2041        bsteffen    Switch derived parameters to use
- *                                      concurrent python for threading.
- * Nov 19, 2013 2361        njensen     Only shutdown if initialized
+ * Date          Ticket#   Engineer    Description
+ * ------------- --------  ----------- --------------------------
+ * Jul 03, 2008            brockwoo    Initial creation
+ * Nov 16, 2009  3120      rjpeter     Removed use of LevelNameMappingFile.
+ * Nov 20, 2009  3387      jelkins     Use derived script's variableId instead
+ *                                     of filename
+ * Nov 21, 2009  3576      rjpeter     Refactored DerivParamDesc.
+ * Jun 04, 2013  2041      bsteffen    Switch derived parameters to use
+ *                                     concurrent python for threading.
+ * Nov 19, 2013  2361      njensen     Only shutdown if initialized
+ * Jan 14, 2014  2661      bsteffen    Shutdown using uf.viz.core.Activator
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -201,6 +196,13 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
                     "Error creating derived parameter function type,"
                             + " derived paramters will not be available");
         }
+        Activator.getDefault().registerDisposable(new IDisposable() {
+
+            @Override
+            public void dispose() {
+                shutdown();
+            }
+        });
         this.adapter = functionTypes[0].getAdapter();
         this.extension = functionTypes[0].getExtension();
         notifyJob.setSystem(true);
@@ -251,8 +253,8 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
 
             for (LocalizationFile file : xmlFiles) {
                 try {
-                    DerivParamDesc desc = (DerivParamDesc) jaxbMan
-                            .unmarshalFromXmlFile(file.getFile());
+                    DerivParamDesc desc = jaxbMan.unmarshalFromXmlFile(
+                            DerivParamDesc.class, file.getFile());
                     if (derParLibrary.containsKey(desc.getAbbreviation())) {
                         DerivParamDesc oldDesc = derParLibrary.get(desc
                                 .getAbbreviation());
@@ -330,9 +332,10 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
         initLibrary();
     }
 
-    public static void shutdown() {
+    public static synchronized void shutdown() {
         if (instance != null) {
             getInstance().adapter.shutdown();
+            instance = null;
         }
     }
 

@@ -38,9 +38,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 15, 2010 #3965      rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 15, 2010  3965     rjpeter     Initial creation
+ * Jan 14, 2014  2661     bsteffen    Make vectors u,v only
  * 
  * </pre>
  * 
@@ -73,15 +74,12 @@ public class AliasRequestableData extends AbstractRequestableData {
             }
         } else if (rval instanceof FloatDataRecord[]) {
             FloatDataRecord[] recs = (FloatDataRecord[]) rval;
-            FloatDataRecord[] newRecs = new FloatDataRecord[recs.length];
+            IDataRecord[] newRecs = new FloatDataRecord[recs.length];
             rval = newRecs;
             for (int i = 0; i < recs.length; i++) {
-                if (recs[i] instanceof FloatDataRecord) {
-                    newRecs[i] = (FloatDataRecord) ((FloatDataRecord) recs[i])
-                            .clone();
-                    if (this.parameter != null) {
-                        ((FloatDataRecord) newRecs[i]).setName(this.parameter);
-                    }
+                newRecs[i] = recs[i].clone();
+                if (this.parameter != null) {
+                    newRecs[i].setName(this.parameter);
                 }
             }
         } else if (rval instanceof IDataRecord[]) {
@@ -89,11 +87,9 @@ public class AliasRequestableData extends AbstractRequestableData {
             IDataRecord[] newRecs = new IDataRecord[recs.length];
             rval = newRecs;
             for (int i = 0; i < recs.length; i++) {
-                if (recs[i] instanceof IDataRecord) {
-                    newRecs[i] = ((IDataRecord) recs[i]).clone();
-                    if (this.parameter != null) {
-                        ((IDataRecord) newRecs[i]).setName(this.parameter);
-                    }
+                newRecs[i] = recs[i].clone();
+                if (this.parameter != null) {
+                    newRecs[i].setName(this.parameter);
                 }
             }
         }
@@ -118,22 +114,11 @@ public class AliasRequestableData extends AbstractRequestableData {
                     FloatDataRecord[] recs = (FloatDataRecord[]) rval;
                     if (recs.length != 1 || !unit.equals(NonSI.DEGREE_ANGLE)) {
                         for (int i = 0; i < recs.length; i++) {
-                            // Currently arrays are only used for Vectors,
-                            // Vectors
-                            // are represented as [Mag,Dir,U,V], If we attempt
-                            // to
-                            // convert Dir it goes badly, so this skips it.
-                            if (i == 1) {
-                                continue;
-                            }
-                            if (recs[i] instanceof FloatDataRecord) {
-                                float[] data = ((FloatDataRecord) recs[i])
-                                        .getFloatData();
-                                for (int c = 0; c < data.length; c++) {
-                                    if (data[c] > -9999) {
-                                        data[c] = (float) converter
-                                                .convert(data[c]);
-                                    }
+                            float[] data = recs[i].getFloatData();
+                            for (int c = 0; c < data.length; c++) {
+                                if (data[c] > -9999) {
+                                    data[c] = (float) converter
+                                            .convert(data[c]);
                                 }
                             }
                         }
@@ -142,20 +127,11 @@ public class AliasRequestableData extends AbstractRequestableData {
                     IDataRecord[] recs = (IDataRecord[]) rval;
                     if (recs.length != 1 || !unit.equals(NonSI.DEGREE_ANGLE)) {
                         for (int i = 0; i < recs.length; i++) {
-                            // Currently arrays are only used for Vectors,
-                            // Vectors
-                            // are represented as [Mag,Dir,U,V], If we attempt
-                            // to
-                            // convert Dir it goes badly, so this skips it.
-                            if (i == 1) {
-                                continue;
-                            }
                             if (recs[i] instanceof FloatDataRecord) {
                                 float[] data = ((FloatDataRecord) recs[i])
                                         .getFloatData();
                                 for (int c = 0; c < data.length; c++) {
                                     if (data[c] > -9999) {
-
                                         data[c] = (float) converter
                                                 .convert(data[c]);
                                     }
