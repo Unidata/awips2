@@ -66,5 +66,5 @@ def execute(scalar, dx, dy):
     
     result_u[:,1:-1] = ans_u
     result_v[1:-1,:] = ans_v
-    return Vector.execute(result_u, result_v)
+    return Vector.componentsTo(result_u, result_v)
 
