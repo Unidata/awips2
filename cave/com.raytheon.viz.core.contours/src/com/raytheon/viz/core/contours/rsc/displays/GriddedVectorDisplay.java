@@ -27,6 +27,8 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -50,7 +52,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Jun 22, 2010           bsteffen    Initial creation
  * Feb 07, 2011  7948     bkowal      added a public method to get the
  *                                    direction.
@@ -62,11 +64,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    gridRelative flag to indicate whether
  *                                    direction data is relative to grid or
  *                                    true north
- * Sep 09, 2013  16257    MPorricelli When setDestinationGeographicPoint fails (which can
- *                                    happen for global lat/lon grid winds displayed on
- *                                    Equidistant Cylindrical map) try again with different
+ * Sep 09, 2013  16257    MPorricelli When setDestinationGeographicPoint fails
+ *                                    (which can happen for global lat/lon grid
+ *                                    winds displayed on Equidistant
+ *                                    Cylindrical map) try again with different
  *                                    pixel location.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Jan 14, 2014  2661     bsteffen    Switch magnitude and direction from
+ *                                    buffers to DataSource
  * 
  * </pre>
  * 
@@ -75,9 +80,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
-    private final FloatBuffer magnitude;
+    private final DataSource magnitude;
 
-    private final FloatBuffer direction;
+    private final DataSource direction;
 
     private int lineWidth;
 
@@ -96,20 +101,26 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     private GeodeticCalculator gc;
 
     /**
+     * 
      * @param magnitude
+     *            a data source for the magnitude of vectors
      * @param direction
+     *            a data source for the direction of vectors
      * @param descriptor
+     *            the descriptor
      * @param gridGeometryOfGrid
-     * @param size
+     *            geometry of the data sources
      * @param densityFactor
      *            adjustment factor to make density match A1
      * @param gridRelative
      *            true if direction is grid relative, false if relative to true
      *            north
      * @param displayType
-     * @param factory
+     *            how to render the vector
+     * @param config
+     *            custom rendering hints
      */
-    public GriddedVectorDisplay(FloatBuffer magnitude, FloatBuffer direction,
+    public GriddedVectorDisplay(DataSource magnitude, DataSource direction,
             IMapDescriptor descriptor, GeneralGridGeometry gridGeometryOfGrid,
             double densityFactor, boolean gridRelative,
             DisplayType displayType, VectorGraphicsConfig config) {
@@ -121,6 +132,21 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         this.displayType = displayType;
         this.gc = new GeodeticCalculator(descriptor.getCRS());
         this.vectorConfig = config;
+    }
+
+    /**
+     * Construct using float buffers instead of data sources.
+     * 
+     * @See {@link #GriddedVectorDisplay(DataSource, DataSource, IMapDescriptor, GeneralGridGeometry, double, boolean, DisplayType, VectorGraphicsConfig)}
+     */
+    public GriddedVectorDisplay(FloatBuffer magnitude, FloatBuffer direction,
+            IMapDescriptor descriptor, GeneralGridGeometry gridGeometryOfGrid,
+            double densityFactor, boolean gridRelative,
+            DisplayType displayType, VectorGraphicsConfig config) {
+        this(new FloatBufferWrapper(magnitude, gridGeometryOfGrid),
+                new FloatBufferWrapper(direction, gridGeometryOfGrid),
+                descriptor, gridGeometryOfGrid, densityFactor, gridRelative,
+                displayType, config);
     }
 
     @Override
@@ -151,17 +177,18 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     @Override
     protected void paint(Coordinate ijcoord, PaintProperties paintProps,
             Coordinate plotLoc, double adjSize) throws VizException {
-        int idx = (int) (ijcoord.x + (ijcoord.y * this.gridDims[0]));
 
-        float spd = this.magnitude.get(idx);
-        float dir = this.direction.get(idx);
+        double spd = this.magnitude.getDataValue((int) ijcoord.x,
+                (int) ijcoord.y);
+        double dir = this.direction.getDataValue((int) ijcoord.x,
+                (int) ijcoord.y);
 
         if (dir < -999999 || dir > 9999999) {
             // perhaps this check should limit +/- 180
             return;
         }
 
-        if (Float.isNaN(spd) || Float.isNaN(dir)) {
+        if (Double.isNaN(spd) || Double.isNaN(dir)) {
             return;
         }
         int tryDiffPixLoc = 0;
@@ -267,17 +294,6 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             return true;
         }
         return false;
-    }
-
-    /**
-     * @return the magnitude
-     */
-    public FloatBuffer getMagnitude() {
-        return magnitude;
-    }
-
-    public FloatBuffer getDirection() {
-        return direction;
     }
 
     @Override
