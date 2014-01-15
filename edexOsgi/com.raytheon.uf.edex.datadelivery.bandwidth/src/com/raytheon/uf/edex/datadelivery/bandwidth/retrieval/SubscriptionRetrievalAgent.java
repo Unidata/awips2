@@ -6,6 +6,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -34,6 +35,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 
 /**
  * Class used to process SubscriptionRetrieval BandwidthAllocations.
@@ -51,6 +53,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Jun 24, 2013 2106       djohnson     Set actual start time when sending to retrieval rather than overwrite scheduled start.
  * Jul 09, 2013 2106       djohnson     Dependency inject registry handlers.
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
+ * Jan 15, 2014 2678       bgonzale     Use Queue for passing RetrievalRequestRecords to the 
+ *                                      RetrievalTasks (PerformRetrievalsThenReturnFinder).
  * 
  * </pre>
  * 
@@ -72,15 +76,19 @@ public class SubscriptionRetrievalAgent extends
 
     private final IProviderHandler providerHandler;
 
+    private final ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue;
+
     public SubscriptionRetrievalAgent(Network network, String destinationUri,
             final Object notifier, int defaultPriority,
             RetrievalManager retrievalManager, IBandwidthDao bandwidthDao,
-            IRetrievalDao retrievalDao, IProviderHandler providerHandler) {
+            IRetrievalDao retrievalDao, IProviderHandler providerHandler,
+            ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue) {
         super(network, destinationUri, notifier, retrievalManager);
         this.defaultPriority = defaultPriority;
         this.bandwidthDao = bandwidthDao;
         this.retrievalDao = retrievalDao;
         this.providerHandler = providerHandler;
+        this.retrievalQueue = retrievalQueue;
     }
 
     @Override
@@ -133,9 +141,6 @@ public class SubscriptionRetrievalAgent extends
 
     @VisibleForTesting
     void wakeRetrievalTasks() throws EdexException {
-        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
-        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
-        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
         EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
     }
 
@@ -211,6 +216,9 @@ public class SubscriptionRetrievalAgent extends
                     rec.setRetrieval(SerializationUtil
                             .transformToThrift(retrieval));
                     rec.setState(RetrievalRequestRecord.State.PENDING);
+                    if (retrievalQueue != null) {
+                        retrievalQueue.add(rec.getId());
+                    }
                 } catch (Exception e) {
                     statusHandler.error("Subscription: " + subscriptionName
                             + " Failed to serialize request [" + retrieval
