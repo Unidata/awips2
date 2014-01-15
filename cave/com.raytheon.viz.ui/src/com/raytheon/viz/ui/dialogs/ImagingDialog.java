@@ -64,7 +64,6 @@ import com.raytheon.viz.core.imagery.ImageCombiner.IImageCombinerListener;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.dialogs.ColormapComp.IColormapCompChangeListener;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorEditDialog;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
@@ -72,18 +71,23 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Nov 26, 2006             chammack    Initial Creation.
- * Jul 10, 2008 #980        lvenable    Changed to a SWT dialog to correct a problem
- *                                      caused by a JFace/shell issue.  I also rearranged
- *                                      the controls a bit, used labels instead of text
- *                                      controls since the text is not being edited, changed
- *                                      sliders to scales, added tooltiptext to buttons to
- *                                      show full colormap names, and added comments &amp; Javadoc.
- * Aug 20, 2008				dglazesk	Updated for the new ColorMap interface
- * Feb 10, 2011 #7842       bkowal      set caveStyle for dialog to INDEPENDENT SHELL
- * Oct 17, 2012 #1229       rferrel     Make dialog non-blocking.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Nov 26, 2006           chammack    Initial Creation.
+ * Jul 10, 2008  980      lvenable    Changed to a SWT dialog to correct a
+ *                                    problem caused by a JFace/shell issue.  I
+ *                                    also rearranged the controls a bit, used
+ *                                    labels instead of text controls since the
+ *                                    text is not being edited, changed sliders
+ *                                    to scales, added tooltiptext to buttons to
+ *                                    show full colormap names, and added
+ *                                    comments &amp; Javadoc.
+ * Aug 20, 2008	          dglazesk    Updated for the new ColorMap interface
+ * Feb 10, 2011  7842     bkowal      set caveStyle for dialog to INDEPENDENT
+ *                                    SHELL
+ * Oct 17, 2012  1229     rferrel     Make dialog non-blocking.
+ * Jan 15, 2015  2313     bsteffen    Disable color map selection when
+ *                                    ColorMapCapability is not present.
  * 
  * </pre>
  * 
@@ -707,26 +711,6 @@ public class ImagingDialog extends CaveSWTDialog implements
             contrastScale.setEnabled(true);
             interpolationChk.setEnabled(true);
 
-            final ColorMapCapability cmcap = topResource
-                    .getCapability(ColorMapCapability.class);
-            String currentCMap = "Not Selected";
-            if (cmcap.getColorMapParameters() != null
-                    && cmcap.getColorMapParameters().getColorMap() != null) {
-                currentCMap = cmcap.getColorMapParameters().getColorMap()
-                        .getName();
-                if (currentCMap == null) {
-                    currentCMap = "";
-                }
-            }
-            topColormapComp.setCap(cmcap);
-            topColormapComp.setParams(cmcap.getColorMapParameters());
-            if (currentCMap != null) {
-                if (currentCMap.isEmpty()) {
-                    currentCMap = UNSAVED_CMAP_DISPLAY_NAME;
-                }
-                topColormapComp.getCMapButton().setText(currentCMap);
-            }
-
             String topResourceName = topResource.getName();
             if (editables.size() > 1) {
                 if (blended) {
@@ -742,8 +726,35 @@ public class ImagingDialog extends CaveSWTDialog implements
             } else {
                 topColorMapButton.setToolTipText(null);
             }
-            topColorMapButton.setText("Edit " + topResourceName);
+            if (topResource.hasCapability(ColorMapCapability.class)) {
+                final ColorMapCapability cmcap = topResource
+                        .getCapability(ColorMapCapability.class);
+                String currentCMap = "Not Selected";
+                if (cmcap.getColorMapParameters() != null
+                        && cmcap.getColorMapParameters().getColorMap() != null) {
+                    currentCMap = cmcap.getColorMapParameters().getColorMap()
+                            .getName();
+                    if (currentCMap == null) {
+                        currentCMap = "";
+                    }
+                }
+                topColormapComp.setCap(cmcap);
+                topColormapComp.setParams(cmcap.getColorMapParameters());
+                if (currentCMap.isEmpty()) {
+                    currentCMap = UNSAVED_CMAP_DISPLAY_NAME;
+                }
+                topColormapComp.getCMapButton().setText(currentCMap);
 
+                topColorMapButton.setText("Edit " + topResourceName);
+            } else {
+                topColorMapButton.setText(topResourceName
+                        + " is not color mapped.");
+                topColormapComp.getCMapButton().setText("Not Selected");
+                topColorMapButton.setEnabled(false);
+                topColormapComp.getCMapButton().setEnabled(false);
+                interpolationChk.setEnabled(false);
+                interpolationChk.setSelection(false);
+            }
             ImagingCapability imgCap = topResource
                     .getCapability(ImagingCapability.class);
             brightnessScale
@@ -804,12 +815,10 @@ public class ImagingDialog extends CaveSWTDialog implements
 
             bottomColormapComp.setCap(bottomCap);
             bottomColormapComp.setParams(bottomCap.getColorMapParameters());
-            if (currentCMap != null) {
-                if (currentCMap.isEmpty()) {
-                    currentCMap = UNSAVED_CMAP_DISPLAY_NAME;
-                }
-                bottomColormapComp.getCMapButton().setText(currentCMap);
+            if (currentCMap.isEmpty()) {
+                currentCMap = UNSAVED_CMAP_DISPLAY_NAME;
             }
+            bottomColormapComp.getCMapButton().setText(currentCMap);
             String bottomResourceName = bottomResource.getName();
 
             if (editables.size() > 1) {
@@ -925,7 +934,7 @@ public class ImagingDialog extends CaveSWTDialog implements
     @Override
     public void editorChanged(IDisplayPaneContainer container) {
         IDisplayPaneContainer oldEditor = currentEditor;
-        currentEditor = (AbstractEditor) container;
+        currentEditor = container;
         refreshComponents();
         setupListeners(oldEditor, currentEditor);
     }
