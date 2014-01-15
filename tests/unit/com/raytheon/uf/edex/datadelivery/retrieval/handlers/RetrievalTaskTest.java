@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.Tra
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
@@ -89,6 +90,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
  * Nov 04, 2013 2506       bgonzale     removed IRetrievalDao parameter.
+ * Jan 15, 2014 2678       bgonzale     Added Queue.
  * 
  * </pre>
  * 
@@ -156,6 +158,8 @@ public class RetrievalTaskTest {
     @Autowired
     @Qualifier(value = "retrievalDao")
     private IRetrievalDao dao;
+
+    private final ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue = new ConcurrentLinkedQueue<RetrievalRequestRecordPK>();
 
     private final PlaceInCollectionProcessor retrievedDataProcessor = new PlaceInCollectionProcessor();
 
@@ -239,7 +243,7 @@ public class RetrievalTaskTest {
         dao.create(RetrievalRequestRecordFixture.INSTANCE.get());
 
         IRetrievalsFinder retrievalDataFinder = new PerformRetrievalsThenReturnFinder(
-                Network.OPSNET, dao);
+                retrievalQueue, dao);
 
         final ConcurrentLinkedQueue<String> retrievalQueue = new ConcurrentLinkedQueue<String>();
         final File testDirectory = TestUtil
@@ -287,7 +291,9 @@ public class RetrievalTaskTest {
     private void stageRetrievals() {
 
         dao.create(opsnetRetrieval);
+        retrievalQueue.add(opsnetRetrieval.getId());
         dao.create(sbnRetrieval);
+        retrievalQueue.add(sbnRetrieval.getId());
     }
 
     /**
@@ -297,7 +303,7 @@ public class RetrievalTaskTest {
         // Create required strategies for finding, processing, and completing
         // retrievals
         final IRetrievalsFinder retrievalDataFinder = new PerformRetrievalsThenReturnFinder(
-                Network.OPSNET, dao);
+                retrievalQueue, dao);
         final IRetrievalResponseCompleter retrievalCompleter = new RetrievalResponseCompleter(
                 mock(SubscriptionNotifyTask.class), dao);
 
