@@ -64,6 +64,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 30, 2013 2448       dhladky      Fixed pulling data before and after activePeriod starting and ending.
  * Nov 14, 2013 2548       mpduff       Add a subscription type slot.
  * Jan 08, 2014 2615       bgonzale     Implement calculate start and calculate end methods.
+ * Jan 14, 2014 2459       mpduff       Add subscription state.
  * 
  * </pre>
  * 
@@ -95,7 +96,6 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      *            New subscription name
      */
     public RecurringSubscription(Subscription<T, C> sub, String name) {
-        this.setActive(sub.isActive());
         this.setActivePeriodEnd(sub.getActivePeriodEnd());
         this.setActivePeriodStart(sub.getActivePeriodStart());
         this.setCoverage(sub.getCoverage());
@@ -212,11 +212,6 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @XmlAttribute
     @DynamicSerializeElement
     @SlotAttribute
-    private boolean active;
-
-    @XmlAttribute
-    @DynamicSerializeElement
-    @SlotAttribute
     private boolean valid = true;
 
     @XmlAttribute
@@ -266,6 +261,11 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @DynamicSerializeElement
     @SlotAttribute(Subscription.SUBSCRIPTION_TYPE_SLOT)
     private SubscriptionType subscriptionType;
+
+    @XmlAttribute
+    @DynamicSerializeElement
+    @SlotAttribute(Subscription.SUBSCRIPTION_STATE_SLOT)
+    private SubscriptionState subscriptionState;
 
     /**
      * Get subscription name.
@@ -454,8 +454,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     private Calendar getActivePeriodStart(Calendar base) {
         // active period values are month and day of month only, use base
         // Calendar for active period year
-        Calendar activePeriodStartCal = TimeUtil
-                .newCalendar(activePeriodStart);
+        Calendar activePeriodStartCal = TimeUtil.newCalendar(activePeriodStart);
         TimeUtil.minCalendarFields(activePeriodStartCal, Calendar.MILLISECOND,
                 Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
         activePeriodStartCal.set(Calendar.YEAR, base.get(Calendar.YEAR));
@@ -484,8 +483,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         } else {
             realStart = startConstraint;
         }
-        return TimeUtil.newCalendar(TimeUtil.max(subscriptionStart,
-                realStart));
+        return TimeUtil.newCalendar(TimeUtil.max(subscriptionStart, realStart));
     }
 
     @Override
@@ -704,18 +702,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      */
     @Override
     public boolean isActive() {
-        return active;
-    }
-
-    /**
-     * Set the subscription status to active.
-     * 
-     * @param active
-     *            subscription active
-     */
-    @Override
-    public void setActive(boolean active) {
-        this.active = active;
+        return getStatus() == SubscriptionStatus.ACTIVE;
     }
 
     /**
@@ -727,6 +714,9 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @Override
     public void setValid(boolean valid) {
         this.valid = valid;
+        if (!valid) {
+            subscriptionState = SubscriptionState.OFF;
+        }
     }
 
     /**
@@ -892,14 +882,14 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      * 
      * @return true if status is expired
      */
-    @Override
-    public boolean isExpired() {
+    private boolean isExpired() {
         Calendar cal = TimeUtil.newGmtCalendar();
         Date today = cal.getTime();
         boolean expired = false;
         if (this.getSubscriptionEnd() != null
                 && today.after(this.getSubscriptionEnd())) {
             expired = true;
+            this.subscriptionState = SubscriptionState.OFF;
         }
 
         return expired;
@@ -908,32 +898,40 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     /**
      * Get the current subscription status.
      * 
-     * @return String value of SUBSCRIPTION_STATUS
+     * @return SUBSCRIPTION_STATUS
      */
     @Override
-    public String getStatus() {
-        SubscriptionStatus status = SubscriptionStatus.INVALID;
-
-        if (isValid()) {
-            if (isExpired()) {
-                status = SubscriptionStatus.EXPIRED;
-            } else if (!isActive()) {
-                status = SubscriptionStatus.INACTIVE;
-            } else {
-                Calendar cal = TimeUtil.newGmtCalendar();
-                Date today = cal.getTime();
-
-                status = (inWindow(today)) ? SubscriptionStatus.ACTIVE
-                        : SubscriptionStatus.INACTIVE;
-
-                if (status == SubscriptionStatus.ACTIVE && isUnscheduled()) {
-                    status = SubscriptionStatus.UNSCHEDULED;
-                }
-            }
+    public SubscriptionStatus getStatus() {
+        if (!isValid()) {
+            return SubscriptionStatus.INVALID;
+        } else if (isExpired()) {
+            return SubscriptionStatus.EXPIRED;
+        } else if (subscriptionState == SubscriptionState.OFF) {
+            return SubscriptionStatus.DEACTIVATED;
         }
 
-        return status.toString();
+        // At this point the subscription is in the ON state
+        Calendar cal = TimeUtil.newGmtCalendar();
+        Date today = cal.getTime();
 
+        if (unscheduled) {
+            return SubscriptionStatus.UNSCHEDULED;
+        } else if (inWindow(today)) {
+            return SubscriptionStatus.ACTIVE;
+        }
+
+        return SubscriptionStatus.INACTIVE;
+    }
+
+    /**
+     * Return true if this subscription should be scheduled. Scheduling is based
+     * on the status of the subscription. Returns false if the subscription is
+     * expired or deactivated.
+     * 
+     * @return true if this subscription should be scheduled
+     */
+    public boolean shouldSchedule() {
+        return subscriptionState == SubscriptionState.ON && !isExpired();
     }
 
     private boolean inWindow(Date checkDate) {
@@ -1045,5 +1043,38 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @Override
     public void setSubscriptionType(SubscriptionType subscriptionType) {
         this.subscriptionType = subscriptionType;
+    }
+
+    /**
+     * @return the subscriptionState
+     */
+    public SubscriptionState getSubscriptionState() {
+        return subscriptionState;
+    }
+
+    /**
+     * @param subscriptionState
+     *            the subscriptionState to set
+     */
+    public void setSubscriptionState(SubscriptionState subscriptionState) {
+        this.subscriptionState = subscriptionState;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void activate() {
+        if (valid && !isExpired()) {
+            this.setSubscriptionState(SubscriptionState.ON);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deactivate() {
+        this.setSubscriptionState(SubscriptionState.OFF);
     }
 }
