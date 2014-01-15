@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.kml.export.graphics.ext;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -34,12 +35,17 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableColorMap;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
@@ -48,6 +54,7 @@ import com.raytheon.uf.viz.kml.export.KmlFeatureGenerator;
 import com.raytheon.uf.viz.kml.export.graphics.KmlFont;
 import com.raytheon.uf.viz.kml.export.graphics.KmlGraphicsTarget;
 import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import de.micromata.opengis.kml.v_2_2_0.ScreenOverlay;
 import de.micromata.opengis.kml.v_2_2_0.Units;
@@ -60,9 +67,10 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 26, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 26, 2012           bsteffen     Initial creation
+ * Jan 14, 2013  2313     bsteffen     Add image rendering
  * 
  * </pre>
  * 
@@ -73,6 +81,9 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
 public class KmlCanvasRenderingExtension extends
         GraphicsExtension<KmlGraphicsTarget> implements
         ICanvasRenderingExtension {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(KmlCanvasRenderingExtension.class);
 
     @Override
     public void drawStrings(PaintProperties paintProps,
@@ -90,6 +101,13 @@ public class KmlCanvasRenderingExtension extends
     public void drawColorRamp(PaintProperties paintProps,
             DrawableColorMap colorMap) throws VizException {
         getGenerator(paintProps).addColorMaps(colorMap);
+    }
+
+    @Override
+    public void drawImages(PaintProperties paintProps, DrawableImage... images)
+            throws VizException {
+        getGenerator(paintProps).addImages(images);
+
     }
 
     protected Generator getGenerator(PaintProperties paintProps) {
@@ -152,6 +170,10 @@ public class KmlCanvasRenderingExtension extends
             this.objects.addAll(Arrays.asList(colorMaps));
         }
 
+        public void addImages(DrawableImage... colorMaps) {
+            this.objects.addAll(Arrays.asList(colorMaps));
+        }
+
         @Override
         public void addFeature(KmlOutputManager outputManager) {
             Map<Object, Rectangle2D> boundsMap = new IdentityHashMap<Object, Rectangle2D>();
@@ -181,16 +203,18 @@ public class KmlCanvasRenderingExtension extends
                 Vec2 screenxy = overlay.createAndSetScreenXY();
                 screenxy.withXunits(Units.FRACTION).withYunits(Units.FRACTION);
 
-                // This is fairly complex placement code but it produces rather
-                // nice results on any size of display. Basically if something
-                // is flush against either the left or right of the screen it
-                // ends up anchored on that side, if some is smack in the center
-                // than the anchor point is in the middle of both the overlay
-                // and the display. Now if an object is offcenter to the left or
-                // right than the anchor point moves in the correct direction in
-                // proportion to how far off center it is, its hard to explain
-                // without a picture but at the end of the day it produces a
-                // nice result.
+                /*
+                 * This is fairly complex placement code but it produces rather
+                 * nice results on any size of display. Basically if something
+                 * is flush against either the left or right of the screen it
+                 * ends up anchored on that side, if some is smack in the center
+                 * than the anchor point is in the middle of both the overlay
+                 * and the display. Now if an object is offcenter to the left or
+                 * right than the anchor point moves in the correct direction in
+                 * proportion to how far off center it is, its hard to explain
+                 * without a picture but at the end of the day it produces a
+                 * nice result.
+                 */
                 double leftFrac = bounds.getMinX() / canvasBounds.width;
                 double rightFrac = 1.0 - bounds.getMaxX() / canvasBounds.width;
                 if (leftFrac < rightFrac) {
@@ -210,8 +234,10 @@ public class KmlCanvasRenderingExtension extends
                 } else {
                     overlayxy.setY(botFrac / topFrac / 2);
                 }
-                // all this 1.0 - stuff is because the math is mostly assuming 0
-                // is up and 1.0 is down but kml expects the opposite.
+                /*
+                 * all this 1.0 - stuff is because the math is mostly assuming 0
+                 * is up and 1.0 is down but kml expects the opposite.
+                 */
                 double y = 1.0
                         - (bounds.getY() + bounds.getHeight()
                                 * (1.0 - overlayxy.getY()))
@@ -230,8 +256,10 @@ public class KmlCanvasRenderingExtension extends
                 Rectangle2D b = it.next();
                 if (b.intersects(bounds)) {
                     if (!b.contains(bounds)) {
-                        // need to recheck the larger rectangle of b for any new
-                        // intersections.
+                        /*
+                         * need to recheck the larger rectangle of b for any new
+                         * intersections.
+                         */
                         it.remove();
                         b.add(bounds);
                         addBounds(allBounds, b);
@@ -250,6 +278,8 @@ public class KmlCanvasRenderingExtension extends
                 drawLines(graphics, imageBounds, (DrawableLine) object);
             } else if (object instanceof DrawableColorMap) {
                 drawColorMap(graphics, imageBounds, (DrawableColorMap) object);
+            } else if (object instanceof DrawableImage) {
+                drawImage(graphics, imageBounds, (DrawableImage) object);
             }
         }
 
@@ -330,6 +360,25 @@ public class KmlCanvasRenderingExtension extends
             }
         }
 
+        protected void drawImage(Graphics graphics, Rectangle2D imageBounds,
+                DrawableImage image) {
+            KmlRasterImage kmlImage = (KmlRasterImage) image.getImage();
+            PixelCoverage coverage = image.getCoverage();
+            Coordinate ul = coverage.getUl();
+            Coordinate lr = coverage.getLr();
+            try {
+                Image toDraw = (Image) kmlImage.getImage();
+                int x = (int) (ul.x - imageBounds.getX());
+                int y = (int) (ul.y - imageBounds.getY());
+                int w = (int) (lr.x - ul.x);
+                int h = (int) (lr.y - ul.y);
+                graphics.drawImage(toDraw, x, y, w, h, null);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+
         protected void setColor(Graphics graphics, RGB color) {
             graphics.setColor(new Color(color.red, color.green, color.blue));
         }
@@ -341,6 +390,8 @@ public class KmlCanvasRenderingExtension extends
                 return getLineBounds((DrawableLine) object);
             } else if (object instanceof DrawableColorMap) {
                 return getColorMapBounds((DrawableColorMap) object);
+            } else if (object instanceof DrawableImage) {
+                return getImageBounds((DrawableImage) object);
             }
             return null;
         }
@@ -354,8 +405,10 @@ public class KmlCanvasRenderingExtension extends
                     bounds.add(point[0], point[1]);
                 }
             }
-            // add a buffer region to ensure we have room for wide lines on
-            // the edge.
+            /*
+             * add a buffer region to ensure we have room for wide lines on the
+             * edge.
+             */
             bounds.add(bounds.getMinX() - line.width, bounds.getMinY()
                     - line.width);
             bounds.add(bounds.getMaxX() + line.width, bounds.getMaxY()
@@ -406,6 +459,13 @@ public class KmlCanvasRenderingExtension extends
             return new Rectangle2D.Double(colorMap.extent.getMinX(),
                     colorMap.extent.getMinY(), colorMap.extent.getWidth(),
                     colorMap.extent.getHeight());
+        }
+
+        protected Rectangle2D getImageBounds(DrawableImage image) {
+            PixelCoverage coverage = image.getCoverage();
+            Coordinate ul = coverage.getUl();
+            Coordinate lr = coverage.getLr();
+            return new Rectangle2D.Double(ul.x, ul.y, lr.x - ul.x, lr.y - ul.y);
         }
     }
 
