@@ -109,6 +109,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  *                                     added better error message on failed connection
  * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
  * Jan 08, 2014 2563       bclement    fixed custom port and service name in user id
+ * Jan 15, 2014 2630       bclement    connection data stores status as Mode object
  * 
  * </pre>
  * 
@@ -167,12 +168,9 @@ public class CollaborationConnection implements IEventPublisher {
             throws CollaborationException {
         this.connectionData = connectionData;
         String password = connectionData.getPassword();
-        String status = connectionData.getStatus();
-        Mode mode;
-        if (status == null || status.trim().isEmpty()) {
+        Mode mode = connectionData.getStatus();
+        if (mode == null) {
             mode = Mode.available;
-        } else {
-            mode = Mode.valueOf(status.toLowerCase());
         }
         Presence initialPresence = new Presence(Type.available,
                 connectionData.getMessage(), 0, mode);
