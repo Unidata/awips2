@@ -21,7 +21,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2011    218      dhladky     Initial creation.
  * Oct  1, 2012   1103      jpiatt      Added invalid subscription status.
- * Nov 20, 2012 1286       djohnson     Add UNSCHEDULED.
+ * Nov 20, 2012   1286      djohnson    Add UNSCHEDULED.
+ * Jan 14, 2014   2459      mpduff      Change Subscription status code
  * 
  * </pre>
  * 
@@ -35,12 +36,11 @@ public class Utils {
      * Get the geometry for a bounding box
      * 
      * @param upperLeft
-     *           upper left corner
+     *            upper left corner
      * @param LowerRight
-     *          lower right corner
+     *            lower right corner
      * 
-     * @return bounding box
-     *           counding box coordinates
+     * @return bounding box bounding box coordinates
      */
     public static Geometry getGeometry(Coordinate upperLeft,
             Coordinate LowerRight) {
@@ -65,12 +65,11 @@ public class Utils {
      * Date conversion.
      * 
      * @param format
-     *          pass in date format
+     *            pass in date format
      * @param dateString
-     *          date in string format
-     *          
-     * @return Date
-     *          converted date
+     *            date in string format
+     * 
+     * @return Date converted date
      * @throws ParseException
      */
     public static Date convertDate(String format, String dateString)
@@ -82,19 +81,30 @@ public class Utils {
 
     /**
      * Subscription status options.
+     * 
+     * <pre>
+     * Expired - Do not schedule
+     * Deactivated - Do not schedule
+     * Active - Currently scheduled
+     * Inactive - Not currently scheduled (outside of active period)
+     * Unscheduled - Not currently scheduled due to bandwidth limitations
+     * Invalid - Subscription does not match the available data set
+     * </pre>
      */
     public static enum SubscriptionStatus {
-        
+
         /** Active Subscription Status */
-        ACTIVE("Active"), 
+        ACTIVE("Active"),
         /** Inactive Subscription Status */
-        INACTIVE("Inactive"), 
+        INACTIVE("Inactive"),
         /** Expired Subscription Status */
-        EXPIRED("Expired"), 
-        /** Invalid Subscription Status */
-        INVALID("Invalid"),
+        EXPIRED("Expired"),
         /** Unscheduled Subscription Status */
-        UNSCHEDULED("Unscheduled");
+        UNSCHEDULED("Unscheduled"),
+        /** Deactivated Subscription Status */
+        DEACTIVATED("Deactivated"),
+        /** Invalid Subscription Status */
+        INVALID("Invalid");
 
         private final String status;
 
