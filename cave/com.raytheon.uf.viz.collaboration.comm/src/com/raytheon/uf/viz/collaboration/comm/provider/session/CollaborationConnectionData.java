@@ -22,8 +22,11 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jivesoftware.smack.packet.Presence.Mode;
+
 /**
- * Collaboration connection data object used for creating a {@link CollaborationConnection}
+ * Collaboration connection data object used for creating a
+ * {@link CollaborationConnection}
  * 
  * <pre>
  * 
@@ -32,6 +35,7 @@ import java.util.Map;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2012            mschenke     Initial creation
+ * Jan 15, 2014 2630       bclement    connection data stores status as Mode object
  * 
  * </pre>
  * 
@@ -47,7 +51,7 @@ public class CollaborationConnectionData {
 
     private String password;
 
-    private String status;
+    private Mode status;
 
     private String message;
 
@@ -105,7 +109,7 @@ public class CollaborationConnectionData {
     /**
      * @return the status
      */
-    public String getStatus() {
+    public Mode getStatus() {
         return status;
     }
 
@@ -113,7 +117,7 @@ public class CollaborationConnectionData {
      * @param status
      *            the status to set
      */
-    public void setStatus(String status) {
+    public void setStatus(Mode status) {
         this.status = status;
     }
 
