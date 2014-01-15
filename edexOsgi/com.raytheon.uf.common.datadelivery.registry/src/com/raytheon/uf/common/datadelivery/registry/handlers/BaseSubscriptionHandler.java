@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionDataSetNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
@@ -50,6 +52,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * Jul 18, 2013 2193       mpduff       Changes for SubscriptionDataSetNameQuery.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
+ * Jan 14, 2014 2459       mpduff       Validate subs should be scheduled before returning them.
  * 
  * </pre>
  * 
@@ -200,7 +203,12 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
 
         checkResponse(response, "getActiveForRoutes");
 
-        return response.getResults();
+        List<T> returnList = new ArrayList<T>();
+        for (T sub : response.getResults()) {
+            if (((RecurringSubscription) sub).shouldSchedule()) {
+                returnList.add(sub);
+            }
+        }
+        return returnList;
     }
-
 }
