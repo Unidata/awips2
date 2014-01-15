@@ -70,6 +70,9 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
  * Apr 7, 2009            randerso     Redesigned
  * May 18, 2009 2159      rjpeter      Added temporal editor.
  * Jan 14, 2013 1442       rferrel     Add SimulatedTimeChangeListener.
+ * Jan 15, 2014 16072     ryu          Modify syncSelectTR() to skip the original code when 
+ *                                     called back from setSelectedTime().
+ *
  * </pre>
  * 
  * @author randerso
@@ -78,6 +81,8 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
 
 public class GridManager implements IGridManager,
         ISpatialEditorTimeChangedListener {
+    
+    private Date selectedTime = null;
 
     private class RedrawRunnable implements Runnable {
         @Override
@@ -753,6 +758,8 @@ public class GridManager implements IGridManager,
 
     @Override
     public void setSelectedTime(Date selectedTime) {
+        // set attribute to check if we are calling back to syncSelectTR()
+        this.selectedTime = selectedTime;
         dataManager.getSpatialDisplayManager().setSpatialEditorTime(
                 selectedTime);
         redraw();
@@ -766,32 +773,40 @@ public class GridManager implements IGridManager,
     }
 
     protected void syncSelectTR(Date t) {
-        // Use a selection tr of 1 hour duration if no active parm,
-        // if active parm and no grid, use the parm's time constraint,
-        // if active parm and grid, use the grid time.
-        if (lockSelectionTRtoTimeStep) {
-            TimeRange tr;
-            Parm parm = dataManager.getSpatialDisplayManager()
-                    .getActivatedParm();
-
-            if (parm == null) {
-                Date tbase = new Date(
-                        (t.getTime() / GridManagerUtil.MILLIS_PER_HOUR)
-                                * GridManagerUtil.MILLIS_PER_HOUR);
-                tr = new TimeRange(tbase, GridManagerUtil.MILLIS_PER_HOUR);
-            } else {
-                GridID gridid = new GridID(parm, t);
-                if (gridid.grid() != null) {
-                    tr = gridid.grid().getGridTime();
+        // setSelectedTime() will eventually call back to this method, in which case
+        // skip the original code (within the if block immediately below).
+        if (t.equals(selectedTime) == false) {
+            // Use a selection tr of 1 hour duration if no active parm,
+            // if active parm and no grid, use the parm's time constraint,
+            // if active parm and grid, use the grid time.
+            if (lockSelectionTRtoTimeStep) {
+                TimeRange tr;
+                Parm parm = dataManager.getSpatialDisplayManager()
+                        .getActivatedParm();
+    
+                if (parm == null) {
+                    Date tbase = new Date(
+                            (t.getTime() / GridManagerUtil.MILLIS_PER_HOUR)
+                                    * GridManagerUtil.MILLIS_PER_HOUR);
+                    tr = new TimeRange(tbase, GridManagerUtil.MILLIS_PER_HOUR);
                 } else {
-                    tr = parm.getGridInfo().getTimeConstraints()
-                            .constraintTime(t);
+                    GridID gridid = new GridID(parm, t);
+                    if (gridid.grid() != null) {
+                        tr = gridid.grid().getGridTime();
+                    } else {
+                        tr = parm.getGridInfo().getTimeConstraints()
+                                .constraintTime(t);
+                    }
+                    dataManager.getParmOp().deselectAll();
+                    parm.getParmState().setSelected(true);
                 }
-                dataManager.getParmOp().deselectAll();
-                parm.getParmState().setSelected(true);
+    
+                dataManager.getParmOp().setSelectionTimeRange(tr);
             }
-
-            dataManager.getParmOp().setSelectionTimeRange(tr);
+        }
+        else {
+            // reset
+            selectedTime = null;
         }
     }
 
