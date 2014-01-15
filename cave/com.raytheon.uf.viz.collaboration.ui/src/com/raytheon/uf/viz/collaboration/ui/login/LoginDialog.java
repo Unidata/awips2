@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
 
 import com.google.common.collect.Iterators;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -70,6 +71,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Dec 19, 2013 2563       bclement     added option to connect to server not in list
  * Jan 06, 2014 2563       bclement     moved server text parsing to ServerInput class
  * Jan 08, 2014 2563       bclement     added Add/Remove buttons for server list
+ * Jan 15, 2014 2630       bclement     connection data stores status as Mode object
  * 
  * </pre>
  * 
@@ -220,9 +222,9 @@ public class LoginDialog extends Dialog {
         for (Presence.Mode mode : CollaborationUtils.statusModes) {
             statusCombo.add(CollaborationUtils.formatMode(mode));
         }
-        String status = loginData.getStatus();
-        if (status != null && status.isEmpty() == false) {
-            statusCombo.setText(status);
+        Mode status = loginData.getStatus();
+        if (status != null) {
+            statusCombo.setText(CollaborationUtils.formatMode(status));
         } else {
             statusCombo.select(0);
         }
@@ -320,7 +322,8 @@ public class LoginDialog extends Dialog {
                 loginData.setPassword(passwordText.getText().trim());
                 loginData.setServer(HostConfig.removeDescription(serverText
                         .getText()));
-                loginData.setStatus(statusCombo.getText());
+                loginData.setStatus(CollaborationUtils.parseMode(statusCombo
+                        .getText()));
                 loginData.setMessage(messageText.getText().trim());
                 Map<String, String> attributes = new HashMap<String, String>();
                 for (String attribKey : attributeCombos.keySet()) {
@@ -396,7 +399,7 @@ public class LoginDialog extends Dialog {
         preferences.setValue(CollabPrefConstants.P_MESSAGE,
                 loginData.getMessage());
         preferences.setValue(CollabPrefConstants.P_STATUS,
-                loginData.getStatus());
+                CollaborationUtils.formatMode(loginData.getStatus()));
     }
 
     private void readLoginData() {
@@ -404,8 +407,8 @@ public class LoginDialog extends Dialog {
                 .getString(CollabPrefConstants.P_USERNAME));
         loginData
                 .setServer(preferences.getString(CollabPrefConstants.P_SERVER));
-        loginData
-                .setStatus(preferences.getString(CollabPrefConstants.P_STATUS));
+        loginData.setStatus(CollaborationUtils.parseMode(preferences
+                .getString(CollabPrefConstants.P_STATUS)));
         loginData.setMessage(preferences
                 .getString(CollabPrefConstants.P_MESSAGE));
     }
