@@ -40,6 +40,7 @@ import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -135,6 +136,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jan 08, 2014 2615       bgonzale     getMostRecent checks subscription time constraints before scheduling.
  *                                      handlePoint method now schedules most recent.
  * Jan 14, 2014 2692       dhladky      Bad Point scheduling final Empty list.                                   
+ * Jan 14, 2014 2459       mpduff       Change to subscription status.
  * 
  * </pre>
  * 
@@ -589,10 +591,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
             // If BandwidthManager does not know about the subscription, and
             // it's active, attempt to add it..
-            if (bandwidthSubscriptions.isEmpty() && subscription.isActive()
-                    && !subscription.isUnscheduled()) {
+            if (bandwidthSubscriptions.isEmpty() && subscription.isActive()) {
                 return schedule(subscription);
-            } else if (!subscription.isActive() || subscription.isUnscheduled()) {
+            } else if (subscription.isUnscheduled()
+                    || subscription.getStatus() == SubscriptionStatus.DEACTIVATED) {
                 // See if the subscription was inactivated or unscheduled..
                 // Need to remove BandwidthReservations for this
                 // subscription.
@@ -647,7 +649,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 useMostRecentDataSetUpdate));
         return unscheduled;
     }
-    
+
     private List<BandwidthAllocation> getMostRecent(
             Subscription<T, C> subscription, boolean useMostRecentDataSetUpdate) {
         List<BandwidthAllocation> unscheduled = Collections.emptyList();
@@ -667,7 +669,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                                         + "No adhoc requested.",
                                         subscription.getName()));
             } else {
-                RetrievalPlan plan = retrievalManager.getPlan(subscription.getRoute());
+                RetrievalPlan plan = retrievalManager.getPlan(subscription
+                        .getRoute());
                 if (plan != null) {
                     Date subscriptionValidStart = subscription.calculateStart(
                             plan.getPlanStart()).getTime();
