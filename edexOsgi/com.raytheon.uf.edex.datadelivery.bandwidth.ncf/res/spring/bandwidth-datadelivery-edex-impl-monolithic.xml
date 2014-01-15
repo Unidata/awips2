@@ -33,6 +33,7 @@
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalDao" />
         <constructor-arg ref="ProviderHandler" />
+        <constructor-arg ref="retrievalQueue" />
     </bean>
 
     <bean id="sbnSubscriptionRetrievalAgentPrototype"
@@ -46,6 +47,7 @@
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalDao" />
         <constructor-arg ref="ProviderHandler" />
+        <constructor-arg ref="retrievalQueue" />
     </bean>
 
     <util:map id="retrievalAgents">
