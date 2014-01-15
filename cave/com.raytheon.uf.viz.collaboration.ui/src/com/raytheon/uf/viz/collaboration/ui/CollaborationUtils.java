@@ -21,7 +21,10 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXB;
 
@@ -55,6 +58,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            mnash     Initial creation
+ * Jan 15, 2014 2630       bclement    added mode map
  * 
  * </pre>
  * 
@@ -69,6 +73,17 @@ public class CollaborationUtils {
 
     public static final Presence.Mode[] statusModes = { Mode.available,
             Mode.dnd, Mode.away };
+
+    private static final Map<String, Mode> modeMap;
+
+    static {
+        Mode[] modes = Mode.values();
+        HashMap<String, Mode> map = new HashMap<String, Mode>(modes.length);
+        for (Mode m : modes) {
+            map.put(formatMode(m), m);
+        }
+        modeMap = Collections.unmodifiableMap(map);
+    }
 
     /**
      * Get an image associated with the node.
@@ -101,6 +116,12 @@ public class CollaborationUtils {
         return new UserId[0];
     }
 
+    /**
+     * Format mode into user readable string
+     * 
+     * @param mode
+     * @return
+     */
     public static String formatMode(Mode mode) {
         if (mode == null) {
             mode = Mode.available;
@@ -119,6 +140,15 @@ public class CollaborationUtils {
         default:
             return mode.toString();
         }
+    }
+
+    /**
+     * @param status
+     *            user entered mode string
+     * @return null if status string isn't bound to a Mode
+     */
+    public static Mode parseMode(String status) {
+        return modeMap.get(status);
     }
 
     public static List<AlertWord> getAlertWords() {
