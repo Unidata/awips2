@@ -21,11 +21,7 @@ package com.raytheon.uf.common.registry.services;
 
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -40,9 +36,6 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.io.Resources;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
@@ -68,6 +61,7 @@ import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService
  * 10/30/2013   1538        bphillip    Moved data delivery services out of registry plugin
  * 11/20/2013   2534        bphillip    Added HTTPClient policy for rest connections.  Eliminated service caching.
  * 12/2/2013    1829        bphillip    Removed expectedType argument on getRegistryObject method
+ * 1/15/2014    2613        bphillip    Removed Service cache due to unexpected behavior
  * </pre>
  * 
  * @author bphillip
@@ -98,8 +92,6 @@ public class RegistryRESTServices {
             restPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
         }
     }
-
-    private Map<Class<?>, LoadingCache<String, ?>> serviceCache = new HashMap<Class<?>, LoadingCache<String, ?>>();
 
     public RegistryRESTServices() throws JAXBException {
         jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
@@ -179,8 +171,8 @@ public class RegistryRESTServices {
     public Object accessXMLRestService(String url) {
         String response = null;
         try {
-            response = Resources
-                    .toString(new URL(url), Charset.forName("UTF8"));
+            ;
+            response = Resources.toString(new URL(url), StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RegistryServiceException(
                     "Error accessing REST service at URL: [" + url + "]", e);
@@ -194,26 +186,9 @@ public class RegistryRESTServices {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected <T extends Object> T getPort(String serviceUrl,
             final Class<T> serviceInterface) {
-        LoadingCache<String, ?> cache = serviceCache.get(serviceInterface);
-        if (cache == null) {
-            cache = CacheBuilder.newBuilder()
-                    .expireAfterAccess(1, TimeUnit.MINUTES)
-                    .build(new CacheLoader<String, T>() {
-                        public T load(String key) {
-                            return createService(key, serviceInterface);
-                        }
-                    });
-            serviceCache.put(serviceInterface, cache);
-        }
-        try {
-            return (T) cache.get(serviceUrl);
-        } catch (ExecutionException e) {
-            throw new RuntimeException("Error getting service at ["
-                    + serviceUrl + "]", e);
-        }
+        return createService(serviceUrl, serviceInterface);
     }
 
     protected <T extends Object> T createService(String url,
