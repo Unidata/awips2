@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
  * Dec 10, 2013 2581       njensen     Removed dataURI column
+ * Jan 15, 2014 2581       njensen     Changed constraint to use officeId instead of stationId
  * 
  * </pre>
  * 
@@ -78,7 +79,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
 @Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "latitude", "longitude", "stationId", "refTime", "forecastTime",
+        "latitude", "longitude", "officeId", "refTime", "forecastTime",
         "eventType" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
