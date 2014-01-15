@@ -40,6 +40,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Office Id now a set.
  * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code
  * 
  * </pre>
  * 
@@ -50,8 +51,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 public class SubscriptionBuilder {
 
     private int latencyInMinutes = 0;
-
-    private boolean active = true;
 
     private Date activePeriodStart;
 
@@ -98,7 +97,6 @@ public class SubscriptionBuilder {
     public SiteSubscription build() {
         SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
                 .get(dataType);
-        subscription.setActive(active);
         subscription.setActivePeriodStart(activePeriodStart);
         subscription.setActivePeriodEnd(activePeriodEnd);
         subscription.setDataSetName(dataSetName);
@@ -129,15 +127,6 @@ public class SubscriptionBuilder {
      */
     public SubscriptionBuilder withLatencyInMinutes(int latencyInMinutes) {
         this.latencyInMinutes = latencyInMinutes;
-        return this;
-    }
-
-    /**
-     * @param active
-     *            the active to set
-     */
-    public SubscriptionBuilder withActive(boolean active) {
-        this.active = active;
         return this;
     }
 
