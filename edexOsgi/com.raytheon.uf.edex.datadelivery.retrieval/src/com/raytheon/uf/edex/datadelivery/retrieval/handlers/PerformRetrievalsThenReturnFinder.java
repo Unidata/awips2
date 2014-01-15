@@ -21,11 +21,11 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.event.status.DataDeliverySystemStatusDefinition;
 import com.raytheon.uf.common.datadelivery.event.status.SystemStatusEvent;
-import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
@@ -58,6 +59,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now passed further down the chain.
  * Feb 15, 2013 1543       djohnson     Retrieval responses are now xml.
  * Jul 16, 2013 1655       mpduff       Send a system status event based on the response from the provider.
+ * Jan 15, 2014 2678       bgonzale     Retrieve RetrievalRequestRecords from a Queue for processing.
  * 
  * </pre>
  * 
@@ -70,18 +72,19 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PerformRetrievalsThenReturnFinder.class);
 
-    private final Network network;
-
     private final IRetrievalDao retrievalDao;
+
+    private final ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue;
 
     /**
      * Constructor.
      * 
      * @param network
      */
-    public PerformRetrievalsThenReturnFinder(Network network,
+    public PerformRetrievalsThenReturnFinder(
+            ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue,
             IRetrievalDao retrievalDao) {
-        this.network = network;
+        this.retrievalQueue = retrievalQueue;
         this.retrievalDao = retrievalDao;
     }
 
@@ -95,9 +98,12 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
         ITimer timer = TimeUtil.getTimer();
         try {
             timer.start();
-            RetrievalRequestRecord request = retrievalDao
-                    .activateNextRetrievalRequest(network);
+            RetrievalRequestRecordPK id = retrievalQueue.poll();
+            if (id == null) {
+                return null;
+            }
 
+            RetrievalRequestRecord request = retrievalDao.getById(id);
             if (request == null) {
                 return null;
             }
