@@ -226,6 +226,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 01/09/2013   15528       zhao        Modified saveFile() and restoreFile()
  * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
  * 01/13/2014   16153       zhao        Modified qcCheck().
+ * 01/15/2014   16458       zhao        Check for extra '=' sign before 'regular syntax check'
  * 
  * </pre>
  * 
@@ -1728,6 +1729,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         syntaxBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	if ( checkBasicSyntaxError(true) ) {
+            		return;
+            	}
                 syntaxCheck();
             }
         });
@@ -2126,7 +2130,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         			length = equalSignIndex-startIndex;
         		}
         		StyleRange sr = new StyleRange(startIndex,length,null,qcColors[3]);
-        		String msg = "Syntax error: There is an extra '=' sign before this point, or 'TAF' is missing at beginning of TAF";
+        		String msg = "Syntax error: There is an extra '=' sign before this point, or 'TAF' is missing at beginning of this TAF";
         		syntaxMap.put(sr, msg);
         		st.setStyleRange(null);
         		st.setStyleRange(sr);
