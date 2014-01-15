@@ -138,6 +138,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
  * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
  * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code
  * </pre>
  * 
  * @author mpduff
@@ -603,7 +604,6 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
             sub.setSubscriptionStart(this.subscription.getSubscriptionStart());
             sub.setActivePeriodEnd(this.subscription.getActivePeriodEnd());
             sub.setActivePeriodStart(this.subscription.getActivePeriodStart());
-            sub.setActive(this.subscription.isActive());
             sub.setPriority(this.subscription.getPriority());
         }
 
