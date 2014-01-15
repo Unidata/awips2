@@ -578,7 +578,6 @@ public class IFPGridDatabase extends GridDatabase {
             try {
                 // Remove the entire data structure for the parm
                 dao.removeParm(parmStorageInfo.get(item).getParmID());
-                // parmIdMap.remove(item);
                 this.parmStorageInfo.remove(item);
             } catch (DataAccessLayerException e) {
                 statusHandler.handle(Priority.PROBLEM, "Error removing: "
@@ -589,7 +588,6 @@ public class IFPGridDatabase extends GridDatabase {
 
     @Override
     public ServerResponse<List<ParmID>> getParmList() {
-        // List<ParmID> parmIds = new ArrayList<ParmID>(parmIdMap.values());
         List<ParmID> parmIds = new ArrayList<ParmID>(parmStorageInfo.size());
         for (ParmStorageInfo psi : parmStorageInfo.values()) {
             parmIds.add(psi.getParmID());
@@ -1273,18 +1271,14 @@ public class IFPGridDatabase extends GridDatabase {
             List<ParmStorageInfo> parmInfoList = dao.getParmStorageInfo(dbId);
             parmStorageInfo = new HashMap<String, ParmStorageInfo>(
                     parmInfoList.size(), 1.0f);
-            // parmIdMap = new HashMap<String, ParmID>(parmInfoList.size(),
-            // 1.0f);
 
             for (ParmStorageInfo psi : parmInfoList) {
                 ParmID pid = psi.getParmID();
                 String compositeName = pid.getCompositeName();
-                // parmIdMap.put(compositeName, pid);
                 parmStorageInfo.put(compositeName, psi);
             }
         } catch (DataAccessLayerException e) {
             parmStorageInfo = Collections.emptyMap();
-            // parmIdMap = Collections.emptyMap();
             String msg = "Error retrieving parm info from Database: "
                     + e.getLocalizedMessage();
             statusHandler.error(msg, e);
@@ -2152,7 +2146,6 @@ public class IFPGridDatabase extends GridDatabase {
      */
     public ParmID getCachedParmID(String parmNameAndLevel)
             throws UnknownParmIdException {
-        // ParmID rval = parmIdMap.get(parmNameAndLevel);
         ParmID rval = this.parmStorageInfo.get(parmNameAndLevel).getParmID();
 
         if (rval == null) {
@@ -2165,7 +2158,6 @@ public class IFPGridDatabase extends GridDatabase {
 
     @Override
     public ParmID getCachedParmID(ParmID parmId) throws UnknownParmIdException {
-        // ParmID rval = parmIdMap.get(parmId.getCompositeName());
         ParmID rval = this.parmStorageInfo.get(parmId.getCompositeName())
                 .getParmID();
 
