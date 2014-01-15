@@ -147,6 +147,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Nov 08, 2013   2506     bgonzale   Removed send notification when a subscription is deleted.
  * Dec 05, 2013   2570     skorolev   Show All subscriptions.
  * Jan 08, 2014   2642     mpduff     Update dialog for permissions, adding site to shared
+ * Jan 14, 2014   2459     mpduff     Change Subscription status code
  * </pre>
  * 
  * @author mpduff
@@ -1161,7 +1162,11 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                                 .getSubscriptionData().getDataRow(idx);
 
                         Subscription sub = rowData.getSubscription();
-                        sub.setActive(activate);
+                        if (activate) {
+                            sub.activate();
+                        } else {
+                            sub.deactivate();
+                        }
 
                         try {
                             SubscriptionServiceResult response = subscriptionService
