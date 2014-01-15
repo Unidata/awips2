@@ -90,6 +90,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/23/2013   1538       bphillip    Added log message denoting when processing is complete and time duration
  * 10/30/2013   1538       bphillip    Changed to use non-static registry soap service client
  * 12/2/2013    1829       bphillip    Added getIdsFrom action method and changed how slots are added to objects
+ * 1/15/2014    2613       bphillip    Added batching of notification update queries to reduce number of web service calls
  * 
  * </pre>
  * 
@@ -143,64 +144,75 @@ public class NotificationListenerImpl implements NotificationListener {
 
         List<AuditableEventType> events = notification.getEvent();
 
-        // Process the received auditable events and add them to the
-        // appropriate
-        // list based on the action performed
+        List<String> actionList = new ArrayList<String>(events.size());
+        List<String> objIdList = new ArrayList<String>(events.size());
+
         for (AuditableEventType event : events) {
             List<ActionType> actions = event.getAction();
             for (ActionType action : actions) {
                 String eventType = action.getEventType();
                 List<String> objectIds = getIdsFromAction(action);
-
-                if (objectIds.isEmpty()) {
-                    statusHandler.info("Event " + event.getId()
-                            + " contains 0 affected objects ");
-                    continue;
-                }
-
-                if (eventType.equals(ActionTypes.create)
-                        || eventType.equals(ActionTypes.update)) {
-                    try {
-                        SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
-                                clientBaseURL, notification.getId(), objectIds,
-                                Mode.CREATE_OR_REPLACE);
-                        lcm.submitObjects(submitRequest);
-                    } catch (MsgRegistryException e) {
-                        throw new RuntimeException(
-                                "Error creating objects in registry!", e);
-                    } catch (EbxmlRegistryException e) {
-                        throw new RuntimeException(
-                                "Error creating submit objects request!", e);
-                    }
-                } else if (eventType.equals(ActionTypes.delete)) {
-                    ObjectRefListType refList = new ObjectRefListType();
-                    for (String id : objectIds) {
-                        RegistryObjectType object = registryObjectDao
-                                .getById(id);
-                        if (object != null) {
-                            refList.getObjectRef().add(new ObjectRefType(id));
-                        }
-                    }
-                    if (!CollectionUtil.isNullOrEmpty(refList.getObjectRef())) {
-                        RemoveObjectsRequest request = new RemoveObjectsRequest(
-                                "Remove Objects for notification ["
-                                        + notification.getId() + "]",
-                                "Notification delete object submission", null,
-                                null, refList, false, true,
-                                DeletionScope.DELETE_ALL);
-                        try {
-                            lcm.removeObjects(request);
-                        } catch (MsgRegistryException e) {
-                            throw new RuntimeException(
-                                    "Error creating remove objects request!", e);
-                        }
-                    }
-                } else {
-                    statusHandler.info("Unknown event type [" + eventType
-                            + "] received in notification");
+                objIdList.addAll(objectIds);
+                for (int i = 0; i < objectIds.size(); i++) {
+                    actionList.add(eventType);
                 }
             }
         }
+
+        int listSize = objIdList.size();
+        for (int i = 0; i < listSize;) {
+            List<String> insertIds = new ArrayList<String>();
+            while (i < listSize
+                    && (actionList.get(i).equals(ActionTypes.create) || actionList
+                            .get(i).equals(ActionTypes.update))) {
+                insertIds.add(objIdList.get(i));
+                i++;
+            }
+            if (!insertIds.isEmpty()) {
+                try {
+                    SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
+                            clientBaseURL, notification.getId(), insertIds,
+                            Mode.CREATE_OR_REPLACE);
+                    lcm.submitObjects(submitRequest);
+                } catch (MsgRegistryException e) {
+                    throw new RuntimeException(
+                            "Error creating objects in registry!", e);
+                } catch (EbxmlRegistryException e) {
+                    throw new RuntimeException(
+                            "Error creating submit objects request!", e);
+                }
+            }
+            List<String> deleteIds = new ArrayList<String>();
+            while (i < listSize && actionList.get(i).equals(ActionTypes.delete)) {
+                deleteIds.add(objIdList.get(i));
+                i++;
+            }
+            if (!deleteIds.isEmpty()) {
+                ObjectRefListType refList = new ObjectRefListType();
+                for (String id : deleteIds) {
+                    RegistryObjectType object = registryObjectDao.getById(id);
+                    if (object != null) {
+                        refList.getObjectRef().add(new ObjectRefType(id));
+                    }
+                }
+                if (!CollectionUtil.isNullOrEmpty(refList.getObjectRef())) {
+                    RemoveObjectsRequest request = new RemoveObjectsRequest(
+                            "Remove Objects for notification ["
+                                    + notification.getId() + "]",
+                            "Notification delete object submission", null,
+                            null, refList, false, true,
+                            DeletionScope.DELETE_ALL);
+                    try {
+                        lcm.removeObjects(request);
+                    } catch (MsgRegistryException e) {
+                        throw new RuntimeException(
+                                "Error creating remove objects request!", e);
+                    }
+                }
+            }
+        }
+
+        registryDao.flushAndClearSession();
         statusHandler.info("Processing notification id ["
                 + notification.getId() + "] completed in "
                 + (TimeUtil.currentTimeMillis() - startTime) + " ms");
