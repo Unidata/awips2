@@ -34,6 +34,9 @@ import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.contours.util.ContourContainer;
@@ -76,6 +79,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 10/01/2013  DR 16632   Qinglu Lin   Fixed the bug in for loop range.
  * 10/17/2013  DR 16632   Qinglu Lin   Updated removeOverlaidLinesegments().
  * 10/18/2013  DR 16632   Qinglu Lin   Catch exception thrown when coords length is less than 4 and doing createLinearRing(coords).
+ * 01/09/2014  DR 16974   D. Friedman  Improve followup redraw-from-hatched-area polygons.
  * </pre>
  * 
  * @author mschenke
@@ -83,6 +87,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  */
 
 public class PolygonUtil {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PolygonUtil.class);
 
     private WarngenLayer layer;
 
@@ -113,6 +119,39 @@ public class PolygonUtil {
     public Polygon hatchWarningArea(Polygon origPolygon,
             Geometry origWarningArea, Polygon oldWarningPolygon) throws VizException {
         float[][] contourAreaData = toFloatData(origWarningArea);
+
+        /* If we have an oldWarningPolygon, we can take a shortcut and see
+         * if the intersection of the current polygon and the old polygon
+         * generates the same input to the contouring algorithm as the current
+         * hatched area.  If it does, that intersection can be used instead of
+         * generating a new contour.
+         */
+        if (oldWarningPolygon != null) {
+            try {
+                Geometry intersection = origPolygon.intersection(oldWarningPolygon);
+                if (intersection instanceof Polygon) {
+                    Polygon polygonIntersection = (Polygon) intersection;
+                    if (polygonIntersection.isValid() &&
+                            polygonIntersection.getNumInteriorRing() == 0 &&
+                            polygonIntersection.getNumPoints() - 1 <= maxVertices) {
+                        /*
+                         * Use buildIdealArea to clip the current polygon against the old
+                         * polygon (actually oldWarningArea) and the CWA, using the same
+                         * coordinate transformations that are used to generate
+                         * origWarningArea.
+                         */
+                        Geometry comparableIntersection = layer.buildIdealArea(origPolygon);
+                        float[][] interAreaData = toFloatData(comparableIntersection);
+                        if (areasEqual(interAreaData, contourAreaData)) {
+                            return polygonIntersection;
+                        }
+                    }
+                }
+            } catch (RuntimeException e) {
+                statusHandler.handle(Priority.WARN,
+                        "Error while using simple polygon redraw method.  Will continue using contouring method.", e);
+            }
+        }
 
         // Create contouring configuration
         FortConConfig config = new FortConConfig();
