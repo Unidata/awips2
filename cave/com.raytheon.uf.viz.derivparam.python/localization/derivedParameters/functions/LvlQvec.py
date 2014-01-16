@@ -21,9 +21,8 @@
 from numpy import log, exp
 
 import PartialDerivative as Partial
-import DgeoComps as DgeoComps
-from Vector import execute as Vector
-
+import DgeoComps
+import Vector
 ##
 # Find Q vectors from height, temp, and pressure.
 #
@@ -44,7 +43,7 @@ from Vector import execute as Vector
 def execute(GHxSM, TxSM, P, dx, dy, coriolis):
     result_u, result_v, dtdx, dtdy = calculate(GHxSM, TxSM, P, dx, dy, coriolis)
     # convert the results we want to unmasked arrays
-    return Vector(result_u, result_v)
+    return Vector.componentsTo(result_u, result_v)
   
 ##
 # Find Q vectors and dtemp/dx and dtemp/dy from height, temp, and pressure.

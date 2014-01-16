@@ -19,15 +19,12 @@
 ###
 
 ## @file Negate.py
-import numpy
-from Vector import execute as Vector
+import Vector
 
 ##
 # Negates input
 def execute(input):
     if type(input) == tuple:
-        u = -input[2]
-        v = -input[3]
-        return Vector(u,v)
+        return Vector.componentTo(-input[0], -input[1])
     else:
         return -input
