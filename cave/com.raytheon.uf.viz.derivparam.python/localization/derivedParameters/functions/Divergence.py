@@ -43,8 +43,7 @@ def execute(vec, dx, dy, quan=1.0):
         dvdy = diff_v/dy[i,j]          \n
         diverg[i,j] = (dudx + dvdy)/2  \n 
         """
-    vec_U = vec[2]
-    vec_V = vec[3]
+    vec_U,vec_V = vec
     
     vshape = shape(vec_U)
     
