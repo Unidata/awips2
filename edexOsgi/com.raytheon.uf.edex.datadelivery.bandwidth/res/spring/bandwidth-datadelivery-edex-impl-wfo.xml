@@ -61,9 +61,7 @@
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalDao" />
         <constructor-arg ref="ProviderHandler" />
-        <constructor-arg name="retrievalQueue" >
-            <null/>
-        </constructor-arg>
+        <constructor-arg ref="retrievalQueue" />
     </bean>
 
     <util:map id="retrievalAgents">
