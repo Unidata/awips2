@@ -99,6 +99,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     not found to match A1.
  * Dec 03, 2013  #2591     dgilling    Ensure all change states to the combo
  *                                     file are handled.
+ * Jan 07, 2014  #2662     randerso    Disabled zone combiner if no maps are selected
  * 
  * </pre>
  * 
@@ -257,7 +258,11 @@ public class ZoneCombinerComp extends Composite implements
 
         this.textProductMgr = textProductMgr;
 
-        mapRequired = textProductMgr.mapRequired(productName);
+        mapRequired = this.textProductMgr.mapRequired(productName);
+        this.mapNames = getMapNames(productName);
+        if (mapNames.isEmpty()) {
+            mapRequired = false;
+        }
 
         initPreferences();
         init();
@@ -276,6 +281,23 @@ public class ZoneCombinerComp extends Composite implements
                 comboDir.removeFileUpdatedObserver(ZoneCombinerComp.this);
             }
         });
+    }
+
+    private List<String> getMapNames(String productName) {
+        Object obj = this.textProductMgr.getMapNameForCombinations(productName);
+        List<String> mapNames = new ArrayList<String>();
+        if (obj instanceof String) {
+            String s = (String) obj;
+            if (!s.isEmpty()) {
+                mapNames.add(s);
+            }
+        } else if (obj instanceof List<?>) {
+            @SuppressWarnings("unchecked")
+            List<String> list = (List<String>) obj;
+            mapNames.addAll(list);
+        }
+
+        return mapNames;
     }
 
     /**
@@ -790,21 +812,9 @@ public class ZoneCombinerComp extends Composite implements
         }
         Map<String, Integer> comboDict = loadCombinationsFile(comboName);
 
-        Object obj = textProductMgr.getMapNameForCombinations(productName);
-        mapNames = new ArrayList<String>();
-        if (obj instanceof String) {
-            String s = (String) obj;
-            if (!s.isEmpty()) {
-                mapNames.add(s);
-            }
-        } else if (obj instanceof List<?>) {
-            @SuppressWarnings("unchecked")
-            List<String> list = (List<String>) obj;
-            mapNames.addAll(list);
-        }
-
         boolean singleComboOnly = false;
-        obj = textProductMgr.getDefinitionValue(productName, "singleComboOnly");
+        Object obj = textProductMgr.getDefinitionValue(productName,
+                "singleComboOnly");
         if (obj != null) {
             if (obj instanceof Integer) {
                 singleComboOnly = ((Integer) obj) != 0;
