@@ -41,11 +41,13 @@ import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 17, 2010            bsteffen    Initial creation
- * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
- *                                     concurrent python for threading.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 17, 2010           bsteffen    Initial creation
+ * Jun 04, 2013  2041     bsteffen    Switch derived parameters to use
+ *                                    concurrent python for threading.
+ * Jan 14, 2014  2661     bsteffen    Make vectors u,v only
+ * 
  * 
  * </pre>
  * 
@@ -80,14 +82,14 @@ public class DerivedRequestableData extends AbstractRequestableData {
             List<IDataRecord> finalResult = DerivedParameterGenerator
                     .calculate(request);
             if (finalResult != null && !finalResult.isEmpty()) {
-                if (finalResult.size() == 4 || finalResult.size() == 1) {
+                if (finalResult.size() == 2 || finalResult.size() == 1) {
                     for (IDataRecord rec : finalResult) {
                         rec.setName(request.getParameterAbbreviation());
                     }
                     return finalResult.toArray(new IDataRecord[0]);
                 } else {
                     throw new VizException(
-                            "Error processing derived parameter, expecting scalar or vector data.  Vector data must return speed, dir, u, and v components.");
+                            "Error processing derived parameter, expecting scalar or vector data.  Vector data must return u and v components.");
                 }
             }
         } catch (ExecutionException e) {

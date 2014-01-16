@@ -2,22 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Derived Parameter Python Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.derivparam.python;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.derivparam.python.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.python;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.derivparam;bundle-version="1.12.1174",
- com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- org.jep;bundle-version="1.0.0",
- org.eclipse.ui;bundle-version="3.6.1",
- org.eclipse.core.runtime;bundle-version="3.6.0",
- com.raytheon.uf.common.util;bundle-version="1.12.1174",
- com.raytheon.uf.common.python.concurrent;bundle-version="1.0.0",
- com.raytheon.uf.common.wxmath
+Require-Bundle: com.raytheon.uf.common.python,
+ com.raytheon.uf.common.python.concurrent,
+ com.raytheon.uf.viz.derivparam;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core;bundle-version="1.13.0",
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.datastorage
 Export-Package: com.raytheon.uf.viz.derivparam.python,
  com.raytheon.uf.viz.derivparam.python.function

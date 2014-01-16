@@ -20,7 +20,7 @@
 
 ## @file CompBy.py
 from numpy import cos, sin, sqrt
-from Vector import execute as Vector
+import Vector
 
 ##
 # This function is based on the comp_by.f Fortran function by J. Ramer, Jul 1 2003.
@@ -50,8 +50,8 @@ def execute(Vecs, ThGrd, Angle=0):
     # pi/180 for degrees to radians conversion
     dgtord = 0.01745329252
 
-    Vecs_U, Vecs_V = Vecs[2], Vecs[3]
-    ThGrd_U, ThGrd_V = ThGrd[2], ThGrd[3]
+    Vecs_U, Vecs_V = Vecs
+    ThGrd_U, ThGrd_V = ThGrd
 
     if Angle != 0:
         # Strip off any 1000s from angle.
@@ -85,7 +85,7 @@ def execute(Vecs, ThGrd, Angle=0):
         comp = rotated_u * mag
         comp2 = rotated_v * mag
         
-        return Vector(comp, comp2)
+        return Vector.componentsTo(comp, comp2)
     else:
         # initialize to u and v from ThGrd
         rotated_u = ThGrd_U
