@@ -42,9 +42,12 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 5, 2008            mschenke     Initial creation
- * Apr 18, 2013    1920   mpduff       Set new ColorMap.
- * Jul 02, 2013  2088      rferrel     Changes for non-blocking ColorScaleMgrDlg.
+ * Dec 5, 2008             mschenke    Initial creation
+ * Apr 18, 2013 #1920      mpduff      Set new ColorMap.
+ * Jul 02, 2013 #2088      rferrel     Changes for non-blocking ColorScaleMgrDlg.
+ * Jan 16, 2014 #2691      lvenable    Fixed null pointer exception that occurs when closing
+ *                                     the MPE perspective while the ColorScaleMgrDlg is
+ *                                     visible.
  * </pre>
  * 
  * @author mschenke
@@ -74,8 +77,16 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
                 public void dialogClosed(Object returnValue) {
                     colorScaleDlg = null;
 
-                    MPEFieldResource displayedFieldResource = MPEDisplayManager
-                            .getCurrent().getDisplayedFieldResource();
+                    MPEDisplayManager mdm = MPEDisplayManager.getCurrent();
+
+                    // If the MPE Display Manager is null then return as no
+                    // action is needed.
+                    if (mdm == null) {
+                        return;
+                    }
+
+                    MPEFieldResource displayedFieldResource = mdm
+                            .getDisplayedFieldResource();
 
                     if (displayedFieldResource != null) {
                         MPEFieldResourceData resourceData = displayedFieldResource
