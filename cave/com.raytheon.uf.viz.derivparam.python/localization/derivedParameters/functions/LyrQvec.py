@@ -22,7 +22,7 @@ from numpy import log, exp
 
 import PartialDerivative as Partial
 import DgeoComps as DgeoComps
-from Vector import execute as Vector
+import Vector
 
 ##
 # Find Q vectors from upper and lower height and pressure.
@@ -47,7 +47,7 @@ def execute(height_up, height_lo, pressure_up, pressure_lo, dx, dy, coriolis):
     
     qx, qy, dtdx, dtdy = calculate(height_up, height_lo, pressure_up, pressure_lo, dx, dy, coriolis)
     # unmask the arrays we're interested in
-    return Vector(qx, qy)
+    return Vector.componentsTo(qx, qy)
 
 ##
 # Find Q vectors and dtdx and dtdy from upper and lower height and pressure.
