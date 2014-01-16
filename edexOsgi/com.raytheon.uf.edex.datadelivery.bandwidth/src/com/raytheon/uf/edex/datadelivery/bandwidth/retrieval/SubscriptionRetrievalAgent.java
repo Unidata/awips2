@@ -88,7 +88,12 @@ public class SubscriptionRetrievalAgent extends
         this.bandwidthDao = bandwidthDao;
         this.retrievalDao = retrievalDao;
         this.providerHandler = providerHandler;
-        this.retrievalQueue = retrievalQueue;
+        // SBN retrievals come from ingest processing
+        if (network.equals(Network.SBN)) {
+            this.retrievalQueue = null;
+        } else {
+            this.retrievalQueue = retrievalQueue;
+        }
     }
 
     @Override
