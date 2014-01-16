@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Metadata about a derived parameter field.
  * 
@@ -34,9 +32,11 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/21/2009    #3576     rjpeter     Initial version
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 21, 2009  3576     rjpeter     Initial version
+ * Jan 14, 2014  2661     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -44,8 +44,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class DerivParamConstantField implements ISerializableObject,
-        IDerivParamField {
+public class DerivParamConstantField implements IDerivParamField {
 
     @XmlAttribute(required = true)
     private Float value;
