@@ -216,6 +216,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
     @XmlAttribute
     @DynamicSerializeElement
+    @SlotAttribute
     private boolean unscheduled;
 
     @XmlAttribute
@@ -266,6 +267,9 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @DynamicSerializeElement
     @SlotAttribute(Subscription.SUBSCRIPTION_STATE_SLOT)
     private SubscriptionState subscriptionState;
+
+    /** Flag stating if the object should be updated */
+    private boolean shouldUpdate = false;
 
     /**
      * Get subscription name.
@@ -878,18 +882,18 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     }
 
     /**
-     * Determine if subscription status is expired.
+     * Determine if subscription status is expired and set subscription to off
+     * if it is expired.
      * 
      * @return true if status is expired
      */
-    private boolean isExpired() {
+    private boolean checkAndSetExpiration() {
         Calendar cal = TimeUtil.newGmtCalendar();
-        Date today = cal.getTime();
         boolean expired = false;
-        if (this.getSubscriptionEnd() != null
-                && today.after(this.getSubscriptionEnd())) {
+        if (subscriptionEnd != null && cal.getTime().after(subscriptionEnd)) {
             expired = true;
             this.subscriptionState = SubscriptionState.OFF;
+            this.shouldUpdate = true;
         }
 
         return expired;
@@ -904,7 +908,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     public SubscriptionStatus getStatus() {
         if (!isValid()) {
             return SubscriptionStatus.INVALID;
-        } else if (isExpired()) {
+        } else if (checkAndSetExpiration()) {
             return SubscriptionStatus.EXPIRED;
         } else if (subscriptionState == SubscriptionState.OFF) {
             return SubscriptionStatus.DEACTIVATED;
@@ -931,7 +935,8 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      * @return true if this subscription should be scheduled
      */
     public boolean shouldSchedule() {
-        return subscriptionState == SubscriptionState.ON && !isExpired();
+        return subscriptionState == SubscriptionState.ON
+                && !checkAndSetExpiration();
     }
 
     private boolean inWindow(Date checkDate) {
@@ -1065,7 +1070,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      */
     @Override
     public void activate() {
-        if (valid && !isExpired()) {
+        if (valid && !checkAndSetExpiration()) {
             this.setSubscriptionState(SubscriptionState.ON);
         }
     }
@@ -1076,5 +1081,12 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @Override
     public void deactivate() {
         this.setSubscriptionState(SubscriptionState.OFF);
+    }
+
+    /**
+     * @return the shouldUpdate
+     */
+    public boolean shouldUpdate() {
+        return shouldUpdate;
     }
 }
