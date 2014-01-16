@@ -152,6 +152,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 05/08/2013        #1842 dgilling    Add alternate setProductText(), fix
  *                                     warnings.
  * 09/03/2013  16534       ryu         Refactor; sneak in a change for Ron (RM #1597).
+ * 01/06/2014  2649        dgilling    Pass flag to StoreTransmitDlg to only
+ *                                     update VTEC lines on products that
+ *                                     aren't being corrected.
  * 
  * </pre>
  * 
@@ -1139,7 +1142,7 @@ public class ProductEditorComp extends Composite implements
             // prevent the launching of another dialog until the modal dialog is
             // closed.
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB, pid);
+                    showStore, this, transmissionCB, pid, !textComp.isCorMode());
             storeDlg.open();
         }
     }
@@ -2877,7 +2880,7 @@ public class ProductEditorComp extends Composite implements
             mb2.open();
             return;
         }
-        
+
         // Word-wrap the whole selection.
         int curLine = styledText.getLineAtOffset(selectionRange.x);
         int lastSelIdx = selectionRange.x + selectionRange.y - 1;
