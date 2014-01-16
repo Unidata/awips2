@@ -23,11 +23,11 @@
         <Field abbreviation="Windmean"/>
     </Method>
     <Method name="Vector">
-    	<Field abbreviation="uW"/>
-    	<Field abbreviation="vW"/>
+    	<Field abbreviation="uW" unit="m/s"/>
+    	<Field abbreviation="vW" unit="m/s"/>
     </Method>
     <Method name="Vector">
-        <Field abbreviation="wSp"/>
+        <Field abbreviation="wSp" unit="m/s"/>
         <Field abbreviation="WD" unit="deg"/>
         <ConstantField value="1.0"/>
     </Method>
