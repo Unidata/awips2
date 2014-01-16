@@ -58,23 +58,28 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Display the Store/Transmit dialog.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 21 APR 2008  ###        lvenable    Initial creation
- * 19 FEB 2010  4132       ryu         Product correction.
- * 28May2010    2187       cjeanbap    Added StdTextProductFactory
- *                                      functionality.
- * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
- * 02apr2013    15564   mgamazaychikov Ensured awipsWanPil to be 10 characters space-padded long
- * 08 MAY 2013  1842       dgilling    Use VtecUtil to set product ETNs, fix
+ * Apr 21, 2008  ###       lvenable    Initial creation
+ * Feb 19, 2010  4132      ryu         Product correction.
+ * May 28, 2010  2187      cjeanbap    Added StdTextProductFactory 
+ *                                     functionality.
+ * Nov 09, 2012  1298      rferrel     Changes for non-blocking dialog.
+ * Apr 02, 2013  15564 mgamazaychikov  Ensured awipsWanPil to be 10 characters
+ *                                     space-padded long
+ * May 08, 2013  1842      dgilling    Use VtecUtil to set product ETNs, fix
  *                                     warnings.
- * 07 Jun 2013  1981       mpduff      Set user's id in OUPRequest as it is now a protected operation.
+ * Jun 07, 2013  1981      mduff       Set user's id in OUPRequest as it is
+ *                                     now a protected operation.
+ * Jan 06, 2014  2649      dgilling    Make ETN assignment process optional.
+ * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
- * 
  */
 public class StoreTransmitDlg extends CaveSWTDialog implements
         IStoreTransmitProduct {
@@ -132,17 +137,26 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
     private final String pid;
 
+    private final boolean updateVtec;
+
     /**
-     * Constructor.
-     * 
      * @param parent
      *            Parent shell.
      * @param storeDialog
      *            Store flag. True is store, false is transmit.
+     * @param editor
+     *            Parent editor. Product will be updated in this editor after
+     *            transmission.
+     * @param transmissionCB
+     * @param pid
+     * @param updateVtec
+     *            Whether or not to update the ETNs of any VTEC lines in the
+     *            product to be transmitted. Recommend setting this to false
+     *            when correcting a previously transmitted product.
      */
     public StoreTransmitDlg(Shell parent, boolean storeDialog,
             ProductEditorComp editor, ITransmissionState transmissionCB,
-            String pid) {
+            String pid, boolean updateVtec) {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
                 CAVE.DO_NOT_BLOCK);
 
@@ -151,6 +165,7 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         parentEditor = editor;
         this.productText = editor.getProductText();
         this.pid = pid;
+        this.updateVtec = updateVtec;
     }
 
     @Override
@@ -334,21 +349,22 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         // Store/Transmit the product...
 
         if (!countdownThread.threadCancelled()) {
+            if (updateVtec) {
+                try {
+                    productText = GFEVtecUtil.finalizeETNs(productText);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.CRITICAL,
+                            "Error setting ETNs for product", e);
+                    sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+                    VizApp.runAsync(new Runnable() {
 
-            try {
-                productText = GFEVtecUtil.finalizeETNs(productText);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.CRITICAL,
-                        "Error setting ETNs for product", e);
-                sendTransmissionStatus(ConfigData.productStateEnum.Failed);
-                VizApp.runAsync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        StoreTransmitDlg.this.parentEditor.revive();
-                    }
-                });
-                return;
+                        @Override
+                        public void run() {
+                            StoreTransmitDlg.this.parentEditor.revive();
+                        }
+                    });
+                    return;
+                }
             }
 
             VizApp.runSync(new Runnable() {
