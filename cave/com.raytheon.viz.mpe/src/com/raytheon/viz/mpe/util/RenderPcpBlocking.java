@@ -38,7 +38,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2009            snaples     Initial creation
  * May 02, 2011   8962     snaples     Added render24hrPcpUsingFour6hr() method
- * 
+ * Jan 10, 2014  16976     cgobs       Fixed issue on line 290. 
+ * 									   Changed pcp.value[row][col] to pcp.value[col][row]
  * </pre>
  * 
  * @author snaples
@@ -286,7 +287,7 @@ public class RenderPcpBlocking {
 				 * not estimate precipitation for it.
 				 */
 				if (hrap_grid.owner[col][row] == -1) {
-					pcp.value[row][col] = 0;
+					pcp.value[col][row] = 0;
 					continue;
 				}
 
@@ -308,7 +309,7 @@ public class RenderPcpBlocking {
 						resultingPrecipValue = 0.0;
 					}
 
-					// pcp.value[row][col] is the value of grid,
+					// pcp.value[col][row] is the value of grid,
 					// so we don't need to estimate a value for [row][col]
 				}
 
