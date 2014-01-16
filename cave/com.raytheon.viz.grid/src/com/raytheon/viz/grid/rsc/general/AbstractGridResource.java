@@ -105,7 +105,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Mar 09, 2011           bsteffen    Initial creation
  * May 08, 2013  1980     bsteffen    Set paint status in GridResources for
  *                                    KML.
@@ -113,8 +113,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 27, 2013  2287     randerso    Added new parameters required by 
  *                                    GriddedVectorDisplay and
  *                                    GriddedIconDisplay
- * Sep 24, 2013  2404     bclement    colormap params now created using match criteria
+ * Sep 24, 2013  2404     bclement    colormap params now created using match
+ *                                    criteria
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Jan 14, 2014  2594     bsteffen    Switch vector mag/dir to use data source
+ *                                    instead of raw float data.
+ * 
  * 
  * </pre>
  * 
@@ -525,7 +529,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 }
             }
             GriddedVectorDisplay vectorDisplay = new GriddedVectorDisplay(
-                    data.getMagnitude(), data.getDirection(), descriptor,
+                    data.getMagnitude(), data.getDirectionFrom(), descriptor,
                     gridGeometry, VECTOR_DENSITY_FACTOR, true, displayType,
                     config);
             vectorDisplay.setColor(getCapability(ColorableCapability.class)
@@ -844,8 +848,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     "Error transforming coordinate for interrogate", e);
         }
         Interpolation interpolation = getInspectInterpolation(data);
-        GridSampler sampler = new GridSampler(new FloatBufferWrapper(
+        GridSampler sampler = null;
+        if (data.isVector()) {
+            sampler = new GridSampler(data.getMagnitude(), interpolation);
+        } else {
+            sampler = new GridSampler(new FloatBufferWrapper(
                 data.getScalarData(), data.getGridGeometry()), interpolation);
+        }
         double value = sampler.sample(pixel.x, pixel.y);
         if (Double.isNaN(value)) {
             return null;
@@ -872,8 +881,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             result.put(INTERROGATE_UNIT, "");
         }
         if (data.isVector()) {
-            sampler.setSource(new FloatBufferWrapper(data.getDirection(), data
-                    .getGridGeometry()));
+            sampler.setSource(data.getDirectionFrom());
             Double dir = sampler.sample(pixel.x, pixel.y);
             result.put(INTERROGATE_DIRECTION, dir);
         }
