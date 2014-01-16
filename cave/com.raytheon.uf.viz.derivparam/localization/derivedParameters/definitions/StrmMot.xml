@@ -23,8 +23,8 @@
         <Field abbreviation="DMD"/>
     </Method>
     <Method name="Vector">
-        <Field abbreviation="USTM"/>
-        <Field abbreviation="VSTM"/>
+        <Field abbreviation="USTM" unit="kn"/>
+        <Field abbreviation="VSTM" unit="kn"/>
     </Method>
     <Method levels="Layer" name="Rotate">
         <Field level="0-6kmAgl" abbreviation="Wind"/>
