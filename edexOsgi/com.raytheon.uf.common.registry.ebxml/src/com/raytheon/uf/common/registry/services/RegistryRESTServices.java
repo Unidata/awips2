@@ -21,7 +21,7 @@ package com.raytheon.uf.common.registry.services;
 
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -171,8 +171,7 @@ public class RegistryRESTServices {
     public Object accessXMLRestService(String url) {
         String response = null;
         try {
-            ;
-            response = Resources.toString(new URL(url), StandardCharsets.UTF_8);
+            response = Resources.toString(new URL(url), Charset.forName("UTF8"));
         } catch (Exception e) {
             throw new RegistryServiceException(
                     "Error accessing REST service at URL: [" + url + "]", e);

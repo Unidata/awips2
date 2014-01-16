@@ -123,6 +123,8 @@ public class NotificationListenerImpl implements NotificationListener {
     /** Registry soap service client */
     private RegistrySOAPServices registrySoapClient;
 
+    // @FIXME This method is pretty scary in it's implementation as Richard
+    // pointed out. Please fix Ben.
     @Override
     public void onNotification(NotificationType notification) {
         long startTime = TimeUtil.currentTimeMillis();
