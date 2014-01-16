@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -44,9 +43,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/21/2009    #3576     rjpeter     Initial version
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 21, 2009  3576     rjpeter     Initial version
+ * Jan 14, 2014  2661     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -54,7 +55,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "DerivedParameter")
-public class DerivParamDesc implements ISerializableObject {
+public class DerivParamDesc {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DerivParamDesc.class);
 
