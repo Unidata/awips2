@@ -18,9 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="FeatMot" name="Feature Motion" unit="kt">
+<DerivedParameter abbreviation="FeatMot" name="Feature Motion" unit="kn">
 	<Method name="Vector">
-		<Field abbreviation="USTM"/>
-		<Field abbreviation="VSTM"/>
+		<Field abbreviation="USTM"  unit="kn"/>
+		<Field abbreviation="VSTM"  unit="kn"/>
 	</Method>
 </DerivedParameter>

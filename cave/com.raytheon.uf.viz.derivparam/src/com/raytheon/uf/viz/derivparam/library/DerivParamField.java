@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
@@ -41,9 +40,11 @@ import com.raytheon.uf.viz.core.exception.VizCommunicationException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/21/2009    #3576     rjpeter     Initial version
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 21, 2009  3576     rjpeter     Initial version
+ * Jan 14, 2014  2661     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -51,7 +52,7 @@ import com.raytheon.uf.viz.core.exception.VizCommunicationException;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class DerivParamField implements ISerializableObject, IDerivParamField {
+public class DerivParamField implements IDerivParamField {
 
     @XmlAttribute(name = "abbreviation", required = true)
     private String param;

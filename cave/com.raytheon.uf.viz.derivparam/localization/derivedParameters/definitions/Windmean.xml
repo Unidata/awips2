@@ -18,13 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="Windmean" name="Mean Wind" unit="kt">
+<DerivedParameter abbreviation="Windmean" name="Mean Wind" unit="kn">
 	<Method name="Vector">
-		<Field abbreviation="uWmean" unit="kts"/>
-		<Field abbreviation="vWmean" unit="kts"/>
+		<Field abbreviation="uWmean" unit="kn"/>
+		<Field abbreviation="vWmean" unit="kn"/>
 	</Method>
 	<Method name="Vector">
-		<Field abbreviation="WSmean" unit="kts"/>
+		<Field abbreviation="WSmean" unit="kn"/>
 		<Field abbreviation="WDmean" unit="deg"/>
 		<ConstantField value="1.0"/>
 	</Method>
