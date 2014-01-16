@@ -49,9 +49,11 @@ import com.raytheon.uf.viz.core.exception.VizCommunicationException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/21/2009    #3576     rjpeter     Initial version
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 21, 2009  3576     rjpeter     Initial version
+ * Jan 14, 2014  2661     bsteffen    Remove unnecessary exceptions
+ * 
  * 
  * &#064;author rjpeter
  * @version 1.0
@@ -149,8 +151,7 @@ public class ValidLevelGenerator {
         return validLevels;
     }
 
-    private void processLevelToken(String token)
-            throws VizCommunicationException, CommunicationException {
+    private void processLevelToken(String token) throws CommunicationException {
         boolean negate = token.charAt(0) == '!';
         int rangeIndex = token.indexOf('>');
 
@@ -341,8 +342,7 @@ public class ValidLevelGenerator {
         }
     }
 
-    private Type determineType(String token) throws CommunicationException,
-            VizCommunicationException {
+    private Type determineType(String token) throws CommunicationException {
         Type rval = null;
         LevelMapping mapping = lmf.getLevelMappingForKey(token);
 
