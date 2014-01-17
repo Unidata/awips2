@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Jan 15, 2014 2678       bgonzale     Use Queue for passing RetrievalRequestRecords to the 
  *                                      RetrievalTasks (PerformRetrievalsThenReturnFinder).
+ *                                      Added constructor that sets the retrievalQueue to null.
  * 
  * </pre>
  * 
@@ -81,6 +82,15 @@ public class SubscriptionRetrievalAgent extends
     public SubscriptionRetrievalAgent(Network network, String destinationUri,
             final Object notifier, int defaultPriority,
             RetrievalManager retrievalManager, IBandwidthDao bandwidthDao,
+            IRetrievalDao retrievalDao, IProviderHandler providerHandler) {
+        this(network, destinationUri, notifier, defaultPriority,
+                retrievalManager, bandwidthDao, retrievalDao, providerHandler,
+                null);
+    }
+
+    public SubscriptionRetrievalAgent(Network network, String destinationUri,
+            final Object notifier, int defaultPriority,
+            RetrievalManager retrievalManager, IBandwidthDao bandwidthDao,
             IRetrievalDao retrievalDao, IProviderHandler providerHandler,
             ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue) {
         super(network, destinationUri, notifier, retrievalManager);
@@ -88,12 +98,7 @@ public class SubscriptionRetrievalAgent extends
         this.bandwidthDao = bandwidthDao;
         this.retrievalDao = retrievalDao;
         this.providerHandler = providerHandler;
-        // SBN retrievals come from ingest processing
-        if (network.equals(Network.SBN)) {
-            this.retrievalQueue = null;
-        } else {
-            this.retrievalQueue = retrievalQueue;
-        }
+        this.retrievalQueue = retrievalQueue;
     }
 
     @Override
