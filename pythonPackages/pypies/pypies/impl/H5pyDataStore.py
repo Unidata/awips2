@@ -33,10 +33,11 @@
 #    01/17/13        DR 15294      D. Friedman   Clear out data in response
 #    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
 #    Nov 14, 2013       2393       bclement      removed interpolation
+#    Jan 17, 2014       2688       bclement      added file action and subprocess error logging  
 #
 #
 
-import h5py, os, numpy, pypies, re, logging, shutil, time, types
+import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
 import fnmatch
 import subprocess, stat  #for h5repack
 from pypies import IDataStore, StorageException, NotImplementedException
@@ -745,6 +746,8 @@ class H5pyDataStore(IDataStore.IDataStore):
         shutil.copy(filepath, outputDir)
         success = (os.path.isfile(os.path.join(outputDir, os.path.basename(filepath))))
         return success
+    
+    __doCopy.__display_name__ = 'copy'
 
     def repack(self, request):
         resp = FileActionResponse()
@@ -770,9 +773,14 @@ class H5pyDataStore(IDataStore.IDataStore):
         else:
             repackedFullPath = filepath.replace(basePath, outDir)
         cmd = ['h5repack', '-f', compression, filepath, repackedFullPath]
-        ret = subprocess.call(cmd)
-
-        success = (ret == 0)
+        try:
+            ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            success = (ret == 0)
+        except subprocess.CalledProcessError, e:
+            logger.error("Subprocess call failed: " + str(e))
+            logger.error("Subprocess output: " + e.output)
+            success = False
+        
         if success:
             # repack was successful, replace the old file if we did it in the
             # same directory, otherwise leave it alone
@@ -794,22 +802,33 @@ class H5pyDataStore(IDataStore.IDataStore):
         else:
             timeMap['repack']=t1-t0
         return success
+    
+    __doRepack.__display_name__ = 'repack'
+    
+    def __getFileActionName(self, fileAction):
+        """Retrieve __display_name__ attribute from function object or __name__ if not present"""
+        if hasattr(fileAction, '__display_name__'):
+            actionName = fileAction.__display_name__
+        else:
+            actionName = fileAction.__name__ 
+        return actionName
 
     def __doFileAction(self, filepath, basePath, outputDir, fileAction, response, compression='NONE', timestampCheck=None):
         lock = None
+            
         try:
             f, lock = self.__openFile(filepath, 'a')
-            proceedWithRepack = True
+            proceedWithAction = True
             if timestampCheck:
                 if timestampCheck in f.attrs.keys():
                     lastRepacked = f.attrs[timestampCheck]
                     lastModified = os.stat(filepath).st_mtime
                     if lastRepacked > lastModified:
-                        proceedWithRepack = False
-            if proceedWithRepack:
-                # update repack time even if repack will fail, cause if it fails at
+                        proceedWithAction = False
+            if proceedWithAction:
+                # update time even if action will fail, cause if it fails at
                 # this time there's no point in retrying.  put time in the near future
-                # cause the modified time will be after the repack and rename
+                # cause the modified time will be after the action and rename
                 if timestampCheck:
                     f.attrs[timestampCheck] = time.time() + 30
                 f.close()
@@ -821,6 +840,8 @@ class H5pyDataStore(IDataStore.IDataStore):
                     getter = response.getSuccessfulFiles
                     setter = response.setSuccessfulFiles
                 else:
+                    actionName = self.__getFileActionName(fileAction)
+                    logger.warn("Action '" + actionName + "' failed on file " + filepath)
                     getter = response.getFailedFiles
                     setter = response.setFailedFiles
                 responseList = getter()
@@ -830,7 +851,9 @@ class H5pyDataStore(IDataStore.IDataStore):
                     responseList = [filepath]
                 setter(responseList)
         except Exception, e:
-            logger.warn("Error repacking file " + filepath + ": " + str(e))
+            actionName = self.__getFileActionName(fileAction)
+            logger.error("Error performing action '" + actionName + "' on file " + filepath + ": " + str(e))
+            logger.error(traceback.format_exc())
             failed = response.getFailedFiles()
             if failed:
                 failed += [filepath]
