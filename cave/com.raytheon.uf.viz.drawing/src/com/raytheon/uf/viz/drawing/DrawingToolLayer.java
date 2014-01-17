@@ -60,9 +60,10 @@ import com.vividsolutions.jts.geom.TopologyException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 23, 2012           mschenke    Initial creation
+ * May 23, 2012  2646     bsteffen    Fix NPE in project.
  * 
  * </pre>
  * 
@@ -656,8 +657,10 @@ public class DrawingToolLayer implements IRenderable {
                     currentData.geometries = reprojectCollection(
                             currentData.geometries, projectionMap,
                             oldGridToNewGrid);
-                    currentDrawingLine = JTS.transform(currentDrawingLine,
-                            oldGridToNewGrid);
+                    if (currentDrawingLine != null) {
+                        currentDrawingLine = JTS.transform(currentDrawingLine,
+                                oldGridToNewGrid);
+                    }
                 }
             } catch (Exception e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,
