@@ -19,6 +19,11 @@
                 class="com.raytheon.uf.common.datadelivery.registry.handlers.EmptySharedSubscriptionHandler">
             </bean>
         </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.EmptyAdhocSubscriptionHandler">
+            </bean>
+        </constructor-arg>
     </bean>
     
     <util:list id="subscriptionRoutesToSchedule">
