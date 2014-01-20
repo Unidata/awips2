@@ -49,6 +49,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -112,7 +113,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  *                                      notifications.  Republish dataset metadata registry
  *                                      insert and update events as dataset metadata events.
  * Jan 13, 2014 2679       dhladky      Small Point data updates.   
- * Jan 14, 2014 2692       dhladky      AdhocSubscription handler                                 
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
+ * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
  * 
  * </pre>
  * 
@@ -306,28 +308,40 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             for (int day = 1; day <= days; day++) {
 
                 next.add(Calendar.DAY_OF_YEAR, 1);
-                // Since subscriptions are based on cycles in a day, add one day
-                // to the
-                // completed BandwidthSubscription to get the next days
-                // retrieval.
 
-                // Now check if that BandwidthSubscription has already been
-                // scheduled.
-                BandwidthSubscription a = bandwidthDao
-                        .getBandwidthSubscription(dao.getRegistryId(), next);
-                if (a == null) {
-                    // Create the new BandwidthSubscription record with the next
-                    // time..
-                    a = bandwidthDao.newBandwidthSubscription(subscription,
-                            next);
+                // TODO Check if we need to set sub to "OFF" state and save to
+                // registry
+                if (((RecurringSubscription<T, C>) subscription)
+                        .shouldScheduleForTime(next.getTime())) {
 
-                    schedule(subscription, a);
-                } else {
-                    statusHandler
-                            .info("Subscription ["
-                                    + subscription.getName()
-                                    + "] has already been scheduled for baseReferenceTime ["
-                                    + BandwidthUtil.format(next) + "]");
+                    // Since subscriptions are based on cycles in a day, add
+                    // one
+                    // day
+                    // to the
+                    // completed BandwidthSubscription to get the next days
+                    // retrieval.
+
+                    // Now check if that BandwidthSubscription has already
+                    // been
+                    // scheduled.
+                    BandwidthSubscription a = bandwidthDao
+                            .getBandwidthSubscription(dao.getRegistryId(), next);
+                    if (a == null) {
+                        // Create the new BandwidthSubscription record with
+                        // the
+                        // next
+                        // time..
+                        a = bandwidthDao.newBandwidthSubscription(subscription,
+                                next);
+
+                        schedule(subscription, a);
+                    } else {
+                        statusHandler
+                                .info("Subscription ["
+                                        + subscription.getName()
+                                        + "] has already been scheduled for baseReferenceTime ["
+                                        + BandwidthUtil.format(next) + "]");
+                    }
                 }
             }
         }
