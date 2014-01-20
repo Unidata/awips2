@@ -21,7 +21,11 @@ package com.raytheon.uf.viz.datadelivery.handlers;
 
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISharedSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISiteSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -46,6 +50,7 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * Mar 29, 2013 1841       djohnson     Composes a userSubscriptionsHandler.
  * Apr 05, 2013 1841       djohnson     Add shared subscription support.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Jan 20, 2014 2538       mpduff       Added the doesNameExist method.
  * 
  * </pre>
  * 
@@ -62,8 +67,10 @@ public class VizSubscriptionHandler extends SubscriptionHandler {
      */
     public VizSubscriptionHandler(
             ISiteSubscriptionHandler siteSubscriptionHandler,
-            ISharedSubscriptionHandler sharedSubscriptionHandler) {
-        super(siteSubscriptionHandler, sharedSubscriptionHandler);
+            ISharedSubscriptionHandler sharedSubscriptionHandler,
+            IAdhocSubscriptionHandler adhocSubscriptionHandler) {
+        super(siteSubscriptionHandler, sharedSubscriptionHandler,
+                adhocSubscriptionHandler);
     }
 
     /**
@@ -72,7 +79,7 @@ public class VizSubscriptionHandler extends SubscriptionHandler {
     @Override
     public void deleteByIds(String username, List<String> ids)
             throws RegistryHandlerException {
-        
+
         SubscriptionDeleteRequest request = new SubscriptionDeleteRequest(ids,
                 ISubscriptionHandler.class, username);
 
@@ -85,4 +92,40 @@ public class VizSubscriptionHandler extends SubscriptionHandler {
         }
     }
 
+    /**
+     * Does the name exist for the provided type of subscription?
+     * 
+     * @param name
+     *            The subscription name to check
+     * @param clazzes
+     *            List of subscription types
+     * @return true if the name exists for any of the provided types
+     * @throws RegistryHandlerException
+     */
+    public boolean doesNameExist(String name, Class... clazzes)
+            throws RegistryHandlerException {
+        boolean found = false;
+
+        for (Class<?> clazz : clazzes) {
+            if (found) {
+                return true;
+            }
+            if (clazz == SiteSubscription.class) {
+                found = getSiteSubscriptionHandler().getByName(name) != null;
+                continue;
+            }
+
+            if (!found && clazz == SharedSubscription.class) {
+                found = getSharedSubscriptionHandler().getByName(name) != null;
+                continue;
+            }
+
+            if (!found && clazz == AdhocSubscription.class) {
+                found = getAdhocSubscriptionHandler().getByName(name) != null;
+                continue;
+            }
+        }
+
+        return found;
+    }
 }
