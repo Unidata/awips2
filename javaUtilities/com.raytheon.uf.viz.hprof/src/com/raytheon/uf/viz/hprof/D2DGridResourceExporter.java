@@ -53,7 +53,7 @@ import com.raytheon.hprof.SmartInstance;
  */
 public class D2DGridResourceExporter extends RequestableResourceExporter {
 
-    private final boolean useDataMap = false;
+    private static final boolean useDataMap = false;
 
     public D2DGridResourceExporter(HprofFile hprof, File outputDirectory) {
         super(hprof, outputDirectory, null);
@@ -93,45 +93,58 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
         }
         println("# Section 2 size and type of all GeneralGridData.");
         Map<SmartInstance, Integer> sizes = new HashMap<SmartInstance, Integer>();
-        if (useDataMap) {
-            for (SmartInstance resource : resources) {
-                int floats = 0;
+        for (SmartInstance resource : resources) {
+            int floats = 0;
+            List<GeneralGridDataInstance> datas = new ArrayList<GeneralGridDataInstance>();
+            if (useDataMap) {
                 ConcurrentHashMap<SmartInstance, SmartInstance> dataMap = resource
                         .get("dataMap").toConcurrentHashMap();
-                if (!dataMap.isEmpty()) {
-                    println(resource + "{");
-                    for (Entry<SmartInstance, SmartInstance> dataEntry : dataMap
-                            .entrySet()) {
-                        List<SmartInstance> dataList = dataEntry.getValue()
-                                .toArrayList();
-                        for (SmartInstance gridData : dataList) {
-                            floats += outputGeneralGridData(gridData);
-                        }
+                for (Entry<SmartInstance, SmartInstance> dataEntry : dataMap
+                        .entrySet()) {
+                    List<SmartInstance> dataList = dataEntry.getValue()
+                            .toArrayList();
+                    for (SmartInstance gridData : dataList) {
+                        datas.add(new GeneralGridDataInstance(gridData));
                     }
-                    println("}");
                 }
-                sizes.put(resource, floats);
-            }
-        } else {
-            for (SmartInstance resource : resources) {
-                int floats = 0;
+            } else {
                 ArrayList<SmartInstance> requests = resource.get("requestJob")
                         .get("requests").toArrayList();
-                if (!requests.isEmpty()) {
-                    println(resource + "{");
-                    for (SmartInstance request : requests) {
-                        SmartInstance data = request.get("gridData");
-                        if (data != null) {
-                            List<SmartInstance> dataList = data.toArrayList();
-                            for (SmartInstance gridData : dataList) {
-                                floats += outputGeneralGridData(gridData);
-                            }
+                for (SmartInstance request : requests) {
+                    SmartInstance data = request.get("gridData");
+                    if (data != null) {
+                        List<SmartInstance> dataList = data.toArrayList();
+                        for (SmartInstance gridData : dataList) {
+                            datas.add(new GeneralGridDataInstance(gridData));
                         }
                     }
-                    println("}");
                 }
-                sizes.put(resource, floats);
             }
+            if (datas.isEmpty()) {
+                continue;
+            }
+            println(resource + "{");
+
+            Map<GeneralGridDataInstance, Integer> redundantCounts = new HashMap<GeneralGridDataInstance, Integer>();
+
+            for (GeneralGridDataInstance gridDataInst : datas) {
+                int count = 0;
+                if (redundantCounts.containsKey(gridDataInst)) {
+                    count = redundantCounts.get(gridDataInst);
+                }
+                count += 1;
+                redundantCounts.put(gridDataInst, count);
+                floats += gridDataInst.getFloatCount();
+            }
+            for (Entry<GeneralGridDataInstance, Integer> entry : redundantCounts
+                    .entrySet()) {
+                sizes.put(resource, floats);
+                println("  " + entry.getValue()
+                        + " instances of GeneralGridData like {");
+                println(entry.getKey().toString());
+                println("  }");
+            }
+            println("}");
         }
         println("# Section 3 total size of each resource.");
         List<Entry<SmartInstance, Integer>> sizesList = new ArrayList<Entry<SmartInstance, Integer>>(
@@ -148,6 +161,23 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
         int totalFloats = 0;
         for (Entry<SmartInstance, Integer> entry : sizesList) {
             SmartInstance resource = entry.getKey();
+            StringBuilder modHint = new StringBuilder();
+            try {
+                boolean dataModified = resource.getBoolean("dataModified");
+                modHint.append("(dataModified=").append(dataModified)
+                        .append(")");
+            } catch (IllegalStateException e) {
+                /* heap dump is from before 14.2 */
+            }
+            try {
+                boolean reprojectedData = resource
+                        .getBoolean("reprojectedData");
+                modHint.append("(reprojectedData=").append(reprojectedData)
+                        .append(")");
+            } catch (IllegalStateException e) {
+                /* heap dump is from after 14.2 */
+            }
+            resource.getBoolean("reprojectedData");
             int floats = entry.getValue();
             int size = floats * 4 / 1024;
             String suffix = "KB";
@@ -155,7 +185,8 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
                 size /= 1024;
                 suffix = "MB";
             }
-            println(resource + " uses is " + size + suffix);
+            println(resource.toString() + modHint.toString() + " uses is "
+                    + size + suffix);
             totalFloats += floats;
         }
         println("# Section 4 total size of all resources.");
@@ -163,44 +194,122 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
                 + " resources  is " + totalFloats * 4 / 1024 / 1024 + "MB");
     }
 
-    protected int outputGeneralGridData(SmartInstance generalGridData)
-            throws IOException {
-        println("  " + generalGridData + "{");
-        SmartInstance gridGeometry = generalGridData.get("gridGeometry");
-        SmartInstance gridRange = gridGeometry.get("gridRange");
-        int[] index = gridRange.getIntArray("index");
-        int width = index[2] - index[0];
-        int height = index[3] - index[1];
-        println("    dimensions are " + width + "x" + height + "");
+    private static class GeneralGridDataInstance {
 
-        int floats = 0;
-        SmartInstance buffer = generalGridData.get("scalarData");
-        if (buffer != null) {
-            int capacity = buffer.getInt("capacity");
-            println("    scalarData contains " + capacity + " floats.");
-            floats += capacity;
+        private final int width;
+
+        private final int height;
+
+        /* number of floats */
+        private final int scalarCapacity;
+
+        /* number of floats */
+        private final int dirCapacity;
+
+        /* number of floats */
+        private final int uCapacity;
+
+        /* number of floats */
+        private final int vCapacity;
+
+        public GeneralGridDataInstance(SmartInstance generalGridData) {
+            SmartInstance gridGeometry = generalGridData.get("gridGeometry");
+            SmartInstance gridRange = gridGeometry.get("gridRange");
+            int[] index = gridRange.getIntArray("index");
+            width = index[2] - index[0];
+            height = index[3] - index[1];
+
+            SmartInstance buffer = generalGridData.get("scalarData");
+            scalarCapacity = getCapacity(buffer);
+
+            buffer = generalGridData.get("direction");
+            dirCapacity = getCapacity(buffer);
+
+            buffer = generalGridData.get("uComponent");
+            uCapacity = getCapacity(buffer);
+
+            buffer = generalGridData.get("vComponent");
+            vCapacity = getCapacity(buffer);
+
         }
-        buffer = generalGridData.get("direction");
-        if (buffer != null) {
-            int capacity = buffer.getInt("capacity");
-            println("    direction contains " + capacity + " floats.");
-            floats += capacity;
+
+        private static int getCapacity(SmartInstance buffer) {
+            if (buffer == null) {
+                return 0;
+            }
+            try {
+                return buffer.getInt("capacity");
+            } catch (IllegalStateException e) {
+                return buffer.get("buffer").getInt("capacity");
+            }
         }
-        buffer = generalGridData.get("uComponent");
-        if (buffer != null) {
-            int capacity = buffer.getInt("capacity");
-            println("    uComponent contains " + capacity + " floats.");
-            floats += capacity;
+
+        public int getFloatCount() {
+            return uCapacity + vCapacity + scalarCapacity + dirCapacity;
         }
-        buffer = generalGridData.get("vComponent");
-        if (buffer != null) {
-            int capacity = buffer.getInt("capacity");
-            println("    vComponent contains " + capacity + " floats.");
-            floats += capacity;
+
+        @Override
+        public String toString() {
+            StringBuilder str = new StringBuilder();
+            str.append("    dimensions are " + width + "x" + height + "\n");
+            if (scalarCapacity != 0) {
+                str.append("    scalarData contains " + scalarCapacity
+                        + " floats.\n");
+            }
+            if (dirCapacity != 0) {
+                str.append("    direction contains " + dirCapacity
+                        + " floats.\n");
+            }
+            if (uCapacity != 0) {
+                str.append("    uComponent contains " + uCapacity
+                        + " floats.\n");
+            }
+            if (vCapacity != 0) {
+                str.append("    vComponent contains " + vCapacity
+                        + " floats.\n");
+            }
+            str.append("    memory usage is " + getFloatCount() * 4 / 1024
+                    + "KB");
+            return str.toString();
         }
-        println("    memory usage is " + floats * 4 / 1024 + "KB");
-        println("  }");
-        return floats;
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + dirCapacity;
+            result = prime * result + height;
+            result = prime * result + scalarCapacity;
+            result = prime * result + uCapacity;
+            result = prime * result + vCapacity;
+            result = prime * result + width;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            GeneralGridDataInstance other = (GeneralGridDataInstance) obj;
+            if (dirCapacity != other.dirCapacity)
+                return false;
+            if (height != other.height)
+                return false;
+            if (scalarCapacity != other.scalarCapacity)
+                return false;
+            if (uCapacity != other.uCapacity)
+                return false;
+            if (vCapacity != other.vCapacity)
+                return false;
+            if (width != other.width)
+                return false;
+            return true;
+        }
+
     }
 
 }

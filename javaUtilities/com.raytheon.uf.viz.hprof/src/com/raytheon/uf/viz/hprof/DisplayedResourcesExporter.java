@@ -71,13 +71,26 @@ public class DisplayedResourcesExporter extends DisplayPaneContainerExporter {
     }
 
     @Override
-    protected void outputPaneManager(
-            SmartInstance paneManager) throws IOException {
+    protected void outputPaneManager(SmartInstance paneManager)
+            throws IOException {
         List<SmartInstance> displayPanes = paneManager.get("displayPanes")
                 .toArrayList();
         for (SmartInstance dispalyPane : displayPanes) {
-            SmartInstance descriptor = dispalyPane.get("renderableDisplay")
-                    .get("descriptor");
+            SmartInstance renderableDisplay = dispalyPane
+                    .get("renderableDisplay");
+            try {
+                String scale = renderableDisplay.getString("scaleName");
+                println("  scaleName = " + scale);
+            } catch (IllegalStateException e) {
+                /* Not D2D or after 14.2 */
+            }
+            try {
+                String scale = renderableDisplay.getString("scale");
+                println("  scale = " + scale);
+            } catch (IllegalStateException e) {
+                /* Not D2D or before 14.2 */
+            }
+            SmartInstance descriptor = renderableDisplay.get("descriptor");
             SmartInstance resourceList = descriptor.get("resourceList");
             SmartInstance[] array = resourceList.getObjectArray("array");
             println("  " + descriptor + "{");
@@ -99,6 +112,7 @@ public class DisplayedResourcesExporter extends DisplayPaneContainerExporter {
             println("  }");
         }
     }
+
     public List<SmartInstance> getResources() {
         return resources;
     }
