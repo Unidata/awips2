@@ -37,6 +37,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -591,11 +592,13 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
             // If BandwidthManager does not know about the subscription, and
             // it's active, attempt to add it..
-            if (bandwidthSubscriptions.isEmpty() && subscription.isActive()) {
+            if (bandwidthSubscriptions.isEmpty()
+                    && ((RecurringSubscription) subscription).shouldSchedule()
+                    && !subscription.isUnscheduled()) {
                 return schedule(subscription);
-            } else if (subscription.isUnscheduled()
-                    || subscription.getStatus() == SubscriptionStatus.DEACTIVATED) {
-                // See if the subscription was inactivated or unscheduled..
+            } else if (subscription.getStatus() == SubscriptionStatus.DEACTIVATED
+                    || subscription.isUnscheduled()) {
+                // See if the subscription was deactivated or unscheduled..
                 // Need to remove BandwidthReservations for this
                 // subscription.
                 return remove(bandwidthSubscriptions);

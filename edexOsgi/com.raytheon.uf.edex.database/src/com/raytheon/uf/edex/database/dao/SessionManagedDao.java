@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 24, 2013 2106       djohnson    Use IDENTIFIER generic for method signature.
  * 10/8/2013    1682       bphillip    Added the createCriteria method
  * 12/9/2013    2613       bphillip    Added flushAndClearSession method
+ * Jan 17, 2014 2459       mpduff      Added null check to prevent NPE.
  * 
  * </pre>
  * 
@@ -127,8 +128,10 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     @Override
     public void delete(final ENTITY obj) {
-        Object toDelete = template.merge(obj);
-        template.delete(toDelete);
+        if (obj != null) {
+            Object toDelete = template.merge(obj);
+            template.delete(toDelete);
+        }
     }
 
     /**
