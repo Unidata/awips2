@@ -22,7 +22,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Feb 20, 2011    218      dhladky     Initial creation.
  * Oct  1, 2012   1103      jpiatt      Added invalid subscription status.
  * Nov 20, 2012   1286      djohnson    Add UNSCHEDULED.
- * Jan 14, 2014   2459      mpduff      Change Subscription status code
+ * Jan 14, 2014   2459      mpduff      Change Subscription status code.
+ * Jan 17, 2014   2459      mpduff      Remove unscheduled status, not just deactivated.
  * 
  * </pre>
  * 
@@ -87,7 +88,6 @@ public class Utils {
      * Deactivated - Do not schedule
      * Active - Currently scheduled
      * Inactive - Not currently scheduled (outside of active period)
-     * Unscheduled - Not currently scheduled due to bandwidth limitations
      * Invalid - Subscription does not match the available data set
      * </pre>
      */
@@ -99,8 +99,6 @@ public class Utils {
         INACTIVE("Inactive"),
         /** Expired Subscription Status */
         EXPIRED("Expired"),
-        /** Unscheduled Subscription Status */
-        UNSCHEDULED("Unscheduled"),
         /** Deactivated Subscription Status */
         DEACTIVATED("Deactivated"),
         /** Invalid Subscription Status */
