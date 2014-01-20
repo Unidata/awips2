@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.message;bundle-version="1.11.11",
  com.raytheon.uf.common.alertviz,
  javax.jms;bundle-version="1.0.0",
- ch.qos.logback;bundle-version="1.0.13"
+ ch.qos.logback;bundle-version="1.0.13",
+ org.slf4j;bundle-version="1.7.5"
 Export-Package: com.raytheon.uf.viz.alertviz,
  com.raytheon.uf.viz.alertviz.config
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -24,8 +25,7 @@ Import-Package: com.raytheon.uf.common.python,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.python.swt,
  com.raytheon.uf.viz.python.swt.widgets,
- org.apache.log4j,
- org.slf4j
+ org.apache.log4j
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: ch.qos.logback
