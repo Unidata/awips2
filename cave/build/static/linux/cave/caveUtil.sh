@@ -120,7 +120,7 @@ function copyVizShutdownUtilIfNecessary()
 function getPidsOfMyRunningCaves()
 {
    local user=`whoami`
-   local caveProcs=`ps -ef | grep "/awips2/cave/cave " | grep -v "grep" | grep $user`
+   local caveProcs=`ps -ef | grep -E "(/awips2/cave|/usr/local/viz)/cave " | grep -v "grep" | grep $user`
 
    # preserve IFS and set it to line feed only
    local PREV_IFS=$IFS
