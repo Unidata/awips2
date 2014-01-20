@@ -55,6 +55,15 @@ public class Id implements Comparable<Id> {
         buffer.get(id);
     }
 
+    public boolean isNull() {
+        for (byte b : id) {
+            if (b != 0x00) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public int size() {
         return id.length;
     }
