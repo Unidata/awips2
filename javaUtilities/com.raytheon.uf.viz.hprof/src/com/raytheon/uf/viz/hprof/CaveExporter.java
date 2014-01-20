@@ -81,6 +81,7 @@ public class CaveExporter {
         new InputHandlerExporter(hprof, outputDir).export();
         new D2DProcedureDialogExporter(hprof, outputDir).export();
         new GFEResourceExporter(hprof, outputDir).export();
-
+        new DisposingResourceExporter(hprof, outputDir).export();
+        new UIRunnablesExporter(hprof, outputDir).export();
     }
 }
