@@ -34,7 +34,8 @@
 #    10/20/08                      njensen        Initial Creation.
 #    01/17/13         1486         dgilling       Make a new-style class.
 #    09/23/13         16614        njensen        Fixed reload method
-#    
+#    01/20/14         2712         bkowal         It is now possible to add errors
+#                                                 from a subclass.
 # 
 #
 
@@ -140,6 +141,9 @@ class MasterInterface(object):
         returnList = self.__importErrors
         self.__importErrors = []
         return returnList
+    
+    def addImportError(self, error):
+        self.__importErrors.append(error)
     
     def reloadModule(self, moduleName):
         if sys.modules.has_key(moduleName):
