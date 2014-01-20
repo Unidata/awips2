@@ -216,7 +216,6 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
     @XmlAttribute
     @DynamicSerializeElement
-    @SlotAttribute
     private boolean unscheduled;
 
     @XmlAttribute
@@ -266,7 +265,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @XmlAttribute
     @DynamicSerializeElement
     @SlotAttribute(Subscription.SUBSCRIPTION_STATE_SLOT)
-    private SubscriptionState subscriptionState;
+    private SubscriptionState subscriptionState = SubscriptionState.ON;
 
     /** Flag stating if the object should be updated */
     private boolean shouldUpdate = false;
@@ -918,9 +917,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         Calendar cal = TimeUtil.newGmtCalendar();
         Date today = cal.getTime();
 
-        if (unscheduled) {
-            return SubscriptionStatus.UNSCHEDULED;
-        } else if (inWindow(today)) {
+        if (inWindow(today)) {
             return SubscriptionStatus.ACTIVE;
         }
 
