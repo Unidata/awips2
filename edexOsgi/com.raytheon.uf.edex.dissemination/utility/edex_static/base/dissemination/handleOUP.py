@@ -35,6 +35,7 @@
 #    08/17/12        DR 15304      D. Friedman   Use unique output file names
 #    10/12/12        DR 15418      D. Friedman   Use unique attachment file names
 #    11/20/13        DR 16777      D. Friedman   Add a test mode.
+#    12/05/16        DR 16842      D. Friedman   Do not set product ID on MhsMessage
 # 
 #
 
@@ -412,7 +413,6 @@ def sendWANMsg(productId, prodPathName, receivingSite, handling,
     if attachedFilename:
         mhsMsg.addEnclosure(attachedFilename)
 
-    mhsMsg.setProductId(productId)
     #mhsMsg.setBodyFile(prodPathName)
     mhsMsg.addEnclosure(prodPathName)
     if priority == 0:

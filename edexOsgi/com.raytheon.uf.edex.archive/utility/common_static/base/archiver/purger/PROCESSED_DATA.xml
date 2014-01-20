@@ -28,6 +28,8 @@
  * Oct 01, 2013 2147       rferrel     Date time stamp no longer requires an hour field.
  * Nov 05, 2013 2497       rferrel     Change root directory.
  * Nov 13, 2013 2549       rferrel     Changes to GFE and modelsounding.
+ * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
+ * Dec 13, 2013 2555       rjpeter     Updated all to use dirPatterns.
  * 
  * @author rferrel
  * @version 1.0
@@ -66,14 +68,19 @@
                               single table entry.
         <timeType>          - Optional tag to determine what type of time stamp is being used to get files/directories for retention
                               and case creation. The value dictates how many groupings in the <dirPattern>s and/or <filePattern> are
-                              used to get the time stamp for a file. The four values are:
-                              Date - (default) the time stamp is made up of four groups in the patterns: year, month, day and hour.
+                              used to get the time stamp for a file. The five values are:
+                              Date - (default) the time stamp is made up of 3 or 4 groups in the patterns: year, month, day and optional hour.
+                              Julian - The time stamp is made up of 2 or 3 groups in the patterns: year, day_of_year and optional hour.
+                                       if the year is less then 100 it is adjust to a year prior to or no more then a month into the future 
+                                       of the current simulate year.
                               EpochSec - The time stamp has one group in the patterns which is the epoch time in seconds.
                               EpochMS - The time stamp has one group in the patterns which is the epoch time in milliseconds.
                               File - No group is used to get the time stamp. Instead use the files date of last modification.
         <dateGroupIndicies> - Required tag when <timeType> has any value but File. 
                               Date - A comma separated list of 3 or 4 numbers which are in order the index for year, month, day and hour.
                                      When only 3 numbers the hour is value is 23.
+                              Julian - A comma separated list of 2 or 3 numbers which are in order the index for year, day of year, and hour.
+                                       When only two numbers the hour value is 23.
                               EpochSec - A number which is the index for the epoch in seconds.
                               EpochMS - A number which is the index for the epoch in milliseconds.
                               File - Not needed since no group is used to get the time stamp.
@@ -116,7 +123,7 @@
            <displayLabel>{1}</displayLabel>
            <timeType>Date</timeType>
            <dateGroupIndices>2,3,4,5</dateGroupIndices>
-           <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+           <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
      </category>
      The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.
@@ -137,8 +144,7 @@
         <name>Decision Assistance</name>
          <extRetentionHours>168</extRetentionHours>
          <dataSet>
-            <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)</dirPattern>
-            <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
+            <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>
@@ -147,13 +153,12 @@
         <name>GFE</name>
          <extRetentionHours>168</extRetentionHours>
          <dataSet>
-            <dirPattern>gfe/(.*)/(.*)/(\d{4})_(\d{2})_(\d{2})_(\d{2})\d{2}</dirPattern>
+            <dirPattern>gfe/(.*)/(.*)/(\d{4})_(\d{2})_(\d{2})_(\d{2})\d{2}.*</dirPattern>
             <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
          </dataSet>
          <dataSet>
-            <dirPattern>gfe/(.*)/(.*)</dirPattern>
-            <filePattern>.*_(\d{4})(\d{2})(\d{2})_.*</filePattern>
+            <dirPattern>gfe/(.*)/(.*)/.*_(\d{4})(\d{2})(\d{2})_.*</dirPattern>
             <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5</dateGroupIndices>
          </dataSet>
@@ -162,8 +167,7 @@
         <name>Local</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|qc)</dirPattern>
-            <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
+            <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|qc)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>
@@ -172,54 +176,48 @@
         <name>Model</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(grid)/(.*)/(.*)</dirPattern>
+            <dirPattern>(grid)/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</dirPattern>
             <displayLabel>{2}</displayLabel>
             <dateGroupIndices>4,5,6,7</dateGroupIndices>
-            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
         </dataSet>
         <dataSet>
-            <dirPattern>(modelsounding)/(.*)/.*</dirPattern>
-            <dirPattern>(bufrmos)(.*)</dirPattern>
+            <dirPattern>(modelsounding)/(.*)/.*/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+            <dirPattern>(bufrmos)(.*)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1} - {2}</displayLabel>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
-            <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
         </dataSet>
     </category>
     <category>
         <name>Products</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(airmet|atcf|aww|bufrncwf|ccfp|convsigmet|cwa|ffg|intlsigmet|nonconvsigmet|stormtrack|taf|tcg|tcm|tcs|text|vaa|warning|wcp)</dirPattern>
-            <dirPattern>(bufrsigwx|redbook)/.*</dirPattern>
+            <dirPattern>(airmet|atcf|aww|bufrncwf|ccfp|convsigmet|cwa|ffg|intlsigmet|nonconvsigmet|stormtrack|taf|tcg|tcm|tcs|text|vaa|warning|wcp)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+            <dirPattern>(bufrsigwx|redbook)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
-            <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
     </category>
     <category>
         <name>Observation</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(acars|airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)</dirPattern>
-            <dirPattern>(sfcobs)/.*</dirPattern>
+            <dirPattern>(acars|airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+            <dirPattern>(sfcobs)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
-            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
     </category>
     <category>
         <name>Satellite</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>satellite/(.*)/(.*)</dirPattern>
-            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
+            <dirPattern>satellite/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
             <displayLabel>{1}</displayLabel>
         </dataSet>
         <dataSet>
             <!-- Guess for mcidas and viirs is based on old example. -->
-            <dirPattern>(mcidas|viirs)/.*/.*/.*/.*</dirPattern>
-            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
+            <dirPattern>(mcidas|viirs)/.*/.*/.*/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
             <displayLabel>{1}</displayLabel>
         </dataSet>
@@ -228,10 +226,9 @@
         <name>Profiles</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler)</dirPattern>
+            <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
-            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
     </category>
     <category>
@@ -239,10 +236,9 @@
         <name>radar</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>radar/(.*)/(.*)</dirPattern>
+            <dirPattern>radar/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
-            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
     </category>
 </archive>
