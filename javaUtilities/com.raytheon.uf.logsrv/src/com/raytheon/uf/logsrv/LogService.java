@@ -58,6 +58,8 @@ public class LogService {
 
     private static final String SERVICE_CONFIG = "config.xml";
 
+    private static final String ENV_CONF_DIR = "logSrvConf";
+
     private static final Logger logger = LoggerFactory
             .getLogger("InternalLogger");
 
@@ -67,11 +69,17 @@ public class LogService {
      */
     public static void main(String[] args) throws Exception {
         logger.info("Starting log analytics service");
+        String confDir = System.getenv(ENV_CONF_DIR);
+        if (confDir == null) {
+            throw new LogServiceException("Environment variable "
+                    + ENV_CONF_DIR
+                    + " is not set! Unable to find configuration!");
+        }
 
         JAXBContext context = JAXBContext.newInstance(LogSrvConfig.class);
         Unmarshaller m = context.createUnmarshaller();
-        LogSrvConfig config = (LogSrvConfig) m.unmarshal(new File(
-                SERVICE_CONFIG));
+        LogSrvConfig config = (LogSrvConfig) m.unmarshal(new File(confDir
+                + SERVICE_CONFIG));
         config.validate();
         DerbyDao.getInstance().setConfig(config);
         logger.info("Logging events from " + config.getClusterName());
@@ -81,7 +89,7 @@ public class LogService {
         lc.reset();
         JoranConfigurator configurator = new JoranConfigurator();
         configurator.setContext(lc);
-        configurator.doConfigure(LOGBACK_CONFIG);
+        configurator.doConfigure(confDir + LOGBACK_CONFIG);
 
         logger.info("Scheduling report generation");
         JobScheduler.scheduleJobs(config);
