@@ -114,6 +114,10 @@ public class SmartInstance {
         return type;
     }
 
+    public boolean getBoolean(String fieldName) {
+        return getTypeNotNull(fieldName).getBoolean();
+    }
+
     public int getInt(String fieldName) {
         return getTypeNotNull(fieldName).getInt();
     }
@@ -183,7 +187,8 @@ public class SmartInstance {
     public String getString(String fieldName) {
         Id fieldId = getId(fieldName);
         if (fieldId == null) {
-            return null;
+            throw new IllegalStateException(fieldName
+                    + " is not a a valid field");
         }
         InstanceDump field = hprof.getHeapDump().getInstance(fieldId);
         if (field != null) {
@@ -192,6 +197,8 @@ public class SmartInstance {
                 throw new IllegalStateException(fieldName + " is not a String.");
             }
             return smartField.toString();
+        } else if (fieldId.isNull()) {
+            return null;
         } else {
             Iterator<ClassDump> classDumps = hprof.getHeapDump()
                     .getClassDumps();
