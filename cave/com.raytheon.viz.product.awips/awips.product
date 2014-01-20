@@ -30,7 +30,8 @@
 -XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;
 -Dlogback.configurationFile=logback-viz-core.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
--Dthrift.stream.maxsize=200</vmArgs>
+-Dthrift.stream.maxsize=200
+-Djava.util.Arrays.useLegacyMergeSort=true</vmArgs>
       <vmArgsLin>-Xmx1280M</vmArgsLin>
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>
    </launcherArgs>
