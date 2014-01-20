@@ -8,7 +8,7 @@ Bundle-Vendor: Raytheon
 Eclipse-BuddyPolicy: ext, registered
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- javax.media.opengl,
+ javax.media.opengl;visibility:=reexport,
  org.geotools,
  javax.vecmath,
  com.raytheon.uf.common.colormap;bundle-version="1.0.0",
