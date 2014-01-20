@@ -65,6 +65,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Nov 14, 2013 2548       mpduff       Add a subscription type slot.
  * Jan 08, 2014 2615       bgonzale     Implement calculate start and calculate end methods.
  * Jan 14, 2014 2459       mpduff       Add subscription state.
+ * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
  * 
  * </pre>
  * 
@@ -897,6 +898,19 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
         return expired;
     }
+    
+    /**
+     * Check for expiration on date
+     * @param date
+     * @return
+     */
+    private boolean isExpired(Date date) {
+        boolean expired = false;
+        if (subscriptionEnd != null && date.after(subscriptionEnd)) {
+            expired = true;
+        }
+        return expired;
+    }
 
     /**
      * Get the current subscription status.
@@ -934,6 +948,19 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     public boolean shouldSchedule() {
         return subscriptionState == SubscriptionState.ON
                 && !checkAndSetExpiration();
+    }
+    
+    /**
+     * Should this be scheduled for this time.
+     * @param checkDate
+     * @return
+     */
+    public boolean shouldScheduleForTime(Date checkDate) {
+        if (!isExpired(checkDate) && inWindow(checkDate)) {
+            return true;
+        }
+        
+        return false;
     }
 
     private boolean inWindow(Date checkDate) {
