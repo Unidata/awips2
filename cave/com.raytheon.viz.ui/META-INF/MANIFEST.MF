@@ -7,7 +7,7 @@ Eclipse-BuddyPolicy: ext, registered
 Bundle-Activator: com.raytheon.viz.ui.UiPlugin
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.viz.core,
- org.eclipse.ui,
+ org.eclipse.ui;visibility:=reexport,
  org.eclipse.core.runtime,
  org.geotools,
  javax.measure,
