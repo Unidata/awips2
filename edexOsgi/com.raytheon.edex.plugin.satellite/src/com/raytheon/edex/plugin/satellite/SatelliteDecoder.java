@@ -33,10 +33,15 @@ import java.util.zip.Inflater;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteCreatingEntity;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePhysicalElement;
 import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteSectorId;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteSource;
 import com.raytheon.edex.plugin.satellite.gini.SatelliteUnit;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -81,6 +86,7 @@ import com.raytheon.uf.common.util.header.WMOHeaderFinder;
  * 
  * Mar 19, 2013 1785        bgonzale    Added performance status handler and added status
  *                                      to decode.
+ * Jan 20, 2014             njensen     Better error handling when fields are not recognized
  * 
  * </pre>
  * 
@@ -170,20 +176,43 @@ public class SatelliteDecoder {
                 int scanMode = byteBuffer.get(37);
 
                 // read the source
-                record.setSource(dao.getSource(byteBuffer.get(0))
-                        .getSourceName());
+                byte sourceByte = byteBuffer.get(0);
+                SatelliteSource source = dao.getSource(sourceByte);
+                if (source == null) {
+                    throw new UnrecognizedDataException(
+                            "Unknown satellite source id: " + sourceByte);
+                }
+                record.setSource(source.getSourceName());
 
                 // read the creating entity
-                record.setCreatingEntity(dao.getCreatingEntity(
-                        byteBuffer.get(1)).getEntityName());
+                byte entityByte = byteBuffer.get(1);
+                SatelliteCreatingEntity entity = dao
+                        .getCreatingEntity(entityByte);
+                if (entity == null) {
+                    throw new UnrecognizedDataException(
+                            "Unknown satellite entity id: " + entityByte);
+                }
+                record.setCreatingEntity(entity.getEntityName());
 
                 // read the sector ID
-                record.setSectorID(dao.getSectorId(byteBuffer.get(2))
-                        .getSectorName());
+                byte sectorByte = byteBuffer.get(2);
+                SatelliteSectorId sector = dao.getSectorId(sectorByte);
+                if (sector == null) {
+                    throw new UnrecognizedDataException(
+                            "Unknown satellite sector id: " + sectorByte);
+                }
+                record.setSectorID(sector.getSectorName());
 
                 // read the physical element
-                record.setPhysicalElement(dao.getPhysicalElement(
-                        (byteBuffer.get(3))).getElementName());
+                byte physByte = byteBuffer.get(3);
+                SatellitePhysicalElement physElem = dao
+                        .getPhysicalElement(physByte);
+                if (physElem == null) {
+                    throw new UnrecognizedDataException(
+                            "Unknown satellite physical element id: "
+                                    + physByte);
+                }
+                record.setPhysicalElement(physElem.getElementName());
 
                 // read the units
                 SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
@@ -431,6 +460,8 @@ public class SatelliteDecoder {
             }
             timer.stop();
             perfLog.logDuration("Time to Decode", timer.getElapsedTime());
+        } catch (Exception e) {
+            statusHandler.error("Error decoding satellite", e);
         } finally {
             try {
                 f.close();
