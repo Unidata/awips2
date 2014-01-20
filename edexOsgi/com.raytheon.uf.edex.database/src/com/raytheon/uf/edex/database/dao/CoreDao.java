@@ -21,7 +21,6 @@
 package com.raytheon.uf.edex.database.dao;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -68,7 +67,9 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
@@ -94,7 +95,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 5/14/08      1076        brockwoo    Fix for distinct with multiple properties
  * Oct 10, 2012 1261        djohnson    Incorporate changes to DaoConfig, add generic to {@link IPersistableDataObject}.
  * Apr 15, 2013 1868        bsteffen    Rewrite mergeAll in PluginDao.
+ * 
  * Nov 08, 2013 2361        njensen     Changed method signature of saveOrUpdate to take Objects, not PersistableDataObjects
+ * Dec 13, 2013 2555        rjpeter     Added processByCriteria and fixed Generics warnings.
  * 
  * </pre>
  * 
@@ -243,13 +246,13 @@ public class CoreDao extends HibernateDaoSupport {
         return loadAll(daoClass);
     }
 
-    @SuppressWarnings("unchecked")
     public List<Object> loadAll(final Class<?> entity) {
-        return (List<Object>) txTemplate.execute(new TransactionCallback() {
+        return txTemplate.execute(new TransactionCallback<List<Object>>() {
             @Override
-            public Object doInTransaction(TransactionStatus status) {
+            @SuppressWarnings("unchecked")
+            public List<Object> doInTransaction(TransactionStatus status) {
                 HibernateTemplate ht = getHibernateTemplate();
-                return ht.loadAll(entity);
+                return (List<Object>) ht.loadAll(entity);
             }
         });
     }
@@ -279,10 +282,10 @@ public class CoreDao extends HibernateDaoSupport {
      *         Null if not found
      */
     public <T> PersistableDataObject<T> queryById(final Serializable id) {
-        @SuppressWarnings("unchecked")
-        PersistableDataObject<T> retVal = (PersistableDataObject<T>) txTemplate
-                .execute(new TransactionCallback() {
+        PersistableDataObject<T> retVal = txTemplate
+                .execute(new TransactionCallback<PersistableDataObject<T>>() {
                     @Override
+                    @SuppressWarnings("unchecked")
                     public PersistableDataObject<T> doInTransaction(
                             TransactionStatus status) {
                         return (PersistableDataObject<T>) getHibernateTemplate()
@@ -300,10 +303,10 @@ public class CoreDao extends HibernateDaoSupport {
      * @return The object
      */
     public <T> PersistableDataObject<T> queryById(final PluginDataObject id) {
-        @SuppressWarnings("unchecked")
-        PersistableDataObject<T> retVal = (PersistableDataObject<T>) txTemplate
-                .execute(new TransactionCallback() {
+        PersistableDataObject<T> retVal = txTemplate
+                .execute(new TransactionCallback<PersistableDataObject<T>>() {
                     @Override
+                    @SuppressWarnings("unchecked")
                     public PersistableDataObject<T> doInTransaction(
                             TransactionStatus status) {
                         DetachedCriteria criteria = DetachedCriteria.forClass(
@@ -334,12 +337,12 @@ public class CoreDao extends HibernateDaoSupport {
      *            Maximum number of results to return
      * @return A list of similar objects
      */
-    @SuppressWarnings("unchecked")
     public <T> List<PersistableDataObject<T>> queryByExample(
             final PersistableDataObject<T> obj, final int maxResults) {
-        List<PersistableDataObject<T>> retVal = (List<PersistableDataObject<T>>) txTemplate
-                .execute(new TransactionCallback() {
+        List<PersistableDataObject<T>> retVal = txTemplate
+                .execute(new TransactionCallback<List<PersistableDataObject<T>>>() {
                     @Override
+                    @SuppressWarnings("unchecked")
                     public List<PersistableDataObject<T>> doInTransaction(
                             TransactionStatus status) {
                         return getHibernateTemplate().findByExample(obj, 0,
@@ -378,8 +381,8 @@ public class CoreDao extends HibernateDaoSupport {
         int rowsDeleted = 0;
         try {
             // Get a session and create a new criteria instance
-            rowsDeleted = (Integer) txTemplate
-                    .execute(new TransactionCallback() {
+            rowsDeleted = txTemplate
+                    .execute(new TransactionCallback<Integer>() {
                         @Override
                         public Integer doInTransaction(TransactionStatus status) {
                             String queryString = query.createHQLDelete();
@@ -415,8 +418,8 @@ public class CoreDao extends HibernateDaoSupport {
         List<?> queryResult = null;
         try {
             // Get a session and create a new criteria instance
-            queryResult = (List<?>) txTemplate
-                    .execute(new TransactionCallback() {
+            queryResult = txTemplate
+                    .execute(new TransactionCallback<List<?>>() {
                         @Override
                         public List<?> doInTransaction(TransactionStatus status) {
                             String queryString = query.createHQLQuery();
@@ -443,6 +446,68 @@ public class CoreDao extends HibernateDaoSupport {
             throw new DataAccessLayerException("Transaction failed", e);
         }
         return queryResult;
+    }
+
+    /**
+     * Queries the database in batches using a DatabaseQuery object and send
+     * each batch to processor.
+     * 
+     * @param query
+     *            The query object
+     * @param processor
+     *            The processor object
+     * @return The number of results processed
+     * @throws DataAccessLayerException
+     *             If the query fails
+     */
+    public int processByCriteria(final DatabaseQuery query,
+            final IDatabaseProcessor processor) throws DataAccessLayerException {
+        int rowsProcessed = 0;
+        try {
+            // Get a session and create a new criteria instance
+            rowsProcessed = txTemplate
+                    .execute(new TransactionCallback<Integer>() {
+                        @Override
+                        public Integer doInTransaction(TransactionStatus status) {
+                            String queryString = query.createHQLQuery();
+                            Query hibQuery = getSession(false).createQuery(
+                                    queryString);
+                            try {
+                                query.populateHQLQuery(hibQuery,
+                                        getSessionFactory());
+                            } catch (DataAccessLayerException e) {
+                                throw new org.hibernate.TransactionException(
+                                        "Error populating query", e);
+                            }
+
+                            if (processor.getBatchSize() > 0) {
+                                hibQuery.setMaxResults(processor.getBatchSize());
+                            } else if (query.getMaxResults() != null) {
+                                hibQuery.setMaxResults(query.getMaxResults());
+                            }
+
+                            List<?> results = null;
+                            boolean continueProcessing = false;
+                            int count = 0;
+
+                            do {
+                                hibQuery.setFirstResult(count);
+                                results = hibQuery.list();
+                                continueProcessing = processor.process(results);
+                                count += results.size();
+                                getSession().clear();
+                            } while (continueProcessing && (results != null)
+                                    && (results.size() > 0));
+                            processor.finish();
+                            return count;
+                        }
+                    });
+
+        } catch (TransactionException e) {
+            throw new DataAccessLayerException("Transaction failed", e);
+        }
+
+        return rowsProcessed;
     }
 
     public void deleteAll(final List<?> objs) {
@@ -644,8 +709,8 @@ public class CoreDao extends HibernateDaoSupport {
      */
     public QueryResult executeHQLQuery(final String hqlQuery) {
 
-        QueryResult result = (QueryResult) txTemplate
-                .execute(new TransactionCallback() {
+        QueryResult result = txTemplate
+                .execute(new TransactionCallback<QueryResult>() {
                     @Override
                     public QueryResult doInTransaction(TransactionStatus status) {
                         Query hibQuery = getSession(false)
@@ -698,8 +763,8 @@ public class CoreDao extends HibernateDaoSupport {
      */
     public int executeHQLStatement(final String hqlStmt) {
 
-        int queryResult = (Integer) txTemplate
-                .execute(new TransactionCallback() {
+        int queryResult = txTemplate
+                .execute(new TransactionCallback<Integer>() {
                     @Override
                     public Integer doInTransaction(TransactionStatus status) {
                         Query hibQuery = getSession(false).createQuery(hqlStmt);
@@ -723,8 +788,8 @@ public class CoreDao extends HibernateDaoSupport {
     public Object[] executeSQLQuery(final String sql) {
 
         long start = System.currentTimeMillis();
-        List<?> queryResult = (List<?>) txTemplate
-                .execute(new TransactionCallback() {
+        List<?> queryResult = txTemplate
+                .execute(new TransactionCallback<List<?>>() {
                     @Override
                     public List<?> doInTransaction(TransactionStatus status) {
                         return getSession(false).createSQLQuery(sql).list();
@@ -738,8 +803,8 @@ public class CoreDao extends HibernateDaoSupport {
     public List<?> executeCriteriaQuery(final List<Criterion> criterion) {
 
         long start = System.currentTimeMillis();
-        List<?> queryResult = (List<?>) txTemplate
-                .execute(new TransactionCallback() {
+        List<?> queryResult = txTemplate
+                .execute(new TransactionCallback<List<?>>() {
                     @Override
                     public List<?> doInTransaction(TransactionStatus status) {
 
@@ -773,8 +838,8 @@ public class CoreDao extends HibernateDaoSupport {
     public int executeSQLUpdate(final String sql) {
 
         long start = System.currentTimeMillis();
-        int updateResult = (Integer) txTemplate
-                .execute(new TransactionCallback() {
+        int updateResult = txTemplate
+                .execute(new TransactionCallback<Integer>() {
                     @Override
                     public Integer doInTransaction(TransactionStatus status) {
                         return getSession(false).createSQLQuery(sql)
@@ -1007,26 +1072,15 @@ public class CoreDao extends HibernateDaoSupport {
      *             If reading the file fails
      */
     public void runScript(File script) throws DataAccessLayerException {
-        FileInputStream fileIn;
+        byte[] bytes = null;
         try {
-            fileIn = new FileInputStream(script);
+            bytes = FileUtil.file2bytes(script);
         } catch (FileNotFoundException e) {
             throw new DataAccessLayerException(
                     "Unable to open input stream to sql script: " + script);
-        }
-        byte[] bytes = null;
-        try {
-            bytes = new byte[fileIn.available()];
-            fileIn.read(bytes);
         } catch (IOException e) {
             throw new DataAccessLayerException(
                     "Unable to read script contents for script: " + script);
-        }
-        try {
-            fileIn.close();
-        } catch (IOException e) {
-            throw new DataAccessLayerException(
-                    "Error closing file input stream to: " + script);
         }
         runScript(new StringBuffer().append(new String(bytes)));
     }

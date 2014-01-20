@@ -28,9 +28,10 @@ import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.edex.textdb.dao.StdTextProductDao;
 import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
@@ -45,12 +46,29 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------	----------	-----------	--------------------------
  * Jul 10, 2009 2191        rjpeter     Update retention time handling.
  * Aug 18, 2009 2191        rjpeter     Changed to version purging.
+ * Dec 13, 2013 2555        rjpeter     Renamed getRecordsToArchive to processArchiveRecords.
  * </pre>
  * 
  * @author
  * @version 1
  */
 public class TextDao extends DefaultPluginDao {
+    private static final int fullPurgeInterval;
+
+    static {
+        String fullPurgeProperty = System.getProperty(
+                "text.fullVersionPurge.intervalhours", "3");
+        Integer val = null;
+        try {
+            val = Integer.parseInt(fullPurgeProperty);
+            if ((val < 0) || (val > 23)) {
+
+            }
+        } catch (Exception e) {
+            val = new Integer(3);
+        }
+        fullPurgeInterval = val.intValue();
+    }
 
     public TextDao(String pluginName) throws PluginException {
         super(pluginName);
@@ -71,7 +89,7 @@ public class TextDao extends DefaultPluginDao {
 
         // only do full purge every few hours since incremental purge runs every
         // minute
-        if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) % 3 == 0) {
+        if ((TimeUtil.newGmtCalendar().get(Calendar.HOUR_OF_DAY) % fullPurgeInterval) == 0) {
             TextDB.purgeStdTextProducts();
         }
 
@@ -79,10 +97,9 @@ public class TextDao extends DefaultPluginDao {
                 "text");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public List<PersistableDataObject> getRecordsToArchive(
-            Calendar insertStartTime, Calendar insertEndTime)
+    public int processArchiveRecords(Calendar insertStartTime,
+            Calendar insertEndTime, IDatabaseProcessor processor)
             throws DataAccessLayerException {
         StdTextProductDao dao = new StdTextProductDao(true);
         DatabaseQuery dbQuery = new DatabaseQuery(dao.getDaoClass());
@@ -91,8 +108,9 @@ public class TextDao extends DefaultPluginDao {
         dbQuery.addQueryParam("insertTime", insertEndTime,
                 QueryOperand.LESSTHAN);
         dbQuery.addOrder("insertTime", true);
+        dbQuery.addOrder("refTime", true);
 
-        return (List<PersistableDataObject>) dao.queryByCriteria(dbQuery);
+        return this.processByCriteria(dbQuery, processor);
     }
 
     @Override
