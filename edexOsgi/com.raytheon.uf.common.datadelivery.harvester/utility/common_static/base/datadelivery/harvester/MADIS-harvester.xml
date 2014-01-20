@@ -23,8 +23,8 @@
 		<dateFormat>HHddMMMyyyy</dateFormat>
 		<layer name="madis-conus" namespace="http://madis.edex.uf.raytheon.com">
 			<!-- Geographic constraint of madis layer data -->
-			<minx>-120.0</minx>
-			<maxx>-70.0</maxx>
+			<minx>-130.0</minx>
+			<maxx>-65.0</maxx>
 			<miny>20.0</miny>
 			<maxy>50.0</maxy>
 			<crs>crs:84</crs>
