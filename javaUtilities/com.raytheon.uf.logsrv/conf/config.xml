@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<logSrvConfig>
+
+  <!-- the cluster name, only used for the report email -->
+  <clusterName>ec-oma</clusterName>
+  
+  <!-- where to keep track of the errors
+             how much space you need depends on how many errors the system is throwing
+             -->
+  <databaseDir>/common/njensen/logsrv/</databaseDir>
+  
+  <!--  how to send the email report -->
+  <fromAddress>Nathan.Jensen@raytheon.com</fromAddress>
+  <smtpHost>mk2-msg10.raymail.ray.com</smtpHost>
+  <smtpPort>143</smtpPort>
+  
+  <!-- where to send the email report, a comma-separated list of addresses -->
+  <toAddress>awipsctl@list.app.ray.com, awipstest@list.app.ray.com, david_j_hladky@raytheon.com</toAddress>
+
+  <!-- the time of day to send the report
+              only really matters if you're installing or auto-deploying at a
+              specific time, as you may want to clear out the databaseDir
+              that contains errors from a previous build
+              -->  
+  <timeToSend>00:45</timeToSend>
+  
+  <!--  threads to ignore errors on to keep them from overpowering the other errors -->
+  <ignoreThreads>shefThreadPool</ignoreThreads>
+  
+</logSrvConfig>
