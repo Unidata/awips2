@@ -57,11 +57,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- -----------------------------------------
+ * ------------- -------- ----------- --------------------------
  * Mar 09, 2011           bsteffen    Initial creation
  * Jul 17, 2013  2185     bsteffen    Cache computed grid reprojections.
  * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
  *                                    error in Maputil.rotation
+ * Dec 09, 2013  2617     bsteffen    Added 180 degree rotation into reproject
+ *                                    so wind direction is calculated as
+ *                                    direction wind is coming from.
  * Jan 14, 2014  2661     bsteffen    For vectors only keep uComponent and
  *                                    vComponent, calculate magnitude and
  *                                    direction on demand.
@@ -262,8 +265,29 @@ public class GeneralGridData {
                         Coordinate ll = new Coordinate(dp.x, dp.y);
                         double rot = MapUtil.rotation(ll, newGeom);
                         double rot2 = MapUtil.rotation(ll, gridGeometry);
-                        double cos = Math.cos(Math.toRadians(rot - rot2));
-                        double sin = Math.sin(Math.toRadians(rot - rot2));
+                        /* 
+                         * When code calls into this method, the observed state
+                         * of things is that u and v represent the direction
+                         * the vector is going while mag and dir represent
+                         * the direction the vector is coming from. The extra
+                         * 180 here makes everything consistently represent the
+                         * direction the vector is coming from so that when the
+                         * barbs or arrows are rendered the mag and dir are 
+                         * calculated as expected. Overall this is a completely 
+                         * rediculous way of doing things. During construction
+                         * everything should be forced to represent the vector
+                         * consistently and we should only be keeping either
+                         * u/v or mag/dir to minimize memory consumption.
+                         * Unfortunately that is a significant change which is
+                         * made high risk by the fact no one documents which 
+                         * areas are expecting vectors oriented to vs from. So
+                         * for now I(bsteffen) have chosen to simply add in 180
+                         * so that the behavior will be exactly as it was before
+                         * 2287 because even though it is rediculous it is a well
+                         * tested rediculous(theoretically).
+                         */ 
+                        double cos = Math.cos(Math.toRadians(rot - rot2 + 180));
+                        double sin = Math.sin(Math.toRadians(rot - rot2 + 180));
                         double u = udata[index];
                         double v = vdata[index];
                         udata[index] = (float) (cos * u - sin * v);

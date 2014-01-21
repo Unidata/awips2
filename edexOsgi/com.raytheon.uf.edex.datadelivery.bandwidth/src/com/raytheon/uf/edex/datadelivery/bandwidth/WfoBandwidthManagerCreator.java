@@ -32,6 +32,7 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -65,6 +66,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  *                                      Reschedule updated local subscriptions.
  * Nov 27, 2013 2545       mpduff       Get data by network
  * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler 
  * 
  * </pre>
  * 
@@ -101,9 +103,10 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
                 BandwidthDaoUtil bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
+                IAdhocSubscriptionHandler adhocSubscriptionHandler,
                 ISubscriptionNotificationService subscriptionNotificationService) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                    dataSetMetaDataHandler, subscriptionHandler,
+                    dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
                     subscriptionNotificationService);
         }
 
@@ -192,9 +195,10 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
+            IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService) {
         return new WfoBandwidthManager<T, C>(dbInit, bandwidthDao,
                 retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
-                subscriptionHandler, subscriptionNotificationService);
+                subscriptionHandler, adhocSubscriptionHandler, subscriptionNotificationService);
     }
 }

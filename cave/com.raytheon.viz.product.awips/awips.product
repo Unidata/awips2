@@ -31,6 +31,7 @@
 -Dlogback.configurationFile=logback-viz-core.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
+-Djava.util.Arrays.useLegacyMergeSort=true<
 -Dviz.memory.warn.threshold=98</vmArgs>
       <vmArgsLin>-Xmx1280M</vmArgsLin>
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>

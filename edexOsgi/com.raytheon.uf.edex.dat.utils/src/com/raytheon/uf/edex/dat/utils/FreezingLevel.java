@@ -53,8 +53,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 19Nov 2011      dhladky     Initial creation
+ * 19Nov 2011              dhladky     Initial creation
  * 29 Jan 2013  15729      wkwock      fix the algorithm
+ * Jan 07, 2013            njensen     Change some logs to debug
  * 
  * </pre>
  * 
@@ -172,7 +173,7 @@ public class FreezingLevel {
 
             //do a bi-linear interpolation amount the nearest 4 points
             value = (p1*p4*value1)+(p2*p4*value0)+(p1*p3*value3)+(p2*p3*value2);
-            logger.info("bi-linear interpolation: "+value+"-->("+value0+","+value1+
+            logger.debug("bi-linear interpolation: "+value+"-->("+value0+","+value1+
             		","+value2+","+value3+") at "+xyLoc);
         } catch (Exception e) {
             logger.error("No Grib value available....." + modelName + " "
@@ -241,7 +242,7 @@ public class FreezingLevel {
                                 .get(ktopLevel) - ghValue) * ((273.16 - tValues
                                 .get(jtopLevel)) / (tValue - tValues
                                 .get(jtopLevel))))) * .00328;
-                        logger.error("***Freezing level: "+fLevel+"="
+                        logger.debug("***Freezing level: "+fLevel+"="
                                 + "(" + ghValues.get(ktopLevel)
                                 + " - ((" + ghValues.get(ktopLevel) + " - "
                                 + ghValue + ") * ((273.16 - "
@@ -260,7 +261,7 @@ public class FreezingLevel {
             
             if (foundValFlag==0) {//this means all tValue are <= 273.16
             	freezingMap.put(coor, 0.0f);
-            	logger.error("*** FreezingLevel = 0.0");
+            	logger.debug("*** FreezingLevel = 0.0");
             }
         }
 
@@ -349,7 +350,7 @@ public class FreezingLevel {
         paramXML.setModelName(model);
         paramXML.setParameterName(param);
         String sql = getSQL(interval, model, param, refTime);
-        logger.info("Freezing level sql="+sql);
+        logger.debug("Freezing level sql="+sql);
         GridRecord modelRec = DATUtils.getMostRecentGridRecord(interval, sql,
                 paramXML);
 
