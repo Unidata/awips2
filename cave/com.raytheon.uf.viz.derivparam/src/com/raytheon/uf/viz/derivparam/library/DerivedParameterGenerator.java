@@ -29,20 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
-
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ui.services.IDisposable;
 
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -56,7 +47,6 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.derivparam.DerivParamFunctionType;
 import com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
@@ -80,6 +70,9 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
  *                                     concurrent python for threading.
  * Nov 19, 2013  2361      njensen     Only shutdown if initialized
  * Jan 14, 2014  2661      bsteffen    Shutdown using uf.viz.core.Activator
+ * Jan 30, 2014  #2725     ekladstrup  Refactor to remove dependencies on
+ *                                     eclipse runtime and support some configuration
+ *                                     through spring
  * 
  * </pre>
  * 
@@ -102,8 +95,6 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
     public static final String XML_DIR = DERIV_PARAM_DIR + File.separator
             + DEFINITIONS;
 
-    private static final String EXTENSION = "com.raytheon.uf.viz.derivparam.functionType";
-
     public static interface DerivParamUpdateListener {
         public void updateDerParLibrary(
                 Map<String, DerivParamDesc> derParLibrary);
@@ -123,21 +114,10 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
 
     private String extension = null;
 
-    private Job notifyJob = new Job("Notify Derived Parameter Listeners") {
+    protected static List<DerivParamFunctionType> functionTypes = new ArrayList<DerivParamFunctionType>(
+            1);
 
-        @Override
-        protected IStatus run(IProgressMonitor arg0) {
-            Collection<DerivParamUpdateListener> l = null;
-            synchronized (listeners) {
-                l = new ArrayList<DerivParamUpdateListener>(listeners);
-            }
-            for (DerivParamUpdateListener listener : l) {
-                listener.updateDerParLibrary(derParLibrary);
-            }
-            return Status.OK_STATUS;
-        }
-
-    };
+    protected ExecutorService execService = null;
 
     public static synchronized DerivedParameterGenerator getInstance() {
         if (instance == null) {
@@ -146,34 +126,24 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
         return instance;
     }
 
+    /**
+     * Create a function type from the adapter and add it to the function type
+     * list
+     * 
+     * @param adapter
+     * @return the adapter
+     */
+    public static IDerivParamFunctionAdapter addFunctionAdapter(
+            IDerivParamFunctionAdapter adapter) {
+        DerivParamFunctionType functionType = new DerivParamFunctionType();
+        functionType.setName(adapter.getName());
+        functionType.setExtension(adapter.getExtension());
+        functionType.setAdapter(adapter);
+        functionTypes.add(functionType);
+        return adapter;
+    }
+
     public static DerivParamFunctionType[] getFunctionTypes() {
-        List<DerivParamFunctionType> functionTypes = new ArrayList<DerivParamFunctionType>();
-        IExtensionRegistry registry = Platform.getExtensionRegistry();
-        if (registry != null) {
-            IExtensionPoint point = registry.getExtensionPoint(EXTENSION);
-
-            IExtension[] extensions = point.getExtensions();
-
-            for (IExtension ext : extensions) {
-                IConfigurationElement[] config = ext.getConfigurationElements();
-
-                for (IConfigurationElement cfg : config) {
-                    try {
-                        DerivParamFunctionType functionType = new DerivParamFunctionType();
-                        functionType.setName(cfg.getAttribute("name"));
-                        functionType
-                                .setExtension(cfg.getAttribute("extension"));
-                        functionType
-                                .setAdapter((IDerivParamFunctionAdapter) cfg
-                                        .createExecutableExtension("adapter"));
-                        functionTypes.add(functionType);
-                    } catch (Throwable t) {
-                        statusHandler.handle(Priority.DEBUG,
-                                t.getLocalizedMessage(), t);
-                    }
-                }
-            }
-        }
         return functionTypes.toArray(new DerivParamFunctionType[0]);
     }
 
@@ -189,6 +159,10 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
     }
 
     private DerivedParameterGenerator() {
+        // We shouldn't every be running more than one job at a time anyway, but
+        // use an executor service just in case we want to tweak things later.
+        execService = Executors.newSingleThreadExecutor();
+
         DerivParamFunctionType[] functionTypes = getFunctionTypes();
 
         if (functionTypes == null || functionTypes.length == 0) {
@@ -196,16 +170,9 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
                     "Error creating derived parameter function type,"
                             + " derived paramters will not be available");
         }
-        Activator.getDefault().registerDisposable(new IDisposable() {
 
-            @Override
-            public void dispose() {
-                shutdown();
-            }
-        });
         this.adapter = functionTypes[0].getAdapter();
         this.extension = functionTypes[0].getExtension();
-        notifyJob.setSystem(true);
         LocalizationFile dir = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(DERIV_PARAM_DIR);
         if (dir != null) {
@@ -306,12 +273,39 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
             this.derParLibrary = derParLibrary;
             adapter.init();
 
-            notifyJob.schedule();
+            scheduleNotifyJob(listeners, derParLibrary);
 
             System.out.println("time to init derived parameters: "
                     + (System.currentTimeMillis() - start) + "ms");
             needsLibInit = false;
         }
+    }
+
+    /**
+     * Run the notification thread in the executor service.
+     * 
+     * @param theListeners
+     * @param theDerParLibrary
+     */
+    protected void scheduleNotifyJob(
+            final Set<DerivParamUpdateListener> theListeners,
+            final Map<String, DerivParamDesc> theDerParLibrary) {
+        Thread notifyJob = new Thread() {
+
+            @Override
+            public void run() {
+                Collection<DerivParamUpdateListener> l = null;
+                synchronized (listeners) {
+                    l = new ArrayList<DerivParamUpdateListener>(listeners);
+                }
+                for (DerivParamUpdateListener listener : l) {
+                    listener.updateDerParLibrary(derParLibrary);
+                }
+            }
+
+        };
+
+        execService.submit(notifyJob);
     }
 
     public Map<String, DerivParamDesc> getLibrary() {
