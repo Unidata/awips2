@@ -76,6 +76,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Aug 01, 2013 2221       rferrel      Changes for select configuration.
  * Aug 06, 2013 2222       rferrel      Changes to display all selected data.
  * Nov 14, 2013 2549       rferrel      Get category data moved off the UI thread.
+ * Dec 11, 2013 2624       rferrel      No longer clear table prior to populating.
  * </pre>
  * 
  * @author bgonzale
@@ -130,6 +131,10 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
     /** Which table is being displayed. */
     private boolean showingSelected = true;
+
+    private String previousSelectedArchive = null;
+
+    private String previousSelectedCategory = null;
 
     /**
      * @param parentShell
@@ -386,7 +391,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * Method invoked when archive combo selection is changed.
      */
     protected void archiveComboSelection() {
-        populateCategoryCbo();
+        String selectedArchvieName = getSelectedArchiveName();
+        if (!selectedArchvieName.equals(previousSelectedArchive)) {
+            previousSelectedArchive = selectedArchvieName;
+            populateCategoryCbo();
+        }
     }
 
     /**
@@ -412,7 +421,14 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * Method invoked when the category combo selection is changed.
      */
     protected void categoryComboSelection() {
-        populateTableComp();
+        String archiveName = getSelectedArchiveName();
+        String categoryName = getSelectedCategoryName();
+        if (!archiveName.equals(previousSelectedArchive)
+                || !categoryName.equals(previousSelectedCategory)) {
+            previousSelectedArchive = archiveName;
+            previousSelectedCategory = categoryName;
+            populateTableComp();
+        }
     }
 
     /**
@@ -463,9 +479,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         setCursorBusy(true);
 
         setShowingSelected(false);
-        tableComp.populateTable(archiveName, categoryName,
-                new ArrayList<DisplayData>(0));
-        tableComp.refresh();
 
         Job job = new Job("populate category table") {
 
