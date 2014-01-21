@@ -173,7 +173,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
  * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
- * 
+ * Jan 21, 2014  DR 15874   gzhang		Use getValue() for QPFSCAN independent. 
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -795,9 +795,9 @@ public class FFMPResource extends
                 } else {
                     switch (field) {
                     case QPF: {
-                        value = getBasin(key, field, recentTime, aggregate)
-                                .getAverageValue(recentTime,
-                                        getQpfSourceExpiration());
+                        value = getBasin(key, field, recentTime, aggregate).getValue(recentTime);// DR 15874
+                                //.getAverageValue(recentTime,
+                                        //getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
