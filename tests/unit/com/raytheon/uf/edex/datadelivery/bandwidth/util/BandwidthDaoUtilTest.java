@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
+import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthBucketDao;
@@ -81,7 +83,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Feb 14, 2013 1595       djohnson     Fix retrieval plan/subscription time intersections.
  * Jun 05, 2013 2038       djohnson     Use public API for getting retrieval times.
  * Jun 25, 2013 2106       djohnson     RetrievalPlan uses setters instead of constructor injection now.
- * Sept 25, 2013 1797      dhladky      separated time and gridded time
+ * Sep 25, 2013 1797       dhladky      separated time and gridded time
+ * Jan 07, 2014  2636      mpduff       Removed dataset availability offset calculator (not used).
+ * Jan 08, 2014 2615       bgonzale     Updated test.
  * 
  * </pre>
  * 
@@ -106,11 +110,7 @@ public class BandwidthDaoUtilTest {
     public void setUp() {
         TimeUtilTest.freezeTime(TimeUtil.MILLIS_PER_DAY * 2);
 
-        SimpleAvailablityCalculator dataSetAvailabilityCalculator = new SimpleAvailablityCalculator();
-        dataSetAvailabilityCalculator.setDelay(0);
-
-        BandwidthUtil.getInstance().setDataSetAvailabilityCalculator(
-                dataSetAvailabilityCalculator);
+        RegistryObjectHandlersUtil.init();
         PathManagerFactoryTest.initLocalization();
 
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -156,11 +156,11 @@ public class BandwidthDaoUtilTest {
                 .withActivePeriodStart(plan.getPlanStart().getTime())
                 .withActivePeriodEnd(plan.getPlanEnd().getTime())
                 .withSubscriptionStart(TimeUtil.newImmutableDate()).build();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(9), Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(9), Integer.valueOf(0)));
 
-        TreeSet<Integer> cycles = new TreeSet<Integer>(((GriddedTime)subscription.getTime())
-                .getCycleTimes());
+        TreeSet<Integer> cycles = new TreeSet<Integer>(
+                ((GriddedTime) subscription.getTime()).getCycleTimes());
 
         SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
                 .getRetrievalTimes(subscription, cycles);
@@ -178,16 +178,16 @@ public class BandwidthDaoUtilTest {
         Subscription subscription = new SubscriptionBuilder()
                 .withSubscriptionStart(startsTwoDaysIntoPlan)
                 .withSubscriptionEnd(plan.getPlanEnd().getTime()).build();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(9), Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(9), Integer.valueOf(0)));
 
-        TreeSet<Integer> cycles = new TreeSet<Integer>(((GriddedTime)subscription.getTime())
-                .getCycleTimes());
+        TreeSet<Integer> cycles = new TreeSet<Integer>(
+                ((GriddedTime) subscription.getTime()).getCycleTimes());
 
         SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
                 .getRetrievalTimes(subscription, cycles);
 
-        final List<Integer> daysOfTheYear = Arrays.asList(4);
+        final List<Integer> daysOfTheYear = Collections.EMPTY_LIST;
         verifySubscriptionTimesContainsCyclesForSpecifiedDays(daysOfTheYear,
                 cycles, subscriptionTimes);
         final List<Integer> notScheduledDays = Arrays.asList(3);
@@ -203,11 +203,11 @@ public class BandwidthDaoUtilTest {
         Subscription subscription = new SubscriptionBuilder()
                 .withSubscriptionStart(plan.getPlanStart().getTime())
                 .withSubscriptionEnd(endsOneDayBeforePlan).build();
-        ((GriddedTime)subscription.getTime()).setCycleTimes(
-                Arrays.asList(Integer.valueOf(9), Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(9), Integer.valueOf(0)));
 
-        TreeSet<Integer> cycles = new TreeSet<Integer>(((GriddedTime)subscription.getTime())
-                .getCycleTimes());
+        TreeSet<Integer> cycles = new TreeSet<Integer>(
+                ((GriddedTime) subscription.getTime()).getCycleTimes());
 
         SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
                 .getRetrievalTimes(subscription, cycles);

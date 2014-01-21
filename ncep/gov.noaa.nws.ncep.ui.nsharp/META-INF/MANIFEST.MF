@@ -22,9 +22,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.1",
  com.raytheon.viz.core.graphing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.edex.plugin.modelsounding.common,
- com.raytheon.edex.plugin.modelsounding.dao,
- com.raytheon.uf.common.serialization.comm,
+Import-Package: com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.sounding,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.viz.core,

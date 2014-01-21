@@ -19,15 +19,7 @@
  **/
 package com.raytheon.edex.plugin.text.maintenance.archiver;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -35,7 +27,6 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.archive.IPluginArchiveFileNameFormatter;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
@@ -47,8 +38,9 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 20, 2012            dgilling     Initial creation
- * Nov 05, 2013 2499       rjpeter      Moved IPluginArchiveFileNameFormatter.
+ * Apr 20, 2012            dgilling    Initial creation
+ * Nov 05, 2013 2499       rjpeter     Moved IPluginArchiveFileNameFormatter.
+ * Dec 13, 2013 2555       rjpeter     Refactored.
  * </pre>
  * 
  * @author dgilling
@@ -65,60 +57,26 @@ public class TextArchiveFileNameFormatter implements
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.edex.maintenance.archive.IPluginArchiveFileNameFormatter
-     * #getPdosByFile(java.lang.String,
-     * com.raytheon.uf.edex.database.plugin.PluginDao, java.util.Map,
-     * java.util.Calendar, java.util.Calendar)
+     * com.raytheon.uf.edex.archive.IPluginArchiveFileNameFormatter#getFilename
+     * (java.lang.String, com.raytheon.uf.edex.database.plugin.PluginDao,
+     * com.raytheon.uf.common.dataplugin.persist.PersistableDataObject)
      */
-    @SuppressWarnings("rawtypes")
     @Override
-    public Map<String, List<PersistableDataObject>> getPdosByFile(
-            String pluginName, PluginDao dao,
-            Map<String, List<PersistableDataObject>> pdoMap,
-            Calendar startTime, Calendar endTime)
-            throws DataAccessLayerException {
-        List<PersistableDataObject> pdos = dao.getRecordsToArchive(startTime,
-                endTime);
+    public String getFilename(String pluginName, PluginDao dao,
+            PersistableDataObject<?> pdo) {
+        String path = null;
+        if (pdo instanceof StdTextProduct) {
+            StdTextProduct casted = (StdTextProduct) pdo;
 
-        Set<String> newFileEntries = new HashSet<String>();
-        if ((pdos != null) && !pdos.isEmpty()) {
-            if (pdos.get(0) instanceof StdTextProduct) {
-                for (PersistableDataObject pdo : pdos) {
-                    StdTextProduct casted = (StdTextProduct) pdo;
-
-                    // no refTime to use, so we use creation time
-                    Date time = new Date(casted.getRefTime());
-                    String path = pluginName
-                            + DefaultPathProvider.fileNameFormat.get().format(
-                                    time);
-
-                    newFileEntries.add(path);
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-            } else {
-                statusHandler.error("Invalid PersistableDataObject class "
-                        + pdos.get(0).getClass()
-                        + "sent to TextArchiveFileNameFormatter to archive");
-            }
+            // no refTime to use, so we use creation time
+            Date time = new Date(casted.getRefTime());
+            path = pluginName
+                    + DefaultPathProvider.fileNameFormat.get().format(time);
+        } else {
+            statusHandler.error("Invalid PersistableDataObject class "
+                    + pdo.getClass()
+                    + "sent to TextArchiveFileNameFormatter to archive");
         }
-
-        Iterator<String> iter = pdoMap.keySet().iterator();
-        Map<String, List<PersistableDataObject>> pdosToSave = new HashMap<String, List<PersistableDataObject>>(
-                pdoMap.size() - newFileEntries.size());
-
-        while (iter.hasNext()) {
-            String key = iter.next();
-            if (!newFileEntries.contains(key)) {
-                pdosToSave.put(key, pdoMap.get(key));
-                iter.remove();
-            }
-        }
-
-        return pdosToSave;
+        return path;
     }
 }
