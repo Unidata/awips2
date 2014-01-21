@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.request.GetGridTreeRequest;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -58,7 +60,6 @@ import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
@@ -91,6 +92,8 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
  * Feb 26, 2013 1659       bsteffen    Add time agnostic caching to grid derived
  *                                     parameters.
+ * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
+ *                                     parameters to common
  * 
  * </pre>
  * 
@@ -697,8 +700,13 @@ public class GridInventory extends AbstractInventory implements
         String masterLevelName = get3DMasterLevel(sNode.getValue());
         boolean isRadar = sNode.getValue().equals(RadarAdapter.RADAR_SOURCE);
 
-        NavigableSet<Level> levels = LevelUtilities
-                .getOrderedSetOfStandardLevels(masterLevelName);
+        NavigableSet<Level> levels;
+        try {
+            levels = LevelUtilities
+                    .getOrderedSetOfStandardLevels(masterLevelName);
+        } catch (CommunicationException e) {
+            throw new VizCommunicationException(e);
+        }
         List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> cubeLevels = new ArrayList<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>>(
                 levels.size());
 
