@@ -25,7 +25,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -57,14 +56,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
- * 
+ * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Entity
-@Table(name = "grib_polarstereo_coverages")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -171,6 +169,7 @@ public class PolarStereoGridCoverage extends GridCoverage {
         return rval;
     }
 
+    @Override
     public String getProjectionType() {
         return PROJECTION_TYPE;
     }
@@ -249,49 +248,67 @@ public class PolarStereoGridCoverage extends GridCoverage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         PolarStereoGridCoverage other = (PolarStereoGridCoverage) obj;
-        if (Double.doubleToLongBits(dx) != Double.doubleToLongBits(other.dx))
+        if (Double.doubleToLongBits(dx) != Double.doubleToLongBits(other.dx)) {
             return false;
-        if (Double.doubleToLongBits(dy) != Double.doubleToLongBits(other.dy))
+        }
+        if (Double.doubleToLongBits(dy) != Double.doubleToLongBits(other.dy)) {
             return false;
-        if (Double.doubleToLongBits(la1) != Double.doubleToLongBits(other.la1))
+        }
+        if (Double.doubleToLongBits(la1) != Double.doubleToLongBits(other.la1)) {
             return false;
-        if (Double.doubleToLongBits(lo1) != Double.doubleToLongBits(other.lo1))
+        }
+        if (Double.doubleToLongBits(lo1) != Double.doubleToLongBits(other.lo1)) {
             return false;
-        if (Double.doubleToLongBits(lov) != Double.doubleToLongBits(other.lov))
+        }
+        if (Double.doubleToLongBits(lov) != Double.doubleToLongBits(other.lov)) {
             return false;
-        if (Double.doubleToLongBits(lad) != Double.doubleToLongBits(other.lad))
+        }
+        if (Double.doubleToLongBits(lad) != Double.doubleToLongBits(other.lad)) {
             return false;
+        }
         if (Double.doubleToLongBits(majorAxis) != Double
-                .doubleToLongBits(other.majorAxis))
+                .doubleToLongBits(other.majorAxis)) {
             return false;
+        }
         if (Double.doubleToLongBits(minorAxis) != Double
-                .doubleToLongBits(other.minorAxis))
+                .doubleToLongBits(other.minorAxis)) {
             return false;
+        }
         if (nx == null) {
-            if (other.nx != null)
+            if (other.nx != null) {
                 return false;
-        } else if (!nx.equals(other.nx))
+            }
+        } else if (!nx.equals(other.nx)) {
             return false;
+        }
         if (ny == null) {
-            if (other.ny != null)
+            if (other.ny != null) {
                 return false;
-        } else if (!ny.equals(other.ny))
+            }
+        } else if (!ny.equals(other.ny)) {
             return false;
+        }
         if (spacingUnit == null) {
-            if (other.spacingUnit != null)
+            if (other.spacingUnit != null) {
                 return false;
-        } else if (!spacingUnit.equals(other.spacingUnit))
+            }
+        } else if (!spacingUnit.equals(other.spacingUnit)) {
             return false;
+        }
         return true;
     }
 
+    @Override
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             PolarStereoGridCoverage otherPolar = (PolarStereoGridCoverage) other;
