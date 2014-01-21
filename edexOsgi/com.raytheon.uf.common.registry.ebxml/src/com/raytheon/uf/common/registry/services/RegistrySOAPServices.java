@@ -27,8 +27,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
@@ -51,9 +49,6 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.comm.ProxyUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -77,6 +72,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 9/5/2013     1538        bphillip    Add HTTP header information
  * 10/30/2013   1538        bphillip    Made methods in this class non-static
  * 11/20/2013   2534        bphillip    Eliminated service caching
+ * 1/15/2014    2613        bphillip    Eliminated service caching...again
  * </pre>
  * 
  * @author bphillip
@@ -118,13 +114,18 @@ public class RegistrySOAPServices {
     private static final ProxyConfiguration proxyConfig;
 
     protected static final HTTPClientPolicy httpClientPolicy;
+
+    protected static final String HTTP_RECEIVE_TIMEOUT_PROPERTY = "ebxml-http-receive-timeout";
+
+    protected static final String HTTP_CONNECTION_TIMEOUT_PROPERTY = "ebxml-http-connection-timeout";
+
     static {
         proxyConfig = getProxyConfiguration();
         httpClientPolicy = new HTTPClientPolicy();
 
         try {
             httpClientPolicy.setReceiveTimeout(Long.parseLong(System
-                    .getProperty("ebxml-http-receive-timeout")));
+                    .getProperty(HTTP_RECEIVE_TIMEOUT_PROPERTY)));
         } catch (NumberFormatException e) {
             statusHandler
                     .error("ebxml-http-receive-timeout not specified.  Using default value of 1 minute",
@@ -133,7 +134,7 @@ public class RegistrySOAPServices {
         }
         try {
             httpClientPolicy.setConnectionTimeout(Long.parseLong(System
-                    .getProperty("ebxml-http-connection-timeout")));
+                    .getProperty(HTTP_CONNECTION_TIMEOUT_PROPERTY)));
         } catch (NumberFormatException e) {
             statusHandler
                     .error("ebxml-http-connection-timeout not specified.  Using default value of 10 seconds",
@@ -148,8 +149,6 @@ public class RegistrySOAPServices {
             httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
         }
     }
-
-    private Map<Class<?>, LoadingCache<String, ?>> serviceCache = new HashMap<Class<?>, LoadingCache<String, ?>>();
 
     /**
      * Gets the notification listener service URL for the given host
@@ -355,26 +354,9 @@ public class RegistrySOAPServices {
         return port;
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends Object> T getPort(String serviceUrl,
             final Class<T> serviceInterface) {
-        LoadingCache<String, ?> cache = serviceCache.get(serviceInterface);
-        if (cache == null) {
-            cache = CacheBuilder.newBuilder()
-                    .expireAfterAccess(1, TimeUnit.MINUTES)
-                    .build(new CacheLoader<String, T>() {
-                        public T load(String key) {
-                            return createService(key, serviceInterface);
-                        }
-                    });
-            serviceCache.put(serviceInterface, cache);
-        }
-        try {
-            return (T) cache.get(serviceUrl);
-        } catch (ExecutionException e) {
-            throw new RuntimeException("Error getting service at ["
-                    + serviceUrl + "]", e);
-        }
+        return createService(serviceUrl, serviceInterface);
     }
 
     /**

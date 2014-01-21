@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -90,6 +91,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/23/2013   1538       bphillip    Added log message denoting when processing is complete and time duration
  * 10/30/2013   1538       bphillip    Changed to use non-static registry soap service client
  * 12/2/2013    1829       bphillip    Added getIdsFrom action method and changed how slots are added to objects
+ * 1/15/2014    2613       bphillip    Added batching of notification update queries to reduce number of web service calls
  * 
  * </pre>
  * 
@@ -141,85 +143,77 @@ public class NotificationListenerImpl implements NotificationListener {
                             + ")]");
         }
 
-        List<AuditableEventType> events = notification.getEvent();
+        // Creates a new action list from the received events
+        ProcessActionList actionList = new ProcessActionList(
+                notification.getEvent());
 
-        // Process the received auditable events and add them to the
-        // appropriate
-        // list based on the action performed
-        for (AuditableEventType event : events) {
-            List<ActionType> actions = event.getAction();
-            for (ActionType action : actions) {
-                String eventType = action.getEventType();
-                List<String> objectIds = getIdsFromAction(action);
+        /*
+         * Iterate through each action and process them in the order in which
+         * the were received. Notification types currently supported are create,
+         * update and delete. All other action types will be ignored and a
+         * warning message is output into the log
+         */
+        for (ProcessAction action : actionList.getActions()) {
+            String actionType = action.getActionType();
 
-                if (objectIds.isEmpty()) {
-                    statusHandler.info("Event " + event.getId()
-                            + " contains 0 affected objects ");
-                    continue;
-                }
-
-                if (eventType.equals(ActionTypes.create)
-                        || eventType.equals(ActionTypes.update)) {
-                    try {
-                        SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
-                                clientBaseURL, notification.getId(), objectIds,
-                                Mode.CREATE_OR_REPLACE);
-                        lcm.submitObjects(submitRequest);
-                    } catch (MsgRegistryException e) {
-                        throw new RuntimeException(
-                                "Error creating objects in registry!", e);
-                    } catch (EbxmlRegistryException e) {
-                        throw new RuntimeException(
-                                "Error creating submit objects request!", e);
-                    }
-                } else if (eventType.equals(ActionTypes.delete)) {
-                    ObjectRefListType refList = new ObjectRefListType();
-                    for (String id : objectIds) {
-                        RegistryObjectType object = registryObjectDao
-                                .getById(id);
-                        if (object != null) {
-                            refList.getObjectRef().add(new ObjectRefType(id));
-                        }
-                    }
-                    if (!CollectionUtil.isNullOrEmpty(refList.getObjectRef())) {
-                        RemoveObjectsRequest request = new RemoveObjectsRequest(
-                                "Remove Objects for notification ["
-                                        + notification.getId() + "]",
-                                "Notification delete object submission", null,
-                                null, refList, false, true,
-                                DeletionScope.DELETE_ALL);
-                        try {
-                            lcm.removeObjects(request);
-                        } catch (MsgRegistryException e) {
-                            throw new RuntimeException(
-                                    "Error creating remove objects request!", e);
-                        }
-                    }
-                } else {
-                    statusHandler.info("Unknown event type [" + eventType
-                            + "] received in notification");
+            /*
+             * Process creates and updates
+             */
+            if (ActionTypes.create.equals(actionType)
+                    || ActionTypes.update.equals(actionType)) {
+                try {
+                    SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
+                            clientBaseURL, notification.getId(),
+                            action.getIdList(), Mode.CREATE_OR_REPLACE);
+                    lcm.submitObjects(submitRequest);
+                } catch (MsgRegistryException e) {
+                    throw new RuntimeException(
+                            "Error creating objects in registry!", e);
+                } catch (EbxmlRegistryException e) {
+                    throw new RuntimeException(
+                            "Error creating submit objects request!", e);
                 }
             }
+            /*
+             * Process deletes
+             */
+            else if (ActionTypes.delete.equals(actionType)) {
+                ObjectRefListType refList = new ObjectRefListType();
+                for (String id : action.getIdList()) {
+                    RegistryObjectType object = registryObjectDao.getById(id);
+                    if (object != null) {
+                        refList.getObjectRef().add(new ObjectRefType(id));
+                    }
+                }
+                if (!CollectionUtil.isNullOrEmpty(refList.getObjectRef())) {
+                    RemoveObjectsRequest request = new RemoveObjectsRequest(
+                            "Remove Objects for notification ["
+                                    + notification.getId() + "]",
+                            "Notification delete object submission", null,
+                            null, refList, false, true,
+                            DeletionScope.DELETE_ALL);
+                    try {
+                        lcm.removeObjects(request);
+                    } catch (MsgRegistryException e) {
+                        throw new RuntimeException(
+                                "Error creating remove objects request!", e);
+                    }
+                }
+            }
+            /*
+             * Output warning in log that an unsupported action type was
+             * received
+             */
+            else {
+                statusHandler.warn("Unsupported action type received ["
+                        + actionType + "]");
+            }
+
         }
+        registryDao.flushAndClearSession();
         statusHandler.info("Processing notification id ["
                 + notification.getId() + "] completed in "
                 + (TimeUtil.currentTimeMillis() - startTime) + " ms");
-    }
-
-    private List<String> getIdsFromAction(ActionType action) {
-        List<String> objectIds = new ArrayList<String>();
-        if (action.getAffectedObjectRefs() != null) {
-            for (ObjectRefType ref : action.getAffectedObjectRefs()
-                    .getObjectRef()) {
-                objectIds.add(ref.getId());
-            }
-        } else if (action.getAffectedObjects() != null) {
-            for (RegistryObjectType regObj : action.getAffectedObjects()
-                    .getRegistryObject()) {
-                objectIds.add(regObj.getId());
-            }
-        }
-        return objectIds;
     }
 
     @Override
@@ -355,6 +349,127 @@ public class NotificationListenerImpl implements NotificationListener {
         request.setId("Notification Update Query");
         request.setQuery(query);
         return request;
+    }
+
+    /**
+     * This class organizes actions from the received list of auditable events.
+     * The purpose of this class is to batch together consecutive events having
+     * the same action type in order to minimize queries to the remote server
+     * during notification processing. The actions must be processed in the
+     * order in which the appear in the original auditable event list in order
+     * to maintain the integrity of the registry across federation members.
+     * 
+     * @author bphillip
+     * 
+     */
+    private class ProcessActionList {
+
+        /** The list of actions contained in the received auditable events */
+        private List<ProcessAction> actions = new ArrayList<NotificationListenerImpl.ProcessAction>();
+
+        /**
+         * Creates a new ProcessActionList from the provided list of events
+         * 
+         * @param events
+         *            The events from which to generate the ProcessActionList
+         */
+        public ProcessActionList(List<AuditableEventType> events) {
+            if (!CollectionUtil.isNullOrEmpty(events)) {
+                for (AuditableEventType event : events) {
+                    List<ActionType> actions = event.getAction();
+                    for (ActionType action : actions) {
+                        addAction(action.getEventType(),
+                                getIdsFromAction(action));
+                    }
+                }
+            }
+        }
+
+        /**
+         * Adds an action to the list to be processed
+         * 
+         * @param actionType
+         *            The type of action
+         * @param ids
+         *            The ids of the objects on which the action was executed
+         */
+        private void addAction(String actionType, List<String> ids) {
+            if (actions.isEmpty()) {
+                actions.add(new ProcessAction(actionType, ids));
+            } else {
+                ProcessAction lastAction = actions.get(actions.size() - 1);
+                if (lastAction.getActionType().equals(actionType)) {
+                    lastAction.addIds(ids);
+                } else {
+                    actions.add(new ProcessAction(actionType, ids));
+                }
+            }
+
+        }
+
+        /**
+         * Extracts the affected object ids from the action
+         * 
+         * @param action
+         *            The action to get the ids from
+         * @return The list of ids from the action object
+         */
+        private List<String> getIdsFromAction(ActionType action) {
+            List<String> objectIds = new ArrayList<String>();
+            if (action.getAffectedObjectRefs() != null) {
+                for (ObjectRefType ref : action.getAffectedObjectRefs()
+                        .getObjectRef()) {
+                    objectIds.add(ref.getId());
+                }
+            } else if (action.getAffectedObjects() != null) {
+                for (RegistryObjectType regObj : action.getAffectedObjects()
+                        .getRegistryObject()) {
+                    objectIds.add(regObj.getId());
+                }
+            }
+            return objectIds;
+        }
+
+        public List<ProcessAction> getActions() {
+            return actions;
+        }
+
+    }
+
+    /**
+     * Private class encapsulating the list of object ids and the action that
+     * was executed on them.
+     * 
+     * @author bphillip
+     * 
+     */
+    private class ProcessAction {
+
+        /** The type of action executed */
+        private String actionType;
+
+        /** The list of objects that the action was executed on */
+        private List<String> idList;
+
+        public ProcessAction(String actionType, List<String> ids) {
+            this.actionType = actionType;
+            addIds(ids);
+        }
+
+        public String getActionType() {
+            return actionType;
+        }
+
+        public List<String> getIdList() {
+            if (idList == null) {
+                idList = new LinkedList<String>();
+            }
+            return idList;
+        }
+
+        public void addIds(List<String> ids) {
+            getIdList().addAll(ids);
+        }
     }
 
     public void setLcm(LifecycleManagerImpl lcm) {

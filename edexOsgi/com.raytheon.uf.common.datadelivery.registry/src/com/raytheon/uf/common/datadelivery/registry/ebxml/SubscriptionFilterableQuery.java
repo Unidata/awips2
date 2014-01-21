@@ -10,8 +10,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionState;
 import com.raytheon.uf.common.registry.ebxml.AdhocRegistryQuery;
-import com.raytheon.uf.common.registry.ebxml.BooleanAttribute;
 import com.raytheon.uf.common.registry.ebxml.CalendarAttribute;
 import com.raytheon.uf.common.registry.ebxml.StringAttribute;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Feb 20, 2013 1543       djohnson    Add ability to filter on routes.
  * May 28, 2013 1650       djohnson    More information when failing to schedule.
  * Sep 04, 2013 2330       bgonzale    OfficeIds attribute is a collection.
+ * Jan 14, 2014 2459       mpduff      Change to query for ON subscription state.
  * 
  * </pre>
  * 
@@ -48,11 +49,12 @@ public abstract class SubscriptionFilterableQuery<T> extends
         AdhocRegistryQuery<T> {
 
     /**
-     * A setter for the queryable attribute dataSetName equals a single String value.
-     * Using this setter will equate to an HQL "equals" query against the specified column name.
-     *
+     * A setter for the queryable attribute dataSetName equals a single String
+     * value. Using this setter will equate to an HQL "equals" query against the
+     * specified column name.
+     * 
      * @param collectionName
-     *        The value of the dataSetName attribute to search for.
+     *            The value of the dataSetName attribute to search for.
      */
     public void setDataSetName(String dataSetName) {
         setAttribute("dataSetName", new StringAttribute(dataSetName));
@@ -60,10 +62,11 @@ public abstract class SubscriptionFilterableQuery<T> extends
 
     /**
      * A setter for the queryable attribute time equals a single String value.
-     * Using this setter will equate to an HQL "equals" query against the specified column name.
-     *
+     * Using this setter will equate to an HQL "equals" query against the
+     * specified column name.
+     * 
      * @param collectionName
-     *        The value of the time attribute to search for.
+     *            The value of the time attribute to search for.
      */
     public void setMatureTime(Calendar matureTime) {
         CalendarAttribute ca = new CalendarAttribute(matureTime);
@@ -73,10 +76,11 @@ public abstract class SubscriptionFilterableQuery<T> extends
 
     /**
      * A setter for the queryable attribute name equals a single String value.
-     * Using this setter will equate to an HQL "equals" query against the specified column name.
-     *
+     * Using this setter will equate to an HQL "equals" query against the
+     * specified column name.
+     * 
      * @param collectionName
-     *        The value of the name attribute to search for.
+     *            The value of the name attribute to search for.
      */
     public void setName(String name) {
         setAttribute(Subscription.NAME_SLOT, new StringAttribute(name));
@@ -109,10 +113,11 @@ public abstract class SubscriptionFilterableQuery<T> extends
 
     /**
      * A setter for the queryable attribute owner equals a single String value.
-     * Using this setter will equate to an HQL "equals" query against the specified column name.
-     *
+     * Using this setter will equate to an HQL "equals" query against the
+     * specified column name.
+     * 
      * @param collectionName
-     *        The value of the owner attribute to search for.
+     *            The value of the owner attribute to search for.
      */
     public void setOwner(String owner) {
         setAttribute("owner", new StringAttribute(owner));
@@ -155,7 +160,8 @@ public abstract class SubscriptionFilterableQuery<T> extends
      *            The value of the active attribute to search for.
      */
     public void setActive(boolean active) {
-        setAttribute("active", new BooleanAttribute(active));
+        setAttribute(Subscription.SUBSCRIPTION_STATE_SLOT, new StringAttribute(
+                SubscriptionState.ON.name()));
     }
 
     /**
