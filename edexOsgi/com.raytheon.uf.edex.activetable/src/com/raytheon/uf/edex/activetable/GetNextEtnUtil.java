@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.auth.RemoteServerRequestRouter;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
+import com.raytheon.uf.edex.database.cluster.handler.CurrentTimeClusterLockHandler;
 
 /**
  * Library module of functions to support retrieval of next ETN in sequence for
@@ -73,6 +74,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 29, 2013  #1843     dgilling     Initial creation
+ * Dec 18, 2013  #2641     dgilling     Fix ClusterTask locking.
  * 
  * </pre>
  * 
@@ -276,7 +278,9 @@ public final class GetNextEtnUtil {
      *            set to <code>true</code> if you want to actually move the
      *            sequence forward.
      * @param etnOverride
-     *            TODO
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
      * @return The next ETN to be used in sequence.
      */
     public static int lockAndGetNextEtn(String siteId, ActiveTableMode mode,
@@ -286,7 +290,9 @@ public final class GetNextEtnUtil {
         ClusterTask ct = null;
         if (isLock) {
             do {
-                ct = ClusterLockUtils.lock(lockName, phensig, 15000, true);
+                // ct = ClusterLockUtils.lock(lockName, phensig, 15000, true);
+                ct = ClusterLockUtils.lock(lockName, phensig,
+                        new CurrentTimeClusterLockHandler(15000, false), true);
             } while (!ct.getLockState().equals(LockState.SUCCESSFUL));
             statusHandler.info("Locking::[lockName = " + lockName
                     + ", phensig = " + phensig + "]");
@@ -302,6 +308,9 @@ public final class GetNextEtnUtil {
         if (etnOverride == null) {
             String year = Integer.toString(currentTime.get(Calendar.YEAR));
             String eInfo = ct.getExtraInfo();
+
+            statusHandler.info("ClusterTask Lock info: " + eInfo);
+
             if ((!StringUtil.isEmptyString(eInfo)) && (eInfo.startsWith(year))) {
                 // parse year info
                 try {

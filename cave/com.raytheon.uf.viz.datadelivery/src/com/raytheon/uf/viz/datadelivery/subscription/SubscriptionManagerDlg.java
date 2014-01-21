@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
@@ -71,6 +72,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
@@ -144,6 +146,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Nov 06, 2013   2358     mpduff     Resurrected file management code.
  * Nov 08, 2013   2506     bgonzale   Removed send notification when a subscription is deleted.
  * Dec 05, 2013   2570     skorolev   Show All subscriptions.
+ * Jan 08, 2014   2642     mpduff     Update dialog for permissions, adding site to shared
+ * Jan 14, 2014   2459     mpduff     Change Subscription status code
  * </pre>
  * 
  * @author mpduff
@@ -253,6 +257,27 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     /** Option to select all groups of subscriptions */
     private final String ALL_SUBSCRIPTIONS = "All Subscriptions";
 
+    /** Edit menu */
+    private MenuItem editMI;
+
+    /** Copy menu */
+    private MenuItem copyMI;
+
+    /** Delete menu */
+    private MenuItem deleteMI;
+
+    /** Edit group menu */
+    private MenuItem editGroupMI;
+
+    /** Delete group menu */
+    private MenuItem deleteGroupMI;
+
+    /** Group menu */
+    private MenuItem groupMI;
+
+    /** New menu */
+    private MenuItem newMI;
+
     /**
      * Constructor
      * 
@@ -263,7 +288,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     public SubscriptionManagerDlg(Shell parent,
             ISubscriptionManagerFilter filter) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
-                CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
 
         this.filter = filter;
 
@@ -320,6 +346,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         createBottomButtons();
 
+        enableMenus(true);
     }
 
     /*
@@ -351,7 +378,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         Menu fileMenu = new Menu(menuBar);
         fileMenuItem.setMenu(fileMenu);
 
-        MenuItem newMI = new MenuItem(fileMenu, SWT.NONE);
+        newMI = new MenuItem(fileMenu, SWT.NONE);
         newMI.setText("New Subscription...");
         newMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -360,7 +387,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             }
         });
 
-        MenuItem groupMI = new MenuItem(fileMenu, SWT.NONE);
+        groupMI = new MenuItem(fileMenu, SWT.NONE);
         groupMI.setText("New Group...");
         groupMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -510,7 +537,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         Menu editMenu = new Menu(menuBar);
         editMenuItem.setMenu(editMenu);
 
-        MenuItem editMI = new MenuItem(editMenu, SWT.NONE);
+        editMI = new MenuItem(editMenu, SWT.NONE);
         editMI.setText("Edit Subscription...");
         editMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -519,7 +546,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             }
         });
 
-        MenuItem copyMI = new MenuItem(editMenu, SWT.NONE);
+        copyMI = new MenuItem(editMenu, SWT.NONE);
         copyMI.setText("Copy Subscription...");
         copyMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -528,8 +555,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             }
         });
 
-        MenuItem deleteMI = new MenuItem(editMenu, SWT.NONE);
-        deleteMI.setText("Delete Subscription");
+        deleteMI = new MenuItem(editMenu, SWT.NONE);
+        deleteMI.setText("Delete/Remove from Subscription");
         deleteMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -537,7 +564,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             }
         });
 
-        MenuItem editGroupMI = new MenuItem(editMenu, SWT.NONE);
+        editGroupMI = new MenuItem(editMenu, SWT.NONE);
         editGroupMI.setText("Edit Group...");
         editGroupMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -546,7 +573,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             }
         });
 
-        MenuItem deleteGroupMI = new MenuItem(editMenu, SWT.NONE);
+        deleteGroupMI = new MenuItem(editMenu, SWT.NONE);
         deleteGroupMI.setText("Delete Group...");
         deleteGroupMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -607,6 +634,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handleFilterSelection();
+                enableMenus(officeCbo.getText().equals(CURRENT_SITE));
             }
         });
 
@@ -702,7 +730,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      *            true for create dialog and false for edit
      */
     private void handleGroupCreate(boolean create) {
-
         final String permission = DataDeliveryPermission.SUBSCRIPTION_CREATE
                 .toString();
         IUser user = UserController.getUserObject();
@@ -940,57 +967,112 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         try {
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermission(user, msg, permission).isAuthorized()) {
-                String message = null;
+                ArrayList<SubscriptionManagerRowData> deleteList = new ArrayList<SubscriptionManagerRowData>();
+                final List<Subscription> subsToDelete = new ArrayList<Subscription>();
+                final List<Subscription> subsToUpdate = new ArrayList<Subscription>();
 
-                if (selectionCount > 1) {
-                    message = "Are you sure you want to delete these subscriptions?";
-                } else {
-                    message = "Are you sure you want to delete this subscription?";
+                for (int idx : tableComp.getTable().getSelectionIndices()) {
+                    SubscriptionManagerRowData removedItem = tableComp
+                            .getSubscriptionData().getDataRow(idx);
+                    Subscription sub = removedItem.getSubscription();
+                    if (sub instanceof SharedSubscription) {
+                        sub.getOfficeIDs().remove(CURRENT_SITE);
+                        if (sub.getOfficeIDs().size() > 0) {
+                            subsToUpdate.add(sub);
+                        } else {
+                            subsToDelete.add(sub);
+                        }
+                    } else {
+                        subsToDelete.add(removedItem.getSubscription());
+                    }
+
+                    deleteList.add(removedItem);
                 }
+
+                String message = getMessage(subsToDelete, subsToUpdate);
                 int choice = DataDeliveryUtils.showMessage(shell, SWT.YES
                         | SWT.NO, "Delete Confirmation", message);
                 if (choice == SWT.YES) {
-                    ArrayList<SubscriptionManagerRowData> deleteList = new ArrayList<SubscriptionManagerRowData>();
-                    final List<Subscription> subsToDelete = new ArrayList<Subscription>();
-                    for (int idx : tableComp.getTable().getSelectionIndices()) {
-                        SubscriptionManagerRowData removedItem = tableComp
-                                .getSubscriptionData().getDataRow(idx);
-                        subsToDelete.add(removedItem.getSubscription());
-                        deleteList.add(removedItem);
-                    }
-
+                    // remove the rows from the table
                     tableComp.getSubscriptionData().removeAll(deleteList);
 
-                    // Should we be using this or the LocalizationManager, or
-                    // UserController.getUserObject().getUniqueID()
-                    final String username = System.getenv().get("LOGNAME");
+                    final String username = LocalizationManager.getInstance()
+                            .getCurrentUser();
 
                     Job job = new Job("Deleting Subscriptions...") {
                         @Override
                         protected IStatus run(IProgressMonitor monitor) {
                             DataDeliveryGUIUtils.markBusyInUIThread(shell);
-                            List<RegistryHandlerException> exceptions = deleteSubscriptions(
-                                    username, subsToDelete);
+                            List<RegistryHandlerException> exceptions = new ArrayList<RegistryHandlerException>(
+                                    0);
+                            if (!subsToDelete.isEmpty()) {
+                                exceptions = deleteSubscriptions(username,
+                                        subsToDelete);
+                            }
+                            if (!subsToUpdate.isEmpty()) {
+                                exceptions.addAll(updateSubscriptions(username,
+                                        subsToUpdate));
+                            }
                             for (RegistryHandlerException t : exceptions) {
                                 statusHandler.handle(Priority.ERROR,
                                         "Failed to delete some subscriptions: "
                                                 + t.getLocalizedMessage(), t);
                             }
+
                             return Status.OK_STATUS;
                         }
                     };
                     job.addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(IJobChangeEvent event) {
+                            VizApp.runAsync(new Runnable() {
+                                @Override
+                                public void run() {
+                                    handleRefresh();
+                                }
+                            });
+
                             DataDeliveryGUIUtils.markNotBusyInUIThread(shell);
                         }
                     });
                     job.schedule();
+                } else {
+                    // Refresh the table to reset any objects edited
+                    handleRefresh();
                 }
             }
         } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
+    }
+
+    /**
+     * Get the delete confirmation message.
+     * 
+     * @param subsToDelete
+     *            subscription list to delete
+     * @param subsToUpdate
+     *            subscription list to update
+     * @return The confirmation message
+     */
+    private String getMessage(List<Subscription> subsToDelete,
+            List<Subscription> subsToUpdate) {
+        StringBuilder sb = new StringBuilder();
+        if (!subsToDelete.isEmpty()) {
+            sb.append("The following subscriptions will be deleted:\n");
+            for (Subscription sub : subsToDelete) {
+                sb.append(sub.getName()).append("\n");
+            }
+        }
+
+        if (!subsToUpdate.isEmpty()) {
+            sb.append("\nThe following subscriptions will be removed:\n");
+            for (Subscription sub : subsToUpdate) {
+                sb.append(sub.getName()).append("\n");
+            }
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -1080,7 +1162,11 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                                 .getSubscriptionData().getDataRow(idx);
 
                         Subscription sub = rowData.getSubscription();
-                        sub.setActive(activate);
+                        if (activate) {
+                            sub.activate();
+                        } else {
+                            sub.deactivate();
+                        }
 
                         try {
                             SubscriptionServiceResult response = subscriptionService
@@ -1199,16 +1285,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         Set<String> sites = siteData.keySet();
 
         officeNames = sites.toArray(new String[sites.size()]);
-        String[] officeAll = new String[officeNames.length + 1];
 
-        officeAll[0] = ALL;
-
-        System.arraycopy(officeNames, 0, officeAll, 1, officeNames.length);
-        officeCbo.setItems(officeAll);
+        officeCbo.setItems(officeNames);
 
         String site = CURRENT_SITE;
         if (this.selectedOffice != null) {
-            for (String item : officeAll) {
+            for (String item : officeNames) {
                 if (item.equals(selectedOffice)) {
                     site = item;
                     break;
@@ -1319,7 +1401,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private List<RegistryHandlerException> deleteSubscriptions(String username,
             List<Subscription> subscriptions) {
-
         List<RegistryHandlerException> exceptions = new ArrayList<RegistryHandlerException>();
 
         ISubscriptionHandler handler = RegistryObjectHandlers
@@ -1328,6 +1409,32 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             handler.delete(username, subscriptions);
         } catch (RegistryHandlerException e) {
             exceptions.add(e);
+        }
+
+        return exceptions;
+    }
+
+    /**
+     * Update subscriptions.
+     * 
+     * @param username
+     *            User updating the subscriptions
+     * @param subscriptions
+     *            Subscriptions to update
+     * @return List of errors that occurred
+     */
+    private List<RegistryHandlerException> updateSubscriptions(String username,
+            List<Subscription> subscriptions) {
+        List<RegistryHandlerException> exceptions = new ArrayList<RegistryHandlerException>();
+
+        ISubscriptionHandler handler = RegistryObjectHandlers
+                .get(ISubscriptionHandler.class);
+        for (Subscription sub : subscriptions) {
+            try {
+                handler.update(sub);
+            } catch (RegistryHandlerException e) {
+                exceptions.add(e);
+            }
         }
 
         return exceptions;
@@ -1388,5 +1495,20 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     public void updateControls() {
         loadGroupNames();
         loadOfficeNames();
+    }
+
+    /**
+     * Enable/Disable menus.
+     */
+    private void enableMenus(boolean enable) {
+        copyMI.setEnabled(enable);
+        deleteGroupMI.setEnabled(enable);
+        editMI.setEnabled(enable);
+        copyMI.setEnabled(enable);
+        deleteMI.setEnabled(enable);
+        editGroupMI.setEnabled(enable);
+        groupMI.setEnabled(enable);
+        newMI.setEnabled(enable);
+        tableComp.enableMenus(enable);
     }
 }

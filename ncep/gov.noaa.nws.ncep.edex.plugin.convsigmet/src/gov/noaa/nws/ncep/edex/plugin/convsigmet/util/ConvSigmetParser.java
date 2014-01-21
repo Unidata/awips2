@@ -13,6 +13,7 @@
  * 09/2009		87/114			L. Lin		Add latitude/longitude to location table
  * 07/2011		87/114			F. J. Yen	Fix the day of the end time when it is 
  * 											not the same as the day of the start time.
+ * Jan 07, 2014                     njensen	Handle if one or more locations not found in LatLonLocTbl				
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -631,16 +632,19 @@ public class ConvSigmetParser {
                     // Get a latLonPoint for this station ID from "vors"
                     // location table
                     point = LatLonLocTbl.getLatLonPoint(Location, "vors");
-                    currentLocation.setLatitude(point
+                    if(point != null) {
+                       currentLocation.setLatitude(point
                             .getLatitude(LatLonPoint.INDEGREES));
-                    currentLocation.setLongitude(point
+                       currentLocation.setLongitude(point
                             .getLongitude(LatLonPoint.INDEGREES));
 
-                    currentLocation.setIndex(idxLocation + 1);
-                    idxLocation++;
+                       currentLocation.setIndex(idxLocation + 1);
+                       idxLocation++;
 
-                    sectionTable.addConvSigmetLocation(currentLocation);
+                       sectionTable.addConvSigmetLocation(currentLocation);
+                    }
                 }
+                hasLocationLine = (idxLocation > 0);
             } else {
                 hasLocationLine = false;
             }

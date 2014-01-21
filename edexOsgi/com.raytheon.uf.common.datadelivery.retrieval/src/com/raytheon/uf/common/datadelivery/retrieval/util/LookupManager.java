@@ -26,10 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.DataSetInformation;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.DataSetInformationLookup;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterConfig;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterLookup;
@@ -60,6 +63,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Jan 18, 2013   1513     dhladky     Level lookup refit.
  * Mar 21, 2013   1794     djohnson    ServiceLoaderUtil now requires the requesting class.
  * Nov 07, 2013   2361     njensen     Use JAXBManager for XML
+ * Jam 14, 2014            dhladky     AvailabilityOffset calculations
  * 
  * </pre>
  * 
@@ -72,7 +76,7 @@ public class LookupManager {
      * Implementation of the xml writers that writes to localization files.
      */
     private class LocalizationXmlWriter implements LevelXmlWriter,
-            ParameterXmlWriter {
+            ParameterXmlWriter, DataSetInformationXmlWriter {
         /**
          * {@inheritDoc}
          */
@@ -107,6 +111,23 @@ public class LookupManager {
 
             getJaxbManager().marshalToXmlFile(pl, file.getAbsolutePath());
         }
+
+
+        @Override
+        public void writeDataSetInformationXml(DataSetInformationLookup dsi)
+                throws Exception {
+            
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext lc = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+            String fileName = getDataSetInformationFileName();
+            LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
+            File file = lf.getFile();
+            
+            getJaxbManager().marshalToXmlFile(dsi, file.getAbsolutePath());
+            
+        }
+
     }
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -120,6 +141,8 @@ public class LookupManager {
             + File.separatorChar + "lookups" + File.separatorChar;
 
     private static final String CONFIG_FILE_PARAM = "ParameterLookup.xml";
+    
+    private static final String CONFIG_FILE_DATASETINFO = "DataSetInformationLookup.xml";
 
     private static final String CONFIG_FILE_LEVEL = "LevelLookup.xml";
 
@@ -135,9 +158,11 @@ public class LookupManager {
         return instance;
     }
 
-    private final Map<String, ParameterLookup> parameters = new HashMap<String, ParameterLookup>();
+    private final Map<String, ParameterLookup> parameters = new HashMap<String, ParameterLookup>(1);
 
-    private final Map<String, LevelLookup> levels = new HashMap<String, LevelLookup>();
+    private final Map<String, LevelLookup> levels = new HashMap<String, LevelLookup>(1);
+    
+    private final Map<String, DataSetInformation> dataSetInformations = new HashMap<String, DataSetInformation>(1);
 
     private UnitLookup unitLookup = null;
 
@@ -148,13 +173,17 @@ public class LookupManager {
     private final ParameterXmlWriter parameterXmlWriter = ServiceLoaderUtil
             .load(LookupManager.class, ParameterXmlWriter.class,
                     new LocalizationXmlWriter());
+    
+    private final DataSetInformationXmlWriter dataSetInformationXmlWriter = ServiceLoaderUtil
+            .load(LookupManager.class, DataSetInformationXmlWriter.class,
+                    new LocalizationXmlWriter());
 
     private static JAXBManager jaxb;
 
-    private static JAXBManager getJaxbManager()
-            throws JAXBException {
+    private static JAXBManager getJaxbManager() throws JAXBException {
         if (jaxb == null) {
             jaxb = new JAXBManager(LevelLookup.class, ParameterLookup.class,
+                    DataSetInformationLookup.class, DataSetInformation.class,
                     UnitLookup.class);
         }
 
@@ -295,6 +324,168 @@ public class LookupManager {
 
         return paramLoookup;
     }
+    
+    /**
+     * Gets the Data Set Information
+     * 
+     * @param modelName
+     * @return
+     */
+    public DataSetInformation getDataSetInformation(String modelName) {
+
+        DataSetInformation dsi = null;
+
+        if (dataSetInformations.isEmpty()) {
+            
+            DataSetInformationLookup dataSetInformationLookup = getDataSetInformationLookupFromFile();
+            
+            if (dataSetInformationLookup == null) {
+                dataSetInformationLookup = new DataSetInformationLookup();
+            }
+            
+            for (DataSetInformation dataSetinfo: dataSetInformationLookup.getDataSetInformations()){
+                dataSetInformations.put(dataSetinfo.getModelName(), dataSetinfo);
+            }
+        } 
+        
+        if (dataSetInformations.containsKey(modelName)) {
+            dsi = dataSetInformations.get(modelName);
+        }
+      
+        return dsi;
+    }
+
+    private DataSetInformationLookup getDataSetInformationLookupFromFile() {
+
+        DataSetInformationLookup dataSetInformationLookup = null;
+        LocalizationFile file = null;
+        String fileName = getDataSetInformationFileName();
+
+        try {
+            file = getLocalizationFile(fileName);
+        } catch (Exception e) {
+            statusHandler
+                    .error(" Failed to read Data Set Information Lookup: " + fileName, e);
+        }
+
+        if (file != null) {
+            try {
+                dataSetInformationLookup = readDataSetInformationXml(file.getFile());
+            } catch (Exception e) {
+                statusHandler.handle(
+                        Priority.PROBLEM,
+                        "Failed to Read Data Set Information Lookup from file: "
+                                + file.getName(), e);
+            }
+        }
+
+        return dataSetInformationLookup;
+    }
+    
+    /**
+     * Availability Offset file name
+     * 
+     * @param modelName
+     * @return
+     */
+    private String getDataSetInformationFileName() {
+        return CONFIG_FILE_ROOT + CONFIG_FILE_DATASETINFO;
+    }
+    
+    /**
+     * Read Data Set Information lookup
+     * 
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    private DataSetInformationLookup readDataSetInformationXml(File file) throws Exception {
+
+        DataSetInformationLookup dsi = null;
+
+        if (file != null && file.exists()) {
+            dsi = getJaxbManager().unmarshalFromXmlFile(
+                    DataSetInformationLookup.class, file);
+        }
+
+        return dsi;
+    }
+    
+    /**
+     * Modify or create a data set information lookup
+     * 
+     * @param modelName
+     */
+    public void modifyDataSetInformationLookup(DataSetInformation dsi) {
+
+        try {
+            DataSetInformationLookup dataSetInformationLookup = null;
+            // update map and write out file
+            synchronized (dataSetInformations) {
+
+                dataSetInformations.put(dsi.getModelName(), dsi);
+                dataSetInformationLookup = getDataSetInformationLookupFromFile();
+                
+                if (dataSetInformationLookup == null) {
+                    dataSetInformationLookup = new DataSetInformationLookup();
+                }
+
+                if (dataSetInformationLookup.getDataSetInformations().contains(
+                        dsi)) {
+                    // no changes
+                    return;
+                } else {
+                    // clear the hash and rebuild it with what is set in current
+                    dataSetInformationLookup.getDataSetInformations().clear();
+
+                    for (Entry<String, DataSetInformation> entry : dataSetInformations
+                            .entrySet()) {
+                        dataSetInformationLookup.getDataSetInformations().add(
+                                entry.getValue());
+                    }
+                }
+            }
+
+            if (dataSetInformationLookup != null) {
+                dataSetInformationXmlWriter
+                        .writeDataSetInformationXml(dataSetInformationLookup);
+
+                statusHandler
+                        .info("Updated/Created Data Set Information lookup! "
+                                + dsi.getModelName());
+            }
+
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Couldn't create/update Data Set Information lookup! ", e);
+        }
+    }
+
+    /**
+     * Does a availability offset lookup exist?
+     * 
+     * @param modelName
+     * @return
+     */
+    public boolean dataSetInformationLookupExists() {
+
+        LocalizationFile file = null;
+        String fileName = getDataSetInformationFileName();
+        try {
+            file = getLocalizationFile(fileName);
+        } catch (Exception fnfe) {
+            statusHandler.error(
+                    "Failed to lookup Data Set Information localization file: "
+                            + fileName, fnfe);
+        }
+        if (file != null) {
+            return file.exists();
+        }
+
+        return false;
+    }
+
+
 
     /**
      * param file name
