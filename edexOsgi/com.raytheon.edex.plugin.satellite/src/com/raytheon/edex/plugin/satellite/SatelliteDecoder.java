@@ -460,8 +460,9 @@ public class SatelliteDecoder {
             }
             timer.stop();
             perfLog.logDuration("Time to Decode", timer.getElapsedTime());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             statusHandler.error("Error decoding satellite", e);
+            record = null;
         } finally {
             try {
                 f.close();
