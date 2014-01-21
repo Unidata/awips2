@@ -17,7 +17,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.ui,
  javax.measure,
  org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.geotools
 Import-Package: com.raytheon.viz.core.rsc
 Export-Package: com.raytheon.uf.viz.xy.timeseries,
  com.raytheon.uf.viz.xy.timeseries.adapter,
