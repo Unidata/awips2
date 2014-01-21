@@ -55,6 +55,7 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 15, 2013 1040       mpduff       Office Id now a set.
  * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code
  * 
  * </pre>
  * 
@@ -134,7 +135,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(fiveDaysFromNow).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.ACTIVE)));
     }
 
     @Test
@@ -149,7 +150,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(yesterday).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.INACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.INACTIVE)));
     }
 
     @Test
@@ -166,7 +167,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(fiveDaysFromNow1970).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.ACTIVE)));
     }
 
     @Test
@@ -184,7 +185,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(yesterday1970).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.INACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.INACTIVE)));
     }
 
     @Test
@@ -203,7 +204,61 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(januaryFirst).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.ACTIVE)));
+    }
+
+    @Test
+    public void testActivatedSubOutsideActivePeriodReturnsInactive() {
+        final Date fiveDaysAgo = new Date(TimeUtil.currentTimeMillis()
+                - (TimeUtil.MILLIS_PER_DAY * 5));
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_DAY);
+
+        Subscription sub = new SubscriptionBuilder()
+                .withActivePeriodStart(fiveDaysAgo)
+                .withActivePeriodEnd(yesterday).build();
+
+        sub.deactivate();
+        sub.activate();
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.INACTIVE)));
+    }
+
+    @Test
+    public void testGetStatusOfDeactivatedSubReturnsDeactivatedStatus() {
+        Subscription sub = new SubscriptionBuilder().build();
+        sub.deactivate();
+        sub.getStatus();
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.DEACTIVATED)));
+    }
+
+    @Test
+    public void testGetStatusOfReactivatedSubReturnsActive() {
+        Subscription sub = new SubscriptionBuilder().build();
+        sub.deactivate();
+        sub.activate();
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.ACTIVE)));
+    }
+
+    @Test
+    public void testActivatingAnExpiredSubIsStillExpired() {
+        Subscription sub = new SubscriptionBuilder().build();
+        Calendar endTime = TimeUtil.newGmtCalendar();
+        endTime.add(Calendar.DAY_OF_MONTH, -30);
+        sub.setSubscriptionEnd(endTime.getTime());
+
+        // activate it
+        sub.activate();
+
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.EXPIRED)));
+    }
+
+    @Test
+    public void testInvalidSubCannotBeActivated() {
+        SiteSubscription sub = new SubscriptionBuilder().build();
+        sub.setValid(false);
+        sub.activate();
+
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.INVALID)));
     }
 
     @Test

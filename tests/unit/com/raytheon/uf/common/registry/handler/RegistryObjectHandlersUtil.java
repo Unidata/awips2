@@ -37,7 +37,8 @@ import com.raytheon.uf.common.util.TestUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 04, 2012  1241      djohnson     Initial creation
- * Jul 10, 2013 2106       djohnson     Spring file path moved to SpringFiles for reuse.
+ * Jul 10, 2013  2106      djohnson     Spring file path moved to SpringFiles for reuse.
+ * Jan 09, 2014  2615      bgonzale     Added spring files to initialize beans missing in tests.
  * 
  * </pre>
  * 
@@ -78,7 +79,9 @@ public class RegistryObjectHandlersUtil {
         RegistryObjectHandlers.clear();
         new ClassPathXmlApplicationContext(
                 new String[] {
+                        TestUtil.getResResourcePath(SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML),
                         TestUtil.getResResourcePath(SpringFiles.DATADELIVERY_HANDLERS_XML),
+                        TestUtil.getResResourcePath(SpringFiles.DATADELIVERY_STANDALONE_XML),
                         TestUtil.getResResourcePath(resResource) },
                 RegistryObjectHandlersUtil.class);
     }
