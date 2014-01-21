@@ -19,4 +19,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  javax.measure
 Export-Package: com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.level.mapping,
- com.raytheon.uf.common.dataplugin.level.request
+ com.raytheon.uf.common.dataplugin.level.request,
+ com.raytheon.uf.common.dataplugin.level.util
+Import-Package: com.raytheon.uf.common.comm
