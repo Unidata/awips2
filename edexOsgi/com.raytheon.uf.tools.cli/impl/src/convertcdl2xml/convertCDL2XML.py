@@ -19,7 +19,7 @@
 ##
 
 ##
-# Converts A1 CDL files to A2-formatted gribParamInfo XML files.
+# Converts A1 CDL files to A2-formatted gridParamInfo XML files.
 #  
 #    
 #     SOFTWARE HISTORY
@@ -27,7 +27,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    08/30/12        #1117         dgilling       Initial Creation.
-# 
+#    01/08/14        #2657         dgilling       Use new unified grid tags,
+#                                                 code cleanup.
 #
 ##
 
@@ -35,7 +36,6 @@ import errno
 import glob
 import logging
 import os
-import os.path
 import re
 import subprocess
 import sys
@@ -61,7 +61,9 @@ def main():
     logger.info("Starting convertCDL2XML...")
     
     with open(os.devnull, 'w') as DEVNULL:
-        if subprocess.call("type ncgen", stdout=DEVNULL, stderr=subprocess.STDOUT, shell=True) != 0:
+        try:
+            subprocess.check_call("type ncgen", stdout=DEVNULL, stderr=subprocess.STDOUT, shell=True)
+        except subprocess.CalledProcessError:
             logger.error("This script requires the ncgen program to run. Please install before running this script again.")
             sys.exit(-1)
     
@@ -83,16 +85,12 @@ def main():
 
 
 def __initLogger():
+    logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s",
+                        datefmt="%H:%M:%S",
+                        level=logging.INFO)    
     global logger
     logger = logging.getLogger("convertCDL2XML")
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    # Uncomment line below to enable debug-level logging
-    # ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s:  %(message)s", "%H:%M:%S")
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+
     
 def __parseArgs():
     parser = UsageArgumentParser.UsageArgumentParser(conflict_handler="resolve")
@@ -158,7 +156,9 @@ def __convertFile(cdlFile, outputDir):
 def __convertToCdf(cdlFile, outputDir):
     outFile = os.path.join(outputDir, 'tmpFile.nc')
     cmd = ['ncgen', '-x', '-o', outFile, cdlFile]
-    if subprocess.call(cmd) != 0:
+    try:
+        subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
         logger.error("Could not create temporary CDF file for [" + cdlFile + "].")
         return None
     return outFile
@@ -271,17 +271,17 @@ def __getParmAtts(ncVar, varName, ncFile):
     return attrMap
 
 def __createXML(cdfData):
-    root = ET.Element('gribParamInfo', {'xmlns:ns2': 'group'})
-    
+    root = ET.Element('gridParamInfo', {'xmlns:ns2': 'group'})
+
     fcstTimes = ET.SubElement(root, 'valtimeMINUSreftime')
     for time in cdfData['valtimeMINUSreftime']:
         child = ET.SubElement(fcstTimes, 'fcst')
         child.text = str(time)
-        
+
     for parm in cdfData['parmNames']:
         atts = {'xsi:type': "parameterInfo",
                 'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance"}
-        parmRoot = ET.SubElement(root, 'gribParameterInfo', atts)
+        parmRoot = ET.SubElement(root, 'gridParameterInfo', atts)
         for key in ['short_name', 'long_name', 'units', 'udunits', 'uiname', 'valid_range', 'fillValue', 'n3D', 'levelsDesc', 'levels']:
             if key in cdfData[parm]:
                 if key == 'valid_range':
@@ -297,7 +297,7 @@ def __createXML(cdfData):
                 else:
                     child = ET.SubElement(parmRoot, key)
                     child.text = str(cdfData[parm][key])
-        
+
     return root
 
 if __name__ == '__main__':

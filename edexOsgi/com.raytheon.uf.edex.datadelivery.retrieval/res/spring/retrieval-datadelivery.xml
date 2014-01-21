@@ -76,6 +76,8 @@
             </bean>
         </constructor-arg>
     </bean>
+    
+    <bean id="retrievalQueue" class="java.util.concurrent.ConcurrentLinkedQueue" />
 
     <camelContext id="dataDeliveryNotify-camel"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">

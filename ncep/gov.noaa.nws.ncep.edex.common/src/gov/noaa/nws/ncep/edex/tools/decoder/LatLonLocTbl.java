@@ -11,6 +11,7 @@
  *                                     and add xml for VORs and 
  *                                     Intlsig gempak tables.
  * 30 Sep 2009       3102  jkorman     Changed printlns to logging statements.
+ * 07 Jan 2014             njensen     Better error messages
  * 
  * </pre>
  * 
@@ -148,11 +149,11 @@ public class LatLonLocTbl {
                 point = new LatLonPoint(vor.getLatitude(), vor.getLongitude(),
                         LatLonPoint.INDEGREES);
             } else {
-                logger.debug(" - DID NOT find station ID in vors.xml");
+                logger.warn(" - DID NOT find station ID " + navaid + " in vors.xml");
             }
 
             // If there's an offset direction/bearing, process it
-            if (location.length() > 3) {
+            if (location.length() > 3 && point != null) {
                 String u = location.substring(0, location.length() - 3);
 
                 Pattern p = Pattern.compile("^([0-9]+)\\s*([A-Z]+)");
@@ -176,7 +177,7 @@ public class LatLonLocTbl {
             return point;
         } catch (Exception e) {
             logger.error("[Error decoding location in LatLonLocTbl:  "
-                    + location + "]");
+                    + location + "]", e);
             return null;
         }
     }

@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
 import com.raytheon.uf.common.dataplugin.lsr.LSREventType;
 import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -54,6 +55,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Dec 09, 2013 2581       njensen     Reuse patterns for efficiency
  *                                      Check entire time line looking for latlon
+ * Jan 07, 2013 2581       njensen     Check to end of string for source, not a set length
+ * Jan 13, 2013 2581       njensen     Improved error handling and logging
  * 
  * </pre>
  * 
@@ -91,8 +94,6 @@ public class LSRParser {
     private static int STATE_LENGTH = 2; // state length
 
     private static int SOURCE = 53; // source
-
-    private static int SOURCE_LENGTH = 16; // source max length
 
     private static final Pattern LATLON_PTRN = Pattern
             .compile("((([0-8][0-9]|90).\\d{2,2}[NS]) ++(1?+\\d{2,2}.\\d{2,2}[EW])())");
@@ -316,26 +317,32 @@ public class LSRParser {
                         LocalStormReport rpt = new LocalStormReport();
                         String s = r.getReportLine();
 
-                        if (parseTimeLine(s, rpt)) {
-                            List<InternalReport> rptLines = r.getSubLines();
-                            if (rptLines != null) {
-                                r = rptLines.get(0);
-                                if (InternalType.DATE.equals(r.getLineType())) {
-                                    s = r.getReportLine();
-                                    if (parseDateLine(s, rpt)) {
-                                        // Now check the remarks section.
-                                        parseRemarks(rptLines, rpt);
-                                        rpt.setWmoHeader(wmoHeader
-                                                .getWmoHeader());
-                                        rpt.setOfficeid(officeid);
-                                        rpt.setTraceId(traceId);
+                        try {
+                            if (parseTimeLine(s, rpt)) {
+                                List<InternalReport> rptLines = r.getSubLines();
+                                if (rptLines != null) {
+                                    r = rptLines.get(0);
+                                    if (InternalType.DATE.equals(r
+                                            .getLineType())) {
+                                        s = r.getReportLine();
+                                        if (parseDateLine(s, rpt)) {
+                                            // Now check the remarks section.
+                                            parseRemarks(rptLines, rpt);
+                                            rpt.setWmoHeader(wmoHeader
+                                                    .getWmoHeader());
+                                            rpt.setOfficeid(officeid);
+                                            rpt.setTraceId(traceId);
 
-                                        reports.add(rpt);
+                                            reports.add(rpt);
+                                        }
+                                    } else {
+                                        logger.error("Date Line expected");
                                     }
-                                } else {
-                                    logger.error("Date Line expected");
                                 }
                             }
+                        } catch (UnrecognizedDataException e) {
+                            logger.error("Error decoding line " + s
+                                    + " - skipping this entry", e);
                         }
                     }
                 }
@@ -344,7 +351,8 @@ public class LSRParser {
         return reports;
     }
 
-    private boolean parseTimeLine(String timeLine, LocalStormReport rpt) {
+    private boolean parseTimeLine(String timeLine, LocalStormReport rpt)
+            throws UnrecognizedDataException {
         boolean timeOk = false;
 
         if (timeLine != null) {
@@ -367,7 +375,12 @@ public class LSRParser {
                 }
             }
             ss = timeLine.substring(EVENT, EVENT + EVENT_LENGTH).trim();
-            rpt.setEventType(LSREventType.lookup(ss));
+            LSREventType eventType = LSREventType.lookup(ss);
+            if (eventType == null) {
+                throw new UnrecognizedDataException(
+                        "LSRParser does not recognize eventType " + ss);
+            }
+            rpt.setEventType(eventType);
 
             ss = timeLine.substring(LOCATION, LOCATION + LOCATION_LENGTH)
                     .trim();
@@ -419,11 +432,10 @@ public class LSRParser {
                     ss = dateLine.substring(STATE, STATE + STATE_LENGTH).trim();
                     rpt.setStateLoc(ss);
 
-                    ss = dateLine.substring(SOURCE, SOURCE + SOURCE_LENGTH)
-                            .trim();
+                    ss = dateLine.substring(SOURCE).trim();
                     rpt.setSource(ss);
                 } catch (Exception e) {
-                    logger.error("Bad date " + ss);
+                    logger.error("Bad line " + dateLine);
                 }
             }
         }

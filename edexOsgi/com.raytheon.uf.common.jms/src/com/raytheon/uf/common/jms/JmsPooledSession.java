@@ -60,6 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 15, 2011            rjpeter     Initial creation
  * Mar 08, 2012 194        njensen     Improved logging
  * Feb 21, 2013 1642       rjpeter     Fix deadlock scenario
+ * Jan 26, 2014 2357       rjpeter     Close a session when it has no producers or consumers.
  * </pre>
  * 
  * @author rjpeter
@@ -627,7 +628,7 @@ public class JmsPooledSession {
             }
         }
 
-        boolean valid = isValid();
+        boolean valid = isValid() && hasProducersOrConsumers();
         if (valid && returnToPool) {
             valid = conn.returnSessionToPool(this);
         }
@@ -653,5 +654,11 @@ public class JmsPooledSession {
 
     public Object getStateLock() {
         return stateLock;
+    }
+
+    public boolean hasProducersOrConsumers() {
+        return !inUseConsumers.isEmpty() || !inUseProducers.isEmpty()
+                || !availableConsumers.isEmpty()
+                || !availableProducers.isEmpty();
     }
 }
