@@ -2,7 +2,7 @@
 from com.raytheon.viz.gfe import GFEPreference
 
 Options = [
-            ('*visual',                             'truecolor'),
+#            ('*visual',                             'truecolor'),
             ('*background' ,                        'gray65'),
             ('*activeBackground' ,                  'gray83'),
             ('*blinkingHighlightColor' ,            'CornSilk'),
