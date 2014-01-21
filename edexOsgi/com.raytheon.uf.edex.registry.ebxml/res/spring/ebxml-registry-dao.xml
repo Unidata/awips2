@@ -74,6 +74,7 @@
 	<bean name="AuditableEventTypeDao"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="soapService" ref="registryWebServiceClient"/>
 	</bean>
 
 	<bean name="classificationNodeDao"
