@@ -73,6 +73,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify pirep and ncpirep.
  * Dec 03, 2013 2551       rjpeter     Extend PersistablePluginDataObject.
+ * Jan 21, 2013 2724       rjpeter     Update getter/setter to use same Object as
+ *                                     internal variable to prevent auto unboxing
+ *                                     NPE on serialization.
  * </pre>
  * 
  * @author jkorman
@@ -433,7 +436,7 @@ public class PirepRecord extends PersistablePluginDataObject implements
      * @return the temp
      */
     // public Double getTemp() {
-    public float getTemp() {
+    public Float getTemp() {
         return temp;
     }
 
@@ -442,7 +445,7 @@ public class PirepRecord extends PersistablePluginDataObject implements
      *            the temp to set
      */
     // public void setTemp(Double temp) {
-    public void setTemp(float temp) {
+    public void setTemp(Float temp) {
         this.temp = temp;
     }
 
@@ -450,7 +453,7 @@ public class PirepRecord extends PersistablePluginDataObject implements
      * @return the windDirection
      */
     // public Integer getWindDirection() {
-    public float getWindDirection() {
+    public Float getWindDirection() {
         return windDirection;
     }
 
@@ -459,7 +462,7 @@ public class PirepRecord extends PersistablePluginDataObject implements
      *            the windDirection to set
      */
     // public void setWindDirection(Integer windDirection) {
-    public void setWindDirection(float windDirection) {
+    public void setWindDirection(Float windDirection) {
         this.windDirection = windDirection;
     }
 
@@ -467,7 +470,7 @@ public class PirepRecord extends PersistablePluginDataObject implements
      * @return the windspeed
      */
     // public Double getWindSpeed() {
-    public float getWindSpeed() {
+    public Float getWindSpeed() {
         return windSpeed;
     }
 
@@ -476,7 +479,7 @@ public class PirepRecord extends PersistablePluginDataObject implements
      *            the windspeed to set
      */
     // public void setWindSpeed(Double windSpeed) {
-    public void setWindSpeed(float windSpeed) {
+    public void setWindSpeed(Float windSpeed) {
         this.windSpeed = windSpeed;
     }
 

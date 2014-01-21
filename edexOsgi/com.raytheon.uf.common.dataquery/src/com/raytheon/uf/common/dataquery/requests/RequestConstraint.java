@@ -40,29 +40,31 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * RequestConstraint - Constraints on a uEngine request
- * 
- * Allows non-equals style constraints
+ * Used in requests to limit the type of data returned. Similar to an sql WHERE
+ * clause, it consists of a type(operator) and a value. When a request is made
+ * fields will be compared to the constraint value with the specified type to
+ * determine what data to return.
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Aug 21, 2007             chammack    Initial Creation.
- *    May 27, 2009 2408        jsanchez    Cast value to String.
- *    Sep 28, 2009 3099        bsteffen    Fixed constraintCompare to convert
- *                                         all non-numeric objects to String
- *    Nov 05, 2009 3553        rjpeter     Added isNull capability.
- *    Jul 09, 2013 1869        bsteffen    Format Calendar when making
- *                                         Constraint Mapping.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Aug 21, 2007           chammack    Initial Creation.
+ * May 27, 2009  2408     jsanchez    Cast value to String.
+ * Sep 28, 2009  3099     bsteffen    Fixed constraintCompare to convert all
+ *                                    non-numeric objects to String
+ * Nov 05, 2009  3553     rjpeter     Added isNull capability.
+ * Jul 09, 2013  1869     bsteffen    Format Calendar when making Constraint
+ *                                    Mapping.
+ * Dec 18, 2013  2579     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -73,7 +75,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlRootElement(name = "requestConstraint")
 @XmlType(name = "requestConstraint")
 @DynamicSerialize
-public class RequestConstraint implements ISerializableObject, Cloneable {
+public class RequestConstraint implements Cloneable {
 
     public static final RequestConstraint WILDCARD;
     static {
@@ -114,7 +116,8 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
     @DynamicSerializeElement
     protected String constraintValue;
 
-    protected transient Map<Class<?>, Object> asMap = new HashMap<Class<?>, Object>();
+    protected transient Map<Class<?>, Object> asMap = new HashMap<Class<?>, Object>(
+            2);
 
     /**
      * Constructor

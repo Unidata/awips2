@@ -308,6 +308,8 @@
     <alias base="tp6c8">tp6c8</alias>
     <alias base="TP6mean">tpmean6</alias>
     <alias base="TP6sprd">tpsprd6</alias>
+    <alias base="PSurge0ftRun">PSurge0Ft</alias>
+    <alias base="PSurge1ftRun">PSurge1Ft</alias>
     <alias base="PSurge4ftRun">PSurge4Ft</alias>
     <alias base="PSurge5ftRun">PSurge5Ft</alias>
     <alias base="PSurge6ftRun">PSurge6Ft</alias>
