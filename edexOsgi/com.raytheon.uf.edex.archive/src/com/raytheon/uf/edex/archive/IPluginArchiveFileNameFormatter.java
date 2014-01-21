@@ -19,12 +19,7 @@
  **/
 package com.raytheon.uf.edex.archive;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
@@ -36,8 +31,9 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 20, 2012            dgilling     Initial creation
+ * Apr 20, 2012            dgilling    Initial creation
  * Nov 05, 2013 2499       rjpeter     Repackaged
+ * Dec 13, 2013 2555       rjpeter     Refactored
  * </pre>
  * 
  * @author dgilling
@@ -45,29 +41,18 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  */
 
 public interface IPluginArchiveFileNameFormatter {
-
     /**
+     * Returns base file name for the pdo. In the case of IPersistable objects,
+     * it should match the h5 file.
      * 
      * @param pluginName
+     *            The plugin name.
      * @param dao
-     * @param pdoMap
-     *            The current pdos by file. This map will be merged with pdos,
-     *            if a key was not referenced by pdos it will be removed and
-     *            returned in the returned map for storage.
-     * @param startTime
-     * @param endTime
-     * @return The pdos to save to disk. If sortPdosByFiles did not store any
-     *         entries from pdos into a file listed in currentPdoMap then that
-     *         entry will be returned in a new map and removed from
-     *         currentPdoMap.
-     * @throws DataAccessLayerException
-     *             If the DAO is unable to retrieve the records from the
-     *             database.
+     *            The dao for the object.
+     * @param pdo
+     *            The object to look up.
+     * @return
      */
-    @SuppressWarnings("rawtypes")
-    public abstract Map<String, List<PersistableDataObject>> getPdosByFile(
-            String pluginName, PluginDao dao,
-            Map<String, List<PersistableDataObject>> pdoMap,
-            Calendar startTime, Calendar endTime)
-            throws DataAccessLayerException;
+    public String getFilename(String pluginName, PluginDao dao,
+            PersistableDataObject<?> pdo);
 }

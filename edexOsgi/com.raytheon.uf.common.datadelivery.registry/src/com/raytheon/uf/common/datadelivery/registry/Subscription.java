@@ -19,12 +19,15 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
+
+import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 
 /**
  * Definition of a subscription.
@@ -42,6 +45,8 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Sept 30,2013 1797       dhladky      Abstracted and genericized.
  * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type information.
+ * Jan 08, 2014   2615     bgonzale     Added calculate start and calculate end methods.
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code
  * 
  * </pre>
  * 
@@ -54,6 +59,19 @@ public interface Subscription<T extends Time, C extends Coverage> {
     @XmlEnum
     public enum SubscriptionType {
         QUERY, RECURRING;
+    }
+
+    /**
+     * State of the subscription.
+     * 
+     * <pre>
+     * ON for Active, Inactive, Unscheduled status
+     * OFF for Expired, Deactivated, Invalid status
+     * </pre>
+     */
+    @XmlEnum
+    public enum SubscriptionState {
+        ON, OFF;
     }
 
     /** Enumeration to use for subscription priorities */
@@ -154,6 +172,9 @@ public interface Subscription<T extends Time, C extends Coverage> {
 
     /** Subscription type slot (query, recurring) */
     String SUBSCRIPTION_TYPE_SLOT = "subscriptionType";
+
+    /** Subscription state slot (off or on) */
+    String SUBSCRIPTION_STATE_SLOT = "subscriptionState";
 
     /**
      * Get subscription name.
@@ -298,6 +319,28 @@ public interface Subscription<T extends Time, C extends Coverage> {
     void setActivePeriodEnd(Date activePeriodEnd);
 
     /**
+     * Calculate the earliest that this subscription is valid based on active
+     * period and start time.
+     * 
+     * @param startConstraint
+     *            the earliest valid time.
+     * 
+     * @return the valid subscription start Date.
+     */
+    Calendar calculateStart(Calendar startConstraint);
+
+    /**
+     * Calculate the latest that this subscription is valid based on active
+     * period and end time.
+     * 
+     * @param endConstraint
+     *            the latest valid time.
+     * 
+     * @return the valid subscription end Date.
+     */
+    Calendar calculateEnd(Calendar endConstraint);
+
+    /**
      * isNotify flag for subscription.
      * 
      * @return boolean true if full dataset
@@ -434,19 +477,11 @@ public interface Subscription<T extends Time, C extends Coverage> {
     void setDataSetName(String dataSetName);
 
     /**
-     * isActive flag for subscription status.
+     * Check if status is SubscriptionStatus.ACTIVE
      * 
      * @return boolean true if subscription is Active
      */
     boolean isActive();
-
-    /**
-     * Set the subscription status to active.
-     * 
-     * @param active
-     *            subscription active
-     */
-    void setActive(boolean active);
 
     /**
      * Set subscription valid.
@@ -535,18 +570,11 @@ public interface Subscription<T extends Time, C extends Coverage> {
     void setId(String id);
 
     /**
-     * Determine if subscription status is expired.
-     * 
-     * @return true if status is expired
-     */
-    boolean isExpired();
-
-    /**
      * Get the current subscription status.
      * 
-     * @return String value of SUBSCRIPTION_STATUS
+     * @return SubscriptionStatus
      */
-    String getStatus();
+    SubscriptionStatus getStatus();
 
     /**
      * Get the route.
@@ -655,4 +683,14 @@ public interface Subscription<T extends Time, C extends Coverage> {
      * @param subType
      */
     void setSubscriptionType(SubscriptionType subType);
+
+    /**
+     * Activate the subscription
+     */
+    void activate();
+
+    /**
+     * Deactivate the subscription
+     */
+    void deactivate();
 }
