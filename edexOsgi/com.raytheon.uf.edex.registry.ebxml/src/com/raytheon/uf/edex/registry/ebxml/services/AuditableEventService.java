@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
@@ -34,6 +35,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -59,6 +61,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * 10/23/2013   1538       bphillip    Removed call to subscription manager. Subscriptions will now
  *                                     only be run on a quartz timer
  * 12/2/2013    1829       bphillip    Now uses event bus for triggering auditable event generation
+ * 01/21/2014   2613       bphillip    Changed how auditable events are created for deletes
  * 
  * </pre>
  * 
@@ -103,12 +106,27 @@ public class AuditableEventService {
     public void createAuditableEventFromObjects(
             CreateAuditTrailEvent registryEvent) throws EbxmlRegistryException {
         if (!CollectionUtil.isNullOrEmpty(registryEvent.getObjectsAffected())) {
-            AuditableEventType event = createEvent(registryEvent.getRequest(),
-                    TimeUtil.currentTimeMillis());
-            addRegistryObjectActionToEvent(event,
-                    registryEvent.getActionType(),
-                    registryEvent.getObjectsAffected());
-            auditDao.createOrUpdate(event);
+            long currentTime = TimeUtil.currentTimeMillis();
+            if (ActionTypes.delete.equals(registryEvent.getActionType())) {
+                for (RegistryObjectType obj : registryEvent
+                        .getObjectsAffected()) {
+                    List<RegistryObjectType> regObjList = new ArrayList<RegistryObjectType>(
+                            1);
+                    regObjList.add(obj);
+                    AuditableEventType event = createEvent(
+                            registryEvent.getRequest(), currentTime);
+                    addRegistryObjectActionToEvent(event,
+                            registryEvent.getActionType(), regObjList);
+                    auditDao.createOrUpdate(event);
+                }
+            } else {
+                AuditableEventType event = createEvent(
+                        registryEvent.getRequest(), currentTime);
+                addRegistryObjectActionToEvent(event,
+                        registryEvent.getActionType(),
+                        registryEvent.getObjectsAffected());
+                auditDao.createOrUpdate(event);
+            }
         }
     }
 
