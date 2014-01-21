@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.util.HarvesterServiceManager;
 import com.raytheon.uf.common.datadelivery.retrieval.util.LookupManager;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.DataSetInformation;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterConfig;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterLookup;
 import com.raytheon.uf.common.gridcoverage.Corner;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ImmutableDate;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.Link;
@@ -93,6 +95,8 @@ import dods.dap.DAS;
  * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Dec 18, 2013 2636       mpduff       Calculate a data availability delay for the dataset and dataset meta data.
+ * Jan 14, 2014            dhladky      Data set info used for availability delay calculations.
  * 
  * </pre>
  * 
@@ -259,6 +263,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 time.setStepUnit(Time.findStepUnit(step.get(1))
                         .getDurationUnit());
                 gdsmd.setTime(time);
+                
             } catch (Exception le) {
                 logParsingException(timecon, "Time", collectionName, url);
             }
@@ -739,12 +744,54 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 throw new IllegalStateException(
                         "The time cannot be null for a DataSet object!");
             }
+            
+            // Calculate dataset availability delay
+            DataSetInformation dsi = LookupManager.getInstance().getDataSetInformation(gdsmd.getDataSetName());
+            long offset = 0l;
+            long startMillis = gdsmd.getTime().getStart().getTime();
+            long endMillis = TimeUtil.newGmtCalendar().getTimeInMillis();
+            
+            /**
+             * This is here for if no one has configured this particular model
+             * They are gross defaults and will not guarantee this model working
+             */
+            if (dsi == null) {
+                Double multi = Double.parseDouble(serviceConfig
+                        .getConstantValue("DEFAULT_MULTIPLIER"));
+                Integer runIncrement = Integer.parseInt(serviceConfig
+                        .getConstantValue("DEFAULT_RUN_INCREMENT"));
+                Integer defaultOffest = Integer.parseInt(serviceConfig
+                        .getConstantValue("DEFAULT_OFFSET"));
+                dsi = new DataSetInformation(gdsmd.getDataSetName(), multi,
+                        runIncrement, defaultOffest);
+                // writes out a place holder DataSetInformation object in the file
+                LookupManager.getInstance().modifyDataSetInformationLookup(dsi);
+            } 
+            
+            offset = (endMillis - startMillis) / TimeUtil.MILLIS_PER_MINUTE;
+            // this is the actually ranging check
+            if (dsi.getRange() < offset) {
+                offset = dsi.getDefaultOffset();
+            }
 
+            dataSet.setAvailabilityOffset((int) offset);
+            gdsmd.setAvailabilityOffset((int) offset);
+
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Dataset Name: "
+                        + dataSet.getDataSetName());
+                statusHandler.debug("StartTime:    " + gdsmd.getTime());
+                statusHandler.debug("Offset:       "
+                        + dataSet.getAvailabilityOffset());
+            }
+            
             List<DataSetMetaData<?>> toStore = metaDatas.get(dataSet);
+            
             if (toStore == null) {
                 toStore = new ArrayList<DataSetMetaData<?>>();
                 metaDatas.put(dataSet, toStore);
             }
+            
             toStore.add(gdsmd);
         }
 
@@ -760,5 +807,4 @@ class OpenDAPMetaDataParser extends MetaDataParser {
 
         return parsedMetadatas;
     }
-
 }

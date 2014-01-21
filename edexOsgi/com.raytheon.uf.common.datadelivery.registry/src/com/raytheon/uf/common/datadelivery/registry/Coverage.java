@@ -25,6 +25,7 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -45,14 +46,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 17, 2011    191      dhladky     Initial creation
- * Dec 10, 2012   1259      bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
- *
+ * Dec 10, 2012   1259      bsteffen    Switch Data Delivery from LatLon to referenced envelopes.
+ * Jan 15, 2014   2678      bgonzale    Added XmlRootElement annotation.
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
 
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @XmlSeeAlso({ GriddedCoverage.class, LatLonGridCoverage.class })

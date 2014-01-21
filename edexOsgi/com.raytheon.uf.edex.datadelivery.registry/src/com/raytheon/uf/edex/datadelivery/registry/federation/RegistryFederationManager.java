@@ -45,6 +45,7 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
+import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.RemoveObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
@@ -52,6 +53,7 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonType;
@@ -65,7 +67,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -151,6 +155,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 11/20/2013   2534        bphillip    Consolidated RegistryReplicationManager into this class and added reciprocal subscriptions.  Added remote subscription monitor.
  * 12/2/2013    1829        bphillip    Modified to use correct getters for slot values
  * 12/9/2013    2613        bphillip    Optimized registry sync function
+ * 1/15/2014    2613        bphillip    Added leaveFederation method to prevent inactive registries from participating in the federation unintentionally.
  * </pre>
  * 
  * @author bphillip
@@ -203,7 +208,10 @@ public class RegistryFederationManager implements RegistryInitializedListener {
     protected String ncfAddress = System.getenv("NCF_ADDRESS");
 
     /** The mode that EDEX was started in */
-    private String registryMode = System.getProperty("edex.run.mode");
+    public static final boolean centralRegistry = System.getProperty(
+            "edex.run.mode").equals(CENTRAL_REGISTRY_MODE);
+
+    private static final String FEDERATION_SYNC_THREADS_PROPERTY = "ebxml-federation-sync-threads";
 
     /**
      * When a federation sync is necessary, this is the number of threads that
@@ -307,9 +315,9 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                     "Error initializing JAXB Manager!", e);
         }
 
-        if (System.getProperty("ebxml-federation-sync-threads") != null) {
+        if (System.getProperty(FEDERATION_SYNC_THREADS_PROPERTY) != null) {
             registrySyncThreads = Integer.valueOf(System
-                    .getProperty("ebxml-federation-sync-threads"));
+                    .getProperty(FEDERATION_SYNC_THREADS_PROPERTY));
         }
 
         /*
@@ -400,7 +408,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
             RegistryServiceException, JAXBException {
 
         FederationType federation = null;
-        if (isCentralRegistry()) {
+        if (centralRegistry) {
             statusHandler.info("Creating Federation object...");
             federation = new FederationType();
             federation.setId(FEDERATION_ID);
@@ -502,7 +510,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                     "Error submitting federation objects to registry", e);
         }
 
-        if (!isCentralRegistry()) {
+        if (!centralRegistry) {
             statusHandler
                     .info("Submitting federation registration objects to NCF...");
             try {
@@ -1124,14 +1132,24 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                             statusHandler
                                     .info("Registry shutting down. Removing subscriptions from: ["
                                             + remoteRegistryBaseURL + "]");
-                            dataDeliveryRestClient
-                                    .getRegistryDataAccessService(
-                                            remoteRegistryBaseURL)
-                                    .removeSubscriptionsForSite(
-                                            federationProperties
-                                                    .getSiteIdentifier());
-                            statusHandler.info("Subscriptions removed from: ["
-                                    + remoteRegistryBaseURL + "]");
+                            if (dataDeliveryRestClient
+                                    .isRegistryAvailable(remoteRegistryBaseURL)) {
+                                dataDeliveryRestClient
+                                        .getRegistryDataAccessService(
+                                                remoteRegistryBaseURL)
+                                        .removeSubscriptionsForSite(
+                                                federationProperties
+                                                        .getSiteIdentifier());
+                                statusHandler
+                                        .info("Subscriptions removed from: ["
+                                                + remoteRegistryBaseURL + "]");
+                            } else {
+                                statusHandler
+                                        .warn("Registry at ["
+                                                + remoteRegistryBaseURL
+                                                + "] is not available. Unable to remove subscriptions.");
+                            }
+
                         }
                     });
                     return true;
@@ -1240,7 +1258,17 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                                         .warn("Registry at ["
                                                 + remoteRegistryUrl
                                                 + "] is unavailable. Unable to verify subscriptions");
-                                return;
+                                continue;
+                            }
+
+                            if (!Boolean.parseBoolean(dataDeliveryRestClient
+                                    .getFederationService(remoteRegistryUrl)
+                                    .isFederated())) {
+                                statusHandler
+                                        .warn("Registry at ["
+                                                + remoteRegistryUrl
+                                                + "] is currently not participating in the federation. Skipping subscription verification");
+                                continue;
                             }
                             int resubmissions = 0;
                             QueryManager remoteQueryManager = registrySoapServices
@@ -1335,39 +1363,36 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                 scheduler.schedule(this, 10, TimeUnit.SECONDS);
             }
         }
+    }
 
-        private boolean joinFederation() {
+    public boolean joinFederation() {
+        try {
             try {
-                try {
-                    if (!isCentralRegistry()) {
-                        if (dataDeliveryRestClient
-                                .isRegistryAvailable(ncfAddress)) {
-                            statusHandler
-                                    .info("NCF Registry is available. Attempting to join federation...");
-                        } else {
-                            statusHandler
-                                    .error("Unable to join federation. NCF is currently unreachable.");
-                            return false;
-                        }
-                    }
-                    List<RegistryObjectType> objects = new ArrayList<RegistryObjectType>(
-                            5);
-                    RegistryType registry = federationProperties
-                            .createRegistryObject();
-                    OrganizationType org = federationProperties
-                            .createOrganization();
-                    PersonType primaryContact = federationProperties
-                            .createPrimaryContactPerson();
-                    FederationType federation = getFederation();
-                    AssociationType federationAssociation = null;
-                    if (federation == null) {
+                if (!centralRegistry) {
+                    if (dataDeliveryRestClient.isRegistryAvailable(ncfAddress)) {
                         statusHandler
-                                .error("Unable to join federation.  Federation Object not found.");
+                                .info("NCF Registry is available. Attempting to join federation...");
                     } else {
-                        federationAssociation = getFederationAssociation(
-                                registry, federation);
+                        statusHandler
+                                .error("Unable to join federation. NCF is currently unreachable.");
+                        return false;
                     }
-                    if (isCentralRegistry()) {
+                }
+                List<RegistryObjectType> objects = new ArrayList<RegistryObjectType>(
+                        5);
+                final RegistryType registry = federationProperties
+                        .createRegistryObject();
+                final OrganizationType org = federationProperties
+                        .createOrganization();
+                final PersonType primaryContact = federationProperties
+                        .createPrimaryContactPerson();
+                FederationType federation = getFederation();
+
+                if (federation != null) {
+                    final AssociationType federationAssociation = getFederationAssociation(
+                            registry, federation);
+
+                    if (centralRegistry) {
                         objects.add(federation);
                     }
                     objects.add(registry);
@@ -1381,20 +1406,82 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                         statusHandler
                                 .warn("No replication servers have been specified!");
                     }
-                    return true;
-                } catch (EbxmlRegistryException e) {
-                    statusHandler.error("Error registering with federation", e);
-                    return false;
+
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                        public void run() {
+                            txTemplate
+                                    .execute(new TransactionCallbackWithoutResult() {
+
+                                        @Override
+                                        protected void doInTransactionWithoutResult(
+                                                TransactionStatus status) {
+                                            leaveFederation();
+
+                                        }
+                                    });
+
+                        }
+                    });
                 }
-            } catch (Throwable e) {
-                statusHandler.error("Error initializing EBXML database!", e);
+                return true;
+            } catch (EbxmlRegistryException e) {
+                statusHandler.error("Error registering with federation", e);
                 return false;
             }
+        } catch (Throwable e) {
+            statusHandler.error("Error initializing EBXML database!", e);
+            return false;
         }
     }
 
-    private boolean isCentralRegistry() {
-        return registryMode.equals(CENTRAL_REGISTRY_MODE);
+    public boolean leaveFederation() {
+        try {
+            final RegistryType registry = federationProperties
+                    .createRegistryObject();
+            final OrganizationType org = federationProperties
+                    .createOrganization();
+            final PersonType primaryContact = federationProperties
+                    .createPrimaryContactPerson();
+            FederationType federation = getFederation();
+
+            if (federation != null) {
+                final AssociationType federationAssociation = getFederationAssociation(
+                        registry, federation);
+                ObjectRefListType refList = new ObjectRefListType();
+                refList.getObjectRef().add(new ObjectRefType(registry.getId()));
+                refList.getObjectRef().add(new ObjectRefType(org.getId()));
+                refList.getObjectRef().add(
+                        new ObjectRefType(primaryContact.getId()));
+                refList.getObjectRef().add(
+                        new ObjectRefType(federationAssociation.getId()));
+                RemoveObjectsRequest req = new RemoveObjectsRequest();
+                req.setId("Removing [" + registry.getId()
+                        + "] from the federation...");
+                req.setComment("Remove request to remove federation related objects");
+                req.setDeleteChildren(true);
+                req.setObjectRefList(refList);
+                statusHandler.info("Disconnecting from federation...");
+                try {
+                    if (RegistryFederationManager.centralRegistry) {
+                        lcm.removeObjects(req);
+                    } else {
+                        registrySoapServices.getLifecycleManagerServiceForHost(
+                                ncfAddress).removeObjects(req);
+                    }
+                    statusHandler
+                            .info("Registry disconnected from federation.");
+                } catch (MsgRegistryException e) {
+                    statusHandler.error(
+                            "Error while disconnecting from federation!", e);
+                }
+            }
+        } catch (Throwable e) {
+            statusHandler.error("Error leaving federation", e);
+            return false;
+        }
+        return true;
+
     }
 
     public static Set<String> getObjectTypes() {
@@ -1422,4 +1509,9 @@ public class RegistryFederationManager implements RegistryInitializedListener {
             DataDeliveryRESTServices dataDeliveryRestClient) {
         this.dataDeliveryRestClient = dataDeliveryRestClient;
     }
+
+    public static FederationProperties getFederationProperties() {
+        return federationProperties;
+    }
+
 }

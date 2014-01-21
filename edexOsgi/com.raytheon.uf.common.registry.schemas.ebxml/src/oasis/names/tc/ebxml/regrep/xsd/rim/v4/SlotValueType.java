@@ -24,7 +24,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -73,6 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/2/2013     1829       bphillip    Removed generic methods, 
  *                                      modified persistence annotations, added 
  *                                      constructors, hashCode, toString and equals
+ * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
@@ -84,7 +84,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "SlotValue")
 public class SlotValueType extends ValueType {
 
     @XmlElement(name = "Slot")
@@ -129,25 +128,30 @@ public class SlotValueType extends ValueType {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + ((slotValue == null) ? 0 : slotValue.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         SlotValueType other = (SlotValueType) obj;
         if (slotValue == null) {
-            if (other.slotValue != null)
+            if (other.slotValue != null) {
                 return false;
-        } else if (!slotValue.equals(other.slotValue))
+            }
+        } else if (!slotValue.equals(other.slotValue)) {
             return false;
+        }
         return true;
     }
 

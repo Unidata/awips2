@@ -24,20 +24,24 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * TODO Add Description
+ * Send multiple {@link DbQueryRequestSet}s at once. This can be more efficient
+ * than sending multiple requests individually because it reduces the network
+ * overhead.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 30, 2011            rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 30, 2011           rjpeter     Initial creation
+ * Dec 18, 2013  2579     bsteffen    Class javadoc
  * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
+ * @see DbQueryRequest
  */
 @DynamicSerialize
 public class DbQueryRequestSet implements IServerRequest {

@@ -48,6 +48,8 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * 03/14/08     #1030      randerso    Initial port
  * 04/8/08      #875       bphillip    Added getter for Grid Parm Info dictionary
  * 08/05/2013   #1571      randerso    Made GridParmInfo a field in ParmStorageInfo
+ *                                     Cloned ParmStorageInfo when requested so we have
+ *                                     a unique instance per database.
  * 
  * </pre>
  * 
@@ -345,12 +347,12 @@ public class GridDbConfig {
      * 
      * @param parmName
      * @param level
-     * @return
+     * @return the ParmStorageInfo
      */
     public ParmStorageInfo getParmStorageInfo(final String parmName,
             final String level) {
         String composite = parmName + "_" + level;
-        return _parmInfoDict.get(composite);
+        return _parmInfoDict.get(composite).clone();
     }
 
     @Override
