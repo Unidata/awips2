@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
  * 10/8/2013    1682       bphillip    Refactored querying
  * 11/20/2013   2534       bphillip    Changed call to getNotificationDestinations which is not in a utility class
+ * 01/21/2014   2613       bphillip    Modifications to account for changed method signatures in RegistryNotificationManager
  * 
  * </pre>
  * 
@@ -135,8 +136,15 @@ public class GetNotification extends RegistryQueryPlugin {
 
         List<ObjectRefType> objectsOfInterest = notificationManager
                 .getObjectsOfInterest(subscription);
-        List<AuditableEventType> eventsOfInterest = notificationManager
-                .getEventsOfInterest(startTime, null, objectsOfInterest);
+        List<AuditableEventType> eventsOfInterest = null;
+        try {
+            eventsOfInterest = notificationManager.getEventsOfInterest(
+                    subscription, destinations.get(0).getDestination(),
+                    startTime, null, objectsOfInterest);
+        } catch (EbxmlRegistryException e1) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error getting events!", e1);
+        }
         try {
             return createResponse(Arrays.asList(notificationManager
                     .getNotification(subscription, "Test Address",
