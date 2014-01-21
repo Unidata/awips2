@@ -39,6 +39,7 @@ import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -47,9 +48,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -85,6 +84,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Jul 31, 2012 875        rferrel     Now uses points.
  * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
  * Dec 06, 2013 2271       mpduff      Added check for null coordinate.
+ * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
+ *                                     parameters to common
  * 
  * </pre>
  * 
@@ -349,7 +350,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             if (tilts != null) {
                 all.addAll(tilts);
             }
-        } catch (VizCommunicationException e) {
+        } catch (CommunicationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         try {
@@ -358,7 +359,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             if (pres != null) {
                 all.addAll(pres);
             }
-        } catch (VizCommunicationException e) {
+        } catch (CommunicationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         try {
@@ -367,7 +368,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             if (theta != null) {
                 all.addAll(theta);
             }
-        } catch (VizCommunicationException e) {
+        } catch (CommunicationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
