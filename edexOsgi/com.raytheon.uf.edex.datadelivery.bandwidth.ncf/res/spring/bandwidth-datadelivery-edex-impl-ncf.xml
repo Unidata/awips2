@@ -22,7 +22,6 @@
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.common.datadelivery.registry.handlers.EmptyAdhocSubscriptionHandler">
-                <property name="registryHandler" ref="registryHandler" />
             </bean>
         </constructor-arg>
     </bean>
