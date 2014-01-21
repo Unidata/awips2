@@ -48,12 +48,7 @@
         <!-- Registry handlers required for EdexBandwidthManager -->
         <constructor-arg ref="DataSetMetaDataHandler" />
         <constructor-arg ref="SubscriptionHandler" />
+        <constructor-arg ref="AdhocSubscriptionHandler" />
         <constructor-arg ref="subscriptionNotificationService" />
     </bean>
-
-    <bean id="dataSetAvailabilityCalculator"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.ProviderDataTypeAvailabilityCalculator">
-        <constructor-arg ref="ProviderHandler" />
-    </bean>
-
 </beans>

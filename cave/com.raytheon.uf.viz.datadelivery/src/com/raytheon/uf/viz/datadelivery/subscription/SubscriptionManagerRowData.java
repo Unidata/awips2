@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jan 25, 2012  1528      djohnson   Priorities no longer need incrementing for display.
  * Apr 08, 2013  1826      djohnson   Remove delivery options.
  * May 15, 2013  1040      mpduff     Change Office IDs to set.
+ * Jan 14, 2014  2459      mpduff     Change Subscription status code
  * </pre>
  * 
  * @author mpduff
@@ -472,8 +473,7 @@ public class SubscriptionManagerRowData implements
         this.setPriority(subscription.getPriority().getPriorityValue());
         this.setSubscriptionStart(subscription.getSubscriptionStart());
         this.setSubscriptionEnd(subscription.getSubscriptionEnd());
-        this.setActive(subscription.isActive());
-        this.setStatus(subscription.getStatus());
+        this.setStatus(subscription.getStatus().toString());
     }
 
     /**

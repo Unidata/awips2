@@ -4,7 +4,6 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="obsRegistryAddon" class="com.raytheon.uf.edex.plugin.obs.registry.ObsRegirstyCollectorAddon">
-		<constructor-arg value="metar"/>
 	</bean>
 	
 	<bean id="obsRegistryAddonProvider" class="com.raytheon.uf.edex.ogc.registry.RegistryCollectorAddonProvider">
