@@ -54,11 +54,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
+ * Date         Ticket#    Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Jun 15, 2010           bsteffen    Initial creation
- * Feb 14, 2011  8244     bkowal      enabled magnification capability.
+ * Jun 15, 2010            bsteffen     Initial creation
+ * Feb 14, 2011 8244       bkowal       enabled magnification capability.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -176,7 +177,7 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
         String s = null;
         Coordinate c = coord.getObject();
         DataTime time = descriptor.getTimeForResource(this);
-        double[] values = descriptor.getGraph(this).getGridLocation(c.x, c.y);
+        double[] values = descriptor.pixelToWorld(new double[] { c.x, c.y });
 
         // if geometry has not been created yet dont sample
         if (geometry == null) {

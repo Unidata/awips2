@@ -93,6 +93,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 12, 2013  2141      mpduff       Valid envelope test happens as needed instead of when changes are made.
  * Oct 10, 2013  2104      mschenke     Switched to use MapScalesManager
  * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
+ * Jan 10, 2014  2452      mpduff       Add label stating all lat/lons will be converted to easting.
  * 
  * </pre>
  * 
@@ -396,10 +397,16 @@ public class AreaComp extends Composite implements ISubset {
         });
 
         gd = new GridData();
-        gd.horizontalSpan = 3;
+        gd.horizontalSpan = 2;
         manualLbl = new Label(regionComp, SWT.LEFT);
         manualLbl.setText("Manual Lat/Lon Edit");
         manualLbl.setLayoutData(gd);
+
+        gd = new GridData();
+        gd.horizontalSpan = 1;
+        Label l = new Label(regionComp, SWT.LEFT);
+        l.setText("All entries will be converted to Easting (0-360)");
+        l.setLayoutData(gd);
 
         /*
          * Predefined controls.

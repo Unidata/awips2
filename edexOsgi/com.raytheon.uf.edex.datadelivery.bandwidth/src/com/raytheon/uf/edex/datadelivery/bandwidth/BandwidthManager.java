@@ -37,9 +37,11 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -132,6 +134,10 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Dec 04, 2013 2566       bgonzale     added method to retrieve and parse spring files for a mode.
  * Dec 11, 2013 2566       bgonzale     fix spring resource resolution.
  * Dec 17, 2013 2636       bgonzale     Changed logging to differentiate the output.
+ * Jan 08, 2014 2615       bgonzale     getMostRecent checks subscription time constraints before scheduling.
+ *                                      handlePoint method now schedules most recent.
+ * Jan 14, 2014 2692       dhladky      Bad Point scheduling final Empty list.                                   
+ * Jan 14, 2014 2459       mpduff       Change to subscription status.
  * 
  * </pre>
  * 
@@ -484,9 +490,19 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     @Override
     public List<BandwidthAllocation> scheduleAdhoc(
             AdhocSubscription<T, C> subscription) {
+        return scheduleAdhoc(subscription, BandwidthUtil.now());
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @return
+     */
+    @Override
+    public List<BandwidthAllocation> scheduleAdhoc(
+            AdhocSubscription<T, C> subscription, Calendar now) {
 
         List<BandwidthSubscription> subscriptions = new ArrayList<BandwidthSubscription>();
-        Calendar now = BandwidthUtil.now();
         // Store the AdhocSubscription with a base time of now..
         subscriptions.add(bandwidthDao.newBandwidthSubscription(subscription,
                 now));
@@ -576,11 +592,13 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
             // If BandwidthManager does not know about the subscription, and
             // it's active, attempt to add it..
-            if (bandwidthSubscriptions.isEmpty() && subscription.isActive()
+            if (bandwidthSubscriptions.isEmpty()
+                    && ((RecurringSubscription) subscription).shouldSchedule()
                     && !subscription.isUnscheduled()) {
                 return schedule(subscription);
-            } else if (!subscription.isActive() || subscription.isUnscheduled()) {
-                // See if the subscription was inactivated or unscheduled..
+            } else if (subscription.getStatus() == SubscriptionStatus.DEACTIVATED
+                    || subscription.isUnscheduled()) {
+                // See if the subscription was deactivated or unscheduled..
                 // Need to remove BandwidthReservations for this
                 // subscription.
                 return remove(bandwidthSubscriptions);
@@ -602,8 +620,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      */
     private List<BandwidthAllocation> handlePoint(
             Subscription<T, C> subscription) {
-        return schedule(subscription,
+        List<BandwidthAllocation> unscheduled = schedule(subscription,
                 ((PointTime) subscription.getTime()).getInterval());
+        unscheduled.addAll(getMostRecent(subscription, false));
+        return unscheduled;
     }
 
     /**
@@ -628,10 +648,18 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             unscheduled = schedule(subscription, Sets.newTreeSet(cycles));
         }
 
+        unscheduled.addAll(getMostRecent(subscription,
+                useMostRecentDataSetUpdate));
+        return unscheduled;
+    }
+
+    private List<BandwidthAllocation> getMostRecent(
+            Subscription<T, C> subscription, boolean useMostRecentDataSetUpdate) {
+        List<BandwidthAllocation> unscheduled = Collections.emptyList();
         // Create an adhoc subscription based on the new subscription,
         // and set it to retrieve the most recent cycle (or most recent
         // url if a daily product)
-        if (subscription instanceof SiteSubscription) {
+        if (subscription instanceof SiteSubscription && subscription.isActive()) {
             AdhocSubscription<T, C> adhoc = new AdhocSubscription<T, C>(
                     (SiteSubscription<T, C>) subscription);
             adhoc = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(adhoc,
@@ -644,7 +672,26 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                                         + "No adhoc requested.",
                                         subscription.getName()));
             } else {
-                unscheduled = scheduleAdhoc(adhoc);
+                RetrievalPlan plan = retrievalManager.getPlan(subscription
+                        .getRoute());
+                if (plan != null) {
+                    Date subscriptionValidStart = subscription.calculateStart(
+                            plan.getPlanStart()).getTime();
+                    Date subscriptionValidEnd = subscription.calculateEnd(
+                            plan.getPlanEnd()).getTime();
+                    Date now = TimeUtil.newDate();
+
+                    if ((now.equals(subscriptionValidStart) || now
+                            .after(subscriptionValidStart))
+                            && now.before(subscriptionValidEnd)) {
+                        unscheduled = scheduleAdhoc(adhoc);
+                    } else {
+                        statusHandler.info(String.format(
+                                "Time frame outside of subscription active time frame [%s].  "
+                                        + "No adhoc requested.",
+                                subscription.getName()));
+                    }
+                }
             }
         } else {
             statusHandler

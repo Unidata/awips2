@@ -25,7 +25,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -59,14 +58,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
- * 
+ * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Entity
-@Table(name = "grib_mercator_coverages")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -123,7 +121,7 @@ public class MercatorGridCoverage extends GridCoverage {
     @Override
     public void initialize() throws GridCoverageException {
         double meridian = 0;
-        if (la2 == null || lo2 == null) {
+        if ((la2 == null) || (lo2 == null)) {
             initializeSecondCorner();
         }
 
@@ -185,20 +183,20 @@ public class MercatorGridCoverage extends GridCoverage {
             DirectPosition2D position = null;
             switch (firstGridPointCorner) {
             case LowerLeft:
-                position = new DirectPosition2D(firstPosition.x + dx * 1000
-                        * nx, firstPosition.y + dy * 1000 * ny);
+                position = new DirectPosition2D(firstPosition.x
+                        + (dx * 1000 * nx), firstPosition.y + (dy * 1000 * ny));
                 break;
             case UpperLeft:
-                position = new DirectPosition2D(firstPosition.x + dx * 1000
-                        * nx, firstPosition.y - dy * 1000 * ny);
+                position = new DirectPosition2D(firstPosition.x
+                        + (dx * 1000 * nx), firstPosition.y - (dy * 1000 * ny));
                 break;
             case LowerRight:
-                position = new DirectPosition2D(firstPosition.x - dx * 1000
-                        * nx, firstPosition.y - dy * 1000 * ny);
+                position = new DirectPosition2D(firstPosition.x
+                        - (dx * 1000 * nx), firstPosition.y - (dy * 1000 * ny));
                 break;
             case UpperRight:
-                position = new DirectPosition2D(firstPosition.x - dx * 1000
-                        * nx, firstPosition.y - dy * 1000 * ny);
+                position = new DirectPosition2D(firstPosition.x
+                        - (dx * 1000 * nx), firstPosition.y - (dy * 1000 * ny));
                 break;
             default:
                 throw new GridCoverageException(
@@ -352,28 +350,35 @@ public class MercatorGridCoverage extends GridCoverage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         if (!super.equals(obj)) {
             return false;
         }
         MercatorGridCoverage other = (MercatorGridCoverage) obj;
         if (Double.doubleToLongBits(latin) != Double
-                .doubleToLongBits(other.latin))
+                .doubleToLongBits(other.latin)) {
             return false;
+        }
         if (Double.doubleToLongBits(majorAxis) != Double
-                .doubleToLongBits(other.majorAxis))
+                .doubleToLongBits(other.majorAxis)) {
             return false;
+        }
         if (Double.doubleToLongBits(minorAxis) != Double
-                .doubleToLongBits(other.minorAxis))
+                .doubleToLongBits(other.minorAxis)) {
             return false;
+        }
         return true;
     }
 
+    @Override
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             MercatorGridCoverage otherMercator = (MercatorGridCoverage) other;

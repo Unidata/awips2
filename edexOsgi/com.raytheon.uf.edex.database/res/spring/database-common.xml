@@ -7,7 +7,7 @@
   <bean id="querySpatialData" class="com.raytheon.uf.edex.database.handlers.SpatialDbQueryHandler"/>
   <bean id="queryDataSet" class="com.raytheon.uf.edex.database.handlers.DbQueryHandlerSet"/>
 
-  <bean factory-bean="handlerRegistry" factory-method="register">
+  <bean id="spatialQueryRegistered" factory-bean="handlerRegistry" factory-method="register">
   	<constructor-arg value="com.raytheon.uf.common.geospatial.request.SpatialDbQueryRequest"/>
   	<constructor-arg ref="querySpatialData"/>
   </bean>

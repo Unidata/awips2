@@ -60,9 +60,7 @@ import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.GFEMapRenderableDisplay;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
-import com.raytheon.viz.gfe.procedures.ProcedureJob;
 import com.raytheon.viz.gfe.rsc.GFELegendResourceData;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
 import com.raytheon.viz.gfe.statusline.ISCSendEnable;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
@@ -88,6 +86,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Jul 7, 2011      #9897   ryu         close formatters on perspective close/reset
  * Aug 20,2012      #1077   randerso    Added support for bgColor setting
  * Oct 23, 2012  #1287      rferrel     Changes for non-blocking FormattrLauncherDialog.
+ * Dec 09, 2013  #2367      dgilling    Remove shutdown of ProcedureJob and
+ *                                      SmartToolJob.
  * Jan 14, 2014      2594   bclement    added low memory notification
  * </pre>
  * 
@@ -236,15 +236,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
         DataManagerUIFactory.dispose(perspectiveWindow);
 
-        // Put on own thread so close is not slowed down.
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                ProcedureJob.shutdown();
-                SmartToolJob.shutdown();
-            }
-        }).start();
         FormatterlauncherAction.closeDialog();
     }
 
