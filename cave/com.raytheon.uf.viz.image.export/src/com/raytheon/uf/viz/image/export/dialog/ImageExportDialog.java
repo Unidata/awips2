@@ -308,7 +308,7 @@ public class ImageExportDialog extends CaveSWTDialog {
             options.setFrameSelection(FrameSelection.ALL);
         } else if (currentFramesButton.getSelection()) {
             options.setFrameSelection(FrameSelection.CURRENT);
-        } else {
+        } else if (selectedFramesButton.getSelection()) {
             options.setFrameSelection(FrameSelection.USER);
             try {
                 int from = Integer.parseInt(framesFromText.getText()) - 1;
@@ -350,7 +350,7 @@ public class ImageExportDialog extends CaveSWTDialog {
             try {
                 double delayS = Double
                         .parseDouble(lastFrameDwellText.getText());
-                int delay = (int) (delayS / TimeUtil.MILLIS_PER_SECOND);
+                int delay = (int) (delayS * TimeUtil.MILLIS_PER_SECOND);
                 options.setLastFrameDwell(delay);
             } catch (NumberFormatException e) {
                 invalidNumberMessage(lastFrameDwellText, "last frame dwell");
