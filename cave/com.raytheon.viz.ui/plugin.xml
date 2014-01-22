@@ -236,31 +236,9 @@
          name="Toogle Toolbar">
    </command>
    <command
-         id="com.raytheon.viz.ui.actions.printScreenAction"
-         categoryId="com.raytheon.uf.viz.core.commandCategory"
-         description="Print the currently active editor"
-         name="Print Screen">
-         <commandParameter
-               id="frameSelection"
-               name="Frame Selection"
-               optional="true">
-         </commandParameter>
-   </command>
-   <command
          id="com.raytheon.viz.ui.newPage"
          name="New Window">
    </command>
-   <command
-         id="com.raytheon.viz.ui.actions.saveScreen"
-         categoryId="com.raytheon.uf.viz.core.commandCategory"
-      	 description="Save the current screen"
-         name="Save Screen">
-         <commandParameter
-               id="frameSelection"
-               name="Frame Selection"
-               optional="true">
-         </commandParameter>
-    </command>
       <command
             id="com.raytheon.viz.ui.actions.notImplemented"
             name="Not Implemented">
@@ -417,16 +395,8 @@
          commandId="com.raytheon.uf.viz.ui.actions.toggleToolbarHandler">
    </handler>
    <handler
-         class="com.raytheon.viz.ui.actions.PrintScreenAction"
-         commandId="com.raytheon.viz.ui.actions.printScreenAction">
-   </handler>
-   <handler
          class="com.raytheon.viz.ui.actions.NewPageAction"
          commandId="com.raytheon.viz.ui.newPage">
-   </handler>
-   <handler
-         class="com.raytheon.viz.ui.actions.SaveScreenAction"
-         commandId="com.raytheon.viz.ui.actions.saveScreen">
    </handler>
    <handler
          class="com.raytheon.viz.ui.actions.NotImplementedAction"
@@ -508,33 +478,6 @@
              commandId="com.raytheon.viz.ui.saveProcedure"
              label="Perspective Displays..."
              style="push">
-       </command>
-       <command
-             commandId="com.raytheon.viz.ui.actions.saveScreen"
-             label="Capture Current Frame"
-             style="push">
-             <parameter
-                   name="frameSelection"
-                   value="current">
-             </parameter>
-       </command>
-       <command
-             commandId="com.raytheon.viz.ui.actions.saveScreen"
-             label="Capture All Frames"
-             style="push">
-             <parameter
-                   name="frameSelection"
-                   value="all">
-             </parameter>
-       </command>
-       <command
-             commandId="com.raytheon.viz.ui.actions.printScreenAction"
-             label="Print Screen"
-             style="push">
-             <parameter
-                   name="frameSelection"
-                   value="current">
-             </parameter>
        </command>
    </menuContribution>
 </extension>
