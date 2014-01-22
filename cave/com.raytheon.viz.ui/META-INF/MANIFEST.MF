@@ -2,22 +2,24 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Viz UI
 Bundle-SymbolicName: com.raytheon.viz.ui; singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Eclipse-BuddyPolicy: ext, registered
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.ui.UiPlugin
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.raytheon.viz.core,
- org.eclipse.ui;visibility:=reexport,
- org.eclipse.core.runtime,
- org.geotools,
- javax.measure,
- org.apache.commons.lang,
- com.raytheon.uf.viz.core,
- org.eclipse.core.expressions,
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.message;bundle-version="1.12.1174",
- com.raytheon.uf.common.time;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+Bundle-Vendor: Raytheon
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.ui;bundle-version="3.8.0";visibility:=reexport,
+ com.raytheon.uf.viz.core;bundle-version="1.14.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ org.eclipse.core.expressions;bundle-version="3.4.0",
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.util,
+ org.apache.commons.lang;bundle-version="2.3.0",
+ org.geotools;bundle-version="2.6.4",
+ javax.measure
+Import-Package: com.raytheon.viz.core,
+ com.raytheon.viz.core.imagery,
+ com.raytheon.viz.core.mode
 Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.actions,
  com.raytheon.viz.ui.cmenu,
@@ -38,5 +40,3 @@ Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.views,
  com.raytheon.viz.ui.widgets,
  com.raytheon.viz.ui.widgets.duallist
-Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
