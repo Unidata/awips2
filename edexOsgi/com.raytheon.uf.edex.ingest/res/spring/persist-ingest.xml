@@ -54,11 +54,22 @@
         <route id="notificationAggregation">
             <from uri="direct-vm:stageNotification"/>
             <bean ref="pluginNotifier" method="notify" />
-        </route>
+        </route>                
         
         <route id="notificationTimer">
             <from uri="timer://notificationTimer?fixedRate=true&amp;period=1000" />
             <bean ref="pluginNotifier" method="sendQueuedNotifications" />
         </route>
+        
+        <route id="logFailedData">
+            <from uri="direct-vm:logFailedData" />
+            <bean ref="processUtil" method="logFailedData" />            
+        </route>
+        
+        <route id="logFailureAsInfo">
+            <from uri="direct-vm:logFailureAsInfo" />
+            <bean ref="processUtil" method="logFailureAsInfo" />         
+        </route>
+        
     </camelContext>    
  </beans>
