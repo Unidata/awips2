@@ -23,8 +23,13 @@ import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Typ
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlJaxbManager;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ReflectionUtil;
 
 /**
  * A {@link StringBasedEncoder} implementation that uses JAXB. Package-private
@@ -40,6 +45,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Jun 03, 2013 2038      djohnson     Add equals/hashcode.
  * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
  * Nov 14, 2013 2552      bkowal       EbxmlJaxbManager is now accessed via getInstance
+ * Dec 08, 2013 2584      dhladky      Versions for JAXB objects, Only use the JAXb encoder now.
  * 
  * </pre>
  * 
@@ -48,7 +54,11 @@ import com.raytheon.uf.common.serialization.SerializationException;
  */
 
 class JaxbEncoder extends StringBasedEncoder {
-
+    
+    /** The logger */
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(JaxbEncoder.class);
+    
     /**
      * @param type
      */
@@ -60,12 +70,24 @@ class JaxbEncoder extends StringBasedEncoder {
      * {@inheritDoc}
      */
     @Override
-    Object decodeContent(String content) throws SerializationException {
-        try {
-            return EbxmlJaxbManager.getInstance().getJaxbManager()
-                    .unmarshalFromXml(content);
-        } catch (JAXBException e) {
-            throw new SerializationException("Unable to decode the object!", e);
+    Object decodeContent(String content, String className, String version)
+            throws SerializationException {
+
+        String classVersion = getClassVersion(className);
+
+        if (classVersion.equals(version)) {
+            try {
+                return EbxmlJaxbManager.getInstance().getJaxbManager()
+                        .unmarshalFromXml(content);
+            } catch (JAXBException e) {
+                throw new SerializationException(
+                        "Unable to decode the object!", e);
+            }
+        } else {
+            statusHandler.handle(Priority.INFO,
+                    "Mismatching class versions, returning content. "
+                            + className + " version: " + version);
+            return content;
         }
     }
 
@@ -75,10 +97,41 @@ class JaxbEncoder extends StringBasedEncoder {
     @Override
     String encodeContent(Object objectToEncode) throws SerializationException {
         try {
+            // We always encode using our current version
             return new String(EbxmlJaxbManager.getInstance().getJaxbManager()
                     .marshalToXml(objectToEncode));
         } catch (JAXBException e) {
             throw new SerializationException("Unable to encode the object!", e);
         }
     }
+   
+    /**
+     * Get the version of the class
+     * 
+     * @param className
+     * @return version
+     */
+    public String getClassVersion(String className) {
+
+        String version = EbxmlJaxbManager.getInstance().getVersion(className);
+
+        if (version == null) {
+
+            Class<?> clazz = EbxmlJaxbManager.getInstance().getClass(className);
+            RegistryObjectVersion rov = ReflectionUtil.getAnnotationFromClass(
+                    clazz, RegistryObjectVersion.class);
+            if (rov != null) {
+                version = String.valueOf(rov.value());
+                EbxmlJaxbManager.getInstance().addVersion(className, version);
+            } else {
+                throw new IllegalArgumentException(
+                        "Unable to extract RegistryObjectVersion tag from class! "
+                                + className);
+            }
+        }
+
+        return version;
+    }
 }
+
+

@@ -79,7 +79,7 @@ public class FactoryRegistryHandlerTest {
             RegistryErrorMessage.DATABASE_ERROR_MESSAGE);
 
     private static final IRegistryEncoder encoderStrategy = RegistryEncoders
-            .ofType(Type.DYNAMIC_SERIALIZE);
+            .ofType(Type.JAXB);
 
     private static final FactoryRegistryHandler registryHandler = new FactoryRegistryHandler();
 
