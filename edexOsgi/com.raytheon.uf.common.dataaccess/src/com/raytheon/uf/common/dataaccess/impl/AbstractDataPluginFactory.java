@@ -56,6 +56,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Nov 26, 2013  2537     bsteffen    Fix NPEs for dataTimes and timeRange requests.
  * Jan 14, 2014  2667     mnash       Change getGridData and getGeometryData methods
  *                                    to throw exception by default
+ * Jan 21, 2014  2667     bclement    changed timeRange buildDbQueryRequest method to query against valid times
  * 
  * </pre>
  * 
@@ -66,6 +67,12 @@ import com.raytheon.uf.common.time.TimeRange;
 public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
 
     protected static final String FIELD_DATATIME = "dataTime";
+
+    protected static final String FIELD_VALID_START = FIELD_DATATIME
+            + ".validPeriod.start";
+
+    protected static final String FIELD_VALID_END = FIELD_DATATIME
+            + ".validPeriod.end";
 
     protected static final String DBQUERY_PLUGIN_NAME_KEY = "pluginName";
 
@@ -241,13 +248,13 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
         DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
         /* Add the TimeRange Constraint */
         if (timeRange != null) {
-            RequestConstraint requestConstraint = new RequestConstraint();
-            requestConstraint.setConstraintType(ConstraintType.BETWEEN);
-            String[] dateTimeStrings = new String[] {
-                    timeRange.getStart().toString(),
-                    timeRange.getEnd().toString() };
-            requestConstraint.setBetweenValueList(dateTimeStrings);
-            dbQueryRequest.addConstraint(FIELD_DATATIME, requestConstraint);
+            RequestConstraint afterReqStart = new RequestConstraint(timeRange
+                    .getStart().toString(), ConstraintType.GREATER_THAN_EQUALS);
+            RequestConstraint beforeReqEnd = new RequestConstraint(timeRange
+                    .getEnd().toString(), ConstraintType.LESS_THAN_EQUALS);
+
+            dbQueryRequest.addConstraint(FIELD_VALID_START, afterReqStart);
+            dbQueryRequest.addConstraint(FIELD_VALID_END, beforeReqEnd);
         }
         return dbQueryRequest;
     }
