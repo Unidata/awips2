@@ -36,6 +36,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            njensen     Initial creation
  * Jun 03, 2013  #2023     dgilling    Add getAttributes().
+ * Jan 21, 2014  2667      bclement    attribute method comments
  * 
  * </pre>
  * 
@@ -46,7 +47,8 @@ import com.raytheon.uf.common.time.DataTime;
 public interface IData {
 
     /**
-     * Gets an attribute of the data based on the key.
+     * Gets an attribute of the data based on the key. Attributes are metadata
+     * providing additional information on the dataset.
      * 
      * @param key
      * @return the attribute
@@ -54,7 +56,8 @@ public interface IData {
     public Object getAttribute(String key);
 
     /**
-     * Gets the list of attributes associated with this data.
+     * Gets the list of attributes associated with this data. Attributes are
+     * metadata providing additional information on the dataset.
      * 
      * @return the attributes
      */
