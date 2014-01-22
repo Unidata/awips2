@@ -1,4 +1,23 @@
-package com.raytheon.viz.ui.actions;
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.viz.image.export.handler;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -20,7 +39,27 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
-public abstract class AbstractScreenCaptureAction extends AbstractHandler {
+/**
+ * 
+ * Abstract handler that provides the ability to grab frame(s) as buffered
+ * iamges from the active editor. Subclasses are expected to implement
+ * {@link #execute(org.eclipse.core.commands.ExecutionEvent)} and use the
+ * capture...Frames methods to implement export capability.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 20, 2014  2312     bsteffen    Move to image export plugin.
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
+public abstract class AbstractImageCaptureHandler extends AbstractHandler {
 
     protected BufferedImage captureCurrentFrames(AbstractEditor editor) {
         return editor.screenshot();
