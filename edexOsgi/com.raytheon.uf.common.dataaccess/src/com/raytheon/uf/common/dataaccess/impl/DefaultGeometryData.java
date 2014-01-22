@@ -43,6 +43,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Nov 09, 2012            njensen     Initial creation
  * Jun 03, 2013  #2023     dgilling    Implement getAttributes().
+ * Jan 21, 2014  2667      bclement    attribute method comments
  * 
  * </pre>
  * 
@@ -277,6 +278,13 @@ public class DefaultGeometryData implements IGeometryData {
         this.dataMap.put(parameter, data);
     }
 
+    /**
+     * Add a key/value pair to the attributes map. Attributes are metadata
+     * providing additional information on the dataset.
+     * 
+     * @param key
+     * @param value
+     */
     public void addAttribute(String key, Object value) {
         attributes.put(key, value);
     }
@@ -297,6 +305,12 @@ public class DefaultGeometryData implements IGeometryData {
         this.locationName = locationName;
     }
 
+    /**
+     * Replace the attribute map with attrs. Attributes are metadata providing
+     * additional information on the dataset.
+     * 
+     * @param attrs
+     */
     public void setAttributes(Map<String, Object> attrs) {
         this.attributes = attrs;
     }

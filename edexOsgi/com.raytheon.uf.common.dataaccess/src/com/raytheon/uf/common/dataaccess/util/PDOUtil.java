@@ -53,6 +53,7 @@ import com.raytheon.uf.common.localization.IPathManager;
  * ------------ ---------- ----------- --------------------------
  * Jan 03, 2013            bkowal      Initial creation
  * Jan 31, 2013 #1555      bkowal      Made hdf5 variable generic
+ * Jan 21, 2014  2667      bclement    added getHDF5File method
  * 
  * </pre>
  * 
@@ -67,7 +68,13 @@ public final class PDOUtil {
     private PDOUtil() {
     }
     
-    public static IDataStore getDataStore(PluginDataObject pdo) {
+    /**
+     * Get the hdf5 file for the data object
+     * 
+     * @param pdo
+     * @return
+     */
+    public static File getHDF5File(PluginDataObject pdo){
         final String pluginName = pdo.getPluginName();
         final IPersistable persistable = (IPersistable) pdo;
 
@@ -76,10 +83,19 @@ public final class PDOUtil {
                 persistable);
         String hdf5File = pathProvider.getHDFFileName(pluginName,
                 persistable);
-        File file = new File(pluginName + IPathManager.SEPARATOR
+        return new File(pluginName + IPathManager.SEPARATOR
                 + hdf5Path + IPathManager.SEPARATOR
                 + hdf5File);
-        return DataStoreFactory.getDataStore(file);
+    }
+
+    /**
+     * Get the datastore for the data object
+     * 
+     * @param pdo
+     * @return
+     */
+    public static IDataStore getDataStore(PluginDataObject pdo) {
+        return DataStoreFactory.getDataStore(getHDF5File(pdo));
     }
 
     /**
