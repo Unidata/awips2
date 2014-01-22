@@ -24,6 +24,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -56,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 17, 2013 2113        dhladky     QPID memory usage alleviation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Dec 10, 2013 2616        mpduff      Set overwrite allowed on MadisRecord.
+ * jan 22, 2014 2713       dhladky     Calendar conversion.
  * </pre>
  * 
  * @author dhladky
@@ -792,9 +794,10 @@ public class MadisDecoder extends AbstractDecoder {
             sb.append(":01");
 
             try {
-
                 Date time = getDateFormatter().get().parse(sb.toString());
-                rec.setTimeObs(time);
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                cal.setTime(time);
+                rec.setTimeObs(cal);
 
             } catch (ParseException e) {
                 statusHandler.handle(Priority.PROBLEM,
