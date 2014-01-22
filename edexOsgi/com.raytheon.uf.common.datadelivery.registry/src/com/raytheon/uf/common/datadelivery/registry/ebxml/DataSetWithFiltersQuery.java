@@ -11,11 +11,12 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.TransformException;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
-import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.registry.IResultFormatter;
 import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
@@ -66,8 +67,7 @@ public class DataSetWithFiltersQuery extends DataSetQuery implements
             IRegistryEncoder encoder)
             throws SerializationException {
         DataSet retVal = null;
-        DataSet object = (DataSet) encoder
-                .decodeObject(registryObjectType);
+        DataSet object = (DataSet) DataDeliveryRegistryObjectTypes.getObject(registryObjectType, encoder);
 
         if (satisfiesFilterCriteria(object, levels, envelope)) {
             retVal = object;
