@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -56,6 +57,7 @@ import com.raytheon.uf.edex.ogc.common.feature.ObsLocation;
  * Jun 03, 2013 1763        dhladky     Altered QCD values map
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Sept 19,2013 2388        dhladky     Fixed creation of geometry (location assignment)
+ * jan 22, 2014 2713       dhladky     Calendar conversion.
  * </pre>
  * 
  * @author dhladky
@@ -250,10 +252,9 @@ public class Madis extends AbstractFeatureType {
         record.setSubProvider(this.getSub_provider());
         record.setDataset(this.getDataset());
         record.setRestriction(this.getRestriction());
-        Date date = new Date(this.getTimeObs().toGregorianCalendar()
-                .getTimeInMillis());
-        record.setDataTime(new DataTime(date));
-        record.setTimeObs(date);
+        Calendar cal = this.getTimeObs().toGregorianCalendar();
+        record.setDataTime(new DataTime(cal.getTime()));
+        record.setTimeObs(cal);
         record.setLocation(getSfcObsLocation(this.getObsLocation()));
         record.setDewpoint(this.getDewpoint());
         record.setDewpoint_qcd(QCD.fromVal(this.getDewpoint_qcd()));

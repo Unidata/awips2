@@ -21,7 +21,7 @@ package com.raytheon.uf.edex.plugin.madis.ogc;
  **/
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/01/2013   1746       dhladky      Initial creation
+ * jan 22, 2014 2713       dhladky     Calendar conversion.
  * </pre>
  * 
  * @author dhladky
@@ -97,7 +98,7 @@ public class MadisFeatureFactory implements FeatureFactory {
                 getFeatureType());
         builder.set(LOCATION_KEY, record.getLocation().getLocation());
         builder.set(MadisPointDataTransform.STATION_ID, record.getLocation().getStationId());
-        builder.set(MadisPointDataTransform.TIME_OBS, record.getTimeObs().getTime());
+        builder.set(MadisPointDataTransform.TIME_OBS, record.getTimeObs());
         builder.set(MadisPointDataTransform.PROVIDER, record.getProvider());
         builder.set(MadisPointDataTransform.SUB_PROVIDER, record.getSubProvider());
         builder.set(MadisPointDataTransform.DATASET, record.getDataset());
@@ -155,7 +156,7 @@ public class MadisFeatureFactory implements FeatureFactory {
             builder.setDefaultGeometry(LOCATION_KEY);
             builder.add(LOCATION_KEY, Point.class);
             builder.add(MadisPointDataTransform.STATION_ID, String.class);
-            builder.add(MadisPointDataTransform.TIME_OBS, Date.class);
+            builder.add(MadisPointDataTransform.TIME_OBS, Calendar.class);
             builder.add(MadisPointDataTransform.PROVIDER, String.class);
             builder.add(MadisPointDataTransform.SUB_PROVIDER, String.class);
             builder.add(MadisPointDataTransform.DATASET, Integer.class);
