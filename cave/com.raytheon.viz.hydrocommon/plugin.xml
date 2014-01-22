@@ -52,11 +52,15 @@
                </reference>
             </visibleWhen>
             <command
-                  commandId="com.raytheon.viz.ui.actions.saveScreen"
+                  commandId="com.raytheon.uf.viz.image.export.save"
                   label="Save Image as...">
+                  <parameter
+                        name="frameSelection" value="current" />
+                  <parameter
+                        name="dialogType" value="file" />
             </command>
             <command
-                  commandId="com.raytheon.viz.ui.actions.printScreenAction"
+                  commandId="com.raytheon.uf.viz.image.export.print"
                   label="Print Image...">
             </command>
             <command
