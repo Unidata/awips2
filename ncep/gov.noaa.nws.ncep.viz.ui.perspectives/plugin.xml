@@ -99,10 +99,14 @@
              </separator>
              <menu label="Save">
              
-	             <command  commandId="com.raytheon.viz.ui.actions.saveScreen"
+	             <command  commandId="com.raytheon.uf.viz.image.export.save"
 	                   label="Screen..."
                    style="push"
                    mnemonic="S">
+                  <parameter
+                        name="frameSelection" value="current" />
+                  <parameter
+                        name="dialogType" value="file" />
              </command>
              <command
 	                   commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
@@ -126,7 +130,7 @@
                    visible="true">
              </separator>
              <command
-                   commandId="com.raytheon.viz.ui.actions.printScreenAction"
+                   commandId="com.raytheon.uf.viz.image.export.print"
                    label="Print"
                    style="push"
                    mnemonic="P">

@@ -108,7 +108,7 @@
                    style="push">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.actions.saveScreen"
+                   commandId="com.raytheon.uf.viz.image.export.save"
                    label="Capture Window..."
                    style="push">
              </command>
