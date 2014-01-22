@@ -28,22 +28,21 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/16/10                      dgilling       Initial Creation.
+#    01/22/14        2667          bclement       use method to get millis from time range 
 #    
 # 
 #
 
 
-import calendar
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
 
-# class adapters are broken, let's use a Field adapter instead
 ClassAdapter = 'com.raytheon.uf.common.time.TimeRange'
 
 
 def serialize(context, timeRange):
-    context.writeI64(calendar.timegm(timeRange.getStart()) * 1000.0)
-    context.writeI64(calendar.timegm(timeRange.getEnd()) * 1000.0)
+    context.writeI64(timeRange.getStartInMillis())
+    context.writeI64(timeRange.getEndInMillis())
 
 def deserialize(context):
     startTime = context.readI64()

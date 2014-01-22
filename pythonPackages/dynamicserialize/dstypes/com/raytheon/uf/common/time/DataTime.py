@@ -28,7 +28,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    ??/??/??                      xxxxxxxx       Initial Creation.
 #    05/28/13         2023         dgilling       Implement __str__().
-#
+#    01/22/14         2667         bclement       preserved milliseconds in string representation 
 #
 
 import calendar
@@ -81,7 +81,9 @@ class DataTime(object):
         
         if self.refTime is not None:
             refTimeInSecs = self.refTime.getTime() / 1000
+            micros = (self.refTime.getTime() % 1000) * 1000
             dtObj = datetime.datetime.utcfromtimestamp(refTimeInSecs)
+            dtObj = dtObj.replace(microsecond=micros)
             buffer.write(dtObj.isoformat(' '))
         
         if "FCST_USED" in self.utilityFlags:
@@ -94,13 +96,9 @@ class DataTime(object):
         
         if "PERIOD_USED" in self.utilityFlags:
             buffer.write("[")
-            startTimeInSecs = self.validPeriod.getStartInMillis() / 1000
-            dtObj = datetime.datetime.utcfromtimestamp(startTimeInSecs)
-            buffer.write(dtObj.isoformat(' '))
+            buffer.write(self.validPeriod.start.isoformat(' '))
             buffer.write("--")
-            endTimeInSecs = self.validPeriod.getEndInMillis() / 1000
-            dtObj = datetime.datetime.utcfromtimestamp(endTimeInSecs)
-            buffer.write(dtObj.isoformat(' '))
+            buffer.write(self.validPeriod.end.isoformat(' '))
             buffer.write("]")
         
         strVal = buffer.getvalue()
