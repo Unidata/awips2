@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+
 /**
  * Defines a type that can visit {@link DataSetMetaData} instances and perform
  * some activity.
