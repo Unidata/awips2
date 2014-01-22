@@ -23,6 +23,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.registry.OperationStatus;
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectAssociation;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.constants.Languages;
@@ -76,6 +78,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * 4/9/2013     1802       bphillip    Pulled constants out into existing constants package that was moved into common
  * Jun 03, 2013 2038       djohnson    Allow setting the same encoder strategy.
  * Jun 24, 2013 2106       djohnson    Remove encoder strategy from instance variables.
+ * Dec 04, 2013 2584       dhladky     Versions for Registry objects
  * 
  * </pre>
  * 
@@ -89,6 +92,10 @@ public final class RegistryUtil {
     }
 
     public static String LOCAL_REGISTRY_ADDRESS = null;
+    
+    public static final String registryObjectClassName = "registryObjectClassName";
+    
+    public static final String registryObjectDefaultVersion = "1.0";
 
     static {
         if (System.getenv("EBXML_REGISTRY_HOST") != null
@@ -375,6 +382,28 @@ public final class RegistryUtil {
                         .setDescription(getInternationalString(ReflectionUtil
                                 .getAnnotatedField(registryObject,
                                         RegistryObjectDescription.class)));
+                // Try to harvest the current version from the PayloadObject
+                // if none exists, default to encoder provided numeric.
+                VersionInfoType version = new VersionInfoType();
+                String val = null;
+                RegistryObjectVersion rov = ReflectionUtil
+                        .getAnnotationFromClass(object.getClass(),
+                                RegistryObjectVersion.class);
+                if (rov != null) {
+                    val = String.valueOf(rov.value());
+                }
+                // no value set in annotation field, apply version default.
+                if (val == null) {
+                    // default
+                    val = registryObjectDefaultVersion;
+                }
+                version.setUserVersionName(val);
+                registryObject.setVersionInfo(version);
+                
+                // We need the actual payload class, not just it's ID for version comparisons
+                String clazz = object.getClass().getCanonicalName();
+                SlotType classNameSlot = new SlotType(registryObjectClassName, new StringValueType(clazz));
+                slots.add(classNameSlot);
             }
 
             // Look through all fields that need to be persisted to the

@@ -17,6 +17,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Sept, 30 2013 1797      dhladky      Made generic based on Time
  * Dec 20, 2013 2636       mpduff       Add a dataset availability offset
+ * jan 23, 2013   2584     dhladky     Versions.
  * </pre>
  * 
  * @author dhladky
@@ -51,6 +53,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
 @XmlSeeAlso({ GriddedDataSetMetaData.class,
         OpenDapGriddedDataSetMetaData.class, PointDataSetMetaData.class })
 @RegistryObject({ "url" })
+@RegistryObjectVersion(value = 1.0f)
 public abstract class DataSetMetaData<T extends Time> {
     public static final String DATE_SLOT = "date";
 
