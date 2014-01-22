@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resource>STEREO-B-EUVI</resource>
-    <attrSetGroupName>ALL</attrSetGroupName>
+    <attrSetGroupName>B-EUVI-ALL</attrSetGroupName>
     <attrSetNames>195</attrSetNames>
 </AttributeSetGroup>
