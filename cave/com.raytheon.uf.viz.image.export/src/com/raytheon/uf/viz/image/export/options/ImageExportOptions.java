@@ -27,7 +27,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 
 /**
- * Configuration options taht control how an image is exported.
+ * Configuration options that control how an image is exported.
  * 
  * <pre>
  * 
