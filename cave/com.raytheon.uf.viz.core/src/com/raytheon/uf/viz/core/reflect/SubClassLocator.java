@@ -145,6 +145,14 @@ public class SubClassLocator implements ISubClassLocator {
              */
             return Collections.emptySet();
         }
+        
+        if(bundle.getState() == Bundle.UNINSTALLED){
+            /*
+             * We won't be able to get a class loader for uninstalled bundles so
+             * don't process them.
+             */
+            return Collections.emptySet();
+        }
 
         if (includeRequiredSubclasses) {
             /* Short circut if we already did this. */
