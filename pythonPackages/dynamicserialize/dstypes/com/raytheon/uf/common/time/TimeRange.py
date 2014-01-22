@@ -18,13 +18,25 @@
 # further licensing information.
 ##
 
-# File auto-generated against equivalent DynamicSerialize Java class
+# File auto-generated against equivalent DynamicSerialize Java class. Then modified to add functionality
+#  
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/??                      xxxxxxxx       Initial Creation.
+#    01/22/14        2667          bclement       fixed millisecond support
+#    
+# 
+#
 
 import calendar
 import datetime
 import time
 
 MAX_TIME = 2147483647
+MICROS_IN_SECOND = 1000000
 
 class TimeRange(object):
     def __init__(self, start=None, end=None):
@@ -52,17 +64,19 @@ class TimeRange(object):
             return datetime.datetime(*timeArg[:6])
         else:
             totalSecs = long(timeArg)
+            micros = int((timeArg - totalSecs) * MICROS_IN_SECOND)
             if totalSecs < MAX_TIME:
-                return datetime.datetime.utcfromtimestamp(totalSecs)
+                rval = datetime.datetime.utcfromtimestamp(totalSecs)
             else:
                 extraTime = datetime.timedelta(seconds=(totalSecs - MAX_TIME))
-                return datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
+                rval = datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
+            return rval.replace(microsecond=micros)
 
     def getStart(self):
         return self.start.utctimetuple()
     
     def getStartInMillis(self):
-        return long(calendar.timegm(self.getStart()) * 1000)
+        return self._getInMillis(self.start)
 
     def setStart(self, start):
         self.start = self.__convertToDateTime(start)
@@ -71,7 +85,12 @@ class TimeRange(object):
         return self.end.utctimetuple()
     
     def getEndInMillis(self):
-        return long(calendar.timegm(self.getEnd()) * 1000)
+        return self._getInMillis(self.end)
+    
+    def _getInMillis(self, time):
+        rval = long(calendar.timegm(time.utctimetuple()) * 1000)
+        rval += time.microsecond // 1000
+        return rval
 
     def setEnd(self, end):
         self.end = self.__convertToDateTime(end)
