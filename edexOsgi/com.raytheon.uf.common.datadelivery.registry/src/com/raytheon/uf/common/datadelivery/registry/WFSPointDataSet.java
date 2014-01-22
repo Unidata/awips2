@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -35,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2012 754       dhladky     Initial creation
+ * jan 23, 2013   2584     dhladky     Versions.
  * 
  * </pre>
  * 
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
+@RegistryObjectVersion(value = 1.0f)
 @DynamicSerialize
 public class WFSPointDataSet extends PointDataSet {
         
@@ -50,4 +53,5 @@ public class WFSPointDataSet extends PointDataSet {
     public ServiceType getServiceType() {
         return ServiceType.WFS;
     }
+
 }
