@@ -17,14 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry.handlers;
+package com.raytheon.uf.common.registry.annotations;
 
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * The {@link IRegistryObjectHandler} interface for {@link Subscription}s.
+ * 
+ * Denotes Version of the Registry Object
  * 
  * <pre>
  * 
@@ -32,15 +35,17 @@ import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 17, 2012 1169       djohnson     Initial creation
- * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
- * Mar 29, 2013 1841       djohnson     Renamed to specify UserSubscription.
+ * Dec 4, 2013  2584           dhladky     Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author dhladky
  * @version 1.0
  */
-public interface ISiteSubscriptionHandler extends
-        ISubscriptionTypeHandler<SiteSubscription> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+public @interface RegistryObjectVersion {
+
+    public float value() default 1.0f;
 }
