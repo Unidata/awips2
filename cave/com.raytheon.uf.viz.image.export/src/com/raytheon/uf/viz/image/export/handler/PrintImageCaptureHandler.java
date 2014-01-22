@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.ui.actions;
+package com.raytheon.uf.viz.image.export.handler;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -51,22 +51,23 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * Print the current map
+ * Print the current editor
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 26, 2006             chammack    Initial Creation.
- * Aug 08, 2008      #703   randerso    fixed bug, changed to scale to fit 
- *                                      paper and rotate if necessary
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 26, 2006           chammack    Initial Creation.
+ * Aug 08, 2008  703      randerso    fixed bug, changed to scale to fit paper
+ *                                    and rotate if necessary
+ * Jan 20, 2014  2312     bsteffen    Move to image export plugin.
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
-public class PrintScreenAction extends AbstractScreenCaptureAction {
+public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
 
     /*
      * (non-Javadoc)
