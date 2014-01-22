@@ -1617,7 +1617,7 @@
           </parameter>
        </key>
        <key
-             commandId="com.raytheon.viz.ui.actions.saveScreen"
+             commandId="com.raytheon.uf.viz.image.export.save"
              contextId="com.raytheon.viz.mpe.ui.MPE"
              schemeId="com.raytheon.viz.ui.awips.scheme"
              sequence="M3+S">
