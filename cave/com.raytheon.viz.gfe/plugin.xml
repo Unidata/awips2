@@ -975,6 +975,15 @@
         </reference>
      </activeWhen>
   </handler>
+  <handler
+         class="com.raytheon.viz.gfe.export.image.GfeExportImageHandler"
+         commandId="com.raytheon.uf.viz.image.export.save">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
 	</extension>
 	<extension point="com.raytheon.uf.viz.core.resource">
 		<resource class="com.raytheon.viz.gfe.rsc.GFEResource" name="GFEResource"
