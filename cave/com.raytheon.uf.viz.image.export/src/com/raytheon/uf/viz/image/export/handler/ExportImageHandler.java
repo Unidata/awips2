@@ -134,9 +134,7 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
             options.setFileLocation(new File(path));
 
         } else {
-            /* Advanced dialog */
-            ImageExportDialog dialog = new ImageExportDialog(shell, options);
-            if (dialog.open() == null) {
+            if (openOptionsDialog(shell, options) == false) {
                 return null;
             }
         }
@@ -165,6 +163,16 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
             new SaveImageJob(options, images);
         }
         return null;
+    }
+
+    /**
+     * Open an image dialog
+     * 
+     * @return false if the user canceled, true otherwise.
+     */
+    protected boolean openOptionsDialog(Shell shell, ImageExportOptions options) {
+        ImageExportDialog dialog = new ImageExportDialog(shell, options);
+        return dialog.open() != null;
     }
 
     public void saveImages(IProgressMonitor monitor,
