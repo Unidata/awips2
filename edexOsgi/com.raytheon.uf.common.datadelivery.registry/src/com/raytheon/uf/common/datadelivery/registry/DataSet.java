@@ -18,6 +18,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectAssociation;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.MapValuesResolver;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 07, 2012 1102       djohnson     Remove invalid {@code @XmlRootElement}.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Dec 18, 2013 2636       mpduff       Add a data availability delay for the dataset.
+ * jan 23, 2013   2584     dhladky     Versions.
  * 
  * </pre>
  * 
@@ -50,6 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "providerName", "collectionName", "dataSetName" })
+@RegistryObjectVersion(value = 1.0f)
 public abstract class DataSet<T extends Time, C extends Coverage> {
 
     @RegistryObjectOwner

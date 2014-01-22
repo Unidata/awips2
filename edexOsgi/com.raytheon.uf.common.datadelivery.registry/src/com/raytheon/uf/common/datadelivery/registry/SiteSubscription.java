@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -64,6 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sept 30, 2013 1797       dhladky     Some Generics
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
+ * Dec 08, 2013 2584       dhladky     Version update   
  * 
  * </pre>
  * 
@@ -77,6 +79,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
         Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
 @DynamicSerialize
+@RegistryObjectVersion(value = 1.0f)
 public class SiteSubscription<T extends Time, C extends Coverage> extends
         RecurringSubscription<T, C> {
     private static final long serialVersionUID = -6422673887457060034L;
@@ -180,4 +183,5 @@ public class SiteSubscription<T extends Time, C extends Coverage> extends
             this.officeIDs.add(officeId);
         }
     }
+
 }

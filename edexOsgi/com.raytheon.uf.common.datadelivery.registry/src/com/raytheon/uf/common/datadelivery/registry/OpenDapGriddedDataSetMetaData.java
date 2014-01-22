@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -35,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 4, 2012  1102       djohnson     Initial creation
+ * jan 23, 2013   2584     dhladky     Versions
  * 
  * </pre>
  * 
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
+@RegistryObjectVersion(value = 1.0f)
 @DynamicSerialize
 public class OpenDapGriddedDataSetMetaData extends GriddedDataSetMetaData {
 
@@ -53,4 +56,5 @@ public class OpenDapGriddedDataSetMetaData extends GriddedDataSetMetaData {
     public void accept(IDataSetMetaDataVisitor visitor) {
         visitor.visit(this);
     }
+
 }

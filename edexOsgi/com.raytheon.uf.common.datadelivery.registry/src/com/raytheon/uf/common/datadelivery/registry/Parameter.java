@@ -20,6 +20,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectAssociation;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 06, 2012 1121       mpduff      Added toString().
  * Sep 07, 2012 1102       djohnson    Add {@code @XmlRootElement}.
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * Dec 08, 2013 2584       dhladky     Version update
  * </pre>
  * 
  * @author dhladky
@@ -51,6 +53,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "name", "dataType" })
+@RegistryObjectVersion(value = 1.0f)
 public class Parameter implements Serializable {
 
     private static final long serialVersionUID = -2332611624661834210L;
@@ -294,4 +297,5 @@ public class Parameter implements Serializable {
 
         return hcBuilder.toHashCode();
     }
+
 }
