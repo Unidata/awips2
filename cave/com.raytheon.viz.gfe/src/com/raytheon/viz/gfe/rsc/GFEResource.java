@@ -166,6 +166,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
  * Dec 11, 2013  2621     randerso    Removed conditional from getParm so it never returns null
+ * Jan 23, 2014  2703     bsteffen    Allow construction using a resourceData.
  * 
  * </pre>
  * 
@@ -301,7 +302,27 @@ public class GFEResource extends
      *            the datamanager responsible for it
      */
     public GFEResource(Parm parm, DataManager dataManager) {
-        super(new GFEResourceData(), new LoadProperties());
+        this(new GFEResourceData(parm.getParmID()), new LoadProperties(), parm,
+                dataManager);
+    }
+
+    /**
+     * Same functionality as {@link #GFEResource(Parm, DataManager)} but uses a
+     * predefined resourceData.
+     * 
+     * @param resourceData
+     *            the resourceData
+     * @param loadProps
+     *            the load properties
+     * @param parm
+     *            the parm
+     * @param dataManager
+     *            the datamanager responsible for it
+     */
+    public GFEResource(GFEResourceData resourceData, LoadProperties loadProps,
+            Parm parm,
+            DataManager dataManager) {
+        super(resourceData, loadProps);
         this.resourceData.addChangeListener(this);
         this.parm = parm;
         this.dataManager = dataManager;
