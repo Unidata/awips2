@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                      PluginDataObject.
  *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  *  Oct 22, 2013 2361       njensen     Removed XML annotations
+ *  Jan 21, 2014 2667       bclement    renamed record's lightSource field to source
  * 
  * </pre>
  * 
@@ -157,7 +158,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     @Column(length = 5)
     @DataURI(position = 3)
     @DynamicSerializeElement
-    private String lightSource;
+    private String source;
 
     // Used to track
     @Transient
@@ -231,19 +232,19 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      */
     public void addStrike(LightningStrikePoint strike) {
         // jjg add
-        if (lightSource == null) {
+        if (source == null) {
             if (strike.getLightSource() == null) {
-                lightSource = "NLDN";
+                source = "NLDN";
             } else if (strike.getLightSource().isEmpty()) {
-                lightSource = "UNKN";
+                source = "UNKN";
             } else {
-                lightSource = strike.getLightSource();
+                source = strike.getLightSource();
             }
         } else {
             if (strike.getLightSource() == null) {
-                lightSource = "NLDN";
-            } else if (!lightSource.equals(strike.getLightSource())) {
-                lightSource = "UNKN";
+                source = "NLDN";
+            } else if (!source.equals(strike.getLightSource())) {
+                source = "UNKN";
             }
         }
         // end
@@ -426,8 +427,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public String getLightSource() {
-        return lightSource;
+    public String getSource() {
+        return source;
     }
 
     /**
@@ -435,8 +436,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @param lightSource
      */
-    public void setLightSource(String lightSource) {
-        this.lightSource = lightSource;
+    public void setSource(String lightSource) {
+        this.source = lightSource;
     }
 
     /**
