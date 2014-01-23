@@ -36,6 +36,9 @@ the tar.gz file.  Next go into the conf directory and modify config.xml to
  the default.  Once your config settings are right, run the bin/logsrv.sh
  script to start the log service.
  
+ 
+ Setup of Client Processes
+ ------------------
  At this point the log service is running but nothing is reporting to it.  You
  can configure any Java process using logback to report to it, but with the
  current version that is just EDEX and CAVE.  (Note technically you could
@@ -73,7 +76,8 @@ the tar.gz file.  Next go into the conf directory and modify config.xml to
  in receiver.xml.  You can alter the threshold if need be.
  
  Next you must add your new remoteLogSrv appender to a logger.  Note that a
- logger can have multiple appenders.  For EDEX, the recommendation is to add
+ logger can have multiple appenders, but any logger with additivity="false" will
+ not go through the root log.  For EDEX, the recommendation is to add
  it to the root logger.  For example:
  
 <root>
@@ -109,6 +113,33 @@ go back to normal logging.  If the log service is running, they will resume send
 log messages through the socket.  Therefore, it does not hurt to have
 everything configured even if the log service or the reporting processes are not
 running.
+
+
+Impacts
+-------------
+The log service has very little overhead.  The appenders, as configured, will be just
+another appender so the "normal" logs will continue to function as usual.  With the
+threshold configuration, only WARN and ERROR messages are sent to the log
+service.  All of this is done asynchronously so the processing threads that logged
+a message will not wait for the message to get sent.  Messages sent to the
+service are sent over TCP and are buffered.  As long as the network path to
+the log service is not slower than the rate at which the WARN or ERROR messages
+are produced, you should not notice any slowdowns or impacts due to processes
+reporting to the log service.
+
+Of course, the less an application produces WARN or ERROR messages, the less
+overhead.  And the reporting can always be disabled by undoing the modifications
+to logback configuration files specified in the setup instructions.  Again, if you
+disable reporting to the log service, you do not need to restart the Java process.  
+
+
+More information
+--------------
+For more information about the socket appender, please see
+http://logback.qos.ch/manual/appenders.html#SocketAppender
+
+For more information about logback configuration files, please see
+http://logback.qos.ch/manual/configuration.html#syntax
 
 
 Bugs and/or Improvements
