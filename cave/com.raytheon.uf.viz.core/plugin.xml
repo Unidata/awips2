@@ -106,5 +106,8 @@
    		<graphicsExtension
            class="com.raytheon.uf.viz.core.drawables.ext.GeneralCanvasRenderingExtension">
    		</graphicsExtension>
+   		<graphicsExtension
+           class="com.raytheon.uf.viz.core.drawables.ext.colormap.GeneralColormapShadedShapeExtension">
+   		</graphicsExtension>
    	</extension>
 </plugin>
