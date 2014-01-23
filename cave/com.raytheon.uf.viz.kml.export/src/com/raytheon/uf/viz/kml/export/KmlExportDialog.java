@@ -54,9 +54,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 5, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 05, 2012           bsteffen    Initial creation
+ * Jan 23, 2014  2703     bsteffen    Enable subclasses to add custom frame
+ *                                    selection options.
  * 
  * </pre>
  * 
@@ -66,7 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class KmlExportDialog extends CaveSWTDialog {
 
-    private final KmlExportOptions options;
+    protected final KmlExportOptions options;
 
     private Text locationText;
 
@@ -477,7 +479,7 @@ public class KmlExportDialog extends CaveSWTDialog {
                 options.setFirstFrameIndex(frame);
                 options.setLastFrameIndex(frame + 1);
             }
-        } else {
+        } else if (selectedFramesButton.getSelection()) {
             try {
                 int from = Integer.parseInt(framesFromText.getText()) - 1;
                 options.setFirstFrameIndex(from);
