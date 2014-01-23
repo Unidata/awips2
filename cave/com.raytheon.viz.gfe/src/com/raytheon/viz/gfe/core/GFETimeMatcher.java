@@ -30,6 +30,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -54,23 +59,27 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 14, 2012            mschenke     Initial creation
- * Feb 26, 2013     #1708  randerso     Fixed double notification for time change
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 14, 2012           mschenke    Initial creation
+ * Feb 26, 2013  1708     randerso    Fixed double notification for time change
+ * Jan 23, 2014  2703     bsteffen    Add JAXB Annotations.
+ * 
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-
+@XmlAccessorType(XmlAccessType.NONE)
 public class GFETimeMatcher extends AbstractTimeMatcher {
 
     /** The selected date, added as a extra frame if not null */
+    @XmlAttribute
     private Date selectedDate;
 
     /** Set of resources used in calculating the descriptor times */
+    @XmlTransient
     private Set<GFEResource> tmbResources = new HashSet<GFEResource>();
 
     /*
