@@ -46,6 +46,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.TextAttrDlg;
  * 04/11			?		B. Yin		Re-factor IAttribute
  * 08/12         #802       Q. Zhou     Fixed Front text of 2 lines. Modified handleMouseMove.
  * 12/12		 #591		J. Wu		TTR343 - added default label value for some fronts.
+ * 10/13		 TTR768		J. Wu		Set default attributes for outlook labels (Text).
  * </pre>
  * 
  * @author	B. Yin
@@ -93,6 +94,29 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         				((TextAttrDlg) attrDlg).setFontSize(18);
         			}
         			
+        			/*
+        			 * Set default text attributes for outlook labels - depending on the outlook type!
+        			 */
+        			AbstractDrawableComponent dfltText = null;
+        			if ( prevElem.getParent() instanceof Outlook ) {
+        				String outlookType = ( (Outlook)(prevElem.getParent() ) ).getOutlookType();
+        				String key = new String( outlookType );
+        				if ( ( param = event.getParameter("defaultTxt") ) != null && !param.equalsIgnoreCase("Other") ) {
+        			        key = key + param;
+        				}
+        				
+        				dfltText = AttrSettings.getInstance().getOutlookLabelSettings().get( key );
+        				if ( dfltText == null ) {
+        					for ( String skey : AttrSettings.getInstance().getOutlookLabelSettings().keySet() ) {
+        						dfltText = AttrSettings.getInstance().getOutlookLabelSettings().get( skey );
+        						if ( dfltText != null )  break;
+        					}
+        				}
+        				
+        				if ( dfltText != null ) {
+        					((TextAttrDlg) attrDlg).setAttr( dfltText  );
+        				}        				
+        			}       			
         		}
         		
         		if ( (param = event.getParameter("usePrevColor")) != null ) {

@@ -75,7 +75,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      Fixed enable problem when dialog returns. 
  * 03/12        #599        Q. Zhou     Fixed selecting a outlook. need to enable btns from outlookType table.
  * 										Fixed label text combo width.
- * 03/13		#928		B. Yin		Removed some white space.		
+ * 03/13		#928		B. Yin		Removed some white space.
+ * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * </pre>
  * 
  * @author	B. Yin
@@ -96,6 +97,9 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	private static final String[] SYMBOL_LIST = new String[] { "PAST_WX_09", "PRESENT_WX_065", "PRESENT_WX_073",
 		  "PRESENT_WX_075", "PRESENT_WX_073|PRESENT_WX_075", "PRESENT_WX_056",
 		  "PRESENT_WX_079", "PRESENT_WX_056|PRESENT_WX_079" };
+	
+	public static final String OTLK_TYPE_IN_LAYER_META = "outlook type";
+	public static final String OTLK_FORMAT_FLAG_IN_LAYER_META = "outlook format flag";
 	
 	//Single instance of the dialog
 	private static OutlookAttrDlg INSTANCE;
@@ -600,6 +604,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 				}
 				drawingLayer.removeSelected();
 				PgenUtil.loadOutlookSetContTool(ol);
+				addLineBtn.setEnabled( false );
+				delLineBtn.setEnabled( false );
 			}
 		});
 
@@ -1480,8 +1486,32 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	 */
 	public void setOtlkType( String type ){
 		int idx = outlookCombo.indexOf(type.toUpperCase());
+		if ( idx < 0 ) {
+			idx = 0;
+			type = outlookCombo.getItem(idx);
+		}
 		if ( idx >= 0 ){
 			outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
+			
+			 //disable some fields such as "Make Grid" for some outlooks
+			 showGrid = showMakeGrid(type);
+			 flagLabel = showLabel(type);
+			 flagAction = showAction(type);
+			 
+			 infoBtn.setEnabled(showGrid); 
+			 makeGridBtn.setEnabled( showGrid );			 
+			 lblBtn.setEnabled(flagLabel);
+			 txtBtn.setEnabled(flagLabel);
+			 symbolBtn.setEnabled(flagLabel);
+			 lnColorBtn.setEnabled(flagLabel);
+			 addLineBtn.setEnabled(flagAction);
+			 delLineBtn.setEnabled(flagAction);
+			 setContBtn.setEnabled(flagAction);
+			 showContBtn.setEnabled(flagAction);
+			 fmtBtn.setEnabled(flagAction);
+
+			 needFromLine = setFromLineFlag(type); 
+			 
 			setDefaultLabels( this.getOutlookType());
 			setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
 		}
@@ -1907,7 +1937,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		//check selected DE
 		//Comment out because the selected outlook may not be the same type of the active layer
 	/*	AbstractDrawableComponent selected =  drawingLayer.getSelectedComp();
-		if ( selected != null ){
+		if ( selected != null )
 			if ( selected.getParent().getParent() instanceof Outlook ){
 				otlk = (Outlook)selected.getParent().getParent();
 			}
@@ -1921,10 +1951,19 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		}
 		//loop through the layer
 		else {
-		*/	Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
+		*/	
+		
+			String otlkType = drawingLayer.getActiveLayer().getMetaInfoFromKey(OutlookAttrDlg.OTLK_TYPE_IN_LAYER_META);
+			if ( otlkType == null || otlkType.isEmpty() ){
+				otlkType = getOutlookType();
+			}
+			
+			Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
+		
+		
 			while ( it.hasNext() ){
 				AbstractDrawableComponent adc = it.next();
-				if (adc  instanceof Outlook && ((Outlook)adc).getOutlookType().equalsIgnoreCase(getOutlookType())){
+				if (adc  instanceof Outlook && ((Outlook)adc).getOutlookType().equalsIgnoreCase(otlkType)){
 					otlk = (Outlook) adc;
 					break;
 				}

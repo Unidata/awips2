@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
  * 08/09  		#151		J. Wu		Initial creation. 
  * 02/12  		#656		J. Wu		Retain the last location of the dialog. 
  * 07/12  		#822		J. Wu		Add createShell() so it can be overrided 
- *                                      to create shell with different styles. 
+ *                                      to create shell with different styles.
  * 
  * </pre>
  * 
@@ -51,95 +51,105 @@ import org.eclipse.swt.widgets.Shell;
  */
 
 public class ProductDialog extends Dialog {
-    
+
     /**
      * Return object.
      */
     protected final Boolean returnValue = false;
-    
-	/**
+
+    /**
      * Dialog shell.
      */
     protected Shell shell = null;
-	
-    protected Display display = null; 
-           
-	/**
+
+    protected Display display = null;
+
+    /**
      * PgenResource, active product, and active layer.
      */
-    protected PgenResource	drawingLayer = null;
-    protected Product		currentProduct = null;
-    protected Layer			currentLayer = null;                 
-	
-	protected Point shellLocation;
-    
+    protected PgenResource drawingLayer = null;
+
+    protected Product currentProduct = null;
+
+    protected Layer currentLayer = null;
+
+    protected Point shellLocation;
+
     /**
      * Constructor.
      */
-	public ProductDialog( Shell parentShell ) {
-		
-		super( parentShell );
-				        
-	}
+    public ProductDialog(Shell parentShell) {
 
-	/**
+        super(parentShell);
+
+    }
+
+    /**
      * Open method used to display the product control dialog.
      * 
      * @return Return object (can be null).
      */
     public Object open() {
 
-    	// Link to the drawing layer's active product & active layer;       
+        // Link to the drawing layer's active product & active layer;
         drawingLayer = PgenSession.getInstance().getPgenResource();
         currentProduct = drawingLayer.getActiveProduct();
-        currentLayer   = drawingLayer.getActiveLayer();
+        currentLayer = drawingLayer.getActiveLayer();
 
-        // Reset the UNDO/REDO;   
+        // Reset the UNDO/REDO;
         PgenSession.getInstance().disableUndoRedo();
-        
-        // Create the main shell; 
-    	Shell parent = this.getParent();
-        shell = createShell( parent );
+
+        // Create the main shell;
+        Shell parent = this.getParent();
+        shell = createShell(parent);
 
         // Set the title of the dialog.
         setTitle();
-		
+
         // Create the main layout for the shell.
         setLayout();
- 
+
         // Set the default location.
-        setDefaultLocation( parent );
-        
+        setDefaultLocation(parent);
+
         // Create and initialize all of the controls and layouts
         initializeComponents();
-        
+
         /*
-         * Add a "CLOSE" listenser to the shell to handle the event when the 
+         * Add a "CLOSE" listenser to the shell to handle the event when the
          * user clicks the "X" in the shell window.
          */
-        Listener[] closeListeners = shell.getListeners( SWT.Close );
-        if ( closeListeners != null && closeListeners.length > 0 ) {
-        	for ( Listener ls : closeListeners ) {
-        		shell.removeListener( SWT.Close, ls );
-        	}
+        Listener[] closeListeners = shell.getListeners(SWT.Close);
+        if (closeListeners != null && closeListeners.length > 0) {
+            for (Listener ls : closeListeners) {
+                shell.removeListener(SWT.Close, ls);
+            }
         }
-        
-        shell.addListener( SWT.Close, new shellCloseListener() );
-        
+
+        shell.addListener(SWT.Close, new shellCloseListener());
+
         // Pack and open
         shell.pack();
         shell.open();
-                       
+
         /*
-         *  Pops up a second window, if needed.    
-         *  Note: must be popped up before the event handling loop.
+         * Pops up a second window, if needed. Note: must be popped up before
+         * the event handling loop.
          */
         popupSecondDialog();
-        
+
+        /*
+         * Exit directly from CAVE may get parent disposed and we need to catch
+         * if here.
+         */
+        if (parent == null || parent.isDisposed()) {
+            return returnValue;
+        }
+
         // Event handling loop for this dialog
         display = parent.getDisplay();
-        while ( !shell.isDisposed() ) {
-            if ( !display.readAndDispatch()) {
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
                 display.sleep();
             }
         }
@@ -152,161 +162,159 @@ public class ProductDialog extends Dialog {
      * 
      * @return Return shell.
      */
-    protected Shell createShell( Shell parent ) {
-        Shell newShell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MODELESS );
-    	return newShell;
+    protected Shell createShell(Shell parent) {
+        Shell newShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
+        return newShell;
     }
-        
+
     /**
-     *  Sets the title of the dialog.
+     * Sets the title of the dialog.
      */
-    public void setTitle() {    	
-        shell.setText( "" );        
+    public void setTitle() {
+        shell.setText("");
     }
-     
+
     /**
-     *  Creates the main layout for the shell.
+     * Creates the main layout for the shell.
      */
     public void setLayout() {
-        
-    	GridLayout mainLayout = new GridLayout( 1, true );
-        
-    	mainLayout.marginHeight = 1;
+
+        GridLayout mainLayout = new GridLayout(1, true);
+
+        mainLayout.marginHeight = 1;
         mainLayout.marginWidth = 1;
         mainLayout.verticalSpacing = 2;
         mainLayout.horizontalSpacing = 1;
-        
-        shell.setLayout( mainLayout );
+
+        shell.setLayout(mainLayout);
     }
-    
+
     /**
-     *  Set the default location.
+     * Set the default location.
+     * 
      * @param parent
      */
-    public void setDefaultLocation( Shell parent ) {
-        
-		if ( shellLocation == null) {
-	        Point pt = parent.getLocation();
-	        shell.setLocation( pt.x,  pt.y );	   	    
-		} else {
-			shell.setLocation(shellLocation);
-		}
-		
+    public void setDefaultLocation(Shell parent) {
+
+        if (shellLocation == null) {
+            Point pt = parent.getLocation();
+            shell.setLocation(pt.x, pt.y);
+        } else {
+            shell.setLocation(shellLocation);
+        }
+
     }
-     
+
     /**
      * Initialize the dialog components.
      */
     public void initializeComponents() {
     }
-   
 
     /**
-     *  Check the dialog is opened or not
+     * Check the dialog is opened or not
      */
     public boolean isOpen() {
-        return ( shell != null && !shell.isDisposed() );
-    }
- 
- 	
-    /**
-     *  Pops up a second dialog
-     */    
-    protected void popupSecondDialog() {       	
+        return (shell != null && !shell.isDisposed());
     }
 
-    
     /**
-     *  Set a button's color
-     */    
-    public void setButtonColor( Button btn, Color clr ) {
-       	
-		btn.setBackground( new org.eclipse.swt.graphics.Color( display, 
-                           clr.getRed(), clr.getGreen(), clr.getBlue() ) );
+     * Pops up a second dialog
+     */
+    protected void popupSecondDialog() {
+    }
+
+    /**
+     * Set a button's color
+     */
+    public void setButtonColor(Button btn, Color clr) {
+
+        btn.setBackground(new org.eclipse.swt.graphics.Color(display, clr
+                .getRed(), clr.getGreen(), clr.getBlue()));
 
     }
-    
-    
+
     /*
-     *  Close the dialog
+     * Close the dialog
      */
     public void close() {
-        
-		if ( shell != null && !shell.isDisposed() ){
-			Rectangle bounds = shell.getBounds();
-			shellLocation = new Point(bounds.x, bounds.y);
-			shell.dispose();
-		}
 
-    }  
-    
-    /**
-     *  Get a list of names for selected button in a ProductType, regardless
-     *  of if it is control, action, class, or object.
-     */
-    public List<String> getButtonList( ProductType ptyp ) {
-    	
-    	List<String>  btnList = null;
-    	
-    	if ( ptyp != null ) {
-    	    
-    		btnList = new ArrayList<String>();    	
-    	    
-    		if ( ptyp.getPgenControls() != null ) {
-    	        btnList.addAll( ptyp.getPgenControls().getName() );
-    		}
-    		
-    		if ( ptyp.getPgenActions() != null ) {
-    	        btnList.addAll( ptyp.getPgenActions().getName() );  
-    		}
-    	
-    	    for ( PgenClass cls : ptyp.getPgenClass() ) {
-    		    btnList.add( cls.getName() );
-    			
-    		    if ( cls != null && cls.getPgenObjects() != null ) {
-    		        btnList.addAll( cls.getPgenObjects().getName() );
-    		    }
-    	    }
-    	}
-    	
-    	return btnList;
+        if (shell != null && !shell.isDisposed()) {
+            Rectangle bounds = shell.getBounds();
+            shellLocation = new Point(bounds.x, bounds.y);
+            shell.dispose();
+        }
+
     }
-    
+
     /**
-     *  Reset the PGEN palette based on the settings of a product type.
+     * Get a list of names for selected button in a ProductType, regardless of
+     * if it is control, action, class, or object.
      */
-    public void refreshPgenPalette( ProductType ptyp ) {
-    	if ( PgenSession.getInstance().getPgenPalette() != null )
-    	    PgenSession.getInstance().getPgenPalette().resetPalette( getButtonList( ptyp) ); 
+    public List<String> getButtonList(ProductType ptyp) {
+
+        List<String> btnList = null;
+
+        if (ptyp != null) {
+
+            btnList = new ArrayList<String>();
+
+            if (ptyp.getPgenControls() != null) {
+                btnList.addAll(ptyp.getPgenControls().getName());
+            }
+
+            if (ptyp.getPgenActions() != null) {
+                btnList.addAll(ptyp.getPgenActions().getName());
+            }
+
+            for (PgenClass cls : ptyp.getPgenClass()) {
+                btnList.add(cls.getName());
+
+                if (cls != null && cls.getPgenObjects() != null) {
+                    btnList.addAll(cls.getPgenObjects().getName());
+                }
+            }
+        }
+
+        return btnList;
     }
-        
+
+    /**
+     * Reset the PGEN palette based on the settings of a product type.
+     */
+    public void refreshPgenPalette(ProductType ptyp) {
+        if (PgenSession.getInstance().getPgenPalette() != null)
+            PgenSession.getInstance().getPgenPalette()
+                    .resetPalette(getButtonList(ptyp));
+    }
+
     /*
-     * A listener to handle the event when the user clicks on the "X" on the dialog.
+     * A listener to handle the event when the user clicks on the "X" on the
+     * dialog.
      */
     private class shellCloseListener implements Listener {
-    	  public void handleEvent(Event e) {
-    	    switch ( e.type ) {
-    	    case SWT.Close:
-    	       exit();
-        	   break;
-     	    }
-    	 }
-     }  
+        public void handleEvent(Event e) {
+            switch (e.type) {
+            case SWT.Close:
+                exit();
+                break;
+            }
+        }
+    }
 
     /*
-     *  Exit the dialog - default is to close the dialog. 
+     * Exit the dialog - default is to close the dialog.
      */
     protected void exit() {
-    	close();
-    }  
-    
+        close();
+    }
+
     /*
-     *  Check if need to save changes. 
+     * Check if need to save changes.
      */
-    protected boolean needSaving() {  
-    	return PgenSession.getInstance().getPgenResource().getResourceData().isNeedsSaving();
-    }  
+    protected boolean needSaving() {
+        return PgenSession.getInstance().getPgenResource().getResourceData()
+                .isNeedsSaving();
+    }
 
-  
 }
-

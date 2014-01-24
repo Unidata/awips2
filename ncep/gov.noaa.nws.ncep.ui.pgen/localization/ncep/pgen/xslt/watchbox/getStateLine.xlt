@@ -12,6 +12,8 @@
         Change Log:
 
         B. Yin/Chugach  03/10   Initial Coding
+        B. Yin/SGT		12/13	TTR 904 change county list string
+        
 -->
 
   <xsl:template name="getStateLine">
@@ -20,12 +22,9 @@
          <xsl:value-of select="$state"/>
          <xsl:text>C</xsl:text>
 
-	 <xsl:for-each select="/Products/Product/Layer/DrawableElement/WatchBox/Counties[substring(.,8,2) = $state]">
+	 <xsl:for-each select="/Products/Product/Layer/DrawableElement/DECollection/DrawableElement/WatchBox/Counties[substring(.,8,2) = $state]">
                 <xsl:value-of select="substring(.,4,3)"/>
                 <xsl:text>-</xsl:text>
-		<xsl:if test="position() mod 14 = 0 and not(position() = last())">
-          		<xsl:value-of select="$newline"/>
-		</xsl:if>
         </xsl:for-each>
   </xsl:template>
 
