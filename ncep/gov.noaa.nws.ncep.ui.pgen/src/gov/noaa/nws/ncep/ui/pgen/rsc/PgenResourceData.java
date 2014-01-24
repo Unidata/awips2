@@ -17,7 +17,6 @@ import gov.noaa.nws.ncep.ui.pgen.controls.DeletePartCommand;
 import gov.noaa.nws.ncep.ui.pgen.controls.DeleteSelectedElementsCommand;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenCommand;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenCommandManager;
-import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenRemindDialog;
 import gov.noaa.nws.ncep.ui.pgen.controls.ReplaceElementCommand;
 import gov.noaa.nws.ncep.ui.pgen.controls.ReplaceElementsCommand;
@@ -113,6 +112,8 @@ public class PgenResourceData extends AbstractResourceData implements
     private boolean multiSave = true;
 
     private boolean needsSaving = false;
+
+    private boolean needsDisplay = false;
 
     private int numberOfResources = 0;
 
@@ -1095,6 +1096,7 @@ public class PgenResourceData extends AbstractResourceData implements
             return;
 
         needsSaving = true;
+        needsDisplay = true;
 
         // Save current image of pane for possible future reminder
         // paneImage = lastTarget.screenshot();
@@ -1150,15 +1152,15 @@ public class PgenResourceData extends AbstractResourceData implements
          * Launch SAVE dialog, if requested
          */
         if (confirmDlg.getReturnCode() == MessageDialog.OK) {
-            StoreActivityDialog  storeDialog = null;
+            StoreActivityDialog storeDialog = null;
             try {
-               storeDialog = new StoreActivityDialog( PlatformUI.getWorkbench()
-                       .getActiveWorkbenchWindow().getShell(), "Save As" );
+                storeDialog = new StoreActivityDialog(PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell(), "Save As");
             } catch (VizException e) {
                 e.printStackTrace();
             }
-            if ( storeDialog!= null)
-            	storeDialog.open();
+            if (storeDialog != null)
+                storeDialog.open();
         }
 
     }
@@ -1361,5 +1363,13 @@ public class PgenResourceData extends AbstractResourceData implements
 
     public void setNeedsSaving(boolean save) {
         needsSaving = save;
+    }
+
+    public boolean isNeedsDisplay() {
+        return needsDisplay;
+    }
+
+    public void setNeedsDisplay(boolean needsDisplay) {
+        this.needsDisplay = needsDisplay;
     }
 }
