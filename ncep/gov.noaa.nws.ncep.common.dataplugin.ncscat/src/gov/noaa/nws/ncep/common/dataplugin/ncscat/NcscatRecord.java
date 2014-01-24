@@ -167,6 +167,6 @@ public class NcscatRecord extends PersistablePluginDataObject {
 
     @Override
     public String getPluginName() {
-        return "ncsat";
+        return "ncscat";
     }
 }
