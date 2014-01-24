@@ -1,0 +1,11 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 4: Energetic Particles
+0:0:Proton Flux (Differential):(m^2*s*sr*eV)^1:DIFPFLUX
+1:1:Proton Flux (Integral):(m^2*s*sr)^1:INTPFLUX
+2:2:Electron Flux (Differential):(m^2*s*sr*eV)^1:DIFEFLUX
+3:3:Electron Flux (Integral):(m^2*s*sr)^1:INTEFLUX
+4:4:Heavy Ion Flux (Differential):((m^2*s*sr*eV)/nuc)^1:DIFIFLUX
+5:5:Heavy Ion Flux (iIntegral):(m^2*s*sr)^1:INTIFLUX
+6:6:Cosmic Ray Neutron Flux:h^1:NTRNFLUX
+# 7-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing
