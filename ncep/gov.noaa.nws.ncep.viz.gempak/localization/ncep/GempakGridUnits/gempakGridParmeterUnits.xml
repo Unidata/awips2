@@ -118,7 +118,7 @@
           <name>Specific Humidity</name>
           <units>kg kg**-1</units>
           <gnam>SPFH</gnam>
-          <scale>0</scale>
+          <scale>2</scale>
      </parmeterinfo>
      <parmeterinfo>
           <name>Relative Humidity</name>
@@ -142,13 +142,13 @@
           <name>Vapour pressure</name>
           <units>hPa</units>
           <gnam>VAPR</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Saturation deficit</name>
           <units>hPa</units>
           <gnam>SATD</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Evaporation</name>
@@ -346,7 +346,7 @@
           <name>Montgomery Streamfunction</name>
           <units>m**2/s**2</units>
           <gnam>PSYM</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Sigma co-ordinate vert vel</name>
@@ -358,7 +358,7 @@
           <name>Vertical Velocity (Pressure)</name>
           <units>hPa/s</units>
           <gnam>OMEG</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Vertical Velocity (Geometric)</name>
@@ -454,25 +454,25 @@
           <name>Pressure</name>
           <units>hPa</units>
           <gnam>PRES</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Pressure</name>
           <units>hPa</units>
           <gnam>PRES--</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Pressure Reduced to MSL</name>
           <units>hPa</units>
           <gnam>PMSL</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Pressure Tendency</name>
           <units>hPa/s</units>
           <gnam>PTND</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>ICAO Standard Atm Ref Height</name>
@@ -514,7 +514,7 @@
           <name>Pressure Anomaly</name>
           <units>hPa</units>
           <gnam>PRESA</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Geopotential Height Anomaly</name>
@@ -1138,7 +1138,7 @@
           <name>MSLP (ETA reduction)</name>
           <units>hPa</units>
           <gnam>EMSL</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>5-wave geopotential height</name>
@@ -1192,25 +1192,25 @@
           <name>MSLP (MAPS System Reduction)</name>
           <units>hPa</units>
           <gnam>MSLMA</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>mean sea level pressure (Standard Atmosphere Reduction)</name>
           <units>hPa</units>
           <gnam>MSLSA</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>     
      <parmeterinfo>
           <name>3-hr pressure tendency (Std. ..)</name>
           <units>hPa/s</units>
           <gnam>TSLSA</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Pressure of lvl frm which parcel</name>
           <units>hPa</units>
           <gnam>PLPL</gnam>
-          <scale>-2</scale>
+          <scale>0</scale>    
      </parmeterinfo>
      <parmeterinfo>
           <name>Downward short wave rad flux</name>
@@ -1997,7 +1997,7 @@
           <name>Specific humidity</name>
           <units>kg kg**-1</units>
           <gnam>SPCH</gnam>
-          <scale>0</scale>
+          <scale>2</scale>
      </parmeterinfo>
      <parmeterinfo>
           <name>Total column water</name>
@@ -3473,6 +3473,6 @@
           <name>Deep convective heating rate</name>
           <units>K s**-1</units>
           <gnam>DTCP</gnam>
-          <scale>0</scale>
+          <scale>10</scale>
      </parmeterinfo>
  </gempakGridParmUnitSet>
