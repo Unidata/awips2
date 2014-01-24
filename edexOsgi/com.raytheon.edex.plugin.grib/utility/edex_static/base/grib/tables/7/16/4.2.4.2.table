@@ -1,0 +1,17 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 2: Charged Particle Mass and Number 
+0:0:Particle Number Density:m^3:PLSMDEN
+1:1:Electron Density:m^3:ELCDEN
+2:2:Proton Density:m^3:PROTDEN
+3:3:Ion Density:m^3:IONDEN
+4:4:Vertical Electron Content:m^2:VTEC
+5:5:HF Absorption Frequency:Hz:ABSFRQ
+6:6:HF Absorption:dB:ABSRB
+7:7:Spread F:m:SPRDF
+8:8:h'F:m:HPRIMF
+9:9:Critical Frequency:Hz:CRTFRQ
+10:10:Scintillation:Numeric:SCINT
+# 11-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing
+
+
