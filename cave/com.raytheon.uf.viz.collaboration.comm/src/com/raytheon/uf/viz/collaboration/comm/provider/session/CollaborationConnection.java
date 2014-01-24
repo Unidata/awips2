@@ -110,6 +110,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
  * Jan 08, 2014 2563       bclement    fixed custom port and service name in user id
  * Jan 15, 2014 2630       bclement    connection data stores status as Mode object
+ * Jan 24, 2014 2701       bclement    removed roster manager
  * 
  * </pre>
  * 
@@ -142,8 +143,6 @@ public class CollaborationConnection implements IEventPublisher {
     private PeerToPeerChat chatInstance = null;
 
     private IAccountManager accountManager = null;
-
-    private RosterManager rosterManager = null;
 
     private EventBus eventBus;
 
@@ -209,7 +208,7 @@ public class CollaborationConnection implements IEventPublisher {
             accountManager.sendPresence(initialPresence);
         }
 
-        contactsMgr = new ContactsManager(this);
+        contactsMgr = new ContactsManager(this, connection);
         this.registerEventHandler(contactsMgr);
 
         instanceMap.put(connectionData, this);
@@ -305,28 +304,6 @@ public class CollaborationConnection implements IEventPublisher {
             setupAccountManager();
         }
         return accountManager;
-    }
-
-    /**
-     * 
-     */
-    private void setupRosterManager() {
-        if (rosterManager == null) {
-            if (isConnected()) {
-                rosterManager = new RosterManager(connection);
-            }
-        }
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public RosterManager getRosterManager() {
-        if (rosterManager == null) {
-            setupRosterManager();
-        }
-        return rosterManager;
     }
 
     /**
