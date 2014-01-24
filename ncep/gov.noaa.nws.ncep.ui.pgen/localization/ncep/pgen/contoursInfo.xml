@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
   This xml file is used to provide Contours attributes information, including
-  the parameter name, level, and forecast hour.
+  the parameter name, level, forecast hour, and cint.
   
   It is also used to select a list of symbols/markers that will show up
   in the Contours attributes GUI for quick access. The first 15 symbols/markers
@@ -39,6 +39,48 @@
 		<label text="f066"/>
 		<label text="f072"/>
 	</contoursInfo>	
+
+<!-- 
+    CINT for a given parameter and/or level, in format of:
+    (1) contourInterval/minimumContourValue/maximumContourValue OR
+    (2) contourVal1;contourVal2;...;contourValn
+    
+    See $GEMPAK/help/hlx/cint.hl2
+    
+    When in format (1), the number of decimal points is decided by the maximum number of
+    decimal points found in the cint, e.g., if cint = 10/0/100, then the all contour 
+    value will be integer;  if cint = 10/0/100.00,  then the all contour value will have two 
+    decimal points (0.00, 10.00, ....)
+    
+    You can specify a cint value for a parm for all its levels with {level = ""}.
+-->             
+	<contoursInfo name="Cint">           
+       <cint parm="HGMT" level="" value="10/0/100" />
+       <cint parm="HGMT" level="1000" value="10/0/100" />
+       <cint parm="HGMT" level="850" value="10/0/100" />
+       <cint parm="HGMT" level="700" value="10/0/100" />
+       <cint parm="HGMT" level="500" value="10/0/100" />
+       <cint parm="HGMT" level="300" value="10/0/100" />
+       <cint parm="HGMT" level="200" value="10/0/100" />
+       <cint parm="HGMT" level="100" value="10/0/100" />
+<!-- --> 
+       <cint parm="TEMP" value="10/0/100" />
+       <cint parm="TEMP" level="1000" value="10/0/100" />
+       <cint parm="TEMP" level="850" value="10/0/100" />
+       <cint parm="TEMP" level="700" value="10/0/100" />
+       <cint parm="TEMP" level="500" value="10/0/100" />
+       <cint parm="TEMP" level="300" value="10/0/100" />
+       <cint parm="TEMP" level="200" value="10/0/100" />
+       <cint parm="TEMP" level="100" value="10/0/100" />
+<!-- --> 
+       <cint parm="PRES" level="1000" value="10/0/100" />
+       <cint parm="PRES" level="850" value="10/0/100" />
+       <cint parm="PRES" level="700" value="10/0/100" />
+       <cint parm="PRES" level="500" value="10/0/100" />
+       <cint parm="PRES" level="300" value="10/0/100" />
+       <cint parm="PRES" level="200" value="10/0/100" />
+       <cint parm="PRES" level="100" value="10/0/100" />
+	</contoursInfo>		
 
 <!-- The following are symbols and markers defined in pgen/plugin.xml.
      
