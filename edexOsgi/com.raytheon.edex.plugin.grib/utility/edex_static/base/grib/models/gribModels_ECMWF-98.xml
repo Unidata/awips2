@@ -12,6 +12,20 @@
 
 	<!-- SUBCENTER 0 -->
 	<model>
+		<name>ecens</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>360181001</grid>
+		<process>
+			<id>141</id>
+			<id>142</id>
+			<id>143</id>
+			<id>144</id>
+			<id>145</id>
+		</process>
+	</model>
+
+	<model>
 		<name>ecmwfP25</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
