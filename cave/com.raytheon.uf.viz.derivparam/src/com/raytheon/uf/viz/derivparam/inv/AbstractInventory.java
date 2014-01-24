@@ -35,7 +35,7 @@ import java.util.concurrent.BlockingQueue;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.derivparam.tree.AbstractNode;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
@@ -80,9 +80,10 @@ import com.raytheon.uf.viz.derivparam.tree.UnionLevelNode;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 17, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 17, 2010           bsteffen    Initial creation
+ * Jan 23, 2014  2711     bsteffen    Get all levels from LevelFactory.
  * 
  * </pre>
  * 
@@ -483,9 +484,7 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
     protected Collection<Level> getAllLevels() {
         if (allLevels == null) {
             try {
-                return LevelMappingFactory.getInstance(
-                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                        .getAllLevels();
+                return LevelFactory.getInstance().getAllLevels();
             } catch (CommunicationException e) {
                 // TODO recover from this.
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
