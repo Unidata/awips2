@@ -26,6 +26,11 @@
       </command>  
       <command
           categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenKinkLineDraw"
+          name="Pgen Kink Line Drawing">
+      </command>  
+      <command
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
           name="Pgen Multi Point Drawing">
       </command> 
@@ -327,6 +332,10 @@
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDualPointDrawingTool"
             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDualDraw">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenKinkLineDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenKinkLineDraw">
        </handler>
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenMultiPointDrawingTool"
@@ -2963,6 +2972,18 @@
              className="Arc"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDualDraw"
              icon="icons/cirsolid.gif" />
+         <object
+             name="KINK_LINE_1"
+             label="Kink_Line_Open"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenKinkLineDraw"
+             icon="icons/kinkln1.gif" />
+         <object
+             name="KINK_LINE_2"
+             label="Kink_Line_Fill"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenKinkLineDraw"
+             icon="icons/kinkln2.gif" />
          <object
              name="Arrow"
              label="Arrow"
