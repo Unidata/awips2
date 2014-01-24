@@ -50,6 +50,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 04/17/2013     #863      Greg Hull    AREA_MENUS_FILE    
  * 04/10/2013     #958      qzhou        Added SOLAR_IMG_STYLE_RULES
  * 05/15/2013     #862      Greg Hull    AreaMenus tbl to xml
+ * 11/15/2013     #1051     Greg Hull    createDeskLevel() called from NmapCommon and triggered by spring.
+ * 
  * </pre>
  * 
  * @author ghull 
@@ -63,6 +65,8 @@ public class NcPathManager {
 	// we could instead read from the extension point to find the relative path for a 'type' of file.
 	// 	
 	public static class NcPathConstants {
+
+		public static final String DESK_LEVEL  = "DESK";
 		
 		// the root of NCEP file hierarchy (below base/user/site/desk)
 		public static final String NCEP_ROOT   = "ncep"+File.separator;
@@ -196,24 +200,40 @@ public class NcPathManager {
 	
 	private NcPathManager() {
 		
-		// SITE < DESK < USER
-        if( !Activator.getCurrentDesk().isEmpty() ) {
-        	//LocalizationLevel usrLvl = 
-        		
-        	// NOTE : order of 650 is between SITE(order=500) and USER(order=1000). 
-        	LocalizationLevel DESK = LocalizationLevel.createLevel("DESK", 650 ); 
-		
-        	LocalizationManager.getInstance();
-        
-        	LocalizationManager.registerContextName(
-        			DESK, Activator.getCurrentDesk() );
-        }	
-        
 		// Uses the same CAVELocalizationAdapter.
 		pathMngr = PathManagerFactory.getPathManager( new CAVELocalizationAdapter() );
 		
 	}
 	
+	public void createDeskLevelLocalization( String deskName ) {
+		// SITE < DESK < USER
+		
+		// NOTE : order of 650 is between SITE(order=500) and USER(order=1000). 
+		LocalizationLevel DESK = LocalizationLevel.createLevel(
+				NcPathConstants.DESK_LEVEL, 650 ); 
+
+		// sanity check to make sure the order is correct
+		//
+		if( LocalizationLevel.SITE.compareTo( DESK ) >= 0 ) {
+			System.out.println("WARNING: the SITE level order >= the DESK???? ");
+		}
+		if( LocalizationLevel.USER.compareTo( DESK ) <= 0 ) {
+			System.out.println("WARNING: the USER level order <= the DESK???? ");
+		}
+
+		LocalizationManager.getInstance();
+
+		LocalizationManager.registerContextName( DESK, deskName );		
+	}
+	
+	public LocalizationLevel getDeskLevel() {
+		return LocalizationLevel.valueOf( NcPathConstants.DESK_LEVEL );
+	}
+	
+	public LocalizationContext getDeskContext() {
+		return getContext( LocalizationType.CAVE_STATIC, getDeskLevel() );
+	}
+
 	// same thing as calling PathManagerFactory.getPathManager();
 	public IPathManager getPathManager() {
 		return pathMngr;		
@@ -286,6 +306,10 @@ public class NcPathManager {
         return pathMngr.getContext(type, level);
     }
 
+    public String[] getContextList(LocalizationLevel level) {
+    	return pathMngr.getContextList(level);
+    }
+    
     public LocalizationContext[] getLocalSearchHierarchy(LocalizationType type) {
         return pathMngr.getLocalSearchHierarchy( type );
     }

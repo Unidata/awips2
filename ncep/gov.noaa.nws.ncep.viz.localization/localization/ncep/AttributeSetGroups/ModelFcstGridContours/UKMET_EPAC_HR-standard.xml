@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>UKMET_EPAC_HR</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>500mb_hght_color</attrSetNames>
+</AttributeSetGroup>
