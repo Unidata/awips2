@@ -29,8 +29,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * Class defines the XML file contains the level mapping information.
@@ -40,11 +38,12 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/01/2007    #518      S.Manoj     Initial version
- * 11/16/2009    #3120     rjpeter     Refactored to use factory and level mapping.
- * 04/17/2013    #1913     randerso    Moved to common
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 01, 2007  518      S.Manoj     Initial version
+ * Nov 16, 2009  3120     rjpeter     Refactored to use factory and level mapping.
+ * Apr 17, 2013  1913     randerso    Moved to common
+ * Jan 23, 2014  2711     bsteffen    Remove ISerializableObject
  * 
  * @author smanoj
  * @version 1.0
@@ -52,10 +51,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "LevelMappings")
-public class LevelMappingFile implements ISerializableObject {
-    public static enum ParameterLevelType {
-        STANDARD, COMPOSITE, BINARY, XSECT, TSECT, VRTGPH, DIAGRAM, ALL, SURFACE
-    };
+public class LevelMappingFile {
 
     @XmlElements({ @XmlElement(name = "Level", type = LevelMapping.class) })
     private List<LevelMapping> levelMappingFile;
