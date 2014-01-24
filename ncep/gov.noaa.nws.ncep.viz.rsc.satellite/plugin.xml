@@ -182,15 +182,15 @@
       </nc-resourceParameter>      
       
    </extension>
-      <extension
+   <extension
           point="com.raytheon.uf.viz.localization.localizationpath">
        	<path
              application="NCEP"
              localizationType="CAVE_STATIC"
              name="Style Rules"
              recursive="true"
-             value="ncep/StyleRules"
-	         extensionFilter="*ImageryStyleRules.xml">
+             value="ncep/styleRules"
+	         extensionFilter=".xml">
        </path>
     </extension>
     <extension point="gov.noaa.nws.ncep.viz.common.areaProvider">

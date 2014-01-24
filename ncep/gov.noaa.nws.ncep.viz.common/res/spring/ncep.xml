@@ -1,0 +1,18 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+  
+  <!-- Task 1051 : G. Hull 
+       Trigger start-up code for the NCP regardless of which perspective is activated first.	
+       This is used to force the Desk Level to get created and registered so that the 
+       Localization perspective will recognize desk-level files even if the NCP hasn't been activated.
+    -->
+    <bean id="NcCore" class="gov.noaa.nws.ncep.viz.common.ui.NmapCommon" />
+    
+</beans>

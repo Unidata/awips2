@@ -213,7 +213,19 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
     		// Given the NcscatRecord, locate the associated HDF5 data...
 			
     		File location = HDF5Util.findHDF5Location(nr);
-
+    		
+    		//TODO... Investigate:  Why is the following statement needed?
+    		// Starting in OB13.5.3, the PDO (nr) has a non-null, but bogus,
+    		// value in its dataURI field at this point (and earlier,
+    		// as soon as it is deserialized after return from the metadata
+    		// query).  nr.getDataURI() below will get this bad value, leading
+    		// to failure on the ds.retrieve(...).  Instead we force it to
+    		// synthesize the dataURI -- which getDataURI() does correctly --
+    		// by setting the field to null first.  But why is this happening,
+    		// and why only in OB13.5.3, and why only for some resources...?  (bh)
+    		// (see also NCSCAT resource)
+    		nr.setDataURI(null);  // force it to construct one
+    		
     		String group = nr.getDataURI();
     		//String uri = nr.getDataURI();
     		String dataset = "NTRANS";
