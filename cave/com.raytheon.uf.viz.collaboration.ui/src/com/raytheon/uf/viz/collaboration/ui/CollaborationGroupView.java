@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui;
  **/
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -88,9 +89,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChanged
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager.LocalGroupListener;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager.GroupListener;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddToGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ArchiveViewerAction;
@@ -100,7 +101,6 @@ import com.raytheon.uf.viz.collaboration.ui.actions.ChangeRoleAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeSiteAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeStatusAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeStatusMessageAction;
-import com.raytheon.uf.viz.collaboration.ui.actions.CreateGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.CreateSessionAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DeleteGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DisplayFeedAction;
@@ -136,6 +136,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 19, 2013 2563       bclement    added subscribe method for server disconnection
  * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
+ * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
+ *                                     removed option to create empty group
  * 
  * </pre>
  * 
@@ -143,7 +145,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * @version 1.0
  */
 public class CollaborationGroupView extends CaveFloatingView implements
-        LocalGroupListener, IUserSelector {
+        GroupListener, IUserSelector {
     public static final String ID = "com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView";
 
     private TreeViewer usersTreeViewer;
@@ -228,7 +230,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (connection != null) {
             connection.registerEventHandler(this);
         }
-        connection.getContactsManager().addLocalGroupListener(this);
+        connection.getContactsManager().addGroupListener(this);
         populateTree();
         usersTreeViewer.refresh();
         parent.layout();
@@ -240,7 +242,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 .getConnection();
         if (connection != null) {
             connection.unregisterEventHandler(this);
-            connection.getContactsManager().removeLocalGroupListener(this);
+            connection.getContactsManager().removeGroupListener(this);
         }
         super.dispose();
 
@@ -311,7 +313,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     private void createMenu(IMenuManager mgr) {
-        mgr.add(new CreateGroupAction());
         mgr.add(new UserSearchAction());
         mgr.add(new Separator());
         mgr.add(new ChangeFontAction());
@@ -402,10 +403,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
             // the user, both the logged in user as well as entries in groups
             UserId user = (UserId) o;
             fillContextMenu(manager, selection, user);
-        } else if (o instanceof RosterGroup || o instanceof LocalGroup) {
+        } else if (o instanceof RosterGroup || o instanceof SharedGroup) {
             manager.add(createSessionAction);
-            if (o instanceof LocalGroup) {
-                LocalGroup group = (LocalGroup) o;
+            if (o instanceof RosterGroup) {
+                RosterGroup group = (RosterGroup) o;
                 manager.add(new DeleteGroupAction(group.getName()));
                 aliasAction.setId(group.getName());
                 aliasAction.setText("Rename Group");
@@ -438,8 +439,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         manager.add(new AddToGroupAction(getSelectedUsers()));
         String groupName = null;
         Object group = selection.getPaths()[0].getFirstSegment();
-        if (group instanceof LocalGroup) {
-            groupName = ((LocalGroup) group).getName();
+        if (group instanceof RosterGroup) {
+            groupName = ((RosterGroup) group).getName();
             manager.add(new RemoveFromGroupAction(groupName, getSelectedUsers()));
         }
     }
@@ -587,14 +588,14 @@ public class CollaborationGroupView extends CaveFloatingView implements
             CollaborationConnection.getConnection().getContactsManager()
                     .setNickname(user, newText);
             CollaborationConnection.getConnection().postEvent(user);
-            for (LocalGroup group : CollaborationConnection.getConnection()
-                    .getContactsManager().getLocalGroups(user)) {
+            for (RosterGroup group : CollaborationConnection.getConnection()
+                    .getContactsManager().getGroups(user)) {
                 usersTreeViewer.refresh(group);
             }
-        } else if (selectedObj instanceof LocalGroup) {
-            LocalGroup group = (LocalGroup) selectedObj;
+        } else if (selectedObj instanceof RosterGroup) {
+            RosterGroup group = (RosterGroup) selectedObj;
             CollaborationConnection.getConnection().getContactsManager()
-                    .renameLocalGroup(group.getName(), newText);
+                    .renameGroup(group.getName(), newText);
         }
     }
 
@@ -790,16 +791,13 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 UserId user = IDConverter.convertFrom((RosterEntry) node);
                 selectedUsers.add(user);
             } else if (node instanceof RosterGroup) {
-                selectedUsers.addAll(getSelectedUsers((RosterGroup) node));
-            } else if (node instanceof LocalGroup) {
-                for (UserId user : ((LocalGroup) node).getUsers()) {
-                    Presence presence = CollaborationConnection
-                            .getConnection().getContactsManager()
-                            .getPresence(user);
-                    if (presence.getType() == Presence.Type.available) {
-                        selectedUsers.add(user);
-                    }
-                }
+                Collection<RosterEntry> entries = ((RosterGroup) node)
+                        .getEntries();
+                selectedUsers.addAll(getSelectedUsers(entries));
+            } else if (node instanceof SharedGroup) {
+                Collection<RosterEntry> entries = ((SharedGroup) node)
+                        .getEntries();
+                selectedUsers.addAll(getSelectedUsers(entries));
             }
         }
 
@@ -807,17 +805,16 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     /**
-     * This recursively searches group Nodes and returns all users with Type
-     * AVAILABLE.
+     * This searches group entries and returns all users with Type AVAILABLE.
      * 
-     * @param groupNode
+     * @param entries
      * @return users
      */
-    private Set<UserId> getSelectedUsers(RosterGroup groupNode) {
+    private Set<UserId> getSelectedUsers(Collection<RosterEntry> entries) {
         Set<UserId> selectedUsers = new HashSet<UserId>();
         ContactsManager contacts = CollaborationConnection.getConnection()
                 .getContactsManager();
-        for (RosterEntry node : groupNode.getEntries()) {
+        for (RosterEntry node : entries) {
             UserId user = IDConverter.convertFrom(node);
             Presence presence = contacts.getPresence(user);
             if (presence.getType() == Type.available) {
@@ -902,22 +899,22 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     @Override
-    public void groupCreated(LocalGroup group) {
+    public void groupCreated(RosterGroup group) {
         refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
     }
 
     @Override
-    public void groupDeleted(LocalGroup group) {
+    public void groupDeleted(RosterGroup group) {
         refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
     }
 
     @Override
-    public void userAdded(LocalGroup group, UserId user) {
+    public void userAdded(RosterGroup group, UserId user) {
         refreshUsersTreeViewerAsync(group);
     }
 
     @Override
-    public void userDeleted(LocalGroup group, UserId user) {
+    public void userDeleted(RosterGroup group, UserId user) {
         refreshUsersTreeViewerAsync(group);
     }
 
