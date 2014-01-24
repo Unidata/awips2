@@ -66,6 +66,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jan 08, 2014 2615       bgonzale     Implement calculate start and calculate end methods.
  * Jan 14, 2014 2459       mpduff       Add subscription state.
  * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
+ * Jan 24, 2013 2709       bgonzale     Fix setting of active period end.
  * 
  * </pre>
  * 
@@ -469,7 +470,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         // active period values are month and day of month only, use base
         // Calendar for active period year
         Calendar activePeriodEndCal = TimeUtil.newCalendar(activePeriodEnd);
-        TimeUtil.maxCalendarFields(activePeriodEndCal, Calendar.MILLISECOND,
+        TimeUtil.minCalendarFields(activePeriodEndCal, Calendar.MILLISECOND,
                 Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
         activePeriodEndCal.set(Calendar.YEAR, base.get(Calendar.YEAR));
         return activePeriodEndCal;
@@ -496,7 +497,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         boolean hasActivePeriodEnd = activePeriodEnd != null;
         if (hasActivePeriodEnd) {
             realEnd = getActivePeriodEnd(endConstraint);
-            if (realEnd.before(endConstraint)) {
+            if (realEnd.after(endConstraint)) {
                 realEnd = endConstraint;
             }
         } else {
