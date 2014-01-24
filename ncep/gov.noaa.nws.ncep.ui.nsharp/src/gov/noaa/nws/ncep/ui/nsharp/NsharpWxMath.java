@@ -72,6 +72,7 @@ public class NsharpWxMath {
      */
     public static double getPressureYFromTemp(double temp, double tempX) {
     	double pressureY;
+    	temp -= tempOffset;  //TT605593
     	pressureY = (tempX - (temp * 0.54))/0.90692;
     	return pressureY;
     }

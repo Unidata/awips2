@@ -10,6 +10,8 @@
 	Change Log:
 
 	B. Yin/Chugach	03/10	Initial Coding
+	B. Yin/SGT		12/13	TTR 904 change county list string
+	
 -->
 
 <xsl:variable name="newline"><xsl:text>
@@ -34,7 +36,7 @@
 		<xsl:call-template name="fmtDateTime">
          	<xsl:with-param name="date" select="'X'"/>
     	</xsl:call-template>
-
+                	
 	<xsl:value-of select="$newline"/>
         <xsl:text>VALID TIME:         </xsl:text>
         <xsl:call-template name="fmtDateTime">
@@ -121,10 +123,10 @@
         <xsl:value-of select="@watchAreaNm"/>
 
 	<xsl:value-of select="$newline"/>
-        <xsl:text> UGC  State  County Name     Lat/Lon    FIPS   WFO</xsl:text>
+        <xsl:text> UGC  State   County Name       Lat/Lon     FIPS  WFO </xsl:text>
 		<xsl:value-of select="$newline"/>
 	 <xsl:for-each select="Counties">
-		<xsl:value-of select="."/>
+		<xsl:value-of select="substring(.,1,56)"/>
 		<xsl:value-of select="$newline"/>
 	</xsl:for-each>
 
