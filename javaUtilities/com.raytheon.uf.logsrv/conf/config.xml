@@ -24,7 +24,4 @@
               -->  
   <timeToSend>00:45</timeToSend>
   
-  <!--  threads to ignore errors on to keep them from overpowering the other errors -->
-  <ignoreThreads>shefThreadPool</ignoreThreads>
-  
 </logSrvConfig>
