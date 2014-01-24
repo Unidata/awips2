@@ -26,12 +26,12 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
- * TODO Add Description
+ * Sorts the contacts list
  * 
  * <pre>
  * 
@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  * 
  * </pre>
  * 
@@ -74,9 +75,12 @@ public class UsersTreeViewerSorter extends ViewerSorter {
         }
 
         // Groups before users.
-        if (e1 instanceof RosterGroup) {
-            if (!(e2 instanceof RosterGroup)) {
+        if (e1 instanceof SharedGroup) {
+            if (!(e2 instanceof SharedGroup)) {
                 return -1;
+            } else {
+                return ((SharedGroup) e1).getName().compareTo(
+                        ((SharedGroup) e2).getName());
             }
         } else if (e1 instanceof RosterGroup) {
             return 1;
@@ -113,17 +117,18 @@ public class UsersTreeViewerSorter extends ViewerSorter {
             return ((IVenueSession) e1).getVenue().toString()
                     .compareTo(((IVenueSession) e2).getVenue().toString());
         }
-        if (e1 instanceof LocalGroup) {
-            if (!(e2 instanceof LocalGroup)) {
+        if (e1 instanceof RosterGroup) {
+            if (!(e2 instanceof RosterGroup)) {
                 return -1;
             }
-        } else if (e1 instanceof LocalGroup) {
+        } else if (e1 instanceof RosterGroup) {
             return 1;
         }
-        if (e1 instanceof LocalGroup && e2 instanceof LocalGroup) {
-            return ((LocalGroup) e1).getName().compareTo(
-                    ((LocalGroup) e2).getName());
+        if (e1 instanceof RosterGroup && e2 instanceof RosterGroup) {
+            return ((RosterGroup) e1).getName().compareTo(
+                    ((RosterGroup) e2).getName());
         }
+
         return 0;
     }
 }
