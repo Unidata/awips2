@@ -1,0 +1,25 @@
+!
+! Restore File : 0_xlong
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=0
+GVCORD=ntat
+SKIP=
+FILTER=y
+SCALE=0     
+GDPFUN=xlong
+TYPE=f/c   
+CINT=
+LINE=8/1/2
+FINT=
+FLINE=
+HILO=
+HLSYM=
+CLRBAR=0
+WIND=
+TITLE=5/-1/~ ^  @  XLONG !
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
