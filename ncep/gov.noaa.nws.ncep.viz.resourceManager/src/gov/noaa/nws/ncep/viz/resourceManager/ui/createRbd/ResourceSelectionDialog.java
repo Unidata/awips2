@@ -161,6 +161,11 @@ public class ResourceSelectionDialog extends Dialog {
     	}
     }
     
+    public void setSelectedResource( ResourceName rscName ) {
+    	initRscName = rscName;
+    	sel_rsc_cntrl.initWidgets( initRscName );
+    }
+    
 	public void addResourceSelectionListener( IResourceSelectedListener lstnr ) {
 		rscSelListeners.add( lstnr );
 	}
