@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryEnabled>true</inventoryEnabled>
+    <resourceDefnName>UKMET_EPAC_HR</resourceDefnName>
+    <resourceCategory>GRID</resourceCategory>
+    <resourceParameters>
+GDFILE=UkmetHR-3
+pluginName=grid
+    </resourceParameters>
+    <rscImplementation>ModelFcstGridContours</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
+    <dfltFrameCount>999</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>
