@@ -3,6 +3,10 @@
 <ncgribModelNameMap>
 	<mapping>
 		<entry>
+			<key>ecavg_.*</key>
+			<value>ecensDerv</value>
+		</entry>
+		<entry>
 			<key>gens_cmce.*_cmc_geavg.*</key>
 			<value>cmceDerv</value>
 		</entry>

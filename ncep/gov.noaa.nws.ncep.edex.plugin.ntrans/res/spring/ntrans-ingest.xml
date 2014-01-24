@@ -13,7 +13,7 @@
 	<bean id="ntransDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ntrans" />
-		<constructor-arg value="jms-dist:queue:Ingest.ntrans" />
+		<constructor-arg value="jms-dist:queue:Ingest.Ntrans" />
 	</bean>
 
 	<bean id="ntransCamelRegistered" factory-bean="contextManager"
