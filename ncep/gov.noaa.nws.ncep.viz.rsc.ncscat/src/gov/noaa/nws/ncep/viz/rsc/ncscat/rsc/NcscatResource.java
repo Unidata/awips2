@@ -131,6 +131,18 @@ public class NcscatResource extends
 
             // Given the NcscatRecord, locate the associated HDF5 data...
             File location = HDF5Util.findHDF5Location(nsRecord);
+    		
+    		//TODO... Investigate:  Why is the following statement needed?
+    		// Starting in OB13.5.3, the PDO (nsRecord) has a non-null, but bogus,
+    		// value in its dataURI field at this point (and earlier,
+    		// as soon as it is deserialized after return from the metadata
+    		// query).  nsRecord.getDataURI() below will get this bad value, leading
+    		// to failure on the ds.retrieve(...).  Instead we force it to
+    		// synthesize the dataURI -- which getDataURI() does correctly --
+            // by setting the field to null first.  But why is this happening,
+            // and why only in OB13.5.3, and why only for some resources...?  (bh)
+            // (see also NTRANS resource)
+    		nsRecord.setDataURI(null);  // force getDataURI() to construct one
 
             String group = nsRecord.getDataURI();
             String dataset = "Ncscat";
