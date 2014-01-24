@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
  *    11/28/12       #630       ghull       create for Resource and Display defined areas
  *    02/22/13       #972       ghull       ncDisplayType
  *    04/16/13       #863       ghull       moved from display to common project       
+ *    11/21/13       #1066      ghull       NcGridGeometryAdapter to handle Native CRSs
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ public class PredefinedArea implements ISerializableObject, IGridGeometryProvide
     }
     
     @XmlElement
-    @XmlJavaTypeAdapter(value = GridGeometryAdapter.class)
+    @XmlJavaTypeAdapter(value = NcGridGeometryAdapter.class)
     public GeneralGridGeometry getGridGeometry() {
         return gridGeometry;
     }

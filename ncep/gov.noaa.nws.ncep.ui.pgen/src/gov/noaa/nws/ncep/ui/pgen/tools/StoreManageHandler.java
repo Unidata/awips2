@@ -8,7 +8,10 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.controls.StoreActivityDialog;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -26,6 +29,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/13		#977		S. Gilbert	modified from PgenFileManageHandler.
+ * 11/13        #1077       J. Wu       Pop up dialog for "Save All".
  * 
  * </pre>
  * 
@@ -50,37 +54,37 @@ public class StoreManageHandler extends AbstractTool {
         String btnName = event.getParameter("name");
         PgenSession.getInstance().getPgenPalette().setActiveIcon(btnName);
 
-        String curFile = PgenSession.getInstance().getPgenResource()
-                .getActiveProduct().getOutputFile();
+        PgenResource rsc = PgenSession.getInstance().getPgenResource();
+        String curFile = rsc.getActiveProduct().getOutputFile();
 
         if (curFile != null && btnClicked.equalsIgnoreCase("Save")) {
-            PgenSession.getInstance().getPgenResource()
-                    .storeCurrentProduct(curFile);
-        } else if (curFile != null && btnClicked.equalsIgnoreCase("Save All")) {
-            if (PgenSession.getInstance().getPgenResource().getProducts()
-                    .size() > 1) {
-                PgenSession.getInstance().getPgenResource().storeAllProducts();
+            rsc.storeCurrentProduct(curFile);
+        } else if (btnClicked.equalsIgnoreCase("Save All")) {
+
+            // Save the current one first
+            Product curPrd = rsc.getActiveProduct();
+            if (curFile != null) {
+                rsc.storeCurrentProduct(curFile);
             } else {
-                PgenSession.getInstance().getPgenResource()
-                        .storeCurrentProduct(curFile);
+                storeActivity(btnClicked);
+            }
+
+            // Save the rest
+            for (Product pp : rsc.getProducts()) {
+                if (pp == curPrd)
+                    continue;
+
+                rsc.setActiveProduct(pp);
+                if (pp.getOutputFile() != null) {
+                    rsc.storeCurrentProduct(pp.getOutputFile());
+                } else {
+                    storeActivity(btnClicked);
+                }
+
+                rsc.setActiveProduct(curPrd);
             }
         } else { // "Save As"
-
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            StoreActivityDialog storeDialog = null;
-
-            if (storeDialog == null) {
-                try {
-                    storeDialog = new StoreActivityDialog(shell, btnClicked);
-                    storeDialog.setBlockOnOpen(true);
-                } catch (VizException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (storeDialog != null)
-                storeDialog.open();
+            storeActivity(btnClicked);
         }
 
         // Reset the original icon for the palette button corresponding to this
@@ -89,7 +93,34 @@ public class StoreManageHandler extends AbstractTool {
             PgenSession.getInstance().getPgenPalette().resetIcon(btnName);
         }
 
+        // Set to "selecting" mode.
+        PgenUtil.setSelectingMode();
+
         return null;
+    }
+
+    /*
+     * Pops up the Save/Store dialog to save an activity.
+     * 
+     * @param btnClicked
+     */
+    private void storeActivity(String btnClicked) {
+
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        StoreActivityDialog storeDialog = null;
+
+        if (storeDialog == null) {
+            try {
+                storeDialog = new StoreActivityDialog(shell, btnClicked);
+                storeDialog.setBlockOnOpen(true);
+            } catch (VizException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (storeDialog != null)
+            storeDialog.open();
     }
 
 }

@@ -29,29 +29,30 @@ import com.raytheon.uf.common.style.image.ImagePreferences;
  * An ColorBar initialized from a ColorMap.
  * 
  * <pre>
- *  SOFTWARE HISTORY
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  04/14/10      #259        Greg Hull    Initial Creation.
- *  10/25/11      #463        qzhou        Added equals()
- *  12/06/11                  qzhou        Modified equals and added hashCode
- *  06/07/12      #717       Archana       Added imagePreferences to store the label information
- *                                         Added the method scalePixelValues() to 
- *                                         scale the pixel values whenever the 
- *                                         pixel values exceeded the actual number 
- *                                         of colors in the color map
- *                                         Added numPixelsToReAlignLabel to position the label at the
- *                                         beginning or at the middle of the color interval.
- *                                        
- *  06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
- *                                         reversing the order of colors in the color-bar.                                  
+ * SOFTWARE HISTORY
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 04/14/10      #259        Greg Hull    Initial Creation.
+ * 10/25/11      #463        qzhou        Added equals()
+ * 12/06/11                  qzhou        Modified equals and added hashCode
+ * 06/07/12      #717       Archana       Added imagePreferences to store the label information
+ *                                        Added the method scalePixelValues() to 
+ *                                        scale the pixel values whenever the 
+ *                                        pixel values exceeded the actual number 
+ *                                        of colors in the color map
+ *                                        Added numPixelsToReAlignLabel to position the label at the
+ *                                        beginning or at the middle of the color interval.
+ *                                       
+ * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
+ *                                        reversing the order of colors in the color-bar.                                  
  * 
- *  06/18/12      #743       Archana       Added attributes to implement GEMPAK's CLRBAR parameter:
- *                                         xPixelCoordFraction, yPixelCoordFraction,drawColorBar,
- *                                         isDrawBoxAroundColorBar. added the corresponding setter/getter methods
- *                                         Added setAttributesFromColorBarAttributesBuilder()                                      
+ * 06/18/12      #743       Archana       Added attributes to implement GEMPAK's CLRBAR parameter:
+ *                                        xPixelCoordFraction, yPixelCoordFraction,drawColorBar,
+ *                                        isDrawBoxAroundColorBar. added the corresponding setter/getter methods
+ *                                        Added setAttributesFromColorBarAttributesBuilder()                                      
  * 07/18/12       #717       Archana       Refactored numPixelsToReAlignLabel to alignLabelInTheMiddleOfInterval
- *                                         and added the corresponding setter/getter methods
+ *                                        and added the corresponding setter/getter methods            
+ * 11/18/13      #1059      G. Hull       don't marshal displayUnitsStr
  * 
  * 
  * </pre>
@@ -101,7 +102,9 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
     @XmlElement
     private Boolean reverseOrder = true;
 
-    @XmlElement
+    // don't marshal since the value (currently) is set by either the Record or
+    // the Style Rules.
+    // @XmlElement
     String displayUnitStr = null;
 
     // @XmlElement
@@ -463,7 +466,6 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
         showLabels = false;
         imagePreferences = null;
         displayUnitStr = null;
-
     }
 
     public boolean unlabelPixel(int p) {

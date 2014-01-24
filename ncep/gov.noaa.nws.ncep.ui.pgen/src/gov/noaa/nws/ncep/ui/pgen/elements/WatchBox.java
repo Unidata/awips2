@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -67,6 +68,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 07/11        #450        G. Hull     NcPathManager
  * 03/12		?			B. Yin		Added another county cluster table(permclust)
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 12/13		TTR904		B. Yin		Increased county name column to 17 characters
+ * 12/13   		TTR800		B. Yin		Added original county list
  * </pre>
  * 
  * @author B. Yin
@@ -104,6 +107,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
     private Station anchors[];
 
     private List<SPCCounty> countyList;
+    private List<SPCCounty> originalCountyList;
 
     // Watch Issue Information
     private String issueStatus;
@@ -232,7 +236,39 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         newWatchBox.setWatchSymbolType(symbolType);
         newWatchBox.setWatchSymbolSize(symbolSize);
         newWatchBox.setWatchSymbolWidth(symbolWidth);
-
+        
+    	newWatchBox.setIssueStatus(getIssueStatus());
+        newWatchBox.setWatchNumber(watchNumber);
+        newWatchBox.setIssueFlag(getIssueFlag());
+        newWatchBox.setForecaster(forecaster);
+		newWatchBox.setIssueTime(getIssueTime());
+        newWatchBox.setExpTime(this.getExpTime());
+		newWatchBox.setSeverity(this.getSeverity());
+		newWatchBox.setTimeZone(this.getTimeZone());
+		newWatchBox.setHailSize(this.getHailSize());
+		newWatchBox.setGust(this.getGust());
+		newWatchBox.setTop(this.getTop());
+		newWatchBox.setMoveDir(this.getMoveDir());
+		newWatchBox.setMoveSpeed(this.getMoveSpeed());
+		newWatchBox.setStatesIncl(this.getStatesIncl());
+		newWatchBox.setAdjAreas( this.getAdjAreas() );
+		newWatchBox.setWatchType(getWatchType());
+		
+		newWatchBox.setEndPointAnc(this.getEndPointAnc());
+		newWatchBox.setEndPointVor(this.getEndPointVor());
+		newWatchBox.setHalfWidthSm(this.getHalfWidthSm());
+		newWatchBox.setHalfWidthNm(this.getHalfWidthNm());
+		newWatchBox.setWathcAreaNm(this.getWathcAreaNm());
+		newWatchBox.setCntyInfo(this.getCntyInfo());
+		
+		newWatchBox.setContWatch( this.getContWatch());
+		newWatchBox.setReplWatch(this.getReplWatch());
+        
+		newWatchBox.setCountyList(new ArrayList<SPCCounty>( this.getCountyList()));
+		if ( this.getOriginalCountyList() != null ){
+			newWatchBox.setOriginalCountyList( this.getOriginalCountyList());
+		}
+		
         return newWatchBox;
     }
 
@@ -1065,13 +1101,21 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
     public String storeProduct(String label) {
 
         Layer defaultLayer = new Layer();
-        defaultLayer.addElement(this.getParent());
+        //defaultLayer.addElement(this.getParent());
+        
+         DECollection dec = new DECollection("Watch");
+		 dec.setPgenType("WatchBox");
+		 dec.setPgenCategory("MET");
+		 dec.add( this.copy() );
+		 defaultLayer.addElement(dec);
+		 
+        
         ArrayList<Layer> layerList = new ArrayList<Layer>();
         layerList.add(defaultLayer);
 
         ProductTime refTime = new ProductTime(getIssueTime());
 
-        Product defaultProduct = new Product("", "WATCHBOX", forecaster, null,
+        Product defaultProduct = new Product("WatchBox", "WATCHBOX", forecaster, null,
                 refTime, layerList);
 
         defaultProduct.setOutputFile(label);
@@ -1835,7 +1879,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
             removeCounty(PgenStaticDataProvider.getProvider().findCounty(fips));
         }
     }
-
+        
     /**
      * Add clustering counties to the watch box
      * 
@@ -1911,9 +1955,9 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
             for (SPCCounty cnty : cntyList) {
                 String cntyName = cnty.getName().replaceAll("City of ", "")
-                        .replaceAll(" City", "");
+                        .replaceAll(" City", "").replaceAll(" ", "_").replaceAll("'", "").replaceAll("\\.", "");
                 cntyInfo += String.format(
-                        "%1$-7s%2$-5s%3$-12s%4$6.2f%5$8.2f%6$7s%7$5s",
+                        "%1$-7s%2$-5s%3$-17s%4$5.2f%5$8.2f%6$7s %7$-5s",
                         cnty.getUgcId(), cnty.getState(), cntyName,
                         cnty.getCentriod().y, cnty.getCentriod().x,
                         cnty.getFips(), cnty.getWfo());
@@ -1926,7 +1970,19 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         return cntyInfo;
 
     }
-
+    
+    public List<SPCCounty> getOriginalCountyList() {
+		return originalCountyList;
+	}
+    
+    public void makeOriginalCountyList(List<SPCCounty> countyList) {
+		this.originalCountyList = new ArrayList<SPCCounty>(countyList);
+	}
+	
+	public void setOriginalCountyList(List<SPCCounty> originalCountyList) {
+		this.originalCountyList = originalCountyList;
+	}
+	
     /**
      * Class to hold watch status information
      * 
@@ -1996,4 +2052,6 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
     }
 
+	
+    
 }
