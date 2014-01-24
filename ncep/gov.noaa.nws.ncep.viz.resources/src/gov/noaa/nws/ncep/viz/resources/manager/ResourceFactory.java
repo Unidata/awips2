@@ -1,6 +1,5 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
-
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
@@ -45,181 +44,196 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * @version 1
  */
 
-//class to store the instanced Bundle for a resource and its attributes
+// class to store the instanced Bundle for a resource and its attributes
 //
 public class ResourceFactory {
-		
-	public static class ResourceSelection {
-		private INatlCntrsResourceData rscData = null; 
-		private ResourcePair rscPair = null;
-		private Boolean isBaseLevelResource = false;
 
-		// called when loading an existing RBD into the dialog and we need to get the attribute values
-		// from the edited RBD instead of the original attrSet file.
-		protected ResourceSelection( ResourcePair rp ) throws VizException {
-			rscPair = rp;
-			rscData = (INatlCntrsResourceData) rp.getResourceData();
-		}
+    public static class ResourceSelection {
+        private INatlCntrsResourceData rscData = null;
 
-		public void markAsEdited() {		
-			if( rscData != null ) {
-				rscData.setIsEdited( true );
-			}
-		}
+        private ResourcePair rscPair = null;
 
-		public boolean isRequestable( ) {
-			if( rscData != null &&
-					rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
-				return true;
-			}
-			return false;
-		}
+        private Boolean isBaseLevelResource = false;
 
-		public ResourceName getResourceName() {
-			return rscData.getResourceName();
-		}
-		
-		public boolean isVisible() {
-			if( rscPair == null || 
-				rscPair.getProperties() == null ) { 
-				return false;
-			}
-			
-			return rscPair.getProperties().isVisible();
-		}
-		
-		public void setIsVisible( boolean visible ) {
-			if( rscPair == null || 
-				rscPair.getProperties() == null ) { 
-				return;
-			}
-				
-			rscPair.getProperties().setVisible( visible );
-		}
-		
-		public Boolean isBaseLevelResource() {
-			return isBaseLevelResource;
-		}
+        // called when loading an existing RBD into the dialog and we need to
+        // get the attribute values
+        // from the edited RBD instead of the original attrSet file.
+        protected ResourceSelection(ResourcePair rp) throws VizException {
+            rscPair = rp;
+            rscData = (INatlCntrsResourceData) rp.getResourceData();
+        }
 
-		public void setIsBaseLevelResource(Boolean isBaseLevelResource) {
-			this.isBaseLevelResource = isBaseLevelResource;
-		}
+        public void markAsEdited() {
+            if (rscData != null) {
+                rscData.setIsEdited(true);
+            }
+        }
 
-		// this is called by the LabelProvider for ListViewer that use this class as the ContentProvider.
-		public String getRscLabel() {
-			if( rscData == null  ) {
-				return "???";
-			}
+        public boolean isRequestable() {
+            if (rscData != null
+                    && rscData instanceof AbstractNatlCntrsRequestableResourceData) {
+                return true;
+            }
+            return false;
+        }
 
-			String rsc_label = rscData.getResourceName().toString();
+        public ResourceName getResourceName() {
+            return rscData.getResourceName();
+        }
 
-			// TODO : Would it be nice to give an indication that this is the dominant resource???
-			//		if( rscData instanceof AbstractNatlCntrsRequestableResourceData &&
-			//			((AbstractNatlCntrsRequestableResourceData)rscData).getIsDominant() ) {
-			//			rsc_label = rscData.getFullResourceName() + " (D)";
-			//		}
-			 
-			if( rscData.getIsEdited() ) {
-				rsc_label = rsc_label + " (E)";
-			}
-			
-			if( !isVisible() ) {
-				rsc_label = "(Off) "+rsc_label;
-			}
+        public boolean isVisible() {
+            if (rscPair == null || rscPair.getProperties() == null) {
+                return false;
+            }
 
-			return rsc_label;
-		}
+            return rscPair.getProperties().isVisible();
+        }
 
-		public ResourcePair getResourcePair() {
-			return rscPair;
-		}
+        public void setIsVisible(boolean visible) {
+            if (rscPair == null || rscPair.getProperties() == null) {
+                return;
+            }
 
-		public INatlCntrsResourceData getResourceData() {
-			return rscData;
-		}		
+            rscPair.getProperties().setVisible(visible);
+        }
 
-		public NcDisplayType[] getSupportedDisplayTypes() {
-			if( rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
-				return ((AbstractNatlCntrsRequestableResourceData)rscData).getSupportedDisplayTypes();
-			}
-			else if( rscData instanceof AbstractNatlCntrsResourceData ) {
-				return ((AbstractNatlCntrsResourceData)rscData).getSupportedDisplayTypes();
-			}
-			else {
-				System.out.println("??? ResourceSelection has non-NC resource class?????");
-				return new NcDisplayType[0];
-			}
-		}
-	}
-	
-	public static ResourceSelection createResource( ResourcePair rscPair ) throws VizException {		
-		return new ResourceSelection( rscPair );
-	}
+        public Boolean isBaseLevelResource() {
+            return isBaseLevelResource;
+        }
 
-	public static ResourceSelection createResource( ResourceName rscName ) throws VizException {
-		
-		File bndlFile = ResourceDefnsMngr.getInstance().getRscBundleTemplateFile( rscName.getRscType() );
-		HashMap< String, String > rscParams = ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName );		
-		
-		// exception on bad syntax...
-		String dfltFrameTimes = ResourceDefnsMngr.getInstance().getDefaultFrameTimesSelections( rscName );
+        public void setIsBaseLevelResource(Boolean isBaseLevelResource) {
+            this.isBaseLevelResource = isBaseLevelResource;
+        }
 
-		String bundleStr = null;
-		try {
-			FileReader fr = new FileReader(bndlFile);
-			char[] b = new char[(int) bndlFile.length()];
-			fr.read(b);
-			fr.close();
-			bundleStr = new String(b);
+        // this is called by the LabelProvider for ListViewer that use this
+        // class as the ContentProvider.
+        public String getRscLabel() {
+            if (rscData == null) {
+                return "???";
+            }
 
-		} catch (Exception e) {
-			throw new VizException("Error opening  Resource Template file " + bndlFile, e);
-		}
-		
-		try {
-			String substStr = VariableSubstitutionUtil.processVariables(
-					                        bundleStr, rscParams );
+            String rsc_label = rscData.getResourceName().toString();
 
-			ResourceList bndl_rscs = null;
+            // TODO : Would it be nice to give an indication that this is the
+            // dominant resource???
+            // if( rscData instanceof AbstractNatlCntrsRequestableResourceData
+            // &&
+            // ((AbstractNatlCntrsRequestableResourceData)rscData).getIsDominant()
+            // ) {
+            // rsc_label = rscData.getFullResourceName() + " (D)";
+            // }
 
-            Object rg = AbstractRBD.getJaxbManager().unmarshalFromXml(substStr);
+            if (rscData.getIsEdited()) {
+                rsc_label = rsc_label + " (E)";
+            }
 
-			if( !(rg instanceof ResourceGroup) ) {
-				throw new VizException("Resource Bundle template has unexpected class. (not ResourceGroup)");
-			}
+            if (!isVisible()) {
+                rsc_label = "(Off) " + rsc_label;
+            }
 
-			ResourceGroup rscGroup = (ResourceGroup)rg;
+            return rsc_label;
+        }
 
-			bndl_rscs = rscGroup.getResourceList();
-				
-			if( bndl_rscs.size() != 1 ) {
-				System.out.println("Sanity check: ResourceSelectionUnused: should only be one rsc in Bundle file!");
-			}
-			
-			if( bndl_rscs.size() >= 1 ) {
-				if( !(bndl_rscs.get(0).getResourceData() instanceof INatlCntrsResourceData) ) {
-					System.out.println("Sanity check: Bundle file contains non-NatlCntrs Resource?");
-					return null;
-				}
-				
-				ResourcePair rscPair = bndl_rscs.get(0);
-				INatlCntrsResourceData rscData = 
-					   (INatlCntrsResourceData) rscPair.getResourceData();	
-				rscData.setResourceName( rscName );
-				
-				if( dfltFrameTimes != null &&
-					rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
-					
-					((AbstractNatlCntrsRequestableResourceData)rscData).setDfltFrameTimes(dfltFrameTimes);
-				}
+        public ResourcePair getResourcePair() {
+            return rscPair;
+        }
 
-				ResourceSelection rscSelection = new ResourceSelection( rscPair );
-				return rscSelection;				
-			}
-		} catch (Exception e) {
-			throw new VizException("Error unmarshalling Resource: "+e.getMessage()+"("+e.getCause()+")", e);
-		}
-		
-		return null;
-	}	
+        public INatlCntrsResourceData getResourceData() {
+            return rscData;
+        }
+
+        public NcDisplayType[] getSupportedDisplayTypes() {
+            if (rscData instanceof AbstractNatlCntrsRequestableResourceData) {
+                return ((AbstractNatlCntrsRequestableResourceData) rscData)
+                        .getSupportedDisplayTypes();
+            } else if (rscData instanceof AbstractNatlCntrsResourceData) {
+                return ((AbstractNatlCntrsResourceData) rscData)
+                        .getSupportedDisplayTypes();
+            } else {
+                System.out
+                        .println("??? ResourceSelection has non-NC resource class?????");
+                return new NcDisplayType[0];
+            }
+        }
+    }
+
+    public static ResourceSelection createResource(ResourcePair rscPair)
+            throws VizException {
+        return new ResourceSelection(rscPair);
+    }
+
+    public static ResourceSelection createResource(ResourceName rscName)
+            throws VizException {
+
+        File bndlFile = ResourceDefnsMngr.getInstance()
+                .getRscBundleTemplateFile(rscName.getRscType());
+        HashMap<String, String> rscParams = ResourceDefnsMngr.getInstance()
+                .getAllResourceParameters(rscName);
+
+        // exception on bad syntax...
+        String dfltFrameTimes = ResourceDefnsMngr.getInstance()
+                .getDefaultFrameTimesSelections(rscName);
+
+        String bundleStr = null;
+        try {
+            FileReader fr = new FileReader(bndlFile);
+            char[] b = new char[(int) bndlFile.length()];
+            fr.read(b);
+            fr.close();
+            bundleStr = new String(b);
+
+        } catch (Exception e) {
+            throw new VizException("Error opening  Resource Template file "
+                    + bndlFile, e);
+        }
+
+        try {
+            String substStr = VariableSubstitutionUtil.processVariables(
+                    bundleStr, rscParams);
+
+            // ResourceGroup rscGroup = SerializationUtil.unmarshalFromXml(
+            // ResourceGroup.class, substStr );
+            ResourceGroup rscGroup = (ResourceGroup) AbstractRBD
+                    .getJaxbManager().unmarshalFromXml(substStr);
+
+            if (rscGroup == null) {
+                throw new VizException("Error unmarshalling Resource: "
+                        + rscName.toString());
+            }
+            ResourceList bndl_rscs = rscGroup.getResourceList();
+
+            if (bndl_rscs.size() != 1) {
+                System.out
+                        .println("Sanity check: ResourceSelectionUnused: should only be one rsc in Bundle file!");
+            }
+
+            if (bndl_rscs.size() >= 1) {
+                if (!(bndl_rscs.get(0).getResourceData() instanceof INatlCntrsResourceData)) {
+                    System.out
+                            .println("Sanity check: Bundle file contains non-NatlCntrs Resource?");
+                    return null;
+                }
+
+                ResourcePair rscPair = bndl_rscs.get(0);
+                INatlCntrsResourceData rscData = (INatlCntrsResourceData) rscPair
+                        .getResourceData();
+                rscData.setResourceName(rscName);
+
+                if (dfltFrameTimes != null
+                        && rscData instanceof AbstractNatlCntrsRequestableResourceData) {
+
+                    ((AbstractNatlCntrsRequestableResourceData) rscData)
+                            .setDfltFrameTimes(dfltFrameTimes);
+                }
+
+                ResourceSelection rscSelection = new ResourceSelection(rscPair);
+                return rscSelection;
+            }
+        } catch (Exception e) {
+            throw new VizException("Error unmarshalling Resource: "
+                    + e.getMessage() + "(" + e.getCause() + ")", e);
+        }
+
+        return null;
+    }
 }

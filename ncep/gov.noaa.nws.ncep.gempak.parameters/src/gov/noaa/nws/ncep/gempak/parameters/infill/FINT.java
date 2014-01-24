@@ -259,6 +259,9 @@ public class FINT {
 
 	public static List<Double> parseFINT(String fint, int zoomLevelIndex, float minValue, float maxValue) {
 
+		if (fint.equals("0"))
+        	fint = "";
+		
 		List<Double> fvalues = null;
 		Double fmin = new Double(minValue);
 		Double fmax = new Double(maxValue);
