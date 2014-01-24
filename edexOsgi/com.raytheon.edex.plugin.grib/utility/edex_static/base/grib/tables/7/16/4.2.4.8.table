@@ -1,0 +1,14 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 8: Imagery 
+0:0:X-Ray Radiance:W*s*r^1*m^2:XRAYRAD
+1:1:EUV Radiance:W*s*r^1*m^2:EUVRAD
+2:2:H-Alpha Radiance:W*s*r^1*m^2:HARAD
+3:3:White Light Radiance:W*s*r^1*m^2:WHTRAD
+4:4:CaII-K Radiance:W*s*r^1*m^2:CAIIRAD
+5:5:White Light Coronagraph Radiance:W*s*r^1*m^2:WHTCOR
+6:6:Heliospheric Radiance:W*s*r^1*m^2:HELCOR
+7:7:Thematic Mask:Numeric:MASK
+# 8-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing
+
+

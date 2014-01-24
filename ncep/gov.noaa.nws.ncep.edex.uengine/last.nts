@@ -1,7 +1,0 @@
-SFFILE  /export-2/cdbbkp/ldmcdb/data/decoders/hrly/20110530.hrly                                                                        
-AREA    @dca;iad;bwi                                                                                                                    
-DATTIM  18-20                                                                                                                           
-OUTPUT  t                                                                                                                               
-SKPMIS  y                                                                                                                               
-IDNTYP  STID                                                                                                                            
-SFPARM  dset                                                                                                                            
