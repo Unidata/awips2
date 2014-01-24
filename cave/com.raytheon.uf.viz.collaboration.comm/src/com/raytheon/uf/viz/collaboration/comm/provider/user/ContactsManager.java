@@ -19,41 +19,34 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXB;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.Job;
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.packet.XMPPError;
+import org.jivesoftware.smackx.SharedGroupManager;
 
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.collections.UpdatingSet;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.RosterManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 
 /**
  * Manage contacts from local groups and roster on server
@@ -68,6 +61,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGro
  * Dec  6, 2013 2561       bclement     removed ECF
  * Dec 20, 2013 2563       bclement     roster items now removed from server,
  *                                      removed unneeded roster listener
+ * Jan 24, 2014 2701       bclement     removed roster manager
+ *                                      switched local groups to roster groups
+ *                                      added shared groups
  * 
  * </pre>
  * 
@@ -79,230 +75,320 @@ public class ContactsManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ContactsManager.class);
 
-    private final Job storeLocalGroupsJob = new Job("Storing Local Groups") {
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext context = pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-            LocalizationFile file = PathManagerFactory.getPathManager()
-                    .getLocalizationFile(
-                            context,
-                            "collaboration" + File.separator
-                                    + "localGroups.xml");
-            LocalGroups obj;
-            synchronized (localGroups) {
-                obj = new LocalGroups(localGroups);
-            }
-            JAXB.marshal(obj, file.getFile());
-            try {
-                file.save();
-            } catch (LocalizationOpFailedException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-            return org.eclipse.core.runtime.Status.OK_STATUS;
-        }
-    };
-
     private final CollaborationConnection connection;
+    
+    private final XMPPConnection xmpp;
 
     private final UserSearch search;
 
-    private List<LocalGroup> localGroups;
-
     private Map<String, String> localAliases;
+    
+    /**
+     * Cached view of shared groups list on openfire. Will only reach out to
+     * server if it hasn't updated in an hour. This will disable itself if there
+     * is a problem communicating with the server since the most likely case is
+     * that the server doesn't support the operation.
+     */
+    private UpdatingSet<String> sharedGroups = new UpdatingSet<String>(
+            TimeUtil.MILLIS_PER_HOUR) {
+        @Override
+        protected Set<String> update() {
+            Set<String> rval;
+            try {
+                List<String> names = SharedGroupManager.getSharedGroups(xmpp);
+                rval = new HashSet<String>(names);
+            } catch (XMPPException e) {
+                statusHandler.warn("Unable to get shared groups."
+                        + " Feature may not exist on server",
+                        e.getLocalizedMessage());
+                disable();
+                rval = null;
+            }
+            return rval;
+        }
+    };
 
-    private Set<LocalGroupListener> groupListeners = new HashSet<LocalGroupListener>();
+    private Set<GroupListener> groupListeners = new HashSet<GroupListener>();
 
-    public ContactsManager(CollaborationConnection connection) {
+    /**
+     * @param connection
+     * @param xmpp
+     */
+    public ContactsManager(CollaborationConnection connection,
+            XMPPConnection xmpp) {
         this.connection = connection;
         this.search = connection.createSearch();
         localAliases = UserIdWrapper.readAliasMap();
-        initLocalGroups();
+        this.xmpp = xmpp;
+    }
+    
+    /**
+     * Get groups that are managed by server. These are not modifiable from the
+     * client.
+     * 
+     * @return
+     */
+    public Collection<SharedGroup> getSharedGroups() {
+        Set<String> groups = sharedGroups.get();
+        List<SharedGroup> rval = new ArrayList<SharedGroup>(groups.size());
+        Roster roster = getRoster();
+        for (String group : groups) {
+            RosterGroup rg = roster.getGroup(group);
+            rval.add(new SharedGroup(rg));
+        }
+        return rval;
     }
 
-    private void initLocalGroups() {
-        storeLocalGroupsJob.setSystem(true);
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile file = PathManagerFactory.getPathManager()
-                .getLocalizationFile(context,
-                        "collaboration" + File.separator + "localGroups.xml");
-        if (file.exists()) {
-            this.localGroups = JAXB
-                    .unmarshal(file.getFile(), LocalGroups.class).getGroups();
-        }
-
-        if (this.localGroups == null) {
-            this.localGroups = new ArrayList<LocalGroup>();
-        }
-        for (LocalGroup group : localGroups) {
-            group.setManager(this);
-        }
-    }
-
-    public List<LocalGroup> getLocalGroups() {
-        synchronized (this.localGroups) {
-            return new ArrayList<LocalGroup>(this.localGroups);
-        }
-    }
-
-    public void addToLocalGroup(String groupName, UserId user) {
-        synchronized (this.localGroups) {
-            LocalGroup group = createLocalGroup(groupName);
-            String userId = user.getNormalizedId();
-            List<String> userNames = group.getUserNames();
-            if (!userNames.contains(userId)) {
-                List<UserId> users = group.getUsers();
-                group.getUserNames().add(userId);
-                users.add(user);
-            }
-            RosterEntry entry = getRosterEntry(user);
-            if (entry == null || entry.getGroups().isEmpty()) {
-                // In order to get presence for a user they must be in the
-                // roster, we can add them to the roster by either subscribing
-                // to them using presence or adding them to the roster,
-                // subscribing to the presence will not set the name correctly
-                // so we use the roster add method.
-                try {
-                    RosterManager rosterManager = connection.getRosterManager();
-                    Roster roster = rosterManager.getRoster();
-                    roster.createEntry(userId, user.getAlias(), new String[0]);
-                } catch (XMPPException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+    /**
+     * Get groups that are managed by the client. This does not included shared
+     * groups.
+     * 
+     * @return
+     */
+    public Collection<RosterGroup> getGroups() {
+        Set<String> shared = sharedGroups.get();
+        Collection<RosterGroup> groups = getRoster().getGroups();
+        Collection<RosterGroup> rval;
+        if (shared.isEmpty()) {
+            rval = groups;
+        } else {
+            rval = new ArrayList<RosterGroup>(groups.size());
+            for (RosterGroup group : groups) {
+                if (!shared.contains(group.getName())) {
+                    rval.add(group);
                 }
             }
-            for (LocalGroupListener listener : getSafeGroupListeners()) {
+        }
+        return rval;
+    }
+
+    /**
+     * Add user to group. Creates group if it doesn't exist. Adds user to
+     * contacts if not in roster.
+     * 
+     * @param groupName
+     * @param user
+     */
+    public void addToGroup(String groupName, UserId user) {
+        Roster roster = getRoster();
+        RosterGroup group = roster.getGroup(groupName);
+        if (group == null) {
+            group = createGroup(groupName);
+        }
+        String id = user.getNormalizedId();
+        RosterEntry entry = group.getEntry(id);
+        if (entry != null) {
+            statusHandler
+                    .debug("Attempted to add user to group it was already in: "
+                            + id + " in " + groupName);
+            return;
+        }
+        try {
+            addToGroup(group, user);
+            for (GroupListener listener : getSafeGroupListeners()) {
                 listener.userAdded(group, user);
             }
+        } catch (XMPPException e) {
+            String msg = getGroupModInfo(e);
+            statusHandler.error("Problem adding user to group: " + id + " to "
+                    + group.getName() + ". " + msg, e);
         }
-        storeLocalGroupsJob.schedule();
     }
 
-    public void deleteFromLocalGroup(String groupName, UserId user) {
-        synchronized (localGroups) {
-            Iterator<LocalGroup> it = localGroups.iterator();
-            while (it.hasNext()) {
-                LocalGroup group = it.next();
-                if (group.getName().equals(groupName)) {
-                    group.getUsers().remove(user);
-                    group.getUserNames().remove(user.getNormalizedId());
-                    for (LocalGroupListener listener : getSafeGroupListeners()) {
-                        listener.userDeleted(group, user);
-                    }
-                    break;
-                }
+    /**
+     * Add user to group. Adds user to contacts if not in roster.
+     * 
+     * @param group
+     * @param user
+     * @throws XMPPException
+     */
+    private void addToGroup(RosterGroup group, UserId user)
+            throws XMPPException {
+        RosterEntry entry = getRosterEntry(user);
+        if (entry == null) {
+            // we dont have user as a contact at all
+            // ensure that the user object is up-to-date
+            user = findUser(user.getName());
+            String alias = user.getAlias();
+            if (StringUtils.isBlank(alias)) {
+                alias = user.getName();
             }
-            if (getLocalGroups(user).isEmpty()) {
-                // if the user is in no local groups and no roster groups remove
-                // them from our roster.
-                RosterEntry entry = getRosterEntry(user);
-                if (entry != null && entry.getGroups().isEmpty()) {
-                    Presence presence = new Presence(Type.unsubscribe);
-                    presence.setTo(user.getNormalizedId());
-                    try {
-                        connection.getAccountManager().sendPresence(presence);
-                    } catch (CollaborationException e) {
-                        statusHandler.error(
-                                "Problem removing user from roster", e);
-                    }
-                    removeFromRoster(entry);
-                }
-            }
-            storeLocalGroupsJob.schedule();
+            getRoster().createEntry(user.getFQName(), alias,
+                    new String[] { group.getName() });
+        } else {
+            // just need to update groups
+            group.addEntry(entry);
         }
+    }
+
+    /**
+     * Remove user from group.
+     * 
+     * @param groupName
+     * @param user
+     */
+    public void deleteFromGroup(String groupName, UserId user) {
+        RosterEntry entry = getRosterEntry(user);
+        if ( entry == null){
+            statusHandler.warn("Attempted to alter group for non-contact: " + user);
+            return;
+        }
+        RosterGroup group = getRoster().getGroup(groupName);
+        if ( group != null){
+            deleteFromGroup(group, entry);
+        } else {
+            statusHandler.warn("Attempted to modify non-existent group: "
+                    + groupName);
+        }
+    }
+    
+    /**
+     * Remove entry from group.
+     * 
+     * @param group
+     * @param entry
+     */
+    private void deleteFromGroup(RosterGroup group, RosterEntry entry) {
+        try {
+            group.removeEntry(entry);
+            for (GroupListener listener : getSafeGroupListeners()) {
+                listener.userDeleted(group, IDConverter.convertFrom(entry));
+            }
+        } catch (XMPPException e) {
+            String msg = getGroupModInfo(e);
+            statusHandler.error("Problem removing entry from group: "
+                    + IDConverter.convertFrom(entry) + " from "
+                            + group.getName() + ". " + msg, e);
+        }
+    }
+    
+    /**
+     * Attempt to get more information about group modification error. Returns
+     * an empty string if no extra information is found.
+     * 
+     * @param e
+     * @return
+     */
+    private String getGroupModInfo(XMPPException e) {
+        XMPPError xmppError = e.getXMPPError();
+        String rval = "";
+        if (xmppError != null) {
+            switch (xmppError.getCode()) {
+            case 406:
+                rval = "Group may not be modifiable. ";
+                break;
+            }
+        }
+        return rval;
     }
 
     /**
      * Remove entry from roster on server
      * 
      * @param entry
+     * @throws CollaborationException
      */
     public void removeFromRoster(RosterEntry entry) {
-        RosterManager rosterManager = connection.getRosterManager();
+        Roster roster = getRoster();
         try {
-            rosterManager.removeFromRoster(entry);
-        } catch (CollaborationException e) {
+            roster.removeEntry(entry);
+        } catch (XMPPException e) {
             statusHandler.error("Problem removing roster entry", e);
         }
     }
 
-    public LocalGroup createLocalGroup(String groupName) {
-        synchronized (localGroups) {
-            for (LocalGroup group : this.localGroups) {
-                if (groupName.equals(group.getName())) {
-                    return group;
-                }
-            }
-            LocalGroup group = new LocalGroup(groupName);
-            group.setManager(this);
-            localGroups.add(group);
-            for (LocalGroupListener listener : getSafeGroupListeners()) {
+    /**
+     * Create group. At least one entry must be placed into group for it to be
+     * persisted on server.
+     * 
+     * @param groupName
+     * @return
+     */
+    public RosterGroup createGroup(String groupName) {
+        Roster roster = getRoster();
+        RosterGroup rval = roster.getGroup(groupName);
+        if ( rval != null){
+            statusHandler.debug("Attempted to create existing group: " + groupName);
+            return rval;
+        }
+        rval = roster.createGroup(groupName);
+        for (GroupListener listener : getSafeGroupListeners()) {
+            listener.groupCreated(rval);
+        }
+        return rval;
+    }
+
+    /**
+     * Remove all users from group.
+     * 
+     * @param groupName
+     */
+    public void deleteGroup(String groupName) {
+        Roster roster = getRoster();
+        RosterGroup group = roster.getGroup(groupName);
+        if ( group == null){
+            statusHandler.warn("Attempted to delete non-existent group: "
+                    + groupName);
+            return;
+        }
+        Collection<RosterEntry> entries = group.getEntries();
+        for (RosterEntry entry : entries) {
+            deleteFromGroup(group, entry);
+        }
+        for (GroupListener listener : getSafeGroupListeners()) {
+            listener.groupDeleted(group);
+        }
+    }
+
+    /**
+     * Move all users from old group to new group. If new group already exists,
+     * this will merge the two groups.
+     * 
+     * @param oldName
+     * @param newName
+     */
+    public void renameGroup(String oldName, String newName) {
+        Roster roster = getRoster();
+        RosterGroup group = roster.getGroup(oldName);
+        if (group == null) {
+            statusHandler.warn("Attempted to rename non-existent group: "
+                    + oldName);
+            return;
+        }
+        boolean merger = roster.getGroup(newName) != null;
+        group.setName(newName);
+        for (GroupListener listener : getSafeGroupListeners()) {
+            listener.groupDeleted(group);
+        }
+        if (!merger) {
+            for (GroupListener listener : getSafeGroupListeners()) {
                 listener.groupCreated(group);
             }
-            storeLocalGroupsJob.schedule();
-            return group;
         }
     }
 
-    public void deleteLocalGroup(String groupName) {
-        synchronized (localGroups) {
-            Iterator<LocalGroup> it = this.localGroups.iterator();
-            while (it.hasNext()) {
-                LocalGroup group = it.next();
-                if (groupName.equals(group.getName())) {
-                    List<UserId> users = new ArrayList<UserId>(
-                            group.getUsers());
-                    for (UserId user : users) {
-                        deleteFromLocalGroup(groupName, user);
-                    }
-                    it.remove();
-                    for (LocalGroupListener listener : getSafeGroupListeners()) {
-                        listener.groupDeleted(group);
-                    }
-                }
-            }
+    /**
+     * Get groups that the user is in.
+     * 
+     * @param user
+     * @return
+     */
+    public Collection<RosterGroup> getGroups(UserId user) {
+        RosterEntry entry = getRoster().getEntry(user.getNormalizedId());
+        if (entry == null) {
+            statusHandler.error("Requested groups for user not in roster: "
+                    + user);
+            return Collections.emptyList();
         }
-        storeLocalGroupsJob.schedule();
+        return entry.getGroups();
     }
 
-    public void renameLocalGroup(String oldName, String newName) {
-        synchronized (localGroups) {
-
-            for (LocalGroup group : localGroups) {
-                if (oldName.equals(group.getName())) {
-                    for (LocalGroupListener listener : getSafeGroupListeners()) {
-                        listener.groupDeleted(group);
-                    }
-                    group.setName(newName);
-                    for (LocalGroupListener listener : getSafeGroupListeners()) {
-                        listener.groupCreated(group);
-                    }
-                }
-            }
-        }
-        storeLocalGroupsJob.schedule();
-    }
-
-    public List<LocalGroup> getLocalGroups(UserId user) {
-        List<LocalGroup> results = new ArrayList<LocalGroup>();
-        synchronized (localGroups) {
-            for (LocalGroup group : localGroups) {
-                for (String userName : group.getUserNames()) {
-                    if (user.getNormalizedId().equals(userName)) {
-                        results.add(group);
-                        break;
-                    }
-                }
-            }
-        }
-        return results;
-    }
-
+    /**
+     * Update local alias for user. Does not persist to server.
+     * 
+     * @param user
+     * @param nickname
+     */
     public void setNickname(UserId user, String nickname) {
         synchronized (localAliases) {
 
@@ -348,18 +434,36 @@ public class ContactsManager {
         return alias;
     }
 
+    /**
+     * Get user info from roster. Does not include local alias information.
+     * 
+     * @param userId
+     * @return
+     */
     public UserId getUser(String userId) {
-        RosterEntry entry = searchRoster(getRoster(), userId);
+        RosterEntry entry = searchRoster(userId);
         if (entry == null) {
             return null;
         }
         return IDConverter.convertFrom(entry);
     }
 
+    /**
+     * Get entry from roster for user. Does not include local alias information.
+     * 
+     * @param user
+     * @return
+     */
     public RosterEntry getRosterEntry(UserId user) {
-        return searchRoster(user);
+        return searchRoster(user.getNormalizedId());
     }
 
+    /**
+     * Get last known presence for contact.
+     * 
+     * @param user
+     * @return
+     */
     public Presence getPresence(UserId user) {
         UserId self = connection.getUser();
         if (self.isSameUser(user)) {
@@ -369,54 +473,35 @@ public class ContactsManager {
         return roster.getPresence(user.getNormalizedId());
     }
 
+    /**
+     * Get presence for this account.
+     * 
+     * @return
+     */
     public Presence getSelfPresence() {
         return connection.getPresence();
     }
 
     /**
-     * Used by local groups to make sure all local group items are in the
-     * roster.
+     * Convenience method for accessing roster.
      * 
-     * @param name
-     * @return
-     */
-    protected UserId findAndAddUser(String id) {
-        UserId user = null;
-        RosterEntry entry = searchRoster(getRoster(), id);
-        if (entry != null) {
-            user = IDConverter.convertFrom(entry);
-        }
-        if (user == null) {
-            user = findUser(id);
-            if (user != null) {
-                try {
-                    Roster roster = connection.getRosterManager().getRoster();
-                    String alias = user.getAlias();
-                    if (alias == null || alias.trim().isEmpty()) {
-                        alias = user.getName();
-                    }
-                    roster.createEntry(user.getFQName(), alias, new String[0]);
-                } catch (XMPPException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
-        }
-        return user;
-
-    }
-
-    /**
      * @return
      */
     private Roster getRoster() {
-        return connection.getRosterManager().getRoster();
+        return xmpp.getRoster();
     }
 
-    private UserId findUser(String idString) {
+    /**
+     * Perform an XMPP search for user. Includes any local alias information.
+     * 
+     * @param username
+     *            The part of the userid before the '@'
+     * @return null if not found
+     */
+    private UserId findUser(String username) {
         List<UserId> results;
         try {
-            results = search.byId(idString);
+            results = search.byUsername(username);
         } catch (XMPPException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return null;
@@ -431,44 +516,72 @@ public class ContactsManager {
         return results.isEmpty() ? null : results.iterator().next();
     }
 
-    private RosterEntry searchRoster(UserId user) {
-        String userId = user.getNormalizedId();
-        return searchRoster(connection.getRosterManager().getRoster(), userId);
+    /**
+     * Get entry from roster for user. Does not include local alias information.
+     * 
+     * @param userId
+     * @return
+     */
+    private RosterEntry searchRoster(String userId) {
+        return getRoster().getEntry(userId);
     }
 
-    private RosterEntry searchRoster(Roster roster, String userId) {
-        return roster.getEntry(userId);
-    }
-
-    public void addLocalGroupListener(LocalGroupListener listener) {
+    /**
+     * Add listeners to get information on when groups are modified
+     * 
+     * @param listener
+     */
+    public void addGroupListener(GroupListener listener) {
         synchronized (groupListeners) {
             groupListeners.add(listener);
         }
     }
 
-    public void removeLocalGroupListener(LocalGroupListener listener) {
+    /**
+     * Remove listener
+     * 
+     * @param listener
+     */
+    public void removeGroupListener(GroupListener listener) {
         synchronized (groupListeners) {
             groupListeners.remove(listener);
         }
     }
 
-    protected Set<LocalGroupListener> getSafeGroupListeners() {
-        Set<LocalGroupListener> safeSet = new HashSet<LocalGroupListener>();
+    /**
+     * Get a copy of the listeners set
+     * 
+     * @return
+     */
+    protected Set<GroupListener> getSafeGroupListeners() {
+        Set<GroupListener> safeSet = new HashSet<GroupListener>();
         synchronized (groupListeners) {
             safeSet.addAll(groupListeners);
         }
         return safeSet;
     }
 
-    public static interface LocalGroupListener {
+    /**
+     * Get a list of roster entries that do not belong to any group
+     * 
+     * @return
+     */
+    public Collection<RosterEntry> getNonGroupedContacts() {
+        return getRoster().getUnfiledEntries();
+    }
 
-        public void groupCreated(LocalGroup group);
+    /**
+     * Listener interface for group update events
+     */
+    public static interface GroupListener {
 
-        public void groupDeleted(LocalGroup group);
+        public void groupCreated(RosterGroup group);
 
-        public void userAdded(LocalGroup group, UserId user);
+        public void groupDeleted(RosterGroup group);
 
-        public void userDeleted(LocalGroup group, UserId user);
+        public void userAdded(RosterGroup group, UserId user);
+
+        public void userDeleted(RosterGroup group, UserId user);
 
     }
 }

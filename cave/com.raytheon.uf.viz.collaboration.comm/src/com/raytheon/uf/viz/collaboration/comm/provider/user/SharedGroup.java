@@ -17,16 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.actions;
+package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import org.eclipse.jface.action.Action;
+import java.util.Collection;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.core.icon.IconUtil;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 
 /**
- * Delete a local group
+ * Shared group managed by xmpp server. Cannot be modified by client.
  * 
  * <pre>
  * 
@@ -34,28 +33,44 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2012            bsteffen     Initial creation
- * Jan 24, 2014 2701       bclement    removed local groups
+ * Jan 23, 2014 2701       bclement    Initial creation
  * 
  * </pre>
  * 
- * @author bsteffen
+ * @author bclement
  * @version 1.0
  */
+public class SharedGroup {
 
-public class DeleteGroupAction extends Action {
+    private final RosterGroup delegate;
 
-    private final String group;
-
-    public DeleteGroupAction(String group) {
-        super("Delete " + group, IconUtil.getImageDescriptor(Activator
-                .getDefault().getBundle(), "remove_group.gif"));
-        this.group = group;
+    /**
+     * @param group
+     */
+    public SharedGroup(RosterGroup group) {
+        this.delegate = group;
     }
 
-    @Override
-    public void run() {
-        CollaborationConnection.getConnection().getContactsManager()
-                .deleteGroup(group);
+    /**
+     * @return name of group
+     */
+    public String getName() {
+        return delegate.getName();
     }
+
+    /**
+     * @return collection of entries in this group
+     */
+    public Collection<RosterEntry> getEntries() {
+        return delegate.getEntries();
+    }
+
+    /**
+     * @param entry
+     * @return true if entry is in this group
+     */
+    public boolean contains(RosterEntry entry) {
+        return delegate.contains(entry);
+    }
+
 }

@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Jan 24, 2014 2701       bclement    removed local groups
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public class CreateGroupAction extends Action {
         }
         for (UserId user : users) {
             CollaborationConnection.getConnection().getContactsManager()
-                    .addToLocalGroup(group, user);
+                    .addToGroup(group, user);
         }
     }
 }
