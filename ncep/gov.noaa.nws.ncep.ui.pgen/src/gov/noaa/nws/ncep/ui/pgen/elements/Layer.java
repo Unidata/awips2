@@ -21,6 +21,7 @@ import java.awt.Color;
  * 10/22/08					J. Wu   	Initial Creation.
  * 06/20/09		#116		B. Yin		Extends from DECollection
  * 07/09		#131		J. Wu   	Added more for layering control
+ * 11/13		#1049		B. Yin		Added meta info in layer.
  *
  * </pre>
  * 
@@ -39,7 +40,7 @@ public class Layer extends DECollection{
     private boolean changeMade;
     private String inputFile;
     private String outputFile;
-    
+    private String metaInfo;
     
     /**
 	 *  Default constructor
@@ -305,5 +306,27 @@ public class Layer extends DECollection{
 		return lyr;
 	}
 
+	public void setMetaInfo( String meta ){
+		metaInfo = meta;
+	}
+
+	public String getMetaInfo() {
+		return metaInfo;
+	}
+	
+	public String getMetaInfoFromKey( String key ){
+		if ( metaInfo == null || metaInfo.isEmpty() ){
+			return "";
+		}
+		int idx1 = metaInfo.indexOf('=', metaInfo.indexOf(key));
+		if ( idx1 == -1 ) return "";
+		
+		int idx2 = metaInfo.indexOf(';', metaInfo.indexOf(key));
+		if ( idx2 == -1 ){
+			idx2 = metaInfo.length();
+		}
+		
+		return metaInfo.substring(idx1+1, idx2).trim();
+	}
 }
  

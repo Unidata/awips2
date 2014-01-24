@@ -6,7 +6,7 @@
       <perspective
             class="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspective"
             id="gov.noaa.nws.ncep.viz.ui.NCPerspective"
-            name="National Centers">
+            name="NCP">
       </perspective>
    </extension>
    <extension
@@ -101,15 +101,15 @@
              
 	             <command  commandId="com.raytheon.viz.ui.actions.saveScreen"
 	                   label="Screen..."
-                   style="push"
-                   mnemonic="S">
-             </command>
-             <command
+	                   style="push"
+	                   mnemonic="S">
+	             </command>
+	             <command
 	                   commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
 	                   label="Area..."
-                   style="push"
-                   mnemonic="A">
-             </command>
+	                   style="push"
+	                   mnemonic="A">
+	             </command>
 	         </menu>
              <!-- <separator
                    name="beforePreferences"
@@ -235,12 +235,14 @@
                    style="push"
                    mnemonic="O">
              </command>
+<!-- This will just bring up the PGEN Preferences page where this flag is set.
             <command
                    commandId="gov.noaa.nws.ncep.viz.ui.preferences.handler"
                    label="PGEN Layer Link"
                    style="push"
                    mnemonic="LL">
              </command>
+-->
            </menu>
            <menu id="NCPredefinedArea"
                  label="Area"
@@ -417,7 +419,7 @@
                     mnemonic="C"
                     style="push">
               </command>
-              <command
+           	  <command
                     commandId="gov.noaa.nws.ncep.viz.CustomProjection"                    
                     label="Custom Area...">
               </command>
