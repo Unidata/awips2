@@ -35,29 +35,31 @@ fi
 
 if [ -z $7 ] ; then
     PGBINDIR=''
+    PSQLBINDIR=''
 else
     PGBINDIR=${7}/bin/
+    PSQLBINDIR=/awips2/psql/bin/
 fi
 
 echo "  Importing `basename ${SHAPEFILE}` into ${SCHEMA}.${TABLE} ..."
 if [ -n "$LOGFILE" ] ; then
-    ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
+    ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
         DELETE FROM public.geometry_columns WHERE f_table_schema = '${SCHEMA}' AND f_table_name = '${TABLE}';
         DROP TABLE IF EXISTS ${SCHEMA}.${TABLE}
     " >> $LOGFILE 2>&1
-    ${PGBINDIR}shp2pgsql -s 4326 -I ${SHAPEFILE} ${SCHEMA}.${TABLE} 2>> $LOGFILE | ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -f -  >> $LOGFILE 2>&1
-    ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
+    ${PGBINDIR}shp2pgsql -s 4326 -g the_geom -I ${SHAPEFILE} ${SCHEMA}.${TABLE} 2>> $LOGFILE | ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -f -  >> $LOGFILE 2>&1
+    ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
         SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom_0','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
         UPDATE ${SCHEMA}.${TABLE} SET the_geom_0=ST_Segmentize(the_geom,0.1);
         CREATE INDEX ${TABLE}_the_geom_0_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom_0);
     " >> $LOGFILE 2>&1
 else
-    ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
+    ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
         DELETE FROM public.geometry_columns WHERE f_table_schema = '${SCHEMA}' AND f_table_name = '${TABLE}';
         DROP TABLE IF EXISTS ${SCHEMA}.${TABLE}
     "
-    ${PGBINDIR}shp2pgsql -s 4326 -I ${SHAPEFILE} ${SCHEMA}.${TABLE} | ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -f -
-    ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
+    ${PGBINDIR}shp2pgsql -s 4326 -g the_geom -I ${SHAPEFILE} ${SCHEMA}.${TABLE} | ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -f -
+    ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
         SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom_0','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
         UPDATE ${SCHEMA}.${TABLE} SET the_geom_0=ST_Segmentize(the_geom,0.1);
         CREATE INDEX ${TABLE}_the_geom_0_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom_0);
@@ -73,12 +75,12 @@ if [ -n "$SIMPLEVS" ] ; then
         SUFFIX=
         for x in $LEV ; do SUFFIX=${SUFFIX}_${x} ; done
         if [ -n "$LOGFILE" ] ; then
-	        ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
+	        ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
                 SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom${SUFFIX}','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
                 UPDATE ${SCHEMA}.${TABLE} SET the_geom${SUFFIX}=ST_Segmentize(ST_Multi(ST_SimplifyPreserveTopology(the_geom,${LEV})),0.1);
                 CREATE INDEX ${TABLE}_the_geom${SUFFIX}_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom${SUFFIX});" >> $LOGFILE 2>&1
         else
-	        ${PGBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
+	        ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
                 SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom${SUFFIX}','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
                 UPDATE ${SCHEMA}.${TABLE} SET the_geom${SUFFIX}=ST_Segmentize(ST_Multi(ST_SimplifyPreserveTopology(the_geom,${LEV})),0.1);
                 CREATE INDEX ${TABLE}_the_geom${SUFFIX}_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom${SUFFIX});"
