@@ -1,0 +1,13 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 6: Solar Electromagnetic Emissions  
+0:0:Integrated Solar Irradiance:W*m^2:TSI
+1:1:Solar X-ray Flux (XRS Long):W*m^2:XLONG
+2:2:Solar X-ray Flux (XRS Short):W*m^2:XSHRT
+3:3:Solar EUV Irradiance:W*m^2:EUVIRR
+4:4:Solar Spectral Irradiance:W*m^2*n*m^1:SPECIRR
+5:5:F10.7:W*m^2*H*z^1:F107
+6:6:Solar Radio Emissions:W*m^2*Hz^1:SOLRF
+# 7-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing
+
+
