@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2013 2561       bclement     Initial creation
+ * Jan 24, 2014 2701       bclement     distinction between userid and username
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public class UserSearch {
 
     private static final String SEARCH_ACTION = "search";
 
-    public static final String USERID_FIELD = "Username";
+    public static final String USERNAME_FIELD = "Username";
 
     public static final String JABBER_ID_COLUMN = "jid";
 
@@ -81,14 +82,14 @@ public class UserSearch {
     }
 
     /**
-     * Search by username
+     * Search by username (the part of the user id before the @)
      * 
      * @param name
      * @return list of user ids that match that name
      * @throws XMPPException
      */
-    public List<UserId> byId(String id) throws XMPPException {
-        return byCriteria(USERID_FIELD, id);
+    public List<UserId> byUsername(String username) throws XMPPException {
+        return byCriteria(USERNAME_FIELD, username);
     }
 
     /**

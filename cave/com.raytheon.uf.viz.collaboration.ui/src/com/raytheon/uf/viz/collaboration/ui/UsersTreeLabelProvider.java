@@ -43,7 +43,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Mar 1, 2012            rferrel     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
+ * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  * 
  * </pre>
  * 
@@ -105,13 +106,13 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             return userLabelProvider.getImage(IDConverter
                     .convertFrom((RosterEntry) element));
         } else if (element instanceof RosterGroup) {
-            key = "group";
+            key = "roster_group";
+        } else if (element instanceof SharedGroup) {
+            key = "shared_group";
         } else if (element instanceof IVenueSession) {
             // key = "session_group";
         } else if (element instanceof SessionGroupContainer) {
             key = "session_group";
-        } else if (element instanceof LocalGroup) {
-            key = "local_group";
         }
 
         if (imageMap.get(key) == null && !key.equals("")) {
@@ -124,6 +125,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
     public String getText(Object element) {
         if (element instanceof RosterGroup) {
             return ((RosterGroup) element).getName();
+        } else if (element instanceof SharedGroup) {
+            return ((SharedGroup) element).getName();
         } else if (element instanceof RosterEntry) {
             return userLabelProvider.getText(IDConverter
                     .convertFrom((RosterEntry) element));
@@ -153,17 +156,14 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
                 return null;
             }
             return info.getVenueDescription();
-        } else if (element instanceof LocalGroup) {
-            return ((LocalGroup) element).getName();
         }
         return null;
     }
 
     @Override
     public Font getFont(Object element) {
-        if (element instanceof RosterGroup
-                || element instanceof SessionGroupContainer
-                || element instanceof LocalGroup) {
+        if (element instanceof RosterGroup || element instanceof SharedGroup
+                || element instanceof SessionGroupContainer) {
             // for this case do nothing, as it is not the top level of
             // session groups
             if (boldFont == null) {
