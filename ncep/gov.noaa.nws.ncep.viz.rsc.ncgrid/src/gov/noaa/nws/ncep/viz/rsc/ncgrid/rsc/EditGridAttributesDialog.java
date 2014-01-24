@@ -34,7 +34,9 @@ import org.eclipse.swt.widgets.Text;
  * Nov,22 2010  352			 X. Guo     Add HILO, HLSYM and move all help functions
  *                                      into NcgridAttributesHelp.java
  * Feb 06, 2012  #538        Q. Zhou    Added skip and filter areas and implements. 
- * Sep 07, 2012    #743     Archana      Added CLRBAR
+ * Sep 07, 2012  #743        Archana      Added CLRBAR
+ * Sep 11, 2013  #1036       S. Gurung  Added TEXT attribute
+ * 
  * @author mli
  * @version 1
  */
@@ -59,6 +61,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     private RscAttrValue marker = null;
     private RscAttrValue grdlbl = null;
     private RscAttrValue clrbar = null;
+    private RscAttrValue text =null;
     
     private Text glevelText;
     private Text gvcordText;
@@ -79,6 +82,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     private Text markerText;
     private Text grdlblText;
     private Text clrbarText;
+    private Text textAttrText;
     	
     /**
      * Constructor
@@ -112,6 +116,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     	marker     = editedRscAttrSet.getRscAttr("marker");
     	grdlbl     = editedRscAttrSet.getRscAttr("grdlbl");
     	clrbar    =  editedRscAttrSet.getRscAttr("clrbar");
+    	text 	   = editedRscAttrSet.getRscAttr("text");
     	
     	// confirm the classes of the attributes..
     	if(clrbar.getAttrClass() != String.class ) {
@@ -139,6 +144,10 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     	if ( hlsym != null 
     			&& ((String)hlsym.getAttrValue()).trim().length() <= 0)
     		hlsym.setAttrValue((String)"");
+    	
+    	if ( text != null 
+    			&& ((String)text.getAttrValue()).trim().length() <= 0)
+    		text.setAttrValue((String)"");
     	
 		//contour attributes editing
         Group contourAttributesGroup = new Group ( composite, SWT.SHADOW_NONE );
@@ -318,7 +327,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     			}
             });
         }
-        
+      //CLRBAR
         if ( clrbar != null ) {
         	Label hlsymAttrLabel = new Label(comp, SWT.NONE);
         	hlsymAttrLabel.setText("CLRBAR:");
@@ -333,7 +342,19 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
             });
         }
         
-        
+      // TEXT
+        if ( text != null ) {
+        	Label textAttrLabel = new Label(comp, SWT.NONE);
+        	textAttrLabel.setText("TEXT:");
+            textAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
+            textAttrText.setLayoutData(new GridData(230, SWT.DEFAULT));
+            textAttrText.setText((String)text.getAttrValue());
+            textAttrText.addModifyListener(new ModifyListener() {
+    			public void modifyText(ModifyEvent e) {
+    				text.setAttrValue((String)textAttrText.getText().trim());
+    			}
+            });
+        }         
         
      // WIND
         Label windAttrLabel = new Label(comp, SWT.NONE);
@@ -443,6 +464,9 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     		colorsText.setToolTipText(NcgridAttributesHelp.ColorsToolTipText());
     		markerText.setToolTipText(NcgridAttributesHelp.MarkerToolTipText());
     		grdlblText.setToolTipText(NcgridAttributesHelp.GrdlblToolTipText());
+    		if ( text != null ) {
+    			textAttrText.setToolTipText(NcgridAttributesHelp.TextToolTipText());
+    		}
     	}
     	else {
     		glevelText.setToolTipText(null);
@@ -467,6 +491,9 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     		colorsText.setToolTipText(null);
     		markerText.setToolTipText(null);
     		grdlblText.setToolTipText(null);
+    		if ( text != null ) {
+    			textAttrText.setToolTipText(null);
+    		}
     	}
     }
     
