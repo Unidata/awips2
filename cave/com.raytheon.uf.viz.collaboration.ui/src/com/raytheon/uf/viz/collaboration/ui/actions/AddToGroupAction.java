@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
@@ -30,13 +27,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CreateGroupDialog;
@@ -53,13 +50,13 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
  * Dec 20, 2013 2563       bclement    added support for ungrouped roster entries
+ * Jan 24, 2014 2701       bclement    removed local groups
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
 public class AddToGroupAction extends Action {
 
     private final String group;
@@ -83,7 +80,7 @@ public class AddToGroupAction extends Action {
 
     public AddToGroupAction(String group, UserId... users) {
         super(group, IconUtil.getImageDescriptor(Activator.getDefault()
-                .getBundle(), "local_group.gif"));
+                .getBundle(), "roster_group.gif"));
         this.group = group;
         this.users = users;
     }
@@ -112,8 +109,7 @@ public class AddToGroupAction extends Action {
         }
         CollaborationConnection connection = CollaborationConnection.getConnection();
         for (UserId user : users) {
-            connection.getContactsManager()
-                    .addToLocalGroup(group, user);
+            connection.getContactsManager().addToGroup(group, user);
         }
         if (entry != null) {
             // the entry wasn't in a group, so the entire tree needs to be
@@ -149,13 +145,7 @@ public class AddToGroupAction extends Action {
         private void fill() {
             ContactsManager contactsMgr = CollaborationConnection
                     .getConnection().getContactsManager();
-            List<LocalGroup> groups = contactsMgr.getLocalGroups();
-            List<LocalGroup> usedGroups = new ArrayList<LocalGroup>(groups);
-            for (UserId user : users) {
-                usedGroups.retainAll(contactsMgr.getLocalGroups(user));
-            }
-            groups.removeAll(usedGroups);
-            for (LocalGroup group : groups) {
+            for (RosterGroup group : contactsMgr.getGroups()) {
                 AddToGroupAction action = new AddToGroupAction(group.getName(),
                         users);
                 action.setEntry(entry);
