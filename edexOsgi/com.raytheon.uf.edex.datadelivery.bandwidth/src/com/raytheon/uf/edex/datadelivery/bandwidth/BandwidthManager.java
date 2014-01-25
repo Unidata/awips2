@@ -138,6 +138,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  *                                      handlePoint method now schedules most recent.
  * Jan 14, 2014 2692       dhladky      Bad Point scheduling final Empty list.                                   
  * Jan 14, 2014 2459       mpduff       Change to subscription status.
+ * Jan 25, 2014 2636       mpduff       Don't do an initial adhoc query for a new subscription.
  * 
  * </pre>
  * 
@@ -639,7 +640,6 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 .getCycleTimes();
         final boolean subscribedToCycles = !CollectionUtil
                 .isNullOrEmpty(cycles);
-        final boolean useMostRecentDataSetUpdate = !subscribedToCycles;
 
         // The subscription has cycles, so we can allocate bandwidth at
         // expected times
@@ -648,8 +648,6 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             unscheduled = schedule(subscription, Sets.newTreeSet(cycles));
         }
 
-        unscheduled.addAll(getMostRecent(subscription,
-                useMostRecentDataSetUpdate));
         return unscheduled;
     }
 
