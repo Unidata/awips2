@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 10, 2013  2104      mschenke     Switched to use MapScalesManager
  * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * Jan 10, 2014  2452      mpduff       Add label stating all lat/lons will be converted to easting.
+ * Jan 25, 2014  2452      mpduff       Changed label based on feedback.
  * 
  * </pre>
  * 
@@ -405,7 +406,7 @@ public class AreaComp extends Composite implements ISubset {
         gd = new GridData();
         gd.horizontalSpan = 1;
         Label l = new Label(regionComp, SWT.LEFT);
-        l.setText("All entries will be converted to Easting (0-360)");
+        l.setText("Lat/Lon values will be in the format of the data set.");
         l.setLayoutData(gd);
 
         /*
