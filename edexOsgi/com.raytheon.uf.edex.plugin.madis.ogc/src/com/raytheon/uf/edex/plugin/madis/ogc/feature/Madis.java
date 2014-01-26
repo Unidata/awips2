@@ -21,10 +21,8 @@ package com.raytheon.uf.edex.plugin.madis.ogc.feature;
  **/
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
