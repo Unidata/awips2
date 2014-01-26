@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.persistence.Version;
 import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
@@ -91,6 +92,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Nov 01, 2013 2361        njensen     Use EbxmlJaxbManager instead of SerializationUtil
  * Nov 14, 2013 2552        bkowal      EbxmlJaxbManager is now accessed via getInstance
  * Dec 20, 2013 2636        mpduff      Set initialized to true before postInitialized is called.
+ * Dec 04, 2013 2584        dhladky     Version based EbxmlJaxbManager
  * </pre>
  * 
  * @author bphillip
@@ -202,6 +204,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      * 
      * @throws EbxmlRegistryException
      */
+    @SuppressWarnings("resource")
     private void executeRegistrySql() throws EbxmlRegistryException {
         JarFile jar = null;
 
