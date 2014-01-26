@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
-
 /**
  * Definition of a subscription.
  * 
