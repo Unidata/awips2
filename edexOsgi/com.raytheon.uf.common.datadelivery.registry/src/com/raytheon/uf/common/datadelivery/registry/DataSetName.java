@@ -13,6 +13,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectAssociation;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.ebxml.MapValuesResolver;
 import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
@@ -33,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 22, 2012 0743       djohnson    Store data type as an enum.
  * Sep 07, 2012 1102       djohnson    Add {@code @XmlRootElement}.
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * jan 23, 2013   2584     dhladky     Versions.
  * 
  * </pre>
  * 
@@ -44,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject(value = { "providerName", "dataSetType", "dataSetName" }, storeContent = false)
+@RegistryObjectVersion(value = 1.0f)
 public class DataSetName {
 
     @RegistryObjectOwner
