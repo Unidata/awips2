@@ -24,10 +24,12 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
@@ -45,6 +47,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Sep 07, 2012 1102       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Add equals/hashcode.
  * 12/2/2013    1829       bphillip    Changed slot field in ExtensibleObjectType to be List instead of Set
+ * Dec 04, 2013 2584       dhladky      Versioning for registry objects
  * 
  * </pre>
  * 
@@ -79,15 +82,18 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
     public final Object decodeObject(RegistryObjectType registryObjectType)
             throws SerializationException {
         Object object = null;
-
         List<SlotType> returnedSlots = registryObjectType.getSlot();
+        // Figure out which version we have and it's class
+        VersionInfoType vit = registryObjectType.getVersionInfo();
+        String className = registryObjectType.getSlotValue(RegistryUtil.registryObjectClassName);
+
         // Walk the returned slots looking for the "content" slot
         for (SlotType s : returnedSlots) {
             if (CONTENT_SLOT.equals(s.getName())) {
                 SLOT_VALUE_TYPE sv = getSlotValueTypeClass().cast(
                         s.getSlotValue());
                 CONTENT_TYPE content = getContent(sv);
-                object = decodeContent(content);
+                object = decodeContent(content, className, vit.getUserVersionName());
                 break;
             }
         }
@@ -167,11 +173,13 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
      * 
      * @param content
      *            the content
+     * @param the className
+     * @param the version for serialization
      * @return the decoded object
      * @throws SerializationException
      *             on error decoding the string into an object
      */
-    abstract Object decodeContent(CONTENT_TYPE content)
+    abstract Object decodeContent(CONTENT_TYPE content, String className, String version)
             throws SerializationException;
 
     /**
