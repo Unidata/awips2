@@ -18,14 +18,8 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<cloudHeightData nx="25" ny="25" maxTimeoutSecGrid=".25"
-    maxTimeoutSecRaob=".1" maxMouseDistanceDeg="5.0" displayOption="PEAK">
-    <sources>
-		<source name="NONE" type="NONE" displayName="No Sampling"/>
-		<source name="ETA" type="MODEL" displayName="NAM"/>
-		<source name="GFS212" type="MODEL" displayName="GFS212"/>
-		<source name="RUC" type="MODEL" displayName="RUC"/>
-		<source name="Laps" type="MODEL" displayName="Laps"/>
-		<source name="Raob" type="RAOB" displayName="From Raobs"/>
-	</sources>
+<cloudHeightData>
+	<nx>25</nx>
+	<ny>25</ny>
+	<displayOption>PEAK</displayOption>
 </cloudHeightData>

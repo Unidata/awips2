@@ -76,10 +76,10 @@
 	    		<copy todir="${buildDirectory}/plugins">
 	    	    	<fileset dir="${buildDirectory}/../../../" includes="org.*/**"/>
 	    	    </copy>
-                        <echo message="ch.*/**"/>
-                    <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="ch.*/**"/>
-                    </copy>
+	        	<echo message="ch.*/**"/>
+		    	<copy todir="${buildDirectory}/plugins">
+		    	    <fileset dir="${buildDirectory}/../../../" includes="ch.*/**"/>
+		    	</copy>
 	        	<echo message="javax.*/**"/>
 	            <copy todir="${buildDirectory}/plugins">
 	            	<fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>

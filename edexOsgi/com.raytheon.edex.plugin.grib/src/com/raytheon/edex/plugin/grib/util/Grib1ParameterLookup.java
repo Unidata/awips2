@@ -30,8 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
 /**
  * Utility class for looking up Grib 1 Parameters
@@ -40,9 +42,10 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 3/9/10       4758        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2010  4758     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * 
  * </pre>
  * 
@@ -117,23 +120,25 @@ public class Grib1ParameterLookup {
         LocalizationContext commonStaticSite = pathManager.getContext(
                 LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.SITE);
-        File baseParameterFile = pathManager.getFile(commonStaticBase,
-                grib1ParamPath);
-        File siteParameterFile = pathManager.getFile(commonStaticSite,
-                grib1ParamPath);
+        LocalizationFile baseParameterFile = pathManager.getLocalizationFile(
+                commonStaticBase, grib1ParamPath);
+        LocalizationFile siteParameterFile = pathManager.getLocalizationFile(
+                commonStaticSite, grib1ParamPath);
 
         try {
+            JAXBManager jaxbManager = new SingleTypeJAXBManager<Grib1ParameterSet>(
+                    Grib1ParameterSet.class);
             if (baseParameterFile.exists()) {
-                Grib1ParameterSet parameterSet = (Grib1ParameterSet) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(baseParameterFile);
+                Grib1ParameterSet parameterSet = baseParameterFile
+                        .jaxbUnmarshal(Grib1ParameterSet.class, jaxbManager);
                 for (Grib1Parameter param : parameterSet.getParameters()) {
                     parameterMap.put(getGrib1Hash(param), param);
                     param.generateId();
                 }
             }
             if (siteParameterFile.exists()) {
-                Grib1ParameterSet parameterSet = (Grib1ParameterSet) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(siteParameterFile);
+                Grib1ParameterSet parameterSet = siteParameterFile
+                        .jaxbUnmarshal(Grib1ParameterSet.class, jaxbManager);
                 for (Grib1Parameter param : parameterSet.getParameters()) {
                     parameterMap.put(getGrib1Hash(param), param);
                     param.generateId();

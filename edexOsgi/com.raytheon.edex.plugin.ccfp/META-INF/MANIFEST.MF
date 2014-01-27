@@ -7,8 +7,8 @@ Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.edex.c
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging,
  org.geotools,
  javax.persistence
 Export-Package: com.raytheon.edex.plugin.ccfp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.commons.logging

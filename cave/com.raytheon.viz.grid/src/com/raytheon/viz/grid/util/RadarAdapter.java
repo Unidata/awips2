@@ -54,18 +54,19 @@ import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.level.Level.LevelType;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.core.style.level.Level.LevelType;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.uf.viz.derivparam.tree.OrLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.grid.data.TopoRequestableData;
 import com.raytheon.viz.grid.inv.RadarRequestableLevelNode;
 import com.raytheon.viz.grid.inv.RadarUpdater;
@@ -384,8 +385,13 @@ public class RadarAdapter {
             throws VizException {
         SingleLevel level = new SingleLevel(LevelType.TILT);
         level.setValue(radar.getPrimaryElevationAngle());
-        ColorMapParameters rval = ColorMapParameterFactory.build(null, radar
-                .getProductCode().toString(), radar.getUnitObject(), level);
+        ColorMapParameters rval;
+        try {
+            rval = ColorMapParameterFactory.build(null, radar.getProductCode()
+                    .toString(), radar.getUnitObject(), level);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
 
         rval.setColorMapMax(255);
         rval.setColorMapMin(0);

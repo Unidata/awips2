@@ -46,10 +46,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -66,7 +64,8 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 7, 2010            bsteffen     Initial creation
+ * May  7, 2010            bsteffen    Initial creation
+ * Sep  9, 2013  2277      mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -373,24 +372,16 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             }
         }
 
-        if (times.size() > 0) {
+        if (times.isEmpty() == false) {
             Map<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>(
                     resourceData.getMetadataMap());
             metadataMap.put(GridInventory.PARAMETER_QUERY,
                     new RequestConstraint(heightScale.getParameter()));
 
-            LayerProperty property = new LayerProperty();
-            property.setDesiredProduct(ResourceType.PLAN_VIEW);
-
-            property.setEntryQueryParameters(metadataMap, false);
-            property.setNumberOfImages(9999);
-            property.setSelectedEntryTimes(times.toArray(new DataTime[times
-                    .size()]));
-
-            List<Object> recs = DataCubeContainer.getData(property, 60000);
-
-            for (Object obj : recs) {
-                GridRecord gRecord = (GridRecord) obj;
+            PluginDataObject[] pdos = DataCubeContainer.getData(metadataMap,
+                    times.toArray(new DataTime[0]));
+            for (PluginDataObject pdo : pdos) {
+                GridRecord gRecord = (GridRecord) pdo;
                 Set<GridRecord> recordSet = yRecordMap.get(gRecord
                         .getDataTime());
                 if (recordSet != null) {

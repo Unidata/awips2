@@ -24,7 +24,7 @@ import java.util.Map;
 
 
 /**
- * TODO Add Description
+ * Local Storm Report event type
  * 
  * <pre>
  *
@@ -33,6 +33,7 @@ import java.util.Map;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2009            jkorman     Initial creation
+ * Dec 09, 2013 2581       njensen     Added freezing drizzle
  *
  * </pre>
  *
@@ -81,7 +82,8 @@ public enum LSREventType {
     TSTMWNDDMG("TSTM WND DMG",36,LSRUnits.NOUNITS),
     TSTMWNDGST("TSTM WND GST",37,LSRUnits.MPH),
     WATERSPOUT("WATER SPOUT",38,LSRUnits.NOUNITS),
-    WILDFIRE("WILDFIRE",39,LSRUnits.NOUNITS);
+    WILDFIRE("WILDFIRE",39,LSRUnits.NOUNITS),
+    FREEZINGDRIZZLE("FREEZING DRIZZLE", 40, LSRUnits.NOUNITS);
 
     private final String eventName;
     

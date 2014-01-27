@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Reflections
+Bundle-SymbolicName: org.reflections
+Bundle-Version: 0.9.9
+Bundle-ClassPath: reflections-0.9.9-RC1.jar
+Export-Package: org.reflections,
+ org.reflections.adapters,
+ org.reflections.scanners,
+ org.reflections.serializers,
+ org.reflections.util,
+ org.reflections.vfs
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.google.guava;bundle-version="1.0.0",
+ org.javassist;bundle-version="3.9.0"

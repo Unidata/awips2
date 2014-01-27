@@ -23,7 +23,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
+
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 /**
@@ -122,7 +123,7 @@ public class StormTrackSeparator extends AbstractRecordSeparator {
     public byte[] next() {
         try {
             String temp = iterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return (byte[]) null;
             } else {
                 return temp.getBytes();

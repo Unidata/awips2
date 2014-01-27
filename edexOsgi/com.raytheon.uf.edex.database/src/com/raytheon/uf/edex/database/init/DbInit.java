@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.jdbc.Work;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -49,6 +51,8 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * ------------ ----------  ----------- --------------------------
  * Apr 30, 2013 1960        djohnson    Extracted and generalized from the registry DbInit.
  * May 29, 2013 1650        djohnson    Allow initDb() to be overridden, though should rarely be done.
+ * Jun 24, 2013 2106        djohnson    initDb() always starts a fresh, shiny, new transaction.
+ * 10/11/2013   1682        bphillip    Changed method visibility to allow access by subclasses
  * </pre>
  * 
  * @author djohnson
@@ -116,6 +120,7 @@ public abstract class DbInit {
      * @throws Exception
      *             on error initializing the database
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void initDb() throws Exception {
         /*
          * Create a new configuration object which holds all the classes that
@@ -174,7 +179,7 @@ public abstract class DbInit {
      *             If the drop sql strings cannot be executed
      * @throws EbxmlRegistryException
      */
-    private void createTables(final AnnotationConfiguration aConfig)
+    protected void createTables(final AnnotationConfiguration aConfig)
             throws SQLException {
         final String[] createSqls = aConfig
                 .generateSchemaCreationScript(getDialect());
@@ -284,7 +289,7 @@ public abstract class DbInit {
      *             If the drop sql strings cannot be executed
      * @throws EbxmlRegistryException
      */
-    private void dropTables(final AnnotationConfiguration aConfig)
+    protected void dropTables(final AnnotationConfiguration aConfig)
             throws SQLException {
 
         final Work work = new Work() {

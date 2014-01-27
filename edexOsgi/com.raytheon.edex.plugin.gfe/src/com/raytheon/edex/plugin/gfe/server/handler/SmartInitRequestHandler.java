@@ -23,10 +23,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
+import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.request.SmartInitRequest;
@@ -35,7 +34,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * Handler for SmartInitRequest.
+ * Request handler for SmartInitRequest
  * 
  * <pre>
  * 
@@ -43,6 +42,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2010            dgilling     Initial creation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * Sep 13, 2013 2368       rjpeter      Used durable jms settings.
  * </pre>
  * 
@@ -50,7 +50,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * @version 1.0
  */
 
-public class SmartInitRequestHandler implements
+public class SmartInitRequestHandler extends BaseGfeRequestHandler implements
         IRequestHandler<SmartInitRequest> {
 
     /*
@@ -64,6 +64,7 @@ public class SmartInitRequestHandler implements
     public ServerResponse<Object> handleRequest(SmartInitRequest request)
             throws Exception {
         ServerResponse<Object> sr = new ServerResponse<Object>();
+        GridParmManager gridParmMgr = getIfpServer(request).getGridParmMgr();
 
         String site = request.getSiteID();
         String modelTime = request.getModelTime();
@@ -78,7 +79,7 @@ public class SmartInitRequestHandler implements
             return sr;
         }
 
-        List<DatabaseID> inventory = getD2DDatabases(site);
+        List<DatabaseID> inventory = getD2DDatabases(gridParmMgr);
 
         for (String model : affectedModels) {
             DatabaseID dbId = findDatabase(model, modelTime, inventory);
@@ -124,7 +125,7 @@ public class SmartInitRequestHandler implements
             Date newestModelTime = new Date(0);
             DatabaseID newestModel = null;
             for (DatabaseID dbId : inventory) {
-                Date toCheck = dbId.getModelTimeAsDate();
+                Date toCheck = dbId.getModelDate();
                 if ((dbId.getModelName().equals(d2dModel))
                         && (newestModelTime.compareTo(toCheck) < 1)) {
                     newestModel = dbId;
@@ -138,13 +139,11 @@ public class SmartInitRequestHandler implements
     /**
      * @return
      */
-    private List<DatabaseID> getD2DDatabases(String siteId) {
+    private List<DatabaseID> getD2DDatabases(GridParmManager gridParmMgr) {
         List<DatabaseID> d2dDbIds = new ArrayList<DatabaseID>();
-        d2dDbIds.add(D2DSatDatabaseManager.getSatDbId(siteId));
-        List<DatabaseID> gridDbIds = D2DParmIdCache.getInstance()
-                .getDatabaseIDs();
+        List<DatabaseID> gridDbIds = gridParmMgr.getDbInventory().getPayload();
         for (DatabaseID dbId : gridDbIds) {
-            if (dbId.getSiteId().equalsIgnoreCase(siteId)) {
+            if (dbId.getDbType().equals("D2D")) {
                 d2dDbIds.add(dbId);
             }
         }

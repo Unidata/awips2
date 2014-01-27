@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
+ * 09 Sep 2013  #2346      lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -164,8 +165,8 @@ public class DamDisplayControlDlg extends CaveSWTDialog {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Dam Display Control");
 
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
+        waitCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+        arrowCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
     }
 
     /*

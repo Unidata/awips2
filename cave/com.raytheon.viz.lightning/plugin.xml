@@ -30,14 +30,7 @@
             resourceType="PLAN_VIEW">
       </resource>
    </extension>
-   
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="binlightning"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
+
       <extension
          point="com.raytheon.uf.viz.productbrowser.dataDefinition">
          <dataDefinition

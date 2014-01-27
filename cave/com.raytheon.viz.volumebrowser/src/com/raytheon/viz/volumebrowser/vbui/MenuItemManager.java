@@ -22,6 +22,7 @@ package com.raytheon.viz.volumebrowser.vbui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * May 27, 2009 #2161      lvenable     Initial creation
  * Jan 24, 2013 #1516      rferrel     Methods to change/get 
  *                                      Active Data Selection.
+ * Dec 06, 2013 #2271      mpduff      Added the set of keys for the selected plane items
  * 
  * </pre>
  * 
@@ -74,6 +76,11 @@ public class MenuItemManager {
      * Callback when a menu action takes place.
      */
     private IDataMenuAction menuActionCB;
+
+    /**
+     * Set of keys for the selected plane items.
+     */
+    private Set<String> selectedPlaneItems = new HashSet<String>(0);
 
     /**
      * Constructor.
@@ -583,5 +590,24 @@ public class MenuItemManager {
      */
     public void setActiveDataSelection(DataSelection dataSelection) {
         menuActionCB.setActiveDataSelection(dataSelection);
+    }
+
+    /**
+     * Set the set of selected keys for the plane item list
+     * 
+     * @param selectedPlaneItems
+     *            Set of selected keys
+     */
+    public void setSelectedPlaneItems(Set<String> selectedPlaneItems) {
+        this.selectedPlaneItems = selectedPlaneItems;
+    }
+
+    /**
+     * Get the set of selected keys for the plane item list
+     * 
+     * @return The selected keys
+     */
+    public Set<String> getSelectedPlaneItems() {
+        return selectedPlaneItems;
     }
 }

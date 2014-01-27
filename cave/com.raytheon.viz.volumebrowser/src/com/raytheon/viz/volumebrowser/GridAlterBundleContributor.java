@@ -29,12 +29,8 @@ import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -55,10 +51,11 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 4, 2010            mschenke     Initial creation
- * Oct 3, 2012  #1248      rferrel     Change to use adapter.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jan 04, 2010           mschenke    Initial creation
+ * Oct 03, 2012  1248     rferrel     Change to use adapter.
+ * Dec 11, 2013  2602     bsteffen    Remove dead catch block.
  * 
  * </pre>
  * 
@@ -67,8 +64,6 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  */
 
 public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GridAlterBundleContributor.class);
 
     private static final String GRID_KEY = "Grid";
 
@@ -78,26 +73,20 @@ public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
 
         if (modelTitleToNameMap == null) {
             modelTitleToNameMap = new HashMap<String, String>();
-            try {
-                for (VbSource source : VbSourceList.getInstance().getEntries()) {
-                    if (source.getName() != null) {
-                        modelTitleToNameMap.put(source.getName(),
+            for (VbSource source : VbSourceList.getInstance().getEntries()) {
+                if (source.getName() != null) {
+                    modelTitleToNameMap.put(source.getName(), source.getKey());
+                } else {
+                    DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
+                            source.getKey());
+                    if (info == null) {
+                        modelTitleToNameMap.put(source.getKey(),
                                 source.getKey());
                     } else {
-                        DatasetInfo info = DatasetInfoLookup.getInstance()
-                                .getInfo(source.getKey());
-                        if (info == null) {
-                            modelTitleToNameMap.put(source.getKey(),
-                                    source.getKey());
-                        } else {
-                            modelTitleToNameMap.put(info.getTitle(),
-                                    source.getKey());
-                        }
+                        modelTitleToNameMap.put(info.getTitle(),
+                                source.getKey());
                     }
                 }
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Cannot load grid sources.", e);
             }
         }
         return modelTitleToNameMap;

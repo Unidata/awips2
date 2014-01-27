@@ -1,6 +1,38 @@
 #!/bin/bash
+
 # CAVE startup script
 # Note: CAVE will not run as 'root'
+
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+#
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# Dec 04, 2013  #2589     dgilling    Create command-line arg that controls
+#                                     xvfb initialization.
+# Dec 05, 2013  #2593     rjpeter     set IGNORE_NUM_CAVES
+# Dec 05, 2013  #2590     dgilling    Remove duplicated code and call to 
+#                                     cave.sh.
+#
+#
+
 
 user=`/usr/bin/whoami`
 if [ ${user} == 'root' ];then
@@ -16,75 +48,44 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-dir=${0%/*}
+PROGRAM_NAME="gfeclient"
 
-if [ "$dir" = "$0" ]; then
-
- dir="."
-
-fi
-
-cd "$dir"
-
-# Since, we no longer need to worry about re-location ...
-CAVE_INSTALL="/awips2/cave"
-JAVA_INSTALL="/awips2/java"
-PYTHON_INSTALL="/awips2/python"
-
-export AWIPS_INSTALL_DIR="${CAVE_INSTALL}"
-
-export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
-export PATH=${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:$PATH
-export JAVA_HOME="${JAVA_INSTALL}/jre"
-
-# The user can update this field if they choose to do so.
-export HYDRO_APPS_DIR="/awips2/edex/data/hdf5/hydroapps"
-
-TESTCHECK="$TMCP_HOME/bin/getTestMode"
-if [ -x ${TESTCHECK} ]; then
-    echo "Calling getTestMode()"
-    ${TESTCHECK}
-    status=${?}
-    if [ $status -eq 11 ]; then
-        MODE="TEST"
-        SWITCHES=" -mode TEST "
-    elif [ $status -eq 12 ];then
-        MODE="PRACTICE"
-        SWITCHES=" -mode PRACTICE "
-    elif [ $status -eq 15 ];then
-        MODE="OPERATIONAL"
-        SWITCHES=" -mode OPERATIONAL"
+# remove "-enablegl" flag from command-line if set so it doesn't confuse any
+# commands we call later.
+USER_ARGS=()
+while [[ $1 ]]
+do
+    if [ "$1" == "-enablegl" ]
+    then
+        ENABLEGL="true"
     else
-        MODE="OPERATIONAL (no response)"
-        SWITCHES=" "
+        USER_ARGS+=("$1")
     fi
-    echo "getTestMode() returned ${MODE}"
-else
-    MODE="UNKNOWN"
-    echo "getTestMode() not found - going to use defaults"
-fi
+    shift
+done
 
-export TEXTWS=`hostname | sed -e 's/lx/xt/g'`
-
-# if display not set
-if [ -n "$DISPLAY" ]
+if [ -n "$ENABLEGL" ]
 then
+    # if display not set
+    if [ -n "$DISPLAY" ]
+    then
         echo "Using Display set to $DISPLAY"
         extendLibraryPath
-else
+    else
         echo "Display not set, creating offscreen x on port $$"
         extendLibraryPath "-noX"
         Xvfb :$$ -screen 0 1280x1024x24 &
         xvfb=$!
         export DISPLAY="localhost:$$.0"
         #don't use shader when no display set 
-        export SWITCHES="${SWITCHES} -no_shader"
+        SWITCHES="${SWITCHES} -no_shader"
+    fi
 fi
 
-COMPONENT_ARGS="-component gfeclient"
-export LD_PRELOAD=libpython.so
-lookupINI ${COMPONENT_ARGS}
-/awips2/cave/cave ${SWITCHES} ${CAVE_INI_ARG} -nosplash ${COMPONENT_ARGS} "$@"
+export IGNORE_NUM_CAVES=1
+
+source /awips2/cave/cave.sh -nosplash -noredirect -component gfeclient "${USER_ARGS[@]}" &
+wait
 
 if [ -n "$xvfb" ]
 then

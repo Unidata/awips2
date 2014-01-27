@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Netcdf
+Bundle-SymbolicName: ll.netcdf
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Raytheon-bundled OSS
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: ll-netcdf-jni-1.3.jar
+Export-Package: edu.mit.ll.netcdf
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

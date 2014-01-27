@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 /**
- * Checks subscriptions to see if they would be considered duplicates.
+ * Reads and writes overlap config files for code in common.
  * 
  * <pre>
  * 
@@ -31,55 +33,21 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 09, 2013 2000       djohnson     Initial creation
+ * May 09, 2013  2000      djohnson     Initial creation
+ * Oct  1, 2013  1797      dhladky      More Generics
+ * Oct 21, 2013  2292      mpduff       Changed service to read/write config files.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
+ * @param <T>
+ * @param <C>
  */
 
-public interface ISubscriptionOverlapService {
-
-    int ONE_HUNDRED_PERCENT = 100;
-
-    String OVERLAPPING_SUBSCRIPTIONS = "The following subscriptions overlap with this one "
-            + "and are candidates for a shared subscription: ";
-
+public interface ISubscriptionOverlapService<T extends Time, C extends Coverage> {
     /**
-     * Response interface for a subscription overlap check.
-     */
-    public static interface ISubscriptionOverlapResponse {
-        /**
-         * Check whether the two subscriptions were exact duplicates.
-         * 
-         * @return true if the subscriptions are duplicates
-         */
-        boolean isDuplicate();
-
-        /**
-         * Check whether the two subscriptions were determined to overlap.
-         * 
-         * @return true if the subscriptions should be considered as overlapping
-         *         according to the configuration
-         */
-        boolean isOverlapping();
-    };
-
-    /**
-     * Returns whether sub2 exceeds configured overlap criteria to sub1
-     * according to the configuration.
-     * 
-     * @param sub1
-     * @param sub2
-     * 
-     * @return the overlap check response
-     */
-    ISubscriptionOverlapResponse isOverlapping(Subscription sub1,
-            Subscription sub2);
-
-    /**
-     * Writes the new configuration.
+     * Writes a new configuration file.
      * 
      * @param config
      *            the configuration
@@ -90,11 +58,11 @@ public interface ISubscriptionOverlapService {
             throws LocalizationException;
 
     /**
-     * Read the configuration.
+     * Get the overlap config file for this data type.
      * 
-     * @return the configuration
-     * @throws LocalizationException
-     *             on error reading the configuration
+     * @param type
+     *            The data type
+     * @return the config file for the data type
      */
-    SubscriptionOverlapConfig readConfig() throws LocalizationException;
+    SubscriptionOverlapConfig getConfigFile(DataType type);
 }

@@ -14,6 +14,7 @@
  * 12/2009		144			T. Lee		Migrated to TO11D6
  * 01/2010	    201		    M. Li		Split into dataplugin project
  * 05/2010		144			L. Lin		Migration to TO11DR11.
+ * Nov 14, 2013 2393        bclement    added getGridGeometry()
  *    
  * </pre>
  */
@@ -22,6 +23,7 @@ package gov.noaa.nws.ncep.common.dataplugin.mcidas;
 
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
+import java.awt.geom.Rectangle2D;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,16 +38,27 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.geometry.Envelope;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter; 
+import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -179,11 +192,23 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     private CoordinateReferenceSystem crsObject;
 
     /** The map coverage */
-    @Column(name = "the_geom", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Polygon location;
+
+    /**
+     * minimum x value in crs space
+     */
+    @Transient
+    private transient double minX = Double.NaN;
+
+    /**
+     * minimum y value in crs space
+     */
+    @Transient
+    private transient double minY = Double.NaN;
 
     public McidasMapCoverage() {
         super();
@@ -353,6 +378,61 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
             }
         }
         return crsObject;
+    }
+
+    /**
+     * Construct grid geometry using grid and geospatial information
+     * 
+     * @return
+     * @throws MismatchedDimensionException
+     * @throws FactoryException
+     * @throws TransformException
+     */
+    public GridGeometry2D getGridGeometry()
+            throws MismatchedDimensionException, FactoryException,
+            TransformException {
+        int nx = getNx();
+        int ny = getNy();
+        if (Double.isNaN(this.minX) || Double.isNaN(this.minY)) {
+            findMins();
+        }
+        GridEnvelope gridRange = new GridEnvelope2D(0, 0, nx, ny);
+        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
+                minX, minY, nx * getDx(), ny * getDy()));
+        return new GridGeometry2D(gridRange, crsRange);
+    }
+
+    /**
+     * Populate CRS min x value and min y value from longitudes and latitudes
+     * 
+     * @throws FactoryException
+     * @throws MismatchedDimensionException
+     * @throws TransformException
+     */
+    private void findMins() throws FactoryException,
+            MismatchedDimensionException, TransformException {
+        MathTransform from84 = MapUtil.getTransformFromLatLon(getCrs());
+        DirectPosition2D urInCrs = transform(from84, getUrlon(), getUrlat());
+        DirectPosition2D llInCrs = transform(from84, getLllon(), getLllat());
+        this.minX = Math.min(urInCrs.x, llInCrs.x);
+        this.minY = Math.min(urInCrs.y, llInCrs.y);
+    }
+
+    /**
+     * Transform x and y using provided math transform
+     * 
+     * @param mt
+     * @param x
+     * @param y
+     * @return
+     * @throws MismatchedDimensionException
+     * @throws TransformException
+     */
+    private DirectPosition2D transform(MathTransform mt, double x, double y)
+            throws MismatchedDimensionException, TransformException {
+        DirectPosition2D dest = new DirectPosition2D();
+        mt.transform(new DirectPosition2D(x, y), dest);
+        return dest;
     }
 
     public Float getDx() {

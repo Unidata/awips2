@@ -30,17 +30,15 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.grid.util.GridStyleUtil;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
-import com.raytheon.viz.grid.GridLevelTranslator;
 
 /**
  * 
@@ -53,6 +51,7 @@ import com.raytheon.viz.grid.GridLevelTranslator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * Sep 24, 2013 2404      bclement     match criteria built using GridStyleUtil
  * 
  * </pre>
  * 
@@ -138,24 +137,7 @@ public class GridResource<T extends AbstractResourceData> extends
         if (record == null) {
             return null;
         }
-        ParamLevelMatchCriteria matchCriteria = new ParamLevelMatchCriteria();
-        matchCriteria.setParameterName(new ArrayList<String>());
-        matchCriteria.setLevels(new ArrayList<Level>());
-        matchCriteria.setCreatingEntityNames(new ArrayList<String>());
-        String parameter = record.getParameter().getAbbreviation();
-        SingleLevel level = GridLevelTranslator.constructMatching(record
-                .getLevel());
-        String creatingEntity = record.getDatasetId();
-        if (!matchCriteria.getParameterNames().contains(parameter)) {
-            matchCriteria.getParameterNames().add(parameter);
-        }
-        if (!matchCriteria.getLevels().contains(level)) {
-            matchCriteria.getLevels().add(level);
-        }
-        if (!matchCriteria.getCreatingEntityNames().contains(creatingEntity)) {
-            matchCriteria.getCreatingEntityNames().add(creatingEntity);
-        }
-        return matchCriteria;
+        return GridStyleUtil.getMatchCriteria(record);
     }
 
     @Override

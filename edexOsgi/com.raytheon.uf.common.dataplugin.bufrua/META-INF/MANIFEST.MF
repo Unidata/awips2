@@ -3,20 +3,18 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bufrua Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrua
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.dataplugin.bufrua,
  com.raytheon.uf.common.dataplugin.bufrua.dao
-Require-Bundle: com.raytheon.edex.common,
- org.geotools,
- org.apache.commons.logging,
+Require-Bundle: com.raytheon.uf.common.sounding;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  javax.persistence,
- javax.measure,
- com.raytheon.uf.common.sounding;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.common.dataplugin.bufrua,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.pointdata
+ org.hibernate;bundle-version="1.0.0",
+ javax.measure
+Import-Package: org.apache.commons.logging

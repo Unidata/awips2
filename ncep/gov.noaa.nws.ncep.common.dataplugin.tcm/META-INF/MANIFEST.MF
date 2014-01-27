@@ -3,9 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tcm Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.tcm
 Bundle-Version: 1.0.0.qualifier
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.uf.common.dataplugin,
+Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage;bundle-version="1.11.31",
  org.springframework;bundle-version="2.5.6",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",

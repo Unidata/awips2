@@ -43,16 +43,16 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingE
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
@@ -73,13 +73,13 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 29, 2012            mschenke     Initial creation
+ * Nov 29, 2012            mschenke    Initial creation.
  * May 28, 2013 15971      lbousaidi    change the reading hour for SATPRE
  *                                      since the start time in the file is one 
  *                                      hour less than the file time stamp. 
+ * Jul 02, 2013   2160     mpduff      Changed how edited data are called for return.
  * Sep 17, 2013 16563      snaples      Updated createFrameImage to handle trace precip 
  *                                      properly when mapping to screen.													 
- * 
  * </pre>
  * 
  * @author mschenke
@@ -248,7 +248,7 @@ public class MPEFieldResource extends
     @Override
     public short[] getData(DataTime time) throws VizException {
         MPEFieldFrame frame = getFrame(time);
-        return frame.getEditedData();
+        return getEditedData(frame);
     }
 
     /*
@@ -323,15 +323,15 @@ public class MPEFieldResource extends
         for (int i = 0; i < accumInterval; ++i) {
             timeToLoad.setTime(currTime.getRefTime());
             timeToLoad.add(Calendar.HOUR, -i);
-                    	
-            if (displayField==DisplayFieldData.satPre) {
-            	 //SATPRE MPE file time stamp is the start time of the hour 
-            	 //i.e. a 12z -13z product has a time stamp of 12z.             	
-            	 timeToLoad.add(Calendar.HOUR, -1);             	 
+
+            if (displayField == DisplayFieldData.satPre) {
+                // SATPRE MPE file time stamp is the start time of the hour
+                // i.e. a 12z -13z product has a time stamp of 12z.
+                timeToLoad.add(Calendar.HOUR, -1);
             }
-            	 
+
             XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
-                   timeToLoad.getTime()); 
+                    timeToLoad.getTime());
             try {
                 file.load();
             } catch (IOException e) {

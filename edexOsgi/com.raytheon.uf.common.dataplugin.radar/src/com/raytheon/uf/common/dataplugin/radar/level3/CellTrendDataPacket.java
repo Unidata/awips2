@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -47,7 +48,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class CellTrendDataPacket extends SymbologyPacket implements
         ISerializableObject {
-    private static final int CELL_TREND_DATA_PACKET21 = 21;
 
     @DynamicSerializeElement
     private String cellID;
@@ -120,11 +120,6 @@ public class CellTrendDataPacket extends SymbologyPacket implements
         public void setData(ArrayList<Integer> data) {
             this.data = data;
         }
-    }
-
-    static {
-        PacketFactory.registerPacketType(CellTrendDataPacket.class,
-                CELL_TREND_DATA_PACKET21);
     }
 
     public CellTrendDataPacket() {

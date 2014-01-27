@@ -19,17 +19,20 @@
  **/
 package com.raytheon.viz.ui.dialogs;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -41,8 +44,17 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManager;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
+import com.raytheon.uf.viz.core.drawables.ColorMapTree;
+import com.raytheon.uf.viz.core.drawables.ColorMapTreeFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 
@@ -52,9 +64,10 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 26, 2010            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 26, 2010           mschenke    Initial creation
+ * Sep 18, 2013  2421     bsteffen    Use ColorMapTree for asyncronous loading.
  * 
  * </pre>
  * 
@@ -64,87 +77,14 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 
 public class ColormapComp {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ColormapComp.class);
+
     public static interface IColormapCompChangeListener {
         public void colormapChanged(String colorMap);
     }
 
-    private class ColorMapMenuItem {
-
-        /** null if not leaf node */
-        private LocalizationFile cmapFile;
-
-        private Menu subMenu;
-
-        private MenuItem actualItem;
-
-        private Menu parent;
-
-        private String text;
-
-        /**
-         * @param parent
-         * @param style
-         */
-        public ColorMapMenuItem(Menu parent, Menu subMenu,
-                LocalizationFile cmapFile, String text) {
-            this.parent = parent;
-            this.subMenu = subMenu;
-            this.cmapFile = cmapFile;
-            this.text = text;
-
-            List<ColorMapMenuItem> children = childMap.get(parent);
-            if (children == null) {
-                children = new ArrayList<ColorMapMenuItem>();
-                childMap.put(parent, children);
-            }
-            children.add(this);
-        }
-
-        public void initializeComponents() {
-            actualItem = new MenuItem(parent, subMenu == null ? SWT.NONE
-                    : SWT.CASCADE);
-            actualItem.setText(text);
-            if (subMenu != null) {
-                actualItem.setMenu(subMenu);
-            }
-
-            actualItem.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    if (cmapFile != null) {
-                        if (cmapButton != null) {
-                            cmapButton.setText(cmapFile.getName()
-                                    .replace("colormaps" + File.separator, "")
-                                    .replace(".cmap", ""));
-                        }
-
-                        try {
-                            String shortName = ColorMapLoader
-                                    .shortenName(cmapFile);
-                            params.setColorMap(ColorMapLoader
-                                    .loadColorMap(shortName));
-                            cap.notifyResources();
-
-                            for (IColormapCompChangeListener listener : listeners) {
-                                listener.colormapChanged(shortName);
-                            }
-                        } catch (VizException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                }
-            });
-        }
-
-        public Menu getSubMenu() {
-            return subMenu;
-        }
-
-    }
-
     private Set<IColormapCompChangeListener> listeners = new HashSet<IColormapCompChangeListener>();
-
-    private Map<Menu, List<ColorMapMenuItem>> childMap = new HashMap<Menu, List<ColorMapMenuItem>>();
 
     private Button cmapButton;
 
@@ -211,54 +151,8 @@ public class ColormapComp {
         }
 
         cmapPopupMenu.setVisible(false);
-
-        LocalizationFile[] files = ColorMapLoader.listColorMapFiles();
-        for (LocalizationFile file : files) {
-
-            List<String> actualItems = new ArrayList<String>();
-
-            String[] split = ColorMapLoader.shortenName(file).split("[/\\\\]"); // Win32
-
-            Menu lastParent = cmapPopupMenu;
-
-            // Just to be sure, get rid of empty items
-            for (String text : split) {
-                if (text.trim().equals("") == false) {
-                    actualItems.add(text);
-                }
-            }
-
-            for (int i = 0; i < actualItems.size(); ++i) {
-                if (i == actualItems.size() - 1) {
-                    // leaf node
-                    new ColorMapMenuItem(lastParent, null, file,
-                            actualItems.get(i));
-                } else {
-                    String text = actualItems.get(i);
-                    boolean found = false;
-                    // traverse lastParent's children to see if we already exist
-                    List<ColorMapMenuItem> children = childMap.get(lastParent);
-                    if (children == null) {
-                        children = new ArrayList<ColorMapMenuItem>();
-                        childMap.put(lastParent, children);
-                    }
-                    for (ColorMapMenuItem item : children) {
-                        if (item.subMenu != null && item.text.equals(text)) {
-                            found = true;
-                            lastParent = item.subMenu;
-                            break;
-                        }
-                    }
-
-                    if (!found) {
-                        Menu cmapParent = lastParent;
-                        lastParent = new Menu(shell, SWT.DROP_DOWN);
-                        new ColorMapMenuItem(cmapParent, lastParent, null, text);
-                    }
-                }
-            }
-        }
-        sortMenus(cmapPopupMenu);
+        cmapPopupMenu.addMenuListener(new MenuPopulator(cmapPopupMenu,
+                ColorMapTreeFactory.getBaseTree()));
     }
 
     /**
@@ -284,60 +178,6 @@ public class ColormapComp {
         refreshItems();
     }
 
-    /**
-     * @param parent
-     */
-    private void sortMenus(Menu parent) {
-        List<ColorMapMenuItem> children = childMap.get(parent);
-        if (children == null || children.size() == 0) {
-            return;
-        }
-
-        Collections.sort(children, new Comparator<ColorMapMenuItem>() {
-            @Override
-            public int compare(ColorMapMenuItem o1, ColorMapMenuItem o2) {
-                // catch user menu item
-                if (o1.text.toUpperCase().equals("USER")) {
-                    // user is always last
-                    return 1;
-                } else if (o2.text.toUpperCase().equals("USER")) {
-                    return -1;
-                }
-
-                // catch site menu item
-                if (o1.text.toUpperCase().equals("SITE")) {
-                    // site is after all but user ( user gets caught first )
-                    return 1;
-                } else if (o2.text.toUpperCase().equals("SITE")) {
-                    return -1;
-                }
-
-                // all other menu items
-                if (o1.subMenu != null && o2.subMenu == null) {
-                    // Show those with submenus first
-                    return -1;
-                } else if (o1.subMenu == null && o2.subMenu != null) {
-                    // Show those with submenus first
-                    return 1;
-                } else {
-                    // else look at text
-                    return o1.text.toLowerCase().compareTo(
-                            o2.text.toLowerCase());
-                }
-            }
-        });
-
-        for (ColorMapMenuItem child : children) {
-            child.initializeComponents();
-        }
-
-        for (ColorMapMenuItem child : children) {
-            if (child.subMenu != null) {
-                sortMenus(child.subMenu);
-            }
-        }
-    }
-
     public Menu getMenu() {
         return cmapPopupMenu;
     }
@@ -348,4 +188,160 @@ public class ColormapComp {
         }
         return false;
     }
+
+    protected void changeColormap(String name) {
+        if (cmapButton != null) {
+            cmapButton.setText(name);
+        }
+
+        try {
+            params.setColorMap(ColorMapLoader.loadColorMap(name));
+            cap.notifyResources();
+            for (IColormapCompChangeListener listener : listeners) {
+                listener.colormapChanged(name);
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.ERROR, "Unable to change colormap.",
+                    e);
+        }
+    }
+
+    /**
+     * Class to recursively populate a menu based off the contents of a
+     * {@link ColorMapTree}. The menu is not populated until it is shown. This
+     * is also an eclipse Job that will automatically try to prefetch some
+     * information from the tree for faster population.
+     */
+    private class MenuPopulator extends Job implements MenuListener {
+
+        private final Menu menu;
+
+        private final ColorMapTree tree;
+
+        public MenuPopulator(Menu menu, ColorMapTree tree) {
+            super("Loading Color Maps");
+            this.menu = menu;
+            this.tree = tree;
+            schedule();
+        }
+
+        @Override
+        public void menuHidden(MenuEvent e) {
+            /* Do Nothing */
+        }
+
+        /**
+         * Get all the subTrees that will be displayed and call
+         * optimizeIsEmpty(). isEmpty() is usually the slowest operation in
+         * menuShown because it can go recursive. optimizeIsEmpty ensures that
+         * future calls(from menuShown) are as fast as possible.
+         */
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            for (ColorMapTree subTree : tree.getSubTrees()) {
+                subTree.optimizeIsEmpty();
+            }
+            for (ColorMapTree subTree : getLevelTrees()) {
+                subTree.optimizeIsEmpty();
+            }
+            return Status.OK_STATUS;
+        }
+
+        /**
+         * Fill the menu with items from the tree. Always create menus at the
+         * top even if there are other items
+         */
+        @Override
+        public void menuShown(MenuEvent e) {
+            int index = 0;
+            List<ColorMapTree> subTrees = tree.getSubTrees();
+            Collections.sort(subTrees, new Comparator<ColorMapTree>() {
+
+                @Override
+                public int compare(ColorMapTree tree1, ColorMapTree tree2) {
+                    return tree1.getName().compareToIgnoreCase(tree2.getName());
+                }
+
+            });
+            for (ColorMapTree subTree : subTrees) {
+                if (!subTree.isEmpty()) {
+                    addSubTree(subTree, index++);
+                }
+            }
+            List<LocalizationFile> files = tree.getColorMapFiles();
+            Collections.sort(files, new Comparator<LocalizationFile>() {
+
+                @Override
+                public int compare(LocalizationFile file1,
+                        LocalizationFile file2) {
+                    return file1.getName().compareToIgnoreCase(file2.getName());
+                }
+
+            });
+            for (LocalizationFile file : files) {
+                addFile(file, index++);
+            }
+
+            for (ColorMapTree subTree : getLevelTrees()) {
+                if (!subTree.isEmpty()) {
+                    addSubTree(subTree, index++);
+                }
+            }
+            menu.removeMenuListener(this);
+        }
+
+        /**
+         * The root menu should show not only the base tree, but also an
+         * additional menu item for each localization level(SITE, USER ...),
+         * this method gets those trees when they are needed so menu items can
+         * be added.
+         */
+        private List<ColorMapTree> getLevelTrees() {
+            if (menu == cmapPopupMenu) {
+                List<ColorMapTree> trees = new ArrayList<ColorMapTree>();
+                IPathManager pm = PathManagerFactory.getPathManager();
+                LocalizationLevel[] levels = pm.getAvailableLevels();
+                for (LocalizationLevel level : levels) {
+                    if (level != LocalizationLevel.BASE) {
+                        ColorMapTree tree = ColorMapTreeFactory
+                                .getTreeForLevel(level);
+                        trees.add(tree);
+
+                    }
+                }
+                return trees;
+            } else {
+                return Collections.emptyList();
+            }
+        }
+
+        private void addSubTree(ColorMapTree tree, int index) {
+            MenuItem item = new MenuItem(menu, SWT.CASCADE, index);
+            item.setText(tree.getName());
+            Menu subMenu = new Menu(shell, SWT.DROP_DOWN);
+            item.setMenu(subMenu);
+            subMenu.addMenuListener(new MenuPopulator(subMenu, tree));
+        }
+
+        private void addFile(LocalizationFile file, int index) {
+            MenuItem item = new MenuItem(menu, SWT.None, index);
+            final String name = ColorMapLoader.shortenName(file);
+            int start = name.lastIndexOf(PathManager.SEPARATOR);
+            if (start >= 0) {
+                item.setText(name.substring(start + 1));
+            } else {
+                item.setText(name);
+            }
+            item.addSelectionListener(new SelectionAdapter() {
+
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    changeColormap(name);
+                }
+
+            });
+        }
+
+    }
+
 }

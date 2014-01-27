@@ -37,8 +37,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 13, 2013 1543       djohnson     Initial creation
+ * Feb 13, 2013 1543       djohnson    Initial creation
  * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
+ * Jun 24, 2013 2106       djohnson    Add ability to retrieve by network and start time.
  * 
  * </pre>
  * 
@@ -52,6 +53,9 @@ abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
     private static final String GET_BANDWIDTH_ALLOCATIONS_BY_SUBSCRIPTION_ID = "from %s res where res.bandwidthSubscription.id = :subscriptionId";
 
     private static final String GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK = "from %s res where res.network = :network";
+
+    private static final String GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK_AND_BUCKET_START_TIME = GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK
+            + " and res.bandwidthBucket = :bandwidthBucket";
 
     private static final String GET_BANDWIDTH_ALLOCATIONS_BY_STATE = "from %s res where res.status = :state";
 
@@ -76,6 +80,18 @@ abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
     public List<ENTITY> getByNetwork(Network network) {
         return query(String.format(GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK,
                 getEntityClass().getSimpleName()), "network", network);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<ENTITY> getByNetworkAndBucketStartTime(Network network,
+            long bucketStartTime) {
+        return query(String.format(
+                GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK_AND_BUCKET_START_TIME,
+                getEntityClass().getSimpleName()), "network", network,
+                "bandwidthBucket", bucketStartTime);
     }
 
     /**

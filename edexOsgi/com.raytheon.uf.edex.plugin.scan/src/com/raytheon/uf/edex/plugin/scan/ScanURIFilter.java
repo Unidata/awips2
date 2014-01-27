@@ -55,7 +55,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.ScanAlarmXML;
 import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
 import com.raytheon.uf.common.monitor.xml.SCANSiteXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.dat.utils.DATUtils;
@@ -80,7 +80,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
- * TODO Add Description
+ * Filters URIs for SCAN processing
  * 
  * <pre>
  * 
@@ -88,8 +88,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * (prior history is missing)
- * Jun 21, 2013 7613       zhao         Modified setGridRecords() etc.
+ * Mar 23, 2010            dhladky     Initial creation
+ * Jun 21, 2013 7613       zhao        Modified setGridRecords() etc.
+ * Oct 15, 2013 2361       njensen     Use JAXBManager for XML
+ * 
  * 
  * </pre>
  * 
@@ -97,10 +99,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class ScanURIFilter extends URIFilter {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+
+    private static final SingleTypeJAXBManager<ScanAlarmXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ScanAlarmXML.class);
 
     public double cellTilt = 0.0;
 
@@ -888,74 +889,73 @@ public class ScanURIFilter extends URIFilter {
         try {
             GridRecord[] records = { null, null, null, null, null, null, null };
             records = getGridRecords();
-           
-            
-			if (records[0] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(CAPEProduct.cape)
-										.getModelName(), CAPEProduct.cape,
-								records[0]);
-			}
 
-			if (records[1] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(HELIProduct.heli)
-										.getModelName(), HELIProduct.heli,
-								records[1]);
-			}
+            if (records[0] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(CAPEProduct.cape)
+                                        .getModelName(), CAPEProduct.cape,
+                                records[0]);
+            }
 
-			if (records[2] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(U500Product.U500)
-										.getModelName(), U500Product.U500,
-								records[2]);
-			}
+            if (records[1] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(HELIProduct.heli)
+                                        .getModelName(), HELIProduct.heli,
+                                records[1]);
+            }
 
-			if (records[3] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(U700Product.U700)
-										.getModelName(), U700Product.U700,
-								records[3]);
-			}
+            if (records[2] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(U500Product.U500)
+                                        .getModelName(), U500Product.U500,
+                                records[2]);
+            }
 
-			if (records[4] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(V700Product.V700)
-										.getModelName(), V700Product.V700,
-								records[4]);
-			}
+            if (records[3] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(U700Product.U700)
+                                        .getModelName(), U700Product.U700,
+                                records[3]);
+            }
 
-			if (records[5] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(GH500Product.GH500)
-										.getModelName(), GH500Product.GH500,
-								records[5]);
-			}
+            if (records[4] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(V700Product.V700)
+                                        .getModelName(), V700Product.V700,
+                                records[4]);
+            }
 
-			if (records[6] != null) {
-				scan.getCache()
-						.getModelData()
-						.setGridRecord(
-								site.getModelParameter(GH1000Product.GH1000)
-										.getModelName(), GH1000Product.GH1000,
-								records[6]);
-			}
-		} catch (Exception e) {
-			logger.debug("Grib record setter failed.....");
-			e.printStackTrace();
-		}
+            if (records[5] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(GH500Product.GH500)
+                                        .getModelName(), GH500Product.GH500,
+                                records[5]);
+            }
+
+            if (records[6] != null) {
+                scan.getCache()
+                        .getModelData()
+                        .setGridRecord(
+                                site.getModelParameter(GH1000Product.GH1000)
+                                        .getModelName(), GH1000Product.GH1000,
+                                records[6]);
+            }
+        } catch (Exception e) {
+            logger.debug("Grib record setter failed.....");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -1126,10 +1126,9 @@ public class ScanURIFilter extends URIFilter {
             String path = pm.getStaticFile(getFullPathAndFileName())
                     .getAbsolutePath();
 
-            dataXML = (ScanAlarmXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(path);
+            dataXML = jaxb.unmarshalFromXmlFile(path);
         } catch (Exception e) {
-            logger.error("Scan Alaram data not available");
+            logger.error("Scan Alarm data not available", e);
             dataXML = null;
         }
 
@@ -1146,30 +1145,30 @@ public class ScanURIFilter extends URIFilter {
         GridRecord[] records = { null, null, null, null, null, null, null };
         try {
             String[] modelUris = getModelSQL();
-            for ( String uri : modelUris ) {
-            	logger.info(" model uri = " + uri );
+            for (String uri : modelUris) {
+                logger.info(" model uri = " + uri);
             }
-            for ( int i = 0; i < modelUris.length; i++ ) {
-            	if ( !modelUris[i].isEmpty() ) {
-            		records[i] = DATUtils.getGridRecord(modelUris[i]);
-            	} else {
-            		logger.info(" modelUris[" + i + "] is empty");
-            	}
+            for (int i = 0; i < modelUris.length; i++) {
+                if (!modelUris[i].isEmpty()) {
+                    records[i] = DATUtils.getGridRecord(modelUris[i]);
+                } else {
+                    logger.info(" modelUris[" + i + "] is empty");
+                }
             }
-//            // CAPE
-//            records[0] = DATUtils.getGridRecord(modelUris[0]);
-//            // HELI
-//            records[1] = DATUtils.getGridRecord(modelUris[1]);
-//            // U500
-//            records[2] = DATUtils.getGridRecord(modelUris[2]);
-//            // U700
-//            records[3] = DATUtils.getGridRecord(modelUris[3]);
-//            // V700
-//            records[4] = DATUtils.getGridRecord(modelUris[4]);
-//            // GH500
-//            records[5] = DATUtils.getGridRecord(modelUris[5]);
-//            // GH1000
-//            records[6] = DATUtils.getGridRecord(modelUris[6]);
+            // // CAPE
+            // records[0] = DATUtils.getGridRecord(modelUris[0]);
+            // // HELI
+            // records[1] = DATUtils.getGridRecord(modelUris[1]);
+            // // U500
+            // records[2] = DATUtils.getGridRecord(modelUris[2]);
+            // // U700
+            // records[3] = DATUtils.getGridRecord(modelUris[3]);
+            // // V700
+            // records[4] = DATUtils.getGridRecord(modelUris[4]);
+            // // GH500
+            // records[5] = DATUtils.getGridRecord(modelUris[5]);
+            // // GH1000
+            // records[6] = DATUtils.getGridRecord(modelUris[6]);
         } catch (Exception e) {
             logger.error("No Grib record(s) found.....");
             logger.error(e.toString());
@@ -1186,67 +1185,76 @@ public class ScanURIFilter extends URIFilter {
 
         SCANSiteXML site = scan.getRunConfig().getSiteConfig(getIcao());
         logger.info(" site = " + site.getScanSite());
-        int interval = 1440*3;
+        int interval = 1440 * 3;
         // Set interval to 1 day, 1440 minutes
-        
-        String modelCape = site.getModelParameter(CAPEProduct.cape).getModelName();
-        String sqlCapeUri = CAPEProduct.getSQL(interval,modelCape);
+
+        String modelCape = site.getModelParameter(CAPEProduct.cape)
+                .getModelName();
+        String sqlCapeUri = CAPEProduct.getSQL(interval, modelCape);
         logger.info("modelCape = " + modelCape + "; sqlCapeUri = " + sqlCapeUri);
         Object[] objectsCapeUri = scan.dbRequest(sqlCapeUri);
-        
-        String modelHeli = site.getModelParameter(HELIProduct.heli).getModelName();
-        String sqlHeliUri = HELIProduct.getSQL(interval,modelHeli); 
+
+        String modelHeli = site.getModelParameter(HELIProduct.heli)
+                .getModelName();
+        String sqlHeliUri = HELIProduct.getSQL(interval, modelHeli);
         logger.info("modelHeli = " + modelHeli + "; sqlHeliUri = " + sqlHeliUri);
         Object[] objectsHeliUri = scan.dbRequest(sqlHeliUri);
-        
-        String modelU500 = site.getModelParameter(U500Product.U500).getModelName();
-        String sqlU500Uri = U500Product.getSQL(interval,modelU500);
+
+        String modelU500 = site.getModelParameter(U500Product.U500)
+                .getModelName();
+        String sqlU500Uri = U500Product.getSQL(interval, modelU500);
         logger.info("modelU500 = " + modelU500 + "; sqlU500Uri = " + sqlU500Uri);
         Object[] objectsU500Uri = scan.dbRequest(sqlU500Uri);
-        
-        String modelU700 = site.getModelParameter(U700Product.U700).getModelName();
-        String sqlU700Uri = U700Product.getSQL(interval,modelU700); 
+
+        String modelU700 = site.getModelParameter(U700Product.U700)
+                .getModelName();
+        String sqlU700Uri = U700Product.getSQL(interval, modelU700);
         logger.info("modelU700 = " + modelU700 + "; sqlU700Uri = " + sqlU700Uri);
         Object[] objectsU700Uri = scan.dbRequest(sqlU700Uri);
-        
-        String modelV700 = site.getModelParameter(V700Product.V700).getModelName();
-        String sqlV700Uri = V700Product.getSQL(interval,modelV700); 
+
+        String modelV700 = site.getModelParameter(V700Product.V700)
+                .getModelName();
+        String sqlV700Uri = V700Product.getSQL(interval, modelV700);
         logger.info("modelV700 = " + modelV700 + "; sqlV700Uri = " + sqlV700Uri);
         Object[] objectsV700Uri = scan.dbRequest(sqlV700Uri);
-        
-        String modelGH500 = site.getModelParameter(GH500Product.GH500).getModelName();
-        String sqlGH500Uri = GH500Product.getSQL(interval,modelGH500); 
-        logger.info("modelGH500 = " + modelGH500 + ";  sqlGH500Uri = " + sqlGH500Uri);
+
+        String modelGH500 = site.getModelParameter(GH500Product.GH500)
+                .getModelName();
+        String sqlGH500Uri = GH500Product.getSQL(interval, modelGH500);
+        logger.info("modelGH500 = " + modelGH500 + ";  sqlGH500Uri = "
+                + sqlGH500Uri);
         Object[] objectsGH500Uri = scan.dbRequest(sqlGH500Uri);
-        
-        String modelGH1000 = site.getModelParameter(GH1000Product.GH1000).getModelName();
-        String sqlGH1000Uri = GH1000Product.getSQL(interval,modelGH1000);
-        logger.info("modelGH1000 = " + modelGH1000 + "; sqlGH1000Uri = " + sqlGH1000Uri);
+
+        String modelGH1000 = site.getModelParameter(GH1000Product.GH1000)
+                .getModelName();
+        String sqlGH1000Uri = GH1000Product.getSQL(interval, modelGH1000);
+        logger.info("modelGH1000 = " + modelGH1000 + "; sqlGH1000Uri = "
+                + sqlGH1000Uri);
         Object[] objectsGH1000Uri = scan.dbRequest(sqlGH1000Uri);
 
         // always grab the most recent time data
-        String[] results = { "", "", "", "", "", "", ""};
-        
+        String[] results = { "", "", "", "", "", "", "" };
+
         if (objectsCapeUri.length > 0) {
-        	results[0] = (String) objectsCapeUri[0];
+            results[0] = (String) objectsCapeUri[0];
         }
         if (objectsHeliUri.length > 0) {
-        	results[1] = (String) objectsHeliUri[0];
+            results[1] = (String) objectsHeliUri[0];
         }
         if (objectsU500Uri.length > 0) {
-        	results[2] = (String) objectsU500Uri[0];
+            results[2] = (String) objectsU500Uri[0];
         }
         if (objectsU700Uri.length > 0) {
-        	results[3] = (String) objectsU700Uri[0];
+            results[3] = (String) objectsU700Uri[0];
         }
         if (objectsV700Uri.length > 0) {
-        	results[4] = (String) objectsV700Uri[0];
+            results[4] = (String) objectsV700Uri[0];
         }
         if (objectsGH500Uri.length > 0) {
-        	results[5] = (String) objectsGH500Uri[0];
+            results[5] = (String) objectsGH500Uri[0];
         }
         if (objectsGH1000Uri.length > 0) {
-        	results[6] = (String) objectsGH1000Uri[0];
+            results[6] = (String) objectsGH1000Uri[0];
         }
         return results;
     }

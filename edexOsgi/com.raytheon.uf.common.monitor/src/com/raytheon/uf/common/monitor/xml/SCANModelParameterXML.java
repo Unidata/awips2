@@ -4,10 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANModelParameterXML implements ISerializableObject {
+public class SCANModelParameterXML {
 
     @XmlAttribute(name = "parameterName")
     private String parameterName;

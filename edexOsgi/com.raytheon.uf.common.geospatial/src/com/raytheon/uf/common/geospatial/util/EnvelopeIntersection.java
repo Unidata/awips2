@@ -49,9 +49,16 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 14, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 14, 2012           mschenke    Initial creation
+ * Sep 13, 2013  2309     bsteffen    Corrected Lines that are extrapolated to
+ *                                    intersect the border will use projection
+ *                                    factor from all 4 corners instead of 3.
+ * Oct 08, 2013  2104     mschenke    Added case for where actual border is 
+ *                                    inside out by checking interior point
+ * Nov 18, 2013  2528     bsteffen    Fall back to brute force when corner
+ *                                    points are not found.
  * 
  * </pre>
  * 
@@ -66,7 +73,8 @@ public class EnvelopeIntersection {
     /**
      * Computes an intersection {@link Geometry} between sourceEnvelope and
      * targetEnvelope in targetEnvelope's CRS space. The resulting
-     * {@link Geometry} may contain multiple Geometries within it
+     * {@link Geometry} may contain multiple Geometries within it. But all
+     * geometries will be {@link Polygon}s
      * 
      * @param sourceEnvelope
      * @param targetEnvelope
@@ -78,17 +86,50 @@ public class EnvelopeIntersection {
     public static Geometry createEnvelopeIntersection(Envelope sourceEnvelope,
             Envelope targetEnvelope, double threshold, int maxHorDivisions,
             int maxVertDivisions) throws TransformException, FactoryException {
-        long t0 = System.currentTimeMillis();
         ReferencedEnvelope sourceREnvelope = reference(sourceEnvelope);
         ReferencedEnvelope targetREnvelope = reference(targetEnvelope);
-        Geometry border = null;
-        WorldWrapCorrector corrector = new WorldWrapCorrector(targetREnvelope);
         MathTransform sourceCRSToTargetCRS = CRS.findMathTransform(
                 sourceREnvelope.getCoordinateReferenceSystem(),
                 targetREnvelope.getCoordinateReferenceSystem());
+        if (sourceCRSToTargetCRS.isIdentity()) {
+            com.vividsolutions.jts.geom.Envelope intersection = sourceREnvelope
+                    .intersection(targetREnvelope);
+            if (intersection == null) {
+                return gf.createGeometryCollection(new Geometry[0]);
+            } else {
+                Coordinate[] border = new Coordinate[5];
+                border[0] = new Coordinate(intersection.getMinX(),
+                        intersection.getMinY());
+                border[1] = new Coordinate(intersection.getMinX(),
+                        intersection.getMaxY());
+                border[2] = new Coordinate(intersection.getMaxX(),
+                        intersection.getMaxY());
+                border[3] = new Coordinate(intersection.getMaxX(),
+                        intersection.getMinY());
+                border[4] = border[0];
+                return gf.createPolygon(gf.createLinearRing(border), null);
+            }
+        }
+        Geometry border = null;
+        WorldWrapCorrector corrector = new WorldWrapCorrector(targetREnvelope);
+        MathTransform targetCRSToSourceCRS = sourceCRSToTargetCRS.inverse();
         MathTransform targetCRSToLatLon = MapUtil
                 .getTransformToLatLon(targetREnvelope
                         .getCoordinateReferenceSystem());
+
+        // Create Polygon representing target envelope
+        Coordinate ul = new Coordinate(targetREnvelope.getMinimum(0),
+                targetREnvelope.getMinimum(1));
+        Coordinate ur = new Coordinate(targetREnvelope.getMaximum(0),
+                targetREnvelope.getMinimum(1));
+        Coordinate lr = new Coordinate(targetREnvelope.getMaximum(0),
+                targetREnvelope.getMaximum(1));
+        Coordinate ll = new Coordinate(targetREnvelope.getMinimum(0),
+                targetREnvelope.getMaximum(1));
+
+        Polygon targetBorder = gf.createPolygon(
+                gf.createLinearRing(new Coordinate[] { ul, ur, lr, ll, ul }),
+                null);
 
         double midY = sourceREnvelope.getMinimum(1)
                 + (sourceREnvelope.getSpan(1) / 2.0);
@@ -115,6 +156,19 @@ public class EnvelopeIntersection {
         LL = findNearestValidPoint(LL,
                 new double[] { sourceREnvelope.getMinimum(0), midY }, null,
                 sourceCRSToTargetCRS, true);
+
+        if (UL == null || UR == null || LR == null || LL == null) {
+            /*
+             * If entire edges of the tile are invalid in target space then the
+             * algorithms below are not that good. For most cases they produce
+             * overly large polygons but there are cases where they completely
+             * miss intersections. For these cases the BruteForce method is
+             * worth the extra time to get a really accurate envelope.
+             */
+            return BruteForceEnvelopeIntersection.createEnvelopeIntersection(
+                    sourceEnvelope, targetEnvelope, maxHorDivisions,
+                    maxVertDivisions);
+        }
 
         List<Coordinate> borderPoints = new ArrayList<Coordinate>(
                 maxVertDivisions * 2 + maxHorDivisions * 2);
@@ -187,8 +241,8 @@ public class EnvelopeIntersection {
             if (coords[0].equals(coords[coords.length - 1])) {
                 border = gf.createPolygon(gf.createLinearRing(coords), null);
                 border = correctedPolygon = JTS.transform(corrector.correct(JTS
-                        .transform(border,
-                        targetCRSToLatLon)), latLonToTargetCRS);
+                        .transform(border, targetCRSToLatLon)),
+                        latLonToTargetCRS);
             }
         }
         if ((border == null || border.isEmpty() || border.isValid() == false)
@@ -196,22 +250,9 @@ public class EnvelopeIntersection {
             // This may happen if more than one valid line string found or
             // correcting the single line string produced invalid geometries and
             // therefore the border is empty
-            MathTransform targetCRSToSourceCRS = sourceCRSToTargetCRS.inverse();
+
             // Here we check for a simple case where entire target CRS is within
             // source CRS making border equivalent to target CRS border
-            Coordinate ul = new Coordinate(targetREnvelope.getMinimum(0),
-                    targetREnvelope.getMinimum(1));
-            Coordinate ur = new Coordinate(targetREnvelope.getMaximum(0),
-                    targetREnvelope.getMinimum(1));
-            Coordinate lr = new Coordinate(targetREnvelope.getMaximum(0),
-                    targetREnvelope.getMaximum(1));
-            Coordinate ll = new Coordinate(targetREnvelope.getMinimum(0),
-                    targetREnvelope.getMaximum(1));
-
-            Polygon targetBorder = gf.createPolygon(gf
-                    .createLinearRing(new Coordinate[] { ul, ur, lr, ll, ul }),
-                    null);
-
             // Convert corner points of target envelope into source envelope
             // space
             boolean bad = false;
@@ -237,12 +278,7 @@ public class EnvelopeIntersection {
                 // Complicated case, take valid line strings and compute
                 // intersection area with target border and combine all
                 // intersections in collection
-                LineSegment top = new LineSegment(ul, ur);
-                LineSegment right = new LineSegment(ur, lr);
-                LineSegment bottom = new LineSegment(ll, lr);
-                LineSegment left = new LineSegment(ul, ll);
-                LineSegment[] borderSegments = new LineSegment[] { top, right,
-                        bottom, left };
+                Coordinate[] borderCorners = { ul, ur, lr, ll };
 
                 // First, world wrap correct the line strings
                 List<LineString> corrected = new ArrayList<LineString>();
@@ -335,14 +371,13 @@ public class EnvelopeIntersection {
                         double bestProjectionFactorOne = 1.0;
                         double bestProjectionFactorTwo = 1.0;
                         Coordinate cOne = null, cTwo = null;
-                        for (LineSegment ls : borderSegments) {
-                            double factor = one.projectionFactor(ls
-                                    .getCoordinate(0));
+                        for (Coordinate borderCorner : borderCorners) {
+                            double factor = one.projectionFactor(borderCorner);
                             if (factor > bestProjectionFactorOne) {
                                 cOne = one.pointAlong(factor);
                                 bestProjectionFactorOne = factor;
                             }
-                            factor = two.projectionFactor(ls.getCoordinate(0));
+                            factor = two.projectionFactor(borderCorner);
                             if (factor > bestProjectionFactorTwo) {
                                 cTwo = two.pointAlong(factor);
                                 bestProjectionFactorTwo = factor;
@@ -486,7 +521,7 @@ public class EnvelopeIntersection {
             }
         }
 
-        if ((border == null || border.isEmpty() || border.isValid() == false)) {
+        if (border == null || border.isEmpty() || border.isValid() == false) {
             if (correctedPolygon != null) {
                 // buffering will make an invalid polygon valid. This is known
                 // to be the correct action for rounded grids such as lat/lon
@@ -504,13 +539,26 @@ public class EnvelopeIntersection {
                 for (LineString ls : lineStrings) {
                     envelopes.add(ls.getEnvelope());
                 }
-                gf.createGeometryCollection(envelopes.toArray(new Geometry[0]));
+                border = gf.createGeometryCollection(envelopes
+                        .toArray(new Geometry[0]));
+            }
+        } else if (border instanceof Polygon) {
+            // Simple polygonal border, ensure it accurately represents our
+            // source envelope by checking interior point
+            Coordinate interior = JTS.transform(border.getInteriorPoint(),
+                    targetCRSToSourceCRS).getCoordinate();
+            if (sourceEnvelope.getMinimum(0) > interior.x
+                    || sourceEnvelope.getMaximum(0) < interior.x
+                    || sourceEnvelope.getMinimum(1) > interior.y
+                    || sourceEnvelope.getMaximum(1) < interior.y) {
+                // Interior point does not fall inside the source envelope, use
+                // the difference of the border
+                border = targetBorder.difference(border);
             }
         }
 
-        System.out.println("Time to create EnvelopeIntersection: "
-                + (System.currentTimeMillis() - t0) + "ms");
-        return border;
+        // Convert border to polygonal based geometry (Polygon or MultiPolygon)
+        return toPolygonal(border);
     }
 
     private static void extractLineStrings(List<LineString> lines, Geometry geom) {
@@ -530,7 +578,9 @@ public class EnvelopeIntersection {
             try {
                 double[] tmp = new double[maxPoint.length];
                 mt.transform(maxPoint, 0, tmp, 0, 1);
-                return maxPoint;
+                if (!Double.isNaN(tmp[0]) && !Double.isNaN(tmp[1])) {
+                    return maxPoint;
+                }
             } catch (TransformException e) {
                 // Ignore
             }
@@ -539,13 +589,15 @@ public class EnvelopeIntersection {
         try {
             double[] tmp = new double[point.length];
             mt.transform(point, 0, tmp, 0, 1);
-            // point is valid, keep looking
-            double deltaX = (maxPoint[0] - point[0]) / 2.0;
-            double deltaY = (maxPoint[1] - point[1]) / 2.0;
-            double[] newPoint = new double[] { point[0] + deltaX,
-                    point[1] + deltaY };
-            return findNearestValidPoint(maxPoint, newPoint, point, mt,
-                    checkMax);
+            if (!Double.isNaN(tmp[0]) && !Double.isNaN(tmp[1])) {
+                // point is valid, keep looking
+                double deltaX = (maxPoint[0] - point[0]) / 2.0;
+                double deltaY = (maxPoint[1] - point[1]) / 2.0;
+                double[] newPoint = new double[] { point[0] + deltaX,
+                        point[1] + deltaY };
+                return findNearestValidPoint(maxPoint, newPoint, point, mt,
+                        checkMax);
+            }
         } catch (TransformException e) {
             // Ignore
         }
@@ -614,5 +666,31 @@ public class EnvelopeIntersection {
             return (ReferencedEnvelope) envelope;
         }
         return new ReferencedEnvelope(envelope);
+    }
+
+    private static Geometry toPolygonal(Geometry geometry) {
+        if (geometry instanceof Polygon == false) {
+            List<Polygon> polygons = new ArrayList<Polygon>(
+                    geometry.getNumGeometries());
+            buildPolygonList(polygons, geometry);
+            if (polygons.size() == 1) {
+                geometry = polygons.get(0);
+            } else {
+                geometry = gf.createMultiPolygon(polygons
+                        .toArray(new Polygon[0]));
+            }
+        }
+        return geometry;
+    }
+
+    private static void buildPolygonList(List<Polygon> polygons,
+            Geometry geometry) {
+        if (geometry instanceof Polygon) {
+            polygons.add((Polygon) geometry);
+        } else {
+            for (int n = 0; n < geometry.getNumGeometries(); ++n) {
+                buildPolygonList(polygons, geometry.getGeometryN(n));
+            }
+        }
     }
 }

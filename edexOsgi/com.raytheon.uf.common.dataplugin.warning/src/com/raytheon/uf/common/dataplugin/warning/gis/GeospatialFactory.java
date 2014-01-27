@@ -38,6 +38,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -45,7 +46,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
- * TODO Add Description
+ * Retrieves geospatial data from disk if present, otherwise forwards request to
+ * maps database
  * 
  * <pre>
  * 
@@ -60,6 +62,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                     So, do not add the returned value of getFeAreaField() 
  *                                     to areaFields.
  * Jan  9, 2013   15600    Qinglu Lin  Execute "timezones = myTimeZones;" even if timezones != null.
+ * Oct 22, 2013   2361     njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -68,6 +71,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  */
 
 public class GeospatialFactory {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GeospatialFactory.class);
 
@@ -76,6 +80,9 @@ public class GeospatialFactory {
     public static final String METADATA_FILE = "warngen/geomMetaData.xml";
 
     private static GeospatialData[] timezones;
+
+    private static SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
+            .createWithoutException(GeospatialTimeSet.class);
 
     public static GeospatialData[] getGeoSpatialList(String site,
             GeospatialMetadata metaData) throws SpatialException {
@@ -171,9 +178,7 @@ public class GeospatialFactory {
                 METADATA_FILE);
         if (lf.exists()) {
             try {
-                rval = ((GeospatialTimeSet) SerializationUtil
-                        .jaxbUnmarshalFromInputStream(lf.openInputStream()))
-                        .getDataAsMap();
+                rval = jaxb.unmarshalFromXmlFile(lf.getFile()).getDataAsMap();
             } catch (Exception e) {
                 statusHandler
                         .handle(Priority.WARN,
@@ -248,8 +253,8 @@ public class GeospatialFactory {
 
         if (lf.exists()) {
             byte[] data = lf.read();
-            return (GeospatialDataSet) SerializationUtil
-                    .transformFromThrift(data);
+            return SerializationUtil.transformFromThrift(
+                    GeospatialDataSet.class, data);
         } else {
             System.out.println("Attempted to load: " + lf.getName()
                     + " for site " + site + ", but file does not exist.");

@@ -38,6 +38,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.RPFFcstGroupData;
 import com.raytheon.viz.hydrocommon.data.RPFFcstPointData;
@@ -56,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
  * Dec 20, 2008 1802        askripsk    Connect to database
+ * Jun 11, 2013 2088        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -63,6 +67,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RiverProFcstGrpPointsDlg.class);
 
     /**
      * Control font.
@@ -198,10 +204,15 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public RiverProFcstGrpPointsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("RiverPro Forecast Groups/Points");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -212,11 +223,23 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -488,7 +511,7 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -559,7 +582,8 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
                 secondaryHsaList.add(currHSA);
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unble to load static HsaLists ", e);
         }
 
     }
@@ -598,7 +622,7 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
 
             updateDialogDisplay();
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unble to load data ", e);
         }
     }
 
@@ -854,8 +878,6 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
                 mb.setText("Unable to Save");
                 mb.setMessage("An error occurred while saving.");
                 mb.open();
-
-                e.printStackTrace();
             }
         } else {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
@@ -926,8 +948,6 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
                 mb.setText("Unable to Save");
                 mb.setMessage("An error occurred while saving.");
                 mb.open();
-
-                e.printStackTrace();
             }
         } else {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
@@ -972,8 +992,6 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
                     mb.setText("Unable to Delete");
                     mb.setMessage("An error occurred while trying to delete");
                     mb.open();
-
-                    e.printStackTrace();
                 }
             }
         } else {

@@ -38,7 +38,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.InvalidRequestExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
@@ -49,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -85,6 +83,8 @@ public class ValidatorImpl implements Validator {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ValidatorImpl.class);
 
+    public static final String VALIDATOR_ERROR_MSG = "Error validating objects";
+
     /** The query manager **/
     private QueryManager queryManager;
 
@@ -99,7 +99,6 @@ public class ValidatorImpl implements Validator {
     /** Holds the registry of plugin validators **/
     private final GenericRegistry<String, Validator> validatorPlugins = new GenericRegistry<String, Validator>() {
     };
-
 
     /**
      * Constructor.
@@ -129,8 +128,8 @@ public class ValidatorImpl implements Validator {
         List<RegistryObjectType> registryObjects = Lists.newArrayList();
         if (request.getObjectRefList() != null) {
             final List<ObjectRefType> objectRefs = request.getObjectRefs();
-            registryObjects = Lists
-                    .newArrayListWithExpectedSize(objectRefs.size());
+            registryObjects = Lists.newArrayListWithExpectedSize(objectRefs
+                    .size());
 
             for (ObjectRefType objectRef : objectRefs) {
                 final String referenceId = objectRef.getId();
@@ -139,8 +138,9 @@ public class ValidatorImpl implements Validator {
                 if (registryObject == null) {
                     response.getException().add(
                             EbxmlExceptionUtil
-                                    .createUnresolvedReferenceException(null,
-                                            referenceId, statusHandler));
+                                    .createUnresolvedReferenceExceptionType(
+                                            VALIDATOR_ERROR_MSG, referenceId)
+                                    .getFaultInfo());
                     continue;
                 }
 
@@ -169,8 +169,7 @@ public class ValidatorImpl implements Validator {
         }
 
         request.setObjectRefList(new ObjectRefListType());
-        request.setOriginalObjects(new RegistryObjectListType(
-                    registryObjects));
+        request.setOriginalObjects(new RegistryObjectListType(registryObjects));
 
         return serverValidateObjects(request, response);
     }
@@ -198,9 +197,8 @@ public class ValidatorImpl implements Validator {
 
         if (originalObjects == null) {
             final String message = "The OriginalObjects element MUST specify the target objects to be verified!";
-            throw EbxmlExceptionUtil.createMsgRegistryException(message,
-                    InvalidRequestExceptionType.class, "", message, message,
-                    ErrorSeverity.ERROR, null, statusHandler);
+            throw EbxmlExceptionUtil.createInvalidRequestExceptionType(
+                    VALIDATOR_ERROR_MSG, message);
         }
 
         // Place all of the objects into a map keyed by their object type

@@ -156,6 +156,19 @@
         		</fileset>
         	</copy>
         	
+        	<if>
+        		<available file="${build.output.directory}/webapps" type="dir" />
+        		<then>
+        			<mkdir dir="${builder}/postBuild/${edex.root.directory}" />
+        			<copy todir="${builder}/postBuild/${edex.root.directory}"
+        			verbose="true">
+        				<fileset dir="${build.output.directory}">
+        					<include name="webapps/**" />
+        				</fileset>
+        			</copy>
+        		</then>
+        	</if>
+        	
         	<!-- special rule for cots -->
         	<if>
         		<not>

@@ -33,19 +33,19 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.level.Level;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.grid.rsc.general.AbstractGridResource;
 import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
 /**
  * 
- * TODO Add Description
+ * Resource to render GFE grid data in D2D.
  * 
  * <pre>
  * 
@@ -92,8 +92,8 @@ public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
             return;
         }
         try {
-            gfeRecord
-                    .setGridInfo(GFEDataAccessUtil.getGridParmInfo(gfeRecord.getParmId()));
+            gfeRecord.setGridInfo(GFEDataAccessUtil.getGridParmInfo(gfeRecord
+                    .getParmId()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

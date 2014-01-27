@@ -22,7 +22,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.datadelivery.event;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm,
- org.junit,
  org.apache.commons.lang;bundle-version="2.3.0",
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
@@ -31,7 +30,13 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0",
  com.raytheon.uf.common.units;bundle-version="1.0.0",
- com.raytheon.uf.common.site;bundle-version="1.12.1174"
+ com.raytheon.uf.common.site;bundle-version="1.12.1174",
+ com.raytheon.uf.common.event;bundle-version="1.0.0",
+ com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.productbrowser;bundle-version="1.12.1174",
+ com.raytheon.viz.pointdata;bundle-version="1.12.1174",
+ com.raytheon.viz.alerts;bundle-version="1.12.1174",
+ com.raytheon.viz.grid;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.datadelivery;uses:="org.eclipse.ui.plugin,org.osgi.framework",

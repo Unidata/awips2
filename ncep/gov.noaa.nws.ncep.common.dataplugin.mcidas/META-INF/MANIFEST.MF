@@ -5,8 +5,7 @@ Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.mcidas
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, org.geotools
-Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4",
- com.raytheon.edex.common;bundle-version="1.11.17",
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.17",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.11.17",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
@@ -21,3 +20,4 @@ Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4",
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.mcidas,
  gov.noaa.nws.ncep.common.dataplugin.mcidas.dao,
  gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed
+Import-Package: org.apache.commons.logging

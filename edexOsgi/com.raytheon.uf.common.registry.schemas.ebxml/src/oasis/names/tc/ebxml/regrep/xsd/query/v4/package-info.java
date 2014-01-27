@@ -18,6 +18,8 @@
  * further licensing information.
  **/
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.QUERY_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package oasis.names.tc.ebxml.regrep.xsd.query.v4;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 

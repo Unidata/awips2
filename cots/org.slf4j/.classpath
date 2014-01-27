@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="slf4j-api-1.7.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="slf4j-log4j12-1.7.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jul-to-slf4j-1.7.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="log4j-over-slf4j-1.7.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jcl-over-slf4j-1.7.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="slf4j-api-1.7.5.jar" sourcepath="slf4j-api-1.7.5-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

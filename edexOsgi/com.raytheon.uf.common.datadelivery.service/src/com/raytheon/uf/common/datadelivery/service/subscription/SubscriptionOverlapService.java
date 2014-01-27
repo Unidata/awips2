@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
-import java.util.Map;
+import java.io.File;
 import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
 
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -36,9 +38,10 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * Checks subscriptions to see if they would be considered duplicates.
+ * Read/Write subscription overlap config files.
  * 
  * <pre>
  * 
@@ -46,56 +49,20 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 07, 2013 2000       djohnson     Initial creation
+ * May 07, 2013  2000      djohnson     Initial creation
  * Jun 04, 2013  223       mpduff       Get base file if site doesn't exist.
- * 
+ * Sept 23, 2013 2283      dhladky      Updated for multiple configs
+ * Oct 03, 2013  2386      mpduff       Moved the subscription overlap rules files into the rules directory.
+ * Oct 25, 2013  2292      mpduff       Move overlap checks to edex.
+ * Nov 12, 2013  2361      njensen      Made JAXBManager static and initialized on first use
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
 
-public class SubscriptionOverlapService implements ISubscriptionOverlapService {
-
-    /**
-     * Base response object implementing {@link ISubscriptionOverlapResponse}.
-     */
-    public class SubscriptionOverlapResponse implements
-            ISubscriptionOverlapResponse {
-
-        private final boolean duplicate;
-
-        private final boolean overlapping;
-
-        /**
-         * Constructor.
-         * 
-         * @param duplicate
-         * @param overlapping
-         */
-        public SubscriptionOverlapResponse(boolean duplicate,
-                boolean overlapping) {
-            this.duplicate = duplicate;
-            this.overlapping = overlapping;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isDuplicate() {
-            return duplicate;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isOverlapping() {
-            return overlapping;
-        }
-
-    }
+public class SubscriptionOverlapService<T extends Time, C extends Coverage>
+        implements ISubscriptionOverlapService<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionOverlapService.class);
@@ -103,77 +70,35 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
     private static final String UNABLE_TO_UNMARSHAL = "Unable to unmarshal the configuration file.  "
             + "No subscriptions will be considered to overlap!";
 
-    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = "datadelivery/subscriptionOverlapRules.xml";
+    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT = "SubscriptionOverlapRules.xml";
 
-    private final ISubscriptionDuplicateChecker duplicateChecker;
+    private static final String SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH = FileUtil
+            .join("datadelivery", "systemManagement", "rules", File.separator);
 
-    private final JAXBManager jaxbManager;
+    private static JAXBManager jaxbManager;
+
+    private static synchronized JAXBManager getJaxbManager() {
+        if (jaxbManager == null) {
+            try {
+                Class<?>[] clazzes = new Class<?>[] {
+                        SubscriptionOverlapConfig.class,
+                        GridSubscriptionOverlapConfig.class,
+                        PointSubscriptionOverlapConfig.class };
+                jaxbManager = new JAXBManager(clazzes);
+            } catch (JAXBException e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
+        return jaxbManager;
+    }
 
     /**
      * Constructor.
      * 
      * @param duplicateChecker
      */
-    public SubscriptionOverlapService(
-            ISubscriptionDuplicateChecker duplicateChecker) {
-        this.duplicateChecker = duplicateChecker;
+    public SubscriptionOverlapService() {
 
-        try {
-            jaxbManager = new JAXBManager(SubscriptionOverlapConfig.class);
-        } catch (JAXBException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ISubscriptionOverlapResponse isOverlapping(Subscription sub1,
-            Subscription sub2) {
-        // Ignore requests to compare with itself
-        if (sub1.getName().equals(sub2.getName())) {
-            return new SubscriptionOverlapResponse(false, false);
-        }
-
-        final IPathManager pathManager = PathManagerFactory.getPathManager();
-
-        final LocalizationFile localizationFile = pathManager
-                .getStaticLocalizationFile(SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
-
-        SubscriptionOverlapConfig config;
-        try {
-            if (!localizationFile.exists()) {
-                throw new MissingResourceException(localizationFile.getName()
-                        + " does not exist.",
-                        SubscriptionOverlapConfig.class.getName(), "");
-            }
-            config = localizationFile.jaxbUnmarshal(
-                    SubscriptionOverlapConfig.class, jaxbManager);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, UNABLE_TO_UNMARSHAL, e);
-            config = SubscriptionOverlapConfig.NEVER_OVERLAPS;
-        }
-
-        final int parameterDuplicationPercent = duplicateChecker
-                .getParameterDuplicationPercent(sub1, sub2);
-        final int forecastHourDuplicationPercent = duplicateChecker
-                .getForecastHourDuplicationPercent(sub1, sub2);
-        final int cycleDuplicationPercent = duplicateChecker
-                .getCycleDuplicationPercent(sub1, sub2);
-        final int spatialDuplicationPercent = duplicateChecker
-                .getSpatialDuplicationPercent(sub1, sub2);
-
-        final boolean overlaps = config.isOverlapping(
-                parameterDuplicationPercent, forecastHourDuplicationPercent,
-                cycleDuplicationPercent, spatialDuplicationPercent);
-
-        final boolean duplicate = (parameterDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (forecastHourDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (cycleDuplicationPercent == ONE_HUNDRED_PERCENT)
-                && (spatialDuplicationPercent == ONE_HUNDRED_PERCENT);
-
-        return new SubscriptionOverlapResponse(duplicate, overlaps);
     }
 
     /**
@@ -185,36 +110,74 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
         final IPathManager pathManager = PathManagerFactory.getPathManager();
         LocalizationContext context = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        final LocalizationFile configFile = pathManager
-                .getLocalizationFile(
-                        context,
-                        SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
-        configFile.jaxbMarshal(config, jaxbManager);
+
+        String fileName = null;
+
+        if (config instanceof PointSubscriptionOverlapConfig) {
+            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH
+                    + DataType.POINT.name()
+                    + SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
+        } else if (config instanceof GridSubscriptionOverlapConfig) {
+            fileName = SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH
+                    + DataType.GRID.name()
+                    + SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT;
+        } else {
+            throw new IllegalArgumentException(config.getClass()
+                    + " Doesn't have any implementation in use");
+        }
+
+        final LocalizationFile configFile = pathManager.getLocalizationFile(
+                context, fileName);
+        configFile.jaxbMarshal(config, getJaxbManager());
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the overlap config file by type
      * 
-     * @throws LocalizationException
+     * @param type
+     * @return
      */
     @Override
-    public SubscriptionOverlapConfig readConfig() throws LocalizationException {
+    public SubscriptionOverlapConfig getConfigFile(DataType type) {
+
         final IPathManager pathManager = PathManagerFactory.getPathManager();
-        Map<LocalizationLevel, LocalizationFile> configFileMap = pathManager
-                .getTieredLocalizationFile(
-                        LocalizationType.COMMON_STATIC,
-                        SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
+        LocalizationFile localizationFile = null;
+        SubscriptionOverlapConfig config = null;
+        localizationFile = pathManager
+                .getStaticLocalizationFile(SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH
+                        + type.name() + SUBSCRIPTION_OVERLAP_CONFIG_FILE_ROOT);
 
-        LocalizationFile configFile = null;
+        try {
+            if (!localizationFile.exists()) {
+                throw new MissingResourceException(localizationFile.getName()
+                        + " does not exist.",
+                        SubscriptionOverlapConfig.class.getName(),
+                        "Not yet implemented!");
+            }
 
-        if (configFileMap.containsKey(LocalizationLevel.SITE)) {
-            configFile = configFileMap.get(LocalizationLevel.SITE);
-        } else {
-            configFile = configFileMap.get(LocalizationLevel.BASE);
+            if (type == DataType.GRID) {
+                config = localizationFile.jaxbUnmarshal(
+                        GridSubscriptionOverlapConfig.class, getJaxbManager());
+
+            } else if (type == DataType.POINT) {
+                config = localizationFile.jaxbUnmarshal(
+                        PointSubscriptionOverlapConfig.class, getJaxbManager());
+
+            }
+
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, UNABLE_TO_UNMARSHAL,
+                    e.getLocalizedMessage());
+            // this a fall back so at least some checking gets done
+            if (type == DataType.GRID) {
+                config = new GridSubscriptionOverlapConfig().getNeverOverlaps();
+            } else if (type == DataType.POINT) {
+                config = new PointSubscriptionOverlapConfig()
+                        .getNeverOverlaps();
+            }
         }
 
-        return configFile.jaxbUnmarshal(SubscriptionOverlapConfig.class,
-                jaxbManager);
+        return config;
     }
 
 }

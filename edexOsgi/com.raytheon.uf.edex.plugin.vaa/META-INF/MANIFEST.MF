@@ -2,16 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Vaa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.vaa
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
- org.apache.commons.logging;bundle-version="1.0.4",
+Require-Bundle: com.raytheon.uf.edex.decodertools,
  org.geotools,
  javax.persistence,
- javax.measure
-Import-Package: com.raytheon.uf.common.dataplugin.vaa,
- com.raytheon.uf.common.dataplugin.vaa.dao
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.vaa
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time

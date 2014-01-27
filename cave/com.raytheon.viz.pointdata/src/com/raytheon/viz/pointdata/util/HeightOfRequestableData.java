@@ -21,7 +21,6 @@ package com.raytheon.viz.pointdata.util;
 
 import java.awt.Point;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.measure.unit.SI;
@@ -29,7 +28,6 @@ import javax.measure.unit.SI;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -42,7 +40,7 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
+import com.raytheon.uf.common.wxmath.PToZsa;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -57,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 14, 2010            bsteffen     Initial creation
+ * Aug 14, 2013  #2262     dgilling     Use new wxmath method for ptozsa.
  * 
  * </pre>
  * 
@@ -120,10 +119,10 @@ public class HeightOfRequestableData extends AbstractRequestableData {
         try {
             gribRec = getGribRec(time);
         } catch (VizException e1) {
-            return Controller.ptozsa((float) level.getLevelonevalue());
+            return PToZsa.ptozsa((float) level.getLevelonevalue());
         }
         if (gribRec == null) {
-            return Controller.ptozsa((float) level.getLevelonevalue());
+            return PToZsa.ptozsa((float) level.getLevelonevalue());
         } else {
             ISpatialObject spatialObject = ((ISpatialEnabled) gribRec)
                     .getSpatialObject();
@@ -135,11 +134,11 @@ public class HeightOfRequestableData extends AbstractRequestableData {
                 position = PointUtil.determineIndex(new Coordinate(lon, lat),
                         crs, mapGeometry);
             } catch (Exception e) {
-                return Controller.ptozsa((float) level.getLevelonevalue());
+                return PToZsa.ptozsa((float) level.getLevelonevalue());
             }
             if (position.y < 0 || position.y >= spatialObject.getNy()
                     || position.x < 0 || position.x >= spatialObject.getNx()) {
-                return Controller.ptozsa((float) level.getLevelonevalue());
+                return PToZsa.ptozsa((float) level.getLevelonevalue());
             }
             int index = position.y * spatialObject.getNx() + position.x;
 
@@ -210,18 +209,12 @@ public class HeightOfRequestableData extends AbstractRequestableData {
      */
     private PluginDataObject loadPressureLevel(DataTime time)
             throws VizException {
-
-        LayerProperty lp = new LayerProperty();
-        lp.setNumberOfImages(1);
-        lp.setEntryQueryParameters(getConstraints(), false);
-        if (time != null) {
-            lp.setSelectedEntryTimes(new DataTime[] { time });
-        }
-        List<Object> resp = DataCubeContainer.getData(lp, 60000);
-        if (resp.isEmpty()) {
+        PluginDataObject[] pdos = DataCubeContainer.getData(getConstraints(),
+                time);
+        if (pdos == null || pdos.length == 0) {
             return null;
         }
-        PluginDataObject gribRec = (PluginDataObject) resp.get(0);
+        PluginDataObject gribRec = pdos[0];
         IDataRecord[] dr = DataCubeContainer.getDataRecord(gribRec);
         if (dr != null) {
             float[] data = (float[]) dr[0].getDataObject();

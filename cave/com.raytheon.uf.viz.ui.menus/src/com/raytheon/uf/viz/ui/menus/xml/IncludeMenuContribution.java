@@ -42,14 +42,16 @@ import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
 import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
 
 /**
- * TODO Add Description
+ * Providex ability to include menus from other localization files.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 27, 2009            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Apr 27, 2009           chammack    Initial creation
+ * Dec 11, 2013  2602     bsteffen    Update MenuXMLMap.
+ * 
  * 
  * </pre>
  * 
@@ -103,8 +105,8 @@ public class IncludeMenuContribution extends
 
             if (mtf.contributions != null) {
                 for (CommonAbstractMenuContribution c : mtf.contributions) {
-                    AbstractMenuContributionItem<?> amc = MenuXMLMap.xmlMapping
-                            .get(c.getClass());
+                    IContribItemProvider amc = MenuXMLMap.getProvider(c
+                            .getClass());
                     IContributionItem[] contribItems = amc
                             .getContributionItems(c, combinedSub, removals);
                     if (contribItems != null && contribItems.length > 0) {

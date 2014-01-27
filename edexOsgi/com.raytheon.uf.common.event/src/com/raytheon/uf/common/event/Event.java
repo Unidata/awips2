@@ -17,7 +17,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2012  #1305      bgonzale    Added LogLevel enum and transient attribute.
+ * Nov 05, 2012 1305       bgonzale    Added LogLevel enum and transient attribute.
+ * Nov 08, 2013 2506       bgonzale    Added constructor.
  * 
  * </pre>
  * 
@@ -45,6 +46,14 @@ public abstract class Event implements Serializable, ISerializableObject {
 
     public Event() {
         this(LogLevel.DEBUG);
+    }
+
+    /**
+     * @param id
+     */
+    public Event(String id) {
+        this();
+        this.id = id;
     }
 
     public Event(LogLevel logLevel) {

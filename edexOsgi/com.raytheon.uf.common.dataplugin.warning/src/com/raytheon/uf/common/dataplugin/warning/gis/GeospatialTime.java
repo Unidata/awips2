@@ -25,7 +25,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * TODO Add Description
+ * Wrapper for GeospatialConfiguration representing last time a the geometry
+ * data was created for a warngen configuration
  * 
  * <pre>
  * 

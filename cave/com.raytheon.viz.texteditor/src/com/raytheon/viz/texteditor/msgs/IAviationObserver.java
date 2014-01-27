@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.texteditor.msgs;
 
-import java.util.List;
-
 /**
  * The IAviationObserver interface specifies a method that allows the Aviation
  * Plug-in to save a working TAF bulletin.
@@ -30,6 +28,7 @@ import java.util.List;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 15, 2008	1119		grichard	Initial creation
+ * Sep 11, 2013 2277        mschenke    Removed unused function
  * 
  * </pre>
  * 
@@ -38,7 +37,7 @@ import java.util.List;
  */
 
 public interface IAviationObserver {
+
     void saveTafBulletin(String wrkTaf);
 
-    List<Object> recoverTafBulletin();
 }

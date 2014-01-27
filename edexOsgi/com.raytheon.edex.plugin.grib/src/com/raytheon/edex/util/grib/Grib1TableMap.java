@@ -23,24 +23,28 @@ package com.raytheon.edex.util.grib;
 import java.io.File;
 import java.util.HashMap;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.serialization.JAXBManager;
 
 /**
  * Contains a map grib 1 table aliases
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 3/19/10      #4634       bphillip     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 19, 2010  4634     bphillip    Initial creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method code.
  * 
  * </pre>
  * 
@@ -49,12 +53,12 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "gribTableMap")
-public class Grib1TableMap implements ISerializableObject {
+public class Grib1TableMap {
     private HashMap<String, String> map = new HashMap<String, String>();
 
     private static Grib1TableMap instance;
 
-    public static synchronized Grib1TableMap getInstance() {
+    public static synchronized Grib1TableMap getInstance() throws GribException {
         if (instance == null) {
             initInstance();
         }
@@ -64,26 +68,24 @@ public class Grib1TableMap implements ISerializableObject {
     private Grib1TableMap() {
     }
 
-    private static void initInstance() {
+    private static void initInstance() throws GribException {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext commonStaticBase = pathMgr.getContext(
                 LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
 
-        String path = "";
         try {
-            path = pathMgr.getFile(commonStaticBase,
-                    "grid" + File.separator + "grib1ParamTableMap.xml")
-                    .getCanonicalPath();
-
-            File tableFile = new File(path);
-
+            LocalizationFile tableFile = pathMgr.getLocalizationFile(
+                    commonStaticBase, "grid" + File.separator
+                            + "grib1ParamTableMap.xml");
             if (tableFile.exists()) {
-                instance = (Grib1TableMap) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(tableFile.getPath());
+                instance = tableFile.jaxbUnmarshal(Grib1TableMap.class,
+                        new JAXBManager(Grib1TableMap.class));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (LocalizationException e) {
+            throw new GribException("Unable to load table map from file.", e);
+        } catch (JAXBException e) {
+            throw new GribException("Unable to load table map from file.", e);
         }
     }
 

@@ -26,9 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.npp.sounding.NPPSoundingRecord;
@@ -48,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -56,13 +54,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nucapsseq")
-@Table(name = "nucaps", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = NucapsRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @DynamicSerialize
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 public class NucapsRecord extends NPPSoundingRecord {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "nucaps";
 
     public static final String PDV_SURFACE_PRESSURE = "Surface_Pressure";
 
@@ -86,6 +84,9 @@ public class NucapsRecord extends NPPSoundingRecord {
 
     public static final String PDV_QUALITY_FLAG = "Quality_Flag";
 
+    public NucapsRecord() {
+    }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
@@ -95,6 +96,6 @@ public class NucapsRecord extends NPPSoundingRecord {
 
     @Override
     public String getPluginName() {
-        return "nucaps";
+        return PLUGIN_NAME;
     }
 }

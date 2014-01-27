@@ -35,7 +35,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 29, 2012            bphillip     Initial creation
+ * Feb 29, 2012            bphillip    Initial creation
+ * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
  * 
  * </pre>
  * 

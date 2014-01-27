@@ -34,15 +34,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.taf.common.ChangeGroup;
 import com.raytheon.edex.plugin.taf.common.TafPeriod;
 import com.raytheon.edex.plugin.taf.common.TafRecord;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -55,6 +53,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2008       1515 jkorman     Initial implementation to
  *                                     add 30 Hour tafs.
+ * Nov 12, 2013 2546        bclement    added check for legacy valid time
  * </pre>
  * 
  * @author jkorman
@@ -90,6 +89,9 @@ public class TAFChangeGroupFactory {
 
     private final Pattern PAT_VALID_TIME = Pattern.compile(VALID_TIME);
 
+    private static final Pattern PAT_LEGACY_VALID_TIME = Pattern.compile("\\s"
+            + DAY + HOUR + HOUR + "\\s");
+
     private final Pattern PAT_PROB = Pattern.compile(PROB);
 
     private final Pattern PAT_TEMPO = Pattern.compile(TEMPO);
@@ -99,8 +101,6 @@ public class TAFChangeGroupFactory {
     private final Pattern PAT_BECMG = Pattern.compile(BECMG);
 
     private final Pattern PAT_FM = Pattern.compile(FM);
-
-    private final Log logger = LogFactory.getLog(getClass());
 
     private Calendar issueTime = null;
 
@@ -165,17 +165,19 @@ public class TAFChangeGroupFactory {
         if (locations.size() > 2) {
             stopPos = locations.get(0);
         }
+        String firstChunk = tafData.substring(startPos, stopPos);
         Matcher m = PAT_VALID_TIME
-                .matcher(tafData.substring(startPos, stopPos));
+                .matcher(firstChunk);
         if (m.find()) {
             startPos = m.start();
             stopPos = m.end();
             locations.add(0, stopPos);
             locations.add(0, startPos);
         }
+
         return locations;
     }
-
+    
     /**
      * 
      * @param tafData
@@ -288,10 +290,12 @@ public class TAFChangeGroupFactory {
      * @param tafData
      * @return
      */
-    private List<TAFSubGroup> parse30HourTaf(String tafData)
+    private List<TAFSubGroup> parse30HourTaf(WMOHeader wmo, String tafData)
             throws DecoderException {
 
         List<TAFSubGroup> groups = null;
+        
+        tafData = checkForLegacyFormat(wmo, tafData);
 
         List<Integer> locations = findPositions(new StringBuilder(tafData));
 
@@ -330,6 +334,57 @@ public class TAFChangeGroupFactory {
             groups.add(group);
         }
         return groups;
+    }
+    
+    /**
+     * Convert from legacy TAF format for valid times (DDHHHH) to the current
+     * extended format for valid times (DDHH/DDHH) if needed.
+     * 
+     * @param wmo
+     * @param tafData
+     * @return
+     */
+    protected String checkForLegacyFormat(WMOHeader wmo, String tafData) {
+        Matcher m = PAT_LEGACY_VALID_TIME.matcher(tafData);
+        boolean isLegacy = m.find();
+        if (!isLegacy) {
+            return tafData;
+        }
+        StringBuilder rval = new StringBuilder();
+        int last = 0;
+        do {
+            int day1 = Integer.parseInt(m.group(1));
+            int day2 = day1;
+            int hr1 = Integer.parseInt(m.group(4));
+            int hr2 = Integer.parseInt(m.group(7));
+            if (hr2 == 24) {
+                // legacy format uses 00 for valid start but 24 for valid end
+                hr2 = 00;
+            }
+            if (hr2 <= hr1) {
+                // valid time crosses midnight
+                Calendar cal = wmo.getHeaderDate();
+                if (cal == null) {
+                    // no month information in header, assume this month
+                    cal = TimeUtil.newCalendar(TimeUtil.GMT_TIME_ZONE);
+                }
+                // cal may be set to a day different than the valid start
+                cal.set(Calendar.DAY_OF_MONTH, day1);
+                // handles month roll over
+                cal.add(Calendar.DAY_OF_MONTH, 1);
+                day2 = cal.get(Calendar.DAY_OF_MONTH);
+            }
+            // +1 to include preceding white space
+            rval.append(tafData.substring(last, m.start() + 1));
+            rval.append(String
+                    .format("%02d%02d/%02d%02d", day1, hr1, day2,
+                    hr2));
+            // -1 to include following white space
+            last = m.end() - 1;
+        } while (m.find());
+        // handle tail
+        rval.append(tafData.substring(last));
+        return rval.toString();
     }
 
     /**
@@ -449,7 +504,7 @@ public class TAFChangeGroupFactory {
         String testData = tafParts.getTafHeader() + tafParts.getTafBody();
         // *********************
 
-        List<TAFSubGroup> groups = parse30HourTaf(testData);
+        List<TAFSubGroup> groups = parse30HourTaf(wmoHeader, testData);
         if (groups != null) {
             List<ChangeGroup> changeGroups = null;
 
@@ -547,4 +602,5 @@ public class TAFChangeGroupFactory {
 
         return record;
     }
+
 }

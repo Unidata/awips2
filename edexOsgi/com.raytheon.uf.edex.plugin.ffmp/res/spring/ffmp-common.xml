@@ -9,7 +9,7 @@
     <bean id="ffmpProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="ffmpPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.ffmp" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.ffmp.dao.FFMPDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.ffmp.FFMPDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord" />
 		<property name="dependencyFQNs">
 		    <list>

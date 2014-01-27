@@ -1,17 +1,28 @@
-#!/usr/bin/env python
 #
-# Copyright (c) 2006- Facebook
-# Distributed under the Thrift Software License
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
 #
-# See accompanying file LICENSE or visit the Thrift site at:
-# http://developers.facebook.com/thrift/
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
 
 from cStringIO import StringIO
-from struct import pack,unpack
+from struct import pack, unpack
 from thrift.Thrift import TException
 
-class TTransportException(TException):
 
+class TTransportException(TException):
   """Custom Transport Exception class"""
 
   UNKNOWN = 0
@@ -24,8 +35,8 @@ class TTransportException(TException):
     TException.__init__(self, message)
     self.type = type
 
-class TTransportBase:
 
+class TTransportBase:
   """Base class for Thrift transport layer."""
 
   def isOpen(self):
@@ -44,7 +55,7 @@ class TTransportBase:
     buff = ''
     have = 0
     while (have < sz):
-      chunk = self.read(sz-have)
+      chunk = self.read(sz - have)
       have += len(chunk)
       buff += chunk
 
@@ -58,6 +69,7 @@ class TTransportBase:
 
   def flush(self):
     pass
+
 
 # This class should be thought of as an interface.
 class CReadableTransport:
@@ -87,8 +99,8 @@ class CReadableTransport:
     """
     pass
 
-class TServerTransportBase:
 
+class TServerTransportBase:
   """Base class for Thrift server transports."""
 
   def listen(self):
@@ -100,15 +112,15 @@ class TServerTransportBase:
   def close(self):
     pass
 
-class TTransportFactoryBase:
 
+class TTransportFactoryBase:
   """Base class for a Transport Factory"""
 
   def getTransport(self, trans):
     return trans
 
-class TBufferedTransportFactory:
 
+class TBufferedTransportFactory:
   """Factory transport that builds buffered transports"""
 
   def getTransport(self, trans):
@@ -116,16 +128,19 @@ class TBufferedTransportFactory:
     return buffered
 
 
-class TBufferedTransport(TTransportBase,CReadableTransport):
+class TBufferedTransport(TTransportBase, CReadableTransport):
+  """Class that wraps another transport and buffers its I/O.
 
-  """Class that wraps another transport and buffers its I/O."""
-
+  The implementation uses a (configurable) fixed-size read buffer
+  but buffers all writes until a flush is performed.
+  """
   DEFAULT_BUFFER = 4096
 
-  def __init__(self, trans):
+  def __init__(self, trans, rbuf_size=DEFAULT_BUFFER):
     self.__trans = trans
     self.__wbuf = StringIO()
     self.__rbuf = StringIO("")
+    self.__rbuf_size = rbuf_size
 
   def isOpen(self):
     return self.__trans.isOpen()
@@ -141,16 +156,18 @@ class TBufferedTransport(TTransportBase,CReadableTransport):
     if len(ret) != 0:
       return ret
 
-    self.__rbuf = StringIO(self.__trans.read(max(sz, self.DEFAULT_BUFFER)))
+    self.__rbuf = StringIO(self.__trans.read(max(sz, self.__rbuf_size)))
     return self.__rbuf.read(sz)
 
   def write(self, buf):
     self.__wbuf.write(buf)
 
   def flush(self):
-    self.__trans.write(self.__wbuf.getvalue())
-    self.__trans.flush()
+    out = self.__wbuf.getvalue()
+    # reset wbuf before write/flush to preserve state on underlying failure
     self.__wbuf = StringIO()
+    self.__trans.write(out)
+    self.__trans.flush()
 
   # Implement the CReadableTransport interface.
   @property
@@ -159,9 +176,9 @@ class TBufferedTransport(TTransportBase,CReadableTransport):
 
   def cstringio_refill(self, partialread, reqlen):
     retstring = partialread
-    if reqlen < self.DEFAULT_BUFFER:
+    if reqlen < self.__rbuf_size:
       # try to make a read of as much as we can.
-      retstring += self.__trans.read(self.DEFAULT_BUFFER)
+      retstring += self.__trans.read(self.__rbuf_size)
 
     # but make sure we do read reqlen bytes.
     if len(retstring) < reqlen:
@@ -169,6 +186,7 @@ class TBufferedTransport(TTransportBase,CReadableTransport):
 
     self.__rbuf = StringIO(retstring)
     return self.__rbuf
+
 
 class TMemoryBuffer(TTransportBase, CReadableTransport):
   """Wraps a cStringIO object as a TTransport.
@@ -219,8 +237,8 @@ class TMemoryBuffer(TTransportBase, CReadableTransport):
     # only one shot at reading...
     raise EOFError()
 
-class TFramedTransportFactory:
 
+class TFramedTransportFactory:
   """Factory transport that builds framed transports"""
 
   def getTransport(self, trans):
@@ -228,20 +246,13 @@ class TFramedTransportFactory:
     return framed
 
 
-class TFramedTransport(TTransportBase):
-
+class TFramedTransport(TTransportBase, CReadableTransport):
   """Class that wraps another transport and frames its I/O when writing."""
 
-  def __init__(self, trans, read=True, write=True):
+  def __init__(self, trans,):
     self.__trans = trans
-    if read:
-      self.__rbuf = ''
-    else:
-      self.__rbuf = None
-    if write:
-      self.__wbuf = StringIO()
-    else:
-      self.__wbuf = None
+    self.__rbuf = StringIO()
+    self.__wbuf = StringIO()
 
   def isOpen(self):
     return self.__trans.isOpen()
@@ -253,30 +264,26 @@ class TFramedTransport(TTransportBase):
     return self.__trans.close()
 
   def read(self, sz):
-    if self.__rbuf == None:
-      return self.__trans.read(sz)
-    if len(self.__rbuf) == 0:
-      self.readFrame()
-    give = min(len(self.__rbuf), sz)
-    buff = self.__rbuf[0:give]
-    self.__rbuf = self.__rbuf[give:]
-    return buff
+    ret = self.__rbuf.read(sz)
+    if len(ret) != 0:
+      return ret
+
+    self.readFrame()
+    return self.__rbuf.read(sz)
 
   def readFrame(self):
     buff = self.__trans.readAll(4)
     sz, = unpack('!i', buff)
-    self.__rbuf = self.__trans.readAll(sz)
+    self.__rbuf = StringIO(self.__trans.readAll(sz))
 
   def write(self, buf):
-    if self.__wbuf == None:
-      return self.__trans.write(buf)
     self.__wbuf.write(buf)
 
   def flush(self):
-    if self.__wbuf == None:
-      return self.__trans.flush()
     wout = self.__wbuf.getvalue()
     wsz = len(wout)
+    # reset wbuf before write/flush to preserve state on underlying failure
+    self.__wbuf = StringIO()
     # N.B.: Doing this string concatenation is WAY cheaper than making
     # two separate calls to the underlying socket object. Socket writes in
     # Python turn out to be REALLY expensive, but it seems to do a pretty
@@ -284,4 +291,40 @@ class TFramedTransport(TTransportBase):
     buf = pack("!i", wsz) + wout
     self.__trans.write(buf)
     self.__trans.flush()
-    self.__wbuf = StringIO()
+
+  # Implement the CReadableTransport interface.
+  @property
+  def cstringio_buf(self):
+    return self.__rbuf
+
+  def cstringio_refill(self, prefix, reqlen):
+    # self.__rbuf will already be empty here because fastbinary doesn't
+    # ask for a refill until the previous buffer is empty.  Therefore,
+    # we can start reading new frames immediately.
+    while len(prefix) < reqlen:
+      self.readFrame()
+      prefix += self.__rbuf.getvalue()
+    self.__rbuf = StringIO(prefix)
+    return self.__rbuf
+
+
+class TFileObjectTransport(TTransportBase):
+  """Wraps a file-like object to make it work as a Thrift transport."""
+
+  def __init__(self, fileobj):
+    self.fileobj = fileobj
+
+  def isOpen(self):
+    return True
+
+  def close(self):
+    self.fileobj.close()
+
+  def read(self, sz):
+    return self.fileobj.read(sz)
+
+  def write(self, buf):
+    self.fileobj.write(buf)
+
+  def flush(self):
+    self.fileobj.flush()

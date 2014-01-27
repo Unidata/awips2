@@ -97,6 +97,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     called before time matching is done.
  * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * Sep 04, 2013 16519      kshresth    Fix Metar Display Problem
+ * Dec 02, 2013 2473       njensen     Prog Disclose paint frames at high priority
  * 
  * </pre>
  * 
@@ -119,7 +120,7 @@ public class PlotResource2 extends
 
     private double plotWidth;
 
-    private Map<DataTime, FrameInformation> frameMap;
+    private final Map<DataTime, FrameInformation> frameMap;
 
     private DataTime displayedTime;
 
@@ -226,7 +227,7 @@ public class PlotResource2 extends
                 || !curTime.equals(displayedTime)) {
             displayedTime = paintProps.getDataTime();
             progressiveDisclosure.update(curFrame.stationMap.values(),
-                    displayedTime);
+                    displayedTime, true);
             resourceData.getPlotInfoRetriever().updateActiveFrame(
                     paintProps.getDataTime(),
                     descriptor.pixelToWorld(paintProps.getView().getExtent(),
@@ -362,15 +363,15 @@ public class PlotResource2 extends
             List<PlotInfo> info = entry.getValue();
             FrameInformation frameInfo = frameMap.get(time);
 
-            // Sort this data in "backwards" so that the most recent observation 
+            // Sort this data in "backwards" so that the most recent observation
             // for a particular station display correctly
             if (info.size() > 1) {
                 Collections.sort(info, new Comparator<PlotInfo>() {
 
-                @Override
-                public int compare(PlotInfo o1, PlotInfo o2) {                         	  
-                   return o2.dataTime.compareTo(o1.dataTime);
-                 }
+                    @Override
+                    public int compare(PlotInfo o1, PlotInfo o2) {
+                        return o2.dataTime.compareTo(o1.dataTime);
+                    }
                 });
             }
 
@@ -388,7 +389,7 @@ public class PlotResource2 extends
                             double[] thisLocationPixel = descriptor
                                     .worldToPixel(new double[] {
                                             plot.longitude, plot.latitude });
-                            if (thisLocationPixel != null
+                            if ((thisLocationPixel != null)
                                     && worldExtent.contains(
                                             thisLocationPixel[0],
                                             thisLocationPixel[1])) {
@@ -434,10 +435,10 @@ public class PlotResource2 extends
             // End DR14996
         }
         boolean dup = false;
-        for (int i = 0; i < existingStation.info.length; i++) {
-            String curUri = existingStation.info[i].dataURI;
+        for (PlotInfo element : existingStation.info) {
+            String curUri = element.dataURI;
             String newUri = plot.dataURI;
-            if (curUri == null || curUri.equals(newUri)) {
+            if ((curUri == null) || curUri.equals(newUri)) {
                 dup = true;
                 break;
             }
@@ -543,9 +544,8 @@ public class PlotResource2 extends
             for (Station station : stationMap.values()) {
                 if (station != null) {
                     Coordinate pixelLocation = station.pixelLocation;
-                    if (distanceBetween(pixelLocation, mouseLocation) <= this
-                            .getResourceData().getPixelSampleDistance()
-                            / screenToWorldRatio) {
+                    if (distanceBetween(pixelLocation, mouseLocation) <= (this
+                            .getResourceData().getPixelSampleDistance() / screenToWorldRatio)) {
 
                         availableStations.add(station);
                     }
@@ -724,7 +724,7 @@ public class PlotResource2 extends
         FrameInformation frameInfo = this.frameMap.remove(dataTime);
         if (frameInfo != null) {
             for (Station s : frameInfo.stationMap.values()) {
-                if (s != null && s.plotImage != null) {
+                if ((s != null) && (s.plotImage != null)) {
                     s.plotImage.getImage().dispose();
                     s.plotImage = null;
                 }
@@ -751,7 +751,7 @@ public class PlotResource2 extends
             Map<String, Station> stationMap = frame.stationMap;
             List<PlotInfo[]> toQueue = new ArrayList<PlotInfo[]>(200);
             for (Station station : disclosed) {
-                if (station.plotImage == null
+                if ((station.plotImage == null)
                         && stationMap.containsKey(station.info[0].stationId)) {
                     toQueue.add(station.info);
                 }
@@ -781,6 +781,5 @@ public class PlotResource2 extends
             }
         }
     }
-
 
 }

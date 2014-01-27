@@ -8,11 +8,15 @@
         class="com.raytheon.uf.viz.datadelivery.handlers.VizSubscriptionHandler">
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.common.datadelivery.registry.handlers.SiteSubscriptionHandler" />
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.SiteSubscriptionHandler">
+                <property name="registryHandler" ref="registryHandler" />
+            </bean>
         </constructor-arg>
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.common.datadelivery.registry.handlers.SharedSubscriptionHandler" />
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.SharedSubscriptionHandler">
+                <property name="registryHandler" ref="registryHandler" />
+            </bean>
         </constructor-arg>
     </bean>
 
@@ -20,37 +24,62 @@
         class="com.raytheon.uf.viz.datadelivery.handlers.VizPendingSubscriptionHandler">
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSiteSubscriptionHandler" />
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSiteSubscriptionHandler">
+                <property name="registryHandler" ref="registryHandler" />
+            </bean>
         </constructor-arg>
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSharedSubscriptionHandler" />
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSharedSubscriptionHandler">
+                <property name="registryHandler" ref="registryHandler" />
+            </bean>
         </constructor-arg>
     </bean>
 
     <bean name="GroupDefinitionHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.GroupDefinitionHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.GroupDefinitionHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="ProviderHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.ProviderHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ProviderHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="DataSetNameHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetNameHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetNameHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="ParameterHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="ParameterLevelHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterLevelHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterLevelHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="DataSetMetaDataHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetMetaDataHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetMetaDataHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="GriddedDataSetMetaDataHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.GriddedDataSetMetaDataHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.GriddedDataSetMetaDataHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <bean name="DataSetHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
+    
+    <bean name="AdhocSubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.AdhocSubscriptionHandler">
+        <property name="registryHandler" ref="registryHandler" />
+    </bean>
 
     <!-- The actual registering of the handlers -->
 
@@ -127,6 +156,11 @@
             value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler" />
         <constructor-arg ref="DataSetHandler" />
     </bean>
+    
+    <bean id="registerAdhocSubscriptionHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler" />
+        <constructor-arg ref="AdhocSubscriptionHandler" />
+    </bean>
 
     <!-- Used to consolidate the dependency clauses of beans that rely upon 
         data delivery registry handlers -->
@@ -135,6 +169,6 @@
         registerGroupDefinitionHandler,
         registerProviderHandler,registerDataSetNameHandler,registerParameterHandler,
         registerParameterLevelHandler,registerDataSetMetaDataHandler,
-        registerGriddedDataSetMetaDataHandler,registerDataSetHandler" />
+        registerGriddedDataSetMetaDataHandler,registerDataSetHandler,registerAdhocSubscriptionHandler" />
 
 </beans>

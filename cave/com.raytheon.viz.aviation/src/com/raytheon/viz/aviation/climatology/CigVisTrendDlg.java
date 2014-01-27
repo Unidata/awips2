@@ -29,7 +29,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -73,6 +72,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
  * 10/09/2912   1229       rferrel     Made non-blocking
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 12 Aug 2013  #2256      lvenable    Disposed of images after printing and removed
+ *                                     cursor memory leak.
  * 
  * </pre>
  * 
@@ -126,10 +127,6 @@ public class CigVisTrendDlg extends CaveSWTDialog {
      * Draw button
      */
     private Button drawBtn;
-
-    private Cursor waitCursor;
-
-    private Cursor defaultCursor;
 
     /**
      * Font used in text controls.
@@ -942,11 +939,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
             }
             selectionMap.put("cur_hour", hour);
 
-            if (waitCursor == null) {
-                waitCursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-                defaultCursor = shell.getCursor();
-            }
-            shell.setCursor(waitCursor);
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
             drawBtn.setEnabled(false);
             // Always get 12 hours worth
             dataMgr.getData(siteList.getItem(siteList.getSelectionIndex()),
@@ -956,7 +949,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
 
     public void resetCursor() {
         drawBtn.setEnabled(true);
-        shell.setCursor(defaultCursor);
+        shell.setCursor(null);
     }
 
     public void dataReceived() {
@@ -1018,6 +1011,9 @@ public class CigVisTrendDlg extends CaveSWTDialog {
         PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
         PrinterData printerData = dialog.open();
 
+        Image tmpImage = null;
+        Image rotatedImage = null;
+
         if (printerData != null) {
             // Create the printer object
             Printer printer = new Printer(printerData);
@@ -1026,18 +1022,26 @@ public class CigVisTrendDlg extends CaveSWTDialog {
 
             if (printer.startPage()) {
                 Image image = trendCigVisCanvas.getCigVisTrendImage();
-                image = new Image(gc.getDevice(), image.getImageData()
+                tmpImage = new Image(gc.getDevice(), image.getImageData()
                         .scaledTo(printer.getBounds().height,
                                 printer.getBounds().width));
                 // rotate the image
-                image = ImageUtil.rotateImage(image);
-                gc.drawImage(image, 0, 0);
+                rotatedImage = ImageUtil.rotateImage(tmpImage);
+                gc.drawImage(rotatedImage, 0, 0);
                 printer.endPage();
             }
 
             gc.dispose();
             printer.endJob();
             printer.dispose();
+
+            if (tmpImage != null) {
+                tmpImage.dispose();
+            }
+
+            if (rotatedImage != null) {
+                rotatedImage.dispose();
+            }
         }
     }
 }

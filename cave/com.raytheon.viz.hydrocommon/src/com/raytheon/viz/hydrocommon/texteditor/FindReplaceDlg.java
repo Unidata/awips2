@@ -43,6 +43,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04 SEP 2008             lvenable    Initial creation
+ * 15 JUL 2013  2088       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -90,12 +91,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
     /**
      * Text Editor buffer with everything upper-case.
      */
-    private StringBuffer editorTextBufUpcase;
-
-    /**
-     * Number of characters.
-     */
-    private int characterCount = -9999;
+    private final StringBuilder editorTextBufUpcase;
 
     /**
      * Found word index.
@@ -111,12 +107,19 @@ public class FindReplaceDlg extends CaveSWTDialog {
      *            Text editor containing the text to be searched.
      */
     public FindReplaceDlg(Shell parent, StyledText textEditor) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Find and Replace");
 
         this.textEditor = textEditor;
+        this.editorTextBufUpcase = new StringBuilder(textEditor.getText()
+                .length());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -125,6 +128,13 @@ public class FindReplaceDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createSearchReplaceTextField();
@@ -232,7 +242,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -251,11 +261,8 @@ public class FindReplaceDlg extends CaveSWTDialog {
      * Check if there has been updates to the text editor.
      */
     private void checkForUpdates() {
-        if (characterCount != textEditor.getText().length()) {
-            characterCount = textEditor.getText().length();
-            editorTextBufUpcase = new StringBuffer(textEditor.getText()
-                    .toUpperCase());
-        }
+        editorTextBufUpcase.setLength(0);
+        editorTextBufUpcase.append(textEditor.getText().toUpperCase());
 
         if (caretPosition != textEditor.getCaretOffset()) {
             caretPosition = textEditor.getCaretOffset();
@@ -349,16 +356,8 @@ public class FindReplaceDlg extends CaveSWTDialog {
      * "Replace by" text field
      */
     private void replaceAll() {
-        while (1 == 1) {
-            if (findWhatText()) {
-                replaceText();
-            } else {
-                break;
-            }
+        while (findWhatText()) {
+            replaceText();
         }
-    }
-
-    public void bringToFront() {
-        shell.setActive();
     }
 }

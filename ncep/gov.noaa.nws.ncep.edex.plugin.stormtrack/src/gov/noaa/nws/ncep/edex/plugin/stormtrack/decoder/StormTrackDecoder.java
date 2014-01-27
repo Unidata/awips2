@@ -5,8 +5,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 import gov.noaa.nws.ncep.edex.plugin.stormtrack.util.StormTrackParser;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,61 +76,63 @@ public class StormTrackDecoder extends AbstractDecoder {
          * Check if there are more records
          */
         StormTrackRecord record = null;
-        List <StormTrackRecord> records =  new ArrayList <StormTrackRecord>();
+        List<StormTrackRecord> records = new ArrayList<StormTrackRecord>();
         StormTrackSeparator sep = StormTrackSeparator.separate(data, headers);
-        
+
         while (sep.hasNext()) {
-        messageData = sep.next();
-        String theMessage = new String(messageData);
+            messageData = sep.next();
+            String theMessage = new String(messageData);
 
-        try {
-        		Matcher stormTrackMatcher = stormTrackPattern.matcher(theMessage);
-
-            if (stormTrackMatcher.find()) {
-
-            } else {
-                statusHandler.warn("StormTrack:  Ignored invalid record:  "
-        					+ theMessage);
-            }
-        } catch (Exception e) {
-            statusHandler.error("StormTrack exception:  Unable to decode:  "
-                    + theMessage, e);
-        }
-
-        /*
-         * Process the StormTrack fields
-         */
-        	record = StormTrackParser.processFields(theMessage);
-
-        /*
-         * Check the StormTrack record object
-         */
-        if (record != null) {
             try {
-                record.setTraceId(traceId);
+                Matcher stormTrackMatcher = stormTrackPattern
+                        .matcher(theMessage);
 
-                /*
-                 * Set report type in record.
-                 */
-                if (theMessage.contains("FOF\n")
-                        || theMessage.contains("TCV\n")) {
-                    record.setReportType("ENSCYC");
+                if (stormTrackMatcher.find()) {
+
                 } else {
-                    record.setReportType("ATCF");
+                    statusHandler.warn("StormTrack:  Ignored invalid record:  "
+                            + theMessage);
                 }
-
-                record.constructDataURI();
-        			if ( record.getClat() != IDecoderConstantsN.FLOAT_MISSING &&
-        					record.getClon() != IDecoderConstantsN.FLOAT_MISSING ) {
-        				records.add(record);
-        			}
-
-            } catch (PluginException e) {
-                throw new DecoderException(
-                        "StormTrack WARNING:  Unable to construct dataURI--exception:  ",
-                        e);
+            } catch (Exception e) {
+                statusHandler.error(
+                        "StormTrack exception:  Unable to decode:  "
+                                + theMessage, e);
             }
-        }
+
+            /*
+             * Process the StormTrack fields
+             */
+            record = StormTrackParser.processFields(theMessage);
+
+            /*
+             * Check the StormTrack record object
+             */
+            if (record != null) {
+                try {
+                    record.setTraceId(traceId);
+
+                    /*
+                     * Set report type in record.
+                     */
+                    if (theMessage.contains("FOF\n")
+                            || theMessage.contains("TCV\n")) {
+                        record.setReportType("ENSCYC");
+                    } else {
+                        record.setReportType("ATCF");
+                    }
+
+                    record.constructDataURI();
+                    if ((record.getClat() != IDecoderConstantsN.FLOAT_MISSING)
+                            && (record.getClon() != IDecoderConstantsN.FLOAT_MISSING)) {
+                        records.add(record);
+                    }
+
+                } catch (PluginException e) {
+                    throw new DecoderException(
+                            "StormTrack WARNING:  Unable to construct dataURI--exception:  ",
+                            e);
+                }
+            }
         }
 
         /*
@@ -139,7 +141,7 @@ public class StormTrackDecoder extends AbstractDecoder {
         if (record == null) {
             return new PluginDataObject[0];
         } else {
-            return records.toArray (new PluginDataObject[records.size()]);
+            return records.toArray(new PluginDataObject[records.size()]);
         }
     }
 }

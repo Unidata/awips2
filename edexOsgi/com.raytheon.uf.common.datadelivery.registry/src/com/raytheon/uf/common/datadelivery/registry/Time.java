@@ -23,20 +23,15 @@ package com.raytheon.uf.common.datadelivery.registry;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
-import com.google.common.collect.Lists;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -56,6 +51,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
  * Jun 04, 2013  223        mpduff      Added interval field.
  * Jun 06, 2013 2038        djohnson    Remove throws ParseException.
+ * Sept 26, 2013 1797       dhladky     Separated Gridded fields from this class once and for all.
+ * Oct 10, 2013 1797        bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -63,90 +60,48 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
-@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Time implements ISerializableObject, Serializable {
+@XmlSeeAlso({ GriddedTime.class, PointTime.class})
+public abstract class Time implements Serializable {
 
     private static final long serialVersionUID = -7032078355732493125L;
-
-    /**
-     * Default Constructor.
-     */
-    public Time() {
-
-    }
-
-    /**
-     * Clone constructor.
-     * 
-     * @param the
-     *            {@link Time} to clone
-     */
-    public Time(Time toCopy) {
-        List<Integer> incomingCycleTimes = toCopy.getCycleTimes();
-        this.cycleTimes = (incomingCycleTimes == null) ? null
-                : new ArrayList<Integer>(incomingCycleTimes);
-        this.end = toCopy.end;
-        this.format = toCopy.format;
-        this.numTimes = toCopy.numTimes;
-        this.requestEnd = toCopy.requestEnd;
-        this.requestStart = toCopy.requestStart;
-        List<Integer> incomingSelectedTimeIndices = toCopy.selectedTimeIndices;
-        this.selectedTimeIndices = (incomingSelectedTimeIndices == null) ? null
-                : new ArrayList<Integer>(incomingSelectedTimeIndices);
-        this.start = toCopy.start;
-        this.step = toCopy.step;
-        this.stepUnit = toCopy.stepUnit;
-    }
-
+ 
     @XmlAttribute
     @DynamicSerializeElement
     protected int numTimes;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String start;
+    protected Date start;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String end;
-
-    @XmlAttribute
-    @DynamicSerializeElement
-    protected Double step;
-
-    @XmlAttribute
-    @DynamicSerializeElement
-    protected String stepUnit;
+    protected Date end;
 
     @XmlAttribute
     @DynamicSerializeElement
     protected String format;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String requestStart;
+    protected Date requestStart;
 
-    @XmlAttribute
+    @XmlElement(type = Date.class)
     @DynamicSerializeElement
-    protected String requestEnd;
+    protected Date requestEnd;
 
-    @XmlElements({ @XmlElement(name = "selectedTimeIndices", type = Integer.class) })
-    @DynamicSerializeElement
-    protected List<Integer> selectedTimeIndices = new ArrayList<Integer>();
+    public Time() {
+    }
 
-    @XmlElements({ @XmlElement(name = "cycleTimes", type = Integer.class) })
-    @DynamicSerializeElement
-    protected List<Integer> cycleTimes = new ArrayList<Integer>();
-
-    protected Date startDate = null;
-
-    protected Date requestEndDate = null;
-
-    protected Date endDate = null;
-
-    protected Date requestStartDate = null;
+    public Time(Time toCopy) {
+        this.numTimes = toCopy.numTimes;
+        this.start = toCopy.start;
+        this.end = toCopy.end;
+        this.format = toCopy.format;
+        this.requestEnd = toCopy.requestEnd;
+        this.requestStart = toCopy.requestStart;
+    }
 
     public int getNumTimes() {
         return numTimes;
@@ -156,351 +111,57 @@ public class Time implements ISerializableObject, Serializable {
         this.numTimes = numTimes;
     }
 
-    public String getStart() {
-        return start;
-    }
-
     /**
      * Get the start date
      * 
-     * @return
-     * @throws ParseException
+     * @return start
      */
-    public Date getStartDate() throws ParseException {
-
-        if (startDate == null) {
-            if (getStart() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.startDate = dateFormat.parse(getStart());
-            }
-        }
-
-        return startDate;
-    }
-
-    public void setStart(String start) {
-        this.start = start;
+    public Date getStart() {
+        return start;
     }
 
     /**
      * Set the start date
      * 
-     * @return
-     * @throws ParseException
      */
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-        if (startDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setStart(dateFormat.format(startDate));
-        }
+    public void setStart(Date startDate) {
+        this.start = startDate;
     }
 
-    public String getEnd() {
-        return end;
+    /**
+     * Set the start date
+     * 
+     * @throws ParseException
+     */
+    public void setStartDate(String startDate) throws ParseException {
+        this.start = parseDate(startDate);
     }
 
     /**
      * Get the end date
      * 
-     * @return
-     * @throws ParseException
+     * @return end
      */
-    public Date getEndDate() throws ParseException {
-        if (endDate == null) {
-            if (getEnd() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.endDate = dateFormat.parse(getEnd());
-            }
-        }
-
-        return endDate;
-    }
-
-    public void setEnd(String end) {
-        this.end = end;
+    public Date getEnd() {
+        return this.end;
     }
 
     /**
      * Set the end date
      * 
      * @return
+     */
+    public void setEnd(Date endDate) {
+        this.end = endDate;
+    }
+
+    /**
+     * Set the end date
+     * 
      * @throws ParseException
      */
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-        if (endDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setEnd(dateFormat.format(endDate));
-        }
-    }
-
-    public Double getStep() {
-        return step;
-    }
-
-    public void setStep(Double step) {
-        this.step = step;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    /**
-     * Get the cycle times.
-     * 
-     * @return List of cycle times
-     */
-    public List<Integer> getCycleTimes() {
-        return this.cycleTimes;
-    }
-
-    /**
-     * Set the cycle times.
-     * 
-     * @param cycleTimes
-     *            ArrayList of cycle times.
-     */
-    public void setCycleTimes(List<Integer> cycleTimes) {
-        this.cycleTimes = cycleTimes;
-    }
-
-    /**
-     * Add a cycle time.
-     * 
-     * @param cycleTime
-     *            The cycle time to add
-     */
-    public void addCycleTime(int cycleTime) {
-        if (cycleTimes == null) {
-            cycleTimes = Lists.newArrayList();
-        }
-
-        this.cycleTimes.add(cycleTime);
-    }
-
-    /**
-     * Get me the date of the time requested
-     * 
-     * @param timeInt
-     * @return
-     */
-    public Date getTimeAsDate(int timeInt) {
-
-        try {
-            long unitStepFactor = getUnitStepFactor();
-
-            for (int i = 0; i < getNumTimes(); i++) {
-                if (timeInt == i) {
-
-                    long time = 0l;
-                    if (i == 0) {
-                        time = getStartDate().getTime();
-                    } else {
-                        time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                    }
-                    return new Date(time);
-                }
-            }
-        } catch (ParseException pe) {
-            System.err.println("Can't parse the requested time: "
-                    + pe.getMessage());
-        }
-        return null;
-    }
-
-    /**
-     * Sets the request start as a date
-     * 
-     * @param timeInt
-     */
-    public void setRequestStartTimeAsInt(Integer timeInt) {
-        try {
-            if (getStartDate() != null) {
-
-                long unitStepFactor = getUnitStepFactor();
-
-                for (int i = 0; i < getNumTimes(); i++) {
-                    // System.out.println("StartDate: "+getStartDate());
-                    if (timeInt == i) {
-
-                        long time = 0l;
-                        if (i == 0) {
-                            time = getStartDate().getTime();
-                        } else {
-                            time = (long) (getStartDate().getTime() + (unitStepFactor
-                                    * getStep() * i));
-                        }
-                        Date date = new Date(time);
-                        setRequestStartAsDate(date);
-                        break;
-                    }
-
-                }
-            }
-
-        } catch (ParseException pe) {
-            System.err.println("Can't parse the requested time: "
-                    + pe.getMessage());
-        }
-    }
-
-    /**
-     * Get the start time as an int
-     * 
-     * @return
-     */
-    public int getRequestStartTimeAsInt() {
-
-        int timeInt = 0;
-
-        try {
-            if (getRequestStartAsDate() != null && getStartDate() != null) {
-
-                long unitStepFactor = getUnitStepFactor();
-
-                for (int i = 0; i < getNumTimes(); i++) {
-                    // System.out.println("StartDate: "+getStartDate());
-                    long time = 0l;
-                    if (i == 0) {
-                        time = getStartDate().getTime();
-                    } else {
-                        time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                    }
-                    Date stepDate = new Date(time);
-
-                    if (stepDate.equals(getRequestStartAsDate())) {
-                        timeInt = i;
-                        break;
-                    }
-                }
-            }
-
-        } catch (ParseException pe) {
-            System.err.println("Can't parse the requested time: "
-                    + pe.getMessage());
-        }
-        return timeInt;
-
-    }
-
-    /**
-     * Set the end time with a know integer in the list
-     * 
-     * @param timeInt
-     */
-    public void setRequestEndTimeAsInt(Integer timeInt) {
-        try {
-            if (getEndDate() != null) {
-
-                long unitStepFactor = getUnitStepFactor();
-
-                for (int i = getNumTimes() - 1; i > 0; i--) {
-                    // System.out.println("EndDate: " + getEndDate());
-
-                    if (i == timeInt) {
-
-                        long time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                        Date date = new Date(time);
-                        setRequestEndAsDate(date);
-                        break;
-                    }
-                }
-            }
-        } catch (ParseException pe) {
-            System.err.println("Can't parse the requested time: "
-                    + pe.getMessage());
-        }
-
-    }
-
-    /**
-     * Get the end time as an int
-     * 
-     * @return
-     */
-    public int getRequestEndTimeAsInt() {
-
-        int timeInt = 0;
-
-        try {
-            if (getRequestEndAsDate() != null && getEndDate() != null) {
-
-                long unitStepFactor = getUnitStepFactor();
-
-                for (int i = 0; i < getNumTimes(); i++) {
-                    // System.out.println("StartDate: "+getStartDate());
-                    long time = 0l;
-                    if (i == getNumTimes() - 1) {
-                        time = getEndDate().getTime();
-                    } else {
-                        time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                    }
-                    Date stepDate = new Date(time);
-
-                    if (stepDate.equals(getRequestEndAsDate())) {
-                        timeInt = i;
-                        break;
-                    }
-                }
-            }
-
-        } catch (ParseException pe) {
-            System.err.println("Can't parse the requested time: "
-                    + pe.getMessage());
-        }
-        return timeInt;
-
-    }
-
-    public String getStepUnit() {
-        return stepUnit;
-    }
-
-    public void setStepUnit(String stepUnit) {
-        this.stepUnit = stepUnit;
-    }
-
-    /**
-     * get the primitive
-     * 
-     * @return
-     */
-    private long getUnitStepFactor() {
-
-        long millis = 0l;
-
-        if (getStepUnit().equals(STEP_UNIT.SECOND.getDurationUnit())) {
-
-            return 1000;
-
-        } else if (getStepUnit().equals(STEP_UNIT.MINUTE.getDurationUnit())) {
-            millis = 1000 * 60;
-
-        } else if (getStepUnit().equals(STEP_UNIT.HOUR.getDurationUnit())) {
-            millis = 1000 * 60 * 60;
-
-        } else if (getStepUnit().equals(STEP_UNIT.DAY.getDurationUnit())) {
-            millis = 1000 * 60 * 60 * 24;
-
-        } else if (getStepUnit().equals(STEP_UNIT.WEEK.getDurationUnit())) {
-            millis = 1000 * 60 * 60 * 24 * 7;
-
-        }
-        return millis;
+    public void setEndDate(String endDate) throws ParseException {
+        this.end = parseDate(endDate);
     }
 
     /**
@@ -555,177 +216,81 @@ public class Time implements ISerializableObject, Serializable {
     }
 
     /**
-     * Finds forecast step in seconds
+     * Set the end date
      * 
      * @return
      */
-    public int findForecastStepUnit() {
-
-        if (getStepUnit().equals("hour")) {
-            return (int) (getStep() * 60 * 60);
-        } else if (getStepUnit().equals("minute")) {
-            return (int) (getStep() * 60);
-        } else if (getStepUnit().equals("month")) {
-            return (int) (getStep() * 30 * 24 * 60);
-        } else if (getStepUnit().equals("week")) {
-            return (int) (getStep() * 7 * 24 * 60);
-        } else if (getStepUnit().equals("second")) {
-            return getStep().intValue();
-        } else if (getStepUnit().equals("day")) {
-            return (int) (getStep() * 24 * 60 * 60);
-        }
-
-        return -99999;
+    public void setRequestStart(Date requestStartDate) {
+        this.requestStart = requestStartDate;
     }
 
-    public String getRequestStart() {
+    /**
+     * Get the request start date
+     * 
+     * @return
+     */
+    public Date getRequestStart() {
         return requestStart;
     }
 
-    public void setRequestStart(String requestStart) {
-        this.requestStart = requestStart;
+    /**
+     * Set the request start date
+     * 
+     * @throws ParseException
+     */
+    public void setRequestStartDate(String requestStartDate)
+            throws ParseException {
+        this.requestStart = parseDate(requestStartDate);
     }
 
-    public String getRequestEnd() {
+    /**
+     * Set the request end date
+     * 
+     * @return
+     */
+    public void setRequestEnd(Date requestEndDate) {
+        this.requestEnd = requestEndDate;
+    }
+
+    /**
+     * Set the request end date
+     * 
+     * @throws ParseException
+     */
+    public void setRequestEndDate(String requestEndDate) throws ParseException {
+        this.requestEnd = parseDate(requestEndDate);
+    }
+
+    /**
+     * Get the request end date
+     * 
+     * @return
+     */
+    public Date getRequestEnd() {
         return requestEnd;
     }
 
-    public void setRequestEnd(String requestEnd) {
-        this.requestEnd = requestEnd;
-    };
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
 
     /**
-     * Set the end date
+     * parse the date string using format.
      * 
-     * @return
      * @throws ParseException
      */
-    public void setRequestStartAsDate(Date requestStartDate) {
-        this.requestStartDate = requestStartDate;
-        if (requestStartDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
+    private Date parseDate(String date) throws ParseException {
+        if (this.format != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(this.format);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setRequestStart(dateFormat.format(requestStartDate));
+            return dateFormat.parse(date);
+        } else {
+            throw new ParseException("No Date Format defined.", 0);
         }
     }
 
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    public Date getRequestStartAsDate() throws ParseException {
-        if (requestStartDate == null) {
-            if (getRequestStart() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.requestStartDate = dateFormat.parse(getRequestStart());
-            }
-        }
-
-        return requestStartDate;
-    }
-
-    /**
-     * Set the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    public void setRequestEndAsDate(Date requestEndDate) {
-        this.requestEndDate = requestEndDate;
-        if (requestEndDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setRequestEnd(dateFormat.format(requestEndDate));
-        }
-    }
-
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    public Date getRequestEndAsDate() throws ParseException {
-        if (requestEndDate == null) {
-            if (getRequestEnd() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.requestEndDate = dateFormat.parse(getRequestEnd());
-            }
-        }
-
-        return requestEndDate;
-    }
-
-    /**
-     * gets the FCST hours
-     * 
-     * @return
-     */
-    public List<String> getFcstHours() {
-        List<String> hours = new ArrayList<String>();
-
-        int hour = 0;
-        for (int i = 0; i < numTimes; i++) {
-            if (i == 0) {
-                hours.add(String.valueOf(hour));
-            } else {
-                hour += getStep();
-                hours.add(String.valueOf(hour));
-            }
-        }
-
-        return hours;
-    }
-
-    /**
-     * @return the selectedTimeIndices
-     */
-    public List<Integer> getSelectedTimeIndices() {
-        return selectedTimeIndices;
-    }
-
-    /**
-     * @param selectedTimeIndices
-     *            the selectedTimeIndices to set
-     */
-    public void setSelectedTimeIndices(List<Integer> selectedTimeIndices) {
-        this.selectedTimeIndices = selectedTimeIndices;
-    }
-
-    /**
-     * Gets the time breakups needs to split retrievals for a subscription and
-     * limit size of retrievals
-     * 
-     * @return
-     */
-    public List<List<Integer>> getTimeSequences(int sfactor) {
-
-        List<List<Integer>> sequences = new ArrayList<List<Integer>>();
-        List<Integer> al = new ArrayList<Integer>();
-
-        if (selectedTimeIndices.size() > 0) {
-            int previous = selectedTimeIndices.get(0);
-            al.add(previous);
-            for (int i = 1; i < selectedTimeIndices.size(); i++) {
-                int next = selectedTimeIndices.get(i);
-                if (next - previous == 1 && al.size() <= sfactor) {
-                    al.add(next);
-                    previous = next;
-                } else {
-                    sequences.add(al);
-                    al = new ArrayList<Integer>();
-                    al.add(next);
-                    previous = next;
-                }
-            }
-
-            sequences.add(al);
-        }
-
-        return sequences;
-    }
 }

@@ -24,7 +24,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryException;
@@ -76,6 +75,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Oct 05, 2012 1195       djohnson    Don't persist slots for null values.
  * 4/9/2013     1802       bphillip    Pulled constants out into existing constants package that was moved into common
  * Jun 03, 2013 2038       djohnson    Allow setting the same encoder strategy.
+ * Jun 24, 2013 2106       djohnson    Remove encoder strategy from instance variables.
  * 
  * </pre>
  * 
@@ -134,12 +134,6 @@ public final class RegistryUtil {
     }
 
     /**
-     * Defines the encoding strategy to use.
-     */
-    @VisibleForTesting
-    static IRegistryEncoder ENCODER_STRATEGY;
-
-    /**
      * Creates a slot of the given type.
      * 
      * @param slotType
@@ -160,61 +154,6 @@ public final class RegistryUtil {
                     + slotType);
         }
         return converter.getSlots(slotName, slotValue).get(0);
-    }
-
-    /**
-     * Sets the encoder strategy to use. This method should only be called once
-     * via Spring initialization.
-     * 
-     * @param encoder
-     *            the encoder strategy
-     * @throws IllegalStateException
-     *             if an attempt is made to change the encoding strategy once it
-     *             has been set
-     */
-    public static void setEncoderStrategy(IRegistryEncoder encoder) {
-        if (ENCODER_STRATEGY != null && !ENCODER_STRATEGY.equals(encoder)) {
-            throw new IllegalStateException(
-                    "The encoder strategy is already set, you cannot change it on a running system!");
-        }
-        ENCODER_STRATEGY = encoder;
-    }
-
-    /**
-     * Convenience method for decoding the stored Object in the registry.
-     * 
-     * @param registryObjectType
-     *            The response from the registry that contains all of the slot
-     *            values associated with the registry object. The Thrift
-     *            serialized, base64 encoded Object is stored in a slot called
-     *            "content". Find it, decode it, unmarshal it back into and
-     *            Object and return it.
-     * 
-     * @return The Object stored in the registry response.
-     * 
-     * @throws SerializationException
-     *             If the stored Object cannot be unmarshalled.
-     */
-    public static Object decodeObject(RegistryObjectType registryObjectType)
-            throws SerializationException {
-        return ENCODER_STRATEGY.decodeObject(registryObjectType);
-    }
-
-    /**
-     * Convenience method for encoding an Object into a slot for storage in the
-     * registry.
-     * 
-     * @param objectToEncode
-     *            Encodes an object for storage in the registry
-     * 
-     * @return The Object stored in the registry response.
-     * 
-     * @throws SerializationException
-     *             If the stored Object cannot be unmarshalled.
-     */
-    public static SlotType encodeObject(Object objectToEncode)
-            throws SerializationException {
-        return ENCODER_STRATEGY.encodeObject(objectToEncode);
     }
 
     /**
@@ -366,8 +305,9 @@ public final class RegistryUtil {
      * @throws ReflectionException
      *             on error reflectively accessing the object
      */
-    public static RegistryObjectType newRegistryObject(Object object)
-            throws SerializationException, ReflectionException {
+    public static RegistryObjectType newRegistryObject(Object object,
+            IRegistryEncoder encoderStrategy) throws SerializationException,
+            ReflectionException {
 
         RegistryObjectType registryObject = new RegistryObjectType();
         String registryObjectType = null;
@@ -412,7 +352,7 @@ public final class RegistryUtil {
                 if (ro.storeContent()) {
                     // Store the Base64 encoded Object in a slot called
                     // "content"
-                    slots.add(RegistryUtil.encodeObject(object));
+                    slots.add(encoderStrategy.encodeObject(object));
                 }
                 // Set the ObjectType so it can be distinguished from other
                 // Objects
@@ -490,7 +430,8 @@ public final class RegistryUtil {
     }
 
     public static Map<String, RegistryObjectType> getAssociatedObjects(
-            Object object) throws ReflectionException, SerializationException {
+            Object object, IRegistryEncoder encoderStrategy)
+            throws ReflectionException, SerializationException {
 
         Map<String, RegistryObjectType> ids = new HashMap<String, RegistryObjectType>();
 
@@ -516,7 +457,8 @@ public final class RegistryUtil {
                     List<Object> objects = mapper.getRegistryObjects(v);
 
                     for (Object obj : objects) {
-                        RegistryObjectType o = newRegistryObject(obj);
+                        RegistryObjectType o = newRegistryObject(obj,
+                                encoderStrategy);
                         ids.put(o.getId(), o);
                     }
                 }

@@ -28,7 +28,8 @@
 -Dcom.sun.management.jmxremote.authenticate=false
 -Dcom.sun.management.jmxremote.ssl=false
 -XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;
--Dlog4j.configuration=log4j-viz-core.xml
+-Dlogback.configurationFile=logback-viz-core.xml
+-Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200</vmArgs>
       <vmArgsLin>-Xmx1280M</vmArgsLin>
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>

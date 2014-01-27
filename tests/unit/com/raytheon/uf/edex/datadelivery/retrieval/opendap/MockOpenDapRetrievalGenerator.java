@@ -25,7 +25,9 @@ import java.util.List;
 
 import org.junit.Ignore;
 
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverageFixture;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
@@ -65,7 +67,7 @@ public class MockOpenDapRetrievalGenerator extends OpenDAPRetrievalGenerator {
      */
     @Override
     public List<Retrieval> buildRetrieval(SubscriptionBundle bundle) {
-        final Subscription subscription = bundle.getSubscription();
+        final Subscription<GriddedTime, GriddedCoverage> subscription = bundle.getSubscription();
 
         Retrieval retrieval = new Retrieval();
         retrieval.setConnection(bundle.getConnection());
@@ -92,7 +94,7 @@ public class MockOpenDapRetrievalGenerator extends OpenDAPRetrievalGenerator {
     private RetrievalAttribute getAttribute(SubscriptionBundle bundle) {
         RetrievalAttribute attribute = new RetrievalAttribute();
         attribute.setCoverage(GriddedCoverageFixture.INSTANCE.get());
-        final Subscription subscription = bundle.getSubscription();
+        final Subscription<GriddedTime, GriddedCoverage> subscription = bundle.getSubscription();
         attribute.setSubName(subscription.getName());
         attribute.setProvider(bundle.getProvider().getName());
         attribute.setParameter(subscription.getParameter().get(0));

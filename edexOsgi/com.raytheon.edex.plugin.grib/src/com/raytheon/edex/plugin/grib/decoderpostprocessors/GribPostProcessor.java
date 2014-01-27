@@ -26,12 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -43,10 +46,13 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 8/30/10      5875        bphillip    Initial Creation
- * 9/20/2012    1206        jkorman     Added logging of postProcessedModels load.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2010  5875     bphillip    Initial Creation
+ * Sep 20, 2012  1206     jkorman     Added logging of postProcessedModels
+ *                                    load.
+ * Oct 15, 2013  2473     bsteffen    Rewrite deprecated and unused code.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -56,13 +62,13 @@ public class GribPostProcessor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribPostProcessor.class);
 
+    private static final String CLASS_PREFIX = "com.raytheon.edex.plugin.grib.decoderpostprocessors.";
+
     /** The singleton instance */
     private static GribPostProcessor instance;
 
     /** The map containing the currently registered grib post processors */
-    private static Map<String, List<IDecoderPostProcessor>> processorMap = new HashMap<String, List<IDecoderPostProcessor>>();
-
-    private static final String CLASS_PREFIX = "com.raytheon.edex.plugin.grib.decoderpostprocessors.";
+    private final Map<String, List<IDecoderPostProcessor>> processorMap = new HashMap<String, List<IDecoderPostProcessor>>();
 
     /**
      * Gets the singleton instance of GribPostProcessor
@@ -80,11 +86,11 @@ public class GribPostProcessor {
      * Creates a new GribPostProcessor instance
      */
     private GribPostProcessor() {
-        String processorFile = PathManagerFactory
+        LocalizationFile processorFile = PathManagerFactory
                 .getPathManager()
-                .getStaticFile(
+                .getStaticLocalizationFile(
                         "/grib/postProcessModels/postProcessedModels.xml")
-                .getPath();
+;
 
         try {
             // Get the list of available model names
@@ -92,8 +98,9 @@ public class GribPostProcessor {
                     .getModelNames();
 
             // Unmarshal the post processed model file
-            PostProcessedModelSet ppModelSet = (PostProcessedModelSet) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(processorFile);
+            PostProcessedModelSet ppModelSet = processorFile.jaxbUnmarshal(
+                    PostProcessedModelSet.class, new JAXBManager(
+                            PostProcessedModelSet.class));
 
 			statusHandler.info(String.format("Using postProcessorFile [%s]", processorFile));
 			
@@ -152,7 +159,11 @@ public class GribPostProcessor {
                     }
                 }
             }
-        } catch (SerializationException e) {
+        } catch (LocalizationException e) {
+            statusHandler.fatal(
+                    "Error unmarshalling post processed model list: "
+                            + processorFile, e);
+        } catch (JAXBException e) {
             statusHandler.fatal(
                     "Error unmarshalling post processed model list: "
                             + processorFile, e);
@@ -212,24 +223,4 @@ public class GribPostProcessor {
         }
     }
 
-    private IDecoderPostProcessor getPostProcessor(String modelName,
-            String processorClassName) throws GribException {
-
-        for (List<IDecoderPostProcessor> processors : processorMap.values()) {
-            for (IDecoderPostProcessor processor : processors) {
-                if (processor.getClass().getCanonicalName()
-                        .equals(processorClassName)) {
-                    return processor;
-                }
-            }
-        }
-        try {
-            return (IDecoderPostProcessor) Class.forName(processorClassName)
-                    .newInstance();
-        } catch (Exception e) {
-            throw new GribException(
-                    "Error instantiating decoder post processor for "
-                            + modelName + " model.", e);
-        }
-    }
 }

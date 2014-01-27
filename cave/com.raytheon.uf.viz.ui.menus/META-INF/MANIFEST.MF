@@ -5,16 +5,15 @@ Bundle-SymbolicName: com.raytheon.uf.viz.ui.menus;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.uf.viz.ui.menus.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.volumebrowser
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.viz.volumebrowser
 Eclipse-BuddyPolicy: registered
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.expressions,
  com.raytheon.viz.ui,
- org.geotools,
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.viz.core,
- com.raytheon.uf.common.menus;bundle-version="1.0.0",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
+ com.raytheon.uf.common.menus;bundle-version="1.0.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.localization,

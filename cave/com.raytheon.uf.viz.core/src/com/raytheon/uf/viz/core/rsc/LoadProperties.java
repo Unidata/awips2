@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.comm.PerspectiveSpecificLoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
@@ -39,10 +38,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Aug 15, 2007             chammack    Initial Creation.
- *    Feb 26, 2009	     2032  jsanchez	   Added a loadWithoutData.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 15, 2007           chammack    Initial Creation.
+ * Feb 26, 2009	 2032     jsanchez	  Added a loadWithoutData.
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -51,7 +51,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  */
 @XmlType(name = "loadProperties")
 @XmlAccessorType(XmlAccessType.NONE)
-public class LoadProperties implements ISerializableObject {
+public class LoadProperties {
 
     private Capabilities capabilities;
 

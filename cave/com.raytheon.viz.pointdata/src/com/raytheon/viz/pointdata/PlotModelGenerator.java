@@ -22,7 +22,6 @@ package com.raytheon.viz.pointdata;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,18 +33,18 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * A Eclipse Job thread that will listen for new stations on a queue and request
@@ -177,11 +176,9 @@ public class PlotModelGenerator extends Job {
 
             if (stationQuery.size() > 0) {
                 try {
-                    String script = createActionASCII(stationQuery);
-                    Object[] obs = asciiConnection.connect(script, null, 60000);
-
-                    for (Object plugindo : obs) {
-                        PluginDataObject ob = (PluginDataObject) plugindo;
+                    PluginDataObject[] obs = requestPluginDataObjects(stationQuery
+                            .toArray(new String[0]));
+                    for (PluginDataObject ob : obs) {
                         ImageContainer ic = icaoImageMap.get(ob.getDataURI());
                         if (ic != null) {
                             ic.record = ob;
@@ -368,28 +365,19 @@ public class PlotModelGenerator extends Job {
         }
     }
 
-    private String createActionASCII(ArrayList<String> stationQuery)
+    private PluginDataObject[] requestPluginDataObjects(String[] uris)
             throws VizException {
-
-        LayerProperty prop = new LayerProperty();
-
-        HashMap<String, RequestConstraint> params = new HashMap<String, RequestConstraint>();
-
-        RequestConstraint pluginName = new RequestConstraint();
-        pluginName.setConstraintValue(this.plugin);
-        params.put("pluginName", pluginName);
-
+        DbQueryRequest request = new DbQueryRequest();
+        request.addConstraint("pluginName", new RequestConstraint(plugin));
         RequestConstraint ids = new RequestConstraint();
         ids.setConstraintType(ConstraintType.IN);
-        ids.setConstraintValueList(stationQuery.toArray(new String[stationQuery
-                .size()]));
-        params.put("dataURI", ids);
+        ids.setConstraintValueList(uris);
+        request.addConstraint("dataURI", ids);
+        request.setLimit(uris.length);
 
-        prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-        prop.setEntryQueryParameters(params, false);
-        prop.setNumberOfImages(stationQuery.size());
-
-        return ScriptCreator.createScript(prop, "plot");
+        DbQueryResponse response = (DbQueryResponse) ThriftClient
+                .sendRequest(request);
+        return response.getEntityObjects(PluginDataObject.class);
     }
 
     public void setPlotModelLineStyle(LineStyle lineStyle) {

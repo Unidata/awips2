@@ -25,7 +25,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 
@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsF
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013 1543       djohnson     Initial creation
+ * Jul 09, 2013 2106       djohnson     Dependency inject registry handlers.
  * 
  * </pre>
  * 
@@ -49,25 +50,35 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsF
 public class FindActiveSubscriptionsForRoute implements
         IFindSubscriptionsForScheduling {
 
+    private final ISubscriptionHandler subscriptionHandler;
+
     private final Network[] routes;
+
 
     /**
      * Find active subscriptions for a specific route.
      * 
+     * @param subscriptionHandler
+     *            the subscription handler
      * @param route
      *            the route
      */
-    public FindActiveSubscriptionsForRoute(Network route) {
-        this(new Network[] { route });
+    public FindActiveSubscriptionsForRoute(
+            ISubscriptionHandler subscriptionHandler, Network route) {
+        this(subscriptionHandler, new Network[] { route });
     }
 
     /**
      * Find active subscriptions for specific routes.
      * 
+     * @param subscriptionHandler
+     *            the subscription handler
      * @param routes
      *            the routes
      */
-    public FindActiveSubscriptionsForRoute(Network... routes) {
+    public FindActiveSubscriptionsForRoute(
+            ISubscriptionHandler subscriptionHandler, Network... routes) {
+        this.subscriptionHandler = subscriptionHandler;
         this.routes = routes;
     }
 
@@ -77,8 +88,8 @@ public class FindActiveSubscriptionsForRoute implements
     @Override
     public Set<Subscription> findSubscriptionsToSchedule()
             throws RegistryHandlerException {
-        final List<Subscription> activeForRoutes = DataDeliveryHandlers
-                .getSubscriptionHandler().getActiveForRoutes(routes);
+        final List<Subscription> activeForRoutes = subscriptionHandler
+                .getActiveForRoutes(routes);
         return Sets.newHashSet(activeForRoutes);
     }
 
